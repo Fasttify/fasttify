@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-masterdop-dev-cdfa4-authRole",
+      "UnauthRoleArn": "arn:aws:iam::626635400208:role/amplify-masterdop-dev-cdfa4-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::626635400208:role/amplify-masterdop-dev-cdfa4-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-masterdop-dev-cdfa4-deployment",
+      "UnauthRoleName": "amplify-masterdop-dev-cdfa4-unauthRole",
+      "StackName": "amplify-masterdop-dev-cdfa4",
+      "StackId": "arn:aws:cloudformation:us-east-2:626635400208:stack/amplify-masterdop-dev-cdfa4/2c888630-d05f-11ef-a13d-0656d44d740b",
+      "AmplifyAppId": "d2rgotb2za3rxl"
+    }
+  }
+}
