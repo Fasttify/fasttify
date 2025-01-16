@@ -112,7 +112,7 @@ export function BentoDemo() {
       <div className="flex items-center justify-center px-4 py-1">
         {" "}
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-black mb-4 leading-tight">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-center mb-8 md:mb-16">
             {" "}
             Integraciones & Características
           </h1>

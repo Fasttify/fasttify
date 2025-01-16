@@ -25,7 +25,7 @@ export function Footer() {
               <br />
               with personal AI manager.
             </h2>
-            <p className="text-gray-600">MasterDrop, 2023.</p>
+            <p className="text-gray-600">Fasttify, 2025.</p>
           </div>
 
           {/* Right Section - Navigation */}
@@ -138,7 +138,7 @@ export function Footer() {
         {/* Footer Bottom */}
         <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-600 text-sm mb-4 md:mb-0">
-            {getYear(new Date())} © MasterDrop. All rights reserved.
+            {getYear(new Date())} © Fasttify. All rights reserved.
           </p>
           <div className="flex space-x-4">
             <Link href="#" className="text-gray-600 hover:text-gray-900">

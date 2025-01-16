@@ -152,72 +152,74 @@ export function PurchaseHistoryDemo({ className }: { className?: string }) {
   ];
 
   return (
-    <div className={cn("w-full max-w-7xl mx-auto p-6 space-y-6", className)}>
-      <div className="max-w-3xl mx-auto text-center">
-        <h1 className="text-3xl font-bold text-center mb-2">
-          Historial de Compras
-        </h1>
-        <p className=" text-gray-900 text-lg md:text-xl leading-relaxed">
-          Con nuestras{" "}
-          <a className="text-[#58A6FF] hover:underline">
-            funcionalidades avanzadas
-          </a>{" "}
-          Visualiza en tiempo real todas las compras registradas en nuestra
-          plataforma. Cada nueva compra se destaca con una animación y aparece
-          automáticamente al inicio de la lista.
-        </p>
-      </div>
+    <>
+      <div className={cn("w-full max-w-7xl mx-auto p-6 space-y-6", className)}>
+        <div className="max-w-3xl mx-auto text-center">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-center mb-8 md:mb-16">
+            Historial de Compras
+          </h1>
+          <p className=" text-gray-900 text-lg md:text-xl leading-relaxed">
+            Con nuestras{" "}
+            <a className="text-[#58A6FF] hover:underline">
+              funcionalidades avanzadas
+            </a>{" "}
+            Visualiza en tiempo real todas las compras registradas en nuestra
+            plataforma. Cada nueva compra se destaca con una animación y aparece
+            automáticamente al inicio de la lista.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Resumen de Ventas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">${totalSales.toFixed(2)}</p>
-            <p className="text-sm text-gray-500">Total de ventas</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Valor Promedio de Orden</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
-              ${averageOrderValue.toFixed(2)}
-            </p>
-            <p className="text-sm text-gray-500">Por compra</p>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Resumen de Ventas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">${totalSales.toFixed(2)}</p>
+              <p className="text-sm text-gray-500">Total de ventas</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Valor Promedio de Orden</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                ${averageOrderValue.toFixed(2)}
+              </p>
+              <p className="text-sm text-gray-500">Por compra</p>
+            </CardContent>
+          </Card>
+        </div>
 
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Compras Recientes</h2>
-        <Select onValueChange={setSelectedCategory} defaultValue="all">
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Seleccionar categoría" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category === "all" ? "Todas las categorías" : category}
-              </SelectItem>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Compras Recientes</h2>
+          <Select onValueChange={setSelectedCategory} defaultValue="all">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Seleccionar categoría" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category === "all" ? "Todas las categorías" : category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div
+          className={cn(
+            "relative flex h-[600px] w-full flex-col overflow-hidden rounded-lg border bg-background shadow-xl"
+          )}
+        >
+          <AnimatedList className="p-4 space-y-4">
+            {filteredPurchases.map((purchase, idx) => (
+              <PurchaseItem {...purchase} key={idx} />
             ))}
-          </SelectContent>
-        </Select>
+          </AnimatedList>
+        </div>
       </div>
-
-      <div
-        className={cn(
-          "relative flex h-[600px] w-full flex-col overflow-hidden rounded-lg border bg-background shadow-xl"
-        )}
-      >
-        <AnimatedList className="p-4 space-y-4">
-          {filteredPurchases.map((purchase, idx) => (
-            <PurchaseItem {...purchase} key={idx} />
-          ))}
-        </AnimatedList>
-      </div>
-    </div>
+    </>
   );
 }

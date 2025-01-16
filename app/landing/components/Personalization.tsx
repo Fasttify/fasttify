@@ -29,7 +29,7 @@ const themes: Record<
     cardClass: "bg-white border border-gray-200 shadow-sm",
     buttonClass: "bg-blue-600 hover:bg-blue-700 text-white shadow-sm",
     textClass: "text-gray-900",
-    image: "/imgs/tenis.webp",
+    image: "/imgs/landing/tenis.webp",
     layout: {
       image: "col-span-2 row-span-3 md:col-span-2 md:row-span-3",
       title: "col-span-2 md:col-span-3 md:col-start-3 row-start-1",
@@ -44,7 +44,7 @@ const themes: Record<
     buttonClass:
       "bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white shadow-md",
     textClass: "text-gray-800",
-    image: "/imgs/tacones.webp",
+    image: "/imgs/landing/tacones.webp",
     layout: {
       image: "col-span-4 md:col-span-2 md:col-start-4 row-span-3",
       title: "col-span-4 md:col-span-3 row-start-3 md:row-start-1",
@@ -58,7 +58,7 @@ const themes: Record<
       "bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-xl",
     buttonClass: "bg-white hover:bg-gray-100 text-gray-900 shadow-sm",
     textClass: "text-white",
-    image: "/imgs/traje.webp",
+    image: "/imgs/landing/traje.webp",
     layout: {
       image: "col-span-4 md:col-span-2 md:col-start-4 row-span-3",
       title: "col-span-4 md:col-span-3 row-start-3 md:row-start-1",
@@ -73,7 +73,7 @@ const themes: Record<
     buttonClass:
       "bg-black hover:bg-gray-900 text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
     textClass: "text-black font-mono",
-    image: "/imgs/tenis-verdes.webp",
+    image: "/imgs/landing/tenis-verdes.webp",
     layout: {
       image: "col-span-4 md:col-span-3 row-span-3",
       title:
@@ -124,9 +124,9 @@ export function Personalization() {
           {/* Left side - Platform information */}
           <div className="space-y-6 md:space-y-8">
             <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-center mb-8 md:mb-16">
                 Personalización sin límites
-              </h2>
+              </h1>
               <p className="text-base md:text-lg text-gray-600">
                 En nuestra plataforma, te brindamos las herramientas para crear
                 una experiencia única y memorable para tus clientes.
