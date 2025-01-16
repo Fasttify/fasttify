@@ -47,9 +47,9 @@ export function PlatformCompatibility() {
         <CardContent className="p-6 sm:p-10">
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight mb-4">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-center mb-8 md:mb-16">
                 Compatible con múltiples dispositivos
-              </h2>
+              </h1>
               <p className="text-lg text-muted-foreground">
                 Nuestra plataforma está diseñada para funcionar perfectamente en
                 una amplia gama de dispositivos, desde smartphones hasta tablets
