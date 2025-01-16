@@ -9,7 +9,7 @@ import { Footer } from "./Footer";
 import { StepGuide } from "./StepGuide";
 import { Navbar } from "./NavBar";
 import { Waitlist } from "./Waitlis";
-import { cognitoUserPoolsTokenProvider } from "aws-amplify/auth/cognito";
+
 
 export const DocsLanding = () => {
   return (
@@ -82,7 +82,7 @@ export const DocsLanding = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Image
-                      src="/imgs/Paypal.webp"
+                      src="/imgs/landing/Paypal.webp"
                       alt="PayPal"
                       width={24}
                       height={24}
@@ -97,7 +97,7 @@ export const DocsLanding = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Image
-                      src="/imgs/Amazon.webp"
+                      src="/imgs/landing/Amazon.webp"
                       alt="Amazon"
                       width={24}
                       height={24}
@@ -112,7 +112,7 @@ export const DocsLanding = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Image
-                      src="/imgs/Aliexpress.webp"
+                      src="/imgs/landing/Aliexpress.webp"
                       alt="AliexExpress"
                       width={24}
                       height={24}
@@ -137,7 +137,7 @@ export const DocsLanding = () => {
                 <div className="flex items-center space-x-3">
                   <div className="relative w-10 h-10 overflow-hidden rounded-full bg-gray-200">
                     <Image
-                      src="/imgs/jaider.webp"
+                      src="/imgs/landing/jaider.webp"
                       alt="Jaider Ramirez"
                       layout="fill"
                       objectFit="cover"
@@ -154,7 +154,7 @@ export const DocsLanding = () => {
                 <div className="flex items-center space-x-3">
                   <div className="relative w-10 h-10 overflow-hidden rounded-full bg-gray-200">
                     <Image
-                      src="/imgs/steven.webp"
+                      src="/imgs/landing/steven.webp"
                       alt="Steven Jaime"
                       layout="fill"
                       objectFit="cover"
@@ -169,7 +169,7 @@ export const DocsLanding = () => {
                 <div className="flex items-center space-x-3">
                   <div className="relative w-10 h-10 overflow-hidden rounded-full bg-gray-200">
                     <Image
-                      src="/imgs/alejo.webp"
+                      src="/imgs/landing/alejo.webp"
                       alt="Alejandro Amador"
                       layout="fill"
                       objectFit="cover"

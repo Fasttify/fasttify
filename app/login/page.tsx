@@ -54,7 +54,13 @@ function CustomAuthenticator() {
 
   // Mostrar la interfaz de autenticación si no hay un usuario
   if (!user) {
-    return <Authenticator formFields={formFields} components={components} />;
+    return (
+      <Authenticator
+        socialProviders={["google"]}
+        formFields={formFields}
+        components={components}
+      />
+    );
   }
 
   // El contenido protegido no se muestra aquí porque ya redirigimos al usuario

@@ -1,6 +1,6 @@
 {
   "auth": {
-    "masterdop8827f268": {
+    "MasterDop": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {
@@ -11,13 +11,13 @@
         "passwordProtectionSettings": {
           "passwordPolicyCharacters": [
             "REQUIRES_LOWERCASE",
+            "REQUIRES_NUMBERS",
+            "REQUIRES_SYMBOLS",
             "REQUIRES_UPPERCASE"
           ],
           "passwordPolicyMinLength": 8
         },
-        "signupAttributes": [
-          "EMAIL"
-        ],
+        "signupAttributes": [],
         "socialProviders": [
           "GOOGLE"
         ],
