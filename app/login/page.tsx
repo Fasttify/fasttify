@@ -9,10 +9,13 @@ import {
 import { redirect } from "next/navigation";
 import { useEffect } from "react";
 import { Amplify } from "aws-amplify";
+import { cognitoUserPoolsTokenProvider } from "aws-amplify/auth/cognito";
+import { defaultStorage } from "aws-amplify/utils";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 
 Amplify.configure(outputs);
+cognitoUserPoolsTokenProvider.setKeyValueStorage(defaultStorage);
 
 const formFields = {
   signUp: {
@@ -54,13 +57,7 @@ function CustomAuthenticator() {
 
   // Mostrar la interfaz de autenticación si no hay un usuario
   if (!user) {
-    return (
-      <Authenticator
-        socialProviders={["google"]}
-        formFields={formFields}
-        components={components}
-      />
-    );
+    return <Authenticator formFields={formFields} components={components} />;
   }
 
   // El contenido protegido no se muestra aquí porque ya redirigimos al usuario

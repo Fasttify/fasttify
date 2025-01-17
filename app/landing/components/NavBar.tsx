@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Logout } from "@/app/login/components/Logout";
 import Link from "next/link";
-import { fetchAuthSession } from "aws-amplify/auth";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
