@@ -16,8 +16,8 @@ export const auth = defineAuth({
         scopes: ["email", "profile", "openid"],
       },
 
-      callbackUrls: ["http://localhost:3000/landing"],
-      logoutUrls: ["http://localhost:3000"],
+      callbackUrls: ["https://dev.d3ec9adgouri1.amplifyapp.com/landing"],
+      logoutUrls: ["https://dev.d3ec9adgouri1.amplifyapp.com/"],
     },
   },
 
