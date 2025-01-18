@@ -6,7 +6,12 @@ import { defineAuth, secret } from "@aws-amplify/backend";
  */
 export const auth = defineAuth({
   loginWith: {
-    email: true,
+    email: {
+      verificationEmailStyle: "CODE",
+      verificationEmailSubject: "Bienvenido!",
+      verificationEmailBody: (createCode) =>
+        `Usa este codigo para confirmar tu cuenta: ${createCode()}`,
+    },
 
     externalProviders: {
       google: {
@@ -14,10 +19,15 @@ export const auth = defineAuth({
         clientSecret: secret("GOOGLE_CLIENT_SECRET"),
 
         scopes: ["email", "profile", "openid"],
+        attributeMapping: {
+          email: "email",
+          nickname: "name",
+          profilePicture: "picture",
+        },
       },
 
-      callbackUrls: ["https://dev.d3ec9adgouri1.amplifyapp.com/landing"],
-      logoutUrls: ["https://dev.d3ec9adgouri1.amplifyapp.com/"],
+      callbackUrls: ["http://localhost:3000"],
+      logoutUrls: ["http://localhost:3000/login"],
     },
   },
 

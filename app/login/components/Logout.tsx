@@ -2,23 +2,31 @@
 
 import { signOut } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
-import outputs from "@/amplify_outputs.json";
-import { Amplify } from "aws-amplify";
-
-Amplify.configure(outputs);
+import { useState } from "react";
 
 export function Logout() {
   const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      router.push("/login");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
 
   return (
     <button
-      onClick={async () => {
-        await signOut();
-        router.push("/");
-      }}
+      onClick={handleSignOut}
+      disabled={isSigningOut}
       className="px-2 bg-white text-black"
     >
-      Sign out
+      {isSigningOut ? "Signing out..." : "Sign out"}
     </button>
   );
 }

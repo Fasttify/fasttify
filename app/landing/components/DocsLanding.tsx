@@ -10,8 +10,6 @@ import { StepGuide } from "./StepGuide";
 import { Navbar } from "./NavBar";
 import { Waitlist } from "./Waitlis";
 
-
-
 export const DocsLanding = () => {
   return (
     <>

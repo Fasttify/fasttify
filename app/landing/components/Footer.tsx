@@ -21,9 +21,9 @@ export function Footer() {
               />
             </div>
             <h2 className="text-xl font-semibold mb-2">
-              We growing up your business
+              Nosotros creciendo tu negocio
               <br />
-              with personal AI manager.
+              con administrador personal de IA.
             </h2>
             <p className="text-gray-600">Fasttify, 2025.</p>
           </div>
@@ -33,7 +33,7 @@ export function Footer() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center lg:text-left">
               {/* Company Links */}
               <div>
-                <h3 className="font-semibold mb-4">Company</h3>
+                <h3 className="font-semibold mb-4">Compañia</h3>
                 <ul className="space-y-2 flex flex-col items-center lg:items-start">
                   <li>
                     <Link
@@ -48,7 +48,7 @@ export function Footer() {
                       href="#"
                       className="text-gray-600 hover:text-gray-900"
                     >
-                      Careers
+                      Carreras
                     </Link>
                   </li>
                   <li>
@@ -56,7 +56,7 @@ export function Footer() {
                       href="#"
                       className="text-gray-600 hover:text-gray-900"
                     >
-                      Pricing
+                      Precios
                     </Link>
                   </li>
                 </ul>
@@ -64,14 +64,14 @@ export function Footer() {
 
               {/* Resources Links */}
               <div>
-                <h3 className="font-semibold mb-4">Resources</h3>
+                <h3 className="font-semibold mb-4">Recursos</h3>
                 <ul className="space-y-2 flex flex-col items-center lg:items-start">
                   <li>
                     <Link
                       href="#"
                       className="text-gray-600 hover:text-gray-900"
                     >
-                      Documentation
+                      Documentación
                     </Link>
                   </li>
                   <li>
@@ -79,7 +79,7 @@ export function Footer() {
                       href="#"
                       className="text-gray-600 hover:text-gray-900"
                     >
-                      Papers
+                      Papeles
                     </Link>
                   </li>
                   <li>
@@ -87,7 +87,7 @@ export function Footer() {
                       href="#"
                       className="text-gray-600 hover:text-gray-900"
                     >
-                      Press Conferences
+                      Conferencias de prensa
                     </Link>
                   </li>
                 </ul>
@@ -102,7 +102,7 @@ export function Footer() {
                       href="#"
                       className="text-gray-600 hover:text-gray-900"
                     >
-                      Terms of Service
+                      Términos de servicio
                     </Link>
                   </li>
                   <li>
@@ -110,7 +110,7 @@ export function Footer() {
                       href="#"
                       className="text-gray-600 hover:text-gray-900"
                     >
-                      Privacy Policy
+                      política de privacidad
                     </Link>
                   </li>
                   <li>
@@ -118,7 +118,7 @@ export function Footer() {
                       href="#"
                       className="text-gray-600 hover:text-gray-900"
                     >
-                      Cookies Policy
+                      Política de cookies
                     </Link>
                   </li>
                   <li>
@@ -126,7 +126,7 @@ export function Footer() {
                       href="#"
                       className="text-gray-600 hover:text-gray-900"
                     >
-                      Data Processing
+                      Proceso de datos
                     </Link>
                   </li>
                 </ul>
@@ -138,7 +138,7 @@ export function Footer() {
         {/* Footer Bottom */}
         <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-600 text-sm mb-4 md:mb-0">
-            {getYear(new Date())} © Fasttify. All rights reserved.
+            {getYear(new Date())} © Fasttify. Reservados todos los derechos.
           </p>
           <div className="flex space-x-4">
             <Link href="#" className="text-gray-600 hover:text-gray-900">
