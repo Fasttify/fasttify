@@ -3,9 +3,11 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 // Define el tipo del usuario
 interface User {
-  username: string;
+  nickName?: string;
   email: string;
   picture?: string;
+  preferredUsername?: string;
+  plan?: string;
 }
 
 // Define el estado y las acciones del store

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export function StepGuide() {
   const [activeStep, setActiveStep] = useState(1);
@@ -11,24 +12,39 @@ export function StepGuide() {
       number: "01",
       title: "Agrega tu primer producto",
       images: [
-        "https://images.unsplash.com/photo-1720048171419-b515a96a73b8?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1719937206498-b31844530a96?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        {
+          main: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1470&auto=format&fit=crop",
+          secondary:
+            "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1415&auto=format&fit=crop",
+          detail:
+            "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?q=80&w=1470&auto=format&fit=crop",
+        },
       ],
     },
     {
       number: "02",
       title: "Personaliza tu tienda",
       images: [
-        "https://images.unsplash.com/photo-1605902711834-8b11c3e3ef2f?q=80&w=1976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1688561808434-886a6dd97b8c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        {
+          main: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=1470&auto=format&fit=crop",
+          secondary:
+            "https://images.unsplash.com/photo-1487014679447-9f8336841d58?q=80&w=1466&auto=format&fit=crop",
+          detail:
+            "https://images.unsplash.com/photo-1552581234-26160f608093?q=80&w=1471&auto=format&fit=crop",
+        },
       ],
     },
     {
       number: "03",
       title: "Configura pagos",
       images: [
-        "https://images.unsplash.com/photo-1556740772-1a741367b93e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1718010571964-bac048b9ded0?q=80&w=1970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        {
+          main: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1470&auto=format&fit=crop",
+          secondary:
+            "https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=1470&auto=format&fit=crop",
+          detail:
+            "https://images.unsplash.com/photo-1556742111-a301076d9d18?q=80&w=1470&auto=format&fit=crop",
+        },
       ],
     },
   ];
@@ -42,7 +58,7 @@ export function StepGuide() {
 
         <div className="flex flex-col md:grid md:grid-cols-2 gap-8 items-start md:items-center">
           {/* Contenedor de las imágenes */}
-          <div className="order-1 md:order-1 relative h-[300px] md:h-[400px] lg:h-[500px] w-full">
+          <div className="order-1 md:order-1 relative h-[400px] md:h-[500px] lg:h-[600px] w-full">
             {steps.map((step, index) => (
               <div
                 key={index}
@@ -50,19 +66,32 @@ export function StepGuide() {
                   activeStep === index + 1 ? "opacity-100" : "opacity-0"
                 }`}
               >
-                <div className="grid grid-cols-2 gap-3 md:gap-4 h-full">
-                  <div className="aspect-square rounded-2xl overflow-hidden shadow-lg">
-                    <img
-                      src={step.images[0]}
-                      alt={`${step.title} - Image 1`}
-                      className="w-full h-full object-cover"
+                <div className="grid grid-cols-3 gap-3 md:gap-4 h-full">
+                  {/* Imagen principal */}
+                  <div className="col-span-2 row-span-2 relative rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src={step.images[0].main || "/placeholder.svg"}
+                      alt={`${step.title} - Imagen Principal`}
+                      fill
+                      className="object-cover transition-transform duration-500 hover:scale-105"
                     />
                   </div>
-                  <div className="aspect-square rounded-2xl overflow-hidden translate-y-6 md:translate-y-12 shadow-lg">
-                    <img
-                      src={step.images[1]}
-                      alt={`${step.title} - Image 2`}
-                      className="w-full h-full object-cover"
+                  {/* Imagen secundaria */}
+                  <div className="relative rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src={step.images[0].secondary || "/placeholder.svg"}
+                      alt={`${step.title} - Imagen Secundaria`}
+                      fill
+                      className="object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                  </div>
+                  {/* Imagen de detalle */}
+                  <div className="relative rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src={step.images[0].detail || "/placeholder.svg"}
+                      alt={`${step.title} - Imagen Detalle`}
+                      fill
+                      className="object-cover transition-transform duration-500 hover:scale-105"
                     />
                   </div>
                 </div>
@@ -71,13 +100,13 @@ export function StepGuide() {
           </div>
 
           {/* Contenedor de los pasos */}
-          <div className="order-2 md:order-2 flex flex-col items-center md:place-items-stretch space-y-8">
+          <div className="order-2 md:order-2 flex flex-col items-center md:place-items-stretch space-y-8 ml-14 sm:ml-8 md:ml-0">
             {steps.map((step, index) => (
               <div
                 key={step.number}
-                className={`group cursor-pointer transition-colors w-full ${
+                className={`group cursor-pointer transition-all duration-300 w-full ${
                   activeStep === index + 1
-                    ? "opacity-100"
+                    ? "opacity-100 scale-105"
                     : "opacity-60 hover:opacity-80"
                 }`}
                 onMouseEnter={() => setActiveStep(index + 1)}

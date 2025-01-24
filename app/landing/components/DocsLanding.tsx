@@ -9,224 +9,222 @@ import { Footer } from "./Footer";
 import { StepGuide } from "./StepGuide";
 import { Navbar } from "./NavBar";
 import { Waitlist } from "./Waitlis";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { Card } from "@/components/ui/card";
+import { Star, Camera, RefreshCw } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { EffectFade, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-fade";
+
+const carouselImages = [
+  {
+    url: "https://images.unsplash.com/photo-1737233019359-625e96ec8694?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    alt: "Cafe",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1516876437184-593fda40c7ce?q=80&w=2072&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    alt: "Business",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1664575602276-acd073f104c1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    alt: "Store",
+  },
+];
 
 export const DocsLanding = () => {
   return (
     <>
-      <div className="min-h-screen bg-white ">
-        {/* Navigation */}
+      <Navbar />
+      <div className="min-h-screen bg-white p-4 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-7xl mx-auto mt-16">
+          {/* Main Hero Card */}
+          <Card className="relative p-8 bg-white rounded-3xl">
+            <div className="space-y-8">
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-6 bg-[#d5321c]" />
+                <div className="w-3 h-6 bg-[#c42727]" />
+                <span className="text-sm font-medium tracking-wide">
+                  EMPIEZA AHORA — 23
+                </span>
+              </div>
 
-        <Navbar />
-        <br />
-        <br />
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-12 items-center mt-16">
-          {/* Left Column */}
-          <div>
-            <h1 className="text-[56px] font-light text-gray-900 mb-6">
-              Administra tus productos
-              <br />
-              en múltiples plataformas
-            </h1>
+              <h1
+                className="text-[3.5rem] md:text-[4.5rem] font-black tracking-tight leading-none"
+                style={{
+                  fontFamily: "'Stencil Std', 'Arial Black', sans-serif",
+                  WebkitTextStroke: "2px black",
+                }}
+              >
+                DUEÑO DE
+                <br />
+                TU NEGOCIO,
+                <br />
+                POSEE TU FUTURO
+              </h1>
 
-            <p className="text-gray-600 mb-8">
-              Gestiona fácilmente el catálogo de productos en tu tienda de
-              dropshipping.
-              <br />
-              Sincroniza inventarios, evita errores manuales y mantén todo bajo
-              control.
-              <br />
-              Optimiza tu tiempo y escala tu negocio con herramientas
-              inteligentes.
-            </p>
+              <div className="flex items-center justify-between">
+                <InteractiveHoverButton className="bg-black text-white px-8 py-4 rounded-full hover:bg-black/90 transition-colors text-sm font-medium tracking-wide">
+                  COMIENZA TU NEGOCIO
+                </InteractiveHoverButton>
 
-            <button className="bg-gray-700 text-white px-7 py-4 rounded-lg hover:bg-gray-800">
-              Empezar
-            </button>
-          </div>
-
-          {/* Right Column */}
-          <div className="relative">
-            {/* Main Image Container */}
-            <div className="relative w-full sm:w-[350px] h-[auto] sm:h-[450px] bg-emerald-800/10 rounded-2xl overflow-hidden mt-72">
-              <Image
-                src="https://images.unsplash.com/photo-1735040736883-9e0bc7e6f1ba?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="Person using phone"
-                fill
-                className="object-cover"
-              />
+                <div className="flex items-center space-x-3 ml-4 sm:ml-8">
+                  <div className="space-y-1">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="w-4 h-0.5 bg-black" />
+                    ))}
+                  </div>
+                  <span className="text-xs tracking-wide leading-tight">
+                    LA MEJOR
+                    <br />
+                    EXPERIENCIA
+                  </span>
+                </div>
+              </div>
             </div>
+          </Card>
 
-            {/* Top Floating Card - Sync Contacts */}
-
-            <div
-              className="absolute top-8 left-0 sm:left-[-32px] rounded-xl w-full sm:w-[300px] h-auto hidden sm:block"
-              style={{ borderRadius: "25px" }}
+          {/* Training Card with Swiper */}
+          <Card className="relative overflow-hidden bg-[#D35F43] rounded-3xl h-[500px]">
+            <div className="absolute top-4 right-4 z-10">
+              <div className="bg-black/20 backdrop-blur-sm p-2 rounded-full">
+                <Camera className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <Swiper
+              modules={[EffectFade, Autoplay]}
+              effect="fade"
+              speed={1500}
+              autoplay={{
+                delay: 3500,
+                disableOnInteraction: false,
+              }}
+              fadeEffect={{
+                crossFade: true,
+              }}
+              loop={true}
+              className="w-full h-full"
             >
-              <Image
-                src="https://images.unsplash.com/photo-1736147066581-95fa303553a0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="S"
-                width={300}
-                height={150}
-                className="object-cover rounded-2xl"
-              />
+              {carouselImages.map((image, index) => (
+                <SwiperSlide key={index}>
+                  <Image
+                    src={image.url}
+                    alt={image.alt}
+                    fill
+                    className="object-cover"
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <div className="absolute bottom-0 left-0 p-8 z-10">
+              <h2 className="text-white text-3xl font-bold tracking-wide">
+                VENDÉ EN TU
+                <br />
+                PROPIO TIEMPO
+              </h2>
             </div>
+          </Card>
 
-            <div
-              className="absolute -top-20 bg-white rounded-xl shadow-lg p-4 w-70 h-35 hidden sm:block"
-              style={{ borderRadius: "25px", left: "-100px" }}
-            >
-              <h3 className="text-sm font-medium mb-4">Varias plataformas</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Image
-                      src="/imgs/landing/Paypal.webp"
-                      alt="PayPal"
-                      width={24}
-                      height={24}
-                      className="rounded"
-                    />
-                    <span>PayPal</span>
-                  </div>
-                  <div className="w-11 h-6 bg-green-500 rounded-full relative">
-                    <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
-                  </div>
+          {/* Contact Card */}
+          <Card className="relative p-8 bg-[#E8C7C3] rounded-3xl overflow-hidden h-[300px] group hover:shadow-lg transition-shadow">
+            <div className="flex items-start space-x-6">
+              <div className="relative">
+                <div className="absolute -left-3 -top-3 w-32 h-32 bg-yellow-400 rounded-2xl transform -rotate-6 transition-transform group-hover:rotate-0" />
+                <div className="relative z-10 w-28 h-28 rounded-xl overflow-hidden">
+                  <Image
+                    src="https://images.unsplash.com/photo-1634733988596-093e2a324c2f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Promotional Image"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Image
-                      src="/imgs/landing/Amazon.webp"
-                      alt="Amazon"
-                      width={24}
-                      height={24}
-                      className="rounded"
-                    />
-                    <span>Amazon</span>
-                  </div>
-                  <div className="w-11 h-6 bg-gray-200 rounded-full relative">
-                    <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full"></div>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Image
-                      src="/imgs/landing/Aliexpress.webp"
-                      alt="AliexExpress"
-                      width={24}
-                      height={24}
-                      className="rounded"
-                    />
-                    <span>AliExpress</span>
-                  </div>
-                  <div className="w-11 h-6 bg-green-500 rounded-full relative">
-                    <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
-                  </div>
+              </div>
+
+              <div className="flex flex-row items-center space-x-4">
+                <span className="text-sm tracking-wide">SOPORTE 24/7</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm tracking-wide">
+                    DE COLOMBIANOS PARA
+                    <br />
+                    COLOMBIANOS
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Bottom Floating Card - Contacts */}
-            <div
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white shadow-lg p-4 w-64"
-              style={{ borderRadius: "25px" }}
-            >
-              <h3 className="text-lg font-medium mb-4">Desarrolladores</h3>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="relative w-10 h-10 overflow-hidden rounded-full bg-gray-200">
-                    <Image
-                      src="/imgs/landing/jaider.webp"
-                      alt="Jaider Ramirez"
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded-full"
-                    />
-                  </div>
-                  <div>
-                    <div className="font-medium">Jaider Ramirez</div>
-                    <div className="text-xs text-gray-500">
-                      Activo hace 6 días
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="relative w-10 h-10 overflow-hidden rounded-full bg-gray-200">
-                    <Image
-                      src="/imgs/landing/steven.webp"
-                      alt="Steven Jaime"
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded-full"
-                    />
-                  </div>
-                  <div>
-                    <div className="font-medium">Steven Jaime</div>
-                    <div className="text-xs text-gray-500">Activo ahora</div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="relative w-10 h-10 overflow-hidden rounded-full bg-gray-200">
-                    <Image
-                      src="/imgs/landing/alejo.webp"
-                      alt="Alejandro Amador"
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded-full"
-                    />
-                  </div>
-                  <div>
-                    <div className="font-medium">Alejandro Amador</div>
-                    <div className="text-xs text-gray-500">
-                      Activo hace 3 días
-                    </div>
-                  </div>
-                </div>
+            <div className="absolute bottom-8 left-8 right-8">
+              <div className="flex items-start justify-between group/heading">
+                <h2 className="text-3xl font-bold tracking-wide leading-tight max-w-[80%]">
+                  CONQUISTA MÁS
+                  <br />
+                  LEVÁNTATE FUERTE
+                </h2>
               </div>
             </div>
+          </Card>
 
-            {/* Stats */}
-            <div className="absolute top-[-80px] right-[-5px] flex flex-col items-start space-y-2 sm:top-8 sm:right-36">
-              <div className="text-left">
-                <div className="text-4xl">20+</div>
-                <div className="text-sm text-gray-500">Integraciones</div>
-              </div>
-              <div className="text-left">
-                <div className="text-4xl">30+</div>
-                <div className="text-sm text-gray-500">Funciones previstas</div>
+          {/* Features Card */}
+          <Card className="p-8 bg-white rounded-3xl">
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-5xl font-bold">4.98</div>
+              <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
+                <RefreshCw className="w-6 h-6 text-white" />
               </div>
             </div>
-
-            {/* Success Badge */}
-            <div className="absolute bottom-72 right-20 hidden sm:block">
-              <div className="bg-orange-400 text-white px-3 py-1 mr-5 rounded-full text-sm flex items-center space-x-2">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-                <span>Sincronización completa</span>
+            <div className="flex items-center gap-2 mb-6">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                  />
+                ))}
               </div>
+              <span className="text-xs text-gray-600 tracking-wide">
+                CALIFICADO POR USUARIOS COMO TÚ
+              </span>
             </div>
-          </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                "ELECTRÓNICA",
+                "MODA Y ROPA",
+                "JUGUETES Y JUEGOS",
+                "ACCESORIOS PARA CELULARES",
+              ].map((feature) => (
+                <span
+                  key={feature}
+                  className="px-4 py-2 bg-gray-100 rounded-full text-xs tracking-wide"
+                >
+                  {feature}
+                </span>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
       <div className="space-y-32">
-        <div id="caracteristicas">
-          <PurchaseHistoryDemo />
-        </div>
+        <br />
         <div>
-          <PlatformCompatibility />
+          <StepGuide />
         </div>
         <div id="acerca-de">
           <Personalization />
         </div>
-        <div id="blog">
+        <div id="caracteristicas">
+          <PurchaseHistoryDemo />
+        </div>
+        <div id="multiplataforma">
+          <PlatformCompatibility />
+        </div>
+        <div id="integraciones">
           <BentoDemo />
         </div>
-        <div id="contacto">
-          <StepGuide />
-        </div>
-        <div id="precios">
+        <div>
           <Waitlist />
         </div>
-        <Footer />
+        <div id="contacto">
+          <Footer />
+        </div>
       </div>
     </>
   );

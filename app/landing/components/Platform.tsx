@@ -1,109 +1,135 @@
-import React from "react";
-import Iphone15Pro from "@/components/ui/iphone-15-pro";
-import { Card, CardContent } from "@/components/ui/card";
-import { Laptop, Smartphone, Tablet } from "lucide-react";
-
-const deviceFeatures = [
-  {
-    icon: Smartphone,
-    title: "Smartphones",
-    description:
-      "Accede a nuestra plataforma desde cualquier lugar con tu teléfono móvil.",
-    features: [
-      "Interfaz optimizada para pantallas pequeñas",
-      "Notificaciones push para mantenerte actualizado",
-      "Modo offline para acceso sin conexión",
-      "Gestos intuitivos para una navegación fluida",
-    ],
-  },
-  {
-    icon: Tablet,
-    title: "Tablets",
-    description: "Disfruta de una experiencia inmersiva en tu tablet.",
-    features: [
-      "Diseño adaptativo para aprovechar pantallas más grandes",
-      "Soporte para lápiz digital en modelos compatibles",
-      "Modo de pantalla dividida para multitarea",
-      "Visualización mejorada de gráficos y datos",
-    ],
-  },
-  {
-    icon: Laptop,
-    title: "Computadoras de Escritorio",
-    description: "Aprovecha al máximo nuestra plataforma en tu computadora.",
-    features: [
-      "Interfaz completa con todas las funcionalidades",
-      "Atajos de teclado para usuarios avanzados",
-      "Soporte para múltiples monitores",
-      "Herramientas de análisis avanzadas",
-    ],
-  },
-];
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Smartphone, Laptop, Tablet, ArrowUpRight } from "lucide-react";
 
 export function PlatformCompatibility() {
   return (
-    <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-start gap-8 p-6  ">
-      <Card className="flex-1 w-full lg:w-2/3 border bg-background shadow-xl">
-        <CardContent className="p-6 sm:p-10">
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-center mb-8 md:mb-16">
-                Compatible con múltiples dispositivos
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Nuestra plataforma está diseñada para funcionar perfectamente en
-                una amplia gama de dispositivos, desde smartphones hasta tablets
-                y computadoras de escritorio. Disfruta de una experiencia fluida
-                y consistente, sin importar cómo accedas a nuestra aplicación.
+    <main className="min-h-screen bg-white p-6 md:p-12">
+      <div className="mx-auto max-w-6xl">
+        {/* Sección Hero */}
+        <div className="grid gap-8 md:grid-cols-2">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-white">
+              <div className="w-3 h-6 bg-[#d5321c]" />
+              <div className="w-3 h-6 bg-[#c42727]" />
+              MULTIPLATAFORMA
+            </div>
+
+            <h1 className="font-condensed text-5xl font-bold leading-none tracking-tight md:text-6xl">
+              Trabaja sin problemas <span className="block">en todos tus</span>{" "}
+              <span className="block">dispositivos</span>
+            </h1>
+
+            <Button className="group rounded-full bg-black px-6 py-6 text-white hover:bg-black/90">
+              Pruébalo ahora
+              <ArrowUpRight className="ml-2 transition-transform group-hover:translate-x-1" />
+            </Button>
+
+            <div className="mt-4 space-y-2 text-sm text-[#6c747f]">
+              <p>
+                Nuestra plataforma es compatible con todos tus dispositivos:
               </p>
-            </div>
-
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {deviceFeatures.map((device, index) => (
-                <div key={index} className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 p-2 rounded-full">
-                      <device.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-semibold">{device.title}</h3>
-                  </div>
-                  <p className="text-muted-foreground">{device.description}</p>
-                  <ul className="space-y-2">
-                    {device.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start">
-                        <span className="mr-2 mt-1 text-primary">•</span>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold mb-3">
-                Sincronización perfecta
-              </h3>
-              <p className="text-lg text-muted-foreground">
-                Nuestra tecnología de sincronización en tiempo real asegura que
-                tu trabajo esté siempre actualizado en todos tus dispositivos.
-                Comienza un proyecto en tu computadora de escritorio, haz
-                ajustes en tu tablet durante el almuerzo, y finaliza los
-                detalles desde tu smartphone en el camino a casa. Tu progreso se
-                mantiene consistente y accesible sin importar dónde te
-                encuentres.
+              <ul className="list-disc pl-5">
+                <li>Smartphones: iOS y Android</li>
+                <li>Tablets: iPadOS y Android</li>
+                <li>Computadoras: Windows, macOS y Linux</li>
+                <li>Navegadores web: Chrome, Firefox, Safari y Edge</li>
+              </ul>
+              <p>
+                Sincroniza tu trabajo y accede desde cualquier lugar, en
+                cualquier momento.
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      <div className="flex-shrink-0 w-full lg:w-1/3 flex justify-center lg:justify-end">
-        <Iphone15Pro
-          className="size-full"
-          videoSrc="https://videos.pexels.com/video-files/8946986/8946986-uhd_1440_2732_25fps.mp4"
-        />
+          <div className="relative aspect-square">
+            <Image
+              src="https://images.unsplash.com/photo-1737233504527-c5033f0f1430?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              alt="Ilustración de compatibilidad multi-dispositivo"
+              fill
+              className="rounded-[32px] object-cover"
+            />
+          </div>
+        </div>
+
+        {/* Sección de Tarjetas */}
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {/* Tarjeta de Compatibilidad Móvil */}
+          <Card className="overflow-hidden rounded-[32px]  bg-[#e8c7c3] p-6 text-white">
+            <div className="flex items-center gap-4">
+              <div className="rounded-full bg-white/20 p-2">
+                <Smartphone className="h-5 w-5" />
+              </div>
+              <span className="text-sm">iOS y Android</span>
+            </div>
+            <div className="mt-auto flex items-end justify-between pt-20">
+              <h3 className="text-3xl font-bold tracking-wide leading-tight max-w-[80%] text-black">
+                Amigable
+                <br />
+                con móviles
+              </h3>
+              <ArrowUpRight className="h-6 w-6" />
+            </div>
+          </Card>
+
+          {/* Tarjeta de Compatibilidad de Escritorio */}
+          <Card className="overflow-hidden rounded-[32px] bg-[#F2F2F2] p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="absolute -left-1 -top-1 h-6 w-6 rounded-full bg-green-300" />
+                  <div className="relative h-8 w-8 overflow-hidden rounded-full border-2 border-white bg-gray-200">
+                    <Laptop className="h-full w-full p-1" />
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-medium">Pagina de Escritorio</span>
+                  <span className="text-sm text-gray-600">Windows y macOS</span>
+                </div>
+              </div>
+              <span className="rounded-full border border-black px-3 py-1 text-xs font-medium">
+                DISPONIBLE
+              </span>
+            </div>
+            <div className="mt-auto flex items-end justify-between pt-20">
+              <h3 className="font-condensed text-3xl font-bold leading-none">
+                Potencia de
+                <br />
+                Escritorio
+              </h3>
+              <ArrowUpRight className="h-6 w-6" />
+            </div>
+          </Card>
+
+          {/* Estadísticas */}
+          <div className="space-y-8 p-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-4">
+                <Tablet className="h-8 w-8" />
+                <div className="h-2 flex-grow rounded-full bg-gray-200">
+                  <div className="h-full w-3/4 rounded-full bg-black" />
+                </div>
+              </div>
+              <span className="text-sm text-gray-500">
+                Optimización para Tablets
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <span className="font-condensed text-4xl font-bold">99%</span>
+                <p className="text-sm text-gray-500">
+                  Compatibilidad de Dispositivos
+                </p>
+              </div>
+              <div>
+                <span className="font-condensed text-4xl font-bold">5+</span>
+                <p className="text-sm text-gray-500">Plataformas Soportadas</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

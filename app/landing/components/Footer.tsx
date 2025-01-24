@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Facebook, Instagram, Youtube } from "lucide-react";
 import { getYear } from "date-fns";
 
@@ -8,19 +7,22 @@ export function Footer() {
     <footer className="w-full bg-white text-gray-800 py-12">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-12">
+        <div className="flex flex-col lg:flex-row lg:justify-between gap-8 mb-12 text-center lg:text-left">
           {/* Left Section */}
-          <div className="lg:col-span-4 text-center lg:text-left">
-            <div className="flex items-center gap-2 mb-4">
-              <Image
-                src="https://images.unsplash.com/photo-1719937051176-9b98352a6cf4?q=80&w=2072&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="Logo"
-                width={32}
-                height={32}
-                className="w-8 h-8"
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-2">
+            <div className="flex items-center justify-center lg:justify-start gap-2 mb-4">
+              <img
+                src="/icons/fast@4x.webp"
+                alt="Logo 1"
+                className="h-12 w-12"
+              />
+              <img
+                src="/icons/fastletras@4x.webp"
+                alt="Fasttify Logo"
+                className="h-12 w-auto"
               />
             </div>
-            <h2 className="text-xl font-semibold mb-2">
+            <h2 className="text-xl font-semibold">
               Nosotros creciendo tu negocio
               <br />
               con administrador personal de IA.
@@ -29,108 +31,76 @@ export function Footer() {
           </div>
 
           {/* Right Section - Navigation */}
-          <div className="lg:col-span-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center lg:text-left">
-              {/* Company Links */}
-              <div>
-                <h3 className="font-semibold mb-4">Compañia</h3>
-                <ul className="space-y-2 flex flex-col items-center lg:items-start">
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      Blog
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      Carreras
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      Precios
-                    </Link>
-                  </li>
-                </ul>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Company Links */}
+            <div>
+              <h3 className="font-semibold mb-4">Compañía</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Carreras
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Precios
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-              {/* Resources Links */}
-              <div>
-                <h3 className="font-semibold mb-4">Recursos</h3>
-                <ul className="space-y-2 flex flex-col items-center lg:items-start">
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      Documentación
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      Papeles
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      Conferencias de prensa
-                    </Link>
-                  </li>
-                </ul>
-              </div>
+            {/* Resources Links */}
+            <div>
+              <h3 className="font-semibold mb-4">Recursos</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Documentación
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Papeles
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Conferencias de prensa
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-              {/* Legal Links */}
-              <div>
-                <h3 className="font-semibold mb-4">Legal</h3>
-                <ul className="space-y-2 flex flex-col items-center lg:items-start">
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      Términos de servicio
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      política de privacidad
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      Política de cookies
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#"
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      Proceso de datos
-                    </Link>
-                  </li>
-                </ul>
-              </div>
+            {/* Legal Links */}
+            <div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Términos de servicio
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Política de privacidad
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Política de cookies
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                    Proceso de datos
+                  </Link>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
