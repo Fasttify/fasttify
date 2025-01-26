@@ -7,12 +7,24 @@ import { Footer } from "@/app/landing/components/Footer";
 import { Navbar } from "@/app/landing/components/NavBar";
 import { FAQSection } from "@/app/pricing/components/FAQSection";
 import { faqItems } from "@/app/pricing/components/FAQItem";
+import { Amplify } from "aws-amplify";
+import outputs from "@/amplify_outputs.json";
+
+Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.API,
+  },
+});
 
 const plans = [
   {
     name: "Royal",
     title: "Gratis",
-    price: "0",
+    price: " 15000",
     description: "Gratis para todos los usuarios.",
     features: [
       "Contacto con un asesor vía chat, Messenger, email o WhatsApp.",
@@ -92,9 +104,8 @@ export default function App() {
         </div>
       </div>
       <FAQSection items={faqItems} />
-      <br/>
+      <br />
       <Footer />
     </>
   );
 }
-

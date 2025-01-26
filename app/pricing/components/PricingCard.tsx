@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { post } from "aws-amplify/api";
+import { useAuthUser } from "@/hooks/auth/useAuthUser";
 
 interface PricingCardProps {
   plan: {
@@ -21,9 +23,54 @@ interface PricingCardProps {
 
 export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { userData } = useAuthUser();
+
+ const cognitoUsername =
+   userData && userData["cognito:username"]
+     ? userData["cognito:username"]
+     : null;
+
+ console.log("Cognito Username:", cognitoUsername);
+
 
   const formatPrice = (price: string) => {
     return price === "0" ? "Gratis" : `$${price}`;
+  };
+
+  const handleSubscribe = async () => {
+    setLoading(true); // <--- Activar el estado de loading
+    try {
+      // Enviar solicitud POST al backend
+      const restOperation = post({
+        apiName: "SubscriptionApi", // Nombre de la API configurada en Amplify
+        path: "subscribe", // Ruta del endpoint
+        options: {
+          body: {
+            userId: cognitoUsername, // Reemplazar con el ID del usuario
+            plan: {
+              name: plan.name,
+              price: plan.price, // Convertir a número
+              frequency: "monthly", // Frecuencia de pago
+              trialDays: 14, // Periodo de prueba
+            },
+          },
+        },
+      });
+
+      const { body } = await restOperation.response;
+      const response = await body.json();
+
+      // Redirigir al usuario a la URL de checkout
+      window.location.href = response.checkoutUrl;
+    } catch (error) {
+      console.error("Error al suscribirse:", error);
+      alert(
+        "Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo."
+      );
+    } finally {
+      setLoading(false); // <--- Desactivar el estado de loading
+    }
   };
 
   return (
@@ -90,8 +137,11 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
               : "bg-gray-900 text-white hover:bg-black"
           )}
           size="lg"
+          onClick={handleSubscribe} // <--- Agregar el manejador de eventos
+          disabled={loading} // <--- Deshabilitar el botón durante la carga
         >
-          {plan.buttonText}
+          {loading ? "Procesando..." : plan.buttonText}{" "}
+          {/* <--- Mostrar texto de carga */}
         </Button>
       </div>
     </motion.div>

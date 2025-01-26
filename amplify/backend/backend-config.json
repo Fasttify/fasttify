@@ -1,0 +1,36 @@
+{
+  "function": {
+    "epaycoplan": {
+      "build": true,
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_epaycoplan_epaycoPrivateKey": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "epaycoplan"
+        }
+      ]
+    },
+    "AMPLIFY_function_epaycoplan_epaycoPublicKey": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "epaycoplan"
+        }
+      ]
+    },
+    "AMPLIFY_function_epaycoplan_secretsPathAmplifyAppId": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "epaycoplan"
+        }
+      ]
+    }
+  }
+}

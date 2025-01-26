@@ -16,6 +16,7 @@ import { signOut } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
 import { Amplify } from "aws-amplify";
 import { UserMenu } from "@/app/landing/components/UserMenu";
+import { useAuthUser } from "@/hooks/auth/useAuthUser";
 import useUserStore from "@/store/userStore";
 import Link from "next/link";
 import outputs from "@/amplify_outputs.json";
@@ -65,6 +66,7 @@ const navItems = [
 export function Navbar() {
   const { user, clearUser } = useUserStore();
   const { loading } = useAuth();
+  const { userData } = useAuthUser();
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -77,7 +79,7 @@ export function Navbar() {
     }
   };
 
- 
+  console.log(userData);
 
   return (
     <nav className="sticky top-0 left-0 right-0 z-[100] bg-white  ">
