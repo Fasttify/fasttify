@@ -31,10 +31,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           frequency_type: "months",
           transaction_amount: plan.price,
           currency_id: "COP",
-        },
+        },    
         external_reference: userId,
         payer_email: "test_user_122149942@testuser.com",
-        back_url: "https://tudominio.com/subscription-status",
+        back_url: "https://dev.d3ec9adgouri1.amplifyapp.com",
         status: "pending",
       },
     });

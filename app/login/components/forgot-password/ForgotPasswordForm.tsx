@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { resetPassword, confirmResetPassword } from "aws-amplify/auth";
@@ -36,6 +36,7 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
   const [deliveryMethod, setDeliveryMethod] = useState<string>("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [timer, setTimer] = useState(0); // Estado para el temporizador
 
   const resetForm = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -53,6 +54,16 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
     },
   });
 
+  // Efecto para manejar el temporizador
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timer]);
+
   const handleResetPassword = async (data: ForgotPasswordFormData) => {
     try {
       setIsLoading(true);
@@ -65,6 +76,7 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
         setEmail(data.email);
         setDeliveryMethod(nextStep.codeDeliveryDetails.deliveryMedium || "");
         setCurrentStep("CONFIRM_CODE");
+        setTimer(60); // Iniciar el temporizador con 60 segundos
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -289,9 +301,13 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
         <Button
           type="submit"
           className="w-full bg-black text-white hover:bg-black/90"
-          disabled={isLoading}
+          disabled={isLoading || timer > 0}
         >
-          {isLoading ? "Enviando..." : "Enviar instrucciones"}
+          {isLoading
+            ? "Enviando..."
+            : timer > 0
+            ? `Espera ${timer} segundos`
+            : "Enviar instrucciones"}
         </Button>
         <Button
           type="button"

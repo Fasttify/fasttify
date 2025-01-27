@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { signIn, type SignInInput } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
 import { Amplify } from "aws-amplify";
+
 import outputs from "@/amplify_outputs.json";
 
 Amplify.configure(outputs);
@@ -44,6 +45,8 @@ export function useAuth({
         return "Por favor confirma tu cuenta primero";
       case "NetworkError":
         return "Error de conexión. Por favor, verifica tu internet";
+      case "There is already a signed in user.":
+        return "Ya hay un usuario autenticado. Por favor, cierra la sesión primero";
       default:
         return (
           error.message || "Ha ocurrido un error durante el inicio de sesión"

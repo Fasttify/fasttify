@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { PricingCard } from "./components/PricingCard";
+import { PricingCard } from "@/app/pricing/components/PricingCard";
 import { Footer } from "@/app/landing/components/Footer";
 import { Navbar } from "@/app/landing/components/NavBar";
 import { FAQSection } from "@/app/pricing/components/FAQSection";
@@ -23,8 +23,8 @@ Amplify.configure({
 const plans = [
   {
     name: "Royal",
-    title: "Gratis",
-    price: " 15000",
+    title: "$20000",
+    price: "20000",
     description: "Gratis para todos los usuarios.",
     features: [
       "Contacto con un asesor vía chat, Messenger, email o WhatsApp.",
@@ -40,9 +40,9 @@ const plans = [
     className: "bg-[#ffd5ec] hover:bg-[#ffc0e4]",
   },
   {
-    name: "Efficient",
-    title: "$15",
-    price: "15",
+    name: "Majestic",
+    title: "$30000",
+    price: "30000",
     description: "Ideal for individual creators.",
     features: [
       "Everything in Simple",
@@ -50,15 +50,16 @@ const plans = [
       "Unlimited management",
       "Unlimited collaborators",
       "Links with password protection",
+      
     ],
     buttonText: "Get Efficient Plan",
     className: "bg-[#b3efe3] hover:bg-[#9ee6d8]",
     popular: true,
   },
   {
-    name: "Team",
-    title: "$25",
-    price: "25",
+    name: "Imperial",
+    title: "$45000",
+    price: "45000",
     description: "Small teams with up to 10 users.",
     features: [
       "Everything in Efficient",

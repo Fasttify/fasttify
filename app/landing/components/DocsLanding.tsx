@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { PurchaseHistoryDemo } from "./Notification";
 import { PlatformCompatibility } from "./Platform";
 import { Personalization } from "./Personalization";
@@ -14,6 +13,8 @@ import { Card } from "@/components/ui/card";
 import { Star, Camera, RefreshCw } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectFade, Autoplay } from "swiper/modules";
+import Link from "next/link";
+import Image from "next/image";
 import "swiper/css";
 import "swiper/css/effect-fade";
 
@@ -64,10 +65,11 @@ export const DocsLanding = () => {
               </h1>
 
               <div className="flex items-center justify-between">
-                <InteractiveHoverButton className="bg-black text-white px-8 py-4 rounded-full hover:bg-black/90 transition-colors text-sm font-medium tracking-wide">
-                  COMIENZA TU NEGOCIO
-                </InteractiveHoverButton>
-
+                <Link href="/pricing">
+                  <InteractiveHoverButton className="bg-black text-white px-8 py-4 rounded-full hover:bg-black/90 transition-colors text-sm font-medium tracking-wide">
+                    COMIENZA TU NEGOCIO
+                  </InteractiveHoverButton>
+                </Link>
                 <div className="flex items-center space-x-3 ml-4 sm:ml-8">
                   <div className="space-y-1">
                     {[...Array(5)].map((_, i) => (
