@@ -98,49 +98,50 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     // 8. Obtener el plan actual del usuario desde Cognito
     const getUserCommand = new AdminGetUserCommand({
-      UserPoolId: "us-east-2_4yZwbrdZc", // Reemplaza con tu User Pool ID
-      Username: userId, // Usar el external_reference como userId
+      UserPoolId: "us-east-2_4yZwbrdZc",
+      Username: userId,
     });
 
     const userData = await client.send(getUserCommand);
     const currentPlan =
       userData.UserAttributes?.find((attr) => attr.Name === "custom:plan")
-        ?.Value || "free"; // Valor por defecto si no existe el atributo
-
+        ?.Value || "free";
     console.log(`📅 Plan actual del usuario ${userId}: ${currentPlan}`);
 
-    // 9. Determinar el valor del atributo custom:plan según el estado
-    let planValue: string;
+    // 9. Determinar si el plan actual está vigente
+    const isCurrentPlanActive = currentPlan !== "free"; 
 
+    // 10. Determinar el valor del atributo custom:plan según el estado
+    let planValue: string;
     switch (status) {
       case "authorized":
-      case "active":
-        planValue = planName; // Usar el nombre del plan que viene en "reason"
+      case "approved":
+        planValue = planName; // Usar el nombre del nuevo plan
         break;
       case "cancelled":
       case "paused":
-        planValue = "free"; // Si la suscripción está cancelada o pausada, el plan es free
+        planValue = isCurrentPlanActive ? currentPlan : "free"; // Mantener el plan actual si está vigente
         break;
       case "pending":
         planValue = currentPlan; // Mantener el plan actual si el estado es "pending"
         break;
       default:
-        planValue = "free"; // Por defecto, el plan es free
+        planValue = isCurrentPlanActive ? currentPlan : "free"; // Mantener el plan actual si está vigente
     }
 
     console.log(
       `📅 Actualizando el plan del usuario ${userId} a: ${planValue}`
     );
 
-    // 10. Actualizar el atributo personalizado en Cognito (solo si es necesario)
-    if (status !== "pending") {
+    // 11. Actualizar el atributo personalizado en Cognito (solo si es necesario)
+    if (status !== "pending" && planValue !== currentPlan) {
       const command = new AdminUpdateUserAttributesCommand({
-        UserPoolId: "us-east-2_4yZwbrdZc", // Reemplaza con tu User Pool ID
-        Username: userId, // Usar el external_reference como userId
+        UserPoolId: "us-east-2_4yZwbrdZc",
+        Username: userId,
         UserAttributes: [
           {
-            Name: "custom:plan", // Nombre del atributo personalizado
-            Value: planValue, // Valor del atributo (nombre del plan)
+            Name: "custom:plan",
+            Value: planValue,
           },
         ],
       });
@@ -148,10 +149,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       await client.send(command);
       console.log("✅ Atributo actualizado en Cognito correctamente.");
     } else {
-      console.log("🔄 Estado 'pending': No se actualiza el plan.");
+      console.log("🔄 No se actualiza el plan.");
     }
 
-    // 11. Retornar una respuesta exitosa
+    // 12. Retornar una respuesta exitosa
     const response = {
       statusCode: 200,
       body: JSON.stringify({ message: "Webhook procesado correctamente" }),
