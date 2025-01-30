@@ -5,7 +5,7 @@ import {
   AdminGetUserCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { createHmac } from "crypto";
-import axios from "axios"; // Importar axios
+import axios from "axios";
 
 // Inicializar el cliente de Cognito
 const client = new CognitoIdentityProviderClient();
@@ -109,21 +109,28 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     console.log(`📅 Plan actual del usuario ${userId}: ${currentPlan}`);
 
     // 9. Determinar si el plan actual está vigente
-    const isCurrentPlanActive = currentPlan !== "free"; 
+    const isCurrentPlanActive = currentPlan !== "free";
 
     // 10. Determinar el valor del atributo custom:plan según el estado
     let planValue: string;
     switch (status) {
       case "authorized":
       case "approved":
+      case "active":
         planValue = planName; // Usar el nombre del nuevo plan
         break;
       case "cancelled":
       case "paused":
+      case "rejected":
         planValue = isCurrentPlanActive ? currentPlan : "free"; // Mantener el plan actual si está vigente
         break;
       case "pending":
+      case "in_process":
         planValue = currentPlan; // Mantener el plan actual si el estado es "pending"
+        break;
+      case "expired":
+      case "suspended":
+        planValue = "free"; // Cambiar al plan gratuito si la suscripción expiró
         break;
       default:
         planValue = isCurrentPlanActive ? currentPlan : "free"; // Mantener el plan actual si está vigente

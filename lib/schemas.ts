@@ -23,9 +23,10 @@ export const signUpSchema = z
       .string()
       .min(6, "La contraseña debe tener al menos 8 caracteres")
       .regex(/[a-z]/, "La contraseña debe incluir al menos una letra minúscula")
+      .regex(/[A-Z]/, "La contraseña debe incluir al menos una letra mayúscula")
       .regex(
-        /[A-Z]/,
-        "La contraseña debe incluir al menos una letra mayúscula"
+        /[!@#$%^&*()\-_=+{};:,<.>]/,
+        "La contraseña debe incluir al menos un carácter especial"
       ),
     confirmPassword: z.string().min(1, "Por favor confirma tu contraseña"),
     preferredUsername: z

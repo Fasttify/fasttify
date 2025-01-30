@@ -71,7 +71,6 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
             plan: {
               name: plan.name,
               price: plan.price,
-              trialDays: 14,
             },
           },
         },

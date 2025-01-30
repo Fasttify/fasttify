@@ -13,7 +13,7 @@ export const faqItems: FAQItem[] = [
   {
     question: "¿Hay una prueba gratuita disponible?",
     answer:
-      "Sí, puedes probar nuestro servicio gratis durante 14 días. Si lo deseas, te ofreceremos una llamada de orientación personalizada de 30 minutos para que empieces a usarlo lo antes posible.",
+      "Sí, puedes probar nuestro servicio gratis durante 7 días. Si lo deseas, te ofreceremos una llamada de orientación personalizada de 30 minutos para que empieces a usarlo lo antes posible.",
   },
   {
     question: "¿Puedo cambiar mi plan más adelante?",
