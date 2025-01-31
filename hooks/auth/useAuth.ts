@@ -9,48 +9,34 @@ export const useAuth = () => {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        // Si ya hay un usuario en el estado, no hagas más peticiones
-        if (user) {
-          setLoading(false);
-          return;
-        }
-
-        // Verifica si hay datos persistidos en el localStorage
-        const storedState = localStorage.getItem("auth-store");
-        if (storedState) {
-          const parsedState = JSON.parse(storedState);
-          if (parsedState?.state?.user) {
-            setUser(parsedState.state.user); // Usa el usuario almacenado
-            setLoading(false);
-            return;
-          }
-        }
-
-        // Si no hay datos en localStorage, intenta obtenerlos del backend
         const currentUser = await getCurrentUser();
         if (currentUser) {
           const userAttributes = await fetchUserAttributes();
           const newUser = {
-            username: currentUser.username,
+            nickName: userAttributes?.nickname || undefined,
             email: userAttributes?.email || "",
             picture: userAttributes?.picture || undefined,
+            preferredUsername: userAttributes?.preferred_username || "",
+            plan: userAttributes?.["custom:plan"] || undefined,
           };
-
-          // Actualiza el estado global
           setUser(newUser);
         } else {
           clearUser();
         }
       } catch (error) {
-        console.error("Error al obtener el usuario o sus atributos:", error);
+        console.error("Error al obtener el usuario:", error);
         clearUser();
       } finally {
         setLoading(false);
       }
     };
 
-    checkUser();
-  }, [user, setUser, clearUser]);
+    if (!user) {
+      checkUser();
+    } else {
+      setLoading(false);
+    }
+  }, [setUser, clearUser, user]); 
 
   return { loading };
 };

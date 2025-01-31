@@ -118,7 +118,7 @@ export function Personalization() {
   const [activeTheme, setActiveTheme] = useState<Theme>("simple");
 
   return (
-    <div className="p-4 md:p-8 min-h-screen bg-gray-100">
+    <div className="p-4 md:p-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
           {/* Left side - Platform information */}
