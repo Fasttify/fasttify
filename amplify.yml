@@ -3,9 +3,10 @@ backend:
   phases:
     build:
       commands:
+        - cd amplify/functions/createSubscription && npm install
+        - cd ../../..  
         - npm ci --cache .npm --prefer-offline
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
-        - cd amplify/functions/createSubscription && npm install
 frontend:
   phases:
     build:
