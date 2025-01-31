@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Star, Camera, RefreshCw } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectFade, Autoplay } from "swiper/modules";
+import { TextReveal } from "@/components/ui/text-reveal";
 import Link from "next/link";
 import Image from "next/image";
 import "swiper/css";
@@ -37,6 +38,16 @@ export const DocsLanding = () => {
   return (
     <>
       <Navbar />
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-purple-400 to-purple-300 p-12">
+        <div className="max-w-7xl">
+          <div>
+            <h1 className="text-8xl font-light text- flex flex-col items-center text-center md:-translate-x-20">
+              Fasttify studio
+            </h1>
+            <TextReveal text="Magic UI will change the way you design." />
+          </div>
+        </div>
+      </div>
       <div className="min-h-screen bg-white p-4 md:p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-7xl mx-auto mt-16">
           {/* Main Hero Card */}
