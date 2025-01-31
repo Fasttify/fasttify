@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Menu, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -16,6 +17,7 @@ import { signOut } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
 import { Amplify } from "aws-amplify";
 import { UserMenu } from "@/app/landing/components/UserMenu";
+import { Skeleton } from "@/components/ui/skeleton";
 import useUserStore from "@/store/userStore";
 import Link from "next/link";
 import outputs from "@/amplify_outputs.json";
@@ -78,7 +80,7 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 left-0 right-0 z-[100] bg-white  ">
+    <nav className="sticky top-0 left-0 right-0 z-[100] bg-white">
       <div className="w-full">
         <div className="flex items-center justify-between px-6 py-4 max-w-7xl w-full mx-auto">
           <Link href="/" className="flex items-center space-x-2 mr-8">
@@ -134,7 +136,11 @@ export function Navbar() {
             </div>
 
             <div className="flex items-center space-x-4">
-              {user ? (
+              {loading ? (
+                <>
+                  <Skeleton className="h-9 w-9 rounded-full" />
+                </>
+              ) : user ? (
                 <UserMenu
                   user={user}
                   loading={loading}
@@ -148,16 +154,19 @@ export function Navbar() {
                   >
                     Iniciar sesión
                   </Link>
-                  <Button className="bg-black text-white hover:bg-gray-800">
-                    Prueba gratis
-                  </Button>
+                  <Button variant="link">Prueba gratis</Button>
                 </>
               )}
             </div>
           </div>
           <Sheet>
             <div className="flex items-center space-x-4 md:hidden">
-              {user ? (
+              {loading ? (
+                <>
+                  <Skeleton className="h-9 w-24 sm:block hidden" />
+                  <Skeleton className="h-9 w-9 rounded-full" />
+                </>
+              ) : user ? (
                 <UserMenu
                   user={user}
                   loading={loading}
@@ -171,13 +180,11 @@ export function Navbar() {
                   >
                     Iniciar sesión
                   </Link>
-                  <Button className="bg-black text-white hover:bg-gray-800">
-                    Prueba gratis
-                  </Button>
+                  <Button variant="link">Prueba gratis</Button>
                 </>
               )}
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button className="text-black" variant="link" size="icon">
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Abrir menú</span>
                 </Button>

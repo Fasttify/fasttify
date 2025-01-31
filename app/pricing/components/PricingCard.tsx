@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
@@ -9,6 +11,8 @@ import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/custom-toast/use-toast";
 import { Toast } from "@/components/ui/toasts";
+import useUserStore from "@/store/userStore";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 interface PricingCardProps {
   plan: {
@@ -27,8 +31,10 @@ interface PricingCardProps {
 
 export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { userData } = useAuthUser();
+  const { user } = useUserStore();
+  const { loading } = useAuth();
   const { toasts, addToast, removeToast } = useToast();
   const router = useRouter();
 
@@ -37,10 +43,7 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
       ? userData["cognito:username"]
       : null;
 
-  const hasActivePlan =
-    userData && userData["custom:plan"]
-      ? userData["custom:plan"] === plan.name
-      : false;
+  const hasActivePlan = user && user.plan ? user.plan === plan.name : false;
 
   const formatPrice = (price: string) => {
     if (price === "0") return "Gratis";
@@ -60,7 +63,7 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
       return;
     }
 
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       const restOperation = post({
         apiName: "SubscriptionApi",
@@ -86,14 +89,14 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
         "Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.",
         "error"
       );
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!document.hidden && loading) {
-        setLoading(false);
+      if (!document.hidden && isSubmitting) {
+        setIsSubmitting(false);
         addToast("Proceso de pago completado", "success");
       }
     };
@@ -103,12 +106,16 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [loading, addToast]);
+  }, [isSubmitting, addToast]);
+
+  if (loading) {
+    return <LoadingIndicator text="Cargando planes..." />;
+  }
 
   return (
     <>
       <AnimatePresence>
-        {loading && (
+        {isSubmitting && (
           <motion.div
             className="fixed inset-0 flex items-center justify-center bg-white/30 backdrop-blur-md z-50"
             initial={{ opacity: 0 }}
@@ -189,11 +196,11 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
             )}
             size="lg"
             onClick={handleSubscribe}
-            disabled={loading || hasActivePlan}
+            disabled={isSubmitting || hasActivePlan}
           >
             {hasActivePlan
               ? "Plan activo"
-              : loading
+              : isSubmitting
               ? "Procesando..."
               : plan.buttonText}
           </Button>

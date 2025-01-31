@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect } from "react";
 import { getCurrentUser, fetchUserAttributes } from "aws-amplify/auth";
 import { ConsoleLogger, Hub } from "aws-amplify/utils";

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+
 
 // Define el tipo del usuario
 interface User {
@@ -17,27 +17,18 @@ interface UserState {
   clearUser: () => void;
 }
 
-const useAuthStore = create<UserState>()(
-  persist(
-    (set) => ({
+const useAuthStore = create<UserState>((set) => ({
+  user: null,
+  // Actualiza el usuario
+  setUser: (newUserData) =>
+    set(() => ({
+      user: newUserData,
+    })),
+  // Limpia el usuario
+  clearUser: () =>
+    set(() => ({
       user: null,
-      // Actualiza el usuario
-      setUser: (newUserData) =>
-        set(() => ({
-          user: newUserData,
-        })),
-      // Limpia el usuario y el almacenamiento persistente
-      clearUser: () =>
-        set(() => {
-          localStorage.removeItem("auth-store");
-          return { user: null };
-        }),
-    }),
-    {
-      name: "auth-store",
-      storage: createJSONStorage(() => localStorage),
-    }
-  )
-);
+    })),
+}));
 
 export default useAuthStore;
