@@ -44,7 +44,7 @@ export const DocsLanding = () => {
             <h1 className="text-8xl font-light text- flex flex-col items-center text-center md:-translate-x-20">
               Fasttify studio
             </h1>
-            <TextReveal text="Magic UI will change the way you design." />
+            <TextReveal text="Fasttify cambiará la forma en que creas tu tienda." />
           </div>
         </div>
       </div>
