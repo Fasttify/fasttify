@@ -1,52 +1,41 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
-import "./../app/app.css";
-import { Amplify } from "aws-amplify";
-import outputs from "@/amplify_outputs.json";
-import "@aws-amplify/ui-react/styles.css";
+import { useEffect } from "react";
+import { getCurrentUser, fetchUserAttributes } from "aws-amplify/auth";
+import { ConsoleLogger, Hub } from "aws-amplify/utils";
+import { DocsLanding } from "@/app/landing/components/DocsLanding";
+import "aws-amplify/auth/enable-oauth-listener";
 
-Amplify.configure(outputs);
+const logger = new ConsoleLogger("HomePage");
 
-const client = generateClient<Schema>();
-
-export default function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
-
-  function listTodos() {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }
-
+export default function Home() {
   useEffect(() => {
-    listTodos();
+    const hubListenerCancelToken = Hub.listen("auth", async ({ payload }) => {
+      switch (payload.event) {
+        case "signInWithRedirect":
+          try {
+            const user = await getCurrentUser();
+            const userAttributes = await fetchUserAttributes();
+            console.log({ user, userAttributes });
+          } catch (error) {
+            console.error("Error al obtener la sesión del usuario:", error);
+          }
+          break;
+        case "signInWithRedirect_failure":
+          console.error(
+            "Error en el inicio de sesión con redirección:",
+            payload.data
+          );
+          break;
+        case "customOAuthState":
+          const state = payload.data;
+          console.log("Estado personalizado:", state);
+          break;
+      }
+    });
+
+    return () => hubListenerCancelToken();
   }, []);
 
-  function createTodo() {
-    client.models.Todo.create({
-      content: window.prompt("Todo content"),
-    });
-  }
-
-  return (
-    <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/">
-          Review next steps of this tutorial.
-        </a>
-      </div>
-    </main>
-  );
+  return <DocsLanding />;
 }

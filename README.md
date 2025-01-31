@@ -23,7 +23,10 @@ Fasttify empowers users to build their ecommerce business with:
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/your-repo/fasttify.git
+
+   git clone https://github.com/Stivenjs/Fasttify.git
+
+
    cd fasttify
    ```
 
