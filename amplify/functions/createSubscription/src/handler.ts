@@ -1,6 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { MercadoPagoConfig, PreApproval } from "mercadopago";
 
+
 // Configurar el cliente de Mercado Pago
 const client = new MercadoPagoConfig({
   accessToken:
