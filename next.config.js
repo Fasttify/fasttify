@@ -14,6 +14,14 @@ const nextConfig = {
       },
     ],
   },
+  webpack(config, { isServer }) {
+    if (isServer) {
+      config.externals = {
+        mercadopago: "mercadopago",
+      };
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig;
