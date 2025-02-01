@@ -1,6 +1,5 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
 import { MercadoPagoConfig, PreApproval } from "mercadopago";
-
+import { APIGatewayProxyHandler } from "aws-lambda";
 
 // Configurar el cliente de Mercado Pago
 const client = new MercadoPagoConfig({
@@ -29,10 +28,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         reason: plan.name,
         auto_recurring: {
           frequency: 1,
-          frequency_type: "months",   
+          frequency_type: "months",
           transaction_amount: plan.price,
           currency_id: "COP",
-        },    
+        },
         external_reference: userId,
         payer_email: "test_user_122149942@testuser.com",
         back_url: "https://dev.d3ec9adgouri1.amplifyapp.com",
