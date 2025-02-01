@@ -97,7 +97,6 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
     const handleVisibilityChange = () => {
       if (!document.hidden && isSubmitting) {
         setIsSubmitting(false);
-        addToast("Proceso de pago completado", "success");
       }
     };
 
