@@ -1,4 +1,3 @@
-
 declare module "mercadopago" {
   export class MercadoPagoConfig {
     constructor(config: { accessToken: string });
