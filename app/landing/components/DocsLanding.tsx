@@ -38,16 +38,15 @@ export const DocsLanding = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-purple-400 to-purple-300 p-12">
-        <div className="max-w-7xl">
-          <div>
-            <h1 className="text-8xl font-light text- flex flex-col items-center text-center md:-translate-x-20">
-              Fasttify studio
-            </h1>
-            <TextReveal text="Fasttify cambiará la forma en que creas tu tienda." />
-          </div>
-        </div>
+      <br />
+
+      <div className="max-w-7xl ">
+        <h1 className="text-8xl font-light text- flex flex-col items-center text-center md:-translate-x-20">
+          Fasttify studio
+        </h1>
+        <TextReveal text="Fasttify cambiará la forma en que creas tu tienda." />
       </div>
+
       <div className="min-h-screen bg-white p-4 md:p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-7xl mx-auto mt-16">
           {/* Main Hero Card */}
@@ -141,13 +140,18 @@ export const DocsLanding = () => {
           {/* Contact Card */}
           <Card className="relative p-8 bg-[#E8C7C3] rounded-3xl overflow-hidden h-[300px] group hover:shadow-lg transition-shadow">
             <div className="flex items-start space-x-6">
-              <div className="relative">
-                <div className="absolute -left-3 -top-3 w-32 h-32 bg-yellow-400 rounded-2xl transform -rotate-6 transition-transform group-hover:rotate-0" />
-                <div className="relative z-10 w-28 h-28 rounded-xl overflow-hidden">
+              <div className="relative w-20 h-20 sm:w-32 sm:h-32">
+                <div
+                  className="absolute -left-1.5 -top-1.5 sm:-left-3 sm:-top-3 w-full h-full 
+        bg-yellow-400 rounded-xl sm:rounded-2xl transform -rotate-3 sm:-rotate-6 
+        transition-transform group-hover:rotate-0"
+                />
+                <div className="relative z-10 w-full h-full rounded-lg sm:rounded-xl overflow-hidden">
                   <Image
                     src="https://images.unsplash.com/photo-1634733988596-093e2a324c2f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt="Promotional Image"
                     fill
+                    sizes="(max-width: 640px) 320px, 220px"
                     className="object-cover"
                   />
                 </div>
