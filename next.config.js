@@ -14,12 +14,6 @@ const nextConfig = {
       },
     ],
   },
-  webpack(config) {
-    config.externals = {
-      mercadopago: "mercadopago", 
-    };
-    return config;
-  },
 };
 
 module.exports = nextConfig;
