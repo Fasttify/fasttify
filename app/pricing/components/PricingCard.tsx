@@ -11,8 +11,8 @@ import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/custom-toast/use-toast";
 import { Toast } from "@/components/ui/toasts";
-import useUserStore from "@/store/userStore";
 import { useAuth } from "@/hooks/auth/useAuth";
+import useUserStore from "@/store/userStore";
 
 interface PricingCardProps {
   plan: {

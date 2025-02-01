@@ -1,8 +1,11 @@
 "use client";
 
-import React from "react";
-import { Menu, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Menu, ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Amplify } from "aws-amplify";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   NavigationMenu,
@@ -15,11 +18,9 @@ import {
 import { useAuth } from "@/hooks/auth/useAuth";
 import { signOut } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
-import { Amplify } from "aws-amplify";
 import { UserMenu } from "@/app/landing/components/UserMenu";
 import { Skeleton } from "@/components/ui/skeleton";
 import useUserStore from "@/store/userStore";
-import Link from "next/link";
 import outputs from "@/amplify_outputs.json";
 
 Amplify.configure(outputs);
@@ -48,7 +49,7 @@ const navItems = [
       {
         title: "Integraciones",
         href: "/#integraciones",
-        description: "Integraciones, y actualizacion de nuestra plataforma",
+        description: "Integraciones y actualización de nuestra plataforma",
       },
       {
         title: "Multiplataforma",
@@ -68,6 +69,7 @@ export function Navbar() {
   const { user, clearUser } = useUserStore();
   const { loading } = useAuth();
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -80,148 +82,179 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 left-0 right-0 z-[100] bg-white">
-      <div className="w-full">
-        <div className="flex items-center justify-between px-6 py-4 max-w-7xl w-full mx-auto">
-          <Link href="/" className="flex items-center space-x-2 mr-8">
-            <img src="/icons/fast@4x.webp" alt="Logo 1" className="h-8 w-8" />
-            <img
-              src="/icons/fastletras@4x.webp"
-              alt="Fasttify Logo"
-              className="h-8"
-            />
-          </Link>
+    <nav className="sticky top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Link href="/" className="flex-shrink-0 flex items-center">
+              <Image
+                src="/icons/fast@4x.webp"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8"
+              />
+              <Image
+                src="/icons/fastletras@4x.webp"
+                alt="Fasttify"
+                width={96}
+                height={32}
+                className="h-8 w-auto ml-2"
+              />
+            </Link>
+          </div>
 
-          <div className="hidden md:flex items-center flex-1 justify-between">
-            <div className="flex items-center space-x-1">
-              <NavigationMenu className="z-[101]">
-                <NavigationMenuList className="space-x-1">
-                  {navItems.map((item) => (
-                    <NavigationMenuItem key={item.label}>
-                      <NavigationMenuTrigger className="h-9 px-4 text-sm bg-transparent hover:bg-gray-50 data-[state=open]:bg-gray-50 data-[active]:bg-gray-50 font-normal">
-                        {item.label}
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4">
-                          {item.content.map((subItem) => (
-                            <li key={subItem.href}>
-                              <NavigationMenuLink asChild>
-                                <Link
-                                  href={subItem.href}
-                                  className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-50"
-                                >
-                                  <div className="text-sm font-medium leading-none">
-                                    {subItem.title}
-                                  </div>
-                                  <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                    {subItem.description}
-                                  </p>
-                                </Link>
-                              </NavigationMenuLink>
-                            </li>
-                          ))}
-                        </ul>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
-                  ))}
-                  <NavigationMenuItem>
-                    <Link href="/pricing" legacyBehavior passHref>
-                      <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-normal transition-colors hover:bg-gray-50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                        Precios
-                      </NavigationMenuLink>
-                    </Link>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-4">
+            <NavigationMenu>
+              <NavigationMenuList>
+                {navItems.map((item) => (
+                  <NavigationMenuItem key={item.label}>
+                    <NavigationMenuTrigger className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                      {item.label}
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px]">
+                        {item.content.map((subItem) => (
+                          <li key={subItem.title}>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                href={subItem.href}
+                                className="block p-3 hover:bg-gray-50 rounded-lg"
+                              >
+                                <div className="text-sm font-medium text-gray-900">
+                                  {subItem.title}
+                                </div>
+                                <p className="mt-1 text-sm text-gray-500">
+                                  {subItem.description}
+                                </p>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </NavigationMenuContent>
                   </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {loading ? (
-                <>
-                  <Skeleton className="h-9 w-9 rounded-full" />
-                </>
-              ) : user ? (
-                <UserMenu
-                  user={user}
-                  loading={loading}
-                  onSignOut={handleSignOut}
-                />
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    Iniciar sesión
+                ))}
+                <NavigationMenuItem>
+                  <Link href="/pricing" legacyBehavior passHref>
+                    <NavigationMenuLink className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                      Precios
+                    </NavigationMenuLink>
                   </Link>
-                  <Button variant="link">Prueba gratis</Button>
-                </>
-              )}
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+
+          <div className="flex items-center">
+            {loading ? (
+              <Skeleton className="h-8 w-8 rounded-full" />
+            ) : user ? (
+              <UserMenu
+                user={user}
+                loading={loading}
+                onSignOut={handleSignOut}
+              />
+            ) : (
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/login">Iniciar sesión</Link>
+              </Button>
+            )}
+
+            {/* Mobile menu button */}
+            <div className="flex items-center md:hidden">
+              <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Abrir menú"
+                    className="text-gray-500 hover:text-gray-600"
+                  >
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-center justify-between py-4">
+                      <Link
+                        href="/"
+                        className="flex items-center"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <Image
+                          src="/icons/fast@4x.webp"
+                          alt="Logo"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8"
+                        />
+                        <Image
+                          src="/icons/fastletras@4x.webp"
+                          alt="Fasttify"
+                          width={96}
+                          height={32}
+                          className="h-8 w-auto ml-2"
+                        />
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsOpen(false)}
+                        className="text-gray-500 hover:text-gray-600"
+                      >
+                        <X className="h-6 w-6" />
+                      </Button>
+                    </div>
+                    <div className="flex-grow overflow-y-auto">
+                      {navItems.map((item) => (
+                        <div key={item.label} className="py-2">
+                          <div className="flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-900">
+                            {item.label}
+                            <ChevronDown className="h-4 w-4 text-gray-500" />
+                          </div>
+                          <div className="mt-2 space-y-2">
+                            {item.content.map((subItem) => (
+                              <Link
+                                key={subItem.title}
+                                href={subItem.href}
+                                className="block px-4 py-2 text-sm text-gray-500 hover:bg-gray-50"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                {subItem.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      <Link
+                        href="/pricing"
+                        className="block px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Precios
+                      </Link>
+                    </div>
+                    {!user && (
+                      <div className="mt-auto p-4 border-t border-gray-200">
+                        <Button asChild className="w-full mb-2">
+                          <Link href="/signup" onClick={() => setIsOpen(false)}>
+                            Prueba gratis
+                          </Link>
+                        </Button>
+                        <Button asChild variant="outline" className="w-full">
+                          <Link href="/login" onClick={() => setIsOpen(false)}>
+                            Iniciar sesión
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
-          <Sheet>
-            <div className="flex items-center space-x-4 md:hidden">
-              {loading ? (
-                <>
-                  <Skeleton className="h-9 w-24 sm:block hidden" />
-                  <Skeleton className="h-9 w-9 rounded-full" />
-                </>
-              ) : user ? (
-                <UserMenu
-                  user={user}
-                  loading={loading}
-                  onSignOut={handleSignOut}
-                />
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    Iniciar sesión
-                  </Link>
-                  <Button variant="link">Prueba gratis</Button>
-                </>
-              )}
-              <SheetTrigger asChild>
-                <Button className="text-black" variant="link" size="icon">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Abrir menú</span>
-                </Button>
-              </SheetTrigger>
-            </div>
-            <SheetContent className="mt-14" side="right">
-              <nav className="flex flex-col space-y-6 ">
-                {navItems.map((item) => (
-                  <div key={item.label} className="space-y-3">
-                    <h3 className="font-medium text-foreground flex items-center">
-                      {item.label}
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    </h3>
-                    <div className="grid gap-3">
-                      {item.content.map((subItem) => (
-                        <Link
-                          key={subItem.href}
-                          href={subItem.href}
-                          className="group grid gap-1"
-                        >
-                          <div className="text-sm font-medium leading-none group-hover:text-gray-900">
-                            {subItem.title}
-                          </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                            {subItem.description}
-                          </p>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                <Link href="/pricing" className="text-sm font-medium">
-                  Precios
-                </Link>
-              </nav>
-            </SheetContent>
-          </Sheet>
         </div>
       </div>
     </nav>
