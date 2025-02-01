@@ -1,30 +1,24 @@
-import { MercadoPagoConfig, PreApproval } from "mercadopago";
 import { APIGatewayProxyHandler } from "aws-lambda";
 
-// Configurar el cliente de Mercado Pago
-const client = new MercadoPagoConfig({
-  accessToken:
-    "APP_USR-7125774029717459-012516-6dbf616e4d2c31d97793b6b42c04469a-2229811359",
-});
-
-// Inicializar la API de Preapproval
-const preapproval = new PreApproval(client);
+const MERCADOPAGO_ACCESS_TOKEN =
+  "APP_USR-7125774029717459-012516-6dbf616e4d2c31d97793b6b42c04469a-2229811359";
+const MERCADOPAGO_API_URL = "https://api.mercadopago.com/preapproval";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   console.log("Evento recibido:", JSON.stringify(event, null, 2));
 
   try {
-    // 1. Parsear el cuerpo de la solicitud
     const body = JSON.parse(event.body || "{}");
-    console.log("Cuerpo de la solicitud:", JSON.stringify(body, null, 2));
-
     const { userId, plan } = body;
-    console.log("Datos del plan:", JSON.stringify(plan, null, 2));
 
-    // 2. Crear la suscripción con periodo de prueba
-    console.log("Creando suscripción en Mercado Pago...");
-    const subscription = await preapproval.create({
-      body: {
+    // Crear la solicitud directamente al API
+    const response = await fetch(MERCADOPAGO_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${MERCADOPAGO_ACCESS_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         reason: plan.name,
         auto_recurring: {
           frequency: 1,
@@ -36,11 +30,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         payer_email: "test_user_122149942@testuser.com",
         back_url: "https://dev.d3ec9adgouri1.amplifyapp.com",
         status: "pending",
-      },
+      }),
     });
-    console.log("Suscripción creada:", JSON.stringify(subscription, null, 2));
 
-    // 3. Retornar la URL de checkout
+    if (!response.ok) {
+      throw new Error(`Error de MercadoPago: ${response.statusText}`);
+    }
+
+    const subscription = await response.json();
+
     return {
       statusCode: 200,
       headers: {
@@ -53,10 +51,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     };
   } catch (error) {
     console.error("Error en la función Lambda:", error);
-    if (error instanceof Error) {
-      console.error("Mensaje de error:", error.message);
-      console.error("Stack trace:", error.stack);
-    }
 
     return {
       statusCode: 500,
@@ -65,8 +59,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         "Access-Control-Allow-Headers": "*",
       },
       body: JSON.stringify({
-        error: "Error creating subscription",
-        details: error instanceof Error ? error.message : "Unknown error",
+        error: "Error creando suscripción",
+        details: error instanceof Error ? error.message : "Error desconocido",
       }),
     };
   }
