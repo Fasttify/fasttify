@@ -112,10 +112,12 @@ export function UserMenu({
           <DropdownMenuSeparator className="border-t" />
         </div>
         <div className="px-1 py-2">
-          <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
-            <User2 className="h-4 w-4" />
-            <span>Configuración de cuenta</span>
-          </DropdownMenuItem>
+          <Link href="/account-settings">
+            <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
+              <User2 className="h-4 w-4" />
+              <span>Configuración de cuenta</span>
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
             <LayoutGrid className="h-4 w-4" />
             <span>Integraciones</span>

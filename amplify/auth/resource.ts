@@ -29,12 +29,8 @@ export const auth = defineAuth({
         },
       },
 
-      callbackUrls: [
-        "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com/",
-      ],
-      logoutUrls: [
-        "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com//login",
-      ],
+      callbackUrls: ["http://localhost:3000"],
+      logoutUrls: ["http://localhost:3000/login"],
     },
   },
 
