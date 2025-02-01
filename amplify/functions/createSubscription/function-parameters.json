@@ -1,5 +1,5 @@
 {
-  "skipEsbuild": false,
+  "skipEsbuild": true,
   "resourceName": "createSubscription",
   "runtime": "nodejs18.x",
   "handler": "handler.handler",
