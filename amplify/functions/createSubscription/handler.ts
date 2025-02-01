@@ -28,7 +28,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         },
         external_reference: userId,
         payer_email: "test_user_122149942@testuser.com",
-        back_url: "https://dev.d3ec9adgouri1.amplifyapp.com",
+        back_url:
+          "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com/subscription-success",
         status: "pending",
       }),
     });
