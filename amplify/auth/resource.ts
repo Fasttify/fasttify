@@ -33,7 +33,7 @@ export const auth = defineAuth({
         "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com/",
       ],
       logoutUrls: [
-        "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com//login",
+        "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com/login",
       ],
     },
   },
