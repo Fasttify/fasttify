@@ -100,11 +100,11 @@ export function StepGuide() {
           </div>
 
           {/* Contenedor de los pasos */}
-          <div className="order-2 md:order-2 flex flex-col items-center md:place-items-stretch space-y-8 ml-14 sm:ml-8 md:ml-0">
+          <div className="flex flex-col items-center space-y-6 px-12 sm:px-6 md:px-8">
             {steps.map((step, index) => (
               <div
                 key={step.number}
-                className={`group cursor-pointer transition-all duration-300 w-full ${
+                className={`group cursor-pointer transition-all duration-300 w-full max-w-sm ${
                   activeStep === index + 1
                     ? "opacity-100 scale-105"
                     : "opacity-60 hover:opacity-80"
@@ -112,11 +112,11 @@ export function StepGuide() {
                 onMouseEnter={() => setActiveStep(index + 1)}
                 onClick={() => setActiveStep(index + 1)}
               >
-                <div className="flex flex-row items-center justify-center md:justify-start gap-4 mb-2">
-                  <span className="text-emerald-600 font-medium w-8">
+                <div className="flex flex-row items-center gap-4 mb-2">
+                  <span className="text-emerald-600 font-medium w-8 text-center">
                     {step.number}
                   </span>
-                  <h2 className="text-xl md:text-2xl lg:text-3xl font-light border-b border-transparent group-hover:border-gray-300 transition-colors pb-2">
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light border-b border-transparent group-hover:border-gray-300 transition-colors pb-2 flex-grow">
                     {step.title}
                   </h2>
                 </div>
@@ -125,7 +125,7 @@ export function StepGuide() {
 
             <Button
               variant="outline"
-              className="w-full md:w-auto mt-8 text-emerald-600 border-emerald-600 hover:bg-emerald-600 hover:text-white transition-colors rounded-full px-8"
+              className="w-full sm:w-auto mt-6 text-emerald-600 border-emerald-600 hover:bg-emerald-600 hover:text-white transition-colors rounded-full px-8"
             >
               Comienza ya
             </Button>
