@@ -1,6 +1,9 @@
 {
-  "skipEsbuild": true,
+  "skipEsbuild": false,
   "resourceName": "createSubscription",
   "runtime": "nodejs18.x",
-  "handler": "handler.handler"
+  "handler": "handler.handler",
+  "esbuildExternal": [
+    "mercadopago"
+  ]
 }
