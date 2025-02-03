@@ -8,6 +8,8 @@ interface User {
   picture?: string;
   preferredUsername?: string;
   plan?: string;
+  bio?: string;
+  phone?: string;
 }
 
 // Define el estado y las acciones del store

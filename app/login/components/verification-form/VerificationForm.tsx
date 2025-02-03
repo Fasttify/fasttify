@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -116,8 +117,15 @@ export function VerificationForm({
           className="w-full bg-black text-white hover:bg-black/90"
           disabled={isSubmitted}
         >
-          {isSubmitted ? "Verificando..." : "Verificar correo"}
+          {isSubmitted ? (
+            <>
+              <Loader2 className="animate-spin" /> Verificado codigo
+            </>
+          ) : (
+            "Verificar codigo"
+          )}
         </Button>
+
         <Button
           type="button"
           variant="ghost"

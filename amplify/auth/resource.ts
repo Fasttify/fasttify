@@ -29,21 +29,34 @@ export const auth = defineAuth({
         },
       },
 
-      callbackUrls: [
-        "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com",
-      ],
-      logoutUrls: [
-        "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com/login",
-      ],
+      callbackUrls: ["http://localhost:3000"],
+      logoutUrls: ["http://localhost:3000/login"],
     },
   },
 
   userAttributes: {
+    nickname: {
+      mutable: true,
+      required: false,
+    },
     preferredUsername: {
       mutable: true,
       required: false,
     },
     "custom:plan": {
+      mutable: true,
+      dataType: "String",
+      maxLen: 255,
+      minLen: 1,
+    },
+
+    "custom:bio": {
+      mutable: true,
+      dataType: "String",
+      maxLen: 255,
+      minLen: 1,
+    },
+    "custom:phone": {
       mutable: true,
       dataType: "String",
       maxLen: 255,

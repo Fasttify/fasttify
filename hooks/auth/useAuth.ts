@@ -18,6 +18,8 @@ export const useAuth = () => {
             picture: userAttributes?.picture || undefined,
             preferredUsername: userAttributes?.preferred_username || "",
             plan: userAttributes?.["custom:plan"] || undefined,
+            bio: userAttributes?.["custom:bio"] || undefined,
+            phone: userAttributes?.["custom:phone"] || undefined,
           };
           setUser(newUser);
         } else {
@@ -36,7 +38,7 @@ export const useAuth = () => {
     } else {
       setLoading(false);
     }
-  }, [setUser, clearUser, user]); 
+  }, [setUser, clearUser, user]);
 
   return { loading };
 };

@@ -47,7 +47,7 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                  <Link href="/pricing" className="text-gray-600 hover:text-gray-900">
                     Precios
                   </Link>
                 </li>
@@ -81,22 +81,22 @@ export function Footer() {
               <h3 className="font-semibold mb-4">Legal</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                  <Link href="/terms" className="text-gray-600 hover:text-gray-900">
                     Términos de servicio
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                  <Link href="/terms" className="text-gray-600 hover:text-gray-900">
                     Política de privacidad
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                  <Link href="/terms" className="text-gray-600 hover:text-gray-900">
                     Política de cookies
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-gray-600 hover:text-gray-900">
+                  <Link href="/terms" className="text-gray-600 hover:text-gray-900">
                     Proceso de datos
                   </Link>
                 </li>

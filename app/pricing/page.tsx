@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { PricingCard } from "@/app/pricing/components/PricingCard";
 import { Footer } from "@/app/landing/components/Footer";
@@ -50,7 +50,6 @@ const plans = [
       "Unlimited management",
       "Unlimited collaborators",
       "Links with password protection",
-      
     ],
     buttonText: "Get Efficient Plan",
     className: "bg-[#b3efe3] hover:bg-[#9ee6d8]",
@@ -74,6 +73,11 @@ const plans = [
 
 export default function App() {
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = "Planes y Pagos - Fasttify";
+  }, []);
+
 
   return (
     <>

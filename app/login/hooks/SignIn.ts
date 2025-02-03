@@ -1,8 +1,7 @@
 import { useState, useCallback } from "react";
-import { signIn, type SignInInput } from "aws-amplify/auth";
+import { signIn, resendSignUpCode, type SignInInput } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
 import { Amplify } from "aws-amplify";
-
 import outputs from "@/amplify_outputs.json";
 
 Amplify.configure(outputs);
@@ -13,6 +12,7 @@ interface UseAuthReturn {
   error: string | null;
   isAuthenticated: boolean;
   clearError: () => void;
+  resendConfirmationCode: (email: string) => Promise<void>; 
 }
 
 interface AuthError {
@@ -43,6 +43,8 @@ export function useAuth({
         return "Demasiados intentos. Por favor, intenta más tarde";
       case "UserNotConfirmedException":
         return "Por favor confirma tu cuenta primero";
+      case "Attempt limit exceeded, please try after some time.":
+        return "Número de intentos excedido. Intenta más tarde";
       case "NetworkError":
         return "Error de conexión. Por favor, verifica tu internet";
       case "There is already a signed in user.":
@@ -56,6 +58,25 @@ export function useAuth({
 
   const clearError = useCallback(() => {
     setError(null);
+  }, []);
+
+  // Nueva función para reenviar el código de confirmación
+  const resendConfirmationCode = useCallback(async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await resendSignUpCode({ username: email });
+      console.log("[Auth] Confirmation code resent successfully");
+      setError(
+        "Se ha reenviado el código de verificación. Por favor, revisa tu correo."
+      );
+    } catch (err) {
+      console.error("[Auth] Error resending confirmation code:", err);
+      setError(getErrorMessage(err as AuthError));
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   const login = useCallback(
@@ -74,10 +95,24 @@ export function useAuth({
         if (isSignedIn) {
           setIsAuthenticated(true);
           await router.push(redirectPath);
-        } else if (onVerificationNeeded) {
-          onVerificationNeeded(email, password);
+        } else if (nextStep.signInStep === "CONFIRM_SIGN_UP") {
+          // Si el usuario no ha confirmado su registro, reenvía el código
+          await resendConfirmationCode(email);
+          // Redirige al usuario a la interfaz de verificación
+          if (onVerificationNeeded) {
+            onVerificationNeeded(email, password);
+          }
+        } else if (nextStep.signInStep === "CONFIRM_SIGN_IN_WITH_EMAIL_CODE") {
+          // Si se requiere un código de verificación adicional
+          if (onVerificationNeeded) {
+            onVerificationNeeded(email, password);
+          } else {
+            setError("Se requiere verificación adicional");
+          }
         } else {
-          setError("Se requiere verificación adicional");
+          setError(
+            "Se requiere una acción adicional para completar el inicio de sesión"
+          );
         }
       } catch (err) {
         setError(getErrorMessage(err as AuthError));
@@ -86,7 +121,7 @@ export function useAuth({
         setIsLoading(false);
       }
     },
-    [router, redirectPath, onVerificationNeeded]
+    [router, redirectPath, onVerificationNeeded, resendConfirmationCode]
   );
 
   return {
@@ -95,5 +130,6 @@ export function useAuth({
     error,
     isAuthenticated,
     clearError,
+    resendConfirmationCode, 
   };
 }

@@ -12,7 +12,7 @@ const client = new CognitoIdentityProviderClient();
 
 // Clave secreta de Mercado Pago (debes configurarla en el panel de Mercado Pago)
 const MERCADO_PAGO_WEBHOOK_SECRET =
-  "086cb13be04912968067956f4b3f887508fa64c6b1177955e1c7f10aaebd098b";
+  "1384e0f904220759e2d1f2ed68c4c00877bb642389684614677a1372b6ee5347";
 
 // Token de acceso de Mercado Pago
 const MERCADO_PAGO_ACCESS_TOKEN =
@@ -98,7 +98,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     // 8. Obtener el plan actual del usuario desde Cognito
     const getUserCommand = new AdminGetUserCommand({
-      UserPoolId: "us-east-2_4yZwbrdZc",
+      UserPoolId: "us-east-2_EVU1jxAq4",
       Username: userId,
     });
 
@@ -143,7 +143,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     // 11. Actualizar el atributo personalizado en Cognito (solo si es necesario)
     if (status !== "pending" && planValue !== currentPlan) {
       const command = new AdminUpdateUserAttributesCommand({
-        UserPoolId: "us-east-2_4yZwbrdZc",
+        UserPoolId: "us-east-2_EVU1jxAq4",
         Username: userId,
         UserAttributes: [
           {
