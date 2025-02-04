@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
-
+import ConfigureAmplifyClientSide from "@/utils/ConfigureAmplify";
 import "./global.css";
 
 const roboto = Roboto({
@@ -24,7 +24,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-       {children}
+        <ConfigureAmplifyClientSide />
+        {children}
       </body>
     </html>
   );

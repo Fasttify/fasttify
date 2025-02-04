@@ -37,7 +37,7 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
   const { loading } = useAuth();
   const { toasts, addToast, removeToast } = useToast();
   const router = useRouter();
-
+  console.log(userData)
   const cognitoUsername =
     userData && userData["cognito:username"]
       ? userData["cognito:username"]
