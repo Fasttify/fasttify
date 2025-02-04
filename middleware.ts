@@ -1,40 +1,89 @@
-// middleware.ts
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAuthSession } from "aws-amplify/auth/server";
 import { runWithAmplifyServerContext } from "@/utils/amplify-utils";
 
-export async function middleware(request: NextRequest) {
-  const response = NextResponse.next();
-
-  const hasValidPlan = await runWithAmplifyServerContext({
+/**
+ * Obtiene la sesión del usuario dentro del contexto de Amplify.
+ */
+async function getSession(request: NextRequest, response: NextResponse) {
+  return runWithAmplifyServerContext({
     nextServerContext: { request, response },
     operation: async (contextSpec) => {
       try {
         const session = await fetchAuthSession(contextSpec, {});
-        // Verificar que el token exista y extraer el atributo "custom:plan"
-        const userPlan: string | undefined =
-          session.tokens?.idToken?.payload?.["custom:plan"] as string | undefined;
-        const allowedPlans = ["Royal", "Majestic", "Imperial"];
-
-        // Retorna true solo si el usuario tiene un plan válido
-        return !!userPlan && allowedPlans.includes(userPlan);
+        return session.tokens !== undefined ? session : null;
       } catch (error) {
         console.error("Error fetching user session:", error);
-        return false;
+        return null;
       }
     },
   });
-
-  if (hasValidPlan) {
-    // Si el usuario tiene un plan permitido, se continúa con la solicitud
-    return response;
-  }
-
-  // Si no, se redirige a la página de inicio
-  return NextResponse.redirect(new URL("/pricing", request.url));
 }
 
+/**
+ * Middleware para verificar si el usuario tiene un plan válido para acceder a /subscription-success.
+ */
+async function handleSubscriptionMiddleware(
+  request: NextRequest,
+  response: NextResponse
+) {
+  const session = await getSession(request, response);
+
+  if (!session) {
+    return NextResponse.redirect(new URL("/pricing", request.url));
+  }
+
+  const userPlan: string | undefined = session.tokens?.idToken?.payload?.[
+    "custom:plan"
+  ] as string | undefined;
+
+  const allowedPlans = ["Royal", "Majestic", "Imperial"];
+
+  if (!userPlan || !allowedPlans.includes(userPlan)) {
+    return NextResponse.redirect(new URL("/pricing", request.url));
+  }
+
+  return response;
+}
+
+/**
+ * Middleware para verificar si el usuario está autenticado antes de acceder a /account-settings.
+ */
+async function handleAuthenticationMiddleware(
+  request: NextRequest,
+  response: NextResponse
+) {
+  const session = await getSession(request, response);
+
+  if (!session) {
+    console.warn("🔒 Usuario no autenticado, redirigiendo a /login");
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  return response;
+}
+
+/**
+ * Middleware principal que dirige la solicitud al middleware correspondiente según la ruta.
+ */
+export async function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+  const path = request.nextUrl.pathname;
+
+  if (path === "/subscription-success") {
+    return handleSubscriptionMiddleware(request, response);
+  }
+
+  if (path === "/account-settings") {
+    return handleAuthenticationMiddleware(request, response);
+  }
+
+  return response;
+}
+
+/**
+ * Configuración del middleware para definir las rutas protegidas.
+ */
 export const config = {
-  // Este middleware se ejecuta únicamente para la ruta /subscription-success
-  matcher: "/subscription-success",
+  matcher: ["/subscription-success", "/account-settings"],
 };
