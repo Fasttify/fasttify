@@ -12,7 +12,7 @@ interface UseAuthReturn {
   error: string | null;
   isAuthenticated: boolean;
   clearError: () => void;
-  resendConfirmationCode: (email: string) => Promise<void>; 
+  resendConfirmationCode: (email: string) => Promise<void>;
 }
 
 interface AuthError {
@@ -67,7 +67,7 @@ export function useAuth({
 
     try {
       await resendSignUpCode({ username: email });
-      console.log("[Auth] Confirmation code resent successfully");
+
       setError(
         "Se ha reenviado el código de verificación. Por favor, revisa tu correo."
       );
@@ -130,6 +130,6 @@ export function useAuth({
     error,
     isAuthenticated,
     clearError,
-    resendConfirmationCode, 
+    resendConfirmationCode,
   };
 }

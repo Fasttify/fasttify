@@ -17,7 +17,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { verificationSchema, type VerificationFormData } from "@/lib/schemas";
+import {
+  verificationSchema,
+  type VerificationFormData,
+} from "@/lib/schemas/schemas";
 
 interface VerificationFormProps {
   email: string;

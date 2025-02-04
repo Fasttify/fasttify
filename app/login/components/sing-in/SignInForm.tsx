@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { signInSchema, type SignInFormData } from "@/lib/schemas";
+import { signInSchema, type SignInFormData } from "@/lib/schemas/schemas";
 import { useAuth } from "@/app/login/hooks/SignIn";
 
 interface SignInFormProps {

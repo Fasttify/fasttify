@@ -20,7 +20,7 @@ import {
   confirmResetPasswordSchema,
   type ForgotPasswordFormData,
   type ConfirmResetPasswordFormData,
-} from "@/lib/schemas";
+} from "@/lib/schemas/schemas";
 
 interface ForgotPasswordFormProps {
   onBack: () => void;

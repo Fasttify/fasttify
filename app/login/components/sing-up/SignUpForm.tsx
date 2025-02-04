@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signUpSchema, type SignUpFormData } from "@/lib/schemas";
+import { signUpSchema, type SignUpFormData } from "@/lib/schemas/schemas";
 
 interface SignUpFormProps {
   onVerificationNeeded: (email: string, password: string) => void;
