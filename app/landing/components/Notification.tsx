@@ -14,7 +14,7 @@ import Link from "next/link";
 export function PurchaseHistoryDemo() {
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4"> text-5xl md:text-6xl font-normal
         <div className="space-y-4 mb-12">
           <h1 className="text-5xl md:text-6xl font-normal">
             Emprende tu negocio de dropshipping hoy mismo

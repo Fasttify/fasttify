@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Accordion,
@@ -25,14 +25,16 @@ export function FAQSection({
   items,
 }: FAQSectionProps) {
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto px-4 py-12">
       <div className="text-center mb-12">
-        <p className="text-sm text-muted-foreground mb-2">FAQs</p>
-        <h1 className="text-3xl font-medium mb-2">{title}</h1>
-        <p className="text-muted-foreground">{subtitle}</p>
+        <p className="text-xl text-gray-600 mb-2">FAQs</p>
+        <h1 className="text-5xl md:text-5xl font-extralight text-center mb-2">
+          {title}
+        </h1>
+        <p className=" text-xl text-gray-600">{subtitle}</p>
       </div>
 
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion type="single" collapsible className="w-full ">
         {items.map((item, index) => (
           <AccordionItem
             key={index}
@@ -44,14 +46,14 @@ export function FAQSection({
           >
             <AccordionTrigger
               className={cn(
-                "text-base font-normal hover:no-underline",
+                "text-xl font-normal hover:no-underline",
                 "[&[data-state=open]>div]:font-medium",
                 "transition-all duration-200"
               )}
             >
               {item.question}
             </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">
+            <AccordionContent className="text-gray-600 text-base">
               {item.answer}
             </AccordionContent>
           </AccordionItem>

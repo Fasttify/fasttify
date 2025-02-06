@@ -1,6 +1,7 @@
 import { defineBackend } from "@aws-amplify/backend";
 import { auth } from "./auth/resource";
 import { data } from "./data/resource";
+import { storage } from "./storage/resource";
 import { createSubscription } from "./functions/createSubscription/resource";
 import { webHookPlan } from "./functions/webHookPlan/resource";
 import { Stack } from "aws-cdk-lib";
@@ -18,6 +19,7 @@ import { Policy, PolicyStatement } from "aws-cdk-lib/aws-iam";
 const backend = defineBackend({
   auth,
   data,
+  storage,
   createSubscription,
   webHookPlan,
 });
@@ -63,8 +65,6 @@ const webhookPath = myRestApi.root.addResource("webhook", {
     authorizationType: AuthorizationType.NONE, // Sin autenticación (ajustar en producción)
   },
 });
-
-
 
 // Agregar el método POST para el webhook
 webhookPath.addMethod("POST", webHookPlanIntegration);

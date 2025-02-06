@@ -69,13 +69,22 @@ export function AuthForm() {
     <div className="container relative  flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-1 lg:px-0">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col items-center space-y-2 text-center">
-          <Image
-            src="/icons/fast@4x.webp"
-            alt="Logo"
-            width={24}
-            height={24}
-            className="mb-6"
-          />
+          <div className="flex items-center gap-2">
+            <Image
+              src="/icons/fast@4x.webp"
+              alt="Logo"
+              width={30}
+              height={30}
+              className="mb-6"
+            />
+            <Image
+              src="/icons/fastletras@4x.webp"
+              alt="Logo"
+              width={90}
+              height={90}
+              className="mb-6"
+            />
+          </div>
 
           <motion.h1
             key={authState}

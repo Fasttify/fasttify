@@ -6,7 +6,7 @@ Amplify.configure(outputs);
 export async function handleSignUp(
   email: string,
   password: string,
-  preferredUsername: string
+  nickName: string
 ) {
   try {
     const { isSignUpComplete, userId, nextStep } = await signUp({
@@ -15,7 +15,7 @@ export async function handleSignUp(
       options: {
         userAttributes: {
           email,
-          preferred_username: preferredUsername,
+          nickname: nickName,
           "custom:plan": "free",
         },
       },
@@ -38,7 +38,6 @@ export async function handleConfirmSignUp(email: string, code: string) {
       username: email,
       confirmationCode: code,
     });
-    
 
     return isSignUpComplete;
   } catch (error) {

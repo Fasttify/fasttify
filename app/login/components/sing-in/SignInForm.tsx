@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { signInSchema, type SignInFormData } from "@/lib/schemas";
+import { signInSchema, type SignInFormData } from "@/lib/schemas/schemas";
 import { useAuth } from "@/app/login/hooks/SignIn";
 
 interface SignInFormProps {
@@ -151,10 +151,17 @@ export function SignInForm({
         />
         <Button
           type="submit"
-          className="w-full bg-black text-white hover:bg-black/90"
+          className="w-full bg-black text-white hover:bg-black/90 flex items-center justify-center"
           disabled={isLoading}
         >
-          {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
+          {isLoading ? (
+            <>
+              <Loader2 className="animate-spin mr-2" />
+              Iniciando sesión...
+            </>
+          ) : (
+            "Iniciar sesión"
+          )}
         </Button>
       </form>
     </Form>

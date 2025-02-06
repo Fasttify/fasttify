@@ -29,10 +29,10 @@ export const signUpSchema = z
         "La contraseña debe incluir al menos un carácter especial"
       ),
     confirmPassword: z.string().min(1, "Por favor confirma tu contraseña"),
-    preferredUsername: z
+    nickName: z
       .string()
-      .min(3, "El nombre de usuario debe tener al menos 3 caracteres")
-      .max(20, "El nombre de usuario no puede tener más de 20 caracteres"),
+      .min(3, "El nombre y el apellido debe tener al menos 8 caracteres")
+      .max(20, "El y el apellido no puede tener más de 35 caracteres"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden",

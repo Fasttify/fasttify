@@ -5,10 +5,13 @@ import { AccountSettings } from "@/app/account-settings/components/AccountSettin
 import { PaymentSettings } from "@/app/account-settings/components/PaymentSettings";
 import { Navbar } from "@/app/landing/components/NavBar";
 import { Footer } from "@/app/landing/components/Footer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Page() {
   const [currentView, setCurrentView] = useState("cuenta");
+  useEffect(() => {
+    document.title = "Mi Perfil - Fasttify";
+  }, []);
 
   return (
     <>

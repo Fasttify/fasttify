@@ -8,7 +8,7 @@ import ImageSlider from "@/app/login/components/ImageSlider";
 const LoginPage = () => {
   return (
     <>
-      <div className="flex flex-col lg:flex-row min-h-screen bg-gradient-to-br from-fuchsia-50 via-purple-50 to-violet-50">
+      <div className="flex flex-col lg:flex-row min-h-screen bg-white lg:bg-gradient-to-br lg:from-fuchsia-50 lg:via-purple-50 lg:to-violet-50">
         <ImageSlider />
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 relative">
           {/* Authenticator container with refined background */}

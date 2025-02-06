@@ -157,7 +157,7 @@ export function Navbar() {
                 onSignOut={handleSignOut}
               />
             ) : (
-              <Button asChild variant="outline" className="w-full">
+              <Button asChild variant="link" className="w-full">
                 <Link href="/login">Iniciar sesión</Link>
               </Button>
             )}
@@ -238,12 +238,7 @@ export function Navbar() {
                     </div>
                     {!user && (
                       <div className="mt-auto p-4 border-t border-gray-200">
-                        <Button asChild className="w-full mb-2">
-                          <Link href="/signup" onClick={() => setIsOpen(false)}>
-                            Prueba gratis
-                          </Link>
-                        </Button>
-                        <Button asChild variant="outline" className="w-full">
+                        <Button asChild variant="link" className="w-full">
                           <Link href="/login" onClick={() => setIsOpen(false)}>
                             Iniciar sesión
                           </Link>

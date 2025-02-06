@@ -1,0 +1,140 @@
+{
+  "terms": {
+    "lastUpdate": "2024-02-03",
+    "title": "Términos y Condiciones",
+    "sections": [
+      {
+        "id": "introduccion",
+        "title": "1. Introducción",
+        "content": "Bienvenido a Fasttify, una plataforma de ecommerce de dropshipping operada en Colombia. Fasttify permite a los usuarios crear sus propias tiendas en línea y conectar con proveedores para vender productos sin gestionar inventario.\n\nAl registrarte y utilizar Fasttify, aceptas cumplir estos Términos y Condiciones. Si no estás de acuerdo, no deberías usar la plataforma."
+      },
+      {
+        "id": "definiciones",
+        "title": "2. Definiciones",
+        "content": "Fasttify: Plataforma digital que facilita la creación de tiendas en línea mediante un modelo de dropshipping.\nUsuario: Persona que se registra en Fasttify, ya sea como vendedor o comprador.\nVendedor: Usuario que crea una tienda en Fasttify para comercializar productos.\nProveedor: Persona o empresa que suministra productos a los vendedores.\nComprador: Usuario que adquiere productos a través de una tienda en Fasttify."
+      },
+      {
+        "id": "uso-plataforma",
+        "title": "3. Uso de la Plataforma",
+        "content": "Solo pueden registrarse personas mayores de 18 años.\nLos vendedores son responsables de la gestión de sus tiendas, precios, descripciones y atención al cliente.\nLa logística y envíos son responsabilidad del proveedor del producto.\nFasttify no garantiza la disponibilidad continua de la plataforma y puede suspender o modificar servicios en cualquier momento."
+      },
+      {
+        "id": "suscripciones-pagos",
+        "title": "4. Suscripciones y Pagos",
+        "content": "Fasttify ofrece planes con beneficios según el nivel adquirido.\nLos pagos de suscripciones se procesan a través de Mercado Pago.\nNo se realizan reembolsos por cancelación de suscripción, salvo casos excepcionales evaluados por Fasttify.\nFasttify no interviene en los pagos que los compradores realicen a los vendedores, estos son procesados por PayU."
+      },
+      {
+        "id": "responsabilidades-vendedores",
+        "title": "5. Responsabilidades de los Vendedores",
+        "content": "Los vendedores aceptan que deben:\n\nCumplir con las leyes colombianas y no vender productos ilegales.\nNo ofrecer productos falsificados ni que infrinjan derechos de terceros.\nEstablecer políticas claras de devoluciones si el proveedor lo permite.\nBrindar atención y soporte a los compradores.\nConfigurar correctamente su cuenta de PayU para recibir pagos.\n\nFasttify no asume responsabilidad por disputas entre vendedores y compradores."
+      },
+      {
+        "id": "propiedad-intelectual",
+        "title": "6. Propiedad Intelectual",
+        "content": "Fasttify es dueño del software, logo y marca.\nNo se permite usar el nombre de Fasttify sin autorización.\nLos usuarios son responsables de los contenidos y materiales que suban a sus tiendas."
+      },
+      {
+        "id": "devoluciones-garantias",
+        "title": "7. Devoluciones y Garantías",
+        "content": "Fasttify no gestiona devoluciones ni reembolsos, ya que dependen de cada vendedor y proveedor.\nLos compradores deben revisar las políticas de devolución de la tienda antes de comprar."
+      },
+      {
+        "id": "cancelacion-penalizaciones",
+        "title": "8. Cancelación de Cuenta y Penalizaciones",
+        "content": "Fasttify puede suspender o eliminar cuentas sin previo aviso si:\n\nSe detecta fraude o actividad ilegal.\nSe incumplen estos términos o las leyes colombianas.\nSe usa la plataforma para engañar a clientes o vender productos prohibidos."
+      },
+      {
+        "id": "limitacion-responsabilidad",
+        "title": "9. Limitación de Responsabilidad",
+        "content": "Fasttify no se hace responsable de:\n\nProblemas en la entrega de productos, ya que dependen del proveedor.\nPérdidas económicas derivadas del uso de la plataforma.\nFallas en las pasarelas de pago Mercado Pago o PayU."
+      },
+      {
+        "id": "fuerza-mayor",
+        "title": "10. Fuerza Mayor",
+        "content": "Fasttify no será responsable de fallos en el servicio causados por eventos fuera de su control, como desastres naturales, ataques cibernéticos, o fallas de infraestructura tecnológica."
+      },
+      {
+        "id": "legislacion-conflictos",
+        "title": "11. Legislación Aplicable y Resolución de Conflictos",
+        "content": "Estos términos se rigen por las leyes de Colombia. En caso de disputa, las partes intentarán resolverla de manera amistosa. Si no es posible, se someterán a los tribunales colombianos."
+      },
+      {
+        "id": "modificaciones",
+        "title": "12. Modificaciones",
+        "content": "Podemos modificar estos términos en cualquier momento y notificaremos los cambios antes de que entren en vigor."
+      },
+      {
+        "id": "contacto",
+        "title": "13. Contacto",
+        "content": "Para dudas o soporte, contáctanos en: [Correo de soporte]."
+      }
+    ]
+  },
+  "privacy": {
+    "lastUpdate": "2024-02-03",
+    "title": "Política de Privacidad",
+    "sections": [
+      {
+        "id": "introduccion",
+        "title": "1. Introducción",
+        "content": "Fasttify se compromete a proteger la privacidad de sus usuarios. Esta Política de Privacidad explica qué información recopilamos, cómo la usamos y con quién la compartimos."
+      },
+      {
+        "id": "informacion-recopilada",
+        "title": "2. Información que Recopilamos",
+        "content": "Para operar la plataforma, recopilamos los siguientes datos personales:\n\nDatos de cuenta: Nombre, apellido, correo electrónico, foto de perfil.\nDatos de dirección: Dirección de envío y facturación.\nDatos de pago: Procesados por Mercado Pago y PayU (Fasttify no almacena información de tarjetas)."
+      },
+      {
+        "id": "uso-informacion",
+        "title": "3. Uso de la Información",
+        "content": "Usamos los datos para:\n\nCrear y gestionar cuentas de usuario.\nProcesar pagos y suscripciones.\nFacilitar la conexión entre vendedores y proveedores.\nMejorar la seguridad y la experiencia del usuario."
+      },
+      {
+        "id": "comparticion-datos",
+        "title": "4. Compartición de Datos",
+        "content": "Podemos compartir datos con:\n\nPasarelas de pago (Mercado Pago y PayU) para procesar transacciones.\nProveedores y vendedores para gestionar pedidos y envíos.\nAutoridades legales, si es requerido por ley."
+      },
+      {
+        "id": "cookies",
+        "title": "5. Uso de Cookies",
+        "content": "Fasttify usa cookies de sesión para mejorar la experiencia del usuario. Puedes bloquearlas en tu navegador, pero esto puede afectar el uso de la plataforma."
+      },
+      {
+        "id": "seguridad-datos",
+        "title": "6. Seguridad de los Datos",
+        "content": "Implementamos medidas de seguridad para proteger los datos personales, pero no podemos garantizar seguridad absoluta en internet."
+      },
+      {
+        "id": "conservacion-datos",
+        "title": "7. Conservación de Datos",
+        "content": "Guardamos la información del usuario mientras su cuenta esté activa. Si un usuario cierra su cuenta, los datos pueden conservarse por requerimientos legales."
+      },
+      {
+        "id": "derechos-usuario",
+        "title": "8. Derechos del Usuario",
+        "content": "Los usuarios pueden:\n\nAcceder a sus datos personales.\nSolicitar la corrección o eliminación de sus datos.\nRetirar su consentimiento en cualquier momento.\n\nPara ejercer estos derechos, pueden contactarnos en: [Correo de soporte]."
+      },
+      {
+        "id": "transferencia-internacional",
+        "title": "9. Transferencia Internacional de Datos",
+        "content": "Si usamos servicios de terceros fuera de Colombia, los datos podrían almacenarse en otros países con diferentes leyes de privacidad."
+      },
+      {
+        "id": "quejas",
+        "title": "10. Derecho a Presentar Quejas",
+        "content": "Si un usuario considera que se han vulnerado sus derechos, puede presentar una queja ante la Superintendencia de Industria y Comercio de Colombia (SIC)."
+      },
+      {
+        "id": "modificaciones-politica",
+        "title": "11. Modificaciones a esta Política",
+        "content": "Nos reservamos el derecho de modificar esta política en cualquier momento. Los cambios serán notificados en la plataforma."
+      },
+      {
+        "id": "contacto-privacidad",
+        "title": "12. Contacto",
+        "content": "Para dudas sobre privacidad, contáctanos en: [Correo de soporte]."
+      }
+    ]
+  }
+}
+

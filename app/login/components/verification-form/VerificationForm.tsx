@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { verificationSchema, type VerificationFormData } from "@/lib/schemas";
+import {
+  verificationSchema,
+  type VerificationFormData,
+} from "@/lib/schemas/schemas";
 
 interface VerificationFormProps {
   email: string;
@@ -116,8 +120,15 @@ export function VerificationForm({
           className="w-full bg-black text-white hover:bg-black/90"
           disabled={isSubmitted}
         >
-          {isSubmitted ? "Verificando..." : "Verificar correo"}
+          {isSubmitted ? (
+            <>
+              <Loader2 className="animate-spin" /> Verificado codigo
+            </>
+          ) : (
+            "Verificar codigo"
+          )}
         </Button>
+
         <Button
           type="button"
           variant="ghost"

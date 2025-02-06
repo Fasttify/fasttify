@@ -124,7 +124,7 @@ export function Personalization() {
           {/* Left side - Platform information */}
           <div className="space-y-6 md:space-y-8">
             <div className="space-y-4">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-center mb-8 md:mb-16">
+              <h1 className="text-5xl md:text-6xl font-normal text-center mb-8 md:mb-16">
                 Personalización sin límites
               </h1>
               <p className="text-base md:text-lg text-gray-600">

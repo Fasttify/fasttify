@@ -10,13 +10,13 @@ export function PlatformCompatibility() {
         {/* Sección Hero */}
         <div className="grid gap-8 md:grid-cols-2">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-white">
+            <div className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-white  ">
               <div className="w-3 h-6 bg-[#d5321c]" />
               <div className="w-3 h-6 bg-[#c42727]" />
               MULTIPLATAFORMA
             </div>
 
-            <h1 className="font-condensed text-5xl font-bold leading-none tracking-tight md:text-6xl">
+            <h1 className="text-5xl md:text-6xl font-normal text-black"> 
               Trabaja sin problemas <span className="block">en todos tus</span>{" "}
               <span className="block">dispositivos</span>
             </h1>

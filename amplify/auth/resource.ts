@@ -2,6 +2,7 @@ import { defineAuth, secret } from "@aws-amplify/backend";
 import { customMessage } from "./custom-message/resource";
 import { postAuthentication } from "./post-authentication/resource";
 import { webHookPlan } from "../functions/webHookPlan/resource";
+import { postConfirmation } from "./post-confirmation/resource";
 
 /**
  * Define and configure your auth resource
@@ -10,6 +11,7 @@ import { webHookPlan } from "../functions/webHookPlan/resource";
 export const auth = defineAuth({
   triggers: {
     customMessage,
+    postConfirmation,
     preTokenGeneration: postAuthentication,
   },
 
@@ -29,21 +31,34 @@ export const auth = defineAuth({
         },
       },
 
-      callbackUrls: [
-        "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com",
-      ],
-      logoutUrls: [
-        "https://feature-get-started.d705ckpcaa3mv.amplifyapp.com/login",
-      ],
+      callbackUrls: ["https://dev.d705ckpcaa3mv.amplifyapp.com"],
+      logoutUrls: ["https://dev.d705ckpcaa3mv.amplifyapp.com/login"],
     },
   },
 
   userAttributes: {
+    nickname: {
+      mutable: true,
+      required: false,
+    },
     preferredUsername: {
       mutable: true,
       required: false,
     },
     "custom:plan": {
+      mutable: true,
+      dataType: "String",
+      maxLen: 255,
+      minLen: 1,
+    },
+
+    "custom:bio": {
+      mutable: true,
+      dataType: "String",
+      maxLen: 255,
+      minLen: 1,
+    },
+    "custom:phone": {
       mutable: true,
       dataType: "String",
       maxLen: 255,

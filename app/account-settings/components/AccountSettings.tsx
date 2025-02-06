@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Pencil, BadgeCheck, LogOut } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { EditProfileDialog } from "@/app/account-settings/components/EditProfileDialog";
 import {
@@ -19,15 +18,24 @@ import { Amplify } from "aws-amplify";
 import { useAuthUser } from "@/hooks/auth/useAuthUser";
 import { deleteUser } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
+import { UserAvatar } from "@/app/account-settings/components/UserAvatar";
+import { ChangePasswordDialog } from "@/app/account-settings/components/ChangePasswordDialog";
+import { ChangeEmailDialog } from "@/app/account-settings/components/ChangeEmailDialog";
 import useUserStore from "@/store/userStore";
 import outputs from "@/amplify_outputs.json";
+import CustomToolTip from "@/components/ui/custom-tooltip";
 
 Amplify.configure(outputs);
 
 export function AccountSettings() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isChangeEmailOpen, setIsChangeEmailOpen] = useState(false);
   const { user } = useUserStore();
+  const { loading } = useAuth();
   const { userData } = useAuthUser();
   const router = useRouter();
 
@@ -42,7 +50,7 @@ export function AccountSettings() {
   }
 
   // Obtén el nombre completo del usuario
-  const fullName = user?.nickName || user?.preferredUsername;
+  const fullName = user?.nickName;
 
   // Separa el nombre en partes
   const nameParts = fullName ? fullName.split(" ") : [];
@@ -52,33 +60,33 @@ export function AccountSettings() {
   // Verifica si el usuario ha iniciado sesión con Google
   const isGoogleUser = userData?.identities;
 
+  if (loading) {
+    return <LoadingIndicator text="Recuperando perfil..." />;
+  }
+
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold">Mi Perfil</h2>
         <div className="mt-4 flex items-center gap-4 rounded-lg border p-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src={user?.picture} alt="Perfil" />
-            <AvatarFallback>
-              {firstName.charAt(0)}
-              {lastName.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            imageUrl={user?.picture}
+            fallback={`${firstName.charAt(0)}${lastName.charAt(0)}`}
+            className="h-20 w-20"
+          />
           <div className="flex-1">
-            <h3 className="text-xl font-semibold">{fullName}</h3>
-            <p className="text-sm text-gray-500">Plan activo: {user?.plan}</p>
-            <div className="flex items-center space-x-1">
-              <p className="text-sm text-gray-500">
-                Correo electrónico verificado
-              </p>
-              <BadgeCheck className="h-4 w-4 text-blue-500" />
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl font-semibold">{fullName}</h3>
+              {isGoogleUser && <CustomToolTip />}
             </div>
+            <p className="text-sm text-gray-500">Plan activo: {user?.plan}</p>
           </div>
           <Button
             variant="outline"
             size="sm"
             className="gap-2"
             onClick={() => setIsProfileOpen(true)}
+            disabled={isGoogleUser}
           >
             <Pencil className="h-4 w-4" /> Editar
           </Button>
@@ -93,6 +101,7 @@ export function AccountSettings() {
             size="sm"
             className="gap-2"
             onClick={() => setIsProfileOpen(true)}
+            disabled={isGoogleUser}
           >
             <Pencil className="h-4 w-4" /> Editar
           </Button>
@@ -107,14 +116,12 @@ export function AccountSettings() {
             <dd className="mt-1">{lastName}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-gray-500">
-              Correo electrónico
-            </dt>
-            <dd className="mt-1">{user?.email}</dd>
+            <dt className="text-sm font-medium text-gray-500">Teléfono</dt>
+            <dd className="mt-1">{user?.phone || "No especificado"}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-gray-500">Teléfono</dt>
-            <dd className="mt-1">No especificado</dd>
+            <dt className="text-sm font-medium text-gray-500">Bio</dt>
+            <dd className="mt-1">{user?.bio || "No especificado"}</dd>
           </div>
         </dl>
       </div>
@@ -165,6 +172,56 @@ export function AccountSettings() {
       )}
 
       <div>
+        <h3 className="text-lg font-semibold">Correo Electrónico</h3>
+        <div className="mt-4 rounded-lg border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div>
+                <p className="font-medium">{user?.email}</p>
+                <div className="flex items-center space-x-1">
+                  <p className="text-sm text-gray-500">
+                    Correo electrónico verificado
+                  </p>
+                  <BadgeCheck className="h-4 w-4 text-blue-500" />
+                </div>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setIsChangeEmailOpen(true)}
+              disabled={isGoogleUser}
+            >
+              Cambiar correo
+            </Button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 className="text-lg font-semibold">Seguridad</h3>
+        <div className="mt-4 rounded-lg border p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Contraseña</p>
+              <p className="text-sm text-gray-500">
+                Cambia tu contraseña regularmente para mantener tu cuenta segura
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setIsChangePasswordOpen(true)}
+              disabled={isGoogleUser}
+            >
+              Cambiar contraseña
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div>
         <h3 className="text-lg font-semibold text-red-600">Zona de Peligro</h3>
         <p className="mt-1 text-sm text-gray-500">
           Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, estás
@@ -180,7 +237,10 @@ export function AccountSettings() {
       </div>
 
       <EditProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} />
-
+      <ChangePasswordDialog
+        open={isChangePasswordOpen}
+        onOpenChange={setIsChangePasswordOpen}
+      />
       <AlertDialog
         open={isDeleteAccountOpen}
         onOpenChange={setIsDeleteAccountOpen}
@@ -204,6 +264,11 @@ export function AccountSettings() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <ChangeEmailDialog
+        open={isChangeEmailOpen}
+        onOpenChange={setIsChangeEmailOpen}
+        currentEmail={user?.email || ""}
+      />
     </div>
   );
 }

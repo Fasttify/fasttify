@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { handleSignUp } from "@/app/login/hooks/signUp";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signUpSchema, type SignUpFormData } from "@/lib/schemas";
+import { signUpSchema, type SignUpFormData } from "@/lib/schemas/schemas";
 
 interface SignUpFormProps {
   onVerificationNeeded: (email: string, password: string) => void;
@@ -31,7 +31,7 @@ export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
       email: "",
       password: "",
       confirmPassword: "",
-      preferredUsername: "",
+      nickName: "",
     },
   });
 
@@ -73,7 +73,7 @@ export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
       const result = await handleSignUp(
         data.email,
         data.password,
-        data.preferredUsername
+        data.nickName
       );
       if (result.nextStep.signUpStep === "CONFIRM_SIGN_UP") {
         onVerificationNeeded(data.email, data.password);
@@ -157,12 +157,12 @@ export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
         />
         <FormField
           control={form.control}
-          name="preferredUsername"
+          name="nickName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nombre de usuario</FormLabel>
+              <FormLabel>Nombre y Apellido</FormLabel>
               <FormControl>
-                <Input placeholder="Elige un nombre de usuario" {...field} />
+                <Input placeholder="Elige tu nombre y apellido" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -173,7 +173,13 @@ export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
           className="w-full bg-black text-white hover:bg-black/90"
           disabled={isSubmitted}
         >
-          {isSubmitted ? "Creando cuenta..." : "Crear cuenta"}
+          {isSubmitted ? (
+            <>
+              <Loader2 className="animate-spin" /> Creando cuenta
+            </>
+          ) : (
+            "Crear cuenta"
+          )}
         </Button>
       </form>
     </Form>
