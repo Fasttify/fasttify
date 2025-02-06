@@ -102,7 +102,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     // 8. Obtener el plan actual del usuario desde Cognito
     const getUserCommand = new AdminGetUserCommand({
-      UserPoolId: "us-east-2_yToNHalcB",
+      UserPoolId: "us-east-2_EVU1jxAq4",
       Username: userId,
     });
     const userData = await client.send(getUserCommand);
@@ -212,7 +212,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           // Actualizar atributo en Cognito
           if (planName !== currentPlan) {
             const updateCommand = new AdminUpdateUserAttributesCommand({
-              UserPoolId: "us-east-2_yToNHalcB",
+              UserPoolId: "us-east-2_EVU1jxAq4",
               Username: userId,
               UserAttributes: [
                 {
@@ -254,7 +254,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           });
         }
         const updateCommand = new AdminUpdateUserAttributesCommand({
-          UserPoolId: "us-east-2_yToNHalcB",
+          UserPoolId: "us-east-2_EVU1jxAq4",
           Username: userId,
           UserAttributes: [
             {
