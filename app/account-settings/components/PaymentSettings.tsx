@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +20,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthUser } from "@/hooks/auth/useAuthUser";
 import { cn } from "@/lib/utils";
+import { generateClient } from "aws-amplify/data";
+import { type Schema } from "@/amplify/data/resource";
+
+const client = generateClient<Schema>();
 
 const planes = [
   {
@@ -28,7 +33,7 @@ const planes = [
     precio: "9.99€",
     periodo: "mes",
     características: ["Acceso básico", "Soporte por email", "1 usuario"],
-    actual: true,
+    actual: false,
   },
   {
     nombre: "Plan Pro",
@@ -52,15 +57,53 @@ const planes = [
       "Usuarios ilimitados",
       "API acceso",
     ],
+    actual: false,
   },
 ];
 
 export function PaymentSettings() {
+  const [subscription, setSubscription] = useState<
+    Schema["UserSubscription"]["type"] | null
+  >(null);
+  const [loadingSubscription, setLoadingSubscription] = useState(true);
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<(typeof planes)[0] | null>(
     null
   );
   const { toast } = useToast();
+  const { userData } = useAuthUser();
+
+  const cognitoUsername =
+    userData && userData["cognito:username"]
+      ? userData["cognito:username"]
+      : null;
+
+  useEffect(() => {
+    if (!cognitoUsername) {
+      setLoadingSubscription(false);
+      return;
+    }
+
+    const fetchSubscription = async () => {
+      try {
+        const { data, errors } = await client.models.UserSubscription.list({
+          authMode: "userPool",
+        });
+        if (errors && errors.length > 0) {
+          console.error("Errores al obtener la suscripción:", errors);
+        } else if (data && data.length > 0) {
+          setSubscription(data[0]);
+        }
+      } catch (error) {
+        console.error("Error al leer la suscripción:", error);
+      } finally {
+        setLoadingSubscription(false);
+      }
+    };
+
+    fetchSubscription();
+  }, [cognitoUsername]);
 
   const handleUpgrade = (plan: (typeof planes)[0]) => {
     setSelectedPlan(plan);
@@ -84,6 +127,23 @@ export function PaymentSettings() {
         </p>
       </div>
 
+      {/* Mostrar información de la suscripción obtenida */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tu suscripción actual</CardTitle>
+          <CardDescription>
+            {loadingSubscription
+              ? "Cargando suscripción..."
+              : subscription
+              ? `Plan: ${subscription.planName} – Próximo pago: ${new Date(
+                  subscription.nextPaymentDate ?? ""
+                ).toLocaleDateString()}`
+              : "No se encontró ninguna suscripción."}
+          </CardDescription>
+        </CardHeader>
+      </Card>
+
+      {/* Mostrar los planes disponibles */}
       <div className="grid gap-6 lg:grid-cols-3">
         {planes.map((plan) => (
           <Card
@@ -126,6 +186,7 @@ export function PaymentSettings() {
         ))}
       </div>
 
+      {/* Información del método de pago */}
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Método de Pago</CardTitle>
@@ -147,6 +208,7 @@ export function PaymentSettings() {
         </CardFooter>
       </Card>
 
+      {/* Diálogo para confirmar cambio de plan */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>

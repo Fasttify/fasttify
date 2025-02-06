@@ -17,10 +17,12 @@ const schema = a
         subscriptionId: a.string().required(), // Id de la suscripción
         planName: a.string().required(), // Nombre del plan (reason)
         nextPaymentDate: a.datetime(), // Próxima fecha de pago (opcional)
+        pendingPlan: a.string(), // Nuevo plan pendiente (opcional)
+        pendingStartDate: a.datetime(),
       })
       .authorization((allow) => [
         allow.ownerDefinedIn("userId"),
-        allow.authenticated().to(["read", "update", "create"]),
+        allow.authenticated().to(["update", "create", "list"]),
       ]),
   })
   .authorization((allow) => [

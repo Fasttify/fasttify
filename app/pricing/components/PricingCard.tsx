@@ -37,7 +37,7 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
   const { loading } = useAuth();
   const { toasts, addToast, removeToast } = useToast();
   const router = useRouter();
-  console.log(userData)
+
   const cognitoUsername =
     userData && userData["cognito:username"]
       ? userData["cognito:username"]
@@ -48,14 +48,14 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
   const formatPrice = (price: string) => {
     if (price === "0") return "Gratis";
     const numPrice = Number.parseInt(price, 10);
-    const formattedPrice = (numPrice / 1).toLocaleString("es-CO", {
-      style: "currency",
-      currency: "COP",
+    const formattedPrice = new Intl.NumberFormat("es-CO", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    });
-    return formattedPrice;
+    }).format(numPrice);
+
+    return `$ ${formattedPrice}`;
   };
+
 
   const handleSubscribe = async () => {
     if (!userData) {
@@ -147,7 +147,7 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="text-black relative">
+        <div className="text-black relative ">
           {plan.popular && (
             <motion.div
               className="absolute -top-4 -right-4 bg-black text-white px-4 py-1 rounded-full text-sm font-medium flex items-center gap-1"
@@ -159,16 +159,16 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
               Popular
             </motion.div>
           )}
-          <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+          <h3 className="text-3xl font-extralight mb-2">{plan.name}</h3>
           <div className="mb-4">
-            <span className="text-5xl font-bold">
+            <span className="text-5xl font-extralight">
               {formatPrice(plan.price)}
             </span>
             {formatPrice(plan.price) !== "Gratis" && (
               <span className="text-lg ml-1">/mes</span>
             )}
           </div>
-          <p className="text-sm mb-6 text-gray-700">{plan.description}</p>
+          <p className="text-sm mb-6 text-black">{plan.description}</p>
 
           <ul className="space-y-4 mb-8">
             {plan.features.map((feature, index) => (

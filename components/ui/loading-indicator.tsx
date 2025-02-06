@@ -32,7 +32,7 @@ export function LoadingIndicator({ text }: { text: string }) {
             ease: "easeInOut",
             repeat: Number.POSITIVE_INFINITY,
           }}
-          className="text-black text-2xl font-bold"
+          className="text-black text-2xl font-normal"
         >
           {text}
         </motion.p>

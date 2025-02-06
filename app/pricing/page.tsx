@@ -8,6 +8,7 @@ import { Navbar } from "@/app/landing/components/NavBar";
 import { FAQSection } from "@/app/pricing/components/FAQSection";
 import { faqItems } from "@/app/pricing/components/FAQItem";
 import { Amplify } from "aws-amplify";
+import { FeatureComparison } from "@/app/pricing/components/FeatureComparison";
 import outputs from "@/amplify_outputs.json";
 
 Amplify.configure(outputs);
@@ -78,19 +79,18 @@ export default function App() {
     document.title = "Planes y Pagos - Fasttify";
   }, []);
 
-
   return (
     <>
       <Navbar />
       <div className="min-h-screen  text-white p-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-12"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-6xl font-bold mb-8 text-black">
+            <h1 className="text-5xl md:text-5xl font-extralight text-center mb-8 text-black">
               Nuestros precios
             </h1>
             <br />
@@ -106,6 +106,8 @@ export default function App() {
               />
             ))}
           </div>
+
+          <FeatureComparison />
         </div>
       </div>
       <FAQSection items={faqItems} />

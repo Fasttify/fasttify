@@ -22,9 +22,10 @@ import { useAuth } from "@/hooks/auth/useAuth";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { UserAvatar } from "@/app/account-settings/components/UserAvatar";
 import { ChangePasswordDialog } from "@/app/account-settings/components/ChangePasswordDialog";
-import useUserStore from "@/store/userStore";
 import { ChangeEmailDialog } from "@/app/account-settings/components/ChangeEmailDialog";
+import useUserStore from "@/store/userStore";
 import outputs from "@/amplify_outputs.json";
+import CustomToolTip from "@/components/ui/custom-tooltip";
 
 Amplify.configure(outputs);
 
@@ -74,7 +75,10 @@ export function AccountSettings() {
             className="h-20 w-20"
           />
           <div className="flex-1">
-            <h3 className="text-xl font-semibold">{fullName}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl font-semibold">{fullName}</h3>
+              {isGoogleUser && <CustomToolTip />}
+            </div>
             <p className="text-sm text-gray-500">Plan activo: {user?.plan}</p>
           </div>
           <Button
@@ -82,6 +86,7 @@ export function AccountSettings() {
             size="sm"
             className="gap-2"
             onClick={() => setIsProfileOpen(true)}
+            disabled={isGoogleUser}
           >
             <Pencil className="h-4 w-4" /> Editar
           </Button>
@@ -96,6 +101,7 @@ export function AccountSettings() {
             size="sm"
             className="gap-2"
             onClick={() => setIsProfileOpen(true)}
+            disabled={isGoogleUser}
           >
             <Pencil className="h-4 w-4" /> Editar
           </Button>
@@ -185,6 +191,7 @@ export function AccountSettings() {
               size="sm"
               className="gap-2"
               onClick={() => setIsChangeEmailOpen(true)}
+              disabled={isGoogleUser}
             >
               Cambiar correo
             </Button>
@@ -206,6 +213,7 @@ export function AccountSettings() {
               size="sm"
               className="gap-2"
               onClick={() => setIsChangePasswordOpen(true)}
+              disabled={isGoogleUser}
             >
               Cambiar contraseña
             </Button>

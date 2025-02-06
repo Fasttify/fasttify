@@ -9,7 +9,7 @@ import axios from "axios";
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from "@aws-amplify/backend/function/runtime";
-import { env } from "$amplify/env/HookPlan"; 
+import { env } from "$amplify/env/HookPlan";
 import { type Schema } from "../../../data/resource";
 
 // Configurar Amplify usando la configuración para funciones con acceso a datos
@@ -89,7 +89,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       JSON.stringify(subscriptionData, null, 2)
     );
 
-    // 7. Extraer los datos necesarios: userId, planName y nextPaymentDate
+    // 7. Extraer los datos necesarios: userId, planName, status y nextPaymentDate
     const {
       external_reference: userId,
       reason: planName,
@@ -102,7 +102,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     // 8. Obtener el plan actual del usuario desde Cognito
     const getUserCommand = new AdminGetUserCommand({
-      UserPoolId: "us-east-2_EVU1jxAq4",
+      UserPoolId: "us-east-2_yToNHalcB",
       Username: userId,
     });
     const userData = await client.send(getUserCommand);
@@ -111,100 +111,186 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         ?.Value || "free";
     console.log(`📅 Plan actual del usuario ${userId}: ${currentPlan}`);
 
-    // 9. Lógica para determinar el plan a asignar (basado en el status)
-    const isCurrentPlanActive = currentPlan !== "free";
-    let planValue: string;
-    switch (status) {
-      case "authorized":
-      case "approved":
-      case "active":
-        planValue = planName;
-        break;
-      case "cancelled":
-      case "paused":
-      case "rejected":
-        planValue = isCurrentPlanActive ? currentPlan : "free";
-        break;
-      case "pending":
-      case "in_process":
-        planValue = currentPlan;
-        break;
-      case "expired":
-      case "suspended":
-        planValue = "free";
-        break;
-      default:
-        planValue = isCurrentPlanActive ? currentPlan : "free";
-    }
-    console.log(
-      `📅 Actualizando el plan del usuario ${userId} a: ${planValue}`
+    // 9. Consultar la suscripción actual en DynamoDB
+    console.log("⏩ Consultando si existe la suscripción en DynamoDB...");
+    const existingSubscription = await clientSchema.models.UserSubscription.get(
+      { id: userId }
     );
+    console.log("✅ Resultado de get en DynamoDB:", existingSubscription);
 
-    // 10. Actualizar el atributo personalizado en Cognito (si es necesario)
-    if (status !== "pending" && planValue !== currentPlan) {
-      const updateCommand = new AdminUpdateUserAttributesCommand({
-        UserPoolId: "us-east-2_EVU1jxAq4",
-        Username: userId,
-        UserAttributes: [
-          {
-            Name: "custom:plan",
-            Value: planValue,
-          },
-        ],
-      });
-      console.log("⏩ Enviando actualización de atributo a Cognito...");
-      await client.send(updateCommand);
-      console.log("✅ Atributo actualizado en Cognito correctamente.");
-    } else {
-      console.log("🔄 No se actualiza el plan en Cognito.");
-    }
+    /* ==========================================================================
+       LÓGICA DE ACTUALIZACIÓN DE LA SUSCRIPCIÓN:
+       ========================================================================== */
 
-    // 11. Guardar o actualizar la suscripción en DynamoDB
-    try {
-      console.log("⏩ Consultando si existe la suscripción en DynamoDB...");
-      // Usamos "id" (con valor de userId) como llave primaria, forzando el modo de autenticación AWS_IAM
-      const existingSubscription =
-        await clientSchema.models.UserSubscription.get({ id: userId });
-      console.log("✅ Resultado de get en DynamoDB:", existingSubscription);
+    if (status === "pending" || status === "in_process") {
+      // Caso 1: Pago pendiente. Se registra la intención de cambio sin modificar el plan activo.
+      console.log("⏩ Estado pendiente. Registrando intención de cambio.");
+
+      // Si el usuario ya tiene un plan activo (distinto de free), usamos la fecha de expiración actual
+      // para programar la activación del nuevo plan.
+      let pendingStartDate: string;
+      if (
+        currentPlan !== "free" &&
+        existingSubscription.data &&
+        existingSubscription.data.nextPaymentDate
+      ) {
+        pendingStartDate = existingSubscription.data.nextPaymentDate;
+      } else {
+        // Si no hay plan activo o no se cuenta con nextPaymentDate, se activa inmediatamente.
+        pendingStartDate = new Date().toISOString();
+      }
 
       if (existingSubscription.data) {
-        console.log(
-          "⏩ Se encontró suscripción existente. Procediendo a actualizar..."
-        );
-        const updateData = {
+        // Actualizamos el registro agregando los campos pending
+        await clientSchema.models.UserSubscription.update({
           id: userId,
           subscriptionId,
-          planName,
-          nextPaymentDate: nextPaymentDate
-            ? new Date(nextPaymentDate).toISOString()
-            : null,
-        };
-        console.log("⏩ Datos para actualizar en DynamoDB:", updateData);
-        await clientSchema.models.UserSubscription.update(updateData);
-        console.log("✅ Suscripción actualizada en DynamoDB");
+          // No modificamos los campos del plan activo
+          pendingPlan: planName,
+          pendingStartDate: pendingStartDate,
+        });
       } else {
-        console.log(
-          "⏩ No se encontró suscripción. Procediendo a crear una nueva..."
-        );
-        const createData = {
-          id: userId, // Se usa "id" con el valor de userId
-          userId, // Puedes conservar este campo adicional si lo necesitas
+        // Creamos un nuevo registro con plan activo "free" y guardamos la intención de cambio
+        await clientSchema.models.UserSubscription.create({
+          id: userId,
+          userId,
           subscriptionId,
-          planName,
-          nextPaymentDate: nextPaymentDate
-            ? new Date(nextPaymentDate).toISOString()
-            : null,
-        };
-        console.log("⏩ Datos para crear en DynamoDB:", createData);
-        await clientSchema.models.UserSubscription.create(createData);
-        console.log("✅ Nueva suscripción guardada en DynamoDB");
+          planName: currentPlan, // activo permanece igual (free)
+          nextPaymentDate: null,
+          pendingPlan: planName,
+          pendingStartDate: pendingStartDate,
+        });
       }
-    } catch (dynamoError) {
-      console.error("❌ Error al guardar en DynamoDB:", dynamoError);
-      throw dynamoError;
+      console.log(
+        "✅ Intención de cambio guardada. El nuevo plan se activará a partir de:",
+        pendingStartDate
+      );
+      // No se actualiza Cognito ya que el plan activo no cambia.
+    } else if (
+      status === "authorized" ||
+      status === "approved" ||
+      status === "active"
+    ) {
+      // Caso 2: Pago confirmado. Se debe actualizar el plan.
+      console.log("⏩ Pago confirmado.");
+
+      if (currentPlan !== "free") {
+        // Si el usuario ya tiene un plan activo, se programa la actualización para que el nuevo plan
+        // se active al finalizar el periodo actual.
+        if (
+          existingSubscription.data &&
+          existingSubscription.data.nextPaymentDate &&
+          new Date(existingSubscription.data.nextPaymentDate) > new Date()
+        ) {
+          // Todavía hay tiempo restante; se programa el cambio.
+          const pendingStartDate = existingSubscription.data.nextPaymentDate;
+          await clientSchema.models.UserSubscription.update({
+            id: userId,
+            subscriptionId,
+            // No modificamos el plan activo actual
+            pendingPlan: planName,
+            pendingStartDate: pendingStartDate,
+          });
+          console.log(
+            "✅ Se programó el cambio de plan a",
+            planName,
+            "a partir del",
+            pendingStartDate
+          );
+        } else {
+          // No hay tiempo restante; se actualiza de inmediato.
+          await clientSchema.models.UserSubscription.update({
+            id: userId,
+            subscriptionId,
+            planName: planName,
+            nextPaymentDate: nextPaymentDate
+              ? new Date(nextPaymentDate).toISOString()
+              : null,
+            pendingPlan: null,
+            pendingStartDate: null,
+          });
+          // Actualizar atributo en Cognito
+          if (planName !== currentPlan) {
+            const updateCommand = new AdminUpdateUserAttributesCommand({
+              UserPoolId: "us-east-2_yToNHalcB",
+              Username: userId,
+              UserAttributes: [
+                {
+                  Name: "custom:plan",
+                  Value: planName,
+                },
+              ],
+            });
+            console.log("⏩ Enviando actualización de atributo a Cognito...");
+            await client.send(updateCommand);
+            console.log("✅ Atributo actualizado en Cognito correctamente.");
+          }
+          console.log("✅ Plan actualizado a", planName, "inmediatamente.");
+        }
+      } else {
+        // Si el usuario está en free, se activa el nuevo plan de inmediato.
+        if (existingSubscription.data) {
+          await clientSchema.models.UserSubscription.update({
+            id: userId,
+            subscriptionId,
+            planName: planName,
+            nextPaymentDate: nextPaymentDate
+              ? new Date(nextPaymentDate).toISOString()
+              : null,
+            pendingPlan: null,
+            pendingStartDate: null,
+          });
+        } else {
+          await clientSchema.models.UserSubscription.create({
+            id: userId,
+            userId,
+            subscriptionId,
+            planName: planName,
+            nextPaymentDate: nextPaymentDate
+              ? new Date(nextPaymentDate).toISOString()
+              : null,
+            pendingPlan: null,
+            pendingStartDate: null,
+          });
+        }
+        const updateCommand = new AdminUpdateUserAttributesCommand({
+          UserPoolId: "us-east-2_yToNHalcB",
+          Username: userId,
+          UserAttributes: [
+            {
+              Name: "custom:plan",
+              Value: planName,
+            },
+          ],
+        });
+        console.log("⏩ Enviando actualización de atributo a Cognito...");
+        await client.send(updateCommand);
+        console.log("✅ Atributo actualizado en Cognito correctamente.");
+        console.log("✅ Plan actualizado a", planName, "inmediatamente.");
+      }
+    } else if (
+      status === "cancelled" ||
+      status === "paused" ||
+      status === "rejected" ||
+      status === "expired" ||
+      status === "suspended"
+    ) {
+      // Caso 3: Pago cancelado, pausado, rechazado o similar.
+      // Se eliminan los datos pendientes (si existían) para no generar cambios posteriores.
+      if (existingSubscription.data) {
+        await clientSchema.models.UserSubscription.update({
+          id: userId,
+          subscriptionId,
+          pendingPlan: null,
+          pendingStartDate: null,
+        });
+      }
+      console.log(
+        "✅ Estado de pago inválido. Se eliminaron los cambios pendientes (si existían)."
+      );
     }
 
-    // 12. Retornar una respuesta exitosa
+    // 10. Retornar una respuesta exitosa
     const response = {
       statusCode: 200,
       body: JSON.stringify({ message: "Webhook procesado correctamente" }),
