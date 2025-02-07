@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export function StepGuide() {
@@ -50,85 +49,80 @@ export function StepGuide() {
   ];
 
   return (
-    <div className="min-h-0 bg-white text-black px-4 py-8 md:p-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-5xl md:text-6xl font-normal text-center mb-8 md:mb-16">
-          Es muy fácil comenzar a vender
-        </h1>
+    <div className="p-4 md:p-8 min-h-screen bg-[#FAF6F3] rounded-t-[32px]  ">
+      <div className="min-h-0 bg-[#FAF6F3] text-black px-4 py-8 md:p-28">
+        <div className="max-w-full mx-auto">
+          <h1 className="text-5xl md:text-5xl font-normal text-center mb-8 md:mb-16">
+            Es muy fácil comenzar a vender
+          </h1>
 
-        <div className="flex flex-col md:grid md:grid-cols-2 gap-8 items-start md:items-center">
-          {/* Contenedor de las imágenes */}
-          <div className="order-1 md:order-1 relative h-[400px] md:h-[500px] lg:h-[600px] w-full">
-            {steps.map((step, index) => (
-              <div
-                key={index}
-                className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
-                  activeStep === index + 1 ? "opacity-100" : "opacity-0"
-                }`}
-              >
-                <div className="grid grid-cols-3 gap-3 md:gap-4 h-full">
-                  {/* Imagen principal */}
-                  <div className="col-span-2 row-span-2 relative rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src={step.images[0].main || "/placeholder.svg"}
-                      alt={`${step.title} - Imagen Principal`}
-                      fill
-                      className="object-cover transition-transform duration-500 hover:scale-105"
-                    />
-                  </div>
-                  {/* Imagen secundaria */}
-                  <div className="relative rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src={step.images[0].secondary || "/placeholder.svg"}
-                      alt={`${step.title} - Imagen Secundaria`}
-                      fill
-                      className="object-cover transition-transform duration-500 hover:scale-105"
-                    />
-                  </div>
-                  {/* Imagen de detalle */}
-                  <div className="relative rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src={step.images[0].detail || "/placeholder.svg"}
-                      alt={`${step.title} - Imagen Detalle`}
-                      fill
-                      className="object-cover transition-transform duration-500 hover:scale-105"
-                    />
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-8 items-start md:items-center">
+            {/* Contenedor de las imágenes */}
+            <div className="order-1 md:order-1 relative h-[400px] md:h-[500px] lg:h-[600px] w-full">
+              {steps.map((step, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+                    activeStep === index + 1 ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <div className="grid grid-cols-3 gap-3 md:gap-4 h-full">
+                    {/* Imagen principal */}
+                    <div className="col-span-2 row-span-2 relative rounded-2xl overflow-hidden shadow-lg">
+                      <Image
+                        src={step.images[0].main || "/placeholder.svg"}
+                        alt={`${step.title} - Imagen Principal`}
+                        fill
+                        className="object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                    </div>
+                    {/* Imagen secundaria */}
+                    <div className="relative rounded-2xl overflow-hidden shadow-lg">
+                      <Image
+                        src={step.images[0].secondary || "/placeholder.svg"}
+                        alt={`${step.title} - Imagen Secundaria`}
+                        fill
+                        className="object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                    </div>
+                    {/* Imagen de detalle */}
+                    <div className="relative rounded-2xl overflow-hidden shadow-lg">
+                      <Image
+                        src={step.images[0].detail || "/placeholder.svg"}
+                        alt={`${step.title} - Imagen Detalle`}
+                        fill
+                        className="object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* Contenedor de los pasos */}
-          <div className="flex flex-col items-center space-y-6 px-12 sm:px-6 md:px-8">
-            {steps.map((step, index) => (
-              <div
-                key={step.number}
-                className={`group cursor-pointer transition-all duration-300 w-full max-w-sm ${
-                  activeStep === index + 1
-                    ? "opacity-100 scale-105"
-                    : "opacity-60 hover:opacity-80"
-                }`}
-                onMouseEnter={() => setActiveStep(index + 1)}
-                onClick={() => setActiveStep(index + 1)}
-              >
-                <div className="flex flex-row items-center gap-4 mb-2">
-                  <span className="text-emerald-600 font-medium w-8 text-center">
-                    {step.number}
-                  </span>
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light border-b border-transparent group-hover:border-gray-300 transition-colors pb-2 flex-grow">
-                    {step.title}
-                  </h2>
+            {/* Contenedor de los pasos */}
+            <div className="flex flex-col items-center space-y-6 px-12 sm:px-6 md:px-8">
+              {steps.map((step, index) => (
+                <div
+                  key={step.number}
+                  className={`group cursor-pointer transition-all duration-300 w-full max-w-sm ${
+                    activeStep === index + 1
+                      ? "opacity-100 scale-105"
+                      : "opacity-60 hover:opacity-80"
+                  }`}
+                  onMouseEnter={() => setActiveStep(index + 1)}
+                  onClick={() => setActiveStep(index + 1)}
+                >
+                  <div className="flex flex-row items-center gap-4 mb-12">
+                    <span className="text-primary font-medium w-8 text-center">
+                      {step.number}
+                    </span>
+                    <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal border-b border-transparent group-hover:border-gray-300 transition-colors pb-2 flex-grow">
+                      {step.title}
+                    </h2>
+                  </div>
                 </div>
-              </div>
-            ))}
-
-            <Button
-              variant="outline"
-              className="w-full sm:w-auto mt-6 text-emerald-600 border-emerald-600 hover:bg-emerald-600 hover:text-white transition-colors rounded-full px-8"
-            >
-              Comienza ya
-            </Button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

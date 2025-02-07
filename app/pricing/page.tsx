@@ -90,7 +90,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-5xl md:text-5xl font-extralight text-center mb-8 text-black">
+            <h1 className="font-normal text-4xl md:text-5xl lg:text-6xl text-center mb-8 text-black">
               Nuestros precios
             </h1>
             <br />

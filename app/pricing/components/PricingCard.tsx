@@ -56,7 +56,6 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
     return `$ ${formattedPrice}`;
   };
 
-
   const handleSubscribe = async () => {
     if (!userData) {
       router.push("/login");
@@ -159,22 +158,24 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
               Popular
             </motion.div>
           )}
-          <h3 className="text-3xl font-extralight mb-2">{plan.name}</h3>
+          <h3 className="text-4xl font-medium mb-2">{plan.name}</h3>
           <div className="mb-4">
-            <span className="text-5xl font-extralight">
+            <span className="text-5xl font-medium">
               {formatPrice(plan.price)}
             </span>
             {formatPrice(plan.price) !== "Gratis" && (
               <span className="text-lg ml-1">/mes</span>
             )}
           </div>
-          <p className="text-sm mb-6 text-black">{plan.description}</p>
+          <p className="text-sm  font-medium mb-6 text-black">
+            {plan.description}
+          </p>
 
           <ul className="space-y-4 mb-8">
             {plan.features.map((feature, index) => (
               <motion.li
                 key={feature}
-                className="flex items-start gap-3"
+                className="flex items-start gap-3 font-medium"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}

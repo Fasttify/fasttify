@@ -1,10 +1,6 @@
 version: 1
 backend:
   phases:
-    preBuild:
-      commands:
-        # Configura las URLs dependiendo de la rama para el backend
-        - if [ "$AWS_BRANCH" = "dev" ]; then export CALLBACK_URL="https://dev.d705ckpcaa3mv.amplifyapp.com"; export LOGOUT_URL="https://dev.d705ckpcaa3mv.amplifyapp.com/login"; fi
     build:
       commands:
         - npm ci --cache .npm --prefer-offline
@@ -17,7 +13,7 @@ frontend:
   artifacts:
     baseDirectory: .next
     files:
-      - "**/*"
+      - '**/*'
   cache:
     paths:
       - .next/cache/**/*

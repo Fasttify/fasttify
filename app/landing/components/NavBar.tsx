@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, ChevronDown, X } from "lucide-react";
@@ -28,6 +28,11 @@ Amplify.configure(outputs);
 const navItems = [
   {
     label: "Productos",
+    highlight: {
+      title: "Una única plataforma para todas tus necesidades",
+      description: "Simplifica tu integración, maximiza tu alcance",
+      subtitle: "Unifica tu lógica de negocio",
+    },
     content: [
       {
         title: "Características",
@@ -45,6 +50,11 @@ const navItems = [
   },
   {
     label: "Recursos",
+    highlight: {
+      title: "Recursos completos para tu éxito",
+      description: "Todo lo que necesitas para crecer",
+      subtitle: "Potencia tu negocio",
+    },
     content: [
       {
         title: "Integraciones",
@@ -70,6 +80,23 @@ export function Navbar() {
   const { loading } = useAuth();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset;
+      if (scrollTop > 0) {
+        setHasScrolled(true);
+      } else {
+        setHasScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -82,10 +109,16 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
+    <nav
+      className={`sticky top-0 left-0 right-0 z-50 transition-colors duration-500 ${
+        hasScrolled
+          ? "bg-white/95 backdrop-blur-md shadow-sm"
+          : "bg-transparent"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-4">
             <Link href="/" className="flex-shrink-0 flex items-center">
               <Image
                 src="/icons/fast@4x.webp"
@@ -102,43 +135,61 @@ export function Navbar() {
                 className="h-8 w-auto ml-2"
               />
             </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
-            <NavigationMenu>
+            <NavigationMenu className="hidden md:flex">
               <NavigationMenuList>
                 {navItems.map((item) => (
                   <NavigationMenuItem key={item.label}>
-                    <NavigationMenuTrigger className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                    <NavigationMenuTrigger className="text-base font-medium">
                       {item.label}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px]">
-                        {item.content.map((subItem) => (
-                          <li key={subItem.title}>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href={subItem.href}
-                                className="block p-3 hover:bg-gray-50 rounded-lg"
-                              >
-                                <div className="text-sm font-medium text-gray-900">
-                                  {subItem.title}
-                                </div>
-                                <p className="mt-1 text-sm text-gray-500">
-                                  {subItem.description}
-                                </p>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="w-[850px] p-6  rounded-lg shadow-lg border">
+                        <div className="grid grid-cols-5 gap-6">
+                          {/* Highlight Section */}
+                          <div className="col-span-2 bg-primary rounded-lg p-6 text-primary-foreground">
+                            <h3 className="text-2xl font-medium mb-4">
+                              {item.highlight.title}
+                            </h3>
+                            <p className="text-sm mb-4 text-primary-foreground/80">
+                              {item.highlight.description}
+                            </p>
+                            <p className="text-lg font-medium">
+                              {item.highlight.subtitle}
+                            </p>
+                          </div>
+                          {/* Features Grid */}
+                          <div className="col-span-3 grid grid-cols-2 gap-4">
+                            {item.content.map((subItem) => (
+                              <NavigationMenuLink asChild key={subItem.title}>
+                                <Link
+                                  href={subItem.href}
+                                  className="block p-4 rounded-lg hover:bg-muted"
+                                >
+                                  <h4 className="text-lg font-medium mb-2">
+                                    {subItem.title}
+                                  </h4>
+                                  <p className="text-sm text-gray-600">
+                                    {subItem.description}
+                                  </p>
+                                </Link>
+                              </NavigationMenuLink>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="mt-6 pt-6 border-t border-border">
+                          <p className="text-sm text-gray-600 text-center">
+                            Gestiona grandes volúmenes de transacciones con
+                            facilidad, perfecto para aplicaciones que esperan un
+                            crecimiento significativo.
+                          </p>
+                        </div>
+                      </div>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
                 ))}
                 <NavigationMenuItem>
                   <Link href="/pricing" legacyBehavior passHref>
-                    <NavigationMenuLink className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                    <NavigationMenuLink className="text-base font-medium">
                       Precios
                     </NavigationMenuLink>
                   </Link>
@@ -157,7 +208,7 @@ export function Navbar() {
                 onSignOut={handleSignOut}
               />
             ) : (
-              <Button asChild variant="link" className="w-full">
+              <Button asChild variant="link" className="ml-4 text-black">
                 <Link href="/login">Iniciar sesión</Link>
               </Button>
             )}
