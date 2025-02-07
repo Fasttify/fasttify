@@ -21,11 +21,7 @@ export function PlatformCompatibility() {
               <span className="block">dispositivos</span>
             </h1>
 
-            <Button className="group rounded-full bg-black px-6 py-6 text-white hover:bg-black/90">
-              Pruébalo ahora
-              <ArrowUpRight className="ml-2 transition-transform group-hover:translate-x-1" />
-            </Button>
-
+          
             <div className="mt-4 space-y-2 text-sm text-[#6c747f]">
               <p>
                 Nuestra plataforma es compatible con todos tus dispositivos:

@@ -9,11 +9,27 @@ import {
 } from "lucide-react";
 import SpotlightCard from "@/components/ui/reactbits/SpotlightCard";
 import { Separator } from "@/components/ui/separator";
+import FlowingMenu from "@/components/ui/reactbits/FlowingMenu";
+
+const demoItems = [
+  {
+    text: "Vuela sin límites",
+    image: "https://picsum.photos/600/400?random=1",
+  },
+  {
+    text: "Innova el futuro es hoy",
+    image: "https://picsum.photos/600/400?random=2",
+  },
+  {
+    text: "Impulsa acelera tu éxito",
+    image: "https://picsum.photos/600/400?random=3",
+  },
+];
 
 export function FeatureComparison() {
   return (
     <div className="py-12 px-2">
-      <h2 className="text-5xl md:text-5xl font-extralight text-center mb-16 text-black">
+      <h2 className="font-normal text-4xl md:text-5xl lg:text-6xl  text-black text-center mb-16">
         Beneficios de cada plan
       </h2>
 
@@ -109,7 +125,7 @@ export function FeatureComparison() {
           </div>
         </SpotlightCard>
       </div>
-      <Separator/>
+      <Separator />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="p-6 text-black">
           <div className="flex items-center gap-4">
@@ -141,6 +157,9 @@ export function FeatureComparison() {
             </h3>
           </div>
         </div>
+      </div>
+      <div style={{ height: "600px", position: "relative" }}>
+        <FlowingMenu items={demoItems} />
       </div>
     </div>
   );

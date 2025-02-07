@@ -28,7 +28,7 @@ export function FAQSection({
     <div className="max-w-4xl mx-auto px-4 py-12">
       <div className="text-center mb-12">
         <p className="text-xl text-gray-600 mb-2">FAQs</p>
-        <h1 className="text-5xl md:text-5xl font-extralight text-center mb-2">
+        <h1 className="text-5xl md:text-5xl font-normal text-center mb-2">
           {title}
         </h1>
         <p className=" text-xl text-gray-600">{subtitle}</p>
