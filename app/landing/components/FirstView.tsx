@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import RotatingText from "@/components/ui/reactbits/RotatingText";
 import Image from "next/image";
 
@@ -57,13 +58,15 @@ export function FirstView() {
                 Crear mi tienda
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary hover:text-white rounded-full"
-              >
-                Ver planes
-              </Button>
+              <Link href="/pricing">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-primary text-primary hover:bg-primary hover:text-white rounded-full"
+                >
+                  Ver planes
+                </Button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-3 gap-8 pt-8">
@@ -89,7 +92,7 @@ export function FirstView() {
           </div>
 
           <div className="relative">
-            <div className="relative aspect-square max-w-md mx-auto">
+            <div className="relative aspect-square max-w-full mx-auto">
               <Image
                 src="https://images.unsplash.com/photo-1586880244406-556ebe35f282?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Fasttify Dashboard"
