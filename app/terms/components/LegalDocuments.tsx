@@ -68,7 +68,7 @@ export function LegalDocuments() {
                 <p className="text-sm text-muted-foreground">
                   Última actualización: {currentDocument.lastUpdate}
                 </p>
-                <h1 className="text-3xl font-bold mt-2">
+                <h1 className="text-3xl font-medium mt-2">
                   {currentDocument.title}
                 </h1>
               </div>
@@ -77,7 +77,7 @@ export function LegalDocuments() {
                 <div className="space-y-8">
                   {currentDocument.sections.map((section) => (
                     <section key={section.id} id={section.id}>
-                      <h2 className="text-xl font-semibold mb-4">
+                      <h2 className="text-xl font-medium mb-4">
                         {section.title}
                       </h2>
                       <div className="prose prose-sm max-w-none">

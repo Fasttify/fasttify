@@ -60,7 +60,7 @@ export function Feature() {
           <div className="flex flex-col">
             <div className="relative aspect-[4/3]  overflow-hidden mb-6">
               <Image
-                src="https://images.unsplash.com/photo-1690228254548-31ef53e40cd1?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src="https://images.unsplash.com/photo-1690228254548-31ef53e40cd1?q=80&w=2071&auto=format&fit=crop"
                 alt="Interfaz intuitiva de Fasttify"
                 fill
                 className="object-cover"
@@ -80,7 +80,7 @@ export function Feature() {
           <div className="flex flex-col">
             <div className="relative aspect-[4/3] overflow-hidden mb-6">
               <Image
-                src="https://images.unsplash.com/photo-1571867424488-4565932edb41?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src="https://images.unsplash.com/photo-1571867424488-4565932edb41?q=80&w=1974&auto=format&fit=crop"
                 alt="Múltiples métodos de pago"
                 fill
                 className="object-cover"
@@ -100,7 +100,7 @@ export function Feature() {
           <div className="flex flex-col lg:col-span-1 md:col-span-2 lg:mt-0 md:mt-8">
             <div className="relative aspect-[4/3] overflow-hidden mb-6">
               <Image
-                src="https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=2006&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src="https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=2006&auto=format&fit=crop"
                 alt="Automatización y escalabilidad"
                 fill
                 className="object-cover"

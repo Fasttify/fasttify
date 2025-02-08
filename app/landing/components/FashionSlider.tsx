@@ -24,25 +24,25 @@ const slides: Slide[] = [
     bgColor: "#9FA051",
     title: "Crea tu tienda en minutos",
     description:
-      "Con Fasttify, lanza tu negocio online sin complicaciones. Personaliza tu tienda y comienza a vender de inmediato.",
+      "Con Fasttify, lanza tu negocio online sin complicaciones. Personaliza tu tienda y comienza a vender de inmediato. Todo en una sola plataforma para que no pierdas tiempo.",
     image:
-      "https://images.unsplash.com/photo-1738676524296-364cf18900a8?q=80&w=2030&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1738676524296-364cf18900a8?q=80&w=2030&auto=format&fit=crop",
   },
   {
     bgColor: "#9B89C5",
     title: "Conéctate con proveedores confiables",
     description:
-      "Accede a una red de proveedores listos para enviar tus productos. Tú te enfocas en vender, ellos en la logística.",
+      "Accede a una red de proveedores listos para enviar tus productos. Tú te enfocas en vender, ellos en la logística. Así, disfrutas de soporte y eficiencia en cada paso.",
     image:
-      "https://images.unsplash.com/photo-1737991864069-508dd72239fc?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1737991864069-508dd72239fc?q=80&w=1974&auto=format&fit=crop",
   },
   {
     bgColor: "#D7A594",
     title: "Pagos seguros y sin complicaciones",
     description:
-      "Fasttify integra Mercado Pago y PayU para que tus clientes compren con confianza y tú recibas tus pagos sin problemas.",
+      "Fasttify integra Mercado Pago y PayU para que tus clientes compren con confianza y tú recibas tus pagos sin problemas. La seguridad es nuestra prioridad.",
     image:
-      "https://images.unsplash.com/photo-1738707060473-a23914a02d8a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1738707060473-a23914a02d8a?q=80&w=1974&auto=format&fit=crop",
   },
 ];
 

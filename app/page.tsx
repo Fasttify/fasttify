@@ -16,20 +16,20 @@ export default function Home() {
           try {
             const user = await getCurrentUser();
             const userAttributes = await fetchUserAttributes();
-            console.log({ user, userAttributes });
+            logger.log({ user, userAttributes });
           } catch (error) {
-            console.error("Error al obtener la sesión del usuario:", error);
+            logger.error("Error al obtener la sesión del usuario:", error);
           }
           break;
         case "signInWithRedirect_failure":
-          console.error(
+          logger.error(
             "Error en el inicio de sesión con redirección:",
             payload.data
           );
           break;
         case "customOAuthState":
           const state = payload.data;
-          console.log("Estado personalizado:", state);
+          logger.log("Estado personalizado:", state);
           break;
       }
     });

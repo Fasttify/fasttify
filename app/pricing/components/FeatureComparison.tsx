@@ -40,7 +40,7 @@ export function FeatureComparison() {
         >
           <div className="flex flex-col gap-4">
             <div className="bg-blue-50 w-12 h-12 rounded-lg flex items-center justify-center">
-              <Trophy className="w-6 h-6 text-blue-500" />
+              <Trophy className="w-6 h-6 text-black" />
             </div>
             <div>
               <h3 className="text-xl font-normal mb-2 text-black">
@@ -60,7 +60,7 @@ export function FeatureComparison() {
         >
           <div className="flex flex-col items-start gap-4">
             <div className="p-2 rounded-lg bg-blue-50">
-              <Store className="w-6 h-6 text-blue-500" />
+              <Store className="w-6 h-6 text-black" />
             </div>
             <h3 className="text-xl font-normal text-black">
               Tu tienda en minutos
@@ -77,7 +77,7 @@ export function FeatureComparison() {
         >
           <div className="flex flex-col items-start gap-4">
             <div className="p-2 rounded-lg bg-blue-50">
-              <Share2 className="w-6 h-6 text-blue-500" />
+              <Share2 className="w-6 h-6 text-black" />
             </div>
             <h3 className="text-xl font-normal text-black">
               Múltiples canales de venta
@@ -95,7 +95,7 @@ export function FeatureComparison() {
         >
           <div className="flex flex-col items-start gap-4">
             <div className="p-2 rounded-lg bg-blue-50">
-              <BarChart3 className="w-6 h-6 text-blue-500" />
+              <BarChart3 className="w-6 h-6 text-black" />
             </div>
             <h3 className="text-xl font-normal text-black">
               Análisis y reportes en tiempo real
@@ -113,7 +113,7 @@ export function FeatureComparison() {
         >
           <div className="flex flex-col items-start gap-4">
             <div className="p-2 rounded-lg bg-blue-50">
-              <Apps className="w-6 h-6 text-blue-500" />
+              <Apps className="w-6 h-6 text-black" />
             </div>
             <h3 className="text-xl font-normal text-black">
               Integraciones y personalización
@@ -129,7 +129,7 @@ export function FeatureComparison() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="p-6 text-black">
           <div className="flex items-center gap-4">
-            <div className="p-2 rounded-full bg-blue-100">
+            <div className="p-2 rounded-full bg-blue-50">
               <span className="block w-6 h-6 text-blue-500">🔒</span>
             </div>
             <h3 className="text-lg font-normal">
@@ -140,7 +140,7 @@ export function FeatureComparison() {
 
         <div className="p-6 text-black">
           <div className="flex items-center gap-4">
-            <div className="p-2 rounded-full bg-blue-100">
+            <div className="p-2 rounded-full bg-blue-50">
               <span className="block w-6 h-6 text-blue-500">🔄</span>
             </div>
             <h3 className="text-lg font-normal">Pagos seguros y confiables</h3>
@@ -149,7 +149,7 @@ export function FeatureComparison() {
 
         <div className="p-6 text-black">
           <div className="flex items-center gap-4">
-            <div className="p-2 rounded-full bg-blue-100">
+            <div className="p-2 rounded-full bg-blue-50">
               <span className="block w-6 h-6 text-blue-500">🛡️</span>
             </div>
             <h3 className="text-lg font-normal">
