@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { post } from "aws-amplify/api";
@@ -30,7 +30,6 @@ interface PricingCardProps {
 }
 
 export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { userData } = useAuthUser();
   const { user } = useUserStore();
@@ -42,7 +41,6 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
     userData && userData["cognito:username"]
       ? userData["cognito:username"]
       : null;
-
   const hasActivePlan = user && user.plan ? user.plan === plan.name : false;
 
   const formatPrice = (price: string) => {
@@ -100,11 +98,10 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [isSubmitting, addToast]);
+  }, [isSubmitting]);
 
   if (loading) {
     return <LoadingIndicator text="Cargando planes..." />;
@@ -126,75 +123,56 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
       </AnimatePresence>
 
       <motion.div
-        className={cn(
-          "rounded-3xl p-8 transition-all duration-300",
-          plan.className,
-          hoveredPlan === plan.name ? "scale-[1.02] shadow-xl" : "",
-          hoveredPlan !== null && hoveredPlan !== plan.name
-            ? "scale-[0.98] opacity-75"
-            : ""
-        )}
-        onMouseEnter={() => {
-          onHover(plan.name);
-          setIsHovered(true);
-        }}
-        onMouseLeave={() => {
-          onHover(null);
-          setIsHovered(false);
-        }}
+        className="relative rounded-2xl bg-white shadow-lg"
+        onMouseEnter={() => onHover(plan.name)}
+        onMouseLeave={() => onHover(null)}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="text-black relative ">
-          {plan.popular && (
-            <motion.div
-              className="absolute -top-4 -right-4 bg-black text-white px-4 py-1 rounded-full text-sm font-medium flex items-center gap-1"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Sparkles className="h-4 w-4" />
-              Popular
-            </motion.div>
-          )}
-          <h3 className="text-4xl font-medium mb-2">{plan.name}</h3>
-          <div className="mb-4">
-            <span className="text-5xl font-medium">
-              {formatPrice(plan.price)}
-            </span>
-            {formatPrice(plan.price) !== "Gratis" && (
-              <span className="text-lg ml-1">/mes</span>
+        <div className="absolute -top-3 left-0 right-0">
+          <div className="mx-auto rounded-t-2xl bg-primary px-4 py-1 text-center text-sm text-white">
+            $ 1 al mes los primeros 3 meses
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl font-semibold">{plan.name}</h3>
+            {plan.popular && (
+              <span className="rounded-full bg-primary text-white px-3 py-1 text-sm">
+                Más popular
+              </span>
             )}
           </div>
-          <p className="text-sm  font-medium mb-6 text-black">
-            {plan.description}
-          </p>
+          <p className="mt-2 text-sm text-gray-600">{plan.description}</p>
+          <div className="mt-6">
+            <span className="text-4xl font-bold">
+              {formatPrice(plan.price)}
+            </span>
+            <span className="ml-1 text-sm text-gray-600">USD al mes</span>
+          </div>
+          <p className="mt-1 text-sm text-gray-500">facturación anual</p>
 
-          <ul className="space-y-4 mb-8">
-            {plan.features.map((feature, index) => (
-              <motion.li
-                key={feature}
-                className="flex items-start gap-3 font-medium"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Check className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                <span>{feature}</span>
-              </motion.li>
-            ))}
-          </ul>
+          <div className="mt-6">
+            <h4 className="font-medium">Funciones destacadas</h4>
+            <ul className="mt-2 space-y-2">
+              {plan.features.map((feature, index) => (
+                <motion.li
+                  key={feature}
+                  className="flex items-center text-sm text-gray-600"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Check className="mr-2 h-5 w-5" />
+                  <span>{feature}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
 
           <Button
-            className={cn(
-              "w-full transition-colors duration-300",
-              isHovered
-                ? "bg-black text-white hover:bg-gray-900"
-                : "bg-gray-900 text-white hover:bg-black",
-              hasActivePlan && "opacity-50 cursor-not-allowed"
-            )}
-            size="lg"
+            className="mt-8 w-full rounded-full border border-black bg-white px-6 py-3 text-black hover:bg-white"
             onClick={handleSubscribe}
             disabled={isSubmitting || hasActivePlan}
           >

@@ -26,7 +26,7 @@ const plans = [
     name: "Royal",
     title: "$20000",
     price: "20000",
-    description: "Gratis para todos los usuarios.",
+    description: "Para emprendedores individuales",
     features: [
       "Contacto con un asesor vía chat, Messenger, email o WhatsApp.",
       "Hosting y SSL gratis.",
@@ -36,15 +36,14 @@ const plans = [
       "Optimización de precios básica.",
       "Hasta 5 plantillas para personalizar la página.",
     ],
-
-    buttonText: "Empieza gratis",
-    className: "bg-[#ffd5ec] hover:bg-[#ffc0e4]",
+    buttonText: "Prueba gratis",
+    className: "bg-white",
   },
   {
     name: "Majestic",
     title: "$30000",
     price: "30000",
-    description: "Ideal for individual creators.",
+    description: "Para equipos pequeños",
     features: [
       "Everything in Simple",
       "512GB of business storage",
@@ -52,27 +51,27 @@ const plans = [
       "Unlimited collaborators",
       "Links with password protection",
     ],
-    buttonText: "Get Efficient Plan",
-    className: "bg-[#b3efe3] hover:bg-[#9ee6d8]",
+    buttonText: "Prueba gratis",
+    className: "bg-white",
     popular: true,
   },
   {
     name: "Imperial",
     title: "$45000",
     price: "45000",
-    description: "Small teams with up to 10 users.",
+    description: "A medida que tu negocio escala",
     features: [
       "Everything in Efficient",
       "Unlimited team members",
       "Custom storage plans",
       "White label branding",
     ],
-    buttonText: "Get Team Plan",
-    className: "bg-[#ffc107] hover:bg-[#ffb300]",
+    buttonText: "Prueba gratis",
+    className: "bg-white",
   },
 ];
 
-export default function App() {
+export default function PricingPage() {
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
 
   useEffect(() => {
@@ -82,7 +81,7 @@ export default function App() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen  text-white p-8">
+      <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-12"
@@ -93,7 +92,6 @@ export default function App() {
             <h1 className="font-normal text-4xl md:text-5xl lg:text-6xl text-center mb-8 text-black">
               Nuestros precios
             </h1>
-            <br />
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-6 relative">
@@ -111,7 +109,6 @@ export default function App() {
         </div>
       </div>
       <FAQSection items={faqItems} />
-      <br />
       <Footer />
     </>
   );
