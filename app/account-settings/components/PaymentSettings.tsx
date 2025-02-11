@@ -1,121 +1,107 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import { Check, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { useSubscriptionStore } from "@/store/useSubscriptionStore";
+import { post } from "aws-amplify/api";
 import { useAuthUser } from "@/hooks/auth/useAuthUser";
-import { cn } from "@/lib/utils";
-import { generateClient } from "aws-amplify/data";
-import { type Schema } from "@/amplify/data/resource";
-
-const client = generateClient<Schema>();
-
-const planes = [
-  {
-    nombre: "Plan Básico",
-    precio: "9.99€",
-    periodo: "mes",
-    características: ["Acceso básico", "Soporte por email", "1 usuario"],
-    actual: false,
-  },
-  {
-    nombre: "Plan Pro",
-    precio: "19.99€",
-    periodo: "mes",
-    características: [
-      "Acceso completo",
-      "Soporte prioritario",
-      "5 usuarios",
-      "Características avanzadas",
-    ],
-    destacado: true,
-  },
-  {
-    nombre: "Plan Empresa",
-    precio: "49.99€",
-    periodo: "mes",
-    características: [
-      "Todo lo del Plan Pro",
-      "Soporte 24/7",
-      "Usuarios ilimitados",
-      "API acceso",
-    ],
-    actual: false,
-  },
-];
 
 export function PaymentSettings() {
-  const [subscription, setSubscription] = useState<
-    Schema["UserSubscription"]["type"] | null
-  >(null);
-  const [loadingSubscription, setLoadingSubscription] = useState(true);
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<(typeof planes)[0] | null>(
-    null
-  );
-  const { toast } = useToast();
+  const { subscription, loading, error } = useSubscriptionStore();
   const { userData } = useAuthUser();
+  const [cachedSubscription, setCachedSubscription] = useState(subscription);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (!loading && subscription) {
+      setCachedSubscription(subscription);
+    }
+  }, [loading, subscription]);
+
+  // Usamos la suscripción cacheada mientras se cargan los datos
+  const currentSubscription = loading ? cachedSubscription : subscription;
+
+  // Obtenemos el username (ID del usuario en Cognito)
   const cognitoUsername =
     userData && userData["cognito:username"]
       ? userData["cognito:username"]
       : null;
 
-  useEffect(() => {
+  // Función para cancelar la suscripción (ya existente)
+  const handleCancel = async () => {
     if (!cognitoUsername) {
-      setLoadingSubscription(false);
+      console.error("No hay usuario autenticado.");
       return;
     }
-
-    const fetchSubscription = async () => {
-      try {
-        const { data, errors } = await client.models.UserSubscription.list({
-          authMode: "userPool",
-        });
-        if (errors && errors.length > 0) {
-          console.error("Errores al obtener la suscripción:", errors);
-        } else if (data && data.length > 0) {
-          setSubscription(data[0]);
-        }
-      } catch (error) {
-        console.error("Error al leer la suscripción:", error);
-      } finally {
-        setLoadingSubscription(false);
-      }
-    };
-
-    fetchSubscription();
-  }, [cognitoUsername]);
-
-  const handleUpgrade = (plan: (typeof planes)[0]) => {
-    setSelectedPlan(plan);
-    setDialogOpen(true);
+    if (!currentSubscription || !currentSubscription.subscriptionId) {
+      console.error("No se encontró una suscripción activa.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const response = await post({
+        apiName: "SubscriptionApi",
+        path: "cancel-plan",
+        options: {
+          body: {
+            user_id: cognitoUsername,
+            preapproval_id: currentSubscription.subscriptionId,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error al cancelar la suscripción:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const confirmarCambio = () => {
-    toast({
-      title: "Plan actualizado",
-      description: `Has cambiado exitosamente al ${selectedPlan?.nombre}`,
-    });
-    setDialogOpen(false);
+  // Función para actualizar la suscripción a un plan superior
+  const handleUpdatePlan = async () => {
+    if (!cognitoUsername) {
+      console.error("No hay usuario autenticado.");
+      return;
+    }
+    if (!currentSubscription || !currentSubscription.subscriptionId) {
+      console.error("No se encontró una suscripción activa.");
+      return;
+    }
+    // Para este ejemplo se usan valores fijos; en un caso real podrías obtenerlos de inputs.
+    const newAmount = 35000; // Nuevo monto para el plan superior
+    const currencyId = "COP"; // Moneda
+    const newPlanName = "Plan Premium"; // Nombre del nuevo plan
+
+    setIsSubmitting(true);
+    try {
+      const response = await post({
+        apiName: "SubscriptionApi",
+        path: "plan-management",
+        options: {
+          body: {
+            subscriptionId: currentSubscription.subscriptionId,
+            newAmount: newAmount,
+            currencyId: currencyId,
+            newPlanName: newPlanName,
+          },
+        },
+      });
+      const { body } = await response.response;
+      const responseUrl = (await body.json()) as { confirmationUrl?: string };
+      if (responseUrl && responseUrl.confirmationUrl) {
+        window.open(responseUrl.confirmationUrl);
+      } else {
+        console.warn("No se recibió URL de confirmación.");
+      }
+    } catch (error) {
+      console.error("Error al actualizar el plan:", error);
+      // Manejo de error: muestra un toast o mensaje en la UI
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -132,101 +118,40 @@ export function PaymentSettings() {
         <CardHeader>
           <CardTitle>Tu suscripción actual</CardTitle>
           <CardDescription>
-            {loadingSubscription
-              ? "Cargando suscripción..."
-              : subscription
-              ? `Plan: ${subscription.planName} – Próximo pago: ${new Date(
-                  subscription.nextPaymentDate ?? ""
-                ).toLocaleDateString()}`
-              : "No se encontró ninguna suscripción."}
+            {error
+              ? "Error al cargar la suscripción"
+              : !currentSubscription || !currentSubscription.nextPaymentDate
+              ? "No tienes una suscripción activa."
+              : `Plan: ${
+                  currentSubscription.planName
+                } – Próximo pago: ${new Date(
+                  currentSubscription.nextPaymentDate
+                ).toLocaleDateString()}`}
           </CardDescription>
         </CardHeader>
       </Card>
 
-      {/* Mostrar los planes disponibles */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {planes.map((plan) => (
-          <Card
-            key={plan.nombre}
-            className={cn("relative", plan.destacado && "border-primary")}
-          >
-            {plan.destacado && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground rounded-full text-sm font-medium">
-                Recomendado
-              </div>
-            )}
-            <CardHeader>
-              <CardTitle>{plan.nombre}</CardTitle>
-              <CardDescription>
-                <span className="text-2xl font-bold">{plan.precio}</span>/
-                {plan.periodo}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {plan.características.map((característica) => (
-                  <li key={característica} className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-primary" />
-                    {característica}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button
-                className="w-full"
-                variant={plan.actual ? "outline" : "default"}
-                onClick={() => handleUpgrade(plan)}
-                disabled={plan.actual}
-              >
-                {plan.actual ? "Plan Actual" : "Cambiar Plan"}
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+      {/* Botón para actualizar el plan */}
+      {currentSubscription && currentSubscription.nextPaymentDate && (
+        <Button
+          variant="default"
+          onClick={handleUpdatePlan}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Actualizando plan..." : "Actualizar Plan"}
+        </Button>
+      )}
 
-      {/* Información del método de pago */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Método de Pago</CardTitle>
-          <CardDescription>Tu método de pago actual</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <div className="rounded-lg border p-2">
-              <CreditCard className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="font-medium">Visa terminada en 4242</p>
-              <p className="text-sm text-gray-500">Expira 12/2024</p>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button variant="outline">Actualizar método de pago</Button>
-        </CardFooter>
-      </Card>
-
-      {/* Diálogo para confirmar cambio de plan */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Cambiar a {selectedPlan?.nombre}</DialogTitle>
-            <DialogDescription>
-              ¿Estás seguro de que quieres cambiar tu plan actual a{" "}
-              {selectedPlan?.nombre}? El nuevo cargo será de{" "}
-              {selectedPlan?.precio} por {selectedPlan?.periodo}.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={confirmarCambio}>Confirmar cambio</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Botón para cancelar la suscripción */}
+      {currentSubscription && currentSubscription.nextPaymentDate && (
+        <Button
+          variant="destructive"
+          onClick={handleCancel}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Procesando..." : "Cancelar Suscripción"}
+        </Button>
+      )}
     </div>
   );
 }

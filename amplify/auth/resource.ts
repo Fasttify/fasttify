@@ -3,6 +3,7 @@ import { customMessage } from "./custom-message/resource";
 import { postAuthentication } from "./post-authentication/resource";
 import { webHookPlan } from "../functions/webHookPlan/resource";
 import { postConfirmation } from "./post-confirmation/resource";
+import { planScheduler } from "../functions/planScheduler/resource";
 
 /**
  * Define and configure your auth resource
@@ -75,5 +76,6 @@ export const auth = defineAuth({
   access: (allow) => [
     allow.resource(postAuthentication).to(["updateUserAttributes"]),
     allow.resource(webHookPlan).to(["updateUserAttributes", "getUser"]),
+    allow.resource(planScheduler).to(["updateUserAttributes", "getUser"])
   ],
 });

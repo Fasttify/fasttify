@@ -1,7 +1,6 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
+import { env } from "../../../.amplify/generated/env/createSubscription";
 
-const MERCADOPAGO_ACCESS_TOKEN =
-  "APP_USR-7125774029717459-012516-6dbf616e4d2c31d97793b6b42c04469a-2229811359";
 const MERCADOPAGO_API_URL = "https://api.mercadopago.com/preapproval";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -15,7 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const response = await fetch(MERCADOPAGO_API_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${MERCADOPAGO_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${env.MERCADOPAGO_ACCESS_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

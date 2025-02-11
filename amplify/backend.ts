@@ -4,6 +4,9 @@ import { data } from "./data/resource";
 import { storage } from "./storage/resource";
 import { createSubscription } from "./functions/createSubscription/resource";
 import { webHookPlan } from "./functions/webHookPlan/resource";
+import { cancelPlan } from "./functions/cancelPlan/resource";
+import { planScheduler } from "./functions/planScheduler/resource";
+import { planManagement } from "./functions/planManagement/resource";
 import { Stack } from "aws-cdk-lib";
 import {
   AuthorizationType,
@@ -22,6 +25,9 @@ const backend = defineBackend({
   storage,
   createSubscription,
   webHookPlan,
+  cancelPlan,
+  planScheduler,
+  planManagement,
 });
 
 const apiStack = backend.createStack("api-stack");
@@ -69,6 +75,30 @@ const webhookPath = myRestApi.root.addResource("webhook", {
 // Agregar el método POST para el webhook
 webhookPath.addMethod("POST", webHookPlanIntegration);
 
+const cancelPlanIntegration = new LambdaIntegration(
+  backend.cancelPlan.resources.lambda
+);
+
+const cancelPlanPath = myRestApi.root.addResource("cancel-plan", {
+  defaultMethodOptions: {
+    authorizationType: AuthorizationType.NONE,
+  },
+});
+
+cancelPlanPath.addMethod("POST", cancelPlanIntegration);
+
+const planManagementIntegration = new LambdaIntegration(
+  backend.planManagement.resources.lambda
+);
+
+const planManagementPath = myRestApi.root.addResource("plan-management", {
+  defaultMethodOptions: {
+    authorizationType: AuthorizationType.NONE,
+  },
+});
+
+planManagementPath.addMethod("POST", planManagementIntegration);
+
 // Crear una política de IAM para permitir invocar la API
 const apiRestPolicy = new Policy(apiStack, "RestApiPolicy", {
   statements: [
@@ -77,6 +107,8 @@ const apiRestPolicy = new Policy(apiStack, "RestApiPolicy", {
       resources: [
         `${myRestApi.arnForExecuteApi("*", "/subscribe", "dev")}`,
         `${myRestApi.arnForExecuteApi("*", "/webhook", "dev")}`,
+        `${myRestApi.arnForExecuteApi("*", "/cancel-plan", "dev")}`,
+        `${myRestApi.arnForExecuteApi("*", "/plan-management", "dev")}`,
       ],
     }),
   ],

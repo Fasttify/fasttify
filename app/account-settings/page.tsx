@@ -6,6 +6,19 @@ import { PaymentSettings } from "@/app/account-settings/components/PaymentSettin
 import { Navbar } from "@/app/landing/components/NavBar";
 import { Footer } from "@/app/landing/components/Footer";
 import { useState, useEffect } from "react";
+import { Amplify } from "aws-amplify";
+import outputs from "@/amplify_outputs.json";
+
+Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.API,
+  },
+});
+
 
 export default function Page() {
   const [currentView, setCurrentView] = useState("cuenta");

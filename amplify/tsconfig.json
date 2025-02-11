@@ -12,5 +12,4 @@
       "$amplify/*": ["../.amplify/generated/*"]
     }
   },
-  "exclude": ["amplify/**/*"]
 }

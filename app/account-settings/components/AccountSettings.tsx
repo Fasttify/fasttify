@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pencil, BadgeCheck, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditProfileDialog } from "@/app/account-settings/components/EditProfileDialog";
@@ -26,6 +26,7 @@ import { ChangeEmailDialog } from "@/app/account-settings/components/ChangeEmail
 import useUserStore from "@/store/userStore";
 import outputs from "@/amplify_outputs.json";
 import CustomToolTip from "@/components/ui/custom-tooltip";
+import { useSubscriptionStore } from "@/store/useSubscriptionStore"; 
 
 Amplify.configure(outputs);
 
@@ -38,6 +39,23 @@ export function AccountSettings() {
   const { loading } = useAuth();
   const { userData } = useAuthUser();
   const router = useRouter();
+
+  // Obtén el cognitoUsername
+  const cognitoUsername =
+    userData && userData["cognito:username"]
+      ? userData["cognito:username"]
+      : null;
+
+  // Usa el store de Zustand para almacenar el cognitoUsername y obtener la suscripción
+  const { setCognitoUsername, fetchSubscription } = useSubscriptionStore();
+
+  // Guarda el cognitoUsername en el store cuando esté disponible
+  useEffect(() => {
+    if (cognitoUsername) {
+      setCognitoUsername(cognitoUsername);
+      fetchSubscription();
+    }
+  }, [cognitoUsername, setCognitoUsername, fetchSubscription]);
 
   async function handleDeleteUser() {
     try {

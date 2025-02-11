@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { post } from "aws-amplify/api";
 import { useAuthUser } from "@/hooks/auth/useAuthUser";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
@@ -29,7 +28,7 @@ interface PricingCardProps {
   onHover: (name: string | null) => void;
 }
 
-export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
+export function PricingCard({ plan, onHover }: PricingCardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { userData } = useAuthUser();
   const { user } = useUserStore();
@@ -41,6 +40,7 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
     userData && userData["cognito:username"]
       ? userData["cognito:username"]
       : null;
+
   const hasActivePlan = user && user.plan ? user.plan === plan.name : false;
 
   const formatPrice = (price: string) => {
