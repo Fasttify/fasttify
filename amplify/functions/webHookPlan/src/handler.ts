@@ -20,6 +20,9 @@ Amplify.configure(resourceConfig, libraryOptions);
 const client = new CognitoIdentityProviderClient();
 const clientSchema = generateClient<Schema>();
 
+// Endpoint para consultar pagos autorizados
+const MP_AUTH_PAYMENTS_SEARCH_URL = "https://api.mercadopago.com/v1/payments/";
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     // 1. Validar la firma del webhook
@@ -30,7 +33,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
     console.log("✅ Firma recibida:", signature);
 
-    // Extraer el timestamp (ts) y la clave (v1)
     const match = signature.match(/ts=([^,]+),v1=([^,]+)/);
     if (!match) {
       throw new Error("Formato de firma no válido.");
@@ -66,46 +68,47 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const body = JSON.parse(event.body || "{}");
     console.log("📄 Cuerpo del webhook:", JSON.stringify(body, null, 2));
 
-    // Diferenciar el tipo de webhook por el campo "entity"
+    // 5. Diferenciar entre eventos según "entity"
+    // Procesamos únicamente el evento de tipo "payment" (por ejemplo, payment.created)
     const entity = body.entity;
-    if (entity === "preapproval") {
+    if (entity === "preapproval" || entity === "authorized_payment") {
       console.log(
-        "ℹ️ Webhook subscription_preapproval recibido. No se procede con actualización de plan."
+        `ℹ️ Webhook ${entity} recibido. No se actualiza el plan en este evento.`
       );
       return {
         statusCode: 200,
         body: JSON.stringify({
-          message: "Preapproval recibido, esperando authorized_payment.",
+          message: `Webhook ${entity} recibido, sin actualización de plan.`,
         }),
       };
     }
-    if (entity !== "authorized_payment") {
-      console.warn("⚠️ Webhook recibido con entidad inesperada:", entity);
+    if (body.type !== "payment") {
+      console.warn("⚠️ Entidad de webhook inesperada:", entity);
       return {
         statusCode: 200,
         body: JSON.stringify({ message: "Entidad de webhook no procesada." }),
       };
     }
     console.log(
-      "✅ Webhook de subscription_authorized_payment recibido. Se procede con la validación del pago."
+      "✅ Webhook de payment recibido. Se procede a procesar el estado del pago."
     );
 
-    // 5. Responder inmediatamente con status 200 para confirmar recepción
+    // 6. Responder inmediatamente para confirmar recepción del webhook
     const responseToMP = {
       statusCode: 200,
       body: JSON.stringify({ message: "Webhook procesado correctamente." }),
     };
 
-    // 6. Usar el id en body.data.id para buscar el estado del pago
+    // 7. Obtener el id del pago del webhook (del campo body.data.id)
     const paymentId = body.data?.id;
     if (!paymentId) {
       console.warn("⚠️ No se encontró el ID del pago en el webhook.");
       return responseToMP;
     }
-    console.log("🔍 Buscando el estado del pago para ID:", paymentId);
+    console.log("🔍 Consultando estado del pago para ID:", paymentId);
 
-    // 7. Consultar el estado del pago en el endpoint de pagos autorizados
-    const paymentUrl = `https://api.mercadopago.com/authorized_payments/${paymentId}`;
+    // 8. Consultar el estado del pago usando el endpoint de pagos autorizados
+    const paymentUrl = `${MP_AUTH_PAYMENTS_SEARCH_URL}${paymentId}`;
     const paymentResponse = await axios.get(paymentUrl, {
       headers: {
         "Content-Type": "application/json",
@@ -115,8 +118,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const paymentData = paymentResponse.data;
     console.log("💡 Datos del pago:", JSON.stringify(paymentData, null, 2));
 
-    const paymentStatus = paymentData.payment?.status;
-    const paymentStatusDetail = paymentData.payment?.status_detail;
+    const subscriptionIdFromPayment =
+      paymentData.metadata?.preapproval_id || paymentData?.external_reference;
+
+    // Validar el estado del pago según la respuesta del endpoint
+    const paymentStatus = paymentData.status;
+    const paymentStatusDetail = paymentData.status_detail;
     console.log(
       `🛠 Estado del pago: ${paymentStatus}, Detalle: ${paymentStatusDetail}`
     );
@@ -140,8 +147,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       "✅ Pago aprobado y acreditado. Se procede con la actualización del plan."
     );
 
-    // 8. Consultar el estado de la suscripción en MercadoPago
-    const mpSubscriptionUrl = `https://api.mercadopago.com/preapproval/${paymentData.preapproval_id}`;
+    // 9. Consultar la suscripción en MercadoPago (para obtener datos actualizados)
+    const mpSubscriptionUrl = `https://api.mercadopago.com/preapproval/${subscriptionIdFromPayment}`;
     console.log("🔍 Consultando la suscripción en MercadoPago...");
     const subscriptionResponse2 = await axios.get(mpSubscriptionUrl, {
       headers: { Authorization: `Bearer ${env.MERCADOPAGO_ACCESS_TOKEN}` },
@@ -152,20 +159,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       JSON.stringify(subscriptionData2, null, 2)
     );
 
-    // 9. Extraer datos generales de la suscripción
     const {
+      subscription_id: subscription_id,
       external_reference: userId,
       reason: newPlanName,
-      status: subscriptionStatus,
       next_payment_date: nextPaymentDate,
       auto_recurring: { transaction_amount: newAmountFromMP } = {},
     } = subscriptionData2;
     console.log(
-      `📝 User ID: ${userId}, Nuevo plan: ${newPlanName}, Estado de suscripción: ${subscriptionStatus}, Próximo pago: ${nextPaymentDate}`
+      `📝 User ID: ${userId}, Nuevo plan: ${newPlanName}, Próximo pago: ${nextPaymentDate}`
     );
     console.log("💰 Nuevo monto (según MP):", newAmountFromMP);
 
-    // 10. Obtener el plan actual del usuario desde Cognito
+    // 11. Obtener el plan actual del usuario desde Cognito
     console.log(`🔍 Obteniendo datos del usuario ${userId} desde Cognito...`);
     const getUserCommand = new AdminGetUserCommand({
       UserPoolId: "us-east-2_EVU1jxAq4",
@@ -178,7 +184,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       )?.Value || "free";
     console.log(`📅 Plan actual del usuario ${userId}: ${currentPlan}`);
 
-    // 11. Consultar la suscripción actual en DynamoDB
+    // 12. Consultar la suscripción actual en DynamoDB
     console.log("⏩ Consultando si existe la suscripción en DynamoDB...");
     let existingSubscription;
     try {
@@ -196,34 +202,52 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       JSON.stringify(existingSubscription, null, 2)
     );
 
-    // 12. Función auxiliar para guardar la suscripción (actualizar o crear)
+    // 13. Función auxiliar para guardar la suscripción (crear o actualizar)
     const saveSubscription = async (data: any) => {
-      // Si el registro existe y tiene datos (usamos Object.keys para verificar)
+      const inputData = {
+        id: userId,
+        subscriptionId: subscription_id,
+        pendingPlan: newPlanName,
+        pendingStartDate: nextPaymentDate,
+        planPrice: newAmountFromMP,
+      };
       if (
         existingSubscription &&
         existingSubscription.data &&
         Object.keys(existingSubscription.data).length > 0
       ) {
         console.log("⏩ Actualizando registro existente en DynamoDB...");
-        await clientSchema.models.UserSubscription.update(data);
+        const updateResult = await clientSchema.models.UserSubscription.update(
+          inputData
+        );
+        console.log(
+          "🔄 Resultado de update:",
+          JSON.stringify(updateResult, null, 2)
+        );
       } else {
         console.log("🆕 Creando nuevo registro en DynamoDB...");
-        await clientSchema.models.UserSubscription.create({
+        const createResult = await clientSchema.models.UserSubscription.create({
           id: userId,
           userId: userId,
-          subscriptionId: data.subscriptionId, // normalmente dataId
-          ...data,
+          subscriptionId: subscription_id,
+          planName: newPlanName,
+          nextPaymentDate: nextPaymentDate,
+          planPrice: newAmountFromMP,
         });
+        console.log(
+          "🔄 Resultado de create:",
+          JSON.stringify(createResult, null, 2)
+        );
       }
     };
 
-    // 13. Lógica de actualización según reglas (upgrade vs downgrade)
+    // 14. Lógica de actualización según reglas (upgrade vs downgrade)
 
     const currentPlanPrice =
       existingSubscription && existingSubscription.data
         ? existingSubscription.data.planPrice || 0
         : 0;
-    // Determinar si es upgrade: si el usuario está en "free" o si el nuevo monto (según MP) es mayor que el precio actual.
+    // Determinar si es upgrade: si el usuario está en "free" o si el nuevo monto es mayor que el precio actual.
     const isUpgrade =
       currentPlan === "free" || newAmountFromMP > currentPlanPrice;
     console.log(
@@ -236,27 +260,67 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ")"
     );
 
-    if (
-      subscriptionStatus === "pending" ||
-      subscriptionStatus === "in_process"
-    ) {
+    if (isUpgrade) {
+      // Upgrade: actualización inmediata, ignorando el tiempo restante.
+      await saveSubscription({
+        subscriptionId: subscription_id,
+        planName: newPlanName,
+        nextPaymentDate: nextPaymentDate
+          ? new Date(nextPaymentDate).toISOString()
+          : null,
+        pendingPlan: null,
+        pendingStartDate: null,
+        planPrice: newAmountFromMP,
+      });
+      if (newPlanName !== currentPlan) {
+        const updateCommand = new AdminUpdateUserAttributesCommand({
+          UserPoolId: "us-east-2_EVU1jxAq4",
+          Username: userId,
+          UserAttributes: [{ Name: "custom:plan", Value: newPlanName }],
+        });
+        console.log(
+          "⏩ Enviando actualización de atributo a Cognito para upgrade..."
+        );
+        await client.send(updateCommand);
+        console.log(
+          "✅ Atributo actualizado en Cognito correctamente para upgrade."
+        );
+      }
       console.log(
-        "ℹ️ Estado de suscripción pending/in_process recibido. No se realizan cambios en la suscripción."
+        "✅ Plan actualizado a",
+        newPlanName,
+        "inmediatamente (upgrade)."
       );
-    } else if (
-      subscriptionStatus === "authorized" ||
-      subscriptionStatus === "approved" ||
-      subscriptionStatus === "active"
-    ) {
-      console.log(
-        "⏩ Suscripción en estado aprobado. Procediendo a actualizar la suscripción."
-      );
-      if (isUpgrade) {
-        // Upgrade: actualización inmediata, ignorando el tiempo restante.
+    } else {
+      // Downgrade: se respeta el tiempo restante.
+      if (
+        existingSubscription &&
+        existingSubscription.data &&
+        existingSubscription.data.nextPaymentDate &&
+        new Date(existingSubscription.data.nextPaymentDate) > new Date()
+      ) {
+        const pendingStartDate = existingSubscription.data.nextPaymentDate;
         await saveSubscription({
-          subscriptionId: paymentData.preapproval_id,
+          subscriptionId: subscription_id,
+          pendingPlan: newPlanName,
+          pendingStartDate: pendingStartDate,
+          planPrice: newAmountFromMP,
+        });
+        console.log(
+          "✅ Se programó el cambio a plan inferior (downgrade) a",
+          newPlanName,
+          "a partir del",
+          pendingStartDate
+        );
+      } else {
+        await saveSubscription({
+          subscriptionId: subscription_id,
           planName: newPlanName,
           nextPaymentDate: nextPaymentDate
+            ? new Date(nextPaymentDate).toISOString()
+            : null,
+          pendingPlan: newPlanName,
+          pendingStartDate: nextPaymentDate
             ? new Date(nextPaymentDate).toISOString()
             : null,
           planPrice: newAmountFromMP,
@@ -268,97 +332,22 @@ export const handler: APIGatewayProxyHandler = async (event) => {
             UserAttributes: [{ Name: "custom:plan", Value: newPlanName }],
           });
           console.log(
-            "⏩ Enviando actualización de atributo a Cognito para upgrade..."
+            "⏩ Enviando actualización de atributo a Cognito para downgrade..."
           );
           await client.send(updateCommand);
           console.log(
-            "✅ Atributo actualizado en Cognito correctamente para upgrade."
+            "✅ Atributo actualizado en Cognito correctamente para downgrade."
           );
         }
         console.log(
           "✅ Plan actualizado a",
           newPlanName,
-          "inmediatamente (upgrade)."
+          "inmediatamente (downgrade sin tiempo restante)."
         );
-      } else {
-        // Downgrade: se respeta el tiempo restante.
-        if (
-          existingSubscription &&
-          existingSubscription.data &&
-          existingSubscription.data.nextPaymentDate &&
-          new Date(existingSubscription.data.nextPaymentDate) > new Date()
-        ) {
-          const pendingStartDate = existingSubscription.data.nextPaymentDate;
-          await saveSubscription({
-            subscriptionId: paymentData.preapproval_id,
-            pendingPlan: newPlanName,
-            pendingStartDate: pendingStartDate,
-            planPrice: newAmountFromMP,
-          });
-          console.log(
-            "✅ Se programó el cambio a plan inferior (downgrade) a",
-            newPlanName,
-            "a partir del",
-            pendingStartDate
-          );
-        } else {
-          await saveSubscription({
-            subscriptionId: paymentData.preapproval_id,
-            planName: newPlanName,
-            nextPaymentDate: nextPaymentDate
-              ? new Date(nextPaymentDate).toISOString()
-              : null,
-            pendingPlan: null,
-            pendingStartDate: null,
-            planPrice: newAmountFromMP,
-          });
-          if (newPlanName !== currentPlan) {
-            const updateCommand = new AdminUpdateUserAttributesCommand({
-              UserPoolId: "us-east-2_EVU1jxAq4",
-              Username: userId,
-              UserAttributes: [{ Name: "custom:plan", Value: newPlanName }],
-            });
-            console.log(
-              "⏩ Enviando actualización de atributo a Cognito para downgrade..."
-            );
-            await client.send(updateCommand);
-            console.log(
-              "✅ Atributo actualizado en Cognito correctamente para downgrade."
-            );
-          }
-          console.log(
-            "✅ Plan actualizado a",
-            newPlanName,
-            "inmediatamente (downgrade sin tiempo restante)."
-          );
-        }
       }
-    } else if (
-      subscriptionStatus === "cancelled" ||
-      subscriptionStatus === "paused" ||
-      subscriptionStatus === "rejected" ||
-      subscriptionStatus === "expired" ||
-      subscriptionStatus === "suspended"
-    ) {
-      console.log(
-        "ℹ️ Estado de suscripción inválido recibido. Se eliminan cambios pendientes, si existen."
-      );
-      if (existingSubscription && existingSubscription.data) {
-        await saveSubscription({
-          subscriptionId: paymentData.preapproval_id,
-          pendingPlan: "free",
-          pendingStartDate: nextPaymentDate,
-        });
-      }
-      console.log("✅ Se han eliminado los cambios pendientes (si existían).");
-    } else {
-      console.warn(
-        "⚠️ Estado de suscripción inesperado recibido:",
-        subscriptionStatus
-      );
     }
 
-    // 14. Retornar una respuesta exitosa
+    // 15. Retornar respuesta exitosa
     const responsePayload = {
       statusCode: 200,
       body: JSON.stringify({ message: "Webhook procesado correctamente" }),

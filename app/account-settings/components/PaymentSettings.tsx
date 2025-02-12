@@ -70,10 +70,10 @@ export function PaymentSettings() {
       console.error("No se encontró una suscripción activa.");
       return;
     }
-    // Para este ejemplo se usan valores fijos; en un caso real podrías obtenerlos de inputs.
-    const newAmount = 35000; // Nuevo monto para el plan superior
-    const currencyId = "COP"; // Moneda
-    const newPlanName = "Plan Premium"; // Nombre del nuevo plan
+
+    const newAmount = 50000; 
+    const currencyId = "COP"; 
+    const newPlanName = "Plan me quedo contigo"; 
 
     setIsSubmitting(true);
     try {

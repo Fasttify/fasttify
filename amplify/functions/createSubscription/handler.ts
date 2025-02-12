@@ -4,8 +4,6 @@ import { env } from "../../../.amplify/generated/env/createSubscription";
 const MERCADOPAGO_API_URL = "https://api.mercadopago.com/preapproval";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-  console.log("Evento recibido:", JSON.stringify(event, null, 2));
-
   try {
     const body = JSON.parse(event.body || "{}");
     const { userId, plan } = body;

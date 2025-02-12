@@ -20,8 +20,6 @@ const corsHeaders = {
 };
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-  console.log("🚀 Evento recibido:", JSON.stringify(event, null, 2));
-
   try {
     // 1. Extraer parámetros del body de la solicitud.
     // Se espera recibir:
@@ -66,11 +64,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     // }
     const payload = {
       reason: newPlanName,
-      
+
       auto_recurring: {
         transaction_amount: newAmount,
         currency_id: currencyId,
-       
       },
     };
 
