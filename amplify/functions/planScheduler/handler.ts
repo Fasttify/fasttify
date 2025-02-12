@@ -10,7 +10,6 @@ import { type Schema } from "../../data/resource";
 import type { EventBridgeHandler } from "aws-lambda";
 
 // Configurar Amplify para acceso a datos
-
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(
   env
 );
@@ -27,22 +26,17 @@ export const handler: EventBridgeHandler<
   null,
   void
 > = async (event: any) => {
-  console.log(
-    "🚀 Lambda ejecutada con evento:",
-    JSON.stringify(event, null, 2)
-  );
-
   try {
     // 1. Obtener la fecha actual
-    const now = new Date("2025-03-09T22:29:08.000Z");
+    const now = new Date();
     console.log("📅 Fecha actual:", now.toISOString());
 
-    // 2. Consultar DynamoDB para obtener las suscripciones pendientes de pasar a free
+    // 2. Consultar DynamoDB para obtener las suscripciones pendientes con un plan asignado
     console.log("🔍 Consultando suscripciones pendientes...");
     const pendingSubscriptionsResponse =
       await clientSchema.models.UserSubscription.list({
         filter: {
-          pendingPlan: { eq: "free" },
+          pendingPlan: { attributeExists: true },
           pendingStartDate: { le: now.toISOString() },
         },
       });
@@ -50,13 +44,13 @@ export const handler: EventBridgeHandler<
     const pendingSubscriptions = pendingSubscriptionsResponse.data || [];
     console.log("📊 Suscripciones encontradas:", pendingSubscriptions.length);
 
+    // Consulta adicional para fines de log (opcional)
     const allSubscriptionsResponse =
       await clientSchema.models.UserSubscription.list();
     console.log(
       "📋 Todas las suscripciones:",
       JSON.stringify(allSubscriptionsResponse, null, 2)
     );
-
 
     // 3. Iterar sobre cada registro pendiente
     for (const subscription of pendingSubscriptions) {
@@ -70,15 +64,24 @@ export const handler: EventBridgeHandler<
         continue;
       }
 
+      // Leer el valor del plan pendiente desde el registro
+      const newPlan = subscription.pendingPlan;
+      if (!newPlan) {
+        console.warn(
+          `⚠️ La suscripción de ${userId} no tiene un plan pendiente válido, omitiendo...`
+        );
+        continue;
+      }
+
       try {
-        // 3.1. Actualizar el atributo en Cognito para asignar el plan "free"
+        // 3.1. Actualizar el atributo en Cognito para asignar el plan pendiente
         console.log(
-          `🔄 Actualizando plan de usuario ${userId} en Cognito a 'free'...`
+          `🔄 Actualizando plan de usuario ${userId} en Cognito a '${newPlan}'...`
         );
         const updateCommand = new AdminUpdateUserAttributesCommand({
           UserPoolId: "us-east-2_EVU1jxAq4",
           Username: userId,
-          UserAttributes: [{ Name: "custom:plan", Value: "free" }],
+          UserAttributes: [{ Name: "custom:plan", Value: newPlan }],
         });
         await cognitoClient.send(updateCommand);
         console.log(`✅ Usuario ${userId} actualizado en Cognito.`);
@@ -91,14 +94,14 @@ export const handler: EventBridgeHandler<
       }
 
       try {
-        // 3.2. Actualizar el registro en DynamoDB
+        // 3.2. Actualizar el registro en DynamoDB asignando el plan pendiente
         console.log(
           `🔄 Actualizando suscripción en DynamoDB para usuario ${userId}...`
         );
         await clientSchema.models.UserSubscription.update({
           id: userId,
           subscriptionId: subscription.subscriptionId,
-          planName: "free",
+          planName: newPlan, // Se asigna el valor del plan pendiente
           nextPaymentDate: null,
           pendingPlan: null,
           pendingStartDate: null,
@@ -114,9 +117,7 @@ export const handler: EventBridgeHandler<
       }
     }
 
-    console.log(
-      "✅ Se han actualizado todas las suscripciones pendientes a free."
-    );
+    console.log("✅ Se han actualizado todas las suscripciones pendientes.");
   } catch (error) {
     console.error("❌ Error en la Lambda programada:", error);
   }

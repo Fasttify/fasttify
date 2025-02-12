@@ -23,15 +23,15 @@ export function AboutUs() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+          <div className="relative rounded-2xl w-full h-[500px] overflow-hidden">
             <Image
-              src="https://images.unsplash.com/photo-1738739905613-590d01442686?q=80&w=1974&auto=format&fit=crop"
+              src="/imgs/landing/sdsd@4x.webp"
               alt="Empresario gestionando su tienda online"
               fill
-              className="object-cover"
+              className="object-contain"
             />
-            <div className="absolute inset-0 bg-black/10" />
           </div>
+
           <div className="space-y-6">
             <h3 className="text-2xl font-medium text-black">
               Construye, escala y vende sin límites.

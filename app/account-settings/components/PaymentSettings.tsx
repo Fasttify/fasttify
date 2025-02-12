@@ -71,7 +71,7 @@ export function PaymentSettings() {
       return;
     }
 
-    const newAmount = 50000; 
+    const newAmount = 25000; 
     const currencyId = "COP"; 
     const newPlanName = "Plan me quedo contigo"; 
 

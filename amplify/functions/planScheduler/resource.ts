@@ -4,5 +4,5 @@ export const planScheduler = defineFunction({
   name: "planScheduler",
   entry: "handler.ts",
   resourceGroupName: "auth",
-  schedule: "every month",
+  schedule: "every 1h",
 });

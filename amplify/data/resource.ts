@@ -23,15 +23,15 @@ const schema = a
         planPrice: a.float(),
       })
       .authorization((allow) => [
-        allow.ownerDefinedIn("userId"),
-        allow.authenticated().to(["update", "create", "list"]),
+        allow.ownerDefinedIn("userId").to(["read", "update", "delete"]),
+        allow.authenticated().to(["create"]),
       ]),
   })
   .authorization((allow) => [
     allow.resource(postConfirmation),
     allow.resource(webHookPlan),
     allow.resource(cancelPlan),
-    allow.resource(planScheduler)
+    allow.resource(planScheduler),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;
