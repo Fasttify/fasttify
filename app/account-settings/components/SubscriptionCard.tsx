@@ -47,7 +47,7 @@ interface SubscriptionCardProps {
     planName: string;
     nextPaymentDate: string;
     subscriptionId: string;
-    cardLastFourDigits?: string;
+    cardLastFourDigits: number;
     memberSince: string;
   };
   memberSince?: string;
@@ -119,7 +119,7 @@ export function SubscriptionCard({
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-between hover:bg-gray-100"
+                className="w-full justify-between hover:bg-gray-200"
                 disabled={isSubmitting}
               >
                 Actualizar Suscripción

@@ -169,7 +169,7 @@ export function PaymentSettings() {
               nextPaymentDate: currentSubscription.nextPaymentDate,
               subscriptionId: currentSubscription.subscriptionId,
               memberSince: currentSubscription.createdAt,
-              cardLastFourDigits: "5410",
+              cardLastFourDigits: currentSubscription.lastFourDigits ?? 0,
             }}
             memberSince={currentSubscription.createdAt}
             onUpdatePlan={handleUpdatePlan}

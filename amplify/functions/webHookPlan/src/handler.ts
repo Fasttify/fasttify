@@ -163,6 +163,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       subscriptionId: subscriptionId,
       planPrice: newAmountFromMP,
       nextPaymentDate: nextPaymentDateISO,
+      lastFourDigits: paymentData.card.last_four_digits,
 
       planName: isUpgrade
         ? newPlanName

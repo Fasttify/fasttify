@@ -19,8 +19,9 @@ const schema = a
         planName: a.string().required(), // Nombre del plan (reason)
         nextPaymentDate: a.datetime(), // Próxima fecha de pago (opcional)
         pendingPlan: a.string(), // Nuevo plan pendiente (opcional)
-        pendingStartDate: a.datetime(),
-        planPrice: a.float(),
+        pendingStartDate: a.datetime(), // fecha del plan pendiente a activar
+        planPrice: a.float(), // precio del plan
+        lastFourDigits: a.integer(), // ultimos 4 digitos de la tarjeta de compra
       })
       .authorization((allow) => [
         allow.ownerDefinedIn("userId").to(["read", "update", "delete"]),
