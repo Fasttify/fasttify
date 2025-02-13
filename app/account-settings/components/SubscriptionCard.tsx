@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -71,6 +69,10 @@ export function SubscriptionCard({
   const handlePlanSelection = async (plan: Plan) => {
     if (!subscription?.subscriptionId) return;
 
+    if (plan.name === subscription.planName) {
+      return;
+    }
+
     setSelectedPlan(plan);
     await onUpdatePlan({
       newAmount: plan.price,
@@ -137,12 +139,16 @@ export function SubscriptionCard({
                 {plans.map((plan) => (
                   <Card
                     key={plan.name}
-                    className={`cursor-pointer transition-all hover:shadow-md ${
+                    className={`relative transition-all ${
                       subscription.planName === plan.name
-                        ? "border-2 border-primary"
-                        : ""
+                        ? "border-2 border-primary cursor-not-allowed opacity-70"
+                        : "cursor-pointer hover:shadow-md"
                     }`}
-                    onClick={() => handlePlanSelection(plan)}
+                    onClick={
+                      subscription.planName !== plan.name
+                        ? () => handlePlanSelection(plan)
+                        : undefined
+                    }
                   >
                     <CardContent className="p-4">
                       <div className="flex justify-between items-center">

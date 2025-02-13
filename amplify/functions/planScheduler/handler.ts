@@ -79,7 +79,7 @@ export const handler: EventBridgeHandler<
           `🔄 Actualizando plan de usuario ${userId} en Cognito a '${newPlan}'...`
         );
         const updateCommand = new AdminUpdateUserAttributesCommand({
-          UserPoolId: "us-east-2_EVU1jxAq4",
+          UserPoolId: env.USER_POOL_ID,
           Username: userId,
           UserAttributes: [{ Name: "custom:plan", Value: newPlan }],
         });
