@@ -20,7 +20,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
               onClick={() => onViewChange("cuenta")}
               className={cn(
                 buttonVariants({
-                  variant: currentView === "cuenta" ? "default" : "ghost",
+                  variant: currentView === "cuenta" ? "outline" : "ghost",
                 }),
                 "justify-start gap-2 w-full"
               )}
@@ -32,7 +32,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
               onClick={() => onViewChange("pagos")}
               className={cn(
                 buttonVariants({
-                  variant: currentView === "pagos" ? "default" : "ghost",
+                  variant: currentView === "pagos" ? "outline" : "ghost",
                 }),
                 "justify-start gap-2 w-full"
               )}

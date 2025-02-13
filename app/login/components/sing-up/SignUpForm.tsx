@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { signUpSchema, type SignUpFormData } from "@/lib/schemas/schemas";
+import Link from "next/link";
 
 interface SignUpFormProps {
   onVerificationNeeded: (email: string, password: string) => void;
@@ -127,9 +128,9 @@ export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="h-4 w-4 text-gray-600" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="h-4 w-4 text-gray-600" />
                     )}
                   </Button>
                 </div>
@@ -181,6 +182,23 @@ export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
             "Crear cuenta"
           )}
         </Button>
+        <p className="text-sm text-gray-600 max-w-[400px] text-center">
+          Si continúas, aceptas los{" "}
+          <Link
+            href="/terms"
+            className="underline underline-offset-4 hover:text-foreground transition-colors"
+          >
+            Términos del servicio
+          </Link>{" "}
+          y confirmas que has leído nuestra{" "}
+          <Link
+            href="/terms"
+            className="underline underline-offset-4 hover:text-foreground transition-colors"
+          >
+            Política de privacidad
+          </Link>
+          .
+        </p>
       </form>
     </Form>
   );

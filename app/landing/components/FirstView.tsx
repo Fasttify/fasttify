@@ -94,7 +94,7 @@ export function FirstView() {
           <div className="relative">
             <div className="relative aspect-square max-w-full mx-auto">
               <Image
-                src="https://images.unsplash.com/photo-1586880244406-556ebe35f282?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src="https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=2070&auto=format&fit=crop"
                 alt="Fasttify Dashboard"
                 fill
                 className="object-contain transform hover:scale-105 transition-transform duration-500"

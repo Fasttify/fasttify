@@ -10,6 +10,7 @@ import { ForgotPasswordForm } from "@/app/login/components/forgot-password/Forgo
 import { VerificationForm } from "@/app/login/components/verification-form/VerificationForm";
 import { signInWithRedirect } from "aws-amplify/auth";
 
+
 type AuthState = "signin" | "signup" | "forgot-password" | "verification";
 
 export function AuthForm() {
@@ -66,9 +67,9 @@ export function AuthForm() {
   };
 
   return (
-    <div className="container relative  flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-1 lg:px-0">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <div className="flex flex-col items-center space-y-2 text-center">
+    <div className="container relative  flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-1 lg:px-0 ">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[450px]">
+        <div className="flex flex-col items-center space-y-1 text-center">
           <div className="flex items-center gap-2">
             <Image
               src="/icons/fast@4x.webp"
@@ -91,7 +92,8 @@ export function AuthForm() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="font-serif text-3xl tracking-tight"
+            transition={{ duration: 0.3 }}
+            className="text-3xl font-semibold leading-tight"
           >
             {authState === "signin"
               ? "Bienvenido de nuevo"
@@ -101,7 +103,7 @@ export function AuthForm() {
               ? "Recuperar contraseña"
               : "Verificar correo"}
           </motion.h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-600">
             {authState === "signin"
               ? "Ingresa tu correo y contraseña para acceder a tu cuenta"
               : authState === "signup"
@@ -118,7 +120,7 @@ export function AuthForm() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.3 }}
           >
             {renderForm()}
           </motion.div>
@@ -131,9 +133,9 @@ export function AuthForm() {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
+                <span className="bg-background px-2 text-gray-600">
                   O continuar con
-                </span>
+                </span>             
               </div>
             </div>
 
@@ -160,12 +162,14 @@ export function AuthForm() {
                   fill="#EA4335"
                 />
               </svg>
+              
               {authState === "signin"
                 ? "Iniciar sesión con Google"
                 : "Registrarse con Google"}
             </Button>
+            
 
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-sm text-gray-600">
               {authState === "signin" ? (
                 <>
                   ¿No tienes una cuenta?{" "}
@@ -187,6 +191,7 @@ export function AuthForm() {
                   >
                     Inicia sesión
                   </button>
+                  
                 </>
               )}
             </div>

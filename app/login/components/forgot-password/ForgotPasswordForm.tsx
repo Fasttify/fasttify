@@ -316,7 +316,7 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
             e.preventDefault();
             onBack();
           }}
-          className="w-full"
+          className="w-full underline"
           disabled={isLoading}
         >
           Volver al inicio de sesión

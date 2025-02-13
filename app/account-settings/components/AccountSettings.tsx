@@ -240,13 +240,13 @@ export function AccountSettings() {
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold text-red-600">Zona de Peligro</h3>
+        <h3 className="text-lg font-semibold">Zona de Peligro</h3>
         <p className="mt-1 text-sm text-gray-500">
           Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, estás
           seguro.
         </p>
         <Button
-          variant="destructive"
+          variant="outline"
           className="mt-4"
           onClick={() => setIsDeleteAccountOpen(true)}
         >
@@ -275,7 +275,7 @@ export function AccountSettings() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteUser}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-500 hover:bg-red-500"
             >
               Sí, eliminar mi cuenta
             </AlertDialogAction>

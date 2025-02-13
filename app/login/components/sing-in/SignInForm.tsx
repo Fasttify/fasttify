@@ -95,7 +95,7 @@ export function SignInForm({
                 <Button
                   type="button"
                   variant="link"
-                  className="px-0 font-normal"
+                  className="px-0 font-normal text-gray-600 underline"
                   onClick={(e) => {
                     e.preventDefault();
                     onForgotPassword();
@@ -123,9 +123,9 @@ export function SignInForm({
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="h-4 w-4 text-gray-600" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="h-4 w-4 text-gray-600" />
                     )}
                   </Button>
                 </div>

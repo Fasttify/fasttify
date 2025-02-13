@@ -9,19 +9,19 @@ import "swiper/css/effect-fade";
 const slides = [
   {
     image:
-      "https://images.unsplash.com/photo-1737069222398-febfd663da1e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1737069222398-febfd663da1e?q=80&w=1974&auto=format&fit=crop",
     title: "Inicia tu viaje de Ecommerce,",
     subtitle: "Sin inventario, sin preocupaciones",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1736617004818-a01c44c494ee?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1736617004818-a01c44c494ee?q=80&w=1974&auto=format&fit=crop",
     title: "Dropshipping simplificado,",
     subtitle: "Vende globalmente, crece localmente",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1737069220405-6ddcbd8c70c1?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1737069220405-6ddcbd8c70c1?q=80&w=1974&auto=format&fit=crop",
     title: "Cumplimiento sin esfuerzo,",
     subtitle: "Tus productos entregados en todo el mundo",
   },
