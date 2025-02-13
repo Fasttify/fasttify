@@ -68,7 +68,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       console.log("ℹ️ Evento de creación de suscripción recibido");
       return {
         statusCode: 200,
-        body: JSON.stringify({ message: "Evento de suscripción procesado" }),
+        body: JSON.stringify({ message: "OK" }),
       };
     }
 
@@ -86,7 +86,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       console.warn("⚠️ Tipo de evento no soportado:", eventType);
       return {
         statusCode: 200,
-        body: JSON.stringify({ message: "Tipo de evento no procesado" }),
+        body: JSON.stringify({ message: "OK" }),
       };
     }
 
@@ -111,7 +111,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       console.warn("⚠️ Pago no completado exitosamente");
       return {
         statusCode: 200,
-        body: JSON.stringify({ message: "Pago no válido para actualización" }),
+        body: JSON.stringify({ message: "OK" }),
       };
     }
 
@@ -210,7 +210,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "Webhook procesado correctamente" }),
+      body: JSON.stringify({ message: "OK" }),
     };
   } catch (error: any) {
     console.error("❌ Error en la función Lambda:", error);
