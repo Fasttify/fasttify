@@ -27,7 +27,7 @@ export default function Page() {
   }, []);
 
   return (
-    <>
+    <div className="overflow-x-hidden">
       <Navbar />
       <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
         <Sidebar currentView={currentView} onViewChange={setCurrentView} />
@@ -36,6 +36,6 @@ export default function Page() {
         </div>
       </div>
       <Footer />
-    </>
+    </div>
   );
 }

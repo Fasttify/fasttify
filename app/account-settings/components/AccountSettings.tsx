@@ -23,10 +23,10 @@ import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { UserAvatar } from "@/app/account-settings/components/UserAvatar";
 import { ChangePasswordDialog } from "@/app/account-settings/components/ChangePasswordDialog";
 import { ChangeEmailDialog } from "@/app/account-settings/components/ChangeEmailDialog";
+import { useSubscriptionStore } from "@/store/useSubscriptionStore";
 import useUserStore from "@/store/userStore";
 import outputs from "@/amplify_outputs.json";
 import CustomToolTip from "@/components/ui/custom-tooltip";
-import { useSubscriptionStore } from "@/store/useSubscriptionStore"; 
 
 Amplify.configure(outputs);
 
@@ -97,7 +97,7 @@ export function AccountSettings() {
               <h3 className="text-xl font-semibold">{fullName}</h3>
               {isGoogleUser && <CustomToolTip />}
             </div>
-            <p className="text-sm text-gray-500">Plan activo: {user?.plan}</p>
+            <p className="text-sm text-gray-600">Plan activo: {user?.plan}</p>
           </div>
           <Button
             variant="outline"
@@ -126,19 +126,19 @@ export function AccountSettings() {
         </div>
         <dl className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <dt className="text-sm font-medium text-gray-500">Nombre</dt>
+            <dt className="text-sm font-medium text-gray-600">Nombre</dt>
             <dd className="mt-1">{firstName}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-gray-500">Apellido</dt>
+            <dt className="text-sm font-medium text-ray-600">Apellido</dt>
             <dd className="mt-1">{lastName}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-gray-500">Teléfono</dt>
+            <dt className="text-sm font-medium text-gray-600">Teléfono</dt>
             <dd className="mt-1">{user?.phone || "No especificado"}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-gray-500">Bio</dt>
+            <dt className="text-sm font-medium text-gray-600">Bio</dt>
             <dd className="mt-1">{user?.bio || "No especificado"}</dd>
           </div>
         </dl>
@@ -176,7 +176,7 @@ export function AccountSettings() {
                 </svg>
                 <div>
                   <p className="font-medium">Google</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-600">
                     Has iniciado sesión con tu cuenta de Google
                   </p>
                 </div>
@@ -197,7 +197,7 @@ export function AccountSettings() {
               <div>
                 <p className="font-medium">{user?.email}</p>
                 <div className="flex items-center space-x-1">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-600">
                     Correo electrónico verificado
                   </p>
                   <BadgeCheck className="h-4 w-4 text-blue-500" />
@@ -222,7 +222,7 @@ export function AccountSettings() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Contraseña</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-600">
                 Cambia tu contraseña regularmente para mantener tu cuenta segura
               </p>
             </div>
@@ -241,7 +241,7 @@ export function AccountSettings() {
 
       <div>
         <h3 className="text-lg font-semibold">Zona de Peligro</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-600">
           Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, estás
           seguro.
         </p>

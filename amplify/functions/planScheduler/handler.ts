@@ -105,6 +105,8 @@ export const handler: EventBridgeHandler<
           nextPaymentDate: null,
           pendingPlan: null,
           pendingStartDate: null,
+          planPrice: null,
+          
         });
         console.log(
           `✅ Suscripción de usuario ${userId} actualizada en DynamoDB.`

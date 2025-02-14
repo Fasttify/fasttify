@@ -38,7 +38,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!match) throw new Error("Formato de firma no válido.");
     const [, ts, v1] = match;
 
-    // Corrección clave: Obtener data.id de los query parameters
     const dataId = event.queryStringParameters?.["data.id"];
     const requestId =
       event.headers["x-request-id"] || event.headers["X-Request-Id"];
@@ -61,15 +60,91 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     // 2. Determinar tipo de evento
     const eventType = body.type;
-    console.log("🔍 Tipo de evento recibido:", eventType);
+    const eventAction = body.action;
+    console.log("🔍 Tipo de evento recibido:", eventType, eventAction);
 
-    // Manejar eventos que no son de pago
-    if (eventType === "subscription_preapproval") {
-      console.log("ℹ️ Evento de creación de suscripción recibido");
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: "OK" }),
-      };
+    // Manejar eventos de cancelación de suscripción
+    if (eventType === "subscription_preapproval" && eventAction === "updated") {
+      console.log("🛑 Procesando actualización de suscripción");
+
+      const subscriptionId = body.data.id;
+
+      // Obtener detalles de la suscripción
+      const subscriptionResponse = await axios.get(
+        `https://api.mercadopago.com/preapproval/${subscriptionId}`,
+        { headers: { Authorization: `Bearer ${env.MERCADOPAGO_ACCESS_TOKEN}` } }
+      );
+
+      const subscriptionData = subscriptionResponse.data;
+
+      // Verificar si es una cancelación
+      if (subscriptionData.status === "cancelled") {
+        const userId = subscriptionData.external_reference;
+        console.log(`⚠️ Detectada cancelación para usuario: ${userId}`);
+
+        // Obtener usuario de Cognito
+        const cognitoUser = await client.send(
+          new AdminGetUserCommand({
+            UserPoolId: env.USER_POOL_ID,
+            Username: userId,
+          })
+        );
+
+        // Verificar plan actual
+        const currentPlan =
+          cognitoUser.UserAttributes?.find(
+            (attr) => attr.Name === "custom:plan"
+          )?.Value || "free";
+
+        if (currentPlan === "free") {
+          console.log("🔍 Usuario ya tiene plan free, no se realizan cambios");
+          return {
+            statusCode: 200,
+            body: JSON.stringify({ message: "OK" }),
+          };
+        }
+
+        // Actualizar Cognito
+        await client.send(
+          new AdminUpdateUserAttributesCommand({
+            UserPoolId: env.USER_POOL_ID,
+            Username: userId,
+            UserAttributes: [{ Name: "custom:plan", Value: "free" }],
+          })
+        );
+        console.log("✅ Plan actualizado en Cognito a free");
+
+        // Actualizar DynamoDB
+        const existingSubscription =
+          await clientSchema.models.UserSubscription.get({ id: userId }).catch(
+            () => ({ data: null })
+          );
+
+        const updateData = {
+          id: userId,
+          planName: "free",
+          subscriptionId: subscriptionId,
+          pendingPlan: null,
+          pendingStartDate: null,
+          nextPaymentDate: null,
+          planPrice: null,
+        };
+
+        if (existingSubscription.data) {
+          await clientSchema.models.UserSubscription.update(updateData);
+        } else {
+          await clientSchema.models.UserSubscription.create({
+            ...updateData,
+            userId: userId,
+          });
+        }
+        console.log("✅ Suscripción actualizada en DynamoDB");
+
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ message: "OK" }),
+        };
+      }
     }
 
     // 3. Procesar diferentes tipos de pagos

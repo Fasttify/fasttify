@@ -21,6 +21,11 @@ export const faqItems: FAQItem[] = [
       "Sí, puedes cambiar tu plan en cualquier momento. Si mejoras tu plan, el nuevo precio se prorrateará para el resto de tu período de facturación.",
   },
   {
+    question: "¿Cómo actualizo mi plan?",
+    answer:
+      "Para hacerlo, debes ir a la configuración de tu cuenta, luego a la sección de pagos y allí seleccionar 'Actualizar plan'.",
+  },
+  {
     question: "¿Cuál es su política de cancelación?",
     answer:
       "Puedes cancelar tu suscripción en cualquier momento. Una vez cancelada, tendrás acceso a tu cuenta hasta el final de tu período de facturación.",
