@@ -104,32 +104,49 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           };
         }
 
-        // Actualizar Cognito
-        await client.send(
-          new AdminUpdateUserAttributesCommand({
-            UserPoolId: env.USER_POOL_ID,
-            Username: userId,
-            UserAttributes: [{ Name: "custom:plan", Value: "free" }],
-          })
-        );
-        console.log("✅ Plan actualizado en Cognito a free");
+        // Calcular tiempo restante de suscripción
+        const nextPaymentDate = new Date(subscriptionData.next_payment_date);
+        const now = new Date();
+        const timeLeft = nextPaymentDate.getTime() - now.getTime();
 
-        // Actualizar DynamoDB
+        // Obtener suscripción existente
         const existingSubscription =
           await clientSchema.models.UserSubscription.get({ id: userId }).catch(
             () => ({ data: null })
           );
 
-        const updateData = {
+        // Preparar datos de actualización
+        const updateData: any = {
           id: userId,
-          planName: "free",
           subscriptionId: subscriptionId,
           pendingPlan: null,
           pendingStartDate: null,
-          nextPaymentDate: null,
-          planPrice: null,
+          nextPaymentDate: subscriptionData.next_payment_date
+            ? new Date(subscriptionData.next_payment_date).toISOString()
+            : null,
         };
 
+        if (timeLeft > 0) {
+          console.log(`⏳ Usuario mantiene acceso hasta ${nextPaymentDate}`);
+          updateData.pendingPlan = "free";
+          updateData.pendingStartDate = nextPaymentDate.toISOString();
+          updateData.planName = currentPlan; // Mantener plan actual hasta la fecha
+        } else {
+          console.log("🔒 Acceso revocado inmediatamente");
+          updateData.planName = "free";
+          updateData.nextPaymentDate = null;
+
+          // Actualizar Cognito inmediatamente
+          await client.send(
+            new AdminUpdateUserAttributesCommand({
+              UserPoolId: env.USER_POOL_ID,
+              Username: userId,
+              UserAttributes: [{ Name: "custom:plan", Value: "free" }],
+            })
+          );
+        }
+
+        // Actualizar DynamoDB
         if (existingSubscription.data) {
           await clientSchema.models.UserSubscription.update(updateData);
         } else {
@@ -138,7 +155,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
             userId: userId,
           });
         }
-        console.log("✅ Suscripción actualizada en DynamoDB");
 
         return {
           statusCode: 200,

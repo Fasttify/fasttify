@@ -101,7 +101,7 @@ export const handler: EventBridgeHandler<
         await clientSchema.models.UserSubscription.update({
           id: userId,
           subscriptionId: subscription.subscriptionId,
-          planName: newPlan, // Se asigna el valor del plan pendiente
+          planName: newPlan, 
           nextPaymentDate: null,
           pendingPlan: null,
           pendingStartDate: null,
