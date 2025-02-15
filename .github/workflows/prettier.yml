@@ -43,6 +43,5 @@ jobs:
 
       - name: Hacer push de los cambios
         run: |
-          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-          echo "Pushing changes to branch: $BRANCH_NAME"
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
           git push origin "$BRANCH_NAME"
