@@ -75,7 +75,7 @@ export default function PricingPage() {
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Planes y Pagos - Fasttify";
+    document.title = "Planes y Pagos • Fasttify";
   }, []);
 
   return (

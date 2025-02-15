@@ -247,7 +247,7 @@ export function AccountSettings() {
         </p>
         <Button
           variant="outline"
-          className="mt-4"
+          className="mt-4 text-red-500 hover:text-red-500"
           onClick={() => setIsDeleteAccountOpen(true)}
         >
           Eliminar mi cuenta
@@ -266,7 +266,7 @@ export function AccountSettings() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="text-gray-600">
               Esta acción no se puede deshacer. Esto eliminará permanentemente
               tu cuenta y removerá tus datos de nuestros servidores.
             </AlertDialogDescription>

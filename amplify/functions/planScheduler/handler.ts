@@ -101,12 +101,12 @@ export const handler: EventBridgeHandler<
         await clientSchema.models.UserSubscription.update({
           id: userId,
           subscriptionId: subscription.subscriptionId,
-          planName: newPlan, 
+          planName: newPlan,
           nextPaymentDate: null,
           pendingPlan: null,
           pendingStartDate: null,
           planPrice: null,
-          
+          lastFourDigits: null,
         });
         console.log(
           `✅ Suscripción de usuario ${userId} actualizada en DynamoDB.`

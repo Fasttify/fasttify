@@ -38,7 +38,8 @@ export function ChangeEmailDialog({
   currentEmail,
 }: ChangeEmailDialogProps) {
   const [requiresVerification, setRequiresVerification] = useState(false);
-  const { updateAttributes, confirmAttribute, loading, error } = useUserAttributes();
+  const { updateAttributes, confirmAttribute, loading, error } =
+    useUserAttributes();
   const { toasts, addToast, removeToast } = useToast();
 
   const {
@@ -100,10 +101,7 @@ export function ChangeEmailDialog({
     if (err instanceof Error) {
       errorMessage = err.message;
     }
-    addToast(
-      "{errorMessage}",
-      "error"
-    );
+    addToast("{errorMessage}", "error");
   };
 
   return (

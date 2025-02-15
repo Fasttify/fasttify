@@ -82,7 +82,9 @@ export function UserMenu({
                 referrerPolicy="no-referrer"
               />
             )}
-            <AvatarFallback>{getUserInitials()}</AvatarFallback>
+            <AvatarFallback className="bg-pink-100 text-pink-700">
+              {getUserInitials()}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -96,7 +98,9 @@ export function UserMenu({
                 referrerPolicy="no-referrer"
               />
             )}
-            <AvatarFallback>{getUserInitials()}</AvatarFallback>
+            <AvatarFallback className="bg-pink-100 text-pink-700">
+              {getUserInitials()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col space-y-0.5">
             <div className="flex items-center gap-1">

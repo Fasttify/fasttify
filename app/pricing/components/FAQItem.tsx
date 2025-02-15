@@ -3,12 +3,6 @@ interface FAQItem {
   answer: string;
 }
 
-interface FAQSectionProps {
-  title?: string;
-  subtitle?: string;
-  items: FAQItem[];
-}
-
 export const faqItems: FAQItem[] = [
   {
     question: "¿Hay una prueba gratuita disponible?",

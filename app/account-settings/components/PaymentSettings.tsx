@@ -28,7 +28,7 @@ import {
 import Link from "next/link";
 
 export function PaymentSettings() {
-  const { subscription,   loading, error } = useSubscriptionStore();
+  const { subscription, loading, error } = useSubscriptionStore();
   const { userData } = useAuthUser();
   const [cachedSubscription, setCachedSubscription] = useState(subscription);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -170,6 +170,7 @@ export function PaymentSettings() {
               subscriptionId: currentSubscription.subscriptionId,
               memberSince: currentSubscription.createdAt,
               cardLastFourDigits: currentSubscription.lastFourDigits ?? 0,
+              pendingPlan: currentSubscription.pendingPlan ?? "",
             }}
             memberSince={currentSubscription.createdAt}
             onUpdatePlan={handleUpdatePlan}
@@ -183,8 +184,8 @@ export function PaymentSettings() {
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                disabled={isSubmitting}
-                className="w-auto self-start"
+                disabled={isSubmitting || subscription?.pendingPlan === "free"}
+                className="w-auto self-start text-red-500 hover:text-red-500"
               >
                 Cancelar Suscripción
               </Button>

@@ -23,7 +23,7 @@ Amplify.configure({
 export default function Page() {
   const [currentView, setCurrentView] = useState("cuenta");
   useEffect(() => {
-    document.title = "Mi Perfil - Fasttify";
+    document.title = "Mi Perfil • Fasttify";
   }, []);
 
   return (
