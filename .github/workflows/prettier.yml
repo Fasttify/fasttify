@@ -1,34 +1,47 @@
-name: Prettier Formatter
+name: Formateo con Prettier
 
 on:
-  push:
-    branches: ['*']
-  pull_request:
-    branches: ['*']
+  push:  # Se ejecuta en cualquier push
+    branches:
+      - '*' # Cualquier rama
+  pull_request:  # Se ejecuta en PRs a `dev` o `main`
+    branches:
+      - main
+      - dev
 
 jobs:
-  format:
+  prettier:
+    name: Aplicar Prettier
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🛠️ Clonar repositorio
+      - name: Checkout del repositorio
         uses: actions/checkout@v4
-
-      - name: 📦 Configurar Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          fetch-depth: 0  
 
-      - name: 📥 Instalar dependencias
-        run: npm install
+      - name: Configurar Node.js
+        uses: actions/setup-node@v20
 
-      - name: ✨ Ejecutar Prettier y autoformatear
-        run: npm run format
+      - name: Instalar dependencias
+        run: npm ci  # Instala las dependencias de manera limpia
 
-      - name: 🚀 Confirmar cambios si hay diferencias
+      - name: Ejecutar Prettier
+        run: npx prettier --write .
+
+      - name: Verificar si hay cambios
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git diff --quiet && git diff --staged --quiet || git commit -m "✨ Formateo automático con Prettier"
-          git push
+          if git diff --staged --quiet; then
+            echo "No hay cambios de formateo, se omite el commit."
+            exit 0
+          fi
+          git commit -m "✨ Formateo automático con Prettier"
+
+      - name: Hacer push de los cambios
+        run: |
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          echo "Pushing changes to branch: $BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
