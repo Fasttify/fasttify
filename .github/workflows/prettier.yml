@@ -24,6 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with: 
           node-version: 20
+
       - name: Instalar dependencias
         run: npm ci # Instala las dependencias de manera limpia
 
@@ -43,5 +44,13 @@ jobs:
 
       - name: Hacer push de los cambios
         run: |
+          # Si es un pull request, no hacer push
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            echo "El workflow se ejecuta en un Pull Request. No se hace push."
+            exit 0
+          fi
+
+          # Obtener el nombre de la rama correctamente
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          echo "Haciendo push a la rama: $BRANCH_NAME"
           git push origin "$BRANCH_NAME"
