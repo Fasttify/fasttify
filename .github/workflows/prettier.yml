@@ -1,10 +1,10 @@
 name: Formateo con Prettier
 
 on:
-  push:  # Se ejecuta en cualquier push
+  push: # Se ejecuta en cualquier push
     branches:
       - '*' # Cualquier rama
-  pull_request:  # Se ejecuta en PRs a `dev` o `main`
+  pull_request: # Se ejecuta en PRs a `dev` o `main`
     branches:
       - main
       - dev
@@ -18,13 +18,14 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  
+          fetch-depth: 0
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v18
-
+        uses: actions/setup-node@v4
+        with: 
+          node-version: 20
       - name: Instalar dependencias
-        run: npm ci  # Instala las dependencias de manera limpia
+        run: npm ci # Instala las dependencias de manera limpia
 
       - name: Ejecutar Prettier
         run: npx prettier --write .
