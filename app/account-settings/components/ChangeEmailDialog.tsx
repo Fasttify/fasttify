@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import {
@@ -36,6 +36,7 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
     register: registerEmail,
     handleSubmit: handleSubmitEmail,
     formState: { errors: emailErrors },
+    reset: resetEmail,
   } = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
   })
@@ -44,17 +45,20 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
     register: registerVerification,
     handleSubmit: handleSubmitVerification,
     formState: { errors: verificationErrors },
+    reset: resetVerification,
   } = useForm<VerificationFormData>({
     resolver: zodResolver(verificationCodeSchema),
   })
 
   const onSubmitEmail = async (data: EmailFormData) => {
     if (data.email.trim().toLowerCase() === currentEmail.trim().toLowerCase()) {
-      addToast('Ya estas usando este correo', 'error')
+      addToast('use client', 'error')
       return
     }
     try {
       const updateResult = await updateAttributes({ email: data.email })
+
+      resetEmail()
 
       if (updateResult.email.nextStep.updateAttributeStep === 'CONFIRM_ATTRIBUTE_WITH_CODE') {
         setRequiresVerification(true)
@@ -73,7 +77,32 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
 
       addToast('Tu correo electrónico ha sido actualizado exitosamente.', 'success')
       onOpenChange(false)
+
+      resetVerification()
     } catch (err) {
+      let errorCode = ''
+      let errorMessage = ''
+      if (err && typeof err === 'object') {
+        errorCode = (err as any).code || ''
+        errorMessage = (err as any).message || ''
+      } else {
+        errorMessage = String(err)
+      }
+
+      if (
+        errorCode === 'CodeMismatchException' ||
+        errorMessage.includes('Invalid verification code')
+      ) {
+        addToast('El código es incorrecto, inténtalo de nuevo', 'error')
+        return
+      }
+      if (
+        errorCode === 'LimitExceededException' ||
+        errorMessage.includes('Attempt limit exceeded')
+      ) {
+        addToast('Has excedido el límite de intentos, por favor intenta más tarde', 'error')
+        return
+      }
       handleError(err)
     }
   }
@@ -86,6 +115,14 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
     }
     addToast(errorMessage, 'error')
   }
+
+  useEffect(() => {
+    if (!open) {
+      resetEmail()
+      resetVerification()
+      setRequiresVerification(false)
+    }
+  }, [open, resetEmail, resetVerification])
 
   return (
     <>
