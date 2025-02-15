@@ -1,0 +1,34 @@
+name: Prettier Formatter
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠️ Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: 📦 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 📥 Instalar dependencias
+        run: npm install
+
+      - name: ✨ Ejecutar Prettier y autoformatear
+        run: npm run format
+
+      - name: 🚀 Confirmar cambios si hay diferencias
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --quiet && git diff --staged --quiet || git commit -m "✨ Formateo automático con Prettier"
+          git push
