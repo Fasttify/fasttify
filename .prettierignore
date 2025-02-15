@@ -1,0 +1,33 @@
+# Node.js
+node_modules
+
+# Build
+dist
+out
+.build
+.next
+
+# Amplify 
+amplify
+.amplify
+# Git
+.git
+
+# Configuración y dependencias
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Archivos de entorno
+.env
+.env.local
+.env.*.local
+
+# Caché
+.cache
+.vscode
+
+# Archivos 
+next.config.js
+package.json
+postcss.config.mjs

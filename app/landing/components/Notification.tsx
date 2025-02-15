@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Download } from "lucide-react";
+import { Button } from '@/components/ui/button'
+import { ArrowRight, Download } from 'lucide-react'
 
 export function PurchaseHistoryDemo() {
   return (
@@ -10,9 +10,8 @@ export function PurchaseHistoryDemo() {
             Emprende tu negocio de dropshipping hoy mismo
           </h2>
           <p className="text-lg text-gray-600 leading-relaxed">
-            Miles de emprendedores y empresas de todos los tamaños han generado
-            millones de dólares con nuestro sistema de ecommerce, creando
-            tiendas exitosas en línea sin inventarios.
+            Miles de emprendedores y empresas de todos los tamaños han generado millones de dólares
+            con nuestro sistema de ecommerce, creando tiendas exitosas en línea sin inventarios.
           </p>
         </div>
 
@@ -21,39 +20,32 @@ export function PurchaseHistoryDemo() {
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
               <span className="text-3xl">🚀</span>
             </div>
-            <h4 className="text-xl font-medium text-black">
-              Lanza tu tienda de forma rápida
-            </h4>
+            <h4 className="text-xl font-medium text-black">Lanza tu tienda de forma rápida</h4>
             <p className="text-gray-600">
-              Con nuestra plataforma, puedes crear tu tienda en cuestión de
-              horas y empezar a vender productos desde el primer día, sin
-              complicaciones ni necesidad de inversión inicial.
+              Con nuestra plataforma, puedes crear tu tienda en cuestión de horas y empezar a vender
+              productos desde el primer día, sin complicaciones ni necesidad de inversión inicial.
             </p>
           </div>
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
               <span className="text-3xl">📈</span>
             </div>
-            <h4 className="text-xl font-medium text-black">
-              Expande sin límites
-            </h4>
+            <h4 className="text-xl font-medium text-black">Expande sin límites</h4>
             <p className="text-gray-600">
-              Nuestro sistema de dropshipping te permite escalar tu negocio de
-              forma sencilla, con acceso a miles de productos que puedes ofrecer
-              a tus clientes sin tener que gestionar inventarios.
+              Nuestro sistema de dropshipping te permite escalar tu negocio de forma sencilla, con
+              acceso a miles de productos que puedes ofrecer a tus clientes sin tener que gestionar
+              inventarios.
             </p>
           </div>
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
               <span className="text-3xl">🏆</span>
             </div>
-            <h4 className="text-xl font-medium text-black">
-              Supera las expectativas
-            </h4>
+            <h4 className="text-xl font-medium text-black">Supera las expectativas</h4>
             <p className="text-gray-600">
-              Con nuestra solución integral, puedes ofrecer a tus clientes
-              productos de alta calidad y un proceso de compra rápido y seguro,
-              logrando una experiencia de usuario excepcional.
+              Con nuestra solución integral, puedes ofrecer a tus clientes productos de alta calidad
+              y un proceso de compra rápido y seguro, logrando una experiencia de usuario
+              excepcional.
             </p>
           </div>
         </div>
@@ -65,8 +57,8 @@ export function PurchaseHistoryDemo() {
                 Dueño de tu negocio, posee tu futuro
               </h3>
               <p className="text-gray-600 mb-6">
-                Visualiza en tiempo real todas las compras registradas en
-                nuestra plataforma. Cada compra se actualiza automáticamente.
+                Visualiza en tiempo real todas las compras registradas en nuestra plataforma. Cada
+                compra se actualiza automáticamente.
               </p>
               <Button className="bg-primary text-white">
                 Descargar Aplicación
@@ -92,9 +84,7 @@ export function PurchaseHistoryDemo() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h4 className="text-xl font-medium text-black mb-4">
-              Panel de Control
-            </h4>
+            <h4 className="text-xl font-medium text-black mb-4">Panel de Control</h4>
             <div className="mb-4">
               <p className="text-sm text-gray-600">Ventas Totales</p>
               <p className="text-3xl font-bold text-primary">$12,536</p>
@@ -105,18 +95,12 @@ export function PurchaseHistoryDemo() {
             </Button>
           </div>
           <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h4 className="text-xl font-medium text-black mb-4">
-              Gestión de Productos
-            </h4>
-            <p className="text-gray-600 mb-4">
-              Administra tu catálogo y optimiza tus ventas
-            </p>
-            <Button className="w-full bg-primary text-white">
-              Agregar Producto
-            </Button>
+            <h4 className="text-xl font-medium text-black mb-4">Gestión de Productos</h4>
+            <p className="text-gray-600 mb-4">Administra tu catálogo y optimiza tus ventas</p>
+            <Button className="w-full bg-primary text-white">Agregar Producto</Button>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }

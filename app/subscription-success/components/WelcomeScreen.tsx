@@ -1,30 +1,27 @@
-"use client";
+'use client'
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from 'react'
 
 interface WelcomeScreenProps {
-  userName: string;
-  onAnimationComplete: () => void;
+  userName: string
+  onAnimationComplete: () => void
 }
 
-export function WelcomeScreen({
-  userName,
-  onAnimationComplete,
-}: WelcomeScreenProps) {
-  const [isVisible, setIsVisible] = useState(true);
+export function WelcomeScreen({ userName, onAnimationComplete }: WelcomeScreenProps) {
+  const [isVisible, setIsVisible] = useState(true)
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsVisible(false);
-      onAnimationComplete();
-    }, 2500);
+      setIsVisible(false)
+      onAnimationComplete()
+    }, 2500)
 
-    return () => clearTimeout(timer);
-  }, [onAnimationComplete]);
+    return () => clearTimeout(timer)
+  }, [onAnimationComplete])
 
-  const firstWord = userName.split(" ")[0];
-  const lastWord = userName.split(" ").slice(1).join(" ");
+  const firstWord = userName.split(' ')[0]
+  const lastWord = userName.split(' ').slice(1).join(' ')
 
   return (
     <AnimatePresence>
@@ -63,5 +60,5 @@ export function WelcomeScreen({
         </motion.div>
       )}
     </AnimatePresence>
-  );
+  )
 }

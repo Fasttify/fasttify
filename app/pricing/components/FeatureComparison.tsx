@@ -1,30 +1,24 @@
-"use client";
+'use client'
 
-import {
-  Trophy,
-  Store,
-  Share2,
-  BarChart3,
-  AppWindowIcon as Apps,
-} from "lucide-react";
-import SpotlightCard from "@/components/ui/reactbits/SpotlightCard";
-import { Separator } from "@/components/ui/separator";
-import FlowingMenu from "@/components/ui/reactbits/FlowingMenu";
+import { Trophy, Store, Share2, BarChart3, AppWindowIcon as Apps } from 'lucide-react'
+import SpotlightCard from '@/components/ui/reactbits/SpotlightCard'
+import { Separator } from '@/components/ui/separator'
+import FlowingMenu from '@/components/ui/reactbits/FlowingMenu'
 
 const demoItems = [
   {
-    text: "Vuela sin límites",
-    image: "https://picsum.photos/600/400?random=1",
+    text: 'Vuela sin límites',
+    image: 'https://picsum.photos/600/400?random=1',
   },
   {
-    text: "Innova el futuro es hoy",
-    image: "https://picsum.photos/600/400?random=2",
+    text: 'Innova el futuro es hoy',
+    image: 'https://picsum.photos/600/400?random=2',
   },
   {
-    text: "Impulsa acelera tu éxito",
-    image: "https://picsum.photos/600/400?random=3",
+    text: 'Impulsa acelera tu éxito',
+    image: 'https://picsum.photos/600/400?random=3',
   },
-];
+]
 
 export function FeatureComparison() {
   return (
@@ -43,12 +37,9 @@ export function FeatureComparison() {
               <Trophy className="w-6 h-6 text-black" />
             </div>
             <div>
-              <h3 className="text-xl font-normal mb-2 text-black">
-                Pagos sin complicaciones
-              </h3>
+              <h3 className="text-xl font-normal mb-2 text-black">Pagos sin complicaciones</h3>
               <p className="text-gray-600 text-base leading-relaxed">
-                Fasttify te ofrece pagos rápidos y seguros con Mercado Pago y
-                PayU.
+                Fasttify te ofrece pagos rápidos y seguros con Mercado Pago y PayU.
               </p>
             </div>
           </div>
@@ -62,9 +53,7 @@ export function FeatureComparison() {
             <div className="p-2 rounded-lg bg-blue-50">
               <Store className="w-6 h-6 text-black" />
             </div>
-            <h3 className="text-xl font-normal text-black">
-              Tu tienda en minutos
-            </h3>
+            <h3 className="text-xl font-normal text-black">Tu tienda en minutos</h3>
             <p className="text-gray-600 text-base">
               Crea y personaliza tu ecommerce sin conocimientos técnicos.
             </p>
@@ -79,12 +68,9 @@ export function FeatureComparison() {
             <div className="p-2 rounded-lg bg-blue-50">
               <Share2 className="w-6 h-6 text-black" />
             </div>
-            <h3 className="text-xl font-normal text-black">
-              Múltiples canales de venta
-            </h3>
+            <h3 className="text-xl font-normal text-black">Múltiples canales de venta</h3>
             <p className="text-gray-600 text-base">
-              Vende en redes sociales, marketplaces y más con integración
-              automática.
+              Vende en redes sociales, marketplaces y más con integración automática.
             </p>
           </div>
         </SpotlightCard>
@@ -97,12 +83,9 @@ export function FeatureComparison() {
             <div className="p-2 rounded-lg bg-blue-50">
               <BarChart3 className="w-6 h-6 text-black" />
             </div>
-            <h3 className="text-xl font-normal text-black">
-              Análisis y reportes en tiempo real
-            </h3>
+            <h3 className="text-xl font-normal text-black">Análisis y reportes en tiempo real</h3>
             <p className="text-gray-600 text-base">
-              Obtén información clave para mejorar tu negocio y aumentar tus
-              ventas.
+              Obtén información clave para mejorar tu negocio y aumentar tus ventas.
             </p>
           </div>
         </SpotlightCard>
@@ -115,12 +98,9 @@ export function FeatureComparison() {
             <div className="p-2 rounded-lg bg-blue-50">
               <Apps className="w-6 h-6 text-black" />
             </div>
-            <h3 className="text-xl font-normal text-black">
-              Integraciones y personalización
-            </h3>
+            <h3 className="text-xl font-normal text-black">Integraciones y personalización</h3>
             <p className="text-gray-600 text-base">
-              Conecta herramientas y apps para mejorar la experiencia de tu
-              tienda.
+              Conecta herramientas y apps para mejorar la experiencia de tu tienda.
             </p>
           </div>
         </SpotlightCard>
@@ -132,9 +112,7 @@ export function FeatureComparison() {
             <div className="p-2 rounded-full bg-blue-50">
               <span className="block w-6 h-6 text-blue-500">🔒</span>
             </div>
-            <h3 className="text-lg font-normal">
-              Seguridad y protección de datos
-            </h3>
+            <h3 className="text-lg font-normal">Seguridad y protección de datos</h3>
           </div>
         </div>
 
@@ -152,15 +130,13 @@ export function FeatureComparison() {
             <div className="p-2 rounded-full bg-blue-50">
               <span className="block w-6 h-6 text-blue-500">🛡️</span>
             </div>
-            <h3 className="text-lg font-normal">
-              Infraestructura robusta y escalable
-            </h3>
+            <h3 className="text-lg font-normal">Infraestructura robusta y escalable</h3>
           </div>
         </div>
       </div>
-      <div style={{ height: "600px", position: "relative" }}>
+      <div style={{ height: '600px', position: 'relative' }}>
         <FlowingMenu items={demoItems} />
       </div>
     </div>
-  );
+  )
 }

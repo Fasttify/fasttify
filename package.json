@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write .",
+  "format:check": "prettier --check ."
   },
   "dependencies": {
     "@aws-amplify/adapter-nextjs": "^1.4.1",
@@ -67,6 +69,7 @@
     "eslint": "8.57.1",
     "eslint-config-next": "15.1.7",
     "postcss": "^8.4.49",
+    "prettier": "^3.5.1",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"

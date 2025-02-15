@@ -1,20 +1,17 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import { ArrowRight, Check, Sparkles, Zap } from "lucide-react";
-import { Navbar } from "@/app/landing/components/NavBar";
-import { Footer } from "@/app/landing/components/Footer";
-import Link from "next/link";
+import { motion } from 'framer-motion'
+import { ArrowRight, Check, Sparkles, Zap } from 'lucide-react'
+import { Navbar } from '@/app/landing/components/NavBar'
+import { Footer } from '@/app/landing/components/Footer'
+import Link from 'next/link'
 
 interface SubscriptionSuccessProps {
-  userName: string;
-  isVisible: boolean;
+  userName: string
+  isVisible: boolean
 }
 
-export function SubscriptionSuccess({
-  userName,
-  isVisible,
-}: SubscriptionSuccessProps) {
+export function SubscriptionSuccess({ userName, isVisible }: SubscriptionSuccessProps) {
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -24,7 +21,7 @@ export function SubscriptionSuccess({
         delayChildren: 0.3,
       },
     },
-  };
+  }
 
   const item = {
     hidden: { opacity: 0, y: 20 },
@@ -32,12 +29,12 @@ export function SubscriptionSuccess({
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: 'spring',
         stiffness: 100,
         damping: 10,
       },
     },
-  };
+  }
 
   const navbarVariant = {
     hidden: { opacity: 0, y: -50 },
@@ -45,13 +42,13 @@ export function SubscriptionSuccess({
       opacity: 1,
       y: 0,
     },
-  };
+  }
 
   return (
     <>
       <motion.div
         initial="hidden"
-        animate={isVisible ? "show" : "hidden"}
+        animate={isVisible ? 'show' : 'hidden'}
         variants={container}
         className="min-h-screen flex flex-col"
       >
@@ -64,35 +61,28 @@ export function SubscriptionSuccess({
             <motion.div variants={item} className="space-y-6">
               <div className="flex items-center space-x-3">
                 <Check className="w-6 h-6 text-green-500" />
-                <span className="text-green-500 font-medium">
-                  Suscripción Activada
-                </span>
+                <span className="text-green-500 font-medium">Suscripción Activada</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-light tracking-tight">
                 Bienvenido a la experiencia premium, {userName}
               </h1>
               <p className="text-neutral-600 text-lg md:text-xl font-light">
-                Tu suscripción ha sido activada exitosamente. Estamos
-                emocionados de tenerte con nosotros.
+                Tu suscripción ha sido activada exitosamente. Estamos emocionados de tenerte con
+                nosotros.
               </p>
             </motion.div>
 
-            <motion.div
-              variants={item}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
-            >
+            <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 {
                   icon: Sparkles,
-                  title: "Beneficios Premium",
-                  description:
-                    "Accede a contenido exclusivo y funciones especiales",
+                  title: 'Beneficios Premium',
+                  description: 'Accede a contenido exclusivo y funciones especiales',
                 },
                 {
                   icon: Zap,
-                  title: "Acceso Instantáneo",
-                  description:
-                    "Todas las características premium están listas para usar",
+                  title: 'Acceso Instantáneo',
+                  description: 'Todas las características premium están listas para usar',
                 },
               ].map((card, index) => (
                 <motion.div
@@ -111,15 +101,15 @@ export function SubscriptionSuccess({
               <h2 className="text-xl font-light">Próximos pasos</h2>
               <ul className="space-y-3">
                 {[
-                  "Personaliza tu perfil premium",
-                  "Explora las funciones exclusivas",
-                  "Conecta con otros miembros premium",
+                  'Personaliza tu perfil premium',
+                  'Explora las funciones exclusivas',
+                  'Conecta con otros miembros premium',
                 ].map((step, index) => (
                   <motion.li
                     key={index}
                     className="flex items-center text-neutral-600"
                     whileHover={{ x: 10 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   >
                     <span className="mr-2">→</span>
                     {step}
@@ -137,7 +127,7 @@ export function SubscriptionSuccess({
                 <motion.span
                   initial={{ x: 0 }}
                   whileHover={{ x: 10 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                 >
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </motion.span>
@@ -154,5 +144,5 @@ export function SubscriptionSuccess({
       </motion.div>
       <Footer />
     </>
-  );
+  )
 }

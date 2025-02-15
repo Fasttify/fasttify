@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import AuthClient from "@/app/login/components/AuthClient";
+import AuthClient from '@/app/login/components/AuthClient'
 
 const Login = () => {
-  return <AuthClient />;
-};
+  return <AuthClient />
+}
 
-export default Login;
+export default Login

@@ -1,15 +1,15 @@
-"use client";
+'use client'
 
-import { PurchaseHistoryDemo } from "./Notification";
-import { PlatformCompatibility } from "./Platform";
-import { Footer } from "./Footer";
-import { StepGuide } from "./StepGuide";
-import { Navbar } from "./NavBar";
-import { FirstView } from "./FirstView";
-import { AboutUs } from "./AboutUs";
-import { FashionSlider } from "./FashionSlider";
-import { Feature } from "./Feature";
-import { Testimonials } from "./Testimonials";
+import { PurchaseHistoryDemo } from './Notification'
+import { PlatformCompatibility } from './Platform'
+import { Footer } from './Footer'
+import { StepGuide } from './StepGuide'
+import { Navbar } from './NavBar'
+import { FirstView } from './FirstView'
+import { AboutUs } from './AboutUs'
+import { FashionSlider } from './FashionSlider'
+import { Feature } from './Feature'
+import { Testimonials } from './Testimonials'
 
 export const DocsLanding = () => {
   return (
@@ -36,5 +36,5 @@ export const DocsLanding = () => {
         <Footer />
       </div>
     </>
-  );
-};
+  )
+}

@@ -1,35 +1,34 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectFade } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/effect-fade";
+import React, { useState } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay, EffectFade } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/effect-fade'
 
 const slides = [
   {
     image:
-      "https://images.unsplash.com/photo-1737069222398-febfd663da1e?q=80&w=1974&auto=format&fit=crop",
-    title: "Inicia tu viaje de Ecommerce,",
-    subtitle: "Sin inventario, sin preocupaciones",
+      'https://images.unsplash.com/photo-1737069222398-febfd663da1e?q=80&w=1974&auto=format&fit=crop',
+    title: 'Inicia tu viaje de Ecommerce,',
+    subtitle: 'Sin inventario, sin preocupaciones',
   },
   {
     image:
-      "https://images.unsplash.com/photo-1736617004818-a01c44c494ee?q=80&w=1974&auto=format&fit=crop",
-    title: "Dropshipping simplificado,",
-    subtitle: "Vende globalmente, crece localmente",
+      'https://images.unsplash.com/photo-1736617004818-a01c44c494ee?q=80&w=1974&auto=format&fit=crop',
+    title: 'Dropshipping simplificado,',
+    subtitle: 'Vende globalmente, crece localmente',
   },
   {
     image:
-      "https://images.unsplash.com/photo-1737069220405-6ddcbd8c70c1?q=80&w=1974&auto=format&fit=crop",
-    title: "Cumplimiento sin esfuerzo,",
-    subtitle: "Tus productos entregados en todo el mundo",
+      'https://images.unsplash.com/photo-1737069220405-6ddcbd8c70c1?q=80&w=1974&auto=format&fit=crop',
+    title: 'Cumplimiento sin esfuerzo,',
+    subtitle: 'Tus productos entregados en todo el mundo',
   },
-];
-
+]
 
 const ImageSlider = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0)
 
   return (
     <div className="hidden lg:block w-1/2 relative overflow-hidden ">
@@ -48,7 +47,7 @@ const ImageSlider = () => {
             <div
               key={index}
               className={`w-8 h-1 rounded-full transition-all duration-300 ${
-                index === activeIndex ? "bg-white" : "bg-white/30"
+                index === activeIndex ? 'bg-white' : 'bg-white/30'
               }`}
             />
           ))}
@@ -64,13 +63,13 @@ const ImageSlider = () => {
         speed={2000}
         loop={true}
         className="h-full"
-        onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+        onSlideChange={swiper => setActiveIndex(swiper.realIndex)}
       >
         {slides.map((slide, index) => (
           <SwiperSlide key={index}>
             <div className="h-screen">
               <img
-                src={slide.image || "/placeholder.svg"}
+                src={slide.image || '/placeholder.svg'}
                 alt={`Slide ${index + 1}`}
                 className="w-full h-full object-cover"
               />
@@ -79,7 +78,7 @@ const ImageSlider = () => {
         ))}
       </Swiper>
     </div>
-  );
-};
+  )
+}
 
-export default ImageSlider;
+export default ImageSlider

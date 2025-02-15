@@ -132,23 +132,23 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           console.log(`⏳ Usuario mantiene acceso hasta ${nextPaymentDate}`);
           updateData.pendingPlan = "free";
           updateData.pendingStartDate = nextPaymentDate.toISOString();
-          updateData.planName = currentPlan; 
+          updateData.planName = currentPlan;
         } else {
           console.log("🔒 Acceso revocado inmediatamente");
           updateData.planName = "free";
           updateData.nextPaymentDate = null;
-          updateData.planPrice = null,
-          updateData.pendingStartDate = null,
-          updateData.lastFourDigits = null,
-          updateData.pendingPlan = null,
-          // Actualizar Cognito inmediatamente
-          await client.send(
-            new AdminUpdateUserAttributesCommand({
-              UserPoolId: env.USER_POOL_ID,
-              Username: userId,
-              UserAttributes: [{ Name: "custom:plan", Value: "free" }],
-            })
-          );
+          (updateData.planPrice = null),
+            (updateData.pendingStartDate = null),
+            (updateData.lastFourDigits = null),
+            (updateData.pendingPlan = null),
+            // Actualizar Cognito inmediatamente
+            await client.send(
+              new AdminUpdateUserAttributesCommand({
+                UserPoolId: env.USER_POOL_ID,
+                Username: userId,
+                UserAttributes: [{ Name: "custom:plan", Value: "free" }],
+              })
+            );
         }
 
         // Actualizar DynamoDB

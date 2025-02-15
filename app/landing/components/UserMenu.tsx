@@ -1,74 +1,58 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  BadgeCheckIcon,
-  HelpCircle,
-  LayoutGrid,
-  LogOut,
-  Settings,
-  User2,
-} from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
+} from '@/components/ui/dropdown-menu'
+import { BadgeCheckIcon, HelpCircle, LayoutGrid, LogOut, Settings, User2 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import Link from 'next/link'
 
 interface User {
-  picture?: string;
-  preferredUsername?: string;
-  nickName?: string;
-  email?: string;
-  plan?: string;
+  picture?: string
+  preferredUsername?: string
+  nickName?: string
+  email?: string
+  plan?: string
 }
 
 interface UserMenuProps {
-  user: User | null;
-  loading: boolean;
-  className?: string;
-  onSignOut: () => Promise<void>;
+  user: User | null
+  loading: boolean
+  className?: string
+  onSignOut: () => Promise<void>
 }
 
-export function UserMenu({
-  user,
-  loading,
-  className = "",
-  onSignOut,
-}: UserMenuProps) {
+export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuProps) {
   const getUserInitials = () => {
-    if (!user) return "";
+    if (!user) return ''
 
-    const displayName =
-      user.preferredUsername || user.nickName || user.email || "";
+    const displayName = user.preferredUsername || user.nickName || user.email || ''
 
-    if (displayName.includes("@")) {
-      return displayName.split("@")[0].charAt(0).toUpperCase();
+    if (displayName.includes('@')) {
+      return displayName.split('@')[0].charAt(0).toUpperCase()
     }
 
-    const nameParts = displayName.split(" ");
-    const firstInitial = nameParts[0]?.charAt(0) || "";
-    const secondInitial = nameParts[1]?.charAt(0) || "";
+    const nameParts = displayName.split(' ')
+    const firstInitial = nameParts[0]?.charAt(0) || ''
+    const secondInitial = nameParts[1]?.charAt(0) || ''
 
-    return (firstInitial + secondInitial).toUpperCase() || "U";
-  };
+    return (firstInitial + secondInitial).toUpperCase() || 'U'
+  }
 
   if (loading) {
-    return <Skeleton className={`w-11 h-11 rounded-full ${className}`} />;
+    return <Skeleton className={`w-11 h-11 rounded-full ${className}`} />
   }
 
   if (!user) {
-    return null;
+    return null
   }
 
   const displayName =
-    user.preferredUsername ||
-    user.nickName ||
-    user.email?.split("@")[0] ||
-    "Usuario";
+    user.preferredUsername || user.nickName || user.email?.split('@')[0] || 'Usuario'
 
   return (
     <DropdownMenu>
@@ -76,11 +60,7 @@ export function UserMenu({
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className={`h-9 w-9 ${className}`}>
             {user.picture && (
-              <AvatarImage
-                src={user.picture}
-                alt={displayName}
-                referrerPolicy="no-referrer"
-              />
+              <AvatarImage src={user.picture} alt={displayName} referrerPolicy="no-referrer" />
             )}
             <AvatarFallback className="bg-pink-100 text-pink-700">
               {getUserInitials()}
@@ -92,11 +72,7 @@ export function UserMenu({
         <div className="flex items-center gap-3 p-4">
           <Avatar className="h-10 w-10">
             {user.picture && (
-              <AvatarImage
-                src={user.picture}
-                alt={displayName}
-                referrerPolicy="no-referrer"
-              />
+              <AvatarImage src={user.picture} alt={displayName} referrerPolicy="no-referrer" />
             )}
             <AvatarFallback className="bg-pink-100 text-pink-700">
               {getUserInitials()}
@@ -140,10 +116,7 @@ export function UserMenu({
           <div className="flex items-center justify-between mb-1">
             <span className="font-medium">Plan {user.plan}</span>
             <Link href="/pricing">
-              <Button
-                variant="link"
-                className="h-auto p-0 text-blue-600 hover:text-blue-700"
-              >
+              <Button variant="link" className="h-auto p-0 text-blue-600 hover:text-blue-700">
                 Actualizar
               </Button>
             </Link>
@@ -162,5 +135,5 @@ export function UserMenu({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

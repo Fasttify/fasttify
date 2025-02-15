@@ -1,17 +1,12 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Form,
   FormControl,
@@ -19,75 +14,66 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import usePasswordManagement from "@/app/account-settings/hooks/usePasswordManagement";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+} from '@/components/ui/form'
+import usePasswordManagement from '@/app/account-settings/hooks/usePasswordManagement'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 const passwordSchema = z
   .object({
-    oldPassword: z.string().min(1, "La contraseña actual es requerida"),
+    oldPassword: z.string().min(1, 'La contraseña actual es requerida'),
     newPassword: z
       .string()
-      .min(8, "La nueva contraseña debe tener al menos 8 caracteres")
+      .min(8, 'La nueva contraseña debe tener al menos 8 caracteres')
       .regex(
         /[!@#$%^&*()\-_=+{};:,<.>]/,
-        "La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial"
+        'La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial'
       ),
-    confirmPassword: z.string().min(1, "Confirma tu nueva contraseña"),
+    confirmPassword: z.string().min(1, 'Confirma tu nueva contraseña'),
   })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
-  });
+  .refine(data => data.newPassword === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
 
-type PasswordFormValues = z.infer<typeof passwordSchema>;
+type PasswordFormValues = z.infer<typeof passwordSchema>
 
 export function ChangePasswordDialog({
   open,
   onOpenChange,
 }: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }) {
-  const {
-    updateUserPassword,
-    loading,
-    error: hookError,
-    success,
-  } = usePasswordManagement();
+  const { updateUserPassword, loading, error: hookError, success } = usePasswordManagement()
 
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
-      oldPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      oldPassword: '',
+      newPassword: '',
+      confirmPassword: '',
     },
-  });
+  })
 
   const onSubmit = async (values: PasswordFormValues) => {
     try {
-      await updateUserPassword(values.oldPassword, values.newPassword);
-      form.reset();
+      await updateUserPassword(values.oldPassword, values.newPassword)
+      form.reset()
       if (success) {
-        setTimeout(() => onOpenChange(false), 2000);
+        setTimeout(() => onOpenChange(false), 2000)
       }
     } catch (err) {
-      console.error(err);
+      console.error(err)
     }
-  };
+  }
 
   const PasswordInput = ({ field, show, setShow, placeholder }: any) => (
     <div className="relative">
-      <Input
-        type={show ? "text" : "password"}
-        {...field}
-        placeholder={placeholder}
-      />
+      <Input type={show ? 'text' : 'password'} {...field} placeholder={placeholder} />
       <Button
         type="button"
         variant="ghost"
@@ -98,7 +84,7 @@ export function ChangePasswordDialog({
         {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </Button>
     </div>
-  );
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -167,11 +153,7 @@ export function ChangePasswordDialog({
                 Error al cambiar la contraseña. Por favor, inténtalo de nuevo.
               </p>
             )}
-            {success && (
-              <p className="text-sm text-green-600">
-                Contraseña cambiada exitosamente.
-              </p>
-            )}
+            {success && <p className="text-sm text-green-600">Contraseña cambiada exitosamente.</p>}
             <Button
               type="submit"
               className="w-full flex items-center justify-center"
@@ -183,12 +165,12 @@ export function ChangePasswordDialog({
                   Actualizando...
                 </span>
               ) : (
-                "Cambiar Contraseña"
+                'Cambiar Contraseña'
               )}
             </Button>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

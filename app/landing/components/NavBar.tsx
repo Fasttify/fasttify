@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Menu, ChevronDown, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Amplify } from "aws-amplify";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { Menu, ChevronDown, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Amplify } from 'aws-amplify'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,106 +14,102 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import { useAuth } from "@/hooks/auth/useAuth";
-import { signOut } from "aws-amplify/auth";
-import { useRouter } from "next/navigation";
-import { UserMenu } from "@/app/landing/components/UserMenu";
-import { Skeleton } from "@/components/ui/skeleton";
-import useUserStore from "@/store/userStore";
-import outputs from "@/amplify_outputs.json";
+} from '@/components/ui/navigation-menu'
+import { useAuth } from '@/hooks/auth/useAuth'
+import { signOut } from 'aws-amplify/auth'
+import { useRouter } from 'next/navigation'
+import { UserMenu } from '@/app/landing/components/UserMenu'
+import { Skeleton } from '@/components/ui/skeleton'
+import useUserStore from '@/store/userStore'
+import outputs from '@/amplify_outputs.json'
 
-Amplify.configure(outputs);
+Amplify.configure(outputs)
 
 const navItems = [
   {
-    label: "Productos",
+    label: 'Productos',
     highlight: {
-      title: "Una única plataforma para todas tus necesidades",
-      description: "Simplifica tu integración, maximiza tu alcance",
-      subtitle: "Unifica tu lógica de negocio",
+      title: 'Una única plataforma para todas tus necesidades',
+      description: 'Simplifica tu integración, maximiza tu alcance',
+      subtitle: 'Unifica tu lógica de negocio',
     },
     content: [
       {
-        title: "Características",
-        href: "/#caracteristicas",
-        description:
-          "Explora todas las características y capacidades de nuestra plataforma.",
+        title: 'Características',
+        href: '/#caracteristicas',
+        description: 'Explora todas las características y capacidades de nuestra plataforma.',
       },
       {
-        title: "Casos de Uso",
-        href: "/#casos",
-        description:
-          "Descubre cómo otros clientes están usando nuestra plataforma.",
+        title: 'Casos de Uso',
+        href: '/#casos',
+        description: 'Descubre cómo otros clientes están usando nuestra plataforma.',
       },
     ],
   },
   {
-    label: "Recursos",
+    label: 'Recursos',
     highlight: {
-      title: "Recursos completos para tu éxito",
-      description: "Todo lo que necesitas para crecer",
-      subtitle: "Potencia tu negocio",
+      title: 'Recursos completos para tu éxito',
+      description: 'Todo lo que necesitas para crecer',
+      subtitle: 'Potencia tu negocio',
     },
     content: [
       {
-        title: "Integraciones",
-        href: "/#integraciones",
-        description: "Integraciones y actualización de nuestra plataforma",
+        title: 'Integraciones',
+        href: '/#integraciones',
+        description: 'Integraciones y actualización de nuestra plataforma',
       },
       {
-        title: "Multiplataforma",
-        href: "/#multiplataforma",
-        description: "Guías detalladas y documentación técnica.",
+        title: 'Multiplataforma',
+        href: '/#multiplataforma',
+        description: 'Guías detalladas y documentación técnica.',
       },
       {
-        title: "Contacto",
-        href: "/#contacto",
-        description: "Ponte en contacto con nuestro equipo de soporte.",
+        title: 'Contacto',
+        href: '/#contacto',
+        description: 'Ponte en contacto con nuestro equipo de soporte.',
       },
     ],
   },
-];
+]
 
 export function Navbar() {
-  const { user, clearUser } = useUserStore();
-  const { loading } = useAuth();
-  const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const [hasScrolled, setHasScrolled] = useState(false);
+  const { user, clearUser } = useUserStore()
+  const { loading } = useAuth()
+  const router = useRouter()
+  const [isOpen, setIsOpen] = useState(false)
+  const [hasScrolled, setHasScrolled] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.pageYOffset;
+      const scrollTop = window.pageYOffset
       if (scrollTop > 0) {
-        setHasScrolled(true);
+        setHasScrolled(true)
       } else {
-        setHasScrolled(false);
+        setHasScrolled(false)
       }
-    };
+    }
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll)
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
   const handleSignOut = async () => {
     try {
-      clearUser();
-      await signOut();
-      router.push("/login");
+      clearUser()
+      await signOut()
+      router.push('/login')
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      console.error('Error al cerrar sesión:', error)
     }
-  };
+  }
 
   return (
     <nav
       className={`sticky top-0 left-0 right-0 z-50 transition-colors duration-500 ${
-        hasScrolled
-          ? "bg-white/95 backdrop-blur-md shadow-sm"
-          : "bg-transparent"
+        hasScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -137,7 +133,7 @@ export function Navbar() {
             </Link>
             <NavigationMenu className="hidden md:flex">
               <NavigationMenuList>
-                {navItems.map((item) => (
+                {navItems.map(item => (
                   <NavigationMenuItem key={item.label}>
                     <NavigationMenuTrigger className="text-base font-medium">
                       {item.label}
@@ -147,30 +143,22 @@ export function Navbar() {
                         <div className="grid grid-cols-5 gap-6">
                           {/* Highlight Section */}
                           <div className="col-span-2 bg-primary rounded-lg p-6 text-primary-foreground">
-                            <h3 className="text-2xl font-medium mb-4">
-                              {item.highlight.title}
-                            </h3>
+                            <h3 className="text-2xl font-medium mb-4">{item.highlight.title}</h3>
                             <p className="text-sm mb-4 text-primary-foreground/80">
                               {item.highlight.description}
                             </p>
-                            <p className="text-lg font-medium">
-                              {item.highlight.subtitle}
-                            </p>
+                            <p className="text-lg font-medium">{item.highlight.subtitle}</p>
                           </div>
                           {/* Features Grid */}
                           <div className="col-span-3 grid grid-cols-2 gap-4">
-                            {item.content.map((subItem) => (
+                            {item.content.map(subItem => (
                               <NavigationMenuLink asChild key={subItem.title}>
                                 <Link
                                   href={subItem.href}
                                   className="block p-4 rounded-lg hover:bg-muted"
                                 >
-                                  <h4 className="text-lg font-medium mb-2">
-                                    {subItem.title}
-                                  </h4>
-                                  <p className="text-sm text-gray-600">
-                                    {subItem.description}
-                                  </p>
+                                  <h4 className="text-lg font-medium mb-2">{subItem.title}</h4>
+                                  <p className="text-sm text-gray-600">{subItem.description}</p>
                                 </Link>
                               </NavigationMenuLink>
                             ))}
@@ -178,9 +166,8 @@ export function Navbar() {
                         </div>
                         <div className="mt-6 pt-6 border-t border-border">
                           <p className="text-sm text-gray-600 text-center">
-                            Gestiona grandes volúmenes de transacciones con
-                            facilidad, perfecto para aplicaciones que esperan un
-                            crecimiento significativo.
+                            Gestiona grandes volúmenes de transacciones con facilidad, perfecto para
+                            aplicaciones que esperan un crecimiento significativo.
                           </p>
                         </div>
                       </div>
@@ -202,11 +189,7 @@ export function Navbar() {
             {loading ? (
               <Skeleton className="h-8 w-8 rounded-full" />
             ) : user ? (
-              <UserMenu
-                user={user}
-                loading={loading}
-                onSignOut={handleSignOut}
-              />
+              <UserMenu user={user} loading={loading} onSignOut={handleSignOut} />
             ) : (
               <Button asChild variant="link" className="ml-4 text-black">
                 <Link href="/login">Iniciar sesión</Link>
@@ -229,11 +212,7 @@ export function Navbar() {
                 <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                   <div className="flex flex-col h-full">
                     <div className="flex items-center justify-between py-4">
-                      <Link
-                        href="/"
-                        className="flex items-center"
-                        onClick={() => setIsOpen(false)}
-                      >
+                      <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
                         <Image
                           src="/icons/fast@4x.webp"
                           alt="Logo"
@@ -259,14 +238,14 @@ export function Navbar() {
                       </Button>
                     </div>
                     <div className="flex-grow overflow-y-auto">
-                      {navItems.map((item) => (
+                      {navItems.map(item => (
                         <div key={item.label} className="py-2">
                           <div className="flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-900">
                             {item.label}
                             <ChevronDown className="h-4 w-4 text-gray-500" />
                           </div>
                           <div className="mt-2 space-y-2">
-                            {item.content.map((subItem) => (
+                            {item.content.map(subItem => (
                               <Link
                                 key={subItem.title}
                                 href={subItem.href}
@@ -304,5 +283,5 @@ export function Navbar() {
         </div>
       </div>
     </nav>
-  );
+  )
 }

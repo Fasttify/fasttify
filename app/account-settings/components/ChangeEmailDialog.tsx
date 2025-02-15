@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -10,37 +10,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useUserAttributes } from "@/app/account-settings/hooks/useUserAttributes";
-import {
-  emailSchema,
-  verificationCodeSchema,
-} from "@/lib/schemas/email-change";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useToast } from "@/hooks/custom-toast/use-toast";
-import { Toast } from "@/components/ui/toasts";
-import type { z } from "zod";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { useUserAttributes } from '@/app/account-settings/hooks/useUserAttributes'
+import { emailSchema, verificationCodeSchema } from '@/lib/schemas/email-change'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { useToast } from '@/hooks/custom-toast/use-toast'
+import { Toast } from '@/components/ui/toasts'
+import type { z } from 'zod'
 
 interface ChangeEmailDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  currentEmail: string;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  currentEmail: string
 }
 
-type EmailFormData = z.infer<typeof emailSchema>;
-type VerificationFormData = z.infer<typeof verificationCodeSchema>;
+type EmailFormData = z.infer<typeof emailSchema>
+type VerificationFormData = z.infer<typeof verificationCodeSchema>
 
-export function ChangeEmailDialog({
-  open,
-  onOpenChange,
-  currentEmail,
-}: ChangeEmailDialogProps) {
-  const [requiresVerification, setRequiresVerification] = useState(false);
-  const { updateAttributes, confirmAttribute, loading, error } =
-    useUserAttributes();
-  const { toasts, addToast, removeToast } = useToast();
+export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEmailDialogProps) {
+  const [requiresVerification, setRequiresVerification] = useState(false)
+  const { updateAttributes, confirmAttribute, loading, error } = useUserAttributes()
+  const { toasts, addToast, removeToast } = useToast()
 
   const {
     register: registerEmail,
@@ -48,7 +40,7 @@ export function ChangeEmailDialog({
     formState: { errors: emailErrors },
   } = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
-  });
+  })
 
   const {
     register: registerVerification,
@@ -56,53 +48,46 @@ export function ChangeEmailDialog({
     formState: { errors: verificationErrors },
   } = useForm<VerificationFormData>({
     resolver: zodResolver(verificationCodeSchema),
-  });
+  })
 
   const onSubmitEmail = async (data: EmailFormData) => {
     try {
-      console.log("Intentando actualizar el correo electrónico...");
-      const updateResult = await updateAttributes({ email: data.email });
-      console.log("Resultado de la actualización:", updateResult);
+      console.log('Intentando actualizar el correo electrónico...')
+      const updateResult = await updateAttributes({ email: data.email })
+      console.log('Resultado de la actualización:', updateResult)
 
-      if (
-        updateResult.email.nextStep.updateAttributeStep ===
-        "CONFIRM_ATTRIBUTE_WITH_CODE"
-      ) {
-        setRequiresVerification(true);
+      if (updateResult.email.nextStep.updateAttributeStep === 'CONFIRM_ATTRIBUTE_WITH_CODE') {
+        setRequiresVerification(true)
       }
     } catch (err) {
-      handleError(err);
+      handleError(err)
     }
-  };
+  }
 
   const onSubmitVerification = async (data: VerificationFormData) => {
     try {
-      console.log("Intentando confirmar el atributo...");
+      console.log('Intentando confirmar el atributo...')
       await confirmAttribute({
-        userAttributeKey: "email",
+        userAttributeKey: 'email',
         confirmationCode: data.verificationCode,
-      });
-      console.log("Correo electrónico confirmado y actualizado");
+      })
+      console.log('Correo electrónico confirmado y actualizado')
 
-      addToast(
-        "Tu correo electrónico ha sido actualizado exitosamente.",
-        "success"
-      );
-      onOpenChange(false);
+      addToast('Tu correo electrónico ha sido actualizado exitosamente.', 'success')
+      onOpenChange(false)
     } catch (err) {
-      handleError(err);
+      handleError(err)
     }
-  };
+  }
 
   const handleError = (err: unknown) => {
-    console.error("Error detallado:", err);
-    let errorMessage =
-      "Hubo un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.";
+    console.error('Error detallado:', err)
+    let errorMessage = 'Hubo un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.'
     if (err instanceof Error) {
-      errorMessage = err.message;
+      errorMessage = err.message
     }
-    addToast("{errorMessage}", "error");
-  };
+    addToast('{errorMessage}', 'error')
+  }
 
   return (
     <>
@@ -112,35 +97,27 @@ export function ChangeEmailDialog({
             <DialogTitle>Cambiar correo electrónico</DialogTitle>
             <DialogDescription>
               {requiresVerification
-                ? "Introduce el código de verificación enviado a tu nuevo correo electrónico."
-                : "Introduce tu nuevo correo electrónico."}
+                ? 'Introduce el código de verificación enviado a tu nuevo correo electrónico.'
+                : 'Introduce tu nuevo correo electrónico.'}
             </DialogDescription>
           </DialogHeader>
           {!requiresVerification ? (
-            <form
-              onSubmit={handleSubmitEmail(onSubmitEmail)}
-              className="space-y-4"
-            >
-              <Input placeholder={currentEmail} {...registerEmail("email")} />
+            <form onSubmit={handleSubmitEmail(onSubmitEmail)} className="space-y-4">
+              <Input placeholder={currentEmail} {...registerEmail('email')} />
               {emailErrors.email && (
-                <p className="text-sm text-red-500">
-                  {emailErrors.email.message}
-                </p>
+                <p className="text-sm text-red-500">{emailErrors.email.message}</p>
               )}
               <DialogFooter>
                 <Button type="submit" disabled={loading}>
-                  {loading ? "Procesando..." : "Cambiar correo electrónico"}
+                  {loading ? 'Procesando...' : 'Cambiar correo electrónico'}
                 </Button>
               </DialogFooter>
             </form>
           ) : (
-            <form
-              onSubmit={handleSubmitVerification(onSubmitVerification)}
-              className="space-y-4"
-            >
+            <form onSubmit={handleSubmitVerification(onSubmitVerification)} className="space-y-4">
               <Input
                 placeholder="Código de verificación"
-                {...registerVerification("verificationCode")}
+                {...registerVerification('verificationCode')}
               />
               {verificationErrors.verificationCode && (
                 <p className="text-sm text-red-500">
@@ -159,7 +136,7 @@ export function ChangeEmailDialog({
                       Procesando...
                     </span>
                   ) : (
-                    "Verificar y cambiar"
+                    'Verificar y cambiar'
                   )}
                 </Button>
               </DialogFooter>
@@ -169,5 +146,5 @@ export function ChangeEmailDialog({
       </Dialog>
       <Toast toasts={toasts} removeToast={removeToast} />
     </>
-  );
+  )
 }

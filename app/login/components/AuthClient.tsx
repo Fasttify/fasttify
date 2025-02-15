@@ -1,6 +1,6 @@
-import { Footer } from "@/app/landing/components/Footer";
-import { AuthForm } from "@/app/login/AuthForm";
-import ImageSlider from "@/app/login/components/ImageSlider";
+import { Footer } from '@/app/landing/components/Footer'
+import { AuthForm } from '@/app/login/AuthForm'
+import ImageSlider from '@/app/login/components/ImageSlider'
 
 const LoginPage = () => {
   return (
@@ -13,7 +13,7 @@ const LoginPage = () => {
       </div>
       <Footer />
     </>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

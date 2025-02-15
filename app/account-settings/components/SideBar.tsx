@@ -1,10 +1,10 @@
-import { CreditCard, User } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { CreditCard, User } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { buttonVariants } from '@/components/ui/button'
 
 interface SidebarProps {
-  currentView: string;
-  onViewChange: (view: string) => void;
+  currentView: string
+  onViewChange: (view: string) => void
 }
 
 export function Sidebar({ currentView, onViewChange }: SidebarProps) {
@@ -17,24 +17,24 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         <div className="flex-1 px-4">
           <nav className="grid items-start gap-2">
             <button
-              onClick={() => onViewChange("cuenta")}
+              onClick={() => onViewChange('cuenta')}
               className={cn(
                 buttonVariants({
-                  variant: currentView === "cuenta" ? "outline" : "ghost",
+                  variant: currentView === 'cuenta' ? 'outline' : 'ghost',
                 }),
-                "justify-start gap-2 w-full"
+                'justify-start gap-2 w-full'
               )}
             >
               <User className="h-4 w-4" />
               Cuenta
             </button>
             <button
-              onClick={() => onViewChange("pagos")}
+              onClick={() => onViewChange('pagos')}
               className={cn(
                 buttonVariants({
-                  variant: currentView === "pagos" ? "outline" : "ghost",
+                  variant: currentView === 'pagos' ? 'outline' : 'ghost',
                 }),
-                "justify-start gap-2 w-full"
+                'justify-start gap-2 w-full'
               )}
             >
               <CreditCard className="h-4 w-4" />
@@ -44,5 +44,5 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

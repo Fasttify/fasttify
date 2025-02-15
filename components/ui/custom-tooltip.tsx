@@ -1,10 +1,5 @@
-import { InfoIcon } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { InfoIcon } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export default function CustomToolTip() {
   return (
@@ -23,18 +18,15 @@ export default function CustomToolTip() {
               alt="Google Sync Info"
             />
             <div className="space-y-1">
-              <p className="text-base font-normal text-black">
-                Perfil sincronizado con Google
-              </p>
+              <p className="text-base font-normal text-black">Perfil sincronizado con Google</p>
               <p className="text-sm text-gray-600 ">
-                Si te autenticastes con Google, cualquier cambio en tu perfil
-                debe realizarse directamente en Google. Los datos se
-                actualizarán automáticamente en Fasttify.
+                Si te autenticastes con Google, cualquier cambio en tu perfil debe realizarse
+                directamente en Google. Los datos se actualizarán automáticamente en Fasttify.
               </p>
             </div>
           </div>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  );
+  )
 }
