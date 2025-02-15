@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0  
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v20
+        uses: actions/setup-node@v18
 
       - name: Instalar dependencias
         run: npm ci  # Instala las dependencias de manera limpia
