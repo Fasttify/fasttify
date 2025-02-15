@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
@@ -31,7 +29,7 @@ type VerificationFormData = z.infer<typeof verificationCodeSchema>
 
 export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEmailDialogProps) {
   const [requiresVerification, setRequiresVerification] = useState(false)
-  const { updateAttributes, confirmAttribute, loading, error } = useUserAttributes()
+  const { updateAttributes, confirmAttribute, loading } = useUserAttributes()
   const { toasts, addToast, removeToast } = useToast()
 
   const {
@@ -51,10 +49,12 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
   })
 
   const onSubmitEmail = async (data: EmailFormData) => {
+    if (data.email.trim().toLowerCase() === currentEmail.trim().toLowerCase()) {
+      addToast('Ya estas usando este correo', 'error')
+      return
+    }
     try {
-      console.log('Intentando actualizar el correo electrónico...')
       const updateResult = await updateAttributes({ email: data.email })
-      console.log('Resultado de la actualización:', updateResult)
 
       if (updateResult.email.nextStep.updateAttributeStep === 'CONFIRM_ATTRIBUTE_WITH_CODE') {
         setRequiresVerification(true)
@@ -66,12 +66,10 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
 
   const onSubmitVerification = async (data: VerificationFormData) => {
     try {
-      console.log('Intentando confirmar el atributo...')
       await confirmAttribute({
         userAttributeKey: 'email',
         confirmationCode: data.verificationCode,
       })
-      console.log('Correo electrónico confirmado y actualizado')
 
       addToast('Tu correo electrónico ha sido actualizado exitosamente.', 'success')
       onOpenChange(false)
@@ -86,7 +84,7 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
     if (err instanceof Error) {
       errorMessage = err.message
     }
-    addToast('{errorMessage}', 'error')
+    addToast(errorMessage, 'error')
   }
 
   return (
@@ -103,13 +101,20 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
           </DialogHeader>
           {!requiresVerification ? (
             <form onSubmit={handleSubmitEmail(onSubmitEmail)} className="space-y-4">
-              <Input placeholder={currentEmail} {...registerEmail('email')} />
+              <Input placeholder="email@gmail.com" {...registerEmail('email')} />
               {emailErrors.email && (
                 <p className="text-sm text-red-500">{emailErrors.email.message}</p>
               )}
               <DialogFooter>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Procesando...' : 'Cambiar correo electrónico'}
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="animate-spin" />
+                      Procesando...
+                    </span>
+                  ) : (
+                    'Cambiar correo electrónico'
+                  )}
                 </Button>
               </DialogFooter>
             </form>

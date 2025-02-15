@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { uploadData, getUrl } from 'aws-amplify/storage'
+import { uploadData } from 'aws-amplify/storage'
 import { updateUserAttributes } from 'aws-amplify/auth'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { Amplify } from 'aws-amplify'
@@ -14,32 +14,27 @@ export function useUpdateProfilePicture() {
   const updateProfilePicture = async (file: File) => {
     setIsLoading(true)
     try {
-      // 1. Subir la imagen a S3
+      // 1. Subir la imagen a S3 en una carpeta pública.
       const result = await uploadData({
-        path: `profile-pictures/${userData?.sub}/${file.name}`, // Ruta única para cada usuario
+        path: `public/profile-pictures/${userData?.sub}/${file.name}`,
         data: file,
       }).result
 
-      // 2. Obtener la URL pre-firmada utilizando getUrl
-      const linkToStorageFile = await getUrl({
-        path: result.path,
-        options: {
-          expiresIn: 999999999999999, // La URL expirará en 900 segundos (15 minutos)
-        },
-      })
+      // 2. Construir la URL pública manualmente.
 
-      // La URL se encuentra en linkToStorageFile.url
-      const imageUrl = linkToStorageFile.url
-      console.log('Signed URL:', imageUrl)
+      const bucketName = outputs.storage.bucket_name 
+      const region = outputs.storage.aws_region 
+      // La URL pública se forma concatenando el bucket, la región y la ruta del objeto:
+      const publicUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${result.path}`
 
-      // 3. Actualizar el atributo `picture` del usuario
+      console.log('Public URL:', publicUrl)
+
+      // 3. Actualizar el atributo 'picture' del usuario con la URL pública.
       await updateUserAttributes({
         userAttributes: {
-          picture: imageUrl.toString(),
+          picture: publicUrl,
         },
       })
-
-      // Mostrar notificación de éxito
     } catch (error) {
       console.error('Error al actualizar la foto de perfil:', error)
     } finally {
