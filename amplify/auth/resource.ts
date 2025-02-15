@@ -1,9 +1,9 @@
-import { defineAuth, secret } from "@aws-amplify/backend";
-import { customMessage } from "./custom-message/resource";
-import { postAuthentication } from "./post-authentication/resource";
-import { webHookPlan } from "../functions/webHookPlan/resource";
-import { postConfirmation } from "./post-confirmation/resource";
-import { planScheduler } from "../functions/planScheduler/resource";
+import { defineAuth, secret } from '@aws-amplify/backend'
+import { customMessage } from './custom-message/resource'
+import { postAuthentication } from './post-authentication/resource'
+import { webHookPlan } from '../functions/webHookPlan/resource'
+import { postConfirmation } from './post-confirmation/resource'
+import { planScheduler } from '../functions/planScheduler/resource'
 
 /**
  * Define and configure your auth resource
@@ -21,25 +21,19 @@ export const auth = defineAuth({
 
     externalProviders: {
       google: {
-        clientId: secret("GOOGLE_CLIENT_ID"),
-        clientSecret: secret("GOOGLE_CLIENT_SECRET"),
+        clientId: secret('GOOGLE_CLIENT_ID'),
+        clientSecret: secret('GOOGLE_CLIENT_SECRET'),
 
-        scopes: ["email", "profile", "openid"],
+        scopes: ['email', 'profile', 'openid'],
         attributeMapping: {
-          email: "email",
-          nickname: "name",
-          profilePicture: "picture",
+          email: 'email',
+          nickname: 'name',
+          profilePicture: 'picture',
         },
       },
 
-      callbackUrls: [
-        "http://localhost:3000",
-        "https://dev.d705ckpcaa3mv.amplifyapp.com/",
-      ],
-      logoutUrls: [
-        "http://localhost:3000/login",
-        "https://dev.d705ckpcaa3mv.amplifyapp.com/login",
-      ],
+      callbackUrls: ['http://localhost:3000', 'https://dev.d705ckpcaa3mv.amplifyapp.com/'],
+      logoutUrls: ['http://localhost:3000/login', 'https://dev.d705ckpcaa3mv.amplifyapp.com/login'],
     },
   },
 
@@ -52,30 +46,30 @@ export const auth = defineAuth({
       mutable: true,
       required: false,
     },
-    "custom:plan": {
+    'custom:plan': {
       mutable: true,
-      dataType: "String",
+      dataType: 'String',
       maxLen: 255,
       minLen: 1,
     },
 
-    "custom:bio": {
+    'custom:bio': {
       mutable: true,
-      dataType: "String",
+      dataType: 'String',
       maxLen: 255,
       minLen: 1,
     },
-    "custom:phone": {
+    'custom:phone': {
       mutable: true,
-      dataType: "String",
+      dataType: 'String',
       maxLen: 255,
       minLen: 1,
     },
   },
 
-  access: (allow) => [
-    allow.resource(postAuthentication).to(["updateUserAttributes"]),
-    allow.resource(webHookPlan).to(["updateUserAttributes", "getUser"]),
-    allow.resource(planScheduler).to(["updateUserAttributes", "getUser"])
+  access: allow => [
+    allow.resource(postAuthentication).to(['updateUserAttributes']),
+    allow.resource(webHookPlan).to(['updateUserAttributes', 'getUser']),
+    allow.resource(planScheduler).to(['updateUserAttributes', 'getUser']),
   ],
-});
+})

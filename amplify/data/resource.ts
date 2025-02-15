@@ -1,8 +1,8 @@
-import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
-import { postConfirmation } from "../auth/post-confirmation/resource";
-import { webHookPlan } from "../functions/webHookPlan/resource";
-import { cancelPlan } from "../functions/cancelPlan/resource";
-import { planScheduler } from "../functions/planScheduler/resource";
+import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
+import { postConfirmation } from '../auth/post-confirmation/resource'
+import { webHookPlan } from '../functions/webHookPlan/resource'
+import { cancelPlan } from '../functions/cancelPlan/resource'
+import { planScheduler } from '../functions/planScheduler/resource'
 const schema = a
   .schema({
     UserProfile: a
@@ -10,7 +10,7 @@ const schema = a
         email: a.string(),
         profileOwner: a.string(),
       })
-      .authorization((allow) => [allow.ownerDefinedIn("profileOwner")]),
+      .authorization(allow => [allow.ownerDefinedIn('profileOwner')]),
 
     UserSubscription: a
       .model({
@@ -23,26 +23,26 @@ const schema = a
         planPrice: a.float(), // precio del plan
         lastFourDigits: a.integer(), // ultimos 4 digitos de la tarjeta de compra
       })
-      .authorization((allow) => [
-        allow.ownerDefinedIn("userId").to(["read", "update", "delete"]),
-        allow.authenticated().to(["create"]),
+      .authorization(allow => [
+        allow.ownerDefinedIn('userId').to(['read', 'update', 'delete']),
+        allow.authenticated().to(['create']),
       ]),
   })
-  .authorization((allow) => [
+  .authorization(allow => [
     allow.resource(postConfirmation),
     allow.resource(webHookPlan),
     allow.resource(cancelPlan),
     allow.resource(planScheduler),
-  ]);
+  ])
 
-export type Schema = ClientSchema<typeof schema>;
+export type Schema = ClientSchema<typeof schema>
 
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
+    defaultAuthorizationMode: 'apiKey',
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
   },
-});
+})
