@@ -121,6 +121,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           subscriptionId: subscriptionId,
           pendingPlan: null,
           pendingStartDate: null,
+          lastFourDigts: null,
+          planPrice: null,
           nextPaymentDate: subscriptionData.next_payment_date
             ? new Date(subscriptionData.next_payment_date).toISOString()
             : null,
@@ -130,12 +132,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           console.log(`⏳ Usuario mantiene acceso hasta ${nextPaymentDate}`);
           updateData.pendingPlan = "free";
           updateData.pendingStartDate = nextPaymentDate.toISOString();
-          updateData.planName = currentPlan; // Mantener plan actual hasta la fecha
+          updateData.planName = currentPlan; 
         } else {
           console.log("🔒 Acceso revocado inmediatamente");
           updateData.planName = "free";
           updateData.nextPaymentDate = null;
-
+          updateData.planPrice = null,
+          updateData.pendingStartDate = null,
+          updateData.lastFourDigits = null,
+          updateData.pendingPlan = null,
           // Actualizar Cognito inmediatamente
           await client.send(
             new AdminUpdateUserAttributesCommand({
