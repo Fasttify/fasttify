@@ -130,7 +130,7 @@ export function PricingCard({ plan, onHover }: PricingCardProps) {
             $ 1 al mes los primeros 3 meses
           </div>
         </div>
-        <div className="p-6">
+        <div className="p-6 flex flex-col h-full justify-between">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-semibold">{plan.name}</h3>
             {plan.popular && (
@@ -144,7 +144,7 @@ export function PricingCard({ plan, onHover }: PricingCardProps) {
             <span className="text-4xl font-bold">{formatPrice(plan.price)}</span>
             <span className="ml-1 text-sm text-gray-600">USD al mes</span>
           </div>
-          <p className="mt-1 text-sm text-gray-500">facturación anual</p>
+          <p className="mt-1 text-sm text-gray-500">facturación mensual</p>
 
           <div className="mt-6">
             <h4 className="font-medium">Funciones destacadas</h4>
@@ -167,14 +167,10 @@ export function PricingCard({ plan, onHover }: PricingCardProps) {
           <Button
             className="mt-8 w-full rounded-full border border-black bg-white px-6 py-3 text-black hover:bg-white"
             onClick={handleSubscribe}
-            disabled={isSubmitting || hasActivePlan}
+            disabled={isSubmitting || hasActivePlan || user?.plan !== 'free'}
           >
             {hasActivePlan ? 'Plan activo' : isSubmitting ? 'Procesando...' : plan.buttonText}
           </Button>
-
-          {hasActivePlan && (
-            <p className="text-sm text-center mt-2 text-gray-600">Ya tienes este plan activo.</p>
-          )}
         </div>
       </motion.div>
 

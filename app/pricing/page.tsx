@@ -24,52 +24,59 @@ Amplify.configure({
 const plans = [
   {
     name: 'Royal',
-    title: '$20000',
+    title: '$20.000 COP/mes',
     price: '20000',
-    description: 'Para emprendedores individuales',
+    description: 'Ideal para emprendedores individuales.',
     features: [
-      'Contacto con un asesor vía chat, Messenger, email o WhatsApp.',
-      'Hosting y SSL gratis.',
-      'Acceso a múltiples idiomas y moneda local.',
+      'Asesoría por chat, email y WhatsApp.',
+      'Hosting y SSL gratuitos.',
+      'Venta en múltiples idiomas y moneda local.',
       'Panel de estadísticas básicas.',
       'Seguimiento de productos para vendedores y compradores.',
-      'Optimización de precios básica.',
-      'Hasta 5 plantillas para personalizar la página.',
+      'Optimización de precios con IA (básico).',
+      'Hasta 5 plantillas para personalizar la tienda.',
     ],
-    buttonText: 'Prueba gratis',
+    buttonText: 'Suscribirse ahora',
     className: 'bg-white',
   },
   {
     name: 'Majestic',
-    title: '$30000',
+    title: '$30.000 COP/mes',
     price: '30000',
-    description: 'Para equipos pequeños',
+    description: 'Para equipos pequeños que quieren crecer.',
     features: [
-      'Everything in Simple',
-      '512GB of business storage',
-      'Unlimited management',
-      'Unlimited collaborators',
-      'Links with password protection',
+      'Todo en Royal.',
+      'Panel de estadísticas avanzadas.',
+      'Gestión de múltiples vendedores.',
+      'Automatización de respuestas a clientes.',
+      'Personalización avanzada con Strapi.',
+      'Soporte prioritario 24/7.',
+      'Integraciones con redes sociales.',
     ],
-    buttonText: 'Prueba gratis',
+    buttonText: 'Suscribirse ahora',
     className: 'bg-white',
     popular: true,
   },
   {
     name: 'Imperial',
-    title: '$45000',
+    title: '$45.000 COP/mes',
     price: '45000',
-    description: 'A medida que tu negocio escala',
+    description: 'Para negocios en expansión con alto volumen de ventas.',
     features: [
-      'Everything in Efficient',
-      'Unlimited team members',
-      'Custom storage plans',
-      'White label branding',
+      'Todo en Majestic.',
+      'Membresías y descuentos exclusivos para clientes.',
+      'Almacenamiento y carga de productos sin límite.',
+      'Gestión avanzada de pedidos y envíos.',
+      'Marca blanca para personalización total.',
+      'API para conectar con otros servicios.',
+      'Analítica y reportes personalizados.',
+      'Atención VIP con gestor de cuenta dedicado.',
     ],
-    buttonText: 'Prueba gratis',
+    buttonText: 'Suscribirse ahora',
     className: 'bg-white',
   },
 ]
+
 
 export default function PricingPage() {
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null)
@@ -81,7 +88,7 @@ export default function PricingPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-12"

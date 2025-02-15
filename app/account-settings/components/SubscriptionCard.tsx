@@ -172,7 +172,7 @@ export function SubscriptionCard({
                       key={plan.name}
                       className={`transition-all ${
                         isActive && subscription.pendingPlan !== 'free'
-                          ? 'border-2 border-primary opacity-70 cursor-not-allowed'
+                          ? 'border-2 border-blue-500 opacity-70 cursor-not-allowed'
                           : 'cursor-pointer hover:shadow-md focus-within:ring-2 focus-within:ring-blue-500'
                       }`}
                       onClick={

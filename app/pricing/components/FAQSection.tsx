@@ -29,7 +29,7 @@ export function FAQSection({
       <div className="text-center mb-12">
         <p className="text-xl text-gray-600 mb-2">FAQs</p>
         <h1 className="text-5xl md:text-5xl font-normal text-center mb-2">{title}</h1>
-        <p className=" text-xl text-gray-600">{subtitle}</p>
+        <p className="text-xl text-gray-600">{subtitle}</p>
       </div>
 
       <Accordion type="single" collapsible className="w-full ">
