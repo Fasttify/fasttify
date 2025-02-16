@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion'
 
 export function LoadingIndicator({ text }: { text: string }) {
   return (
@@ -14,11 +14,11 @@ export function LoadingIndicator({ text }: { text: string }) {
           animate={{
             scale: [1, 1.2, 1.2, 1, 1],
             rotate: [0, 0, 270, 270, 0],
-            borderRadius: ["20%", "20%", "50%", "50%", "20%"],
+            borderRadius: ['20%', '20%', '50%', '50%', '20%'],
           }}
           transition={{
             duration: 2,
-            ease: "easeInOut",
+            ease: 'easeInOut',
             times: [0, 0.2, 0.5, 0.8, 1],
             repeat: Number.POSITIVE_INFINITY,
             repeatDelay: 0.5,
@@ -29,7 +29,7 @@ export function LoadingIndicator({ text }: { text: string }) {
           animate={{ opacity: [1, 0.5, 1] }}
           transition={{
             duration: 1.5,
-            ease: "easeInOut",
+            ease: 'easeInOut',
             repeat: Number.POSITIVE_INFINITY,
           }}
           className="text-black text-2xl font-medium"
@@ -38,5 +38,5 @@ export function LoadingIndicator({ text }: { text: string }) {
         </motion.p>
       </div>
     </div>
-  );
+  )
 }

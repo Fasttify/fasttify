@@ -1,39 +1,37 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import legalContent from "@/app/terms/components/legal-content.json";
+import { useState } from 'react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import legalContent from '@/app/terms/components/legal-content.json'
 
 export function LegalDocuments() {
-  const [activeDocument, setActiveDocument] = useState<"terms" | "privacy">(
-    "terms"
-  );
-  const [activeSection, setActiveSection] = useState<string>("introduccion");
+  const [activeDocument, setActiveDocument] = useState<'terms' | 'privacy'>('terms')
+  const [activeSection, setActiveSection] = useState<string>('introduccion')
 
-  const currentDocument = legalContent[activeDocument];
+  const currentDocument = legalContent[activeDocument]
 
   const scrollToSection = (sectionId: string) => {
-    setActiveSection(sectionId);
-    const element = document.getElementById(sectionId);
+    setActiveSection(sectionId)
+    const element = document.getElementById(sectionId)
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({ behavior: 'smooth' })
     }
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-center space-x-4 mb-6">
         <Button
-          onClick={() => setActiveDocument("terms")}
-          variant={activeDocument === "terms" ? "link" : "ghost"}
+          onClick={() => setActiveDocument('terms')}
+          variant={activeDocument === 'terms' ? 'link' : 'ghost'}
         >
           Términos y Condiciones
         </Button>
         <Button
-          onClick={() => setActiveDocument("privacy")}
-          variant={activeDocument === "privacy" ? "link" : "ghost"}
+          onClick={() => setActiveDocument('privacy')}
+          variant={activeDocument === 'privacy' ? 'link' : 'ghost'}
         >
           Política de Privacidad
         </Button>
@@ -43,15 +41,13 @@ export function LegalDocuments() {
         {/* Sidebar */}
         <div className="md:col-span-1 bg-white rounded-lg shadow-md p-4">
           <nav className="space-y-1">
-            {currentDocument.sections.map((section) => (
+            {currentDocument.sections.map(section => (
               <button
                 key={section.id}
                 onClick={() => scrollToSection(section.id)}
                 className={cn(
-                  "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
-                  activeSection === section.id
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted"
+                  'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
+                  activeSection === section.id ? 'bg-gray-200 text-black' : 'hover:bg-muted'
                 )}
               >
                 {section.title}
@@ -68,26 +64,20 @@ export function LegalDocuments() {
                 <p className="text-sm text-muted-foreground">
                   Última actualización: {currentDocument.lastUpdate}
                 </p>
-                <h1 className="text-3xl font-medium mt-2">
-                  {currentDocument.title}
-                </h1>
+                <h1 className="text-3xl font-medium mt-2">{currentDocument.title}</h1>
               </div>
 
               <ScrollArea className="h-[60vh]">
                 <div className="space-y-8">
-                  {currentDocument.sections.map((section) => (
+                  {currentDocument.sections.map(section => (
                     <section key={section.id} id={section.id}>
-                      <h2 className="text-xl font-medium mb-4">
-                        {section.title}
-                      </h2>
+                      <h2 className="text-xl font-medium mb-4">{section.title}</h2>
                       <div className="prose prose-sm max-w-none">
-                        {section.content
-                          .split("\n\n")
-                          .map((paragraph, index) => (
-                            <p key={index} className="mb-4">
-                              {paragraph}
-                            </p>
-                          ))}
+                        {section.content.split('\n\n').map((paragraph, index) => (
+                          <p key={index} className="mb-4">
+                            {paragraph}
+                          </p>
+                        ))}
                       </div>
                     </section>
                   ))}
@@ -98,5 +88,5 @@ export function LegalDocuments() {
         </div>
       </div>
     </div>
-  );
+  )
 }

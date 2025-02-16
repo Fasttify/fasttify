@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { Facebook, Instagram, Youtube } from "lucide-react";
-import { getYear } from "date-fns";
+import Link from 'next/link'
+import { Facebook, Instagram, Youtube } from 'lucide-react'
+import { getYear } from 'date-fns'
 
 export function Footer() {
   return (
@@ -11,16 +11,8 @@ export function Footer() {
           {/* Left Section */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-2">
             <div className="flex items-center justify-center lg:justify-start gap-0 mb-4">
-              <img
-                src="/icons/fasttify-white.webp"
-                alt="Logo 1"
-                className="h-11 w-auto"
-              />
-              <img
-                src="/icons/letter-white.webp"
-                alt="Fasttify Logo"
-                className="h-12 w-auto"
-              />
+              <img src="/icons/fasttify-white.webp" alt="Logo 1" className="h-11 w-auto" />
+              <img src="/icons/letter-white.webp" alt="Fasttify Logo" className="h-12 w-auto" />
             </div>
             <h2 className="text-xl font-medium">
               Nosotros creciendo tu negocio
@@ -124,5 +116,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  );
+  )
 }

@@ -1,70 +1,68 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { post } from "aws-amplify/api";
-import { useAuthUser } from "@/hooks/auth/useAuthUser";
-import { LoadingIndicator } from "@/components/ui/loading-indicator";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/custom-toast/use-toast";
-import { Toast } from "@/components/ui/toasts";
-import { useAuth } from "@/hooks/auth/useAuth";
-import useUserStore from "@/store/userStore";
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Check } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { post } from 'aws-amplify/api'
+import { useAuthUser } from '@/hooks/auth/useAuthUser'
+import { LoadingIndicator } from '@/components/ui/loading-indicator'
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/hooks/custom-toast/use-toast'
+import { Toast } from '@/components/ui/toasts'
+import { useAuth } from '@/hooks/auth/useAuth'
+import useUserStore from '@/store/userStore'
 
 interface PricingCardProps {
   plan: {
-    name: string;
-    title: string;
-    price: string;
-    description: string;
-    features: string[];
-    buttonText: string;
-    className: string;
-    popular?: boolean;
-  };
-  hoveredPlan: string | null;
-  onHover: (name: string | null) => void;
+    name: string
+    title: string
+    price: string
+    description: string
+    features: string[]
+    buttonText: string
+    className: string
+    popular?: boolean
+  }
+  hoveredPlan: string | null
+  onHover: (name: string | null) => void
 }
 
-export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { userData } = useAuthUser();
-  const { user } = useUserStore();
-  const { loading } = useAuth();
-  const { toasts, addToast, removeToast } = useToast();
-  const router = useRouter();
+export function PricingCard({ plan, onHover }: PricingCardProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { userData } = useAuthUser()
+  const { user } = useUserStore()
+  const { loading } = useAuth()
+  const { toasts, addToast, removeToast } = useToast()
+  const router = useRouter()
 
   const cognitoUsername =
-    userData && userData["cognito:username"]
-      ? userData["cognito:username"]
-      : null;
-  const hasActivePlan = user && user.plan ? user.plan === plan.name : false;
+    userData && userData['cognito:username'] ? userData['cognito:username'] : null
+
+  const hasActivePlan = user && user.plan ? user.plan === plan.name : false
 
   const formatPrice = (price: string) => {
-    if (price === "0") return "Gratis";
-    const numPrice = Number.parseInt(price, 10);
-    const formattedPrice = new Intl.NumberFormat("es-CO", {
+    if (price === '0') return 'Gratis'
+    const numPrice = Number.parseInt(price, 10)
+    const formattedPrice = new Intl.NumberFormat('es-CO', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(numPrice);
+    }).format(numPrice)
 
-    return `$ ${formattedPrice}`;
-  };
+    return `$ ${formattedPrice}`
+  }
 
   const handleSubscribe = async () => {
     if (!userData) {
-      router.push("/login");
-      return;
+      router.push('/login')
+      return
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
       const restOperation = post({
-        apiName: "SubscriptionApi",
-        path: "subscribe",
+        apiName: 'SubscriptionApi',
+        path: 'subscribe',
         options: {
           body: {
             userId: cognitoUsername,
@@ -74,37 +72,34 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
             },
           },
         },
-      });
+      })
 
-      const { body } = await restOperation.response;
-      const response: any = await body.json();
+      const { body } = await restOperation.response
+      const response: any = await body.json()
 
-      window.location.href = response.checkoutUrl;
+      window.location.href = response.checkoutUrl
     } catch (error) {
-      console.error("Error al suscribirse:", error);
-      addToast(
-        "Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.",
-        "error"
-      );
-      setIsSubmitting(false);
+      console.error('Error al suscribirse:', error)
+      addToast('Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.', 'error')
+      setIsSubmitting(false)
     }
-  };
+  }
 
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && isSubmitting) {
-        setIsSubmitting(false);
+        setIsSubmitting(false)
       }
-    };
+    }
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [isSubmitting]);
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [isSubmitting])
 
   if (loading) {
-    return <LoadingIndicator text="Cargando planes..." />;
+    return <LoadingIndicator text="Cargando planes..." />
   }
 
   return (
@@ -135,7 +130,7 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
             $ 1 al mes los primeros 3 meses
           </div>
         </div>
-        <div className="p-6">
+        <div className="p-6 flex flex-col h-full justify-between">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-semibold">{plan.name}</h3>
             {plan.popular && (
@@ -146,12 +141,10 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
           </div>
           <p className="mt-2 text-sm text-gray-600">{plan.description}</p>
           <div className="mt-6">
-            <span className="text-4xl font-bold">
-              {formatPrice(plan.price)}
-            </span>
+            <span className="text-4xl font-bold">{formatPrice(plan.price)}</span>
             <span className="ml-1 text-sm text-gray-600">USD al mes</span>
           </div>
-          <p className="mt-1 text-sm text-gray-500">facturación anual</p>
+          <p className="mt-1 text-sm text-gray-500">facturación mensual</p>
 
           <div className="mt-6">
             <h4 className="font-medium">Funciones destacadas</h4>
@@ -174,24 +167,14 @@ export function PricingCard({ plan, hoveredPlan, onHover }: PricingCardProps) {
           <Button
             className="mt-8 w-full rounded-full border border-black bg-white px-6 py-3 text-black hover:bg-white"
             onClick={handleSubscribe}
-            disabled={isSubmitting || hasActivePlan}
+            disabled={isSubmitting || hasActivePlan || user?.plan !== 'free'}
           >
-            {hasActivePlan
-              ? "Plan activo"
-              : isSubmitting
-              ? "Procesando..."
-              : plan.buttonText}
+            {hasActivePlan ? 'Plan activo' : isSubmitting ? 'Procesando...' : plan.buttonText}
           </Button>
-
-          {hasActivePlan && (
-            <p className="text-sm text-center mt-2 text-gray-600">
-              Ya tienes este plan activo.
-            </p>
-          )}
         </div>
       </motion.div>
 
       <Toast toasts={toasts} removeToast={removeToast} />
     </>
-  );
+  )
 }

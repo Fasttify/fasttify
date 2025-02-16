@@ -1,99 +1,93 @@
-"use client";
+'use client'
 
-import { useRef, useEffect, useState } from "react";
-import type { Swiper as SwiperType } from "swiper";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Parallax, Autoplay, EffectFade } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/parallax";
-import "swiper/css/effect-fade";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Smartphone,
-  Laptop,
-  Check,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { useRef, useEffect, useState } from 'react'
+import type { Swiper as SwiperType } from 'swiper'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Parallax, Autoplay, EffectFade } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/parallax'
+import 'swiper/css/effect-fade'
+import { ChevronLeft, ChevronRight, Smartphone, Laptop, Check } from 'lucide-react'
+import { motion } from 'framer-motion'
+import Image from 'next/image'
 
 // Interfaz para cada slide
 interface CompatibilitySlide {
-  bgColor: string;
-  title: string;
-  description: string;
-  image: string;
-  statusText: string;
-  icon: "mobile" | "desktop";
+  bgColor: string
+  title: string
+  description: string
+  image: string
+  statusText: string
+  icon: 'mobile' | 'desktop'
 }
 
 // Datos de ejemplo para cada slide
 const slides: CompatibilitySlide[] = [
   {
-    bgColor: "#1F2937",
-    title: "Aplicación Móvil",
-    description: "Plataformas: iOS y Android",
+    bgColor: '#1F2937',
+    title: 'Aplicación Móvil',
+    description: 'Plataformas: iOS y Android',
     image:
-      "https://images.unsplash.com/photo-1567581935884-3349723552ca?q=80&w=1974&auto=format&fit=crop",
-    statusText: "PROXIMAMENTE",
-    icon: "mobile",
+      'https://images.unsplash.com/photo-1567581935884-3349723552ca?q=80&w=1974&auto=format&fit=crop',
+    statusText: 'PROXIMAMENTE',
+    icon: 'mobile',
   },
   {
-    bgColor: "#1F2937",
-    title: "Potencia de Escritorio",
-    description: "Plataforma: Página de Escritorio",
+    bgColor: '#1F2937',
+    title: 'Potencia de Escritorio',
+    description: 'Plataforma: Página de Escritorio',
     image:
-      "https://images.unsplash.com/photo-1530893609608-32a9af3aa95c?q=80&w=1964&auto=format&fit=crop",
-    statusText: "DISPONIBLE",
-    icon: "desktop",
+      'https://images.unsplash.com/photo-1530893609608-32a9af3aa95c?q=80&w=1964&auto=format&fit=crop',
+    statusText: 'DISPONIBLE',
+    icon: 'desktop',
   },
-];
+]
 
 export function PlatformCompatibility() {
-  const swiperRef = useRef<SwiperType>();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [navigationLocked, setNavigationLocked] = useState(false);
-  const [isAutoplay, setIsAutoplay] = useState(true);
+  const swiperRef = useRef<SwiperType>()
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [navigationLocked, setNavigationLocked] = useState(false)
+  const [isAutoplay, setIsAutoplay] = useState(true)
 
   // Bloqueamos la navegación durante las transiciones
   useEffect(() => {
-    const swiper = swiperRef.current;
-    if (!swiper) return;
+    const swiper = swiperRef.current
+    if (!swiper) return
 
-    const handleTransitionStart = () => setNavigationLocked(true);
-    const handleTransitionEnd = () => setNavigationLocked(false);
+    const handleTransitionStart = () => setNavigationLocked(true)
+    const handleTransitionEnd = () => setNavigationLocked(false)
 
-    swiper.on("transitionStart", handleTransitionStart);
-    swiper.on("transitionEnd", handleTransitionEnd);
+    swiper.on('transitionStart', handleTransitionStart)
+    swiper.on('transitionEnd', handleTransitionEnd)
 
     return () => {
-      swiper.off("transitionStart", handleTransitionStart);
-      swiper.off("transitionEnd", handleTransitionEnd);
-    };
-  }, []);
+      swiper.off('transitionStart', handleTransitionStart)
+      swiper.off('transitionEnd', handleTransitionEnd)
+    }
+  }, [])
 
   const handlePrev = () => {
     if (!navigationLocked && swiperRef.current) {
-      swiperRef.current.slidePrev();
+      swiperRef.current.slidePrev()
     }
-  };
+  }
 
   const handleNext = () => {
     if (!navigationLocked && swiperRef.current) {
-      swiperRef.current.slideNext();
+      swiperRef.current.slideNext()
     }
-  };
+  }
 
   const toggleAutoplay = () => {
     if (swiperRef.current) {
       if (isAutoplay) {
-        swiperRef.current.autoplay.stop();
+        swiperRef.current.autoplay.stop()
       } else {
-        swiperRef.current.autoplay.start();
+        swiperRef.current.autoplay.start()
       }
-      setIsAutoplay(!isAutoplay);
+      setIsAutoplay(!isAutoplay)
     }
-  };
+  }
 
   return (
     <section className="py-16">
@@ -115,8 +109,7 @@ export function PlatformCompatibility() {
               <li>Navegadores web: Chrome, Firefox, Safari y Edge</li>
             </ul>
             <p className="text-lg text-gray-600">
-              Sincroniza tu trabajo y accede desde cualquier lugar, en cualquier
-              momento.
+              Sincroniza tu trabajo y accede desde cualquier lugar, en cualquier momento.
             </p>
           </div>
 
@@ -124,7 +117,7 @@ export function PlatformCompatibility() {
           <div className="relative">
             <Swiper
               modules={[Parallax, Autoplay, EffectFade]}
-              onSwiper={(swiper) => (swiperRef.current = swiper)}
+              onSwiper={swiper => (swiperRef.current = swiper)}
               speed={1000}
               parallax={true}
               effect="fade"
@@ -132,7 +125,7 @@ export function PlatformCompatibility() {
                 delay: 4000,
                 disableOnInteraction: false,
               }}
-              onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+              onSlideChange={swiper => setActiveIndex(swiper.activeIndex)}
               // Se ajusta la altura: 72 para móvil y 96 para desktop
               className="w-full h-72 md:h-96 rounded-2xl overflow-hidden"
               style={{ backgroundColor: slides[activeIndex].bgColor }}
@@ -140,23 +133,16 @@ export function PlatformCompatibility() {
               {slides.map((slide, index) => (
                 <SwiperSlide key={index} className="relative w-full h-full">
                   {/* Contenido animado con parallax */}
-                  <div
-                    className="absolute top-6 left-6 z-10 max-w-sm"
-                    data-swiper-parallax="-100%"
-                  >
+                  <div className="absolute top-6 left-6 z-10 max-w-sm" data-swiper-parallax="-100%">
                     <div className="flex items-center mb-2">
-                      {slide.icon === "mobile" ? (
+                      {slide.icon === 'mobile' ? (
                         <Smartphone className="h-6 w-6 text-white mr-2" />
                       ) : (
                         <Laptop className="h-6 w-6 text-white mr-2" />
                       )}
-                      <h3 className="text-xl md:text-2xl font-medium text-white">
-                        {slide.title}
-                      </h3>
+                      <h3 className="text-xl md:text-2xl font-medium text-white">{slide.title}</h3>
                     </div>
-                    <p className="text-sm md:text-base text-white mb-2">
-                      {slide.description}
-                    </p>
+                    <p className="text-sm md:text-base text-white mb-2">{slide.description}</p>
                     <div className="inline-flex items-center bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">
                       <Check className="h-4 w-4 mr-1" />
                       {slide.statusText}
@@ -167,15 +153,10 @@ export function PlatformCompatibility() {
                     <motion.div
                       initial={{ scale: 1.1 }}
                       animate={{ scale: 1 }}
-                      transition={{ duration: 8, ease: "easeOut" }}
+                      transition={{ duration: 8, ease: 'easeOut' }}
                       className="w-full h-full"
                     >
-                      <Image
-                        src={slide.image}
-                        alt={slide.title}
-                        fill
-                        className="object-cover"
-                      />
+                      <Image src={slide.image} alt={slide.title} fill className="object-cover" />
                     </motion.div>
                   </div>
                 </SwiperSlide>
@@ -246,58 +227,48 @@ export function PlatformCompatibility() {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
 // Botones de navegación personalizados
 interface NavigationButtonProps {
-  direction: "prev" | "next";
-  onClick: () => void;
-  disabled: boolean;
+  direction: 'prev' | 'next'
+  onClick: () => void
+  disabled: boolean
 }
 
-function NavigationButton({
-  direction,
-  onClick,
-  disabled,
-}: NavigationButtonProps) {
+function NavigationButton({ direction, onClick, disabled }: NavigationButtonProps) {
   const baseClasses =
-    "absolute top-1/2 transform -translate-y-1/2 z-10 transition-opacity duration-500 cursor-pointer bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-5 md:p-3";
-  const positionClasses = direction === "prev" ? "left-6" : "right-6";
-  const disabledClasses = disabled ? "opacity-20 cursor-default" : "";
+    'absolute top-1/2 transform -translate-y-1/2 z-10 transition-opacity duration-500 cursor-pointer bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-5 md:p-3'
+  const positionClasses = direction === 'prev' ? 'left-6' : 'right-6'
+  const disabledClasses = disabled ? 'opacity-20 cursor-default' : ''
   return (
     <button
       className={`${baseClasses} ${positionClasses} ${disabledClasses}`}
       onClick={onClick}
       disabled={disabled}
     >
-      {direction === "prev" ? (
+      {direction === 'prev' ? (
         <ChevronLeft className="w-4 h-4 md:w-4 md:h-4 text-white" />
       ) : (
         <ChevronRight className="w-4 h-4 md:w-4 md:h-4 text-white" />
       )}
     </button>
-  );
+  )
 }
 
 // Indicadores de paginación (círculos)
-function Pagination({
-  totalSlides,
-  activeIndex,
-}: {
-  totalSlides: number;
-  activeIndex: number;
-}) {
+function Pagination({ totalSlides, activeIndex }: { totalSlides: number; activeIndex: number }) {
   return (
     <div className="flex space-x-2">
       {Array.from({ length: totalSlides }).map((_, index) => (
         <div
           key={index}
           className={`w-2 h-2 rounded-full ${
-            index === activeIndex ? "bg-white" : "bg-white bg-opacity-50"
+            index === activeIndex ? 'bg-white' : 'bg-white bg-opacity-50'
           }`}
         />
       ))}
     </div>
-  );
+  )
 }

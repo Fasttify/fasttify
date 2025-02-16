@@ -1,121 +1,112 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Paintbrush, Layers, Palette, Wand2 } from "lucide-react";
+import { useState } from 'react'
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { Paintbrush, Layers, Palette, Wand2 } from 'lucide-react'
 
-type Theme = "simple" | "playful" | "elegant" | "brutalist";
+type Theme = 'simple' | 'playful' | 'elegant' | 'brutalist'
 
 const themes: Record<
   Theme,
   {
-    cardClass: string;
-    buttonClass: string;
-    textClass: string;
-    image: string;
+    cardClass: string
+    buttonClass: string
+    textClass: string
+    image: string
     layout: {
-      image: string;
-      title: string;
-      price: string;
-      sizes: string;
-      buttons: string;
-    };
+      image: string
+      title: string
+      price: string
+      sizes: string
+      buttons: string
+    }
   }
 > = {
   simple: {
-    cardClass: "bg-white border border-gray-200 shadow-sm",
-    buttonClass: "bg-blue-600 hover:bg-blue-700 text-white shadow-sm",
-    textClass: "text-gray-900",
-    image: "/imgs/landing/tenis.webp",
+    cardClass: 'bg-white border border-gray-200 shadow-sm',
+    buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm',
+    textClass: 'text-gray-900',
+    image: '/imgs/landing/tenis.webp',
     layout: {
-      image: "col-span-2 row-span-3 md:col-span-2 md:row-span-3",
-      title: "col-span-2 md:col-span-3 md:col-start-3 row-start-1",
-      price: "col-span-2 md:col-span-3 md:col-start-3 row-start-2",
-      sizes: "col-span-4 md:col-span-3 md:col-start-3 row-start-3",
-      buttons: "col-span-4 md:col-span-3 md:col-start-3 row-start-4",
+      image: 'col-span-2 row-span-3 md:col-span-2 md:row-span-3',
+      title: 'col-span-2 md:col-span-3 md:col-start-3 row-start-1',
+      price: 'col-span-2 md:col-span-3 md:col-start-3 row-start-2',
+      sizes: 'col-span-4 md:col-span-3 md:col-start-3 row-start-3',
+      buttons: 'col-span-4 md:col-span-3 md:col-start-3 row-start-4',
     },
   },
   playful: {
-    cardClass:
-      "bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 border-none shadow-lg",
+    cardClass: 'bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 border-none shadow-lg',
     buttonClass:
-      "bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white shadow-md",
-    textClass: "text-gray-800",
-    image: "/imgs/landing/tacones.webp",
+      'bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white shadow-md',
+    textClass: 'text-gray-800',
+    image: '/imgs/landing/tacones.webp',
     layout: {
-      image: "col-span-4 md:col-span-2 md:col-start-4 row-span-3",
-      title: "col-span-4 md:col-span-3 row-start-3 md:row-start-1",
-      price: "col-span-4 md:col-span-3 row-start-4 md:row-start-2",
-      sizes: "col-span-4 md:col-span-3 row-start-5 md:row-start-3",
-      buttons: "col-span-4 md:col-span-3 row-start-6 md:row-start-4",
+      image: 'col-span-4 md:col-span-2 md:col-start-4 row-span-3',
+      title: 'col-span-4 md:col-span-3 row-start-3 md:row-start-1',
+      price: 'col-span-4 md:col-span-3 row-start-4 md:row-start-2',
+      sizes: 'col-span-4 md:col-span-3 row-start-5 md:row-start-3',
+      buttons: 'col-span-4 md:col-span-3 row-start-6 md:row-start-4',
     },
   },
   elegant: {
-    cardClass:
-      "bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-xl",
-    buttonClass: "bg-white hover:bg-gray-100 text-gray-900 shadow-sm",
-    textClass: "text-white",
-    image: "/imgs/landing/traje.webp",
+    cardClass: 'bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-xl',
+    buttonClass: 'bg-white hover:bg-gray-100 text-gray-900 shadow-sm',
+    textClass: 'text-white',
+    image: '/imgs/landing/traje.webp',
     layout: {
-      image: "col-span-4 md:col-span-2 md:col-start-4 row-span-3",
-      title: "col-span-4 md:col-span-3 row-start-3 md:row-start-1",
-      price: "col-span-4 md:col-span-3 row-start-4 md:row-start-2",
-      sizes: "col-span-4 md:col-span-3 row-start-5 md:row-start-3",
-      buttons: "col-span-4 md:col-span-3 row-start-6 md:row-start-4",
+      image: 'col-span-4 md:col-span-2 md:col-start-4 row-span-3',
+      title: 'col-span-4 md:col-span-3 row-start-3 md:row-start-1',
+      price: 'col-span-4 md:col-span-3 row-start-4 md:row-start-2',
+      sizes: 'col-span-4 md:col-span-3 row-start-5 md:row-start-3',
+      buttons: 'col-span-4 md:col-span-3 row-start-6 md:row-start-4',
     },
   },
   brutalist: {
-    cardClass:
-      "bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+    cardClass: 'bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]',
     buttonClass:
-      "bg-black hover:bg-gray-900 text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
-    textClass: "text-black font-mono",
-    image: "/imgs/landing/tenis-verdes.webp",
+      'bg-black hover:bg-gray-900 text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]',
+    textClass: 'text-black font-mono',
+    image: '/imgs/landing/tenis-verdes.webp',
     layout: {
-      image: "col-span-4 md:col-span-3 row-span-3",
-      title:
-        "col-span-4 md:col-span-2 md:col-start-4 row-start-3 md:row-start-1",
-      price:
-        "col-span-4 md:col-span-2 md:col-start-4 row-start-4 md:row-start-2",
-      sizes:
-        "col-span-4 md:col-span-2 md:col-start-4 row-start-5 md:row-start-3",
-      buttons:
-        "col-span-4 md:col-span-2 row-start-6 md:row-start-4 md:col-start-4",
+      image: 'col-span-4 md:col-span-3 row-span-3',
+      title: 'col-span-4 md:col-span-2 md:col-start-4 row-start-3 md:row-start-1',
+      price: 'col-span-4 md:col-span-2 md:col-start-4 row-start-4 md:row-start-2',
+      sizes: 'col-span-4 md:col-span-2 md:col-start-4 row-start-5 md:row-start-3',
+      buttons: 'col-span-4 md:col-span-2 row-start-6 md:row-start-4 md:col-start-4',
     },
   },
-};
+}
 
 const features = [
   {
     icon: Paintbrush,
-    title: "Personalización Total",
-    description: "Adapta cada aspecto de tu tienda a tu marca y estilo único.",
+    title: 'Personalización Total',
+    description: 'Adapta cada aspecto de tu tienda a tu marca y estilo único.',
   },
   {
     icon: Layers,
-    title: "Temas Dinámicos",
+    title: 'Temas Dinámicos',
     description:
-      "Cambia entre diferentes estilos con un solo clic para encontrar tu identidad perfecta.",
+      'Cambia entre diferentes estilos con un solo clic para encontrar tu identidad perfecta.',
   },
   {
     icon: Palette,
-    title: "Diseño Flexible",
-    description:
-      "Modifica colores, layouts y elementos para crear una experiencia única.",
+    title: 'Diseño Flexible',
+    description: 'Modifica colores, layouts y elementos para crear una experiencia única.',
   },
   {
     icon: Wand2,
-    title: "Experiencia Mágica",
-    description:
-      "Transformaciones suaves y animadas para una experiencia de usuario excepcional.",
+    title: 'Experiencia Mágica',
+    description: 'Transformaciones suaves y animadas para una experiencia de usuario excepcional.',
   },
-];
+]
 
 export function Personalization() {
-  const [activeTheme, setActiveTheme] = useState<Theme>("simple");
+  const [activeTheme, setActiveTheme] = useState<Theme>('simple')
 
   return (
     <div className="p-4 md:p-8 min-h-screen">
@@ -128,8 +119,8 @@ export function Personalization() {
                 Personalización sin límites
               </h1>
               <p className="text-base md:text-lg text-gray-600">
-                En nuestra plataforma, te brindamos las herramientas para crear
-                una experiencia única y memorable para tus clientes.
+                En nuestra plataforma, te brindamos las herramientas para crear una experiencia
+                única y memorable para tus clientes.
               </p>
             </div>
 
@@ -143,12 +134,8 @@ export function Personalization() {
                     <feature.icon className="w-5 h-5 md:w-6 md:h-6 " />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm md:text-base text-gray-600">
-                      {feature.description}
-                    </p>
+                    <h3 className="font-semibold text-gray-900">{feature.title}</h3>
+                    <p className="text-sm md:text-base text-gray-600">{feature.description}</p>
                   </div>
                 </div>
               ))}
@@ -160,23 +147,22 @@ export function Personalization() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
               className="flex flex-wrap gap-2 md:gap-3 justify-center bg-white p-3 md:p-4 rounded-lg shadow-sm"
             >
-              {(Object.keys(themes) as Theme[]).map((theme) => (
+              {(Object.keys(themes) as Theme[]).map(theme => (
                 <motion.div
                   key={theme}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                 >
                   <Button
                     onClick={() => setActiveTheme(theme)}
-                    variant={activeTheme === theme ? "default" : "outline"}
+                    variant={activeTheme === theme ? 'default' : 'outline'}
                     className={cn(
-                      "capitalize px-4 md:px-6 py-2 transition-all duration-200 text-sm md:text-base",
-                      activeTheme === theme &&
-                        "ring-2 ring-blue-500 ring-offset-2"
+                      'capitalize px-4 md:px-6 py-2 transition-all duration-200 text-sm md:text-base',
+                      activeTheme === theme && 'ring-2 ring-blue-500 ring-offset-2'
                     )}
                   >
                     {theme}
@@ -198,7 +184,7 @@ export function Personalization() {
               >
                 <Card
                   className={cn(
-                    "p-4 md:p-6 w-full transition-all duration-300 rounded-xl overflow-hidden",
+                    'p-4 md:p-6 w-full transition-all duration-300 rounded-xl overflow-hidden',
                     themes[activeTheme].cardClass
                   )}
                 >
@@ -207,7 +193,7 @@ export function Personalization() {
                       <motion.div
                         layout
                         className={cn(
-                          "rounded-lg overflow-hidden",
+                          'rounded-lg overflow-hidden',
                           themes[activeTheme].layout.image
                         )}
                       >
@@ -227,7 +213,7 @@ export function Personalization() {
                         layout
                         className={cn(
                           themes[activeTheme].layout.title,
-                          "flex flex-col justify-center"
+                          'flex flex-col justify-center'
                         )}
                       >
                         <motion.h3
@@ -237,7 +223,7 @@ export function Personalization() {
                           exit={{ opacity: 0, y: -20 }}
                           transition={{ duration: 0.3, delay: 0.1 }}
                           className={cn(
-                            "text-xl md:text-2xl font-bold mb-2 transition-colors",
+                            'text-xl md:text-2xl font-bold mb-2 transition-colors',
                             themes[activeTheme].textClass
                           )}
                         >
@@ -250,7 +236,7 @@ export function Personalization() {
                           exit={{ opacity: 0, y: -20 }}
                           transition={{ duration: 0.3, delay: 0.2 }}
                           className={cn(
-                            "text-sm md:text-base opacity-90 transition-colors",
+                            'text-sm md:text-base opacity-90 transition-colors',
                             themes[activeTheme].textClass
                           )}
                         >
@@ -260,10 +246,7 @@ export function Personalization() {
 
                       <motion.div
                         layout
-                        className={cn(
-                          "flex items-center",
-                          themes[activeTheme].layout.price
-                        )}
+                        className={cn('flex items-center', themes[activeTheme].layout.price)}
                       >
                         <motion.span
                           layout
@@ -272,7 +255,7 @@ export function Personalization() {
                           exit={{ opacity: 0, y: -20 }}
                           transition={{ duration: 0.3, delay: 0.3 }}
                           className={cn(
-                            "text-2xl md:text-3xl font-bold transition-colors",
+                            'text-2xl md:text-3xl font-bold transition-colors',
                             themes[activeTheme].textClass
                           )}
                         >
@@ -283,11 +266,11 @@ export function Personalization() {
                       <motion.div
                         layout
                         className={cn(
-                          "flex gap-1 md:gap-2 items-center",
+                          'flex gap-1 md:gap-2 items-center',
                           themes[activeTheme].layout.sizes
                         )}
                       >
-                        {["XS", "S", "M", "L", "XL"].map((size, index) => (
+                        {['XS', 'S', 'M', 'L', 'XL'].map((size, index) => (
                           <motion.button
                             key={size}
                             layout
@@ -297,15 +280,15 @@ export function Personalization() {
                             transition={{
                               duration: 0.3,
                               delay: 0.1 + index * 0.05,
-                              ease: "easeInOut",
+                              ease: 'easeInOut',
                             }}
                             className={cn(
-                              "flex-1 py-1.5 md:py-2 transition-all text-sm md:text-base",
+                              'flex-1 py-1.5 md:py-2 transition-all text-sm md:text-base',
                               themes[activeTheme].textClass,
-                              "hover:scale-105",
-                              "rounded-md",
-                              "border-2",
-                              "font-medium"
+                              'hover:scale-105',
+                              'rounded-md',
+                              'border-2',
+                              'font-medium'
                             )}
                           >
                             {size}
@@ -316,7 +299,7 @@ export function Personalization() {
                       <motion.div
                         layout
                         className={cn(
-                          "flex gap-2 md:gap-4 items-center",
+                          'flex gap-2 md:gap-4 items-center',
                           themes[activeTheme].layout.buttons
                         )}
                       >
@@ -330,7 +313,7 @@ export function Personalization() {
                         >
                           <Button
                             className={cn(
-                              "w-full transition-all font-medium text-sm md:text-base py-4 md:py-6",
+                              'w-full transition-all font-medium text-sm md:text-base py-4 md:py-6',
                               themes[activeTheme].buttonClass
                             )}
                           >
@@ -348,8 +331,8 @@ export function Personalization() {
                           <Button
                             variant="outline"
                             className={cn(
-                              "w-full transition-all font-medium text-sm md:text-base py-4 md:py-6",
-                              "border-2",
+                              'w-full transition-all font-medium text-sm md:text-base py-4 md:py-6',
+                              'border-2',
                               themes[activeTheme].textClass
                             )}
                           >
@@ -366,5 +349,5 @@ export function Personalization() {
         </div>
       </div>
     </div>
-  );
+  )
 }

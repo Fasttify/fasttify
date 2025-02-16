@@ -1,21 +1,19 @@
-import Image from "next/image";
-import { CheckCircle } from "lucide-react";
+import Image from 'next/image'
+import { CheckCircle } from 'lucide-react'
 
 export function Feature() {
   return (
     <section className="py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <span className="text-primary font-medium tracking-wider">
-            CARACTERÍSTICAS
-          </span>
+          <span className="text-primary font-medium tracking-wider">CARACTERÍSTICAS</span>
           <h2 className="text-3xl md:text-4xl font-medium text-black mt-4 mb-6">
             Todo lo que necesitas para tu <br />
             tienda online con Fasttify
           </h2>
           <p className="text-gray-600 leading-relaxed">
-            Fasttify te ofrece las herramientas esenciales para que tu negocio
-            de dropshipping crezca con facilidad y sin complicaciones.
+            Fasttify te ofrece las herramientas esenciales para que tu negocio de dropshipping
+            crezca con facilidad y sin complicaciones.
           </p>
         </div>
 
@@ -31,21 +29,18 @@ export function Feature() {
           </div>
           <div className="space-y-8">
             <div className="space-y-4">
-              <h3 className="text-2xl font-medium text-black">
-                Gestión eficiente y automatizada
-              </h3>
+              <h3 className="text-2xl font-medium text-black">Gestión eficiente y automatizada</h3>
               <p className="text-gray-600 leading-relaxed">
-                Con Fasttify, administra tu tienda, productos y pedidos de
-                manera fácil y rápida. Automatizamos procesos para que te
-                enfoques en vender.
+                Con Fasttify, administra tu tienda, productos y pedidos de manera fácil y rápida.
+                Automatizamos procesos para que te enfoques en vender.
               </p>
             </div>
             <ul className="space-y-4">
               {[
-                "Integración con múltiples proveedores",
-                "Pagos seguros con Mercado Pago y PayU",
-                "Gestión de pedidos automatizada",
-                "Personalización avanzada para tu tienda",
+                'Integración con múltiples proveedores',
+                'Pagos seguros con Mercado Pago y PayU',
+                'Gestión de pedidos automatizada',
+                'Personalización avanzada para tu tienda',
               ].map((item, index) => (
                 <li key={index} className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-800 flex-shrink-0" />
@@ -67,12 +62,9 @@ export function Feature() {
               />
             </div>
             <div className="flex-grow">
-              <h4 className="text-xl font-medium text-black mb-3">
-                Interfaz intuitiva
-              </h4>
+              <h4 className="text-xl font-medium text-black mb-3">Interfaz intuitiva</h4>
               <p className="text-gray-600">
-                Diseñada para que cualquier usuario pueda administrar su negocio
-                sin complicaciones.
+                Diseñada para que cualquier usuario pueda administrar su negocio sin complicaciones.
               </p>
             </div>
           </div>
@@ -87,12 +79,9 @@ export function Feature() {
               />
             </div>
             <div className="flex-grow">
-              <h4 className="text-xl font-medium text-black mb-3">
-                Diversos métodos de pago
-              </h4>
+              <h4 className="text-xl font-medium text-black mb-3">Diversos métodos de pago</h4>
               <p className="text-gray-600">
-                Acepta pagos con Mercado Pago y PayU para brindar mayor
-                comodidad a tus clientes.
+                Acepta pagos con Mercado Pago y PayU para brindar mayor comodidad a tus clientes.
               </p>
             </div>
           </div>
@@ -107,17 +96,15 @@ export function Feature() {
               />
             </div>
             <div className="flex-grow">
-              <h4 className="text-xl font-medium text-black mb-3">
-                Automatización total
-              </h4>
+              <h4 className="text-xl font-medium text-black mb-3">Automatización total</h4>
               <p className="text-gray-600">
-                Reduce el tiempo de gestión con procesos automatizados y
-                escalabilidad para crecer sin límites.
+                Reduce el tiempo de gestión con procesos automatizados y escalabilidad para crecer
+                sin límites.
               </p>
             </div>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }

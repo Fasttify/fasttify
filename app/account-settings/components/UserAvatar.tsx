@@ -1,49 +1,44 @@
-"use client";
+'use client'
 
-import { useState, useRef } from "react";
-import { Camera } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
-import { useUpdateProfilePicture } from "@/app/account-settings/hooks/useUpdateProfilePicture";
-import { Amplify } from "aws-amplify";
-import outputs from "@/amplify_outputs.json";
+import { useState, useRef } from 'react'
+import { Camera } from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { cn } from '@/lib/utils'
+import { useUpdateProfilePicture } from '@/app/account-settings/hooks/useUpdateProfilePicture'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
 
-Amplify.configure(outputs);
-
+Amplify.configure(outputs)
 
 interface UserAvatarProps {
-  imageUrl?: string;
-  fallback: string;
-  className?: string;
+  imageUrl?: string
+  fallback: string
+  className?: string
 }
 
 export function UserAvatar({ imageUrl, fallback, className }: UserAvatarProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { updateProfilePicture, isLoading } = useUpdateProfilePicture();
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { updateProfilePicture, isLoading } = useUpdateProfilePicture()
 
-  const handleFileSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
     if (file) {
       // Mostrar una vista previa de la imagen seleccionada
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+        setPreviewUrl(reader.result as string)
+      }
+      reader.readAsDataURL(file)
 
       // Subir la imagen a S3 y actualizar el atributo `picture`
-      await updateProfilePicture(file);
+      await updateProfilePicture(file)
     }
-  };
+  }
 
   return (
     <div className="relative inline-block">
-      <Avatar
-        className={cn("h-20 w-20 border-4 border-white shadow-lg", className)}
-      >
+      <Avatar className={cn('h-20 w-20 border-4 border-white shadow-lg', className)}>
         <AvatarImage src={previewUrl || imageUrl} alt="Profile picture" />
         <AvatarFallback>{fallback}</AvatarFallback>
       </Avatar>
@@ -65,5 +60,5 @@ export function UserAvatar({ imageUrl, fallback, className }: UserAvatarProps) {
         disabled={isLoading}
       />
     </div>
-  );
+  )
 }

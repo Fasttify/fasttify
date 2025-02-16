@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import RotatingText from "@/components/ui/reactbits/RotatingText";
-import Image from "next/image";
+import { Button } from '@/components/ui/button'
+import { ArrowRight } from 'lucide-react'
+import Link from 'next/link'
+import RotatingText from '@/components/ui/reactbits/RotatingText'
+import Image from 'next/image'
 
 export function FirstView() {
   return (
@@ -22,18 +22,18 @@ export function FirstView() {
               <span className="block">Crea tu tienda en minutos,</span>
               <RotatingText
                 texts={[
-                  "fácil y rápido",
-                  "tu negocio online",
-                  "sin complicaciones",
-                  "crea hoy mismo",
+                  'fácil y rápido',
+                  'tu negocio online',
+                  'sin complicaciones',
+                  'crea hoy mismo',
                 ]}
-                staggerFrom={"last"}
-                initial={{ y: "100%" }}
+                staggerFrom={'last'}
+                initial={{ y: '100%' }}
                 animate={{ y: 0 }}
-                exit={{ y: "-120%" }}
+                exit={{ y: '-120%' }}
                 staggerDuration={0.025}
                 splitLevelClassName="overflow-hidden pb-0.5 sm:pb-1 md:pb-1"
-                transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                 rotationInterval={3500}
                 mainClassName="text-primary font-bold"
               />
@@ -41,12 +41,11 @@ export function FirstView() {
             </h1>
 
             <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-xl">
-              Fasttify te permite lanzar tu propio ecommerce de dropshipping de
-              manera sencilla. Administra productos, gestiona pagos y haz crecer
-              tu negocio sin preocuparte por la logística.
+              Fasttify te permite lanzar tu propio ecommerce de dropshipping de manera sencilla.
+              Administra productos, gestiona pagos y haz crecer tu negocio sin preocuparte por la
+              logística.
               <span className="block mt-2">
-                Únete a cientos de emprendedores y lleva tu tienda al siguiente
-                nivel.
+                Únete a cientos de emprendedores y lleva tu tienda al siguiente nivel.
               </span>
             </p>
 
@@ -72,21 +71,15 @@ export function FirstView() {
             <div className="grid grid-cols-3 gap-8 pt-8">
               <div>
                 <div className="text-3xl font-bold text-primary mb-2">+500</div>
-                <p className="text-sm text-gray-600 leading-snug">
-                  Tiendas activas
-                </p>
+                <p className="text-sm text-gray-600 leading-snug">Tiendas activas</p>
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary mb-2">100%</div>
-                <p className="text-sm text-gray-600 leading-snug">
-                  Gestión automatizada
-                </p>
+                <p className="text-sm text-gray-600 leading-snug">Gestión automatizada</p>
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary mb-2">24/7</div>
-                <p className="text-sm text-gray-600 leading-snug">
-                  Soporte dedicado
-                </p>
+                <p className="text-sm text-gray-600 leading-snug">Soporte dedicado</p>
               </div>
             </div>
           </div>
@@ -94,7 +87,7 @@ export function FirstView() {
           <div className="relative">
             <div className="relative aspect-square max-w-full mx-auto">
               <Image
-                src="https://images.unsplash.com/photo-1586880244406-556ebe35f282?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src="https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=2070&auto=format&fit=crop"
                 alt="Fasttify Dashboard"
                 fill
                 className="object-contain transform hover:scale-105 transition-transform duration-500"
@@ -108,14 +101,10 @@ export function FirstView() {
 
             {/* Product badges */}
             <div className="absolute top-8 right-8 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
-              <span className="text-primary font-medium">
-                Sin comisión por ventas
-              </span>
+              <span className="text-primary font-medium">Sin comisión por ventas</span>
             </div>
             <div className="absolute bottom-8 left-8 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
-              <span className="text-primary font-medium">
-                Integración con Mercado Pago
-              </span>
+              <span className="text-primary font-medium">Integración con Mercado Pago</span>
             </div>
           </div>
         </div>
@@ -128,5 +117,5 @@ export function FirstView() {
         </div>
       </div>
     </section>
-  );
+  )
 }
