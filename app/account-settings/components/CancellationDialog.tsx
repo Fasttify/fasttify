@@ -127,7 +127,7 @@ export function CancellationDialog({
                 <AlertDialogTitle className="text-center">
                   Tu suscripción ha sido cancelada
                 </AlertDialogTitle>
-                <AlertDialogDescription className="text-center">
+                <AlertDialogDescription className="text-center text-gray-600">
                   Lamentamos verte partir, pero siempre puedes volver
                   {formattedExpirationDate && (
                     <p className="mt-2">Tu plan sigue activo hasta {formattedExpirationDate}</p>
@@ -147,7 +147,7 @@ export function CancellationDialog({
                   variant="outline"
                   onClick={() => {
                     handleClose()
-                    router.push('/planes')
+                    router.push('/pricing')
                   }}
                 >
                   Explorar otros planes

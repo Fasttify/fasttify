@@ -92,7 +92,7 @@ export function AccountSettings() {
           />
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <h3 className="text-xl font-semibold">{fullName}</h3>
+              <h3 className="text-xl font-semibold">{`${firstName} ${lastName}`}</h3>
               {isGoogleUser && <CustomToolTip />}
             </div>
             <p className="text-sm text-gray-600">Plan activo: {user?.plan}</p>

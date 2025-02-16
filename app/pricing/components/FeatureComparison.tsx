@@ -134,7 +134,7 @@ export function FeatureComparison() {
           </div>
         </div>
       </div>
-      <div style={{ height: '600px', position: 'relative' }}>
+      <div className="max-w-full" style={{ height: '600px', position: 'relative' }}>
         <FlowingMenu items={demoItems} />
       </div>
     </div>
