@@ -76,7 +76,7 @@ export const handler: APIGatewayProxyHandler = async event => {
         // Obtener usuario de Cognito
         const cognitoUser = await client.send(
           new AdminGetUserCommand({
-            UserPoolId: env.USER_POOL_ID,
+            UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
             Username: userId,
           })
         )
@@ -132,7 +132,7 @@ export const handler: APIGatewayProxyHandler = async event => {
             // Actualizar Cognito inmediatamente
             await client.send(
               new AdminUpdateUserAttributesCommand({
-                UserPoolId: env.USER_POOL_ID,
+                UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
                 Username: userId,
                 UserAttributes: [{ Name: 'custom:plan', Value: 'free' }],
               })
@@ -210,7 +210,7 @@ export const handler: APIGatewayProxyHandler = async event => {
     // 7. Obtener usuario de Cognito
     const cognitoUser = await client.send(
       new AdminGetUserCommand({
-        UserPoolId: env.USER_POOL_ID,
+        UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
         Username: userId,
       })
     )
@@ -267,7 +267,7 @@ export const handler: APIGatewayProxyHandler = async event => {
       if (shouldUpdateCognito) {
         await client.send(
           new AdminUpdateUserAttributesCommand({
-            UserPoolId: env.USER_POOL_ID,
+            UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
             Username: userId,
             UserAttributes: [{ Name: 'custom:plan', Value: newPlanName }],
           })
@@ -283,7 +283,7 @@ export const handler: APIGatewayProxyHandler = async event => {
       body: JSON.stringify({ message: 'OK' }),
     }
   } catch (error: any) {
-    console.error('❌ Error en la función Lambda:', error , env.USER_POOL_ID)
+    console.error('❌ Error en la función Lambda:', error )
     return {
       statusCode: 500,
       body: JSON.stringify({
