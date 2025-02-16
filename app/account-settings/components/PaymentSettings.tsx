@@ -2,32 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-  AlertDialogFooter,
-} from '@/components/ui/alert-dialog'
 import { useSubscriptionStore } from '@/store/useSubscriptionStore'
 import { post } from 'aws-amplify/api'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { SubscriptionCard } from '@/app/account-settings/components/SubscriptionCard'
-import Lottie from 'lottie-react'
-import cancelAnimation from '@/app/account-settings/anim/cancel-animation.json'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import Link from 'next/link'
+import { CancellationDialog } from '@/app/account-settings/components/CancellationDialog'
 
 export function PaymentSettings() {
   const { subscription, loading, error } = useSubscriptionStore()
   const { userData } = useAuthUser()
   const [cachedSubscription, setCachedSubscription] = useState(subscription)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showCancelDialog, setShowCancelDialog] = useState(false)
 
   useEffect(() => {
     if (!loading && subscription) {
@@ -51,7 +38,7 @@ export function PaymentSettings() {
     }
     setIsSubmitting(true)
     try {
-      const response = await post({
+      await post({
         apiName: 'SubscriptionApi',
         path: 'cancel-plan',
         options: {
@@ -61,13 +48,10 @@ export function PaymentSettings() {
           },
         },
       })
-      console.log('Suscripción cancelada exitosamente')
-      // You might want to update the subscription state here
     } catch (error) {
       console.error('Error al cancelar la suscripción:', error)
     } finally {
       setIsSubmitting(false)
-      setShowCancelDialog(false)
     }
   }
 
@@ -165,47 +149,13 @@ export function PaymentSettings() {
             isSubmitting={isSubmitting}
           />
 
-          <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                disabled={isSubmitting || subscription?.pendingPlan === 'free'}
-                className="w-auto self-start text-red-500 hover:text-red-500"
-              >
-                Cancelar Suscripción
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="max-w-md">
-              <AlertDialogHeader>
-                <div className="mx-auto w-32 h-32 mb-4">
-                  <Lottie animationData={cancelAnimation} loop={true} />
-                </div>
-                <AlertDialogTitle className="text-center">
-                  ¿Estás seguro de cancelar tu suscripción?
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-center">
-                  Al cancelar tu suscripción:
-                  <ul className="list-disc list-inside mt-2 text-left">
-                    <li>Tendrás acceso hasta el final del período de facturación actual.</li>
-                    <li>Una vez cancelada, no podrás reactivar esta suscripción.</li>
-                    <li>
-                      Para volver a acceder a los beneficios, deberás comprar una nueva suscripción.
-                    </li>
-                  </ul>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-red-500 hover:bg-red-600"
-                  onClick={handleCancel}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Procesando...' : 'Confirmar Cancelación'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <CancellationDialog
+            onCancel={handleCancel}
+            isSubmitting={isSubmitting}
+            setIsSubmitting={setIsSubmitting}
+            isPendingFree={subscription?.pendingPlan === 'free'}
+            expirationDate={new Date(currentSubscription.nextPaymentDate)}
+          />
         </>
       )}
     </div>
