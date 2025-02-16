@@ -283,7 +283,7 @@ export const handler: APIGatewayProxyHandler = async event => {
       body: JSON.stringify({ message: 'OK' }),
     }
   } catch (error: any) {
-    console.error('❌ Error en la función Lambda:', error)
+    console.error('❌ Error en la función Lambda:', error , env.USER_POOL_ID)
     return {
       statusCode: 500,
       body: JSON.stringify({
