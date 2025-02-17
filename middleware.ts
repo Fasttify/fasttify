@@ -10,7 +10,7 @@ async function getSession(request: NextRequest, response: NextResponse) {
     nextServerContext: { request, response },
     operation: async contextSpec => {
       try {
-        const session = await fetchAuthSession(contextSpec, {})
+        const session = await fetchAuthSession(contextSpec, { forceRefresh: true })
         return session.tokens !== undefined ? session : null
       } catch (error) {
         console.error('Error fetching user session:', error)
@@ -33,7 +33,8 @@ async function handleSubscriptionMiddleware(request: NextRequest, response: Next
   const userPlan: string | undefined = session.tokens?.idToken?.payload?.['custom:plan'] as
     | string
     | undefined
-
+  console.log(userPlan)
+  console.log(session)
   const allowedPlans = ['Royal', 'Majestic', 'Imperial']
 
   if (!userPlan || !allowedPlans.includes(userPlan)) {
@@ -50,7 +51,6 @@ async function handleAuthenticationMiddleware(request: NextRequest, response: Ne
   const session = await getSession(request, response)
 
   if (!session) {
-    console.warn('🔒 Usuario no autenticado, redirigiendo a /login')
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
