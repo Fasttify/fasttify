@@ -5,7 +5,4 @@ export const planScheduler = defineFunction({
   entry: 'handler.ts',
   resourceGroupName: 'auth',
   schedule: 'every day',
-  environment: {
-    USER_POOL_ID: secret('USER_POOL_ID'),
-  },
 })
