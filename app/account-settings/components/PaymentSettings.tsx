@@ -39,7 +39,7 @@ export function PaymentSettings() {
     setIsSubmitting(true)
     try {
       await post({
-        apiName: 'SubscriptionApi',
+        apiName: 'CancelPlanApi',
         path: 'cancel-plan',
         options: {
           body: {
@@ -74,7 +74,7 @@ export function PaymentSettings() {
     setIsSubmitting(true)
     try {
       const response = await post({
-        apiName: 'SubscriptionApi',
+      apiName: 'PlanManagementApi',
         path: 'plan-management',
         options: {
           body: {
