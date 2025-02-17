@@ -76,7 +76,7 @@ export const handler: APIGatewayProxyHandler = async event => {
         // Obtener usuario de Cognito
         const cognitoUser = await client.send(
           new AdminGetUserCommand({
-            UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
+            UserPoolId: 'us-east-2_ytcWBodFw',
             Username: userId,
           })
         )
@@ -125,14 +125,14 @@ export const handler: APIGatewayProxyHandler = async event => {
           console.log('🔒 Acceso revocado inmediatamente')
           updateData.planName = 'free'
           updateData.nextPaymentDate = null
-          ;(updateData.planPrice = null),
+          ;;(updateData.planPrice = null),
             (updateData.pendingStartDate = null),
             (updateData.lastFourDigits = null),
             (updateData.pendingPlan = null),
             // Actualizar Cognito inmediatamente
             await client.send(
               new AdminUpdateUserAttributesCommand({
-                UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
+                UserPoolId: 'us-east-2_ytcWBodFw',
                 Username: userId,
                 UserAttributes: [{ Name: 'custom:plan', Value: 'free' }],
               })
@@ -210,7 +210,7 @@ export const handler: APIGatewayProxyHandler = async event => {
     // 7. Obtener usuario de Cognito
     const cognitoUser = await client.send(
       new AdminGetUserCommand({
-        UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
+        UserPoolId: 'us-east-2_ytcWBodFw',
         Username: userId,
       })
     )
@@ -267,7 +267,7 @@ export const handler: APIGatewayProxyHandler = async event => {
       if (shouldUpdateCognito) {
         await client.send(
           new AdminUpdateUserAttributesCommand({
-            UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
+            UserPoolId: 'us-east-2_ytcWBodFw',
             Username: userId,
             UserAttributes: [{ Name: 'custom:plan', Value: newPlanName }],
           })
