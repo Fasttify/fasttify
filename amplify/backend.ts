@@ -12,7 +12,7 @@ import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib
 import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 
 /**
- * @see https://docs.amplify.aws/react/build-a-backend/ to add storage, functions, and more
+ * Definición del backend con sus respectivos recursos.
  */
 const backend = defineBackend({
   auth,
@@ -27,94 +27,154 @@ const backend = defineBackend({
 
 const apiStack = backend.createStack('api-stack')
 
-const myRestApi = new RestApi(apiStack, 'RestApi', {
+/**
+ *
+ * API para Suscripciones
+ *
+ */
+const subscriptionApi = new RestApi(apiStack, 'SubscriptionApi', {
   restApiName: 'SubscriptionApi',
   deploy: true,
-  deployOptions: {
-    stageName: 'dev',
-  },
+  deployOptions: { stageName: 'dev' },
   defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS, // Permitir todos los orígenes (ajustar en producción)
-    allowMethods: Cors.ALL_METHODS, // Permitir todos los métodos HTTP
-    allowHeaders: Cors.DEFAULT_HEADERS, // Permitir headers por defecto
+    allowOrigins: Cors.ALL_ORIGINS, // Se debe ajustar en produccion para solicitar autorizacion
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
   },
 })
 
-// Integrar la función Lambda createSubscription con la API
 const createSubscriptionIntegration = new LambdaIntegration(
   backend.createSubscription.resources.lambda
 )
 
-// Crear una ruta para la suscripción
-const subscriptionPath = myRestApi.root.addResource('subscribe', {
-  defaultMethodOptions: {
-    authorizationType: AuthorizationType.NONE, // Sin autenticación (ajustar en producción)
+const subscribeResource = subscriptionApi.root.addResource('subscribe', {
+  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
+})
+
+subscribeResource.addMethod('POST', createSubscriptionIntegration)
+
+/**
+ *
+ * API para Webhook de Planes
+ *
+ */
+const webHookApi = new RestApi(apiStack, 'WebHookApi', {
+  restApiName: 'WebHookApi',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
   },
 })
 
-// Agregar el método POST para la suscripción
-subscriptionPath.addMethod('POST', createSubscriptionIntegration)
-
-// Integrar la función Lambda webHookPlan con la API
 const webHookPlanIntegration = new LambdaIntegration(backend.webHookPlan.resources.lambda)
 
-// Crear una ruta para el webhook de Mercado Pago
-const webhookPath = myRestApi.root.addResource('webhook', {
-  defaultMethodOptions: {
-    authorizationType: AuthorizationType.NONE, // Sin autenticación (ajustar en producción)
-  },
+const webhookResource = webHookApi.root.addResource('webhook', {
+  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
 })
 
-// Agregar el método POST para el webhook
-webhookPath.addMethod('POST', webHookPlanIntegration)
+webhookResource.addMethod('POST', webHookPlanIntegration)
+
+/**
+ *
+ * API para Cancelar Planes
+ *
+ */
+const cancelPlanApi = new RestApi(apiStack, 'CancelPlanApi', {
+  restApiName: 'CancelPlanApi',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
+  },
+})
 
 const cancelPlanIntegration = new LambdaIntegration(backend.cancelPlan.resources.lambda)
 
-const cancelPlanPath = myRestApi.root.addResource('cancel-plan', {
-  defaultMethodOptions: {
-    authorizationType: AuthorizationType.NONE,
-  },
+const cancelPlanResource = cancelPlanApi.root.addResource('cancel-plan', {
+  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
 })
 
-cancelPlanPath.addMethod('POST', cancelPlanIntegration)
+cancelPlanResource.addMethod('POST', cancelPlanIntegration)
+
+/**
+ *
+ * API para Gestión de Planes
+ *
+ */
+const planManagementApi = new RestApi(apiStack, 'PlanManagementApi', {
+  restApiName: 'PlanManagementApi',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
+  },
+})
 
 const planManagementIntegration = new LambdaIntegration(backend.planManagement.resources.lambda)
 
-const planManagementPath = myRestApi.root.addResource('plan-management', {
-  defaultMethodOptions: {
-    authorizationType: AuthorizationType.NONE,
-  },
+const planManagementResource = planManagementApi.root.addResource('plan-management', {
+  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
 })
 
-planManagementPath.addMethod('POST', planManagementIntegration)
+planManagementResource.addMethod('POST', planManagementIntegration)
 
-// Crear una política de IAM para permitir invocar la API
+/**
+ *
+ * Política de IAM para Invocar las APIs
+ *
+ */
 const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
   statements: [
     new PolicyStatement({
       actions: ['execute-api:Invoke'],
       resources: [
-        `${myRestApi.arnForExecuteApi('*', '/subscribe', 'dev')}`,
-        `${myRestApi.arnForExecuteApi('*', '/webhook', 'dev')}`,
-        `${myRestApi.arnForExecuteApi('*', '/cancel-plan', 'dev')}`,
-        `${myRestApi.arnForExecuteApi('*', '/plan-management', 'dev')}`,
+        `${subscriptionApi.arnForExecuteApi('*', '/subscribe', 'dev')}`,
+        `${webHookApi.arnForExecuteApi('*', '/webhook', 'dev')}`,
+        `${cancelPlanApi.arnForExecuteApi('*', '/cancel-plan', 'dev')}`,
+        `${planManagementApi.arnForExecuteApi('*', '/plan-management', 'dev')}`,
       ],
     }),
   ],
 })
 
-// Adjuntar la política a los roles de IAM
+// Adjuntar la política a los roles autenticados y no autenticados
 backend.auth.resources.authenticatedUserIamRole.attachInlinePolicy(apiRestPolicy)
 backend.auth.resources.unauthenticatedUserIamRole.attachInlinePolicy(apiRestPolicy)
 
-// Agregar salidas a la configuración
+/**
+ *
+ * Salidas del Backend
+ *
+ */
 backend.addOutput({
   custom: {
-    API: {
-      [myRestApi.restApiName]: {
-        endpoint: myRestApi.url,
-        region: Stack.of(myRestApi).region,
-        apiName: myRestApi.restApiName,
+    APIs: {
+      SubscriptionApi: {
+        endpoint: subscriptionApi.url,
+        region: Stack.of(subscriptionApi).region,
+        apiName: subscriptionApi.restApiName,
+      },
+      WebHookApi: {
+        endpoint: webHookApi.url,
+        region: Stack.of(webHookApi).region,
+        apiName: webHookApi.restApiName,
+      },
+      CancelPlanApi: {
+        endpoint: cancelPlanApi.url,
+        region: Stack.of(cancelPlanApi).region,
+        apiName: cancelPlanApi.restApiName,
+      },
+      PlanManagementApi: {
+        endpoint: planManagementApi.url,
+        region: Stack.of(planManagementApi).region,
+        apiName: planManagementApi.restApiName,
       },
     },
   },
