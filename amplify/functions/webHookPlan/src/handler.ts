@@ -76,7 +76,7 @@ export const handler: APIGatewayProxyHandler = async event => {
         // Obtener usuario de Cognito
         const cognitoUser = await client.send(
           new AdminGetUserCommand({
-            UserPoolId: 'us-east-2_ZBWvXnYQA',
+            UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
             Username: userId,
           })
         )
@@ -132,7 +132,7 @@ export const handler: APIGatewayProxyHandler = async event => {
             // Actualizar Cognito inmediatamente
             await client.send(
               new AdminUpdateUserAttributesCommand({
-                UserPoolId: 'us-east-2_ZBWvXnYQA',
+                UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
                 Username: userId,
                 UserAttributes: [{ Name: 'custom:plan', Value: 'free' }],
               })
@@ -210,7 +210,7 @@ export const handler: APIGatewayProxyHandler = async event => {
     // 7. Obtener usuario de Cognito
     const cognitoUser = await client.send(
       new AdminGetUserCommand({
-        UserPoolId: 'us-east-2_ZBWvXnYQA',
+        UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
         Username: userId,
       })
     )
@@ -267,7 +267,7 @@ export const handler: APIGatewayProxyHandler = async event => {
       if (shouldUpdateCognito) {
         await client.send(
           new AdminUpdateUserAttributesCommand({
-            UserPoolId: 'us-east-2_ZBWvXnYQA',
+            UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
             Username: userId,
             UserAttributes: [{ Name: 'custom:plan', Value: newPlanName }],
           })

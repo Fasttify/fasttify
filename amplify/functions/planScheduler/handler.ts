@@ -63,7 +63,7 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
         // 3.1. Actualizar el atributo en Cognito para asignar el plan pendiente
         console.log(`🔄 Actualizando plan de usuario ${userId} en Cognito a '${newPlan}'...`)
         const updateCommand = new AdminUpdateUserAttributesCommand({
-          UserPoolId: env.USER_POOL_ID,
+          UserPoolId: env.AMPLIFY_AUTH_USERPOOL_ID,
           Username: userId,
           UserAttributes: [{ Name: 'custom:plan', Value: newPlan }],
         })

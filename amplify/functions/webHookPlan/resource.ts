@@ -7,6 +7,5 @@ export const webHookPlan = defineFunction({
   environment: {
     MERCADOPAGO_ACCESS_TOKEN: secret('MERCADOPAGO_ACCESS_TOKEN'),
     MERCADO_PAGO_WEBHOOK_SECRET: secret('MERCADO_PAGO_WEBHOOK_SECRET'),
-    USER_POOL_ID: secret('USER_POOL_ID'),
   },
 })
