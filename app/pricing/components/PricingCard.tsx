@@ -35,7 +35,7 @@ export function PricingCard({ plan, onHover }: PricingCardProps) {
   const { loading } = useAuth()
   const { toasts, addToast, removeToast } = useToast()
   const router = useRouter()
-
+  console.log(userData)
   const cognitoUsername =
     userData && userData['cognito:username'] ? userData['cognito:username'] : null
 
@@ -65,7 +65,7 @@ export function PricingCard({ plan, onHover }: PricingCardProps) {
         path: 'subscribe',
         options: {
           body: {
-            userId: cognitoUsername,
+            userId: userData.sub,
             plan: {
               name: plan.name,
               price: plan.price,
