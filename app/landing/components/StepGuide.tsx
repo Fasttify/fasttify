@@ -52,7 +52,7 @@ export function StepGuide() {
     <div className="p-4 md:p-8 min-h-screenrounded-t-[32px]  ">
       <div className="min-h-0 text-black px-4 py-8 md:p-28">
         <div className="max-w-full mx-auto">
-          <h1 className="text-5xl md:text-5xl font-normal text-center mb-8 md:mb-16">
+          <h1 className="text-3xl md:text-4xl font-medium text-center mb-8 md:mb-16">
             Es muy fácil comenzar a vender
           </h1>
 
