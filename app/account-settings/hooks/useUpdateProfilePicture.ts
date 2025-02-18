@@ -22,12 +22,10 @@ export function useUpdateProfilePicture() {
 
       // 2. Construir la URL pública manualmente.
 
-      const bucketName = outputs.storage.bucket_name 
-      const region = outputs.storage.aws_region 
+      const bucketName = outputs.storage.bucket_name
+      const region = outputs.storage.aws_region
       // La URL pública se forma concatenando el bucket, la región y la ruta del objeto:
       const publicUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${result.path}`
-
-      console.log('Public URL:', publicUrl)
 
       // 3. Actualizar el atributo 'picture' del usuario con la URL pública.
       await updateUserAttributes({
