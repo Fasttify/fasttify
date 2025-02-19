@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
-
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import RotatingText from '@/components/ui/reactbits/RotatingText'
@@ -12,7 +11,7 @@ export function FirstView() {
       initial={{ opacity: 0.0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{
-        delay: 0.3,
+        delay: 0.1,
         duration: 0.8,
         ease: 'easeInOut',
       }}

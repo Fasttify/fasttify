@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 interface WelcomeScreenProps {
   userName: string
@@ -46,8 +47,9 @@ export function WelcomeScreen({ userName, onAnimationComplete }: WelcomeScreenPr
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, duration: 0.5 }}
-              className="w-8 h-8 bg-white"
-            />
+            >
+              <Image alt="fasttify-white" src="/icons/fasttify-white.webp" width={80} height={80} />
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}

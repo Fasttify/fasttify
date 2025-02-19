@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { PricingCard } from '@/app/pricing/components/PricingCard'
 import { Footer } from '@/app/landing/components/Footer'
@@ -61,7 +61,7 @@ const plans = [
     name: 'Imperial',
     title: '$45.000 COP/mes',
     price: '45000',
-    description: 'Para negocios en expansión con alto volumen de ventas.',
+    description: 'Para negocios en expansión con alto tráfico.',
     features: [
       'Todo en Majestic.',
       'Membresías y descuentos exclusivos para clientes.',
@@ -77,10 +77,7 @@ const plans = [
   },
 ]
 
-
 export default function PricingPage() {
-  const [hoveredPlan, setHoveredPlan] = useState<string | null>(null)
-
   useEffect(() => {
     document.title = 'Planes y Pagos • Fasttify'
   }, [])
@@ -103,12 +100,7 @@ export default function PricingPage() {
 
           <div className="grid md:grid-cols-3 gap-6 relative">
             {plans.map(plan => (
-              <PricingCard
-                key={plan.name}
-                plan={plan}
-                hoveredPlan={hoveredPlan}
-                onHover={setHoveredPlan}
-              />
+              <PricingCard key={plan.name} plan={plan} />
             ))}
           </div>
 

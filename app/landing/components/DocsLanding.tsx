@@ -1,5 +1,3 @@
-'use client'
-
 import { PurchaseHistory } from './Notification'
 import { PlatformCompatibility } from './Platform'
 import { Footer } from './Footer'
