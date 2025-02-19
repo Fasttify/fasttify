@@ -9,6 +9,7 @@ import { FashionSlider } from './FashionSlider'
 import { Feature } from './Feature'
 import { Testimonials } from './Testimonials'
 import { Templates } from '@/components/ui/reactbits/HeroParallax'
+import { MarqueeLogos } from '@/app/landing/components/MarqueeLogos'
 
 const products = [
   {
@@ -81,6 +82,9 @@ export const DocsLanding = () => {
       <Navbar />
       <FirstView />
       <AboutUs />
+      <div className='h-40 sm:h-60'>
+      <MarqueeLogos />
+      </div>
       <div className="h-screen">
         <FashionSlider />
       </div>

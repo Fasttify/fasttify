@@ -60,16 +60,12 @@ module.exports = {
       },
       keyframes: {
         marquee: {
-          from: { transform: 'translateX(0%)' },
-          to: { transform: 'translateX(-50%)' },
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(calc(-100% - var(--gap)))' },
         },
         'marquee-vertical': {
-          from: {
-            transform: 'translateY(0)',
-          },
-          to: {
-            transform: 'translateY(calc(-100% - var(--gap)))',
-          },
+          from: { transform: 'translateY(0)' },
+          to: { transform: 'translateY(calc(-100% - var(--gap)))' },
         },
         'background-position-spin': {
           '0%': {
@@ -106,7 +102,7 @@ module.exports = {
         },
       },
       animation: {
-        marquee: 'marquee 15s linear infinite',
+        marquee: 'marquee var(--duration) linear infinite',
         'marquee-vertical': 'marquee-vertical var(--duration) linear infinite',
         'background-position-spin': 'background-position-spin 3000ms infinite alternate',
         rippling: 'rippling var(--duration) ease-out',

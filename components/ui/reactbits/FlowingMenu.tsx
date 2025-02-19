@@ -15,7 +15,7 @@ interface FlowingMenuProps {
 
 const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
   return (
-    <div className="w-full h-full overflow-hidden  font-medium">
+    <div className="w-full h-full overflow-hidden font-medium">
       <nav className="flex flex-col h-full m-0 p-0">
         {items.map((item, idx) => (
           <MenuItem key={idx} {...item} />
@@ -98,7 +98,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
       ref={itemRef}
     >
       <a
-        className="flex items-center justify-center h-full relative cursor-pointer  no-underline text-5xl md:text-5xl font-normal text-black text-[4vh] hover:text-white focus:text-gray-800 focus-visible:text-white transition-colors duration-300"
+        className="flex items-center justify-center h-full relative cursor-pointer no-underline text-5xl md:text-5xl font-normal text-black text-[4vh] hover:text-white focus:text-gray-800 focus-visible:text-white transition-colors"
         href={link}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -106,11 +106,14 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
         {text}
       </a>
       <div
-        className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none bg-gray-800 translate-y-[101%]"
+        className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none bg-gray-800 translate-y-[101%] "
         ref={marqueeRef}
       >
         <div className="h-full w-[200%] flex" ref={marqueeInnerRef}>
-          <div className="flex items-center relative h-full w-[200%] will-change-transform animate-marquee">
+          <div
+            style={{ '--duration': '50s', '--gap': '2rem' } as React.CSSProperties}
+            className="flex items-center relative h-full w-[200%] will-change-transform animate-marquee"
+          >
             {repeatedMarqueeContent}
           </div>
         </div>
