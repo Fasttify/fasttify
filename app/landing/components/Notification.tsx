@@ -50,7 +50,7 @@ export function PurchaseHistory() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-16">
+        <div className="bg-white rounded-2xl  overflow-hidden mb-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
             <div>
               <h3 className="text-2xl font-medium text-black mb-4">
@@ -83,7 +83,7 @@ export function PurchaseHistory() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="bg-white rounded-2xl p-8">
             <h4 className="text-xl font-medium text-black mb-4">Panel de Control</h4>
             <div className="mb-4">
               <p className="text-sm text-gray-600">Ventas Totales</p>
@@ -94,7 +94,7 @@ export function PurchaseHistory() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="bg-white rounded-2xl  p-8">
             <h4 className="text-xl font-medium text-black mb-4">Gestión de Productos</h4>
             <p className="text-gray-600 mb-4">Administra tu catálogo y optimiza tus ventas</p>
             <Button className="w-full bg-primary text-white">Agregar Producto</Button>
