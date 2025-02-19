@@ -51,7 +51,7 @@ export function AboutUs() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24">
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-3xl">🚀</span>
+              <Image src="/icons/rocket.webp" alt="rocket" width={40} height={40} />
             </div>
             <h4 className="text-xl font-medium text-black">Crecimiento acelerado</h4>
             <p className="text-gray-600">
@@ -60,7 +60,7 @@ export function AboutUs() {
           </div>
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-3xl">💳</span>
+              <Image src="/icons/credit-card.png" alt="rocket" width={40} height={40} />
             </div>
             <h4 className="text-xl font-medium text-black">Pagos seguros</h4>
             <p className="text-gray-600">
@@ -69,7 +69,7 @@ export function AboutUs() {
           </div>
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-3xl">📦</span>
+              <Image src="/icons/box.webp" alt="rocket" width={40} height={40} />
             </div>
             <h4 className="text-xl font-medium text-black">Gestión simplificada</h4>
             <p className="text-gray-600">
