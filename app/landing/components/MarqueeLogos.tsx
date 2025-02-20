@@ -23,9 +23,8 @@ const ReviewCard = ({ img }: { img: string; name?: string; username?: string; bo
       )}
     >
       <div className="flex flex-row items-center gap-1 sm:gap-2">
-        {/* Contenedor responsive para la imagen */}
         <div className="relative w-14 h-14 sm:w-20 sm:h-20">
-          <Image src={img} alt={img} fill className="object-contain" />
+          <Image src={img} alt={img} fill className="object-cover" />
         </div>
       </div>
     </figure>
@@ -35,7 +34,7 @@ const ReviewCard = ({ img }: { img: string; name?: string; username?: string; bo
 export function MarqueeLogos() {
   return (
     <>
-      <h2 className="mb-4 text-base md:text-xl font-semibold text-center text-gray-700">
+      <h2 className="mb-4 text-base md:text-xl font-normal text-center text-gray-800">
         Forjando el futuro con tecnologías de vanguardia
       </h2>
       <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">

@@ -1,9 +1,16 @@
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { ImagesSlider } from '@/components/ui/images-slider'
 import Link from 'next/link'
 import RotatingText from '@/components/ui/reactbits/RotatingText'
 import Image from 'next/image'
+
+const images = [
+  'https://images.unsplash.com/photo-1522199755839-a2bacb67c546?q=80&w=2072&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1726066012751-2adfb5485977?q=80&w=2070&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1728044849321-4cbffc50cc1d?q=80&w=2070&auto=format&fit=crop',
+]
 
 export function FirstView() {
   return (
@@ -94,13 +101,22 @@ export function FirstView() {
 
             <div className="relative">
               <div className="relative aspect-square max-w-full mx-auto">
-                <Image
-                  src="https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=2070&auto=format&fit=crop"
-                  alt="Fasttify Dashboard"
-                  fill
-                  className="object-contain transform hover:scale-105 transition-transform duration-500"
-                  priority
-                />
+                <ImagesSlider className="h-[40rem]" images={images} direction="up" autoplay={true}>
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                      y: -80,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      duration: 0.6,
+                    }}
+                    className="z-50 flex flex-col justify-center items-center"
+                  ></motion.div>
+                </ImagesSlider>
               </div>
 
               {/* Decorative elements */}
