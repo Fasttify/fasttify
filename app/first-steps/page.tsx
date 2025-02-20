@@ -1,15 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowRight, Store, User, Settings } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { BackgroundGradientAnimation } from '@/app/first-steps/components/BackgroundGradientAnimation'
+import Image from 'next/image'
 import PersonalInfo from '@/app/first-steps/components/PersonalInfo'
 import StoreInfo from '@/app/first-steps/components/StoreInfo'
 import AdditionalSettings from '@/app/first-steps/components/AdditionalSettings'
 
-function Page() {
+export default function FirstStepsPage() {
   const [step, setStep] = useState(1)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -30,6 +31,9 @@ function Page() {
     paymentMethods: [] as string[],
     policies: '',
   })
+  useEffect(() => {
+    document.title = 'Creando tu tienda • Fasttify'
+  }, [])
 
   const options = [
     {
@@ -38,7 +42,7 @@ function Page() {
       id: 'online-store',
     },
     {
-      title: 'En persona, en una tienda física',
+      title: 'En persona, tienda física',
       description: 'Tiendas físicas',
       id: 'physical-store',
     },
@@ -165,6 +169,9 @@ function Page() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
+      <div className="absolute top-4 left-4 z-10">
+        <Image src="/icons/fasttify-white.webp" priority={true} alt="Fasttify Logo" width={50} height={50} />
+      </div>
       <div className="absolute inset-0 z-0 sm:block hidden">
         <BackgroundGradientAnimation />
       </div>
@@ -262,4 +269,3 @@ const StepWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </motion.div>
 )
 
-export default Page

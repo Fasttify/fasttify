@@ -5,7 +5,7 @@ import { WelcomeScreen } from '@/app/subscription-success/components/WelcomeScre
 import { SubscriptionSuccess } from '@/app/subscription-success/components/SubscriptionSuccess'
 import useUserStore from '@/store/userStore'
 
-export default function Page() {
+export default function SubscriptionSuccessPage() {
   const [showContent, setShowContent] = useState(false)
   const { user } = useUserStore()
 

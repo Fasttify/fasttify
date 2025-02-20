@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth'
 import { ConsoleLogger, Hub } from 'aws-amplify/utils'
-import { DocsLanding } from '@/app/landing/components/DocsLanding'
+import DocsLanding from '@/app/landing/components/DocsLanding'
 import 'aws-amplify/auth/enable-oauth-listener'
 
 const logger = new ConsoleLogger('HomePage')

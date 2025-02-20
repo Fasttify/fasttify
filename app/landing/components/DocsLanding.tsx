@@ -76,14 +76,14 @@ const products = [
   },
 ]
 
-export const DocsLanding = () => {
+export default function LandingPage() {
   return (
     <>
       <Navbar />
       <FirstView />
       <AboutUs />
-      <div className='h-40 sm:h-60'>
-      <MarqueeLogos />
+      <div className="h-40 sm:h-60">
+        <MarqueeLogos />
       </div>
       <div className="h-screen">
         <FashionSlider />
