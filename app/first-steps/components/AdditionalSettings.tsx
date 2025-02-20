@@ -1,4 +1,7 @@
 import { CheckCircle2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 
 interface Data {
   paymentMethods: string[]
@@ -21,54 +24,48 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({ data, updateDat
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-800">Configuración Adicional</h2>
-        <p className="text-gray-500 mt-1">Últimos detalles antes de finalizar</p>
+    <div className="w-full max-w-2xl p-6 bg-white rounded-lg">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold mb-2">Configuración Adicional</h2>
+        <p className="text-gray-600">Últimos detalles antes de finalizar</p>
       </div>
 
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Métodos de pago aceptados
-          </label>
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Label>Métodos de pago aceptados</Label>
           <div className="grid grid-cols-2 gap-3">
             {paymentOptions.map(method => (
-              <button
+              <Button
                 key={method}
                 onClick={() => togglePaymentMethod(method)}
-                className={`p-3 border rounded-lg flex items-center justify-between transition-colors ${
-                  data.paymentMethods.includes(method)
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-300 hover:border-blue-300'
+                variant="outline"
+                className={`justify-between h-auto py-3 ${
+                  data.paymentMethods.includes(method) ? 'border-primary bg-primary/10' : ''
                 }`}
               >
                 <span>{method}</span>
                 {data.paymentMethods.includes(method) && (
-                  <CheckCircle2 className="text-blue-500" size={20} />
+                  <CheckCircle2 className="text-primary" size={20} />
                 )}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
 
-        <div>
-          <label htmlFor="policies" className="block text-sm font-medium text-gray-700 mb-1">
-            Políticas de la tienda
-          </label>
-          <textarea
+        <div className="space-y-2">
+          <Label htmlFor="policies">Políticas de la tienda</Label>
+          <Textarea
             id="policies"
             value={data.policies}
             onChange={e => updateData({ policies: e.target.value })}
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Describe tus políticas de devolución, envío, etc..."
           />
         </div>
 
-        <div className="bg-gray-50 p-4 rounded-lg mt-6">
-          <h3 className="font-medium text-gray-800">Resumen de la configuración</h3>
-          <ul className="mt-2 space-y-1 text-sm text-gray-600">
+        <div className="bg-muted p-4 rounded-lg mt-6">
+          <h3 className="font-medium text-foreground">Resumen de la configuración</h3>
+          <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
             <li>• Métodos de pago seleccionados: {data.paymentMethods.length}</li>
             <li>• Políticas definidas: {data.policies ? 'Sí' : 'No'}</li>
           </ul>

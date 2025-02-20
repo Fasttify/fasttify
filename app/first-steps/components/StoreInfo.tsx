@@ -1,3 +1,14 @@
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
 interface StoreData {
   storeName: string
   description: string
@@ -21,72 +32,58 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData }) => {
   ]
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-800">Datos de la Tienda</h2>
-        <p className="text-gray-500 mt-1">Configura los detalles de tu tienda</p>
+    <div className="w-full max-w-2xl p-6 bg-white rounded-lg">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold mb-2">Datos de la Tienda</h2>
+        <p className="text-gray-600">Configura los detalles de tu tienda</p>
       </div>
 
       <div className="space-y-4">
-        <div>
-          <label htmlFor="storeName" className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre de la tienda
-          </label>
-          <input
-            type="text"
+        <div className="space-y-2">
+          <Label htmlFor="storeName">Nombre de la tienda</Label>
+          <Input
             id="storeName"
             value={data.storeName}
             onChange={e => updateData({ storeName: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Ej: Mi Tienda Genial"
           />
         </div>
 
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-            Descripción
-          </label>
-          <textarea
+        <div className="space-y-2">
+          <Label htmlFor="description">Descripción</Label>
+          <Textarea
             id="description"
             value={data.description}
             onChange={e => updateData({ description: e.target.value })}
-            rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Describe tu tienda en pocas palabras..."
+            rows={3}
           />
         </div>
 
-        <div>
-          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-            Ubicación
-          </label>
-          <input
-            type="text"
+        <div className="space-y-2">
+          <Label htmlFor="location">Ubicación</Label>
+          <Input
             id="location"
             value={data.location}
             onChange={e => updateData({ location: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Ej: Ciudad, País"
           />
         </div>
 
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-            Categoría
-          </label>
-          <select
-            id="category"
-            value={data.category}
-            onChange={e => updateData({ category: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">Selecciona una categoría</option>
-            {categories.map(category => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+        <div className="space-y-2">
+          <Label htmlFor="category">Categoría</Label>
+          <Select value={data.category} onValueChange={value => updateData({ category: value })}>
+            <SelectTrigger id="category">
+              <SelectValue placeholder="Selecciona una categoría" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map(category => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

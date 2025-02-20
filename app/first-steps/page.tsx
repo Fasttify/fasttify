@@ -4,9 +4,10 @@ import { useState } from 'react'
 import { ArrowRight, Store, User, Settings } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import PersonalInfo from './components/PersonalInfo'
-import StoreInfo from './components/StoreInfo'
-import AdditionalSettings from './components/AdditionalSettings'
+import { BackgroundGradientAnimation } from '@/app/first-steps/components/BackgroundGradientAnimation'
+import PersonalInfo from '@/app/first-steps/components/PersonalInfo'
+import StoreInfo from '@/app/first-steps/components/StoreInfo'
+import AdditionalSettings from '@/app/first-steps/components/AdditionalSettings'
 
 function Page() {
   const [step, setStep] = useState(1)
@@ -16,6 +17,8 @@ function Page() {
     fullName: '',
     email: '',
     phone: '',
+    documentType: '',
+    documentNumber: '',
 
     // Store Info
     storeName: '',
@@ -86,14 +89,15 @@ function Page() {
           <StepWrapper key="step1">
             <div className="mb-8">
               <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-                ¿Dónde te gustaría vender?
+                ¿Dónde quieres vender con Fasttify?
               </h1>
               <p className="text-gray-600">
-                Nos aseguraremos de que esté todo configurado para que puedas vender en estos sitios
+                Configuraremos todo para que puedas empezar a vender sin complicaciones en los
+                canales que elijas.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
               {options.map(option => (
                 <button
                   key={option.id}
@@ -160,88 +164,89 @@ function Page() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-3xl bg-white rounded-[2rem] p-8 relative"
-      >
-        {/* Progress Header */}
-        {step > 1 && (
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-2">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  step >= 2 ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                }`}
-              >
-                <User size={20} />
-              </div>
-              <div className="h-1 w-12 bg-gray-200">
+    <div className="relative min-h-screen w-full overflow-hidden">
+      <div className="absolute inset-0 z-0 sm:block hidden">
+        <BackgroundGradientAnimation />
+      </div>
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="w-full max-w-3xl bg-[#ffff] bg-opacity-90 backdrop-blur-sm rounded-[2rem] border-1 text-card-foreground shadow p-8 relative"
+        >
+          {/* Progress Header */}
+          {step > 1 && (
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-2">
                 <div
-                  className={`h-full bg-blue-500 transition-all duration-300 ${
-                    step >= 3 ? 'w-full' : 'w-0'
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    step >= 2 ? 'bg-blue-500 text-white' : 'bg-gray-200'
                   }`}
-                />
-              </div>
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  step >= 3 ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                }`}
-              >
-                <Store size={20} />
-              </div>
-              <div className="h-1 w-12 bg-gray-200">
+                >
+                  <User size={20} />
+                </div>
+                <div className="h-1 w-12 bg-gray-200">
+                  <div
+                    className={`h-full bg-blue-500 transition-all duration-300 ${step >= 3 ? 'w-full' : 'w-0'}`}
+                  />
+                </div>
                 <div
-                  className={`h-full bg-blue-500 transition-all duration-300 ${
-                    step >= 4 ? 'w-full' : 'w-0'
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    step >= 3 ? 'bg-blue-500 text-white' : 'bg-gray-200'
                   }`}
-                />
+                >
+                  <Store size={20} />
+                </div>
+                <div className="h-1 w-12 bg-gray-200">
+                  <div
+                    className={`h-full bg-blue-500 transition-all duration-300 ${step >= 4 ? 'w-full' : 'w-0'}`}
+                  />
+                </div>
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    step >= 4 ? 'bg-blue-500 text-white' : 'bg-gray-200'
+                  }`}
+                >
+                  <Settings size={20} />
+                </div>
               </div>
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  step >= 4 ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                }`}
-              >
-                <Settings size={20} />
-              </div>
+              <span className="text-sm text-gray-500">Paso {step} de 4</span>
             </div>
-            <span className="text-sm text-gray-500">Paso {step} de 4</span>
-          </div>
-        )}
-
-        <AnimatePresence mode="wait" initial={false}>
-          {renderStep()}
-        </AnimatePresence>
-
-        <div className="mt-8 flex justify-between items-center">
-          {step === 1 ? (
-            <button className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
-              No necesito ayuda con la configuración →
-            </button>
-          ) : (
-            <button
-              onClick={prevStep}
-              className="text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Atrás
-            </button>
           )}
-          <Button
-            variant="ghost"
-            onClick={nextStep}
-            className={`px-6 py-2 rounded-lg flex items-center space-x-2 ${
-              step === 1 && !selectedOption
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : ' text-black hover:bg-gray-100'
-            }`}
-            disabled={step === 1 && !selectedOption}
-          >
-            <span>{step === 4 ? 'Finalizar' : 'Siguiente'}</span>
-            <ArrowRight size={16} />
-          </Button>
-        </div>
-      </motion.div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            {renderStep()}
+          </AnimatePresence>
+
+          <div className="mt-8 flex justify-between items-center">
+            {step === 1 ? (
+              <button className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
+                No necesito ayuda con la configuración →
+              </button>
+            ) : (
+              <button
+                onClick={prevStep}
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Atrás
+              </button>
+            )}
+            <Button
+              variant="ghost"
+              onClick={nextStep}
+              className={`px-6 py-2 rounded-lg flex items-center space-x-2 ${
+                step === 1 && !selectedOption
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : ' text-black hover:bg-gray-100'
+              }`}
+              disabled={step === 1 && !selectedOption}
+            >
+              <span>{step === 4 ? 'Finalizar' : 'Siguiente'}</span>
+              <ArrowRight size={16} />
+            </Button>
+          </div>
+        </motion.div>
+      </div>
     </div>
   )
 }
