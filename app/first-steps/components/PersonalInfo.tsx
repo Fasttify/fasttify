@@ -1,4 +1,3 @@
-import { Info } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -8,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Info } from 'lucide-react'
 
 interface Data {
   fullName: string
@@ -21,33 +21,6 @@ interface PersonalInfoProps {
   data: Data
   updateData: (data: Partial<Data>) => void
   errors?: Record<string, string[]>
-}
-
-const PhoneInput: React.FC<{
-  value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  placeholder: string
-}> = ({ value, onChange, placeholder }) => {
-  return (
-    <div className="relative">
-      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-        <div className="flex items-center space-x-1">
-          <div className="w-5 h-3  overflow-hidden">
-            <div className="w-full h-1/3 bg-yellow-400"></div>
-            <div className="w-full h-1/3 bg-blue-600"></div>
-            <div className="w-full h-1/3 bg-red-600"></div>
-          </div>
-        </div>
-      </div>
-      <Input
-        type="tel"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="pl-10"
-      />
-    </div>
-  )
 }
 
 const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = {} }) => {
@@ -71,6 +44,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
           </div>
         </div>
       </div>
+
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
@@ -100,10 +74,12 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="phone">Teléfono</Label>
-            <PhoneInput
+            <Input
+              id="phone"
+              type="tel"
               value={data.phone}
               onChange={e => updateData({ phone: e.target.value })}
-              placeholder="Ej: 3001234567"
+              placeholder="Ej: +1234567890"
             />
             {errors.phone && <p className="text-red-600 text-sm">{errors.phone.join(', ')}</p>}
           </div>

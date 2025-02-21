@@ -6,6 +6,10 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { BackgroundGradientAnimation } from '@/app/first-steps/components/BackgroundGradientAnimation'
 import { useUserStoreData } from '@/app/first-steps/hooks/useUserStoreData'
+import {
+  MultiStepLoader as Loader,
+  MultiStepLoader,
+} from '@/app/first-steps/components/MultiStepLoader'
 import Image from 'next/image'
 import PersonalInfo from '@/app/first-steps/components/PersonalInfo'
 import StoreInfo from '@/app/first-steps/components/StoreInfo'
@@ -14,7 +18,6 @@ import {
   personalInfoSchema,
   storeInfoSchema,
   additionalSettingsSchema,
-  wompiConfigSchema,
 } from '@/lib/schemas/first-step'
 
 export default function FirstStepsPage() {
@@ -117,19 +120,20 @@ export default function FirstStepsPage() {
       setStep(prev => prev + 1)
     } else if (step === 4) {
       setSaving(true)
+
       const storeInput = {
-        userId: 'user_123', // Reemplazar con el ID real del usuario autenticado
-        storeId: 'store_' + new Date().getTime(), // Generación simple; ideal usar UUID
+        userId: 'user_123',
+        storeId: 'store_' + new Date().getTime(),
         storeType: selectedOption || '',
         storeName: formData.storeName,
         storeDescription: formData.description,
         storeCurrency: 'COP',
+        storeAdress: formData.location,
         contactEmail: formData.email,
         contactPhone: formData.phone,
         contactName: formData.fullName,
         conctactIdentification: formData.documentNumber,
         contactIdentificationType: formData.documentType,
-        address: formData.location,
         wompiConfig: JSON.stringify({
           publicKey: formData.wompiConfig.publicKey,
           signature: formData.wompiConfig.signature,
@@ -152,6 +156,21 @@ export default function FirstStepsPage() {
     document.title = 'Creando tu tienda • Fasttify'
   }, [])
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <MultiStepLoader
+          loadingStates={[
+            { text: 'Configurando tu tienda' },
+            { text: 'Creando tu tienda' },
+            { text: 'Configurando tu tienda' },
+            { text: 'Listo' },
+          ]}
+          loading={loading}
+        />
+      </div>
+    )
+  }
   const renderStep = () => {
     switch (step) {
       case 1:

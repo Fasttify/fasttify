@@ -12,15 +12,18 @@ export interface UserStoreInput {
   storeName: string // Nombre de la tienda
   storeDescription?: string // Descripción opcional
   storeCurrency?: string // Moneda de la tienda
-  storeURL?: string // URL o dominio asignado a la tienda (opcional)
+  storeLogo?: string // URL de la imagen del logo
   storeTheme?: string // Tema de la tienda (opcional)
   storeBanner?: string // URL de la imagen del banner
   storeType?: string // Tipo de tienda
   storeStatus?: string // Estado de la tienda
   storePolicy?: string // Política de la tienda
+  storeAdress?: string // Dirección de la tienda
   contactEmail?: string
   contactPhone?: string
-  address?: any // Datos anidados en formato JSON (ej.: { street, city, state, zip, country })
+  contactName?: string
+  contactIdentification?: string
+  contactIdentificationType?: string
   wompiConfig?: any // Configuración de wonpi en formato JSON
   customDomain?: string // Dominio propio a asignar (opcional)
   onboardingCompleted: boolean

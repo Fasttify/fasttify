@@ -35,8 +35,6 @@ const schema = a
         storeId: a.string().required(), // Identificador único de la tienda
         storeName: a.string().required(), // Nombre de la tienda
         storeDescription: a.string(), // Descripción opcional de la tienda
-        storeURL: a.string(), // URL o dominio asignado a la tienda (opcional)
-        storeLocation: a.string(), // Ubicación de la tienda (opcional)
         storeLogo: a.string(), // URL de la imagen del logo de la tienda
         storeBanner: a.string(), // URL de la imagen del banner de la tienda
         storeTheme: a.string(), // Tema de la tienda (opcional)
@@ -44,6 +42,7 @@ const schema = a
         storeType: a.string(), // Tipo de tienda (física, virtual, etc.)
         storeStatus: a.string(), // Estado de la tienda (activa, inactiva, etc.)
         storePolicy: a.string(), // Política de la tienda (opcional)
+        storeAdress: a.string(), // Dirección de la tienda
 
         // Datos de contacto
         contactEmail: a.email(),
@@ -51,10 +50,6 @@ const schema = a
         contactName: a.string(),
         conctactIdentification: a.string(),
         contactIdentificationType: a.string(),
-
-        // Almacena la dirección completa como JSON.
-        // Ejemplo: { street: "Calle Falsa 123", city: "Ciudad", state: "Estado", zip: "12345", country: "País" }
-        address: a.json(),
 
         // Configuración para integración con PayU, almacenada como JSON.
         // Ejemplo: { payuMerchantId: "merchant_001", payuApiKey: "apikey_abc", payuApiSecret: "secret_xyz", payuCurrency: "COP" }

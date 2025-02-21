@@ -27,7 +27,9 @@ export const handler: APIGatewayProxyHandler = async event => {
     // - newAmount: Nuevo monto a cobrar.
     // - currencyId: Moneda (ej. "ARS").
     // - newPlanName: Nombre del nuevo plan.
-    const { subscriptionId, newAmount, currencyId, newPlanName } = JSON.parse(event.body || '{}')
+    const { subscriptionId, newAmount, currencyId, newPlanName, cognitoUsername } = JSON.parse(
+      event.body || '{}'
+    )
 
     if (!subscriptionId || !newAmount || !currencyId || !newPlanName) {
       return {
@@ -64,6 +66,7 @@ export const handler: APIGatewayProxyHandler = async event => {
       reason: newPlanName,
 
       auto_recurring: {
+        external_reference: cognitoUsername,
         transaction_amount: newAmount,
         currency_id: currencyId,
       },

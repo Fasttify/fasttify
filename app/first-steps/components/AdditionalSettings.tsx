@@ -188,7 +188,7 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
             <Button
               type="button"
               variant="ghost"
-              size="icon"
+              size="sm"
               className="absolute right-2 top-1/2 transform -translate-y-1/2"
               onClick={toggleSignatureVisibility}
             >
@@ -207,8 +207,12 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
       <div className="bg-gray-50 p-4 rounded-lg mt-6">
         <h3 className="font-medium text-gray-800">Resumen de la configuración</h3>
         <ul className="mt-2 space-y-1 text-sm text-gray-600">
-          <li>• Llave pública: {data.wompiConfig.publicKey || 'No definida'}</li>
-          <li>• Firma: {data.wompiConfig.signature ? 'Definida' : 'No definida'}</li>
+          <li className="break-all overflow-hidden whitespace-normal">
+            • Llave pública: {data.wompiConfig.publicKey || 'No definida'}
+          </li>
+          <li className="break-all overflow-hidden whitespace-normal">
+            • Firma: {data.wompiConfig.signature ? 'Definida' : 'No definida'}
+          </li>
         </ul>
       </div>
     </div>

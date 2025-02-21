@@ -7,8 +7,8 @@ import { post } from 'aws-amplify/api'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { SubscriptionCard } from '@/app/account-settings/components/SubscriptionCard'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import Link from 'next/link'
 import { CancellationDialog } from '@/app/account-settings/components/CancellationDialog'
+import Link from 'next/link'
 
 export function PaymentSettings() {
   const { subscription, loading, error } = useSubscriptionStore()
@@ -78,6 +78,7 @@ export function PaymentSettings() {
         path: 'plan-management',
         options: {
           body: {
+            cognitoUsername,
             subscriptionId,
             newAmount,
             currencyId,
