@@ -3,7 +3,15 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, HelpCircle } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 
 export interface WompiConfig {
   publicKey: string
@@ -48,6 +56,94 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
         <p className="text-gray-600">
           Ingresa los datos necesarios para integrar el widget de pagos de Wompi.
         </p>
+      </div>
+
+      <div className="mb-6">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+            >
+              <HelpCircle className="h-4 w-4" />
+              ¿No sabes cómo obtener estos datos?
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-[95vw] w-[1100px] max-h-[90vh] overflow-y-auto p-6">
+            <DialogHeader className="mb-6">
+              <DialogTitle className="text-2xl">Guía para obtener los datos de Wompi</DialogTitle>
+              <DialogDescription>
+                Sigue estos pasos para encontrar tu llave pública y firma de integridad.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              <div
+                className="relative w-full bg-gray-50 rounded-lg overflow-hidden"
+                style={{ height: '70vh', minHeight: '500px' }}
+              >
+                <Image
+                  src="/imgs/first-steps/wompi-keys.webp"
+                  alt="Captura de pantalla del panel de Wompi"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <h3 className="font-semibold text-lg mb-4">Pasos a seguir:</h3>
+                  <ol className="list-decimal list-inside space-y-3 text-gray-700">
+                    <li>Inicia sesión en tu cuenta de Wompi.</li>
+                    <li>En el menú lateral, busca y haz clic en "Desarrolladores" o "API".</li>
+                    <li>Dentro de esta sección, localiza "Llaves de API".</li>
+                    <li>Aquí encontrarás tu "Llave pública de comercio". Cópiala.</li>
+                    <li>En la misma página, busca la "Firma de integridad" o "Signature".</li>
+                    <li>Copia también esta firma de integridad.</li>
+                    <li>Pega estos valores en los campos correspondientes del formulario.</li>
+                  </ol>
+                </div>
+
+                <div className="lg:col-span-1">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h3 className="font-semibold text-blue-800 mb-2">Nota importante:</h3>
+                    <p className="text-sm text-blue-700">
+                      Asegúrate de usar las llaves de producción si estás configurando para un
+                      entorno en vivo. Si tienes problemas para encontrar esta información, contacta
+                      al soporte de Wompi.
+                    </p>
+
+                    <div className="mt-4 pt-4 border-t border-blue-200">
+                      <a
+                        href="https://comercios.wompi.co/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        Ir al portal de comercios de Wompi
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="space-y-4">

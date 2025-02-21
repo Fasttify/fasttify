@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Download } from 'lucide-react'
-import Image from 'next/image'
 
 export function PurchaseHistory() {
   return (
@@ -61,7 +60,7 @@ export function PurchaseHistory() {
                 Visualiza en tiempo real todas las compras registradas en nuestra plataforma. Cada
                 compra se actualiza automáticamente.
               </p>
-              <Button className="bg-primary text-white">
+              <Button className="bg-white hover:bg-white text-black">
                 Descargar Aplicación
                 <Download className="ml-2 h-4 w-4" />
               </Button>
@@ -83,24 +82,7 @@ export function PurchaseHistory() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-2xl p-8">
-            <h4 className="text-xl font-medium text-black mb-4">Panel de Control</h4>
-            <div className="mb-4">
-              <p className="text-sm text-gray-600">Ventas Totales</p>
-              <p className="text-3xl font-bold text-primary">$12,536</p>
-            </div>
-            <Button variant="outline" className="w-full">
-              Historial de Ventas
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-          <div className="bg-white rounded-2xl  p-8">
-            <h4 className="text-xl font-medium text-black mb-4">Gestión de Productos</h4>
-            <p className="text-gray-600 mb-4">Administra tu catálogo y optimiza tus ventas</p>
-            <Button className="w-full bg-primary text-white">Agregar Producto</Button>
-          </div>
-        </div>
+       
       </div>
     </section>
   )

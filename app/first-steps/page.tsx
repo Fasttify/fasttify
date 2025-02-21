@@ -288,7 +288,7 @@ export default function FirstStepsPage() {
                   <Settings size={20} />
                 </div>
               </div>
-              <span className="text-sm text-gray-500">Paso {step} de 4</span>
+              <span className="text-sm text-gray-500 sm:ml-0 ml-4">Paso {step} de 4</span>
             </div>
           )}
 
@@ -313,7 +313,7 @@ export default function FirstStepsPage() {
               variant="ghost"
               onClick={nextStep}
               disabled={(step === 1 && !selectedOption) || saving}
-              className="px-6 py-2 rounded-lg flex items-center space-x-2"
+              className="px-0 py-2 rounded-lg flex items-center space-x-2"
             >
               <span>{step === 4 ? (saving ? 'Guardando...' : 'Finalizar') : 'Siguiente'}</span>
               <ArrowRight size={16} />

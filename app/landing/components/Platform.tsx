@@ -126,8 +126,7 @@ export function PlatformCompatibility() {
                 disableOnInteraction: false,
               }}
               onSlideChange={swiper => setActiveIndex(swiper.activeIndex)}
-              // Se ajusta la altura: 72 para móvil y 96 para desktop
-              className="w-full h-72 md:h-96 rounded-2xl overflow-hidden"
+              className="w-full h-72 md:h-96 rounded-sm overflow-hidden"
               style={{ backgroundColor: slides[activeIndex].bgColor }}
             >
               {slides.map((slide, index) => (

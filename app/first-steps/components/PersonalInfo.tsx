@@ -1,3 +1,4 @@
+import { Info } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -43,7 +44,7 @@ const PhoneInput: React.FC<{
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="pl-16"
+        className="pl-10"
       />
     </div>
   )
@@ -54,7 +55,21 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
     <div className="w-full max-w-2xl p-6 bg-white rounded-lg">
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Datos Personales</h2>
-        <p className="text-gray-600">Ingresa tu información básica para comenzar</p>
+        <p className="text-gray-600 mb-4">Ingresa tu información básica para comenzar</p>
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <Info className="h-5 w-5 text-blue-400" aria-hidden="true" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-blue-700">
+                Recopilamos estos datos para asegurar que los pagos lleguen correctamente a tu
+                nombre. Tu información es esencial para procesar las transacciones de manera segura
+                y eficiente.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -78,7 +93,6 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
               value={data.email}
               onChange={e => updateData({ email: e.target.value })}
               placeholder="Ej: juan@ejemplo.com"
-    
             />
             {errors.email && <p className="text-red-600 text-sm">{errors.email.join(', ')}</p>}
           </div>
