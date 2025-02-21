@@ -20,7 +20,7 @@ import { signOut } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
 import { UserMenu } from '@/app/landing/components/UserMenu'
 import { Skeleton } from '@/components/ui/skeleton'
-import useUserStore from '@/store/userStore'
+import useUserStore from '@/zustand-states/userStore'
 import outputs from '@/amplify_outputs.json'
 
 Amplify.configure(outputs)

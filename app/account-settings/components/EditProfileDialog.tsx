@@ -20,7 +20,7 @@ import { useUserAttributes } from '@/app/account-settings/hooks/useUserAttribute
 import { Loader2 } from 'lucide-react'
 import { useToast } from '@/hooks/custom-toast/use-toast'
 import { Toast } from '@/components/ui/toasts'
-import useAuthStore from '@/store/userStore'
+import useAuthStore from '@/zustand-states/userStore'
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),

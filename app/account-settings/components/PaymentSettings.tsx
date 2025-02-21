@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { useSubscriptionStore } from '@/store/useSubscriptionStore'
+import { useSubscriptionStore } from '@/zustand-states/useSubscriptionStore'
 import { post } from 'aws-amplify/api'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { SubscriptionCard } from '@/app/account-settings/components/SubscriptionCard'
@@ -74,7 +74,7 @@ export function PaymentSettings() {
     setIsSubmitting(true)
     try {
       const response = await post({
-      apiName: 'PlanManagementApi',
+        apiName: 'PlanManagementApi',
         path: 'plan-management',
         options: {
           body: {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth'
-import useAuthStore from '@/store/userStore'
+import useAuthStore from '@/zustand-states/userStore'
 
 export const useAuth = () => {
   const { user, setUser, clearUser } = useAuthStore()
