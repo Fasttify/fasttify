@@ -23,7 +23,7 @@ export function FirstView() {
         ease: 'easeInOut',
       }}
     >
-      <section className="min-h-screen pt-8 relative overflow-hidden ">
+      <section className="min-h-screen pt-8 relative overflow-hidden">
         <div className="container mx-auto px-4 pt-12 pb-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative z-10 space-y-8">

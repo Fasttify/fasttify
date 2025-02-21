@@ -5,35 +5,46 @@ import { ArrowRight, Store, User, Settings } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { BackgroundGradientAnimation } from '@/app/first-steps/components/BackgroundGradientAnimation'
+import { useUserStoreData } from '@/app/first-steps/hooks/useUserStoreData'
 import Image from 'next/image'
 import PersonalInfo from '@/app/first-steps/components/PersonalInfo'
 import StoreInfo from '@/app/first-steps/components/StoreInfo'
 import AdditionalSettings from '@/app/first-steps/components/AdditionalSettings'
+import {
+  personalInfoSchema,
+  storeInfoSchema,
+  additionalSettingsSchema,
+  wompiConfigSchema,
+} from '@/lib/schemas/first-step'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    // Personal Info
+    // Información personal
     fullName: '',
     email: '',
     phone: '',
     documentType: '',
     documentNumber: '',
-
-    // Store Info
+    // Información de la tienda
     storeName: '',
     description: '',
     location: '',
     category: '',
-
-    // Additional Settings
-    paymentMethods: [] as string[],
     policies: '',
+    customDomain: '',
+    // Configuración de Wompi (para el widget)
+    wompiConfig: {
+      publicKey: '',
+      signature: '',
+    },
   })
-  useEffect(() => {
-    document.title = 'Creando tu tienda • Fasttify'
-  }, [])
+
+  const [validationErrors, setValidationErrors] = useState<Record<string, any>>({})
+  const { loading, error, createUserStore } = useUserStoreData()
+  const [saving, setSaving] = useState(false)
+  const [storeCreated, setStoreCreated] = useState(false)
 
   const options = [
     {
@@ -72,19 +83,74 @@ export default function FirstStepsPage() {
     setFormData(prev => ({ ...prev, ...data }))
   }
 
-  const nextStep = () => {
+  // Función para validar el paso actual
+  const validateStep = (): boolean => {
+    setValidationErrors({})
+    let result
+    if (step === 2) {
+      result = personalInfoSchema.safeParse(formData)
+    } else if (step === 3) {
+      result = storeInfoSchema.safeParse(formData)
+    } else if (step === 4) {
+      result = additionalSettingsSchema.safeParse(formData)
+    }
+    if (result && !result.success) {
+      if (step === 4) {
+        setValidationErrors(result.error.format())
+      } else {
+        setValidationErrors(result.error.flatten().fieldErrors)
+      }
+      return false
+    }
+    return true
+  }
+
+  // Función para avanzar de paso, ejecutando la validación en cada cambio de paso
+  const nextStep = async () => {
+    if (step >= 2 && step <= 4) {
+      const valid = validateStep()
+      if (!valid) return
+    }
     if (step === 1 && selectedOption) {
       setStep(2)
     } else if (step < 4) {
       setStep(prev => prev + 1)
+    } else if (step === 4) {
+      setSaving(true)
+      const storeInput = {
+        userId: 'user_123', // Reemplazar con el ID real del usuario autenticado
+        storeId: 'store_' + new Date().getTime(), // Generación simple; ideal usar UUID
+        storeType: selectedOption || '',
+        storeName: formData.storeName,
+        storeDescription: formData.description,
+        storeCurrency: 'COP',
+        contactEmail: formData.email,
+        contactPhone: formData.phone,
+        contactName: formData.fullName,
+        conctactIdentification: formData.documentNumber,
+        contactIdentificationType: formData.documentType,
+        address: formData.location,
+        wompiConfig: JSON.stringify({
+          publicKey: formData.wompiConfig.publicKey,
+          signature: formData.wompiConfig.signature,
+        }),
+        onboardingCompleted: true,
+      }
+      const result = await createUserStore(storeInput)
+      setSaving(false)
+      if (result) {
+        setStoreCreated(true)
+      }
     }
   }
 
   const prevStep = () => {
-    if (step > 1) {
-      setStep(prev => prev - 1)
-    }
+    if (step > 1) setStep(prev => prev - 1)
   }
+
+  useEffect(() => {
+    document.title = 'Creando tu tienda • Fasttify'
+  }, [])
 
   const renderStep = () => {
     switch (step) {
@@ -100,7 +166,6 @@ export default function FirstStepsPage() {
                 canales que elijas.
               </p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
               {options.map(option => (
                 <button
@@ -149,28 +214,40 @@ export default function FirstStepsPage() {
       case 2:
         return (
           <StepWrapper key="step2">
-            <PersonalInfo data={formData} updateData={updateFormData} />
+            <PersonalInfo data={formData} updateData={updateFormData} errors={validationErrors} />
           </StepWrapper>
         )
       case 3:
         return (
           <StepWrapper key="step3">
-            <StoreInfo data={formData} updateData={updateFormData} />
+            <StoreInfo data={formData} updateData={updateFormData} errors={validationErrors} />
           </StepWrapper>
         )
       case 4:
         return (
           <StepWrapper key="step4">
-            <AdditionalSettings data={formData} updateData={updateFormData} />
+            <AdditionalSettings
+              data={formData}
+              updateData={updateFormData}
+              errors={validationErrors}
+            />
           </StepWrapper>
         )
+      default:
+        return null
     }
   }
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="absolute top-4 left-4 z-10">
-        <Image src="/icons/fasttify-white.webp" priority={true} alt="Fasttify Logo" width={50} height={50} />
+        <Image
+          src="/icons/fasttify-white.webp"
+          priority={true}
+          alt="Fasttify Logo"
+          width={50}
+          height={50}
+        />
       </div>
       <div className="absolute inset-0 z-0 sm:block hidden">
         <BackgroundGradientAnimation />
@@ -179,16 +256,14 @@ export default function FirstStepsPage() {
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-3xl bg-[#ffff] bg-opacity-90 backdrop-blur-sm rounded-[2rem] border-1 text-card-foreground shadow p-8 relative"
+          className="w-full max-w-3xl bg-[#ffff] bg-opacity-90 backdrop-blur-sm rounded-[2rem] border shadow p-8 relative"
         >
           {/* Progress Header */}
           {step > 1 && (
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center space-x-2">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    step >= 2 ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                  }`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
                 >
                   <User size={20} />
                 </div>
@@ -198,9 +273,7 @@ export default function FirstStepsPage() {
                   />
                 </div>
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    step >= 3 ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                  }`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
                 >
                   <Store size={20} />
                 </div>
@@ -210,9 +283,7 @@ export default function FirstStepsPage() {
                   />
                 </div>
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    step >= 4 ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                  }`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 4 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
                 >
                   <Settings size={20} />
                 </div>
@@ -241,17 +312,17 @@ export default function FirstStepsPage() {
             <Button
               variant="ghost"
               onClick={nextStep}
-              className={`px-6 py-2 rounded-lg flex items-center space-x-2 ${
-                step === 1 && !selectedOption
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : ' text-black hover:bg-gray-100'
-              }`}
-              disabled={step === 1 && !selectedOption}
+              disabled={(step === 1 && !selectedOption) || saving}
+              className="px-6 py-2 rounded-lg flex items-center space-x-2"
             >
-              <span>{step === 4 ? 'Finalizar' : 'Siguiente'}</span>
+              <span>{step === 4 ? (saving ? 'Guardando...' : 'Finalizar') : 'Siguiente'}</span>
               <ArrowRight size={16} />
             </Button>
           </div>
+          {storeCreated && (
+            <p className="mt-4 text-green-600">¡Tu tienda ha sido creada exitosamente!</p>
+          )}
+          {error && <p className="mt-4 text-red-600">Error: {JSON.stringify(error)}</p>}
         </motion.div>
       </div>
     </div>
@@ -268,4 +339,3 @@ const StepWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     {children}
   </motion.div>
 )
-

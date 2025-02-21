@@ -19,9 +19,10 @@ interface StoreData {
 interface StoreInfoProps {
   data: StoreData
   updateData: (data: Partial<StoreData>) => void
+  errors?: Record<string, string[]>
 }
 
-const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData }) => {
+const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {} }) => {
   const categories = [
     'Ropa y Accesorios',
     'Electrónica',
@@ -47,6 +48,9 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData }) => {
             onChange={e => updateData({ storeName: e.target.value })}
             placeholder="Ej: Mi Tienda Genial"
           />
+          {errors.storeName && (
+            <p className="text-red-600 text-sm">{errors.storeName.join(', ')}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -58,6 +62,9 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData }) => {
             placeholder="Describe tu tienda en pocas palabras..."
             rows={3}
           />
+          {errors.description && (
+            <p className="text-red-600 text-sm">{errors.description.join(', ')}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -68,12 +75,13 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData }) => {
             onChange={e => updateData({ location: e.target.value })}
             placeholder="Ej: Ciudad, País"
           />
+          {errors.location && <p className="text-red-600 text-sm">{errors.location.join(', ')}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="category">Categoría</Label>
           <Select value={data.category} onValueChange={value => updateData({ category: value })}>
-            <SelectTrigger id="category">
+            <SelectTrigger id="category" className="focus:ring-0 focus:outline-none">
               <SelectValue placeholder="Selecciona una categoría" />
             </SelectTrigger>
             <SelectContent>
@@ -84,6 +92,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData }) => {
               ))}
             </SelectContent>
           </Select>
+          {errors.category && <p className="text-red-600 text-sm">{errors.category.join(', ')}</p>}
         </div>
       </div>
     </div>

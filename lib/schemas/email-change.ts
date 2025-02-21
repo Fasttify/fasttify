@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 
 export const emailSchema = z.object({
   email: z.string().email('Por favor, introduce un correo electrónico válido'),
