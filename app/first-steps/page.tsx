@@ -19,6 +19,8 @@ import {
   storeInfoSchema,
   additionalSettingsSchema,
 } from '@/lib/schemas/first-step'
+import { useAuthUser } from '@/hooks/auth/useAuthUser'
+import { v4 as uuidv4 } from 'uuid'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)
@@ -48,6 +50,10 @@ export default function FirstStepsPage() {
   const { loading, error, createUserStore } = useUserStoreData()
   const [saving, setSaving] = useState(false)
   const [storeCreated, setStoreCreated] = useState(false)
+  const { userData } = useAuthUser()
+
+  const cognitoUsername =
+    userData && userData['cognito:username'] ? userData['cognito:username'] : null
 
   const options = [
     {
@@ -122,8 +128,8 @@ export default function FirstStepsPage() {
       setSaving(true)
 
       const storeInput = {
-        userId: 'user_123',
-        storeId: 'store_' + new Date().getTime(),
+        userId: cognitoUsername,
+        storeId: `store_${cognitoUsername}_${uuidv4()}`,
         storeType: selectedOption || '',
         storeName: formData.storeName,
         storeDescription: formData.description,
