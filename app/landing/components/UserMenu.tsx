@@ -96,10 +96,12 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
               <span>Configuración de cuenta</span>
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
-            <LayoutGrid className="h-4 w-4" />
-            <span>Integraciones</span>
-          </DropdownMenuItem>
+          <Link href="/my-store">
+            <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
+              <LayoutGrid className="h-4 w-4" />
+              <span>Mi tienda</span>
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
             <Settings className="h-4 w-4" />
             <span>Ajustes</span>

@@ -7,12 +7,10 @@ import {
 const client = new CognitoIdentityProviderClient()
 
 export const handler: PostAuthenticationTriggerHandler = async event => {
-  console.log('PostAuthentication event:', JSON.stringify(event, null, 2))
 
   // Solo proceder si es un inicio de sesión con Google
   const identitiesAttr = event.request.userAttributes['identities']
   if (!identitiesAttr) {
-    console.log("El atributo 'identities' no está presente. Terminando ejecución.")
     return event
   }
 

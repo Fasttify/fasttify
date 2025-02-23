@@ -21,6 +21,7 @@ import {
 } from '@/lib/schemas/first-step'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
+import { useRouter } from 'next/navigation'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)
@@ -47,10 +48,10 @@ export default function FirstStepsPage() {
   })
 
   const [validationErrors, setValidationErrors] = useState<Record<string, any>>({})
-  const { loading, error, createUserStore } = useUserStoreData()
   const [saving, setSaving] = useState(false)
-  const [storeCreated, setStoreCreated] = useState(false)
   const { userData } = useAuthUser()
+  const { loading, error, createUserStore } = useUserStoreData()
+  const router = useRouter()
 
   const cognitoUsername =
     userData && userData['cognito:username'] ? userData['cognito:username'] : null
@@ -147,13 +148,15 @@ export default function FirstStepsPage() {
         onboardingCompleted: true,
       }
       const result = await createUserStore(storeInput)
-      setSaving(false)
       if (result) {
-        setStoreCreated(true)
+        setTimeout(() => {
+          router.push('store/dashboard')
+        }, 3000)
+      } else {
+        setSaving(false)
       }
     }
   }
-
   const prevStep = () => {
     if (step > 1) setStep(prev => prev - 1)
   }
@@ -162,7 +165,7 @@ export default function FirstStepsPage() {
     document.title = 'Creando tu tienda • Fasttify'
   }, [])
 
-  if (loading) {
+  if (loading || saving) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <MultiStepLoader
@@ -172,11 +175,12 @@ export default function FirstStepsPage() {
             { text: 'Configurando tu tienda' },
             { text: 'Listo' },
           ]}
-          loading={loading}
+          loading={true}
         />
       </div>
     )
   }
+
   const renderStep = () => {
     switch (step) {
       case 1:
@@ -344,10 +348,6 @@ export default function FirstStepsPage() {
               <ArrowRight size={16} />
             </Button>
           </div>
-          {storeCreated && (
-            <p className="mt-4 text-green-600">¡Tu tienda ha sido creada exitosamente!</p>
-          )}
-          {error && <p className="mt-4 text-red-600">Error: {JSON.stringify(error)}</p>}
         </motion.div>
       </div>
     </div>
