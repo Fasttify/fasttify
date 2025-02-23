@@ -66,7 +66,11 @@ export function NavUser({ user, loading, onSignOut }: NavUserProps) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user?.picture} alt={user?.nickName} />
+                <AvatarImage
+                  src={user?.picture}
+                  alt={user?.nickName}
+                  referrerPolicy="no-referrer"
+                />
                 <AvatarFallback className="rounded-lg">{user?.nickName}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">

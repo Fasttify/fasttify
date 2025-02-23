@@ -1,5 +1,3 @@
-'use client'
-
 import { useRef, useEffect, useState } from 'react'
 import type { Swiper as SwiperType } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -43,7 +41,7 @@ const slides: CompatibilitySlide[] = [
   },
 ]
 
-export function PlatformCompatibility() {
+export function Platform() {
   const swiperRef = useRef<SwiperType>()
   const [activeIndex, setActiveIndex] = useState(0)
   const [navigationLocked, setNavigationLocked] = useState(false)
@@ -243,7 +241,7 @@ function NavigationButton({ direction, onClick, disabled }: NavigationButtonProp
   const disabledClasses = disabled ? 'opacity-20 cursor-default' : ''
   return (
     <button
-      className={`${baseClasses} ${positionClasses} ${disabledClasses}`}
+      className={`${baseClasses} ${positionClasses} ${disabledClasses} sm:block hidden`}
       onClick={onClick}
       disabled={disabled}
     >

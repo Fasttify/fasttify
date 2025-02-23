@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Download } from 'lucide-react'
+import { Download } from 'lucide-react'
 
-export function PurchaseHistory() {
+export function DropshippingIntro() {
   return (
     <section className="py-2">
       <div className="container mx-auto px-4 ">
@@ -81,8 +81,6 @@ export function PurchaseHistory() {
             </div>
           </div>
         </div>
-
-       
       </div>
     </section>
   )

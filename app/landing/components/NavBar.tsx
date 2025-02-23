@@ -36,7 +36,7 @@ const navItems = [
     content: [
       {
         title: 'Características',
-        href: '/#caracteristicas',
+        href: '/#integraciones',
         description: 'Explora todas las características y capacidades de nuestra plataforma.',
       },
       {

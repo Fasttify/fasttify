@@ -56,6 +56,8 @@ export default function FirstStepsPage() {
   const cognitoUsername =
     userData && userData['cognito:username'] ? userData['cognito:username'] : null
 
+  const userSub = userData?.sub
+
   const options = [
     {
       title: 'Una tienda online',
@@ -130,7 +132,7 @@ export default function FirstStepsPage() {
 
       const storeInput = {
         userId: cognitoUsername,
-        storeId: `store_${cognitoUsername}_${uuidv4()}`,
+        storeId: `store_${userSub}_${uuidv4()}`,
         storeType: selectedOption || '',
         storeName: formData.storeName,
         storeDescription: formData.description,
