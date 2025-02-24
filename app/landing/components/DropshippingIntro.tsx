@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Download, Rocket, TrendingUp, Trophy, Users, Package, Star } from 'lucide-react'
 
+
 export function DropshippingIntro() {
   const features = [
     {
@@ -42,7 +43,7 @@ export function DropshippingIntro() {
   ]
 
   return (
-    <section className="py-16">
+    <section>
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-medium text-black mt-4 mb-6">

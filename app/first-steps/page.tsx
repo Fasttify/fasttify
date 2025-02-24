@@ -23,6 +23,7 @@ import sellingOptions from '@/app/first-steps/data/selling-options.json'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)
+  const [isStepValid, setIsStepValid] = useState(false)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     fullName: '',
@@ -116,7 +117,7 @@ export default function FirstStepsPage() {
       const result = await createUserStore(storeInput)
       if (result) {
         setTimeout(() => {
-         router.push(`/store/${storeInput.storeId}/dashboard`)
+          router.push(`/store/${storeInput.storeId}/dashboard`)
         }, 3000)
       } else {
         setSaving(false)
@@ -145,6 +146,10 @@ export default function FirstStepsPage() {
         />
       </div>
     )
+  }
+
+  const handleStepValidation = (isValid: boolean) => {
+    setIsStepValid(isValid)
   }
 
   const renderStep = () => {
@@ -215,7 +220,12 @@ export default function FirstStepsPage() {
       case 3:
         return (
           <StepWrapper key="step3">
-            <StoreInfo data={formData} updateData={updateFormData} errors={validationErrors} />
+            <StoreInfo
+              data={formData}
+              updateData={updateFormData}
+              errors={validationErrors}
+              onValidationChange={handleStepValidation}
+            />
           </StepWrapper>
         )
       case 4:
@@ -307,7 +317,7 @@ export default function FirstStepsPage() {
             <Button
               variant="ghost"
               onClick={nextStep}
-              disabled={(step === 1 && !selectedOption) || saving}
+              disabled={(step === 1 && !selectedOption) || (step === 3 && !isStepValid) || saving}
               className="px-0 py-2 rounded-lg flex items-center space-x-2"
             >
               <span>{step === 4 ? (saving ? 'Guardando...' : 'Finalizar') : 'Siguiente'}</span>

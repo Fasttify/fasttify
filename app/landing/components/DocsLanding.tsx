@@ -24,9 +24,7 @@ export default function LandingPage() {
       <div id="integraciones">
         <Feature />
         <DropshippingIntro />
-        <div className="h-25 sm:h-60">
-          <MarqueeLogos />
-        </div>
+        <MarqueeLogos />
       </div>
       <div id="multiplataforma">
         <Platform />
