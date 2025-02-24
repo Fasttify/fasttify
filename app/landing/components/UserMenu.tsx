@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { BadgeCheckIcon, HelpCircle, LayoutGrid, LogOut, Settings, User2 } from 'lucide-react'
+import { BadgeCheckIcon, HelpCircle, Store, LogOut, Settings, User2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
 
@@ -96,10 +96,12 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
               <span>Configuración de cuenta</span>
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
-            <LayoutGrid className="h-4 w-4" />
-            <span>Integraciones</span>
-          </DropdownMenuItem>
+          <Link href="/my-store">
+            <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
+              <Store className="h-4 w-4" />
+              <span>Mi tienda</span>
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
             <Settings className="h-4 w-4" />
             <span>Ajustes</span>
@@ -115,11 +117,7 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
         <div className="px-3 py-4">
           <div className="flex items-center justify-between mb-1">
             <span className="font-medium">Plan {user.plan}</span>
-            <Link href="/pricing">
-              <Button variant="link" className="h-auto p-0 text-blue-600 hover:text-blue-700">
-                Actualizar
-              </Button>
-            </Link>
+          
           </div>
           <span className="text-sm text-muted-foreground">12,000 vistas</span>
         </div>

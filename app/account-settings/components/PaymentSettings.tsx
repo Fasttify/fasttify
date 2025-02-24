@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { useSubscriptionStore } from '@/store/useSubscriptionStore'
+import { useSubscriptionStore } from '@/zustand-states/useSubscriptionStore'
 import { post } from 'aws-amplify/api'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { SubscriptionCard } from '@/app/account-settings/components/SubscriptionCard'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import Link from 'next/link'
 import { CancellationDialog } from '@/app/account-settings/components/CancellationDialog'
+import Link from 'next/link'
 
 export function PaymentSettings() {
   const { subscription, loading, error } = useSubscriptionStore()
@@ -74,10 +74,11 @@ export function PaymentSettings() {
     setIsSubmitting(true)
     try {
       const response = await post({
-      apiName: 'PlanManagementApi',
+        apiName: 'PlanManagementApi',
         path: 'plan-management',
         options: {
           body: {
+            cognitoUsername,
             subscriptionId,
             newAmount,
             currencyId,

@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { Rocket, CreditCard, Package } from 'lucide-react'
 
 export function AboutUs() {
   return (
@@ -51,7 +52,7 @@ export function AboutUs() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24">
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-              <Image src="/icons/rocket.webp" alt="rocket" width={40} height={40} />
+             <Rocket className='w-10 h-10' />
             </div>
             <h4 className="text-xl font-medium text-black">Crecimiento acelerado</h4>
             <p className="text-gray-600">
@@ -60,7 +61,7 @@ export function AboutUs() {
           </div>
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-              <Image src="/icons/credit-card.png" alt="rocket" width={40} height={40} />
+             <CreditCard className='w-10 h-10'/>
             </div>
             <h4 className="text-xl font-medium text-black">Pagos seguros</h4>
             <p className="text-gray-600">
@@ -69,7 +70,7 @@ export function AboutUs() {
           </div>
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-              <Image src="/icons/box.webp" alt="rocket" width={40} height={40} />
+             <Package className='w-10 h-10'/>
             </div>
             <h4 className="text-xl font-medium text-black">Gestión simplificada</h4>
             <p className="text-gray-600">

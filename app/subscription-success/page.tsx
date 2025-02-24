@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { WelcomeScreen } from '@/app/subscription-success/components/WelcomeScreen'
 import { SubscriptionSuccess } from '@/app/subscription-success/components/SubscriptionSuccess'
-import useUserStore from '@/store/userStore'
+import useUserStore from '@/zustand-states/userStore'
 
-export default function Page() {
+export default function SubscriptionSuccessPage() {
   const [showContent, setShowContent] = useState(false)
   const { user } = useUserStore()
 

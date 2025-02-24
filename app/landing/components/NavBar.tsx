@@ -20,7 +20,7 @@ import { signOut } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
 import { UserMenu } from '@/app/landing/components/UserMenu'
 import { Skeleton } from '@/components/ui/skeleton'
-import useUserStore from '@/store/userStore'
+import useUserStore from '@/zustand-states/userStore'
 import outputs from '@/amplify_outputs.json'
 
 Amplify.configure(outputs)
@@ -36,7 +36,7 @@ const navItems = [
     content: [
       {
         title: 'Características',
-        href: '/#caracteristicas',
+        href: '/#integraciones',
         description: 'Explora todas las características y capacidades de nuestra plataforma.',
       },
       {
@@ -109,7 +109,7 @@ export function Navbar() {
   return (
     <nav
       className={`sticky top-0 left-0 right-0 z-50 transition-colors duration-500 ${
-        hasScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'
+        hasScrolled ? 'bg-white/95 backdrop-blur-md shadow-md' : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

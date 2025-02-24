@@ -1,5 +1,3 @@
-'use client'
-
 import { useRef, useEffect, useState } from 'react'
 import type { Swiper as SwiperType } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'

@@ -2,8 +2,6 @@
 
 import AuthClient from '@/app/login/components/AuthClient'
 
-const Login = () => {
+export default function LoginPage() {
   return <AuthClient />
 }
-
-export default Login

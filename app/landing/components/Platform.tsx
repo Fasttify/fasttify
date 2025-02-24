@@ -1,5 +1,3 @@
-'use client'
-
 import { useRef, useEffect, useState } from 'react'
 import type { Swiper as SwiperType } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -43,7 +41,7 @@ const slides: CompatibilitySlide[] = [
   },
 ]
 
-export function PlatformCompatibility() {
+export function Platform() {
   const swiperRef = useRef<SwiperType>()
   const [activeIndex, setActiveIndex] = useState(0)
   const [navigationLocked, setNavigationLocked] = useState(false)
@@ -126,8 +124,7 @@ export function PlatformCompatibility() {
                 disableOnInteraction: false,
               }}
               onSlideChange={swiper => setActiveIndex(swiper.activeIndex)}
-              // Se ajusta la altura: 72 para móvil y 96 para desktop
-              className="w-full h-72 md:h-96 rounded-2xl overflow-hidden"
+              className="w-full h-72 md:h-96 rounded-sm overflow-hidden"
               style={{ backgroundColor: slides[activeIndex].bgColor }}
             >
               {slides.map((slide, index) => (
@@ -244,7 +241,7 @@ function NavigationButton({ direction, onClick, disabled }: NavigationButtonProp
   const disabledClasses = disabled ? 'opacity-20 cursor-default' : ''
   return (
     <button
-      className={`${baseClasses} ${positionClasses} ${disabledClasses}`}
+      className={`${baseClasses} ${positionClasses} ${disabledClasses} sm:block hidden`}
       onClick={onClick}
       disabled={disabled}
     >
