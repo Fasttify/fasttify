@@ -18,7 +18,6 @@ import {
 } from '@/lib/schemas/first-step'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
-import { useRouter } from 'next/navigation'
 import sellingOptions from '@/app/first-steps/data/selling-options.json'
 
 export default function FirstStepsPage() {
@@ -49,7 +48,6 @@ export default function FirstStepsPage() {
   const [saving, setSaving] = useState(false)
   const { userData } = useAuthUser()
   const { loading, createUserStore } = useUserStoreData()
-  const router = useRouter()
 
   const cognitoUsername =
     userData && userData['cognito:username'] ? userData['cognito:username'] : null
@@ -117,7 +115,7 @@ export default function FirstStepsPage() {
       const result = await createUserStore(storeInput)
       if (result) {
         setTimeout(() => {
-          router.push(`/store/${storeInput.storeId}/dashboard`)
+          window.location.href = `/store/${storeInput.storeId}/dashboard`
         }, 3000)
       } else {
         setSaving(false)
