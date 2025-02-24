@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import { ImagesSlider } from '@/components/ui/images-slider'
 import Link from 'next/link'
 import RotatingText from '@/components/ui/reactbits/RotatingText'
-import Image from 'next/image'
 
 const images = [
   'https://images.unsplash.com/photo-1522199755839-a2bacb67c546?q=80&w=2072&auto=format&fit=crop',

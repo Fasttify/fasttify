@@ -7,6 +7,7 @@ import { webHookPlan } from './functions/webHookPlan/resource'
 import { cancelPlan } from './functions/cancelPlan/resource'
 import { planScheduler } from './functions/planScheduler/resource'
 import { planManagement } from './functions/planManagement/resource'
+import { checkStoreName } from './functions/checkStoreName/resource'
 import { Stack } from 'aws-cdk-lib'
 import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway'
 import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam'
@@ -23,6 +24,7 @@ const backend = defineBackend({
   cancelPlan,
   planScheduler,
   planManagement,
+  checkStoreName,
 })
 
 const apiStack = backend.createStack('api-stack')
@@ -127,6 +129,29 @@ planManagementResource.addMethod('POST', planManagementIntegration)
 
 /**
  *
+ * API para Validar Nombre de Tienda
+ *
+ */
+const checkStoreNameApi = new RestApi(apiStack, 'CheckStoreNameApi', {
+  restApiName: 'CheckStoreNameApi',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
+  },
+})
+const checkStoreNameIntegration = new LambdaIntegration(backend.checkStoreName.resources.lambda)
+
+const checkStoreNameResource = checkStoreNameApi.root.addResource('check-store-name', {
+  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
+})
+
+checkStoreNameResource.addMethod('GET', checkStoreNameIntegration)
+
+/**
+ *
  * Política de IAM para Invocar las APIs
  *
  */
@@ -139,6 +164,7 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
         `${webHookApi.arnForExecuteApi('*', '/webhook', 'dev')}`,
         `${cancelPlanApi.arnForExecuteApi('*', '/cancel-plan', 'dev')}`,
         `${planManagementApi.arnForExecuteApi('*', '/plan-management', 'dev')}`,
+        `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', 'dev')}`,
       ],
     }),
   ],
@@ -175,6 +201,11 @@ backend.addOutput({
         endpoint: planManagementApi.url,
         region: Stack.of(planManagementApi).region,
         apiName: planManagementApi.restApiName,
+      },
+      CheckStoreNameApi: {
+        endpoint: checkStoreNameApi.url,
+        region: Stack.of(checkStoreNameApi).region,
+        apiName: checkStoreNameApi.restApiName,
       },
     },
   },

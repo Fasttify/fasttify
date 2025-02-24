@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'next/navigation'
 
 export default function FirstStepsPage() {
+  const [isStoreNameValid, setIsStoreNameValid] = useState(false)
   const [step, setStep] = useState(1)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [formData, setFormData] = useState({

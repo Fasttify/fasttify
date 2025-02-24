@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -8,6 +9,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useStoreNameValidator } from '@/app/first-steps/hooks/useStoreNameValidator'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 interface StoreData {
   storeName: string
@@ -20,9 +34,32 @@ interface StoreInfoProps {
   data: StoreData
   updateData: (data: Partial<StoreData>) => void
   errors?: Record<string, string[]>
+  onValidationChange?: (isValid: boolean) => void
 }
 
-const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {} }) => {
+const StoreInfo: React.FC<StoreInfoProps> = ({
+  data,
+  updateData,
+  errors = {},
+  onValidationChange,
+}) => {
+  const { checkStoreName, isChecking, exists } = useStoreNameValidator()
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (data.storeName) {
+        checkStoreName(data.storeName)
+      }
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [data.storeName])
+
+  useEffect(() => {
+    onValidationChange?.(!exists && !!data.storeName)
+  }, [exists, data.storeName, onValidationChange])
+
+
   const categories = [
     'Ropa y Accesorios',
     'Electrónica',
@@ -47,7 +84,17 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {} }) 
             value={data.storeName}
             onChange={e => updateData({ storeName: e.target.value })}
             placeholder="Ej: Mi Tienda Genial"
+            className={
+              exists ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+            }
           />
+
+          {isChecking && <p className="text-gray-500 text-sm">Verificando disponibilidad...</p>}
+          {exists && (
+            <p className="text-red-600 text-sm">
+              Este nombre ya está en uso. Por favor, elige otro nombre para tu tienda.
+            </p>
+          )}
           {errors.storeName && (
             <p className="text-red-600 text-sm">{errors.storeName.join(', ')}</p>
           )}
@@ -68,7 +115,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {} }) 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="location">Ubicación</Label>
+          <Label htmlFor="location">Ubicación fisica de tu Tienda</Label>
           <Input
             id="location"
             value={data.location}

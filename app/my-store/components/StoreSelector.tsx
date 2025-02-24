@@ -6,6 +6,7 @@ import { PlusCircle } from 'lucide-react'
 import { useUserStores } from '@/app/my-store/hooks/useUserStores'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useStoreLimit } from '@/app/my-store/hooks/useStoreLimit'
 
 function getInitials(name: string) {
   return name
@@ -19,7 +20,9 @@ function getInitials(name: string) {
 export function StoreSelector() {
   const { userData } = useAuthUser()
   const cognitoUsername = userData?.['cognito:username']
+  const userPlan = userData?.['custom:plan']
   const { stores, loading } = useUserStores(cognitoUsername)
+  const { canCreateStore } = useStoreLimit(cognitoUsername, userPlan)
 
   return (
     <motion.div
@@ -75,12 +78,20 @@ export function StoreSelector() {
       </AnimatePresence>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-        <Link href="/first-steps">
-          <Button variant="outline" className="w-full justify-start">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Crear nueva tienda
-          </Button>
-        </Link>
+        {canCreateStore ? (
+          <Link href="/first-steps">
+            <Button variant="outline" className="w-full justify-start">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Crear nueva tienda
+            </Button>
+          </Link>
+        ) : (
+          stores.length > 0 && (
+            <p className="text-sm text-gray-500 text-center">
+              Has alcanzado el límite máximo de tiendas para tu plan actual
+            </p>
+          )
+        )}
       </motion.div>
 
       <motion.div

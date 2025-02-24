@@ -2,23 +2,37 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookiesClient } from '@/utils/amplify-utils'
 import { getSession } from './auth'
 
+const STORE_LIMITS = {
+  Imperial: 5,
+  Majestic: 3,
+  Royal: 1,
+}
+
 async function hasValidPlan(session: any) {
   const userPlan = session.tokens?.idToken?.payload?.['custom:plan'] as string | undefined
   const allowedPlans = ['Royal', 'Majestic', 'Imperial']
   return userPlan && allowedPlans.includes(userPlan)
 }
 
-async function hasExistingStores(userId: string) {
+async function checkStoreLimit(userId: string, plan: string) {
   try {
     const { data: stores } = await cookiesClient.models.UserStore.list({
       authMode: 'userPool',
       filter: { userId: { eq: userId } },
     })
-
-    return stores && stores.length > 0
+    
+    const storeCount = stores?.length || 0
+    const limit = STORE_LIMITS[plan as keyof typeof STORE_LIMITS] || 0
+    
+    return {
+      hasStores: storeCount > 0,
+      canCreateMore: storeCount < limit,
+      storeCount,
+      limit
+    }
   } catch (error) {
     console.error('Error checking stores:', error)
-    return false
+    return { hasStores: false, canCreateMore: false, storeCount: 0, limit: 0 }
   }
 }
 
@@ -31,24 +45,24 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
   }
 
   const userId = session.tokens?.idToken?.payload?.['cognito:username']
+  const userPlan = session.tokens?.idToken?.payload?.['custom:plan']
   const hasValidSubscription = await hasValidPlan(session)
-  const hasStores = await hasExistingStores(userId as string)
+
+  if (!hasValidSubscription) {
+    return NextResponse.redirect(new URL('/pricing', request.url))
+  }
+
+  const { hasStores, canCreateMore } = await checkStoreLimit(userId as string, userPlan as string)
 
   if (path === '/first-steps') {
-    if (!hasValidSubscription) {
-      return NextResponse.redirect(new URL('/pricing', request.url))
-    }
-    if (hasStores) {
+    if (hasStores && !canCreateMore) {
       return NextResponse.redirect(new URL('/my-store', request.url))
     }
   }
 
   if (path === '/my-store') {
     if (!hasStores) {
-      return NextResponse.redirect(new URL('/first-steps', request.url))
-    }
-    if (!hasValidSubscription) {
-      return NextResponse.redirect(new URL('/pricing', request.url))
+       return NextResponse.redirect(new URL('/first-steps', request.url))
     }
   }
 

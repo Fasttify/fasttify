@@ -3,6 +3,7 @@ import { postConfirmation } from '../auth/post-confirmation/resource'
 import { webHookPlan } from '../functions/webHookPlan/resource'
 import { cancelPlan } from '../functions/cancelPlan/resource'
 import { planScheduler } from '../functions/planScheduler/resource'
+import { checkStoreName } from '../functions/checkStoreName/resource'
 
 const schema = a
   .schema({
@@ -73,6 +74,7 @@ const schema = a
     allow.resource(webHookPlan),
     allow.resource(cancelPlan),
     allow.resource(planScheduler),
+    allow.resource(checkStoreName),
   ])
 
 export type Schema = ClientSchema<typeof schema>
