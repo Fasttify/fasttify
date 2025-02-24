@@ -6,10 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { BackgroundGradientAnimation } from '@/app/first-steps/components/BackgroundGradientAnimation'
 import { useUserStoreData } from '@/app/first-steps/hooks/useUserStoreData'
-import {
-  MultiStepLoader as Loader,
-  MultiStepLoader,
-} from '@/app/first-steps/components/MultiStepLoader'
+import { MultiStepLoader } from '@/app/first-steps/components/MultiStepLoader'
 import Image from 'next/image'
 import PersonalInfo from '@/app/first-steps/components/PersonalInfo'
 import StoreInfo from '@/app/first-steps/components/StoreInfo'
@@ -22,26 +19,25 @@ import {
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'next/navigation'
+import sellingOptions from '@/app/first-steps/data/selling-options.json'
 
 export default function FirstStepsPage() {
-  const [isStoreNameValid, setIsStoreNameValid] = useState(false)
   const [step, setStep] = useState(1)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    // Información personal
     fullName: '',
     email: '',
     phone: '',
     documentType: '',
     documentNumber: '',
-    // Información de la tienda
+
     storeName: '',
     description: '',
     location: '',
     category: '',
     policies: '',
     customDomain: '',
-    // Configuración de Wompi (para el widget)
+
     wompiConfig: {
       publicKey: '',
       signature: '',
@@ -51,50 +47,17 @@ export default function FirstStepsPage() {
   const [validationErrors, setValidationErrors] = useState<Record<string, any>>({})
   const [saving, setSaving] = useState(false)
   const { userData } = useAuthUser()
-  const { loading, error, createUserStore } = useUserStoreData()
+  const { loading, createUserStore } = useUserStoreData()
   const router = useRouter()
 
   const cognitoUsername =
     userData && userData['cognito:username'] ? userData['cognito:username'] : null
-
   const userSub = userData?.sub
-
-  const options = [
-    {
-      title: 'Una tienda online',
-      description: 'Crear un sitio web totalmente personalizable',
-      id: 'online-store',
-    },
-    {
-      title: 'En persona, tienda física',
-      description: 'Tiendas físicas',
-      id: 'physical-store',
-    },
-    {
-      title: 'En persona, en eventos',
-      description: 'Mercados, ferias y tiendas temporales',
-      id: 'events',
-    },
-    {
-      title: 'Un sitio web o blog existentes',
-      description: 'Agrega un botón de compras al sitio web',
-      id: 'existing-website',
-    },
-    {
-      title: 'Redes sociales',
-      description: 'Llega a los clientes a través de Facebook, Instagram, TikTok y mucho más.',
-      id: 'social-media',
-    },
-    {
-      title: 'Mercados online',
-      description: 'Publicar productos en Etsy, Amazon y otros',
-      id: 'online-marketplace',
-    },
-  ]
 
   const updateFormData = (data: Partial<typeof formData>) => {
     setFormData(prev => ({ ...prev, ...data }))
   }
+  const { options } = sellingOptions
 
   // Función para validar el paso actual
   const validateStep = (): boolean => {
@@ -133,7 +96,7 @@ export default function FirstStepsPage() {
 
       const storeInput = {
         userId: cognitoUsername,
-        storeId: `store_${userSub}_${uuidv4()}`,
+        storeId: `${userSub}_${uuidv4()}`,
         storeType: selectedOption || '',
         storeName: formData.storeName,
         storeDescription: formData.description,
@@ -153,7 +116,7 @@ export default function FirstStepsPage() {
       const result = await createUserStore(storeInput)
       if (result) {
         setTimeout(() => {
-          router.push('store/dashboard')
+         router.push(`/store/${storeInput.storeId}/dashboard`)
         }, 3000)
       } else {
         setSaving(false)

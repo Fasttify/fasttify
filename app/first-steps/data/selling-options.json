@@ -1,0 +1,34 @@
+{
+  "options": [
+    {
+      "title": "Una tienda online",
+      "description": "Crear un sitio web totalmente personalizable",
+      "id": "online-store"
+    },
+    {
+      "title": "En persona, tienda física",
+      "description": "Tiendas físicas",
+      "id": "physical-store"
+    },
+    {
+      "title": "En persona, en eventos",
+      "description": "Mercados, ferias y tiendas temporales",
+      "id": "events"
+    },
+    {
+      "title": "Un sitio web o blog existentes",
+      "description": "Agrega un botón de compras al sitio web",
+      "id": "existing-website"
+    },
+    {
+      "title": "Redes sociales",
+      "description": "Llega a los clientes a través de Facebook, Instagram, TikTok y mucho más.",
+      "id": "social-media"
+    },
+    {
+      "title": "Mercados online",
+      "description": "Publicar productos en Etsy, Amazon y otros",
+      "id": "online-marketplace"
+    }
+  ]
+}
