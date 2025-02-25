@@ -1,9 +1,22 @@
 'use client'
+
+import { useParams } from 'next/navigation'
+import { useEffect } from 'react'
 import { AppSidebar } from '@/app/store/components/sidebar/app-sidebar'
 import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { useStore } from '@/app/store/hooks/useStore'
 
 export default function DashboardPage() {
+  const params = useParams()
+  const { store } = useStore(params.slug as string)
+
+  useEffect(() => {
+    if (store?.storeName) {
+      document.title = `${store.storeName} • Fasttify`
+    }
+  }, [store?.storeName])
+
   return (
     <SidebarProvider>
       <AppSidebar />

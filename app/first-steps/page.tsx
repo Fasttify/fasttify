@@ -18,6 +18,7 @@ import {
 } from '@/lib/schemas/first-step'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
+import { routes } from '@/utils/routes'
 import sellingOptions from '@/app/first-steps/data/selling-options.json'
 
 export default function FirstStepsPage() {
@@ -51,7 +52,6 @@ export default function FirstStepsPage() {
 
   const cognitoUsername =
     userData && userData['cognito:username'] ? userData['cognito:username'] : null
-  const userSub = userData?.sub
 
   const updateFormData = (data: Partial<typeof formData>) => {
     setFormData(prev => ({ ...prev, ...data }))
@@ -95,7 +95,7 @@ export default function FirstStepsPage() {
 
       const storeInput = {
         userId: cognitoUsername,
-        storeId: `${userSub}_${uuidv4()}`,
+        storeId: `${uuidv4()}`,
         storeType: selectedOption || '',
         storeName: formData.storeName,
         storeDescription: formData.description,
@@ -115,7 +115,7 @@ export default function FirstStepsPage() {
       const result = await createUserStore(storeInput)
       if (result) {
         setTimeout(() => {
-          window.location.href = `/store/${storeInput.storeId}/dashboard`
+          window.location.href = routes.store.dashboard(result.storeId)
         }, 3000)
       } else {
         setSaving(false)

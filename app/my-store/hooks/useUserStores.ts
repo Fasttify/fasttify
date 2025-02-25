@@ -32,6 +32,7 @@ export const useUserStores = (userId: string | null) => {
             userId: { eq: userId },
             onboardingCompleted: { eq: true },
           },
+          selectionSet: ['storeId', 'storeName', 'storeType'],
         })
         setStores(userStores)
       } catch (err) {
