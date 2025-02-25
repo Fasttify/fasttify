@@ -1,7 +1,5 @@
 import { ChevronRight, type LucideIcon } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { useParams } from 'next/navigation'
-import { useStore } from '@/app/store/hooks/useStore'
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -13,9 +11,7 @@ import {
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
 
-export function NavMain({
-  items,
-}: {
+interface NavMainProps {
   items: {
     title: string
     url: string
@@ -26,14 +22,15 @@ export function NavMain({
       url: string
     }[]
   }[]
-}) {
-  const params = useParams()
-  const { store, loading } = useStore(params.slug as string)
+  storeName?: string
+  isLoading?: boolean
+}
 
+export function NavMain({ items, storeName, isLoading = false }: NavMainProps) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>
-        Mi tienda - {loading ? 'Cargando...' : store?.storeName || 'Sin nombre'}
+        Mi tienda - {isLoading ? 'Cargando...' : storeName || 'Sin nombre'}
       </SidebarGroupLabel>
       <SidebarMenu>
         {items.map(item => (

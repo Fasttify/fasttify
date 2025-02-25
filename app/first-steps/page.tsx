@@ -122,6 +122,33 @@ export default function FirstStepsPage() {
       }
     }
   }
+
+  const handleQuickSetup = async () => {
+    if (!cognitoUsername) return
+
+    setSaving(true)
+    const quickStoreId = uuidv4()
+
+    const quickStoreInput = {
+      userId: cognitoUsername,
+      storeId: quickStoreId,
+      storeName: `Tienda ${quickStoreId.slice(0, 4)}`,
+      storeType: 'quick-setup',
+      storeCurrency: 'COP',
+      onboardingCompleted: true,
+    }
+
+    const result = await createUserStore(quickStoreInput)
+
+    if (result) {
+      setTimeout(() => {
+        window.location.href = routes.store.dashboard(result.storeId)
+      }, 3000)
+    } else {
+      setSaving(false)
+    }
+  }
+
   const prevStep = () => {
     if (step > 1) setStep(prev => prev - 1)
   }
@@ -301,7 +328,11 @@ export default function FirstStepsPage() {
 
           <div className="mt-8 flex justify-between items-center">
             {step === 1 ? (
-              <button className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
+              <button
+                onClick={handleQuickSetup}
+                disabled={saving}
+                className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+              >
                 No necesito ayuda con la configuración →
               </button>
             ) : (

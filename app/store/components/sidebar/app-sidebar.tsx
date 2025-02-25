@@ -4,6 +4,8 @@ import { NavMain } from '@/app/store/components/sidebar/nav-main'
 import { NavUser } from '@/app/store/components/sidebar/nav-user'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/auth/useAuth'
+import { useParams } from 'next/navigation'
+import { useStore } from '@/app/store/hooks/useStore'
 import useUserStore from '@/zustand-states/userStore'
 
 const data = {
@@ -12,7 +14,7 @@ const data = {
       title: 'Dashboard',
       url: '/store/dashboard',
       icon: SquareTerminal,
-
+      isActive: true,
       items: [
         {
           title: 'Resumen',
@@ -95,11 +97,13 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useUserStore()
   const { loading } = useAuth()
+  const params = useParams()
+  const { store } = useStore(params.slug as string)
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} storeName={store?.storeName} isLoading={loading} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} loading={loading} />
