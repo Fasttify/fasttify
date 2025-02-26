@@ -9,6 +9,7 @@ import { FashionSlider } from './FashionSlider'
 import { Feature } from './Feature'
 import { Testimonials } from './Testimonials'
 import { MarqueeLogos } from './MarqueeLogos'
+import { LogoCarousell } from './LogoCarousell'
 
 export default function LandingPage() {
   return (
@@ -26,6 +27,7 @@ export default function LandingPage() {
         <DropshippingIntro />
         <MarqueeLogos />
       </div>
+      <LogoCarousell />
       <div id="multiplataforma">
         <Platform />
       </div>
