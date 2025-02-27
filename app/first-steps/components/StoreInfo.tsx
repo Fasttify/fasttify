@@ -48,20 +48,29 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
 }) => {
   const { checkStoreName, isChecking, exists } = useStoreNameValidator()
   const [isValid, setIsValid] = useState(false)
+  const [hasBeenValidated, setHasBeenValidated] = useState(false)
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (data.storeName) {
         checkStoreName(data.storeName)
+        setHasBeenValidated(true)
+      } else {
+        setHasBeenValidated(false)
       }
     }, 500)
 
-    return () => clearTimeout(timeoutId)
+    return () => {
+      clearTimeout(timeoutId)
+      if (data.storeName !== '' && hasBeenValidated) {
+        setHasBeenValidated(false)
+      }
+    }
   }, [data.storeName])
 
   useEffect(() => {
-    onValidationChange?.(!exists && !!data.storeName)
-  }, [exists, data.storeName, onValidationChange])
+    onValidationChange?.(!exists && !!data.storeName && hasBeenValidated)
+  }, [exists, data.storeName, hasBeenValidated, onValidationChange])
 
   useEffect(() => {
     const isFormValid =
@@ -70,7 +79,8 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
       !!data.description &&
       !!data.location &&
       !!data.category &&
-      !isChecking
+      !isChecking &&
+      hasBeenValidated
 
     setIsValid(isFormValid)
     onValidationChange?.(isFormValid)
@@ -81,6 +91,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
     data.location,
     data.category,
     isChecking,
+    hasBeenValidated,
     onValidationChange,
   ])
 
@@ -107,7 +118,10 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
             <Input
               id="storeName"
               value={data.storeName}
-              onChange={e => updateData({ storeName: e.target.value })}
+              onChange={e => {
+                updateData({ storeName: e.target.value })
+                setHasBeenValidated(false)
+              }}
               placeholder="Ej: Mi Tienda Genial"
               className={cn(
                 'pr-10',
@@ -118,9 +132,9 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
                 {isChecking ? (
                   <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
-                ) : exists ? null : (
+                ) : exists ? null : hasBeenValidated ? (
                   <Check className="h-4 w-4 text-green-500" />
-                )}
+                ) : null}
               </div>
             )}
           </div>
@@ -131,7 +145,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
               Este nombre ya está en uso. Por favor, elige otro nombre para tu tienda.
             </p>
           )}
-          {!isChecking && !exists && data.storeName && (
+          {!isChecking && !exists && data.storeName && hasBeenValidated && (
             <p className="text-green-600 text-sm">¡Este nombre está disponible!</p>
           )}
           {errors.storeName && (

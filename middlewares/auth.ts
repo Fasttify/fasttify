@@ -26,3 +26,13 @@ export async function handleAuthenticationMiddleware(request: NextRequest, respo
 
   return response
 }
+
+export async function handleAuthenticatedRedirect(request: NextRequest, response: NextResponse) {
+  const session = await getSession(request, response)
+
+  if (session) {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+
+  return response
+}
