@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
@@ -17,6 +19,8 @@ import { useForm } from 'react-hook-form'
 import { useToast } from '@/hooks/custom-toast/use-toast'
 import { Toast } from '@/components/ui/toasts'
 import type { z } from 'zod'
+import { OTPInput, type SlotProps } from 'input-otp'
+import { cn } from '@/lib/utils'
 
 interface ChangeEmailDialogProps {
   open: boolean
@@ -46,13 +50,14 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
     handleSubmit: handleSubmitVerification,
     formState: { errors: verificationErrors },
     reset: resetVerification,
+    setValue: setVerificationValue,
   } = useForm<VerificationFormData>({
     resolver: zodResolver(verificationCodeSchema),
   })
 
   const onSubmitEmail = async (data: EmailFormData) => {
     if (data.email.trim().toLowerCase() === currentEmail.trim().toLowerCase()) {
-      addToast('use client', 'error')
+      addToast('No puedes usar tu mismo correo actual', 'error')
       return
     }
     try {
@@ -157,9 +162,18 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
             </form>
           ) : (
             <form onSubmit={handleSubmitVerification(onSubmitVerification)} className="space-y-4">
-              <Input
-                placeholder="Código de verificación"
-                {...registerVerification('verificationCode')}
+              <OTPInput
+                maxLength={6}
+                containerClassName="flex items-center justify-center gap-2 has-[:disabled]:opacity-50"
+             
+                onChange={value => setVerificationValue('verificationCode', value)}
+                render={({ slots }) => (
+                  <div className="flex gap-2">
+                    {slots.map((slot, idx) => (
+                      <Slot key={idx} {...slot} />
+                    ))}
+                  </div>
+                )}
               />
               {verificationErrors.verificationCode && (
                 <p className="text-sm text-red-500">
@@ -188,5 +202,18 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
       </Dialog>
       <Toast toasts={toasts} removeToast={removeToast} />
     </>
+  )
+}
+
+function Slot(props: SlotProps) {
+  return (
+    <div
+      className={cn(
+        'flex size-9 items-center justify-center rounded-lg border border-input bg-background font-medium text-foreground shadow-sm shadow-black/5 transition-shadow',
+        { 'z-10 border border-ring ring-[3px] ring-ring/20': props.isActive }
+      )}
+    >
+      {props.char !== null && <div>{props.char}</div>}
+    </div>
   )
 }

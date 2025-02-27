@@ -16,8 +16,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { verificationSchema, type VerificationFormData } from '@/lib/schemas/schemas'
+import { OTPInput, type SlotProps } from 'input-otp'
+import { cn } from '@/lib/utils'
 
 interface VerificationFormProps {
   email: string
@@ -97,7 +98,20 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
             <FormItem>
               <FormLabel>Código de verificación</FormLabel>
               <FormControl>
-                <Input placeholder="Ingresa el código" {...field} />
+                <OTPInput
+                  maxLength={6}
+                  containerClassName="flex items-center gap-2 has-[:disabled]:opacity-50"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  render={({ slots }) => (
+                    <div className="flex gap-2">
+                      {slots.map((slot, idx) => (
+                        <Slot key={idx} {...slot} />
+                      ))}
+                    </div>
+                  )}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -111,10 +125,10 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
         >
           {isSubmitted ? (
             <>
-              <Loader2 className="animate-spin" /> Verificado codigo
+              <Loader2 className="animate-spin mr-2" /> Verificando código
             </>
           ) : (
-            'Verificar codigo'
+            'Verificar código'
           )}
         </Button>
 
@@ -123,5 +137,18 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
         </Button>
       </form>
     </Form>
+  )
+}
+
+function Slot(props: SlotProps) {
+  return (
+    <div
+      className={cn(
+        'flex size-9 items-center justify-center rounded-lg border border-input bg-background font-medium text-foreground shadow-sm shadow-black/5 transition-shadow',
+        { 'z-10 border border-ring ring-[3px] ring-ring/20': props.isActive }
+      )}
+    >
+      {props.char !== null && <div>{props.char}</div>}
+    </div>
   )
 }
