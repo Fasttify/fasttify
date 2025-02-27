@@ -138,7 +138,7 @@ export function CancellationDialog({
                 <Button
                   onClick={() => {
                     handleClose()
-                    router.push('/account-settings')
+                    router.push('/my-store')
                   }}
                 >
                   Volver a mi cuenta

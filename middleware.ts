@@ -1,31 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { handleAuthenticationMiddleware, handleAuthenticatedRedirect } from './middlewares/auth'
+import { handleAuthenticationMiddleware } from './middlewares/auth'
 import { handleSubscriptionMiddleware } from './middlewares/subscription'
 import { handleStoreMiddleware } from './middlewares/store'
+import { handleStoreAccessMiddleware } from './middlewares/storeAccess'
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
   const path = request.nextUrl.pathname
 
-  if (path === '/login') {
-    return handleAuthenticatedRedirect(request, response)
+  // Proteger todas las rutas de tienda (debe ir primero para mayor prioridad)
+  if (path.match(/^\/store\/[^\/]+/)) {
+    return handleStoreAccessMiddleware(request)
   }
 
   if (path === '/subscription-success') {
-    return handleSubscriptionMiddleware(request, response)
+    return handleSubscriptionMiddleware(request, NextResponse.next())
   }
 
   if (path === '/account-settings') {
-    return handleAuthenticationMiddleware(request, response)
+    return handleAuthenticationMiddleware(request, NextResponse.next())
   }
 
   if (['/first-steps', '/my-store'].includes(path)) {
-    return handleStoreMiddleware(request, response)
+    return handleStoreMiddleware(request, NextResponse.next())
   }
 
-  return response
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/login', '/subscription-success', '/account-settings', '/first-steps', '/my-store'],
+  matcher: [
+    '/subscription-success',
+    '/account-settings',
+    '/first-steps',
+    '/my-store',
+    '/store/:path*',
+  ],
 }
