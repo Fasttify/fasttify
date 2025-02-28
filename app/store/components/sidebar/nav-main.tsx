@@ -29,8 +29,8 @@ interface NavMainProps {
 export function NavMain({ items, storeName, isLoading = false }: NavMainProps) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>
-        Mi tienda - {isLoading ? 'Cargando...' : storeName || 'Sin nombre'}
+      <SidebarGroupLabel className='font-medium text-gray-800'>
+        Mi tienda - {isLoading ? 'Cargando...' : storeName}
       </SidebarGroupLabel>
       <SidebarMenu>
         {items.map(item => (
