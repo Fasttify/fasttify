@@ -124,7 +124,7 @@ export function EcommerceSetup() {
                     </AccordionTrigger>
                   </div>
 
-                  <AccordionContent className="px-9 pb-3 pt-1 bg-gray-50">
+                  <AccordionContent className="px-9 pb-3 pt-1 ">
                     <div className="flex flex-col md:flex-row md:items-start gap-3">
                       <div className="flex-1">
                         <p className="text-gray-600 text-xs">
@@ -168,12 +168,12 @@ export function EcommerceSetup() {
                       </div>
 
                       {task.imageUrl && (
-                        <div className="hidden md:block">
-                          <div className="bg-white p-1 rounded-md border border-gray-200 w-[80px] h-[60px]">
+                        <div className="hidden md:block -mt-2">
+                          <div className="bg-white p-1 rounded-md border border-gray-200 w-[100px] h-[75px] overflow-hidden">
                             <Image
-                              src={task.imageUrl || '/placeholder.svg'}
-                              width={80}
-                              height={60}
+                              src={task.imageUrl}
+                              width={100}
+                              height={75}
                               alt={`Ilustración para ${task.title}`}
                               className="object-cover w-full h-full rounded"
                             />
