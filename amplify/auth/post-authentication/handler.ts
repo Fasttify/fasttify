@@ -7,7 +7,6 @@ import {
 const client = new CognitoIdentityProviderClient()
 
 export const handler: PostAuthenticationTriggerHandler = async event => {
-
   // Solo proceder si es un inicio de sesión con Google
   const identitiesAttr = event.request.userAttributes['identities']
   if (!identitiesAttr) {
@@ -43,35 +42,6 @@ export const handler: PostAuthenticationTriggerHandler = async event => {
     } catch (error) {
       console.error('Error al verificar el email del usuario:', error)
     }
-  }
-
-  // Verificar si el usuario ya tiene un plan asignado
-  if (event.request.userAttributes['custom:plan']) {
-    console.log('El usuario ya tiene un plan asignado. Terminando ejecución.')
-    return event
-  }
-
-  // Asignar plan 'free'
-  try {
-    console.log("Asignando plan 'free' al usuario...")
-    const command = new AdminUpdateUserAttributesCommand({
-      UserPoolId: event.userPoolId,
-      Username: event.userName,
-      UserAttributes: [
-        {
-          Name: 'custom:plan',
-          Value: 'free',
-        },
-      ],
-    })
-
-    await client.send(command)
-
-    // Agregar el atributo al evento
-    event.request.userAttributes['custom:plan'] = 'free'
-    console.log("Plan 'free' asignado exitosamente.")
-  } catch (error) {
-    console.error('Error actualizando atributos del usuario:', error)
   }
 
   return event

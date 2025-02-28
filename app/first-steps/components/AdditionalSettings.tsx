@@ -63,7 +63,7 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
           <DialogTrigger asChild>
             <Button
               variant="outline"
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm md:text-base break-words text-wrap max-w-full"
             >
               <HelpCircle className="h-4 w-4" />
               ¿No sabes cómo obtener estos datos?

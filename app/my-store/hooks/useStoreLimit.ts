@@ -27,6 +27,7 @@ export function useStoreLimit(userId: string | null, userPlan: string | undefine
         const { data: stores } = await client.models.UserStore.list({
           authMode: 'userPool',
           filter: { userId: { eq: userId } },
+          selectionSet: ['storeId'],
         })
 
         const currentCount = stores?.length || 0

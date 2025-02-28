@@ -1,4 +1,4 @@
-import { CreditCard, User } from 'lucide-react'
+import { CreditCard, User, MonitorSmartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 
@@ -39,6 +39,18 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
             >
               <CreditCard className="h-4 w-4" />
               Pagos
+            </button>
+            <button
+              onClick={() => onViewChange('sesiones')}
+              className={cn(
+                buttonVariants({
+                  variant: currentView === 'sesiones' ? 'outline' : 'ghost',
+                }),
+                'justify-start gap-2 w-full'
+              )}
+            >
+              <MonitorSmartphone className="h-4 w-4" />
+              Dispositivos
             </button>
           </nav>
         </div>

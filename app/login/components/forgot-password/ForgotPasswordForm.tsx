@@ -21,6 +21,8 @@ import {
   type ForgotPasswordFormData,
   type ConfirmResetPasswordFormData,
 } from '@/lib/schemas/schemas'
+import { OTPInput, type SlotProps } from 'input-otp'
+import { cn } from '@/lib/utils'
 
 interface ForgotPasswordFormProps {
   onBack: () => void
@@ -36,7 +38,7 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
   const [deliveryMethod, setDeliveryMethod] = useState<string>('')
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [timer, setTimer] = useState(0) // Estado para el temporizador
+  const [timer, setTimer] = useState(0)
 
   const resetForm = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -54,7 +56,6 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
     },
   })
 
-  // Efecto para manejar el temporizador
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => {
@@ -76,7 +77,7 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
         setEmail(data.email)
         setDeliveryMethod(nextStep.codeDeliveryDetails.deliveryMedium || '')
         setCurrentStep('CONFIRM_CODE')
-        setTimer(60) // Iniciar el temporizador con 60 segundos
+        setTimer(60)
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -154,7 +155,7 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
       <Form {...confirmForm}>
         <form onSubmit={confirmForm.handleSubmit(handleConfirmReset)} className="space-y-4">
           {error && <div className="p-3 text-sm text-red-500 bg-red-50 rounded-md">{error}</div>}
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-600">
             Se ha enviado un código de verificación a través de {deliveryMethod.toLowerCase()}
           </p>
           <FormField
@@ -164,7 +165,20 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
               <FormItem>
                 <FormLabel>Código de verificación</FormLabel>
                 <FormControl>
-                  <Input placeholder="123456" {...field} />
+                  <OTPInput
+                    maxLength={6}
+                    containerClassName="flex items-center gap-2 has-[:disabled]:opacity-50"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    render={({ slots }) => (
+                      <div className="flex gap-2">
+                        {slots.map((slot, idx) => (
+                          <Slot key={idx} {...slot} />
+                        ))}
+                      </div>
+                    )}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -285,5 +299,18 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
         </Button>
       </form>
     </Form>
+  )
+}
+
+function Slot(props: SlotProps) {
+  return (
+    <div
+      className={cn(
+        'flex size-9 items-center justify-center rounded-lg border border-input bg-background font-medium text-foreground shadow-sm shadow-black/5 transition-shadow',
+        { 'z-10 border border-ring ring-[3px] ring-ring/20': props.isActive }
+      )}
+    >
+      {props.char !== null && <div>{props.char}</div>}
+    </div>
   )
 }

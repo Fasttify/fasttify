@@ -18,11 +18,12 @@ import {
 } from '@/lib/schemas/first-step'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
-import { useRouter } from 'next/navigation'
+import { routes } from '@/utils/routes'
 import sellingOptions from '@/app/first-steps/data/selling-options.json'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)
+  const [isStepValid, setIsStepValid] = useState(false)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     fullName: '',
@@ -48,11 +49,9 @@ export default function FirstStepsPage() {
   const [saving, setSaving] = useState(false)
   const { userData } = useAuthUser()
   const { loading, createUserStore } = useUserStoreData()
-  const router = useRouter()
 
   const cognitoUsername =
     userData && userData['cognito:username'] ? userData['cognito:username'] : null
-  const userSub = userData?.sub
 
   const updateFormData = (data: Partial<typeof formData>) => {
     setFormData(prev => ({ ...prev, ...data }))
@@ -96,7 +95,7 @@ export default function FirstStepsPage() {
 
       const storeInput = {
         userId: cognitoUsername,
-        storeId: `${userSub}_${uuidv4()}`,
+        storeId: `${uuidv4()}`,
         storeType: selectedOption || '',
         storeName: formData.storeName,
         storeDescription: formData.description,
@@ -116,13 +115,40 @@ export default function FirstStepsPage() {
       const result = await createUserStore(storeInput)
       if (result) {
         setTimeout(() => {
-         router.push(`/store/${storeInput.storeId}/dashboard`)
+          window.location.href = routes.store.dashboard(result.storeId)
         }, 3000)
       } else {
         setSaving(false)
       }
     }
   }
+
+  const handleQuickSetup = async () => {
+    if (!cognitoUsername) return
+
+    setSaving(true)
+    const quickStoreId = uuidv4()
+
+    const quickStoreInput = {
+      userId: cognitoUsername,
+      storeId: quickStoreId,
+      storeName: `Tienda ${quickStoreId.slice(0, 4)}`,
+      storeType: 'quick-setup',
+      storeCurrency: 'COP',
+      onboardingCompleted: true,
+    }
+
+    const result = await createUserStore(quickStoreInput)
+
+    if (result) {
+      setTimeout(() => {
+        window.location.href = routes.store.dashboard(result.storeId)
+      }, 3000)
+    } else {
+      setSaving(false)
+    }
+  }
+
   const prevStep = () => {
     if (step > 1) setStep(prev => prev - 1)
   }
@@ -145,6 +171,10 @@ export default function FirstStepsPage() {
         />
       </div>
     )
+  }
+
+  const handleStepValidation = (isValid: boolean) => {
+    setIsStepValid(isValid)
   }
 
   const renderStep = () => {
@@ -215,7 +245,12 @@ export default function FirstStepsPage() {
       case 3:
         return (
           <StepWrapper key="step3">
-            <StoreInfo data={formData} updateData={updateFormData} errors={validationErrors} />
+            <StoreInfo
+              data={formData}
+              updateData={updateFormData}
+              errors={validationErrors}
+              onValidationChange={handleStepValidation}
+            />
           </StepWrapper>
         )
       case 4:
@@ -293,7 +328,11 @@ export default function FirstStepsPage() {
 
           <div className="mt-8 flex justify-between items-center">
             {step === 1 ? (
-              <button className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
+              <button
+                onClick={handleQuickSetup}
+                disabled={saving}
+                className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+              >
                 No necesito ayuda con la configuración →
               </button>
             ) : (
@@ -307,7 +346,7 @@ export default function FirstStepsPage() {
             <Button
               variant="ghost"
               onClick={nextStep}
-              disabled={(step === 1 && !selectedOption) || saving}
+              disabled={(step === 1 && !selectedOption) || (step === 3 && !isStepValid) || saving}
               className="px-0 py-2 rounded-lg flex items-center space-x-2"
             >
               <span>{step === 4 ? (saving ? 'Guardando...' : 'Finalizar') : 'Siguiente'}</span>

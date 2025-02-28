@@ -11,9 +11,7 @@ import {
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
 
-export function NavMain({
-  items,
-}: {
+interface NavMainProps {
   items: {
     title: string
     url: string
@@ -24,10 +22,16 @@ export function NavMain({
       url: string
     }[]
   }[]
-}) {
+  storeName?: string
+  isLoading?: boolean
+}
+
+export function NavMain({ items, storeName, isLoading = false }: NavMainProps) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Mi tienda -</SidebarGroupLabel>
+      <SidebarGroupLabel>
+        Mi tienda - {isLoading ? 'Cargando...' : storeName || 'Sin nombre'}
+      </SidebarGroupLabel>
       <SidebarMenu>
         {items.map(item => (
           <Collapsible

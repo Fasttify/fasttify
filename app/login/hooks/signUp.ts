@@ -12,7 +12,6 @@ export async function handleSignUp(email: string, password: string, nickName: st
         userAttributes: {
           email,
           nickname: nickName,
-          'custom:plan': 'free',
         },
       },
     })

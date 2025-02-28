@@ -7,6 +7,7 @@ import { useUserStores } from '@/app/my-store/hooks/useUserStores'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStoreLimit } from '@/app/my-store/hooks/useStoreLimit'
+import { routes } from '@/utils/routes'
 
 function getInitials(name: string) {
   return name
@@ -59,7 +60,7 @@ export function StoreSelector() {
               transition={{ delay: index * 0.1 }}
             >
               <Link
-                href={`/store/${store.storeId}/dashboard`}
+                href={routes.store.dashboard(store.storeId)}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <Avatar className="h-10 w-10">

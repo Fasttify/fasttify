@@ -16,6 +16,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import Link from 'next/link'
 
 interface User {
   picture?: string
@@ -28,10 +29,9 @@ interface User {
 interface NavUserProps {
   user: User | null
   loading: boolean
-  onSignOut: () => Promise<void>
 }
 
-export function NavUser({ user, loading, onSignOut }: NavUserProps) {
+export function NavUser({ user, loading }: NavUserProps) {
   const { isMobile } = useSidebar()
 
   if (loading) {
@@ -122,10 +122,12 @@ export function NavUser({ user, loading, onSignOut }: NavUserProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onSignOut}>
-              <LogOut />
-              Cerrar sesión
-            </DropdownMenuItem>
+            <Link href="/my-store">
+              <DropdownMenuItem>
+                <LogOut />
+                Cambiar de Tienda
+              </DropdownMenuItem>
+            </Link>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

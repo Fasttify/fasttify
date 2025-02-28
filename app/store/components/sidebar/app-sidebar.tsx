@@ -4,8 +4,8 @@ import { NavMain } from '@/app/store/components/sidebar/nav-main'
 import { NavUser } from '@/app/store/components/sidebar/nav-user'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/auth/useAuth'
-import { signOut } from 'aws-amplify/auth'
-import { useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import { useStore } from '@/app/store/hooks/useStore'
 import useUserStore from '@/zustand-states/userStore'
 
 const data = {
@@ -95,27 +95,18 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, clearUser } = useUserStore()
+  const { user } = useUserStore()
   const { loading } = useAuth()
-  const router = useRouter()
-
-  const handleSignOut = async () => {
-    try {
-      clearUser()
-      await signOut()
-      router.push('/login')
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error)
-    }
-  }
+  const params = useParams()
+  const { store } = useStore(params.slug as string)
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} storeName={store?.storeName} isLoading={loading} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} loading={loading} onSignOut={handleSignOut} />
+        <NavUser user={user} loading={loading} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

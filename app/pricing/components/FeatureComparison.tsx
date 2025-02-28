@@ -1,5 +1,3 @@
-'use client'
-
 import { Trophy, Store, Share2, BarChart3, AppWindowIcon as Apps } from 'lucide-react'
 import SpotlightCard from '@/components/ui/reactbits/SpotlightCard'
 import { Separator } from '@/components/ui/separator'
