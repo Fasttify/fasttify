@@ -5,7 +5,6 @@ import { webHookPlan } from '../functions/webHookPlan/resource'
 import { postConfirmation } from './post-confirmation/resource'
 import { planScheduler } from '../functions/planScheduler/resource'
 
-
 /**
  * Define and configure your auth resource
  * @see https://docs.amplify.aws/gen2/build-a-backend/auth

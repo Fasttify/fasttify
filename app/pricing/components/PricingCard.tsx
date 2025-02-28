@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
@@ -11,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/hooks/custom-toast/use-toast'
 import { Toast } from '@/components/ui/toasts'
 import { useAuth } from '@/hooks/auth/useAuth'
-import useUserStore from '@/zustand-states/userStore' 
+import useUserStore from '@/zustand-states/userStore'
 
 interface PricingCardProps {
   plan: {
