@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowRight, Store, User, Settings } from 'lucide-react'
+import { ArrowRight, Store, User, Settings, InfoIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { BackgroundGradientAnimation } from '@/app/first-steps/components/BackgroundGradientAnimation'
@@ -190,7 +190,26 @@ export default function FirstStepsPage() {
                 Configuraremos todo para que puedas empezar a vender sin complicaciones en los
                 canales que elijas.
               </p>
+
+              {/* New information box about quick setup */}
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <div className="flex items-start">
+                  <InfoIcon className="h-5 w-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <p className="text-sm text-blue-700">
+                    <span className="font-medium">¿Con prisa?</span> Puedes usar la opción de
+                    <button
+                      onClick={handleQuickSetup}
+                      className="mx-1 font-medium text-blue-600 underline hover:text-blue-800"
+                    >
+                      configuración rápida
+                    </button>
+                    para crear tu tienda al instante con un nombre temporal. No te preocupes, podrás
+                    personalizar todos los detalles más adelante.
+                  </p>
+                </div>
+              </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
               {options.map(option => (
                 <button

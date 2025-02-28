@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Info } from 'lucide-react'
+import { InfoIcon } from 'lucide-react'
 
 interface Data {
   fullName: string
@@ -29,18 +29,14 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Datos Personales</h2>
         <p className="text-gray-600 mb-4">Ingresa tu información básica para comenzar</p>
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <Info className="h-5 w-5 text-blue-400" aria-hidden="true" />
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-blue-700">
-                Recopilamos estos datos para asegurar que los pagos lleguen correctamente a tu
-                nombre. Tu información es esencial para procesar las transacciones de manera segura
-                y eficiente.
-              </p>
-            </div>
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <div className="flex items-start">
+            <InfoIcon className="h-5 w-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0" />
+            <p className="text-sm text-blue-700">
+              Recopilamos estos datos para asegurar que los pagos lleguen correctamente a tu nombre.
+              Tu información es esencial para procesar las transacciones de manera segura y
+              eficiente.
+            </p>
           </div>
         </div>
       </div>

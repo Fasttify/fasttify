@@ -98,8 +98,8 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     try {
-      clearUser()
       await signOut()
+      clearUser()
       router.push('/login')
     } catch (error) {
       console.error('Error al cerrar sesión:', error)
