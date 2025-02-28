@@ -5,6 +5,7 @@ import { webHookPlan } from '../functions/webHookPlan/resource'
 import { postConfirmation } from './post-confirmation/resource'
 import { planScheduler } from '../functions/planScheduler/resource'
 
+
 /**
  * Define and configure your auth resource
  * @see https://docs.amplify.aws/gen2/build-a-backend/auth
@@ -71,5 +72,6 @@ export const auth = defineAuth({
     allow.resource(postAuthentication).to(['updateUserAttributes']),
     allow.resource(webHookPlan).to(['updateUserAttributes', 'getUser']),
     allow.resource(planScheduler).to(['updateUserAttributes', 'getUser']),
+    allow.resource(postConfirmation).to(['updateUserAttributes', 'getUser']),
   ],
 })

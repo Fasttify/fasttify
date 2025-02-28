@@ -8,6 +8,7 @@ import { cancelPlan } from './functions/cancelPlan/resource'
 import { planScheduler } from './functions/planScheduler/resource'
 import { planManagement } from './functions/planManagement/resource'
 import { checkStoreName } from './functions/checkStoreName/resource'
+import { postConfirmation } from './auth/post-confirmation/resource'
 import { Stack } from 'aws-cdk-lib'
 import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway'
 import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam'
@@ -25,7 +26,15 @@ const backend = defineBackend({
   planScheduler,
   planManagement,
   checkStoreName,
+  postConfirmation,
 })
+
+backend.postConfirmation.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+    resources: ['*'],
+  })
+)
 
 const apiStack = backend.createStack('api-stack')
 
