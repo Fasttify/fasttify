@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { generateClient } from 'aws-amplify/data'
-import type { Schema } from '../../../amplify/data/resource'
+import type { Schema } from '@/amplify/data/resource'
 
 // Generamos el cliente a partir del schema definido en el backend
 const client = generateClient<Schema>()
