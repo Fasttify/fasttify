@@ -2,18 +2,30 @@ export const routes = {
   store: {
     dashboard: (storeId: string) => `/store/${storeId}/dashboard`,
     settings: (storeId: string) => `/store/${storeId}/settings`,
-    products: (storeId: string) => `/store/${storeId}/products`,
+    products: {
+      main: (storeId: string) => `/store/${storeId}/products`,
+      list: (storeId: string) => `/store/${storeId}/products/list`,
+      add: (storeId: string) => `/store/${storeId}/products/add`,
+      categories: (storeId: string) => `/store/${storeId}/products/categories`,
+    },
     orders: (storeId: string) => `/store/${storeId}/orders`,
     customers: (storeId: string) => `/store/${storeId}/customers`,
+
+    setup: {
+      main: (storeId: string) => `/store/${storeId}/setup`,
+      products: (storeId: string) => `/store/${storeId}/setup/products`,
+      design: (storeId: string) => `/store/${storeId}/setup/design`,
+      domain: (storeId: string) => `/store/${storeId}/setup/domain`,
+      shipping: (storeId: string) => `/store/${storeId}/setup/shipping`,
+      payments: (storeId: string) => `/store/${storeId}/setup/payments`,
+      testOrder: (storeId: string) => `/store/${storeId}/setup/test-order`,
+    },
   },
   account: {
     settings: '/account-settings',
-    billing: '/account-settings/billing',
   },
   auth: {
     login: '/login',
-    register: '/register',
-    forgotPassword: '/forgot-password',
   },
 } as const
 
