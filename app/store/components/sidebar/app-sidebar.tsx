@@ -48,10 +48,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: routes.store.products.list(storeId),
           },
           {
-            title: 'Agregar Producto',
-            url: routes.store.products.add(storeId),
-          },
-          {
             title: 'Categorías',
             url: routes.store.products.categories(storeId),
           },
