@@ -26,7 +26,7 @@ export function EcommerceSetup() {
   const completedTasksCount = tasks.filter(task => task.completed).length
 
   return (
-    <div className="p-3 max-w-5xl mx-auto bg-gray-100 min-h-screen">
+    <div className="p-3 max-w-5xl mx-auto bg-gray-100 ">
       {/* Header banner */}
       <div className="mb-3 rounded-lg bg-black p-2 text-white flex justify-between items-center">
         <div className="text-xs sm:text-sm">

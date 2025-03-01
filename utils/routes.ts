@@ -2,7 +2,12 @@ export const routes = {
   store: {
     dashboard: (storeId: string) => `/store/${storeId}/dashboard`,
     settings: (storeId: string) => `/store/${storeId}/settings`,
-    products: (storeId: string) => `/store/${storeId}/products`,
+    products: {
+      main: (storeId: string) => `/store/${storeId}/products`,
+      list: (storeId: string) => `/store/${storeId}/products/list`,
+      add: (storeId: string) => `/store/${storeId}/products/add`,
+      categories: (storeId: string) => `/store/${storeId}/products/categories`,
+    },
     orders: (storeId: string) => `/store/${storeId}/orders`,
     customers: (storeId: string) => `/store/${storeId}/customers`,
 

@@ -40,20 +40,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
       {
         title: 'Productos',
-        url: routes.store.products(storeId),
+        url: routes.store.products.main(storeId), // Add the main URL
         icon: ShoppingCart,
         items: [
           {
             title: 'Listado',
-            url: `${routes.store.products(storeId)}/list`,
+            url: routes.store.products.list(storeId),
           },
           {
             title: 'Agregar Producto',
-            url: `${routes.store.products(storeId)}/add`,
+            url: routes.store.products.add(storeId),
           },
           {
             title: 'Categorías',
-            url: `${routes.store.products(storeId)}/categories`,
+            url: routes.store.products.categories(storeId),
           },
         ],
       },
