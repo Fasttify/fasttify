@@ -6,7 +6,7 @@ import Image from 'next/image'
 
 export function ProductsPage() {
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="bg-gray-50 p-6">
       <h1 className="text-xl font-medium text-gray-800 mb-6">Productos</h1>
 
       <Card className="border rounded-lg shadow-sm overflow-hidden">

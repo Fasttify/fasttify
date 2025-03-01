@@ -5,7 +5,7 @@ import { ArrowRight, Store, User, Settings, InfoIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { BackgroundGradientAnimation } from '@/app/(without-navbar)/first-steps/components/BackgroundGradientAnimation'
-import { useUserStoreData } from '@/app/first-steps/hooks/useUserStoreData'
+import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
 import { MultiStepLoader } from '@/app/(without-navbar)/first-steps/components/MultiStepLoader'
 import Image from 'next/image'
 import PersonalInfo from '@/app/(without-navbar)/first-steps/components/PersonalInfo'
@@ -19,7 +19,7 @@ import {
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
 import { routes } from '@/utils/routes'
-import sellingOptions from '@/app/first-steps/data/selling-options.json'
+import sellingOptions from '@/app/(without-navbar)/first-steps/data/selling-options.json'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)
