@@ -25,10 +25,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         isActive: true,
         items: [
           {
-            title: 'Resumen',
-            url: `${routes.store.dashboard.summary(storeId)}`,
-          },
-          {
             title: 'Estadísticas',
             url: `${routes.store.dashboard.statistics(storeId)}`,
           },
@@ -40,7 +36,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
       {
         title: 'Productos',
-        url: routes.store.products.main(storeId), 
+        url: routes.store.products.main(storeId),
         icon: ShoppingCart,
         items: [
           {
@@ -58,10 +54,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: routes.store.orders(storeId),
         icon: Box,
         items: [
-          {
-            title: 'Historial',
-            url: `${routes.store.orders(storeId)}/history`,
-          },
           {
             title: 'En Proceso',
             url: `${routes.store.orders(storeId)}/processing`,

@@ -4,7 +4,6 @@ export const routes = {
       main: (storeId: string) => `/store/${storeId}/dashboard`,
       statistics: (storeId: string) => `/store/${storeId}/dashboard/statistics`,
       notification: (storeId: string) => `/store/${storeId}/dashboard/notification`,
-      summary: (storeId: string) => `/store/${storeId}/dashboard/summary`,
     },
     settings: (storeId: string) => `/store/${storeId}/settings`,
     products: {
