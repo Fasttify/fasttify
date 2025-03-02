@@ -16,6 +16,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { routes } from '@/utils/routes'
 import Link from 'next/link'
 
 interface User {
@@ -101,21 +102,21 @@ export function NavUser({ user, loading }: NavUserProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Actualizar plan
-              </DropdownMenuItem>
+              <Link href={routes.account.payments}>
+                <DropdownMenuItem>
+                  <Sparkles />
+                  Actualizar plan
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Cuenta
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Pagos
-              </DropdownMenuItem>
+              <Link href={routes.account.profile}>
+                <DropdownMenuItem>
+                  <BadgeCheck />
+                  Cuenta
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuItem>
                 <Bell />
                 Notificaciones

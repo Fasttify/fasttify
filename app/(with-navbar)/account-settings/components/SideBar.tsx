@@ -1,6 +1,8 @@
 import { CreditCard, User, MonitorSmartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
+import { routes } from '@/utils/routes'
 
 interface SidebarProps {
   currentView: string
@@ -8,6 +10,17 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentView, onViewChange }: SidebarProps) {
+  const router = useRouter()
+
+  const handleViewChange = (view: string): void => {
+    onViewChange(view)
+    let route = routes.account.settings
+    if (view === 'cuenta') route = routes.account.settings
+    if (view === 'pagos') route = routes.account.settings
+    if (view === 'sesiones') route = routes.account.settings
+
+    router.push(route)
+  }
   return (
     <div className="border-r bg-gray-100/40 lg:block">
       <div className="flex h-full flex-col gap-2">
