@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useRef } from 'react'
 import { Camera } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -38,8 +36,13 @@ export function UserAvatar({ imageUrl, fallback, className }: UserAvatarProps) {
 
   return (
     <div className="relative inline-block">
-      <Avatar className={cn('h-20 w-20 border-4 border-white shadow-lg', className)}>
-        <AvatarImage src={previewUrl || imageUrl} alt="Profile picture" />
+      <Avatar
+        className={cn(
+          'relative overflow-hidden rounded-full flex items-center justify-center',
+          className
+        )}
+      >
+        <AvatarImage src={previewUrl || imageUrl} alt="Profile picture" className="object-cover" />
         <AvatarFallback>{fallback}</AvatarFallback>
       </Avatar>
 

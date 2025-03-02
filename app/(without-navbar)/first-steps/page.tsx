@@ -115,7 +115,7 @@ export default function FirstStepsPage() {
       const result = await createUserStore(storeInput)
       if (result) {
         setTimeout(() => {
-          window.location.href = routes.store.dashboard(result.storeId)
+          window.location.href = routes.store.dashboard.main(result.storeId)
         }, 3000)
       } else {
         setSaving(false)
@@ -142,7 +142,7 @@ export default function FirstStepsPage() {
 
     if (result) {
       setTimeout(() => {
-        window.location.href = routes.store.dashboard(result.storeId)
+        window.location.href = routes.store.dashboard.main(result.storeId)
       }, 3000)
     } else {
       setSaving(false)

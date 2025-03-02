@@ -60,7 +60,7 @@ export function StoreSelector() {
               transition={{ delay: index * 0.1 }}
             >
               <Link
-                href={routes.store.dashboard(store.storeId)}
+                href={routes.store.dashboard.main(store.storeId)}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <Avatar className="h-10 w-10">

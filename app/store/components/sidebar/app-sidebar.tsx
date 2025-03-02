@@ -20,31 +20,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     navMain: [
       {
         title: 'Dashboard',
-        url: routes.store.dashboard(storeId),
+        url: routes.store.dashboard.main(storeId),
         icon: SquareTerminal,
         isActive: true,
         items: [
           {
-            title: 'Resumen',
-            url: `${routes.store.dashboard(storeId)}/summary`,
-          },
-          {
             title: 'Estadísticas',
-            url: `${routes.store.dashboard(storeId)}/statistics`,
+            url: `${routes.store.dashboard.statistics(storeId)}`,
           },
           {
             title: 'Notificaciones',
-            url: `${routes.store.dashboard(storeId)}/notifications`,
+            url: `${routes.store.dashboard.notification(storeId)}`,
           },
         ],
       },
       {
         title: 'Productos',
-        url: routes.store.products.main(storeId), // Add the main URL
+        url: routes.store.products.main(storeId),
         icon: ShoppingCart,
         items: [
           {
-            title: 'Listado',
+            title: 'Inventario',
             url: routes.store.products.list(storeId),
           },
           {
@@ -58,10 +54,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: routes.store.orders(storeId),
         icon: Box,
         items: [
-          {
-            title: 'Historial',
-            url: `${routes.store.orders(storeId)}/history`,
-          },
           {
             title: 'En Proceso',
             url: `${routes.store.orders(storeId)}/processing`,
