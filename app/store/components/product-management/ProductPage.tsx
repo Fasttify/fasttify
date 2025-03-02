@@ -3,11 +3,10 @@ import { Card } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Plus, Search, Download, Grid3X3, List } from 'lucide-react'
 import { Icons } from '@/app/store/icons/index'
-import Image from 'next/image'
 
 export function ProductsPage() {
   return (
-    <div className="bg-gray-100 p-3 w-full md:w-5xl mx-auto">
+    <div className="bg-gray-100 ">
       <h1 className="text-xl md:text-xl font-medium text-gray-800 mb-6">Productos</h1>
 
       <Card className="border rounded-lg shadow-sm overflow-hidden">
@@ -67,7 +66,7 @@ export function ProductsPage() {
 
               <div className="flex justify-center">
                 <div className=" rounded-lg p-4 flex items-center justify-center h-40 w-40 md:h-48 md:w-48">
-                 <Icons.Products/>
+                  <Icons.Products />
                 </div>
               </div>
             </div>
