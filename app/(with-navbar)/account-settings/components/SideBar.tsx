@@ -14,13 +14,16 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
 
   const handleViewChange = (view: string): void => {
     onViewChange(view)
-    let route = routes.account.settings
-    if (view === 'cuenta') route = routes.account.settings
-    if (view === 'pagos') route = routes.account.settings
-    if (view === 'sesiones') route = routes.account.settings
 
-    router.push(route)
+    let routePath: string = routes.account.settings
+
+    if (view === 'cuenta') routePath = routes.account.profile as string
+    if (view === 'pagos') routePath = routes.account.payments as string
+    if (view === 'sesiones') routePath = routes.account.sessions as string
+
+    router.push(routePath)
   }
+
   return (
     <div className="border-r bg-gray-100/40 lg:block">
       <div className="flex h-full flex-col gap-2">
@@ -30,7 +33,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         <div className="flex-1 px-4">
           <nav className="grid items-start gap-2">
             <button
-              onClick={() => onViewChange('cuenta')}
+              onClick={() => handleViewChange('cuenta')}
               className={cn(
                 buttonVariants({
                   variant: currentView === 'cuenta' ? 'outline' : 'ghost',
@@ -42,7 +45,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
               Cuenta
             </button>
             <button
-              onClick={() => onViewChange('pagos')}
+              onClick={() => handleViewChange('pagos')}
               className={cn(
                 buttonVariants({
                   variant: currentView === 'pagos' ? 'outline' : 'ghost',
@@ -54,7 +57,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
               Pagos
             </button>
             <button
-              onClick={() => onViewChange('sesiones')}
+              onClick={() => handleViewChange('sesiones')}
               className={cn(
                 buttonVariants({
                   variant: currentView === 'sesiones' ? 'outline' : 'ghost',
@@ -63,7 +66,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
               )}
             >
               <MonitorSmartphone className="h-4 w-4" />
-              Dispositivos
+              Sesiones Activas
             </button>
           </nav>
         </div>
