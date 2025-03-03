@@ -70,24 +70,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: LayoutGrid,
         items: [
           {
-            title: 'Guía de Configuración',
-            url: routes.store.setup.main(storeId),
-          },
-          {
-            title: 'Productos',
-            url: routes.store.setup.products(storeId),
-          },
-          {
             title: 'Diseño',
             url: routes.store.setup.design(storeId),
           },
           {
             title: 'Dominio',
             url: routes.store.setup.domain(storeId),
-          },
-          {
-            title: 'Envíos',
-            url: routes.store.setup.shipping(storeId),
           },
           {
             title: 'Pagos',

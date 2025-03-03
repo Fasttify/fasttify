@@ -27,6 +27,9 @@ export const routes = {
   },
   account: {
     settings: '/account-settings',
+    profile: '/account-settings?section=cuenta',
+    payments: '/account-settings?section=pagos',
+    sessions: '/account-settings?section=sesiones',
   },
   auth: {
     login: '/login',

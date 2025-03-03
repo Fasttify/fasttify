@@ -3,10 +3,11 @@
 import { Sidebar } from '@/app/(with-navbar)/account-settings/components/SideBar'
 import { AccountSettings } from '@/app/(with-navbar)/account-settings/components/AccountSettings'
 import { PaymentSettings } from '@/app/(with-navbar)/account-settings/components/PaymentSettings'
-import { ActiveSessions } from '@/app/(with-navbar)/account-settings/components/ActiveSessions' 
+import { ActiveSessions } from '@/app/(with-navbar)/account-settings/components/ActiveSessions'
 import { useState, useEffect } from 'react'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
+import { useSearchParams } from 'next/navigation'
 
 Amplify.configure(outputs)
 const existingConfig = Amplify.getConfig()
@@ -19,7 +20,15 @@ Amplify.configure({
 })
 
 export default function AccountSettingsPage() {
-  const [currentView, setCurrentView] = useState('cuenta')
+  const searchParams = useSearchParams()
+  const sectionParam = searchParams.get('section')
+  const [currentView, setCurrentView] = useState(sectionParam || 'cuenta')
+
+  useEffect(() => {
+    if (sectionParam && ['cuenta', 'pagos', 'sesiones'].includes(sectionParam)) {
+      setCurrentView(sectionParam)
+    }
+  }, [sectionParam])
 
   useEffect(() => {
     document.title = 'Mi Perfil • Fasttify'
@@ -35,7 +44,6 @@ export default function AccountSettingsPage() {
           {currentView === 'sesiones' && <ActiveSessions />}
         </div>
       </div>
-  
     </div>
   )
 }
