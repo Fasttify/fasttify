@@ -1,13 +1,28 @@
-import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
+import { type ClientSchema, a, defineData, defineFunction } from '@aws-amplify/backend'
 import { postConfirmation } from '../auth/post-confirmation/resource'
 import { webHookPlan } from '../functions/webHookPlan/resource'
 import { cancelPlan } from '../functions/cancelPlan/resource'
 import { planScheduler } from '../functions/planScheduler/resource'
 import { checkStoreName } from '../functions/checkStoreName/resource'
 
+export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
+
+export const generateHaikuFunction = defineFunction({
+  entry: './generateHaiku.ts',
+  environment: {
+    MODEL_ID,
+  },
+})
 
 const schema = a
   .schema({
+    generateHaiku: a
+      .query()
+      .arguments({ prompt: a.string().required() })
+      .returns(a.string())
+      .authorization(allow => [allow.publicApiKey()])
+      .handler(a.handler.function(generateHaikuFunction)),
+
     UserProfile: a
       .model({
         email: a.string(),
