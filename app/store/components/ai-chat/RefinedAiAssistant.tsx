@@ -1,38 +1,29 @@
-'use client'
 import { useState, useRef, useEffect } from 'react'
-import { X, Send, Sparkles, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, Send, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll'
 import { MessageLoading } from '@/app/store/components/ai-chat/MessageLoading'
+import { TypingMessage } from '@/app/store/components/ai-chat/TypingMessage'
+import { useChat } from './hooks/useChat'
 import Orb from '@/app/store/components/ai-chat/Orb'
-
-interface Message {
-  id: string
-  content: string
-  type: 'user' | 'ai'
-  timestamp: Date
-}
 
 interface Suggestion {
   id: string
   text: string
 }
 
-// Character threshold for considering a message as "long"
 const LONG_MESSAGE_THRESHOLD = 280
-// Update the component definition to accept onClose prop
+
 export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
-  const [messages, setMessages] = useState<Message[]>([])
+  const { messages: chatMessages, loading, chat } = useChat()
   const [inputValue, setInputValue] = useState('')
   const [isOpen, setIsOpen] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
   const [expandedMessages, setExpandedMessages] = useState<Record<string, boolean>>({})
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  // Use the auto-scroll hook for better scroll management
   const { scrollRef, scrollToBottom } = useAutoScroll({
     smooth: true,
-    content: messages.length,
+    content: chatMessages.length,
   })
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -43,30 +34,23 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
   ]
 
   useEffect(() => {
-    if (!isLoading && messages.length > 0) {
+    if (!loading && chatMessages.length > 0) {
       setTimeout(scrollToBottom, 200)
     }
-  }, [isLoading, messages.length, scrollToBottom])
+  }, [loading, chatMessages.length, scrollToBottom])
 
-  // Scroll to bottom when messages change
   useEffect(() => {
-    if (messages.length > 0) {
+    if (chatMessages.length > 0) {
       setTimeout(scrollToBottom, 100)
     }
-  }, [messages, scrollToBottom])
+  }, [chatMessages, scrollToBottom])
 
-  // Auto-resize textarea based on content
   useEffect(() => {
     const textarea = textareaRef.current
     if (!textarea) return
 
-    // Reset height to auto to get the correct scrollHeight
     textarea.style.height = 'auto'
-
-    // Calculate the new height (with a min height of 44px)
-    const newHeight = Math.max(44, Math.min(textarea.scrollHeight, 96)) // max height of 96px (24 * 4)
-
-    // Set the new height
+    const newHeight = Math.max(44, Math.min(textarea.scrollHeight, 96))
     textarea.style.height = `${newHeight}px`
   }, [inputValue])
 
@@ -76,7 +60,6 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
       [messageId]: !prev[messageId],
     }))
 
-    // Allow time for the DOM to update before scrolling
     setTimeout(() => {
       if (scrollRef.current) {
         const messageElement = scrollRef.current.querySelector(`[data-message-id="${messageId}"]`)
@@ -93,54 +76,31 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
     e.preventDefault()
     if (!inputValue.trim()) return
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: inputValue,
-      type: 'user',
-      timestamp: new Date(),
-    }
-
-    setMessages(prev => [...prev, userMessage])
+    await chat(inputValue)
     setInputValue('')
-    setIsLoading(true)
-
     setTimeout(scrollToBottom, 100)
-
-    // Simulate AI response with potentially long content
-    setTimeout(() => {
-      const aiResponses = [
-        `Here's what I know about James regarding: ${inputValue}`,
-        `James has over 10 years of experience in software development, with a focus on frontend technologies. He's proficient in React, Angular, and Vue.js, and has led teams of up to 8 developers. His training style is hands-on, with a focus on practical exercises and real-world applications. He prefers to use a combination of pair programming and code reviews to help junior developers grow.`,
-        `Based on the information provided, James would be an excellent fit for your job post. His experience aligns well with the requirements you've outlined, and his collaborative approach to development would integrate well with your existing team structure. His background in agile methodologies and continuous integration practices would also be valuable for your project's development lifecycle.`,
-      ]
-
-      // Select a random response from the options
-      const responseIndex = Math.floor(Math.random() * aiResponses.length)
-
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: aiResponses[responseIndex],
-        type: 'ai',
-        timestamp: new Date(),
-      }
-      setMessages(prev => [...prev, aiMessage])
-      setIsLoading(false)
-      setTimeout(scrollToBottom, 200)
-    }, 1000)
   }
 
   const handleSuggestionClick = (suggestion: string) => {
     setInputValue(suggestion)
-    // Auto-submit the suggestion
     const event = new Event('submit', { cancelable: true }) as unknown as React.FormEvent
     handleSubmit(event)
   }
-  // Update the close button handler
+
   const handleClose = () => {
     setIsOpen(false)
     if (onClose) onClose()
   }
+
   if (!isOpen) return null
+
+  const transformedMessages = chatMessages.map((msg, index) => ({
+    id: index.toString(),
+    content: msg.content,
+    type: msg.role === 'user' ? 'user' : 'ai',
+    timestamp: new Date(),
+  }))
+
   return (
     <div
       className={cn(
@@ -153,7 +113,6 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
         'overflow-hidden animate-in fade-in duration-300'
       )}
     >
-      {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-sm border-b border-gray-100">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-emerald-500" />
@@ -167,21 +126,16 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
         </button>
       </div>
 
-      {/* Messages Area with ScrollArea */}
       <ScrollArea className="flex-1 h-0">
-        <div ref={scrollRef} className="px-4 ">
-          {messages.length === 0 ? (
+        <div ref={scrollRef} className="px-4">
+          {chatMessages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-20">
               <div className="mb-6 relative">
                 <Orb rotateOnHover={false} hoverIntensity={0.0} />
               </div>
-
-              {/* Pregunta inicial */}
               <p className="text-gray-500 text-center mb-6">
                 ¿Qué te gustaría saber sobre ecommerce o dropshipping?
               </p>
-
-              {/* Suggestions */}
               <div className="flex flex-col items-end gap-2 w-full">
                 {suggestions.map(suggestion => (
                   <button
@@ -196,68 +150,18 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
             </div>
           ) : (
             <div className="space-y-4 py-2">
-              {messages.map(message => {
-                const isLongMessage = message.content.length > LONG_MESSAGE_THRESHOLD
-                const expanded = isMessageExpanded(message.id)
-
-                return (
-                  <div
-                    key={message.id}
-                    data-message-id={message.id}
-                    className={cn(
-                      'flex group',
-                      message.type === 'user' ? 'justify-end' : 'justify-start'
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        'max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 shadow-sm',
-                        message.type === 'user'
-                          ? 'bg-emerald-500 text-white rounded-br-none'
-                          : 'bg-gray-100 text-gray-800 rounded-bl-none'
-                      )}
-                      style={{
-                        overflowWrap: 'break-word',
-                        wordBreak: 'break-word',
-                      }}
-                    >
-                      <div
-                        className={cn(
-                          'break-words whitespace-pre-wrap overflow-hidden',
-                          isLongMessage && !expanded && 'line-clamp-4'
-                        )}
-                      >
-                        {message.content}
-                      </div>
-
-                      {isLongMessage && (
-                        <button
-                          onClick={() => toggleMessageExpansion(message.id)}
-                          className={cn(
-                            'flex items-center gap-1 mt-1 text-xs font-medium',
-                            message.type === 'user'
-                              ? 'text-white/80 hover:text-white'
-                              : 'text-gray-500 hover:text-gray-700'
-                          )}
-                        >
-                          {expanded ? (
-                            <>
-                              <ChevronUp className="h-3 w-3" />
-                              <span>Show less</span>
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="h-3 w-3" />
-                              <span>Read more</span>
-                            </>
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-              {isLoading && (
+              {transformedMessages.map(message => (
+                <TypingMessage
+                  key={message.id}
+                  id={message.id}
+                  content={message.content}
+                  type={message.type as 'user' | 'ai'}
+                  longMessageThreshold={LONG_MESSAGE_THRESHOLD}
+                  isExpanded={isMessageExpanded(message.id)}
+                  onExpand={toggleMessageExpansion}
+                />
+              ))}
+              {loading && (
                 <div className="flex justify-start">
                   <MessageLoading />
                 </div>
@@ -285,7 +189,6 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
               }
             }}
           />
-
           <button
             type="submit"
             className={cn(
@@ -294,7 +197,7 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
               'w-8 h-8 flex items-center justify-center',
               inputValue.trim() && 'text-emerald-500'
             )}
-            disabled={!inputValue.trim() || isLoading}
+            disabled={!inputValue.trim() || loading}
           >
             <Send className="h-5 w-5" />
           </button>
