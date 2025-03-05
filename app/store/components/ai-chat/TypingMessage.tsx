@@ -35,7 +35,7 @@ export function TypingMessage({
         className={cn(
           'max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 shadow-sm',
           type === 'user'
-            ? 'bg-emerald-500 text-white rounded-br-none'
+            ? 'bg-gray-800 text-white rounded-br-none'
             : 'bg-gray-100 text-gray-800 rounded-bl-none'
         )}
         style={{
@@ -73,12 +73,12 @@ export function TypingMessage({
             {isExpanded ? (
               <>
                 <ChevronUp className="h-3 w-3" />
-                <span>Show less</span>
+                <span>Mostrar menos</span>
               </>
             ) : (
               <>
                 <ChevronDown className="h-3 w-3" />
-                <span>Read more</span>
+                <span>Mostrar más</span>
               </>
             )}
           </button>

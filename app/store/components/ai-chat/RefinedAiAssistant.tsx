@@ -113,13 +113,13 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
         'overflow-hidden animate-in fade-in duration-300'
       )}
     >
-      <div className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-sm border-b border-gray-100">
+      <div className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-sm border-b border-gray-200">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-emerald-500" />
           <h2 className="font-medium text-gray-800">IA Asistente</h2>
         </div>
         <button
-          className="text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-gray-500 hover:text-gray-600 transition-colors"
           onClick={handleClose}
         >
           <X className="h-5 w-5" />
@@ -133,7 +133,7 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
               <div className="mb-6 relative">
                 <Orb rotateOnHover={false} hoverIntensity={0.0} />
               </div>
-              <p className="text-gray-500 text-center mb-6">
+              <p className="text-gray-600 text-center mb-6">
                 ¿Qué te gustaría saber sobre ecommerce o dropshipping?
               </p>
               <div className="flex flex-col items-end gap-2 w-full">
