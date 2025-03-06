@@ -1,5 +1,6 @@
 'use client'
 
+import { ChatWidget } from '@/app/store/components/ai-chat/ChatWidget'
 import { AppSidebar } from '@/app/store/components/sidebar/app-sidebar'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
@@ -27,7 +28,10 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
             <Separator orientation="vertical" className="mr-2 h-4" />
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gray-100">{children}</main>
+        <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gray-100">
+          {children}
+          <ChatWidget />
+        </main>
       </SidebarInset>
     </SidebarProvider>
   )

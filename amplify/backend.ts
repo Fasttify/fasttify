@@ -1,6 +1,5 @@
 import { defineBackend } from '@aws-amplify/backend'
 import { auth } from './auth/resource'
-import { data } from './data/resource'
 import { storage } from './storage/resource'
 import { createSubscription } from './functions/createSubscription/resource'
 import { webHookPlan } from './functions/webHookPlan/resource'
@@ -9,9 +8,10 @@ import { planScheduler } from './functions/planScheduler/resource'
 import { planManagement } from './functions/planManagement/resource'
 import { checkStoreName } from './functions/checkStoreName/resource'
 import { postConfirmation } from './auth/post-confirmation/resource'
+import { data, MODEL_ID, generateHaikuFunction } from './data/resource'
 import { Stack } from 'aws-cdk-lib'
 import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway'
-import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam'
+import { Policy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam'
 
 /**
  * Definición del backend con sus respectivos recursos.
@@ -27,7 +27,27 @@ const backend = defineBackend({
   planManagement,
   checkStoreName,
   postConfirmation,
+  generateHaikuFunction,
 })
+
+backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: [
+      'bedrock:InvokeModel',
+      'bedrock:InvokeModelWithResponseStream',
+      'bedrock:CreateInferenceProfile',
+      'bedrock:GetInferenceProfile',
+      'bedrock:ListInferenceProfiles',
+    ],
+    resources: [
+      'arn:aws:bedrock:*::foundation-model/*',
+      'arn:aws:bedrock:*:*:inference-profile/*',
+      'arn:aws:bedrock:*:*:application-inference-profile/*',
+    ],
+  })
+)
+
 
 backend.postConfirmation.resources.lambda.addToRolePolicy(
   new PolicyStatement({

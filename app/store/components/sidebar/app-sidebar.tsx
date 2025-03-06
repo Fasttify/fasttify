@@ -70,10 +70,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: LayoutGrid,
         items: [
           {
-            title: 'Diseño',
-            url: routes.store.setup.design(storeId),
-          },
-          {
             title: 'Dominio',
             url: routes.store.setup.domain(storeId),
           },
