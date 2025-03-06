@@ -1,17 +1,38 @@
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { ImagesSlider } from '@/components/ui/images-slider'
 import Link from 'next/link'
 import RotatingText from '@/components/ui/reactbits/RotatingText'
+import { useRef, useState } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Parallax, Autoplay, EffectFade } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/parallax'
+import 'swiper/css/effect-fade'
+import type { Swiper as SwiperType } from 'swiper'
 
-const images = [
-  'https://images.unsplash.com/photo-1522199755839-a2bacb67c546?q=80&w=2072&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1726066012751-2adfb5485977?q=80&w=2070&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1728044849321-4cbffc50cc1d?q=80&w=2070&auto=format&fit=crop',
+const slides = [
+  {
+    bgColor: '#9FA051',
+    image:
+      'https://images.unsplash.com/photo-1522199755839-a2bacb67c546?q=80&w=2072&auto=format&fit=crop',
+  },
+  {
+    bgColor: '#9B89C5',
+    image:
+      'https://images.unsplash.com/photo-1726066012751-2adfb5485977?q=80&w=2070&auto=format&fit=crop',
+  },
+  {
+    bgColor: '#D7A594',
+    image:
+      'https://images.unsplash.com/photo-1728044849321-4cbffc50cc1d?q=80&w=2070&auto=format&fit=crop',
+  },
 ]
 
 export function FirstView() {
+  const swiperRef = useRef<SwiperType>()
+  const [activeIndex, setActiveIndex] = useState(0)
+
   return (
     <motion.div
       initial={{ opacity: 0.0, y: 40 }}
@@ -26,6 +47,7 @@ export function FirstView() {
         <div className="container mx-auto px-4 pt-12 pb-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative z-10 space-y-8">
+              {/* Left content remains unchanged */}
               <div className="inline-block bg-primary/10 px-4 py-2 rounded-full">
                 <span className="text-primary font-medium tracking-wider text-sm">
                   La mejor plataforma para tu tienda online
@@ -98,37 +120,45 @@ export function FirstView() {
               </div>
             </div>
 
+            {/* Replace ImagesSlider with simplified FashionSlider */}
             <div className="relative">
               <div className="relative aspect-square max-w-full mx-auto">
-                <ImagesSlider className="h-[40rem]" images={images} direction="up" autoplay={true}>
-                  <motion.div
-                    initial={{
-                      opacity: 0,
-                      y: -80,
+                <div className="h-[40rem] rounded-2xl overflow-hidden">
+                  <Swiper
+                    modules={[Parallax, Autoplay, EffectFade]}
+                    onSwiper={swiper => (swiperRef.current = swiper)}
+                    speed={1300}
+                    allowTouchMove={false}
+                    parallax={true}
+                    effect="fade"
+                    autoplay={{
+                      delay: 5000,
+                      disableOnInteraction: false,
                     }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                    }}
-                    transition={{
-                      duration: 0.6,
-                    }}
-                    className="z-50 flex flex-col justify-center items-center"
-                  ></motion.div>
-                </ImagesSlider>
+                    onSlideChange={swiper => setActiveIndex(swiper.activeIndex)}
+                    className="w-full h-full transition-colors duration-1000"
+                    style={{ backgroundColor: slides[activeIndex].bgColor }}
+                  >
+                    {slides.map((slide, index) => (
+                      <SwiperSlide key={index} className="relative w-full h-full">
+                        <div className="fashion-slider-scale absolute w-full h-full overflow-hidden">
+                          <motion.img
+                            initial={{ scale: 1.2 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 10, ease: 'easeOut' }}
+                            src={slide.image}
+                            alt="Fasttify showcase"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
               </div>
 
               {/* Decorative elements */}
-              <div className="absolute top-1/4 -right-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-              <div className="absolute bottom-1/4 -left-1/4 w-72 h-72 bg-secondary/30 rounded-full blur-3xl" />
-
-              {/* Product badges */}
-              <div className="absolute top-8 right-8 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
-                <span className="text-primary font-medium">Sin comisión por ventas</span>
-              </div>
-              <div className="absolute bottom-8 left-8 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
-                <span className="text-primary font-medium">Integración con Mercado Pago</span>
-              </div>
+                      
             </div>
           </div>
         </div>

@@ -1,12 +1,12 @@
-import { useRef, useEffect, useState } from 'react'
+'use client'
+
+import { useRef, useState } from 'react'
 import type { Swiper as SwiperType } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Parallax, Autoplay, EffectFade } from 'swiper/modules'
+import { Parallax, Autoplay } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/parallax'
-import 'swiper/css/effect-fade'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Slide {
   bgColor: string
@@ -25,6 +25,8 @@ const slides: Slide[] = [
       'Con Fasttify, lanza tu negocio online sin complicaciones. Personaliza tu tienda y comienza a vender de inmediato. Todo en una sola plataforma para que no pierdas tiempo.',
     image:
       'https://images.unsplash.com/photo-1738676524296-364cf18900a8?q=80&w=2030&auto=format&fit=crop',
+    ctaText: 'Comenzar ahora',
+    ctaLink: '#comenzar',
   },
   {
     bgColor: '#9B89C5',
@@ -33,6 +35,8 @@ const slides: Slide[] = [
       'Accede a una red de proveedores listos para enviar tus productos. Tú te enfocas en vender, ellos en la logística. Así, disfrutas de soporte y eficiencia en cada paso.',
     image:
       'https://images.unsplash.com/photo-1737991864069-508dd72239fc?q=80&w=1974&auto=format&fit=crop',
+    ctaText: 'Explorar proveedores',
+    ctaLink: '#proveedores',
   },
   {
     bgColor: '#D7A594',
@@ -41,113 +45,109 @@ const slides: Slide[] = [
       'Fasttify integra Mercado Pago y PayU para que tus clientes compren con confianza y tú recibas tus pagos sin problemas. La seguridad es nuestra prioridad.',
     image:
       'https://images.unsplash.com/photo-1738707060473-a23914a02d8a?q=80&w=1974&auto=format&fit=crop',
+    ctaText: 'Ver métodos de pago',
+    ctaLink: '#pagos',
   },
 ]
 
 export function FashionSlider() {
   const swiperRef = useRef<SwiperType>()
-  const [navigationLocked, setNavigationLocked] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isAutoplay, setIsAutoplay] = useState(true)
-
-  useEffect(() => {
-    const swiper = swiperRef.current
-    if (!swiper) return
-
-    const handleTransitionStart = () => {
-      setNavigationLocked(true)
-    }
-
-    const handleTransitionEnd = () => {
-      setNavigationLocked(false)
-    }
-
-    swiper.on('transitionStart', handleTransitionStart)
-    swiper.on('transitionEnd', handleTransitionEnd)
-
-    return () => {
-      swiper.off('transitionStart', handleTransitionStart)
-      swiper.off('transitionEnd', handleTransitionEnd)
-    }
-  }, [])
-
-  const handlePrev = () => {
-    if (!navigationLocked && swiperRef.current) {
-      swiperRef.current.slidePrev()
-    }
-  }
-
-  const handleNext = () => {
-    if (!navigationLocked && swiperRef.current) {
-      swiperRef.current.slideNext()
-    }
-  }
-
-  const toggleAutoplay = () => {
-    if (swiperRef.current) {
-      if (isAutoplay) {
-        swiperRef.current.autoplay.stop()
-      } else {
-        swiperRef.current.autoplay.start()
-      }
-      setIsAutoplay(!isAutoplay)
-    }
-  }
 
   return (
     <div className="fashion-slider w-full h-screen font-sans relative overflow-hidden">
       <Swiper
-        modules={[Parallax, Autoplay, EffectFade]}
+        modules={[Parallax, Autoplay]}
         onSwiper={swiper => (swiperRef.current = swiper)}
         speed={1300}
-        allowTouchMove={false}
+        allowTouchMove={true}
         parallax={true}
-        effect="fade"
         autoplay={{
           delay: 5000,
           disableOnInteraction: false,
         }}
         onSlideChange={swiper => setActiveIndex(swiper.activeIndex)}
-        className="w-full h-full transition-colors duration-1000 delay-1300"
+        className="w-full h-full transition-colors duration-1000 ease-in-out"
         style={{ backgroundColor: slides[activeIndex].bgColor }}
       >
         {slides.map((slide, index) => (
           <SwiperSlide key={index} className="relative w-full h-full">
-            <div
-              className="fashion-slider-content absolute top-10 left-10 z-10 max-w-md"
-              data-swiper-parallax="-130%"
-            >
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="fashion-slider-title text-4xl md:text-5xl lg:text-6xl font-medium mb-4 text-white"
-              >
-                {slide.title}
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, duration: 0.8 }}
-                className="fashion-slider-description text-lg md:text-xl text-white mb-6 font-medium"
-              >
-                {slide.description}
-              </motion.p>
-              <motion.a
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9, duration: 0.8 }}
-                href={slide.ctaLink}
-                className="inline-block bg-white text-black py-2 px-6 rounded-full font-medium hover:bg-opacity-90 transition-colors"
-              >
-                {slide.ctaText}
-              </motion.a>
+            <div className="absolute inset-0 bg-black bg-opacity-30 z-10" />
+
+            <div className="fashion-slider-content absolute z-20 w-full h-full flex flex-col justify-center px-6 md:px-16 lg:px-24">
+              <div className="max-w-xl" data-swiper-parallax="-300">
+                <AnimatePresence mode="wait">
+                  {activeIndex === index && (
+                    <motion.div
+                      key={`content-${index}`}
+                      initial={{ opacity: 0, y: 40 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -40 }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                      className="space-y-6"
+                    >
+                      <motion.span
+                        className="inline-block bg-white bg-opacity-20 backdrop-blur-sm text-white px-4 py-1 rounded-full text-sm font-medium"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3, duration: 0.6 }}
+                      >
+                        Fasttify
+                      </motion.span>
+
+                      <motion.h2
+                        className="text-4xl md:text-5xl lg:text-6xl font-medium  text-white leading-tight"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5, duration: 0.8 }}
+                      >
+                        {slide.title}
+                      </motion.h2>
+
+                      <motion.p
+                        className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.7, duration: 0.8 }}
+                      >
+                        {slide.description}
+                      </motion.p>
+
+                      {slide.ctaText && (
+                        <motion.a
+                          href={slide.ctaLink || '#'}
+                          className="inline-flex items-center bg-white hover:bg-opacity-90 text-black font-medium py-3 px-8 rounded-full transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-lg"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.9, duration: 0.6 }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          {slide.ctaText}
+                          <svg
+                            className="ml-2 w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M14 5l7 7m0 0l-7 7m7-7H3"
+                            />
+                          </svg>
+                        </motion.a>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
-            <div className="fashion-slider-scale absolute w-full h-full overflow-hidden">
-              <motion.img
-                initial={{ scale: 1.2 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 10, ease: 'easeOut' }}
+
+            <div className="fashion-slider-image absolute w-full h-full overflow-hidden">
+              <img
                 src={slide.image || '/placeholder.svg'}
                 alt={slide.title}
                 className="w-full h-full object-cover"
@@ -156,103 +156,6 @@ export function FashionSlider() {
           </SwiperSlide>
         ))}
       </Swiper>
-      <NavigationButton
-        direction="prev"
-        onClick={handlePrev}
-        disabled={navigationLocked || activeIndex === 0}
-      />
-      <NavigationButton
-        direction="next"
-        onClick={handleNext}
-        disabled={navigationLocked || activeIndex === slides.length - 1}
-      />
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
-        <Pagination totalSlides={slides.length} activeIndex={activeIndex} />
-      </div>
-      <button
-        onClick={toggleAutoplay}
-        className="absolute bottom-4 right-4 z-10 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2"
-      >
-        {isAutoplay ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        ) : (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        )}
-      </button>
-    </div>
-  )
-}
-
-interface NavigationButtonProps {
-  direction: 'prev' | 'next'
-  onClick: () => void
-  disabled: boolean
-}
-
-function NavigationButton({ direction, onClick, disabled }: NavigationButtonProps) {
-  const baseClasses =
-    'fashion-slider-button absolute top-1/2 transform -translate-y-1/2 z-10 transition-opacity duration-500 cursor-pointer bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 md:p-4'
-  const positionClasses = direction === 'prev' ? 'left-2 md:left-4' : 'right-2 md:right-4'
-  const disabledClasses = disabled ? 'opacity-20 cursor-default' : ''
-
-  return (
-    <button
-      className={`${baseClasses} ${positionClasses} ${disabledClasses}`}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {direction === 'prev' ? (
-        <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 text-white" />
-      ) : (
-        <ChevronRight className="w-6 h-6 md:w-8 md:h-8 text-white" />
-      )}
-    </button>
-  )
-}
-
-function Pagination({ totalSlides, activeIndex }: { totalSlides: number; activeIndex: number }) {
-  return (
-    <div className="flex space-x-2">
-      {Array.from({ length: totalSlides }).map((_, index) => (
-        <div
-          key={index}
-          className={`w-2 h-2 rounded-full ${
-            index === activeIndex ? 'bg-white' : 'bg-white bg-opacity-50'
-          }`}
-        />
-      ))}
     </div>
   )
 }
