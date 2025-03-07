@@ -6,6 +6,7 @@ dist
 out
 .build
 .next
+.husky
 
 # Amplify 
 
@@ -17,7 +18,7 @@ out
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
-
+amplify_outputs.json
 # Archivos de entorno
 .env
 .env.local
