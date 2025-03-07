@@ -1,13 +1,16 @@
 name: Formateo con Prettier
 
 on:
-  push: # Se ejecuta en cualquier push
+  push:
     branches:
       - '*' # Cualquier rama
-  pull_request: # Se ejecuta en PRs a `dev` o `main`
+  pull_request:
     branches:
       - main
       - dev
+
+permissions:
+  contents: write # Permite que la acción haga push de los cambios
 
 jobs:
   prettier:
