@@ -20,15 +20,15 @@ async function checkStoreLimit(userId: string, plan: string) {
       authMode: 'userPool',
       filter: { userId: { eq: userId } },
     })
-    
+
     const storeCount = stores?.length || 0
     const limit = STORE_LIMITS[plan as keyof typeof STORE_LIMITS] || 0
-    
+
     return {
       hasStores: storeCount > 0,
       canCreateMore: storeCount < limit,
       storeCount,
-      limit
+      limit,
     }
   } catch (error) {
     console.error('Error checking stores:', error)
@@ -62,7 +62,7 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
 
   if (path === '/my-store') {
     if (!hasStores) {
-       return NextResponse.redirect(new URL('/first-steps', request.url))
+      return NextResponse.redirect(new URL('/first-steps', request.url))
     }
   }
 

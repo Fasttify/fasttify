@@ -2,7 +2,6 @@ import type React from 'react'
 import { forwardRef, useRef } from 'react'
 import Image from 'next/image'
 
-
 import { cn } from '@/lib/utils'
 import { AnimatedBeam } from '@/components/ui/animated-beam'
 

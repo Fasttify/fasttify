@@ -51,7 +51,7 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
           'lastFourDigits',
           'createdAt',
         ],
-   
+
         authMode: 'userPool',
       })
 

@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Download, Rocket, TrendingUp, Trophy, Users, Package, Star } from 'lucide-react'
 
-
 export function DropshippingIntro() {
   const features = [
     {

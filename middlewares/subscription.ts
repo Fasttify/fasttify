@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from './auth'
 
-
 export async function handleSubscriptionMiddleware(request: NextRequest, response: NextResponse) {
   const session = await getSession(request, response)
 

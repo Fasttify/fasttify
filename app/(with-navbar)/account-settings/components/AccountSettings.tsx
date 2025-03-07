@@ -30,7 +30,7 @@ export function AccountSettings() {
   const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false)
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
   const [isChangeEmailOpen, setIsChangeEmailOpen] = useState(false)
-  const { user, loading} = useUserStore()
+  const { user, loading } = useUserStore()
   const router = useRouter()
 
   const isGoogleUser = user?.identities

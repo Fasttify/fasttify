@@ -33,7 +33,6 @@ interface NavUserProps {
   loading: boolean
 }
 
-
 export function NavUser({ user, loading }: NavUserProps) {
   const { isMobile } = useSidebar()
   const [isClient, setIsClient] = useState(false)

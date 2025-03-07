@@ -31,7 +31,7 @@ export const useAuth = () => {
       try {
         setLoading(true)
         // Obtener la sesión actual del usuario
-        const session = await fetchAuthSession({ forceRefresh: true})
+        const session = await fetchAuthSession({ forceRefresh: true })
 
         // Verificar si hay una sesión válida con tokens
         if (session && session.tokens) {

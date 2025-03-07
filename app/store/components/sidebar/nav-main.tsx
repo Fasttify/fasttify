@@ -75,12 +75,7 @@ export function NavMain({ items, storeName, isLoading = false }: NavMainProps) {
                 <SidebarMenuButton tooltip={item.title} onClick={() => handleItemClick(item.title)}>
                   {item.icon && <item.icon />}
                   {item.url ? (
-                    <Link
-                      href={item.url}
-                      className="flex-1"
-                      onClick={e => {
-                      }}
-                    >
+                    <Link href={item.url} className="flex-1" onClick={e => {}}>
                       <span>{item.title}</span>
                     </Link>
                   ) : (

@@ -7,7 +7,6 @@ const allowedDocumentTypes = ['CC', 'CE', 'NIT', 'TI', 'PP', 'DNI', 'RG'] as con
 
 const wompiKeyRegex = /^(pub_test|pub_prod|prod)_[a-zA-Z0-9]{16,}$/
 
-
 export const wompiConfigSchema = z.object({
   publicKey: z
     .string()

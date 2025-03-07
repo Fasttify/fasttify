@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { SalesDashboard } from '@/app/store/components/statistics/SalesDashboard'
 
