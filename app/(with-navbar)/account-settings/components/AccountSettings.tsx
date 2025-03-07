@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Pencil, BadgeCheck, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EditProfileDialog } from '@/app/(with-navbar)/account-settings/components/EditProfileDialog'
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,  
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -13,15 +13,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Amplify } from 'aws-amplify'
-import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { deleteUser } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/auth/useAuth'
 import { LoadingIndicator } from '@/components/ui/loading-indicator'
 import { UserAvatar } from '@/app/(with-navbar)/account-settings/components/UserAvatar'
 import { ChangePasswordDialog } from '@/app/(with-navbar)/account-settings/components/ChangePasswordDialog'
 import { ChangeEmailDialog } from '@/app/(with-navbar)/account-settings/components/ChangeEmailDialog'
-import { useSubscriptionStore } from '@/zustand-states/useSubscriptionStore'
 import useUserStore from '@/zustand-states/userStore'
 import outputs from '@/amplify_outputs.json'
 import CustomToolTip from '@/components/ui/custom-tooltip'
@@ -33,25 +30,10 @@ export function AccountSettings() {
   const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false)
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
   const [isChangeEmailOpen, setIsChangeEmailOpen] = useState(false)
-  const { user } = useUserStore()
-  const { loading } = useAuth()
-  const { userData } = useAuthUser()
+  const { user, loading} = useUserStore()
   const router = useRouter()
 
-  // Obtén el cognitoUsername
-  const cognitoUsername =
-    userData && userData['cognito:username'] ? userData['cognito:username'] : null
-
-  // Usa el store de Zustand para almacenar el cognitoUsername y obtener la suscripción
-  const { setCognitoUsername, fetchSubscription } = useSubscriptionStore()
-
-  // Guarda el cognitoUsername en el store cuando esté disponible
-  useEffect(() => {
-    if (cognitoUsername) {
-      setCognitoUsername(cognitoUsername)
-      fetchSubscription()
-    }
-  }, [cognitoUsername, setCognitoUsername, fetchSubscription])
+  const isGoogleUser = user?.identities
 
   async function handleDeleteUser() {
     try {
@@ -72,7 +54,6 @@ export function AccountSettings() {
   const lastName = nameParts[nameParts.length - 1] || ''
 
   // Verifica si el usuario ha iniciado sesión con Google
-  const isGoogleUser = userData?.identities
 
   if (loading) {
     return <LoadingIndicator text="Recuperando perfil..." />
@@ -100,7 +81,7 @@ export function AccountSettings() {
             size="sm"
             className="gap-2"
             onClick={() => setIsProfileOpen(true)}
-            disabled={isGoogleUser}
+            disabled={!!isGoogleUser}
           >
             <Pencil className="h-4 w-4" /> Editar
           </Button>
@@ -115,7 +96,7 @@ export function AccountSettings() {
             size="sm"
             className="gap-2"
             onClick={() => setIsProfileOpen(true)}
-            disabled={isGoogleUser}
+            disabled={!!isGoogleUser}
           >
             <Pencil className="h-4 w-4" /> Editar
           </Button>
@@ -203,7 +184,7 @@ export function AccountSettings() {
               size="sm"
               className="gap-2"
               onClick={() => setIsChangeEmailOpen(true)}
-              disabled={isGoogleUser}
+              disabled={!!isGoogleUser}
             >
               Cambiar correo
             </Button>
@@ -225,7 +206,7 @@ export function AccountSettings() {
               size="sm"
               className="gap-2"
               onClick={() => setIsChangePasswordOpen(true)}
-              disabled={isGoogleUser}
+              disabled={!!isGoogleUser}
             >
               Cambiar contraseña
             </Button>

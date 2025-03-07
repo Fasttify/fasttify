@@ -60,7 +60,12 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className={`h-9 w-9 ${className}`}>
             {user.picture && (
-              <AvatarImage src={user.picture} alt={displayName} referrerPolicy="no-referrer" />
+              <AvatarImage
+                src={user.picture}
+                alt={displayName}
+                referrerPolicy="no-referrer"
+                className="object-cover"
+              />
             )}
             <AvatarFallback className="bg-pink-100 text-pink-700">
               {getUserInitials()}
@@ -72,7 +77,12 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
         <div className="flex items-center gap-3 p-4">
           <Avatar className="h-10 w-10">
             {user.picture && (
-              <AvatarImage src={user.picture} alt={displayName} referrerPolicy="no-referrer" />
+              <AvatarImage
+                src={user.picture}
+                alt={displayName}
+                referrerPolicy="no-referrer"
+                className="object-cover"
+              />
             )}
             <AvatarFallback className="bg-pink-100 text-pink-700">
               {getUserInitials()}
@@ -90,7 +100,7 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
           <DropdownMenuSeparator className="border-t" />
         </div>
         <div className="px-1 py-2">
-          <Link href="/account-settings">
+          <Link href="/account-settings?section=cuenta">
             <DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
               <User2 className="h-4 w-4" />
               <span>Configuración de cuenta</span>
@@ -117,7 +127,6 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
         <div className="px-3 py-4">
           <div className="flex items-center justify-between mb-1">
             <span className="font-medium">Plan {user.plan}</span>
-          
           </div>
           <span className="text-sm text-muted-foreground">12,000 vistas</span>
         </div>

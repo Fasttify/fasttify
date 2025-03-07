@@ -79,7 +79,6 @@ export function NavMain({ items, storeName, isLoading = false }: NavMainProps) {
                       href={item.url}
                       className="flex-1"
                       onClick={e => {
-                        // Don't stop propagation - we want both navigation and toggle
                       }}
                     >
                       <span>{item.title}</span>

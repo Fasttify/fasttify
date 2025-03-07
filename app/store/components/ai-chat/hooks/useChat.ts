@@ -1,16 +1,49 @@
+/**
+ * @fileoverview Hook personalizado para gestionar la comunicación con el chatbot AI.
+ * Proporciona funcionalidades para enviar mensajes, recibir respuestas y gestionar
+ * el estado de la conversación.
+ */
 import { useState, useCallback } from 'react'
 import { generateClient } from 'aws-amplify/api'
 import type { Schema } from '@/amplify/data/resource'
 
+/**
+ * Cliente generado para interactuar con la API de Amplify.
+ */
 const client = generateClient<Schema>()
 
+/**
+ * Hook personalizado que gestiona la interacción con el chatbot AI.
+ *
+ * @returns {Object} Objeto con el estado y las funciones para interactuar con el chat.
+ */
 export function useChat() {
+  /**
+   * Estado para almacenar los mensajes de la conversación.
+   * @type {Array<{content: string, role: 'user' | 'assistant'}>}
+   */
   const [messages, setMessages] = useState<Array<{ content: string; role: 'user' | 'assistant' }>>(
     []
   )
+
+  /**
+   * Estado para controlar si hay una operación de chat en curso.
+   * @type {boolean}
+   */
   const [loading, setLoading] = useState<boolean>(false)
+
+  /**
+   * Estado para almacenar errores que puedan ocurrir durante la comunicación.
+   * @type {Error | null}
+   */
   const [error, setError] = useState<Error | null>(null)
 
+  /**
+   * Función para enviar un mensaje al chatbot y procesar su respuesta.
+   *
+   * @param {string} message - El mensaje que el usuario quiere enviar al chatbot.
+   * @returns {Promise<void>}
+   */
   const chat = useCallback(async (message: string) => {
     setLoading(true)
     setError(null)
@@ -18,10 +51,10 @@ export function useChat() {
     try {
       console.log('Enviando mensaje al chatbot:', message)
 
-      // Add user message to the list
+      // Añadir el mensaje del usuario a la lista
       setMessages(prev => [...prev, { content: message, role: 'user' }])
 
-      // Call the AI endpoint directly like in your example
+      // Llamar al endpoint de IA directamente
       const { data, errors } = await client.queries.generateHaiku({
         prompt: message,
       })
@@ -29,7 +62,7 @@ export function useChat() {
       if (errors) {
         throw new Error(errors[0]?.message || 'Error en la generación')
       } else if (data) {
-        // Add the assistant's response to the messages
+        // Añadir la respuesta del asistente a los mensajes
         setMessages(prev => [...prev, { content: data, role: 'assistant' }])
       } else {
         throw new Error('No se recibió respuesta del asistente')
@@ -37,7 +70,7 @@ export function useChat() {
     } catch (err: any) {
       console.error('Error en chat:', err)
       setError(new Error(err.message || 'Error desconocido'))
-      // Add error message as assistant response
+      // Añadir mensaje de error como respuesta del asistente
       setMessages(prev => [
         ...prev,
         {
@@ -50,16 +83,21 @@ export function useChat() {
     }
   }, [])
 
+  /**
+   * Función para reiniciar la conversación, eliminando todos los mensajes y errores.
+   *
+   * @returns {void}
+   */
   const resetChat = useCallback(() => {
     setMessages([])
     setError(null)
   }, [])
 
   return {
-    messages,
-    loading,
-    error,
-    chat,
-    resetChat,
+    messages, // Lista de mensajes de la conversación
+    loading, // Indicador de operación en curso
+    error, // Error actual, si existe
+    chat, // Función para enviar un mensaje
+    resetChat, // Función para reiniciar la conversación
   }
 }

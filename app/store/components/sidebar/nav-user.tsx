@@ -1,4 +1,4 @@
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react'
+import { BadgeCheck, Bell, ChevronsUpDown, LogOut, Sparkles } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -17,6 +17,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { routes } from '@/utils/routes'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 interface User {
@@ -32,10 +33,17 @@ interface NavUserProps {
   loading: boolean
 }
 
+
 export function NavUser({ user, loading }: NavUserProps) {
   const { isMobile } = useSidebar()
+  const [isClient, setIsClient] = useState(false)
 
-  if (loading) {
+  // Set isClient to true after component mounts
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  if (!isClient || loading) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
@@ -71,6 +79,7 @@ export function NavUser({ user, loading }: NavUserProps) {
                   src={user?.picture}
                   alt={user?.nickName}
                   referrerPolicy="no-referrer"
+                  className="object-cover"
                 />
                 <AvatarFallback className="rounded-lg">{user?.nickName}</AvatarFallback>
               </Avatar>
@@ -91,7 +100,7 @@ export function NavUser({ user, loading }: NavUserProps) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user?.picture} alt={user?.nickName} />
+                  <AvatarImage src={user?.picture} alt={user?.nickName} className="object-cover" />
                   <AvatarFallback className="rounded-lg">{user?.nickName}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

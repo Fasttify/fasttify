@@ -4,9 +4,19 @@ import { type Schema } from '@/amplify/data/resource'
 
 const client = generateClient<Schema>()
 
+// Definimos un tipo con solo los campos necesarios
+interface MinimalSubscription {
+  subscriptionId: string
+  planName: string
+  nextPaymentDate: Schema['UserSubscription']['type']['nextPaymentDate']
+  lastFourDigits: Schema['UserSubscription']['type']['lastFourDigits']
+  createdAt: string
+  pendingPlan: Schema['UserSubscription']['type']['pendingPlan']
+}
+
 interface SubscriptionState {
   cognitoUsername: string | null
-  subscription: Schema['UserSubscription']['type'] | null
+  subscription: MinimalSubscription | null
   loading: boolean
   error: string | null
   setCognitoUsername: (username: string | null) => void
@@ -30,8 +40,18 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     set({ loading: true, error: null })
 
     try {
+      // Nota: separamos el input y las opciones en dos parámetros
       const { data, errors } = await client.models.UserSubscription.list({
         filter: { userId: { eq: cognitoUsername } },
+        selectionSet: [
+          'subscriptionId',
+          'planName',
+          'pendingPlan',
+          'nextPaymentDate',
+          'lastFourDigits',
+          'createdAt',
+        ],
+   
         authMode: 'userPool',
       })
 
@@ -39,8 +59,24 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         throw new Error('Error al obtener la suscripción')
       }
 
+      const sortedData = data.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
+      const minimalSubscription: MinimalSubscription | null =
+        sortedData.length > 0
+          ? {
+              subscriptionId: sortedData[0].subscriptionId,
+              planName: sortedData[0].planName,
+              pendingPlan: sortedData[0].pendingPlan,
+              nextPaymentDate: sortedData[0].nextPaymentDate,
+              lastFourDigits: sortedData[0].lastFourDigits,
+              createdAt: sortedData[0].createdAt,
+            }
+          : null
+
       set({
-        subscription: data && data.length > 0 ? data[0] : null,
+        subscription: minimalSubscription,
         loading: false,
       })
     } catch (error) {

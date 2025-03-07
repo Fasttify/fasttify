@@ -20,65 +20,24 @@ import { signOut } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
 import { UserMenu } from '@/app/(with-navbar)/landing/components/UserMenu'
 import { Skeleton } from '@/components/ui/skeleton'
+import { navItems } from '@/app/(with-navbar)/landing/components/navigation'
 import useUserStore from '@/zustand-states/userStore'
 import outputs from '@/amplify_outputs.json'
 
 Amplify.configure(outputs)
 
-const navItems = [
-  {
-    label: 'Productos',
-    highlight: {
-      title: 'Una única plataforma para todas tus necesidades',
-      description: 'Simplifica tu integración, maximiza tu alcance',
-      subtitle: 'Unifica tu lógica de negocio',
-    },
-    content: [
-      {
-        title: 'Características',
-        href: '/#integraciones',
-        description: 'Explora todas las características y capacidades de nuestra plataforma.',
-      },
-      {
-        title: 'Casos de Uso',
-        href: '/#casos',
-        description: 'Descubre cómo otros clientes están usando nuestra plataforma.',
-      },
-    ],
-  },
-  {
-    label: 'Recursos',
-    highlight: {
-      title: 'Recursos completos para tu éxito',
-      description: 'Todo lo que necesitas para crecer',
-      subtitle: 'Potencia tu negocio',
-    },
-    content: [
-      {
-        title: 'Integraciones',
-        href: '/#integraciones',
-        description: 'Integraciones y actualización de nuestra plataforma',
-      },
-      {
-        title: 'Multiplataforma',
-        href: '/#multiplataforma',
-        description: 'Guías detalladas y documentación técnica.',
-      },
-      {
-        title: 'Contacto',
-        href: '/#contacto',
-        description: 'Ponte en contacto con nuestro equipo de soporte.',
-      },
-    ],
-  },
-]
-
 export function Navbar() {
-  const { user, clearUser } = useUserStore()
-  const { loading } = useAuth()
+  const { user, loading, clearUser } = useUserStore()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [hasScrolled, setHasScrolled] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  useAuth()
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -104,6 +63,19 @@ export function Navbar() {
     } catch (error) {
       console.error('Error al cerrar sesión:', error)
     }
+  }
+
+  const renderAuthSection = () => {
+    if (!isClient || loading) {
+      return <Skeleton className="h-8 w-8 rounded-full" />
+    }
+    return user ? (
+      <UserMenu user={user} loading={loading} onSignOut={handleSignOut} />
+    ) : (
+      <Button asChild variant="link" className="ml-4 text-black">
+        <Link href="/login">Iniciar sesión</Link>
+      </Button>
+    )
   }
 
   return (
@@ -186,15 +158,7 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center">
-            {loading ? (
-              <Skeleton className="h-8 w-8 rounded-full" />
-            ) : user ? (
-              <UserMenu user={user} loading={loading} onSignOut={handleSignOut} />
-            ) : (
-              <Button asChild variant="link" className="ml-4 text-black">
-                <Link href="/login">Iniciar sesión</Link>
-              </Button>
-            )}
+            {renderAuthSection()}
 
             {/* Mobile menu button */}
             <div className="flex items-center md:hidden">
@@ -204,9 +168,9 @@ export function Navbar() {
                     variant="ghost"
                     size="icon"
                     aria-label="Abrir menú"
-                    className="text-gray-500 hover:text-gray-600"
+                    className="text-black"
                   >
-                    <Menu className="h-6 w-6" />
+                    <Menu className="h-10 w-10 text-black" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[300px] sm:w-[400px]">
@@ -228,14 +192,6 @@ export function Navbar() {
                           className="h-8 w-auto ml-2"
                         />
                       </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsOpen(false)}
-                        className="text-gray-500 hover:text-gray-600"
-                      >
-                        <X className="h-6 w-6" />
-                      </Button>
                     </div>
                     <div className="flex-grow overflow-y-auto">
                       {navItems.map(item => (
@@ -266,7 +222,11 @@ export function Navbar() {
                         Precios
                       </Link>
                     </div>
-                    {!user && (
+                    {!isClient || loading ? (
+                      <div className="mt-auto p-4 border-t border-gray-200">
+                        <Skeleton className="h-8 w-full" />
+                      </div>
+                    ) : !user ? (
                       <div className="mt-auto p-4 border-t border-gray-200">
                         <Button asChild variant="link" className="w-full">
                           <Link href="/login" onClick={() => setIsOpen(false)}>
@@ -274,7 +234,7 @@ export function Navbar() {
                           </Link>
                         </Button>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </SheetContent>
               </Sheet>
