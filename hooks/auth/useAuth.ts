@@ -67,6 +67,11 @@ export const useAuth = () => {
 
             cognitoUsername:
               typeof userAttributes.sub === 'string' ? userAttributes.sub : undefined,
+
+            userId:
+              typeof userAttributes['cognito:username'] === 'string'
+                ? userAttributes['cognito:username']
+                : undefined,
           }
           setUser(newUser)
         } else {

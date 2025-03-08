@@ -1,33 +1,33 @@
 {
   "options": [
     {
-      "title": "Una tienda online",
-      "description": "Crear un sitio web totalmente personalizable",
+      "title": "Comercio Digital",
+      "description": "Crea tu escaparate virtual con diseños totalmente personalizados.",
       "id": "online-store"
     },
     {
-      "title": "En persona, tienda física",
-      "description": "Tiendas físicas",
+      "title": "Local Comercial",
+      "description": "Establece tu presencia física con una experiencia de compra única.",
       "id": "physical-store"
     },
     {
-      "title": "En persona, en eventos",
-      "description": "Mercados, ferias y tiendas temporales",
+      "title": "Experiencias en Vivo",
+      "description": "Destaca en ferias, mercados y eventos con espacios temporales innovadores.",
       "id": "events"
     },
     {
-      "title": "Un sitio web o blog existentes",
-      "description": "Agrega un botón de compras al sitio web",
+      "title": "Integración Digital",
+      "description": "Transforma tu sitio web o blog en una plataforma de ventas interactiva.",
       "id": "existing-website"
     },
     {
-      "title": "Redes sociales",
-      "description": "Llega a los clientes a través de Facebook, Instagram, TikTok y mucho más.",
+      "title": "Conexión Social",
+      "description": "Impulsa tu negocio a través de Facebook, Instagram, TikTok y más redes.",
       "id": "social-media"
     },
     {
-      "title": "Mercados online",
-      "description": "Publicar productos en Etsy, Amazon y otros",
+      "title": "Marketplaces",
+      "description": "Expande tu alcance publicando productos en plataformas como Etsy, Amazon y otras.",
       "id": "online-marketplace"
     }
   ]

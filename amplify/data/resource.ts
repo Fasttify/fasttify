@@ -61,29 +61,20 @@ const schema = a
         storePolicy: a.string(), // Política de la tienda (opcional)
         storeAdress: a.string(), // Dirección de la tienda
 
-        // Datos de contacto
         contactEmail: a.email(),
         contactPhone: a.phone(),
         contactName: a.string(),
         conctactIdentification: a.string(),
         contactIdentificationType: a.string(),
 
-        // Configuración para integración con PayU, almacenada como JSON.
-        // Ejemplo: { payuMerchantId: "merchant_001", payuApiKey: "apikey_abc", payuApiSecret: "secret_xyz", payuCurrency: "COP" }
         wompiConfig: a.json(),
+        mercadoPagoConfig: a.json(),
 
-        // Campo para el dominio propio personalizado (opcional)
         customDomain: a.string(),
 
-        // Indica si el usuario completó el flujo de onboarding.
         onboardingCompleted: a.boolean().required(),
       })
-      .authorization(allow => [
-        // Solo el dueño (definido en 'userId') puede leer, actualizar o eliminar la tienda.
-        allow.ownerDefinedIn('userId').to(['read', 'update', 'delete']),
-        // Usuarios autenticados pueden crear el registro.
-        allow.authenticated().to(['create']),
-      ]),
+      .authorization(allow => [allow.authenticated().to(['read', 'update', 'delete', 'create'])]),
   })
   .authorization(allow => [
     allow.resource(postConfirmation),

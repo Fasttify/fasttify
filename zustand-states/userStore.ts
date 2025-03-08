@@ -10,6 +10,7 @@ interface User {
   bio?: string
   phone?: string
   cognitoUsername?: string
+  userId?: string
   identities?: any[]
 }
 
