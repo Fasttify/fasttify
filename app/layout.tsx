@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { ReactQueryProvider } from '@/utils/ReactQueryProvider'
+import { Toaster } from '@/components/ui/sonner'
 import ConfigureAmplifyClientSide from '@/utils/ConfigureAmplify'
 import './global.css'
 
@@ -20,7 +22,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={inter.className}>
         <ConfigureAmplifyClientSide />
-        {children}
+        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <Toaster
+          toastOptions={{
+            classNames: {
+              description: '!important',
+            },
+          }}
+        />
       </body>
     </html>
   )

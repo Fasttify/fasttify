@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -10,47 +10,56 @@ import { Plus, Check } from 'lucide-react'
 import { PaymentSettingsSkeleton } from '@/app/store/components/payments/PaymentSettingsSkeleton'
 import { ApiKeyModal } from '@/app/store/components/payments/ApiKeyModal'
 import { useParams } from 'next/navigation'
+import { toast } from 'sonner'
 import {
   useUserStoreData,
   PaymentGatewayType,
 } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
+import { WompiGuide } from '@/app/store/components/payments/WompiGuide'
+import { MercadoPagoGuide } from '@/app/store/components/payments/MercadoPagoGuide'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function PaymentSettings() {
   const params = useParams()
   const storeId = params.slug as string
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedGateway, setSelectedGateway] = useState<PaymentGatewayType>('mercadoPago')
-  const [configuredGateways, setConfiguredGateways] = useState<PaymentGatewayType[]>([])
-  const [storeRecordId, setStoreRecordId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const { getStorePaymentInfo, configurePaymentGateway } = useUserStoreData()
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    const fetchStoreData = async () => {
-      try {
-        if (!storeId) return
+  const { data, isLoading, isRefetching } = useQuery({
+    queryKey: ['storePaymentInfo', storeId],
+    queryFn: () => getStorePaymentInfo(storeId),
+    enabled: !!storeId,
+    staleTime: Infinity, // Los datos nunca se consideran obsoletos
+    gcTime: Infinity, // Los datos permanecen en caché indefinidamente
+    refetchOnWindowFocus: false, // No refetch al enfocar la ventana
+    refetchOnMount: false, // No refetch al montar el componente
+    refetchOnReconnect: false, // No refetch al reconectar
+  })
 
-        setIsLoading(true)
+  const storeRecordId = data?.id || null
+  const configuredGateways = data?.configuredGateways || []
 
-        const { id, configuredGateways: gateways } = await getStorePaymentInfo(storeId)
-
-        if (id) {
-          setStoreRecordId(id)
-          setConfiguredGateways(gateways)
-        } else {
-          console.error('No se pudo obtener el ID del registro para la tienda:', storeId)
-        }
-      } catch (error) {
-        console.error('Error al obtener datos de la tienda:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    if (storeId) {
-      fetchStoreData()
-    }
-  }, [storeId])
+  const configureGatewayMutation = useMutation({
+    mutationFn: async (data: { storeId: string; gateway: PaymentGatewayType; configData: any }) => {
+      return await configurePaymentGateway(data.storeId, data.gateway, data.configData, true)
+    },
+    onSuccess: (_, variables) => {
+      const gatewayName = variables.gateway === 'wompi' ? 'Wompi' : 'Mercado Pago'
+      toast.success(`¡Configuración exitosa!`, {
+        description: `La pasarela ${gatewayName} ha sido configurada correctamente.`,
+      })
+      queryClient.invalidateQueries({ queryKey: ['storePaymentInfo', storeId] })
+    },
+    onError: (error, variables) => {
+      // Mostrar toast de error
+      const gatewayName = variables.gateway === 'wompi' ? 'Wompi' : 'Mercado Pago'
+      toast.error(`Error de configuración`, {
+        description: `No se pudo configurar ${gatewayName}. Por favor, intenta nuevamente.`,
+      })
+    },
+  })
 
   const handleOpenModal = (gateway: PaymentGatewayType) => {
     setSelectedGateway(gateway)
@@ -64,6 +73,9 @@ export function PaymentSettings() {
   }): Promise<boolean> => {
     try {
       if (!storeRecordId) {
+        toast.error('Error de configuración', {
+          description: 'Uyps! Hubo un error al configurar la pasarela de pago.',
+        })
         console.error('No se encontró el ID del registro de la tienda')
         return false
       }
@@ -77,7 +89,6 @@ export function PaymentSettings() {
           isActive: true,
         }
       } else {
-        // Para Mercado Pago y otras pasarelas, usamos publicKey y privateKey
         configData = {
           publicKey: data.publicKey,
           privateKey: data.privateKey,
@@ -85,21 +96,13 @@ export function PaymentSettings() {
         }
       }
 
-      // Convertir a JSON
-      const configObject = JSON.stringify(configData)
+      const success = await configureGatewayMutation.mutateAsync({
+        storeId: storeRecordId,
+        gateway: data.gateway,
+        configData,
+      })
 
-      // Usamos la función especializada para configurar pasarelas de pago
-      const success = await configurePaymentGateway(storeRecordId, data.gateway, configData, true)
-
-      if (success) {
-        if (!configuredGateways.includes(data.gateway)) {
-          setConfiguredGateways([...configuredGateways, data.gateway])
-        }
-        return true
-      } else {
-        console.error('La configuración de la pasarela falló')
-        return false
-      }
+      return success
     } catch (err) {
       console.error('Error al configurar la pasarela de pago:', err)
       return false
@@ -112,9 +115,7 @@ export function PaymentSettings() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-6">
-      <h1 className="text-xl md:text-xl font-medium text-gray-800 mb-6">Configuración de Pagos</h1>
-
-      {isLoading ? (
+      {isLoading || isRefetching ? (
         <PaymentSettingsSkeleton />
       ) : (
         <>
@@ -130,20 +131,9 @@ export function PaymentSettings() {
               .
             </p>
             <div className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                className="h-9 px-4 text-sm font-medium text-gray-700 border-gray-300 hover:bg-gray-50"
-                onClick={() => handleOpenModal('mercadoPago')}
-              >
-                Configurar Mercado Pago
-              </Button>
-              <Button
-                variant="outline"
-                className="h-9 px-4 text-sm font-medium text-gray-700 border-gray-300 hover:bg-gray-50"
-                onClick={() => handleOpenModal('wompi')}
-              >
-                Configurar Wompi
-              </Button>
+              <MercadoPagoGuide />
+
+              <WompiGuide />
             </div>
           </div>
 
