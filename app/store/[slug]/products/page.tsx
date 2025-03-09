@@ -5,4 +5,3 @@ import { ProductsPage } from '@/app/store/components/product-management/ProductP
 export default function StoreProductsPage() {
   return <ProductsPage />
 }
-    

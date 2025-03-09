@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import {
   LineChart,
@@ -66,7 +66,7 @@ export function MetricLineChart({
         <Tooltip
           formatter={value => [valueFormatter(Number(value)), metricName]}
           labelFormatter={label => `Date: ${label}`}
-          wrapperClassName='rounded-xl'
+          wrapperClassName="rounded-xl"
         />
         <Line
           type="monotone"

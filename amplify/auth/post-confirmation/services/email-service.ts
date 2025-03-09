@@ -27,12 +27,12 @@ export async function sendWelcomeEmail(email: string, trialEndDate: Date): Promi
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     })
 
     const replacements = {
       trialEndDate: formattedDate,
-      currentYear: new Date().getFullYear().toString()
+      currentYear: new Date().getFullYear().toString(),
     }
 
     // Genera el contenido HTML final reemplazando los placeholders
@@ -41,21 +41,21 @@ export async function sendWelcomeEmail(email: string, trialEndDate: Date): Promi
     // Configura los parámetros para SES (solo HTML)
     const params = {
       Destination: {
-        ToAddresses: [email]
+        ToAddresses: [email],
       },
       Message: {
         Body: {
           Html: {
             Charset: 'UTF-8',
-            Data: htmlContent
-          }
+            Data: htmlContent,
+          },
         },
         Subject: {
           Charset: 'UTF-8',
-          Data: '¡Bienvenido a Fasttify! Tu prueba gratuita del plan Royal está activa'
-        }
+          Data: '¡Bienvenido a Fasttify! Tu prueba gratuita del plan Royal está activa',
+        },
       },
-      Source: 'no-reply@fasttify.com' 
+      Source: 'no-reply@fasttify.com',
     }
 
     // Envía el correo

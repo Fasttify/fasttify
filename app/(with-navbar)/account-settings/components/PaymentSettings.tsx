@@ -2,17 +2,26 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useSubscriptionStore } from '@/zustand-states/useSubscriptionStore'
 import { post } from 'aws-amplify/api'
-import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { SubscriptionCard } from '@/app/(with-navbar)/account-settings/components/SubscriptionCard'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { CancellationDialog } from '@/app/(with-navbar)/account-settings/components/CancellationDialog'
+import useUserStore from '@/zustand-states/userStore'
 import Link from 'next/link'
 
 export function PaymentSettings() {
-  const { subscription, loading, error } = useSubscriptionStore()
-  const { userData } = useAuthUser()
+  const { subscription, loading, error, fetchSubscription, setCognitoUsername } =
+    useSubscriptionStore()
+  const { user } = useUserStore()
   const [cachedSubscription, setCachedSubscription] = useState(subscription)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const cognitoUsername = user?.cognitoUsername
+
+  useEffect(() => {
+    if (cognitoUsername) {
+      setCognitoUsername(cognitoUsername)
+      fetchSubscription()
+    }
+  }, [cognitoUsername, setCognitoUsername, fetchSubscription])
 
   useEffect(() => {
     if (!loading && subscription) {
@@ -21,9 +30,6 @@ export function PaymentSettings() {
   }, [loading, subscription])
 
   const currentSubscription = loading ? cachedSubscription : subscription
-
-  const cognitoUsername =
-    userData && userData['cognito:username'] ? userData['cognito:username'] : null
 
   const handleCancel = async () => {
     if (!cognitoUsername) {

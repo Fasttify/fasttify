@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Camera } from 'lucide-react'
+import { ImagePlus } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { useUpdateProfilePicture } from '@/app/(with-navbar)/account-settings/hooks/useUpdateProfilePicture'
@@ -48,10 +48,10 @@ export function UserAvatar({ imageUrl, fallback, className }: UserAvatarProps) {
 
       <button
         onClick={() => fileInputRef.current?.click()}
-        className="absolute bottom-0 right-0 rounded-full bg-primary p-1.5 text-primary-foreground hover:bg-primary/90 transition-colors"
+        className="absolute bottom-0 right-0 rounded-full bg-black p-1.5 text-primary-foreground hover:bg-gray-900 transition-colors"
         disabled={isLoading}
       >
-        <Camera className="h-4 w-4" />
+        <ImagePlus className="h-4 w-4" />
       </button>
 
       <input

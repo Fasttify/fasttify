@@ -11,7 +11,6 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
   const session = await getSession(request, NextResponse.next())
   // Verificar autenticación
   if (!session || !session.tokens) {
-    console.log('Usuario no autenticado, redirigiendo a login')
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
@@ -19,7 +18,6 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
   const userId = session.tokens?.idToken?.payload?.['cognito:username']
 
   if (!userId) {
-    console.log('No se pudo obtener el ID del usuario, redirigiendo a login')
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
@@ -28,7 +26,6 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
   const storeIdMatch = path.match(/\/store\/([^\/]+)/)
 
   if (!storeIdMatch || !storeIdMatch[1]) {
-    console.log('No se pudo extraer el ID de la tienda, redirigiendo a my-store')
     return NextResponse.redirect(new URL('/my-store', request.url))
   }
 
@@ -47,12 +44,11 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
 
     // Si la tienda no pertenece al usuario, redirigir a my-store
     if (!stores || stores.length === 0) {
-      console.log('La tienda no pertenece al usuario, redirigiendo a my-store')
       return NextResponse.redirect(new URL('/my-store', request.url))
     }
 
     // Si todo está bien, permitir el acceso
-    console.log('Acceso permitido a la tienda')
+
     return NextResponse.next()
   } catch (error) {
     console.error('Error verificando acceso a tienda:', error)

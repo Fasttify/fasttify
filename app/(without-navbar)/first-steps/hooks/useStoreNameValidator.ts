@@ -4,19 +4,19 @@ import { get } from 'aws-amplify/api'
 /**
  * Hook personalizado para validar la disponibilidad del nombre de una tienda.
  * Realiza una petición a la API para verificar si el nombre ya está en uso.
- * 
+ *
  * @returns {Object} Un objeto con las siguientes propiedades:
  * - checkStoreName: Función para validar el nombre de la tienda
  * - isChecking: Estado que indica si se está realizando la validación
  * - exists: Estado que indica si el nombre ya existe
- * 
+ *
  * @example
  * ```tsx
  * const { checkStoreName, isChecking, exists } = useStoreNameValidator()
- * 
+ *
  * // Verificar un nombre de tienda
  * await checkStoreName('Mi Tienda')
- * 
+ *
  * if (exists) {
  *   console.log('El nombre ya está en uso')
  * }

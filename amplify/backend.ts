@@ -48,7 +48,6 @@ backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
   })
 )
 
-
 backend.postConfirmation.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],

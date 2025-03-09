@@ -1,13 +1,16 @@
 name: Formateo con Prettier
 
 on:
-  push: # Se ejecuta en cualquier push
+  push:
     branches:
       - '*' # Cualquier rama
-  pull_request: # Se ejecuta en PRs a `dev` o `main`
+  pull_request:
     branches:
       - main
       - dev
+
+permissions:
+  contents: write # Permite que la acción haga push de los cambios
 
 jobs:
   prettier:
@@ -22,11 +25,11 @@ jobs:
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
-        with: 
+        with:
           node-version: 20
 
       - name: Instalar dependencias
-        run: npm ci # Instala las dependencias de manera limpia
+        run: npm ci
 
       - name: Ejecutar Prettier
         run: npx prettier --write .
@@ -37,20 +40,8 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           if git diff --staged --quiet; then
-            echo "No hay cambios de formateo, se omite el commit."
+            echo "✅ No hay cambios de formateo. No es necesario hacer commit."
             exit 0
           fi
           git commit -m "✨ Formateo automático con Prettier"
-
-      - name: Hacer push de los cambios
-        run: |
-          # Si es un pull request, no hacer push
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            echo "El workflow se ejecuta en un Pull Request. No se hace push."
-            exit 0
-          fi
-
-          # Obtener el nombre de la rama correctamente
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          echo "Haciendo push a la rama: $BRANCH_NAME"
-          git push origin "$BRANCH_NAME"
+          git push origin $GITHUB_REF_NAME

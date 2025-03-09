@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { SquareTerminal, ShoppingCart, Box, Settings2, LayoutGrid } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { NavMain } from '@/app/store/components/sidebar/nav-main'
 import { NavUser } from '@/app/store/components/sidebar/nav-user'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from '@/components/ui/sidebar'
@@ -10,12 +11,16 @@ import { routes } from '@/utils/routes'
 import useUserStore from '@/zustand-states/userStore'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useUserStore()
-  const { loading } = useAuth()
+  const { user, loading } = useUserStore()
+  const [isClient, setIsClient] = useState(false)
   const params = useParams()
   const storeId = params.slug as string
   const { store } = useStore(storeId)
+  useAuth()
 
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
   const data = {
     navMain: [
       {
@@ -108,7 +113,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarContent className="bg-[#ebebeb] font-medium text-gray-800">
-        <NavMain items={data.navMain} storeName={store?.storeName} isLoading={loading} />
+        <NavMain
+          items={data.navMain}
+          storeName={store?.storeName}
+          isLoading={loading || !isClient}
+        />
       </SidebarContent>
       <SidebarFooter className="bg-[#ebebeb] text-gray-800">
         <NavUser user={user} loading={loading} />

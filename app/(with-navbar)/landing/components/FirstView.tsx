@@ -158,7 +158,6 @@ export function FirstView() {
               </div>
 
               {/* Decorative elements */}
-                      
             </div>
           </div>
         </div>

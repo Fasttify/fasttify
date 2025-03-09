@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useDeviceSessions } from '@/app/(with-navbar)/account-settings/hooks/useDeviceSessions'
+
 export function ActiveSessions() {
   // Se utiliza el hook para obtener la información de las sesiones
   const { sessions, isLoading, error, lastRefreshed, fetchSessions, forgetDeviceSession } =

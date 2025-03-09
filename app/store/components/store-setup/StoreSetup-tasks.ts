@@ -84,7 +84,8 @@ export const defaultStoreTasks: Task[] = [
         href: '/settings/general',
       },
     },
-    imageUrl: "https://images.unsplash.com/vector-1738223599537-9eeb4dd70275?q=80&w=2360&auto=format&fit=crop",
+    imageUrl:
+      'https://images.unsplash.com/vector-1738223599537-9eeb4dd70275?q=80&w=2360&auto=format&fit=crop',
     completed: false,
   },
   {
@@ -99,7 +100,8 @@ export const defaultStoreTasks: Task[] = [
         href: '/settings/shipping',
       },
     },
-    imageUrl:"https://images.unsplash.com/vector-1739805925148-5ef9f0a06ccd?q=80&w=2360&auto=format&fit=crop",
+    imageUrl:
+      'https://images.unsplash.com/vector-1739805925148-5ef9f0a06ccd?q=80&w=2360&auto=format&fit=crop',
     completed: false,
   },
   {
@@ -113,7 +115,8 @@ export const defaultStoreTasks: Task[] = [
         href: '/settings/payments',
       },
     },
-    imageUrl:"https://images.unsplash.com/vector-1739891945507-20fd57d98b67?q=80&w=2360&auto=format&fit=crop",
+    imageUrl:
+      'https://images.unsplash.com/vector-1739891945507-20fd57d98b67?q=80&w=2360&auto=format&fit=crop',
     completed: false,
   },
   {
@@ -128,7 +131,8 @@ export const defaultStoreTasks: Task[] = [
         href: '/test-order',
       },
     },
-    imageUrl:"https://images.unsplash.com/vector-1738382122219-c54bbe640887?q=80&w=2062&auto=format&fit=crop",
+    imageUrl:
+      'https://images.unsplash.com/vector-1738382122219-c54bbe640887?q=80&w=2062&auto=format&fit=crop',
     completed: false,
   },
 ]
