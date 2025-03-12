@@ -6,12 +6,12 @@ const client = generateClient<Schema>()
 
 // Definimos un tipo con solo los campos necesarios
 interface MinimalSubscription {
-  subscriptionId: string
-  planName: string
+  subscriptionId: Schema['UserSubscription']['type']['subscriptionId']
+  planName: Schema['UserSubscription']['type']['planName']
   nextPaymentDate: Schema['UserSubscription']['type']['nextPaymentDate']
   lastFourDigits: Schema['UserSubscription']['type']['lastFourDigits']
-  createdAt: string
   pendingPlan: Schema['UserSubscription']['type']['pendingPlan']
+  createdAt: string
 }
 
 interface SubscriptionState {
@@ -40,7 +40,6 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     set({ loading: true, error: null })
 
     try {
-      // Nota: separamos el input y las opciones en dos parámetros
       const { data, errors } = await client.models.UserSubscription.list({
         filter: { userId: { eq: cognitoUsername } },
         selectionSet: [

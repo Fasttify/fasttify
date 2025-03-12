@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { Eye, ChevronDown } from 'lucide-react'
+import { Eye, ChevronDown, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
 
 export function ThemePreview() {
   return (
@@ -206,6 +206,12 @@ export function ThemePreview() {
                   </div>
                 </div>
               </div>
+              <Link href="/themes">
+                <Button className="mt-4 sm:mt-0 bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-all duration-300 hover:shadow-lg group">
+                  Ver mas temas
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

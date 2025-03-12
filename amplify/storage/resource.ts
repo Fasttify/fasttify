@@ -2,6 +2,7 @@ import { defineStorage } from '@aws-amplify/backend'
 
 export const storage = defineStorage({
   name: 'profilePictures',
+  isDefault: true,
   access: allow => ({
     'public/profile-pictures/{entity_id}/*': [
       // Anyone can read profile pictures

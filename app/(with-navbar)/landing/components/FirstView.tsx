@@ -86,13 +86,15 @@ export function FirstView() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-white px-8 rounded-full"
-                >
-                  Crear mi tienda
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <Link href="/first-steps">
+                  <Button
+                    size="lg"
+                    className="bg-primary hover:bg-primary/90 text-white px-8 rounded-full"
+                  >
+                    Crear mi tienda
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
                 <Link href="/pricing">
                   <Button
                     size="lg"
