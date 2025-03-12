@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
-import { X, Send, Sparkles } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Sparkles, ChevronLeft } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll'
 import { MessageLoading } from '@/app/store/components/ai-chat/MessageLoading'
 import { TypingMessage } from '@/app/store/components/ai-chat/TypingMessage'
+import { AIInputWithSearch } from '@/app/store/components/ai-chat/ai-input'
 import { useChat } from './hooks/useChat'
+import { Button } from '@/components/ui/button'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import Orb from '@/app/store/components/ai-chat/Orb'
 
 interface Suggestion {
@@ -13,12 +16,16 @@ interface Suggestion {
   text: string
 }
 
+interface RefinedAIAssistantSheetProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
 const LONG_MESSAGE_THRESHOLD = 280
 
-export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
+export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssistantSheetProps) {
   const { messages: chatMessages, loading, chat } = useChat()
   const [inputValue, setInputValue] = useState('')
-  const [isOpen, setIsOpen] = useState(true)
   const [expandedMessages, setExpandedMessages] = useState<Record<string, boolean>>({})
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { scrollRef, scrollToBottom } = useAutoScroll({
@@ -26,6 +33,7 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
     content: chatMessages.length,
   })
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const isMobile = useMediaQuery('(max-width: 640px)')
 
   const suggestions: Suggestion[] = [
     { id: '1', text: 'Generar resumen para estrategias de ecommerce' },
@@ -34,16 +42,16 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
   ]
 
   useEffect(() => {
-    if (!loading && chatMessages.length > 0) {
+    if (!loading && chatMessages.length > 0 && open) {
       setTimeout(scrollToBottom, 200)
     }
-  }, [loading, chatMessages.length, scrollToBottom])
+  }, [loading, chatMessages.length, scrollToBottom, open])
 
   useEffect(() => {
-    if (chatMessages.length > 0) {
+    if (chatMessages.length > 0 && open) {
       setTimeout(scrollToBottom, 100)
     }
-  }, [chatMessages, scrollToBottom])
+  }, [chatMessages, scrollToBottom, open])
 
   useEffect(() => {
     const textarea = textareaRef.current
@@ -81,18 +89,14 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
     setTimeout(scrollToBottom, 100)
   }
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setInputValue(suggestion)
-    const event = new Event('submit', { cancelable: true }) as unknown as React.FormEvent
-    handleSubmit(event)
+  const handleSuggestionClick = async (suggestion: string) => {
+    await chat(suggestion)
+    setTimeout(scrollToBottom, 100)
   }
 
   const handleClose = () => {
-    setIsOpen(false)
-    if (onClose) onClose()
+    onOpenChange(false)
   }
-
-  if (!isOpen) return null
 
   const transformedMessages = chatMessages.map((msg, index) => ({
     id: index.toString(),
@@ -102,107 +106,90 @@ export function RefinedAIAssistant({ onClose }: { onClose?: () => void }) {
   }))
 
   return (
-    <div
-      className={cn(
-        'flex flex-col',
-        'fixed md:relative',
-        'top-0 left-0 right-0 bottom-0 md:top-auto md:left-auto md:right-auto md:bottom-auto',
-        'w-full h-full md:w-[400px] md:h-[600px]',
-        'bg-white/80 backdrop-blur',
-        'md:rounded-2xl shadow-xl',
-        'overflow-hidden animate-in fade-in duration-300'
-      )}
-    >
-      <div className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-sm border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-emerald-500" />
-          <h2 className="font-medium text-gray-800">IA Asistente</h2>
-        </div>
-        <button
-          className="text-gray-500 hover:text-gray-600 transition-colors"
-          onClick={handleClose}
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
-
-      <ScrollArea className="flex-1 h-0">
-        <div ref={scrollRef} className="px-4">
-          {chatMessages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full py-20">
-              <div className="mb-6 relative">
-                <Orb rotateOnHover={false} hoverIntensity={0.0} />
-              </div>
-              <p className="text-gray-600 text-center mb-6">
-                ¿Qué te gustaría saber sobre ecommerce o dropshipping?
-              </p>
-              <div className="flex flex-col items-end gap-2 w-full">
-                {suggestions.map(suggestion => (
-                  <button
-                    key={suggestion.id}
-                    onClick={() => handleSuggestionClick(suggestion.text)}
-                    className="bg-white py-2 px-4 rounded-full text-sm shadow-lg hover:shadow-md transition-all hover:bg-gray-50"
-                  >
-                    {suggestion.text}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4 py-2">
-              {transformedMessages.map(message => (
-                <TypingMessage
-                  key={message.id}
-                  id={message.id}
-                  content={message.content}
-                  type={message.type as 'user' | 'ai'}
-                  longMessageThreshold={LONG_MESSAGE_THRESHOLD}
-                  isExpanded={isMessageExpanded(message.id)}
-                  onExpand={toggleMessageExpansion}
-                />
-              ))}
-              {loading && (
-                <div className="flex justify-start">
-                  <MessageLoading />
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="p-0 sm:max-w-md w-full flex flex-col h-full">
+        <SheetHeader className="flex items-center  bg-white/50 backdrop-blur-sm border-b border-gray-200 shrink-0">
+          {isMobile && (
+            <Button
+              variant="ghost"
+              onClick={handleClose}
+              className="h-2 w-2 rounded-full -ml-96"
+              aria-label="Regresar"
+            >
+              <ChevronLeft className="h-6 w-6 scale-150 text-gray-900" />
+            </Button>
           )}
-        </div>
-      </ScrollArea>
+          <div className="flex flex-1 justify-center items-center gap-2">
+            <Sparkles className="h-5 w-5 text-emerald-500" />
+            <SheetTitle className="font-medium text-gray-800">IA Asistente</SheetTitle>
+          </div>
+        </SheetHeader>
 
-      <form onSubmit={handleSubmit} className="p-3">
-        <div className="relative">
-          <textarea
-            ref={textareaRef}
+        <ScrollArea className="flex-1 overflow-y-auto">
+          <div ref={scrollRef} className="px-4">
+            {chatMessages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full py-20">
+                <div className="mb-6 relative">
+                  <Orb rotateOnHover={false} hoverIntensity={0.0} />
+                </div>
+                <p className="text-gray-600 text-center mb-6">
+                  ¿Qué te gustaría saber sobre ecommerce o dropshipping?
+                </p>
+                <div className="flex flex-col items-end gap-2 w-full">
+                  {suggestions.map(suggestion => (
+                    <button
+                      key={suggestion.id}
+                      onClick={() => handleSuggestionClick(suggestion.text)}
+                      className="bg-white py-2 px-4 rounded-full text-sm shadow-lg hover:shadow-md transition-all hover:bg-gray-50"
+                    >
+                      {suggestion.text}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 py-2">
+                {transformedMessages.map(message => (
+                  <TypingMessage
+                    key={message.id}
+                    id={message.id}
+                    content={message.content}
+                    type={message.type as 'user' | 'ai'}
+                    longMessageThreshold={LONG_MESSAGE_THRESHOLD}
+                    isExpanded={isMessageExpanded(message.id)}
+                    onExpand={toggleMessageExpansion}
+                  />
+                ))}
+                {loading && (
+                  <div className="flex justify-start">
+                    <MessageLoading />
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        <div className="  border-gray-200 shrink-0 bg-white">
+          <AIInputWithSearch
             placeholder="Pregúntame cualquier cosa..."
-            className="w-full py-2.5 px-4 rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 resize-none overflow-y-auto min-h-[44px]"
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                if (inputValue.trim()) {
-                  handleSubmit(e)
-                }
+            minHeight={48}
+            maxHeight={96}
+            onSubmit={(value, withSearch) => {
+              if (value.trim()) {
+                chat(value)
+                setTimeout(scrollToBottom, 100)
               }
             }}
+            onFileSelect={file => {
+              // Handle file if needed, or leave empty
+              console.log('File selected:', file.name)
+            }}
+            className="py-2"
           />
-          <button
-            type="submit"
-            className={cn(
-              'absolute right-3 top-1/2 -translate-y-1/2',
-              'text-gray-400 hover:text-emerald-500 transition-colors',
-              'w-8 h-8 flex items-center justify-center',
-              inputValue.trim() && 'text-emerald-500'
-            )}
-            disabled={!inputValue.trim() || loading}
-          >
-            <Send className="h-5 w-5" />
-          </button>
         </div>
-      </form>
-    </div>
+      </SheetContent>
+    </Sheet>
   )
 }

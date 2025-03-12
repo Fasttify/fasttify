@@ -11,6 +11,9 @@ module.exports = {
     './app/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
+    container: {
+      center: true,
+    },
     extend: {
       borderRadius: {
         lg: 'var(--radius)',
@@ -73,6 +76,10 @@ module.exports = {
         '101': '101%',
       },
       keyframes: {
+        pulse: {
+          '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.05)' },
+        },
         moveHorizontal: {
           '0%': {
             transform: 'translateX(-50%) translateY(-10%)',
@@ -168,6 +175,7 @@ module.exports = {
         third: 'moveInCircle 40s linear infinite',
         fourth: 'moveHorizontal 40s ease infinite',
         fifth: 'moveInCircle 20s ease infinite',
+        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

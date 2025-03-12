@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TypingEffect } from './TypingEffect'
 import { cn } from '@/lib/utils'
 import { ChevronDown, ChevronUp } from 'lucide-react'
+
+// Create a Map to store which messages have completed typing
+// This will persist across component remounts
+const completedTypingMessages = new Map<string, boolean>()
 
 interface TypingMessageProps {
   content: string
@@ -22,9 +26,26 @@ export function TypingMessage({
   onExpand,
   isExpanded = false,
 }: TypingMessageProps) {
-  const [isTypingComplete, setIsTypingComplete] = useState(type === 'user')
+  // Check if this message has already completed typing before
+  const [isTypingComplete, setIsTypingComplete] = useState(
+    type === 'user' || completedTypingMessages.get(id) === true
+  )
+
   const isLongMessage =
     forceLongMessage !== undefined ? forceLongMessage : content.length > longMessageThreshold
+
+  // When typing completes, store it in our persistent Map
+  const handleTypingComplete = () => {
+    setIsTypingComplete(true)
+    completedTypingMessages.set(id, true)
+  }
+
+  // Also set as complete on mount if it's an AI message that was previously shown
+  useEffect(() => {
+    if (type === 'ai' && !isTypingComplete) {
+      completedTypingMessages.set(id, true)
+    }
+  }, [id, type, isTypingComplete])
 
   return (
     <div
@@ -49,12 +70,8 @@ export function TypingMessage({
             isLongMessage && !isExpanded && 'line-clamp-4'
           )}
         >
-          {type === 'ai' ? (
-            <TypingEffect
-              text={content}
-              typingSpeed={20}
-              onComplete={() => setIsTypingComplete(true)}
-            />
+          {type === 'ai' && !isTypingComplete ? (
+            <TypingEffect text={content} typingSpeed={20} onComplete={handleTypingComplete} />
           ) : (
             content
           )}
