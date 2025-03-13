@@ -4,19 +4,12 @@ import { ChatWidget } from '@/app/store/components/ai-chat/ChatWidget'
 import { AppSidebar } from '@/app/store/components/sidebar/app-sidebar'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
-import { useParams } from 'next/navigation'
-import { useStore } from '@/app/store/hooks/useStore'
 import { useEffect } from 'react'
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
-  const params = useParams()
-  const { store } = useStore(params.slug as string)
-
   useEffect(() => {
-    if (store?.storeName) {
-      document.title = `${store.storeName} • Fasttify`
-    }
-  }, [store?.storeName])
+    document.title = 'Mi tienda • Fasttify'
+  }, [])
 
   return (
     <SidebarProvider>

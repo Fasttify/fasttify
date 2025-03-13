@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Check, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
@@ -11,10 +11,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { useParams, usePathname } from 'next/navigation'
 
 export function EcommerceSetup() {
   const [tasks, setTasks] = useState<Task[]>(defaultStoreTasks)
   const [expandedTaskId, setExpandedTaskId] = useState<string>('task-1')
+  const params = useParams()
+  const pathname = usePathname()
+
+  const storeId = (params.storeId as string) || extractStoreIdFromPath(pathname)
+
+  function extractStoreIdFromPath(path: string): string {
+    const matches = path.match(/\/store\/([^\/]+)/)
+    return matches ? matches[1] : ''
+  }
 
   const toggleTaskCompletion = (taskId: number, event: React.MouseEvent) => {
     event.stopPropagation()
@@ -142,23 +152,35 @@ export function EcommerceSetup() {
 
                         {task.actions && (
                           <div className="flex flex-wrap gap-2 mt-2">
-                            {task.actions.primary && (
+                            {task.actions?.primary && (
                               <Button
                                 className="bg-gray-800 hover:bg-gray-700 text-white rounded-md px-3 py-1 text-xs h-auto"
                                 asChild
                               >
-                                <Link href={task.actions.primary.href || '#'}>
+                                <Link
+                                  href={
+                                    task.actions.primary.getHref && storeId
+                                      ? task.actions.primary.getHref(storeId)
+                                      : task.actions.primary.href || '#'
+                                  }
+                                >
                                   {task.actions.primary.text}
                                 </Link>
                               </Button>
                             )}
-                            {task.actions.secondary && (
+                            {task.actions?.secondary && (
                               <Button
                                 variant="ghost"
                                 className="text-gray-700 hover:bg-gray-100 px-3 py-1 text-xs h-auto"
                                 asChild
                               >
-                                <Link href={task.actions.secondary.href || '#'}>
+                                <Link
+                                  href={
+                                    task.actions.secondary.getHref && storeId
+                                      ? task.actions.secondary.getHref(storeId)
+                                      : task.actions.secondary.href || '#'
+                                  }
+                                >
                                   {task.actions.secondary.text}
                                 </Link>
                               </Button>

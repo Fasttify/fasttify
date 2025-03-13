@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     'Fasttify es una plataforma ecommerce de dropshipping que te permite gestionar y escalar tu tienda online sin complicaciones, ofreciendo productos de calidad y una experiencia de compra excepcional.',
   keywords: ['ecommerce', 'dropshipping', 'tienda online', 'Fasttify', 'compras online'],
   openGraph: {
-    title: 'Fasttify - Ecommerce Dropshipping',
+    title: 'Fasttify',
     description:
       'Descubre Fasttify, la plataforma ecommerce de dropshipping que facilita la gestión de tu tienda online y te ayuda a escalar tus ventas sin complicaciones.',
     url: 'https://www.fasttify.com',

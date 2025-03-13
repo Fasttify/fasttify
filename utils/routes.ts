@@ -9,7 +9,7 @@ export const routes = {
     products: {
       main: (storeId: string) => `/store/${storeId}/products`,
       list: (storeId: string) => `/store/${storeId}/products/inventory  `,
-      add: (storeId: string) => `/store/${storeId}/products/add`,
+      add: (storeId: string) => `/store/${storeId}/products/new`,
       categories: (storeId: string) => `/store/${storeId}/products/categories`,
     },
     orders: (storeId: string) => `/store/${storeId}/orders`,

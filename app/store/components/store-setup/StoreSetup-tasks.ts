@@ -1,3 +1,5 @@
+import { routes } from '@/utils/routes'
+
 export interface Task {
   id: number
   title: string
@@ -7,10 +9,12 @@ export interface Task {
     primary?: {
       text: string
       href?: string
+      getHref?: (storeId: string) => string
     }
     secondary?: {
       text: string
       href?: string
+      getHref?: (storeId: string) => string
     }
   }
   imageUrl?: string
@@ -27,11 +31,11 @@ export const defaultStoreTasks: Task[] = [
     actions: {
       primary: {
         text: 'Agregar producto',
-        href: '/products/new',
+        getHref: (storeId: string) => routes.store.products.add(storeId),
       },
       secondary: {
         text: 'Importar productos',
-        href: '/products/import',
+        getHref: (storeId: string) => `${routes.store.products.main(storeId)}/import`,
       },
     },
     imageUrl:
@@ -47,7 +51,7 @@ export const defaultStoreTasks: Task[] = [
     actions: {
       primary: {
         text: 'Personalizar diseño',
-        href: '/design',
+        getHref: (storeId: string) => routes.store.setup.design(storeId),
       },
     },
     imageUrl:
@@ -62,11 +66,11 @@ export const defaultStoreTasks: Task[] = [
     actions: {
       primary: {
         text: 'Configurar dominio',
-        href: '/settings/domain',
+        getHref: (storeId: string) => routes.store.setup.domain(storeId),
       },
       secondary: {
         text: 'Comprar dominio',
-        href: '/settings/domain/buy',
+        getHref: (storeId: string) => `${routes.store.setup.domain(storeId)}/buy`,
       },
     },
     imageUrl:
@@ -81,7 +85,7 @@ export const defaultStoreTasks: Task[] = [
     actions: {
       primary: {
         text: 'Editar nombre',
-        href: '/settings/general',
+        getHref: (storeId: string) => routes.store.settings(storeId),
       },
     },
     imageUrl:
@@ -97,7 +101,7 @@ export const defaultStoreTasks: Task[] = [
     actions: {
       primary: {
         text: 'Configurar envíos',
-        href: '/settings/shipping',
+        getHref: (storeId: string) => routes.store.setup.shipping(storeId),
       },
     },
     imageUrl:
@@ -112,7 +116,7 @@ export const defaultStoreTasks: Task[] = [
     actions: {
       primary: {
         text: 'Configurar pagos',
-        href: '/settings/payments',
+        getHref: (storeId: string) => routes.store.setup.payments(storeId),
       },
     },
     imageUrl:
@@ -128,7 +132,7 @@ export const defaultStoreTasks: Task[] = [
     actions: {
       primary: {
         text: 'Iniciar prueba',
-        href: '/test-order',
+        getHref: (storeId: string) => routes.store.setup.testOrder(storeId),
       },
     },
     imageUrl:

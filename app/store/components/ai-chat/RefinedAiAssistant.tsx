@@ -9,6 +9,7 @@ import { AIInputWithSearch } from '@/app/store/components/ai-chat/ai-input'
 import { useChat } from './hooks/useChat'
 import { Button } from '@/components/ui/button'
 import { useMediaQuery } from '@/hooks/use-media-query'
+import { GradientSparkles } from '@/app/store/components/ai-chat/GradientSparkles'
 import Orb from '@/app/store/components/ai-chat/Orb'
 
 interface Suggestion {
@@ -120,8 +121,8 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
             </Button>
           )}
           <div className="flex flex-1 justify-center items-center gap-2">
-            <Sparkles className="h-5 w-5 text-emerald-500" />
-            <SheetTitle className="font-medium text-gray-800">IA Asistente</SheetTitle>
+            <GradientSparkles />
+            <SheetTitle className="font-medium text-gray-800">FastBot</SheetTitle>
           </div>
         </SheetHeader>
 
@@ -140,7 +141,7 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
                     <button
                       key={suggestion.id}
                       onClick={() => handleSuggestionClick(suggestion.text)}
-                      className="bg-white py-2 px-4 rounded-full text-sm shadow-lg hover:shadow-md transition-all hover:bg-gray-50"
+                      className="bg-white py-2 px-4 rounded-full text-sm shadow-sm hover:shadow-md transition-all hover:bg-gray-50"
                     >
                       {suggestion.text}
                     </button>

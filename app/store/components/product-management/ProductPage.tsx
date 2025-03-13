@@ -1,10 +1,16 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Search, Download, Grid3X3, List } from 'lucide-react'
+import { Plus, Search, Download, Grid3X3, List, Router } from 'lucide-react'
 import { Icons } from '@/app/store/icons/index'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import { routes } from '@/utils/routes'
 
 export function ProductsPage() {
+  const params = useParams()
+  const storeId = params.slug as string
+
   return (
     <div className="bg-gray-100 ">
       <h1 className="text-xl md:text-xl font-medium text-gray-800 mb-6">Productos</h1>
@@ -53,10 +59,12 @@ export function ProductsPage() {
                   Comienza abasteciendo tu tienda con productos que tus clientes amarán.
                 </p>
                 <div className="flex flex-wrap gap-3 pt-2">
-                  <Button className="bg-gray-800 hover:bg-gray-700">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Añadir producto
-                  </Button>
+                  <Link href={routes.store.products.add(storeId)}>
+                    <Button className="bg-gray-800 hover:bg-gray-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Añadir producto
+                    </Button>
+                  </Link>
                   <Button variant="outline" className="border-gray-300">
                     <Download className="h-4 w-4 mr-2" />
                     Importar
@@ -80,7 +88,7 @@ export function ProductsPage() {
                 proveedor a tu cliente, y paga solo por lo que vendas.
               </p>
               <Button variant="outline" className="border-gray-300">
-                Explorar apps de abastecimiento de productos
+                Explorar productos
               </Button>
             </div>
           </div>
