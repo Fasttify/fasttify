@@ -1,8 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,107 +33,153 @@ import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+import { productFormSchema, ProductFormValues, defaultValues } from '@/lib/schemas/product-schema'
+import { useProducts, IProduct } from '@/app/store/hooks/useProducts'
 
-const productFormSchema = z.object({
-  name: z.string().min(2, {
-    message: 'El nombre del producto debe tener al menos 2 caracteres.',
-  }),
-  description: z.string().min(10, {
-    message: 'La descripción del producto debe tener al menos 10 caracteres.',
-  }),
-  price: z.coerce.number().positive({
-    message: 'El precio debe ser un número positivo.',
-  }),
-  compareAtPrice: z.coerce
-    .number()
-    .positive({
-      message: 'El precio de comparación debe ser un número positivo.',
-    })
-    .optional(),
-  costPerItem: z.coerce
-    .number()
-    .positive({
-      message: 'El costo por artículo debe ser un número positivo.',
-    })
-    .optional(),
-  sku: z.string().optional(),
-  barcode: z.string().optional(),
-  quantity: z.coerce.number().int().nonnegative({
-    message: 'La cantidad debe ser un número entero no negativo.',
-  }),
-  category: z.string({
-    required_error: 'Por favor seleccione una categoría.',
-  }),
-  images: z
-    .array(
-      z.object({
-        url: z.string(),
-        alt: z.string().optional(),
-      })
-    )
-    .optional(),
-  attributes: z
-    .array(
-      z.object({
-        name: z.string(),
-        values: z.array(z.string()),
-      })
-    )
-    .optional(),
-  creationDate: z.date().optional(),
-  lastModifiedDate: z.date().optional(),
-  status: z.enum(['active', 'inactive', 'pending', 'draft']).default('draft'),
-})
-
-type ProductFormValues = z.infer<typeof productFormSchema>
-
-const defaultValues: Partial<ProductFormValues> = {
-  name: '',
-  description: '',
-  price: undefined,
-  compareAtPrice: undefined,
-  costPerItem: undefined,
-  sku: '',
-  barcode: '',
-  quantity: 0,
-  category: '',
-  images: [],
-  attributes: [],
-  creationDate: new Date(),
-  lastModifiedDate: new Date(),
-  status: 'draft',
+interface ProductFormProps {
+  storeId: string
+  productId?: string
 }
 
-export function ProductForm() {
+export function ProductForm({ storeId, productId }: ProductFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { createProduct, updateProduct, products } = useProducts(storeId, {
+    skipInitialFetch: true,
+  })
+
+  // Si tenemos un productId, buscamos el producto para editar
+  const productToEdit = productId ? products.find(p => p.id === productId) : null
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
-    defaultValues,
+    defaultValues: productToEdit ? mapProductToFormValues(productToEdit) : defaultValues,
     mode: 'onChange',
   })
+
+  // Actualizamos el formulario cuando el producto a editar cambia
+  useEffect(() => {
+    if (productToEdit) {
+      const formValues = mapProductToFormValues(productToEdit)
+      Object.entries(formValues).forEach(([key, value]) => {
+        form.setValue(key as any, value)
+      })
+    }
+  }, [productToEdit, form])
+
+  // Función para mapear un producto a los valores del formulario
+  function mapProductToFormValues(product: IProduct): Partial<ProductFormValues> {
+    return {
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      costPerItem: product.costPerItem,
+      sku: product.sku,
+      barcode: product.barcode,
+      quantity: product.quantity,
+      category: product.category,
+      images: typeof product.images === 'string' ? JSON.parse(product.images) : product.images,
+      attributes:
+        typeof product.attributes === 'string'
+          ? JSON.parse(product.attributes)
+          : product.attributes,
+      variants:
+        typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants,
+      tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
+      status: product.status,
+    }
+  }
 
   async function onSubmit(data: ProductFormValues) {
     setIsSubmitting(true)
 
-    data.lastModifiedDate = new Date()
-    if (!data.creationDate) {
-      data.creationDate = new Date()
-    }
-
     try {
-      // In a real application, you would send this data to your API
-      console.log(data)
+      // Preparamos solo los campos básicos que sabemos que son aceptados por la API
+      // Usamos Record<string, any> para permitir propiedades dinámicas
+      const basicProductData: Record<string, any> = {
+        storeId,
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        compareAtPrice: data.compareAtPrice,
+        costPerItem: data.costPerItem,
+        sku: data.sku,
+        barcode: data.barcode,
+        quantity: data.quantity,
+        category: data.category,
+        status: data.status,
+      }
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Convertimos los campos complejos a strings JSON si es necesario
+      if (data.images && data.images.length > 0) {
+        basicProductData.images = JSON.stringify(data.images)
+      }
 
-      // Redirect to products list
-      router.push('/admin/products')
-      router.refresh()
+      if (data.attributes && data.attributes.length > 0) {
+        basicProductData.attributes = JSON.stringify(data.attributes)
+      }
+
+      if (data.variants && data.variants.length > 0) {
+        basicProductData.variants = JSON.stringify(data.variants)
+      }
+
+      if (data.tags && data.tags.length > 0) {
+        basicProductData.tags = JSON.stringify(data.tags)
+      }
+
+      let result: IProduct | null
+
+      if (productId) {
+        result = await updateProduct({
+          id: productId,
+          ...basicProductData,
+        })
+
+        if (result) {
+          toast.success('Producto actualizado', {
+            description: `El producto "${result.name}" ha sido actualizado correctamente.`,
+          })
+        }
+      } else {
+        // Crear nuevo producto
+        result = await createProduct({
+          storeId: basicProductData.storeId,
+          name: basicProductData.name,
+          price: basicProductData.price,
+          status: basicProductData.status,
+          quantity: basicProductData.quantity,
+          description: basicProductData.description,
+          compareAtPrice: basicProductData.compareAtPrice,
+          costPerItem: basicProductData.costPerItem,
+          sku: basicProductData.sku,
+          barcode: basicProductData.barcode,
+          category: basicProductData.category,
+          images: basicProductData.images,
+          attributes: basicProductData.attributes,
+          variants: basicProductData.variants,
+          tags: basicProductData.tags,
+        })
+
+        if (result) {
+          toast.success('Producto creado', {
+            description: `El producto "${result.name}" ha sido creado correctamente.`,
+          })
+        }
+      }
+
+      if (result) {
+        router.push(`/store/${storeId}/inventory`)
+        router.refresh()
+      } else {
+        throw new Error('No se pudo guardar el producto')
+      }
     } catch (error) {
-      console.error('Error submitting product:', error)
+      console.error('Error al guardar producto:', error)
+      toast.error('Error', {
+        description: 'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -489,10 +534,14 @@ export function ProductForm() {
             <Card>
               <CardContent className="pt-6">
                 <ImageUpload
-                  value={form.watch('images') || []}
+                  value={(form.watch('images') || []).map(img => ({
+                    url: img.url,
+                    alt: img.alt || '',
+                  }))}
                   onChange={images => {
                     const validImages = images.filter(
-                      (img): img is { url: string; alt?: string } => typeof img.url === 'string'
+                      (img): img is { url: string; alt: string } =>
+                        typeof img.url === 'string' && typeof img.alt === 'string'
                     )
                     form.setValue('images', validImages, { shouldValidate: true })
                   }}

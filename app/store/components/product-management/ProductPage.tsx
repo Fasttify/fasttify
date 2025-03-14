@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Search, Download, Grid3X3, List, Router } from 'lucide-react'
+import { Plus, Search, Download, Grid3X3, List } from 'lucide-react'
 import { Icons } from '@/app/store/icons/index'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'

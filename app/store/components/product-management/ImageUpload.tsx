@@ -2,12 +2,14 @@ import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { X, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
 
 interface ImageFile {
-  url?: string
-  alt?: string
+  url: string
+  alt: string
 }
 
 interface ImageUploadProps {
@@ -143,7 +145,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
             {value.map((image, index) => (
               <div
                 key={index}
-                className="border rounded-lg p-2 space-y-2 hover:border-blue-500 hover:bg-blue-50"
+                className="border rounded-lg p-2 space-y-2"
                 draggable
                 onDragStart={() => handleImageDragStart(index)}
                 onDragOver={e => handleImageDragOver(e, index)}
@@ -171,6 +173,21 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
                     <span className="sr-only">Eliminar imagen</span>
                   </Button>
                 </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`alt-text-${index}`} className="text-xs">
+                    Texto Alternativo
+                  </Label>
+                  <Input
+                    id={`alt-text-${index}`}
+                    value={image.alt || ''}
+                    onChange={e => updateAltText(index, e.target.value)}
+                    placeholder="Describa esta imagen"
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {index === 0 ? 'Imagen Principal' : `Imagen ${index + 1}`}
+                </div>
               </div>
             ))}
           </div>
@@ -179,6 +196,10 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
 
       <Dialog open={!!enlargedImage} onOpenChange={open => !open && setEnlargedImage(null)}>
         <DialogContent className="max-w-4xl w-full p-1 sm:p-2">
+          <DialogClose className="absolute right-2 top-2 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+            <X className="h-6 w-6" />
+            <span className="sr-only">Cerrar</span>
+          </DialogClose>
           {enlargedImage && (
             <div className="relative w-full h-[80vh]">
               <Image

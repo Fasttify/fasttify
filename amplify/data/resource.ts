@@ -75,6 +75,34 @@ const schema = a
         onboardingCompleted: a.boolean().required(),
       })
       .authorization(allow => [allow.authenticated().to(['read', 'update', 'delete', 'create'])]),
+
+    Product: a
+      .model({
+        id: a.id().required(),
+        storeId: a.string().required(), // Relaciona el producto con la tienda
+        name: a.string().required(), // Nombre del producto
+        description: a.string(), // Descripción del producto
+        price: a.float().required(), // Precio del producto
+        compareAtPrice: a.float(), // Precio de comparación (opcional)
+        costPerItem: a.float(), // Costo por artículo (opcional)
+        sku: a.string(), // SKU del producto (opcional)
+        barcode: a.string(), // Código de barras (opcional)
+        quantity: a.integer(), // Cantidad en inventario
+        category: a.string(), // Categoría del producto
+        images: a.json(), // Array de imágenes [{url: string, alt: string}]
+        attributes: a.json(), // Array de atributos [{name: string, values: string[]}]
+        status: a.string(), // Estado: ACTIVE, INACTIVE, PENDING, DRAFT
+        slug: a.string(), // URL amigable del producto
+        featured: a.boolean(), // Producto destacado
+        tags: a.json(), // Array de etiquetas
+        variants: a.json(), // Variantes del producto
+        owner: a.string().required(), // Usuario que creo el producto
+      })
+      .authorization(allow => [
+        allow.ownerDefinedIn('owner').to(['update', 'delete']), // Solo el creador puede editar y eliminar
+        allow.authenticated().to(['create']), // Usuarios autenticados pueden crear
+        allow.guest().to(['read']), // Todos pueden ver los productos
+      ]),
   })
   .authorization(allow => [
     allow.resource(postConfirmation),

@@ -12,6 +12,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { useParams, usePathname } from 'next/navigation'
+import { getStoreId } from '@/utils/store-utils'
 
 export function EcommerceSetup() {
   const [tasks, setTasks] = useState<Task[]>(defaultStoreTasks)
@@ -19,12 +20,7 @@ export function EcommerceSetup() {
   const params = useParams()
   const pathname = usePathname()
 
-  const storeId = (params.storeId as string) || extractStoreIdFromPath(pathname)
-
-  function extractStoreIdFromPath(path: string): string {
-    const matches = path.match(/\/store\/([^\/]+)/)
-    return matches ? matches[1] : ''
-  }
+  const storeId = getStoreId(params, pathname)
 
   const toggleTaskCompletion = (taskId: number, event: React.MouseEvent) => {
     event.stopPropagation()
