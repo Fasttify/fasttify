@@ -132,7 +132,6 @@ export function PaymentSettings() {
             </p>
             <div className="flex flex-wrap gap-2">
               <MercadoPagoGuide />
-
               <WompiGuide />
             </div>
           </div>

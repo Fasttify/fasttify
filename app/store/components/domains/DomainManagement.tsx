@@ -18,7 +18,7 @@ export function DomainManagement() {
               de tus clientes y mejora la visibilidad de tu marca.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Button className="bg-gray-800 h-9 px-4 text-sm font-medium text-white py-2 rounded-md hover:bg-gray-700 transition-colors">
+              <Button className="bg-[#2a2a2a] h-9 px-4 text-sm font-medium text-white py-2 rounded-md hover:bg-[#3a3a3a] transition-colors">
                 Comprar dominio
               </Button>
               <Button
