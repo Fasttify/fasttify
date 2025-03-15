@@ -19,3 +19,18 @@ export const storage = defineStorage({
     ],
   }),
 })
+
+export const productsImages = defineStorage({
+  name: 'productsImages',
+  isDefault: true,
+  access: allow => ({
+    'products/{entity_id}/*': [
+      // Anyone can read profile pictures
+      allow.guest.to(['read']),
+      // Authenticated users can upload
+      allow.authenticated.to(['read', 'write']),
+      // Owner has full control over their files
+      allow.entity('identity').to(['read', 'write', 'delete']),
+    ],
+  }),
+})
