@@ -36,8 +36,16 @@ export function ProductList({ storeId }: ProductListProps) {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
 
-  const { products, loading, error, hasNextPage, loadNextPage, deleteProduct, refreshProducts } =
-    useProducts(storeId)
+  const {
+    products,
+    loading,
+    error,
+    hasNextPage,
+    loadNextPage,
+    deleteMultipleProducts,
+    refreshProducts,
+    deleteProduct,
+  } = useProducts(storeId)
 
   // Filtrar productos según la pestaña activa
   const filteredProducts = products
@@ -98,20 +106,12 @@ export function ProductList({ storeId }: ProductListProps) {
     if (selectedProducts.length === 0) return
 
     if (confirm(`¿Estás seguro de que deseas eliminar ${selectedProducts.length} productos?`)) {
-      let successCount = 0
-
-      for (const id of selectedProducts) {
-        const success = await deleteProduct(id)
-        if (success) successCount++
-      }
-
-      if (successCount > 0) {
-        toast.success(`${successCount} productos eliminados correctamente`)
+      const success = await deleteMultipleProducts(selectedProducts)
+      if (success) {
+        toast.success(`${selectedProducts.length} productos eliminados correctamente`)
         setSelectedProducts([])
-      }
-
-      if (successCount < selectedProducts.length) {
-        toast.error(`No se pudieron eliminar ${selectedProducts.length - successCount} productos`)
+      } else {
+        toast.error(`Error al eliminar algunos productos`)
       }
     }
   }

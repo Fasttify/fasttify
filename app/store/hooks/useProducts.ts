@@ -96,6 +96,7 @@ export interface UseProductsResult {
   createProduct: (productData: ProductCreateInput) => Promise<IProduct | null>
   updateProduct: (productData: ProductUpdateInput) => Promise<IProduct | null>
   deleteProduct: (id: string) => Promise<boolean>
+  deleteMultipleProducts: (ids: string[]) => Promise<boolean>
   refreshProducts: () => void
   fetchProduct: (id: string) => Promise<IProduct | null>
 }
@@ -307,6 +308,34 @@ export function useProducts(
   }
 
   /**
+   * Elimina múltiples productos
+   * @param ids - Arreglo de IDs de los productos a eliminar
+   * @returns true si se eliminaron correctamente todos, false en caso de error
+   */
+  const deleteMultipleProducts = async (ids: string[]): Promise<boolean> => {
+    try {
+      setLoading(true)
+      // Ejecutamos todas las peticiones de eliminación en paralelo
+      await Promise.all(
+        ids.map(id => client.models.Product.delete({ id }, { authMode: 'userPool' }))
+      )
+
+      // Actualizamos el estado eliminando los productos borrados
+      setProducts(prev => prev.filter(p => !ids.includes(p.id)))
+
+      return true
+    } catch (err) {
+      console.error('Error al eliminar múltiples productos:', err)
+      setError(
+        err instanceof Error ? err : new Error('Error desconocido al eliminar múltiples productos')
+      )
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /**
    * Obtiene un producto específico por su ID
    * @param id - ID del producto a obtener
    * @returns El producto obtenido o null si hay un error
@@ -366,6 +395,7 @@ export function useProducts(
     createProduct,
     updateProduct,
     deleteProduct,
+    deleteMultipleProducts,
     fetchProduct,
 
     // Otras funciones útiles
