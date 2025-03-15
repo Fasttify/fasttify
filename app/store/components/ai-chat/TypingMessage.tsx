@@ -56,7 +56,7 @@ export function TypingMessage({
         className={cn(
           'max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 shadow-sm',
           type === 'user'
-            ? 'bg-gray-800 text-white rounded-br-none'
+            ? 'bg-[#2a2a2a] text-white rounded-br-none'
             : 'bg-gray-100 text-gray-800 rounded-bl-none'
         )}
         style={{

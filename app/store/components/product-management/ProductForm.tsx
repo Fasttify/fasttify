@@ -45,20 +45,36 @@ interface ProductFormProps {
 export function ProductForm({ storeId, productId }: ProductFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { createProduct, updateProduct, products } = useProducts(storeId, {
+  const { createProduct, updateProduct, products, fetchProduct } = useProducts(storeId, {
     skipInitialFetch: true,
   })
+  const [productToEdit, setProductToEdit] = useState<IProduct | null>(null)
 
-  // Si tenemos un productId, buscamos el producto para editar
-  const productToEdit = productId ? products.find(p => p.id === productId) : null
+  useEffect(() => {
+    const loadProduct = async () => {
+      if (productId) {
+        const existingProduct = products.find(p => p.id === productId)
+
+        if (existingProduct) {
+          setProductToEdit(existingProduct)
+        } else {
+          const product = await fetchProduct(productId)
+          if (product) {
+            setProductToEdit(product)
+          }
+        }
+      }
+    }
+
+    loadProduct()
+  }, [productId, products, fetchProduct])
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
-    defaultValues: productToEdit ? mapProductToFormValues(productToEdit) : defaultValues,
+    defaultValues: defaultValues,
     mode: 'onChange',
   })
 
-  // Actualizamos el formulario cuando el producto a editar cambia
   useEffect(() => {
     if (productToEdit) {
       const formValues = mapProductToFormValues(productToEdit)
@@ -92,6 +108,42 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     }
   }
 
+  async function handleProductUpdate(productData: Record<string, any>): Promise<IProduct | null> {
+    console.log('Handling product update with data:', productData)
+
+    if (!productId) {
+      console.error('Cannot update product: No product ID provided')
+      return null
+    }
+
+    try {
+      const result = await updateProduct({
+        id: productId,
+        ...productData,
+        storeId: storeId,
+      })
+
+      if (!result) {
+        console.error('Product update failed: No data returned')
+        throw new Error('No se recibió respuesta al actualizar el producto')
+      }
+
+      console.log('Product updated successfully:', result)
+      toast.success('Producto actualizado', {
+        description: `El producto "${result.name}" ha sido actualizado correctamente.`,
+      })
+
+      return result
+    } catch (error) {
+      console.error('Error in handleProductUpdate:', error)
+      toast.error('Error', {
+        description:
+          'Ha ocurrido un error al actualizar el producto. Por favor, inténtelo de nuevo.',
+      })
+      return null
+    }
+  }
+
   async function onSubmit(data: ProductFormValues) {
     setIsSubmitting(true)
 
@@ -113,35 +165,16 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
       }
 
       // Convertimos los campos complejos a strings JSON si es necesario
-      if (data.images && data.images.length > 0) {
-        basicProductData.images = JSON.stringify(data.images)
-      }
-
-      if (data.attributes && data.attributes.length > 0) {
-        basicProductData.attributes = JSON.stringify(data.attributes)
-      }
-
-      if (data.variants && data.variants.length > 0) {
-        basicProductData.variants = JSON.stringify(data.variants)
-      }
-
-      if (data.tags && data.tags.length > 0) {
-        basicProductData.tags = JSON.stringify(data.tags)
-      }
+      basicProductData.images = JSON.stringify(data.images || [])
+      basicProductData.attributes = JSON.stringify(data.attributes || [])
+      basicProductData.variants = JSON.stringify(data.variants || [])
+      basicProductData.tags = JSON.stringify(data.tags || [])
 
       let result: IProduct | null
 
       if (productId) {
-        result = await updateProduct({
-          id: productId,
-          ...basicProductData,
-        })
-
-        if (result) {
-          toast.success('Producto actualizado', {
-            description: `El producto "${result.name}" ha sido actualizado correctamente.`,
-          })
-        }
+        // Use the dedicated update function
+        result = await handleProductUpdate(basicProductData)
       } else {
         // Crear nuevo producto
         result = await createProduct({
@@ -170,8 +203,10 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
       }
 
       if (result) {
-        router.push(`/store/${storeId}/inventory`)
-        router.refresh()
+        setTimeout(() => {
+          router.push(`/store/${storeId}/products`)
+          router.refresh()
+        }, 500)
       } else {
         throw new Error('No se pudo guardar el producto')
       }
@@ -189,14 +224,22 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="basic">Información Básica</TabsTrigger>
-            <TabsTrigger value="pricing">Precios e Inventario</TabsTrigger>
-            <TabsTrigger value="images">Imágenes</TabsTrigger>
-            <TabsTrigger value="attributes">Atributos</TabsTrigger>
+          <TabsList className="flex flex-wrap w-full md:grid md:grid-cols-4 gap-2">
+            <TabsTrigger value="basic" className="flex-1 min-w-[120px]">
+              Información Básica
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="flex-1 min-w-[120px]">
+              Precios e Inventario
+            </TabsTrigger>
+            <TabsTrigger value="images" className="flex-1 min-w-[120px]">
+              Imágenes
+            </TabsTrigger>
+            <TabsTrigger value="attributes" className="flex-1 min-w-[120px]">
+              Atributos
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="basic" className="space-y-4 mt-6">
+          <TabsContent value="basic" className="space-y-4 mt-16 sm:mt-6">
             <Card>
               <CardContent className="pt-6">
                 <div className="grid gap-6">
@@ -245,7 +288,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Categoría</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Seleccione una categoría" />
@@ -273,7 +316,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Estado</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Seleccione un estado" />
@@ -386,7 +429,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="pricing" className="space-y-4 mt-6">
+          <TabsContent value="pricing" className="space-y-4 mt-16 sm:mt-6">
             <Card>
               <CardContent className="pt-6">
                 <div className="grid gap-6">
@@ -530,7 +573,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="images" className="space-y-4 mt-6">
+          <TabsContent value="images" className="space-y-4 mt-16 sm:mt-6">
             <Card>
               <CardContent className="pt-6">
                 <ImageUpload
@@ -550,7 +593,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="attributes" className="space-y-4 mt-6">
+          <TabsContent value="attributes" className="space-y-4 mt-16 sm:mt-6">
             <Card>
               <CardContent className="pt-6">
                 <AttributesForm
@@ -568,16 +611,74 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
           <Button type="button" variant="outline" onClick={() => router.back()}>
             Cancelar
           </Button>
-          <Button className="bg-gray-800 hover:bg-gray-700" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Guardando...
-              </>
-            ) : (
-              'Guardar Producto'
-            )}
-          </Button>
+
+          {productId ? (
+            <Button
+              type="button"
+              className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+              disabled={isSubmitting}
+              onClick={() => {
+                const data = form.getValues()
+                setIsSubmitting(true)
+
+                const basicProductData: Record<string, any> = {
+                  storeId,
+                  name: data.name,
+                  description: data.description,
+                  price: data.price,
+                  compareAtPrice: data.compareAtPrice,
+                  costPerItem: data.costPerItem,
+                  sku: data.sku,
+                  barcode: data.barcode,
+                  quantity: data.quantity,
+                  category: data.category,
+                  status: data.status,
+                }
+
+                basicProductData.images = JSON.stringify(data.images || [])
+                basicProductData.attributes = JSON.stringify(data.attributes || [])
+                basicProductData.variants = JSON.stringify(data.variants || [])
+                basicProductData.tags = JSON.stringify(data.tags || [])
+
+                handleProductUpdate(basicProductData)
+                  .then(result => {
+                    if (result) {
+                      setTimeout(() => {
+                        router.push(`/store/${storeId}/products`)
+                        router.refresh()
+                      }, 500)
+                    }
+                  })
+                  .finally(() => {
+                    setIsSubmitting(false)
+                  })
+              }}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Actualizando...
+                </>
+              ) : (
+                'Actualizar Producto'
+              )}
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creando...
+                </>
+              ) : (
+                'Crear Producto'
+              )}
+            </Button>
+          )}
         </div>
       </form>
     </Form>

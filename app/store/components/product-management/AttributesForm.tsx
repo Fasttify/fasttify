@@ -88,7 +88,7 @@ export function AttributesForm({ value, onChange }: AttributesFormProps) {
               />
             </div>
             <Button
-              className="bg-gray-800 hover:bg-gray-700"
+              className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
               type="button"
               onClick={addAttribute}
               disabled={!newAttributeName.trim()}
@@ -104,9 +104,9 @@ export function AttributesForm({ value, onChange }: AttributesFormProps) {
                 {value.map((attr, index) => (
                   <div
                     key={index}
-                    className={`flex items-center justify-between p-2 rounded-md  hover:bg-gray-700 cursor-pointer ${
+                    className={`flex items-center justify-between text-white p-2 rounded-md bg-[#2a2a2a] hover:bg-[#3a3a3a] cursor-pointer ${
                       selectedAttributeIndex === index
-                        ? 'bg-gray-800 text-primary-foreground'
+                        ? 'bg-[#2a2a2a] text-white'
                         : 'hover:bg-muted'
                     }`}
                     onClick={() => setSelectedAttributeIndex(index)}
@@ -165,7 +165,7 @@ export function AttributesForm({ value, onChange }: AttributesFormProps) {
                 </div>
                 <Button
                   type="button"
-                  className="bg-gray-800 hover:bg-gray-700"
+                  className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
                   onClick={addAttributeValue}
                   disabled={!newAttributeValue.trim()}
                 >

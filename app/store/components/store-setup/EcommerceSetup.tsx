@@ -34,7 +34,7 @@ export function EcommerceSetup() {
   return (
     <div className="p-3 max-w-5xl mx-auto bg-gray-100 ">
       {/* Header banner */}
-      <div className="mb-3 rounded-lg bg-black p-2 text-white flex justify-between items-center">
+      <div className="mb-3 rounded-lg bg-[#2a2a2a] p-2 text-white flex justify-between items-center">
         <div className="text-xs sm:text-sm">
           Suscríbete a un plan y obtén 3 meses a solo $1 al mes en Fasttify
         </div>
@@ -150,7 +150,7 @@ export function EcommerceSetup() {
                           <div className="flex flex-wrap gap-2 mt-2">
                             {task.actions?.primary && (
                               <Button
-                                className="bg-gray-800 hover:bg-gray-700 text-white rounded-md px-3 py-1 text-xs h-auto"
+                                className="bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white rounded-md px-3 py-1 text-xs h-auto"
                                 asChild
                               >
                                 <Link

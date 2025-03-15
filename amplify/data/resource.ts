@@ -99,9 +99,8 @@ const schema = a
         owner: a.string().required(), // Usuario que creo el producto
       })
       .authorization(allow => [
-        allow.ownerDefinedIn('owner').to(['update', 'delete']), // Solo el creador puede editar y eliminar
-        allow.authenticated().to(['create']), // Usuarios autenticados pueden crear
-        allow.guest().to(['read']), // Todos pueden ver los productos
+        allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']), // Solo el creador puede editar y eliminar
+        allow.guest().to(['read']),
       ]),
   })
   .authorization(allow => [

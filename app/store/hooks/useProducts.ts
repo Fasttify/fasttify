@@ -97,6 +97,7 @@ export interface UseProductsResult {
   updateProduct: (productData: ProductUpdateInput) => Promise<IProduct | null>
   deleteProduct: (id: string) => Promise<boolean>
   refreshProducts: () => void
+  fetchProduct: (id: string) => Promise<IProduct | null>
 }
 
 /**
@@ -156,7 +157,7 @@ export function useProducts(
       // Usamos solo los parámetros básicos y ordenamos manualmente después
       const { data, nextToken: newNextToken } = await client.models.Product.list({
         filter: { storeId: { eq: storeId } },
-        authMode: 'apiKey',
+        authMode: 'userPool',
         limit,
         nextToken: token,
       })
@@ -233,7 +234,6 @@ export function useProducts(
           ...productData,
           storeId: storeId || '',
           owner: username,
-          // Asegurarse de que estos campos existan
           status: productData.status || 'DRAFT',
           quantity: productData.quantity || 0,
         },
@@ -306,6 +306,48 @@ export function useProducts(
     }
   }
 
+  /**
+   * Obtiene un producto específico por su ID
+   * @param id - ID del producto a obtener
+   * @returns El producto obtenido o null si hay un error
+   */
+  const fetchProduct = async (id: string): Promise<IProduct | null> => {
+    try {
+      setLoading(true)
+
+      // Primero verificamos si ya tenemos el producto en el estado
+      const existingProduct = products.find(p => p.id === id)
+      if (existingProduct) {
+        return existingProduct
+      }
+
+      // Si no lo tenemos, lo buscamos en la API
+      const { data } = await client.models.Product.get({ id }, { authMode: 'userPool' })
+
+      if (data) {
+        // Añadimos el producto al estado si no está ya
+        setProducts(prev => {
+          // Verificamos si ya existe en el array
+          const exists = prev.some(p => p.id === data.id)
+          if (!exists) {
+            return [...prev, data as IProduct]
+          }
+          return prev
+        })
+
+        return data as IProduct
+      }
+
+      return null
+    } catch (err) {
+      console.error('Error al obtener producto:', err)
+      setError(err instanceof Error ? err : new Error('Error desconocido al obtener producto'))
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     // Datos y estado
     products,
@@ -324,6 +366,7 @@ export function useProducts(
     createProduct,
     updateProduct,
     deleteProduct,
+    fetchProduct,
 
     // Otras funciones útiles
     refreshProducts: resetPagination,
