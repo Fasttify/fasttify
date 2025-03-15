@@ -145,6 +145,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
   }
 
   async function onSubmit(data: ProductFormValues) {
+    if (isSubmitting) return
     setIsSubmitting(true)
 
     try {
@@ -203,10 +204,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
       }
 
       if (result) {
-        setTimeout(() => {
-          router.push(`/store/${storeId}/products`)
-          router.refresh()
-        }, 500)
+        router.push(`/store/${storeId}/products`)
       } else {
         throw new Error('No se pudo guardar el producto')
       }
@@ -643,10 +641,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                 handleProductUpdate(basicProductData)
                   .then(result => {
                     if (result) {
-                      setTimeout(() => {
-                        router.push(`/store/${storeId}/products`)
-                        router.refresh()
-                      }, 500)
+                      router.push(`/store/${storeId}/products`)
                     }
                   })
                   .finally(() => {
