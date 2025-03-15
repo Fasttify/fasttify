@@ -108,12 +108,10 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     }
   }
 
-  async function handleProductUpdate(productData: Record<string, any>): Promise<IProduct | null> {
-    console.log('Handling product update with data:', productData)
-
+  async function handleProductUpdate(productData: Record<string, any>): Promise<IProduct> {
     if (!productId) {
       console.error('Cannot update product: No product ID provided')
-      return null
+      throw new Error('No se proporcionó un ID de producto') // 🔴 Lanzamos un error
     }
 
     try {
@@ -140,7 +138,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
         description:
           'Ha ocurrido un error al actualizar el producto. Por favor, inténtelo de nuevo.',
       })
-      return null
+      throw error
     }
   }
 
@@ -149,8 +147,6 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     setIsSubmitting(true)
 
     try {
-      // Preparamos solo los campos básicos que sabemos que son aceptados por la API
-      // Usamos Record<string, any> para permitir propiedades dinámicas
       const basicProductData: Record<string, any> = {
         storeId,
         name: data.name,
@@ -174,10 +170,8 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
       let result: IProduct | null
 
       if (productId) {
-        // Use the dedicated update function
         result = await handleProductUpdate(basicProductData)
       } else {
-        // Crear nuevo producto
         result = await createProduct({
           storeId: basicProductData.storeId,
           name: basicProductData.name,
@@ -205,6 +199,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
 
       if (result) {
         router.push(`/store/${storeId}/products`)
+        return
       } else {
         throw new Error('No se pudo guardar el producto')
       }
@@ -213,7 +208,6 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
       toast.error('Error', {
         description: 'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
       })
-    } finally {
       setIsSubmitting(false)
     }
   }
@@ -615,38 +609,42 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
               type="button"
               className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
               disabled={isSubmitting}
-              onClick={() => {
-                const data = form.getValues()
+              onClick={async () => {
+                if (isSubmitting) return
                 setIsSubmitting(true)
 
-                const basicProductData: Record<string, any> = {
-                  storeId,
-                  name: data.name,
-                  description: data.description,
-                  price: data.price,
-                  compareAtPrice: data.compareAtPrice,
-                  costPerItem: data.costPerItem,
-                  sku: data.sku,
-                  barcode: data.barcode,
-                  quantity: data.quantity,
-                  category: data.category,
-                  status: data.status,
+                try {
+                  const data = form.getValues()
+
+                  const basicProductData: Record<string, any> = {
+                    storeId,
+                    name: data.name,
+                    description: data.description,
+                    price: data.price,
+                    compareAtPrice: data.compareAtPrice,
+                    costPerItem: data.costPerItem,
+                    sku: data.sku,
+                    barcode: data.barcode,
+                    quantity: data.quantity,
+                    category: data.category,
+                    status: data.status,
+                    images: JSON.stringify(data.images || []),
+                    attributes: JSON.stringify(data.attributes || []),
+                    variants: JSON.stringify(data.variants || []),
+                    tags: JSON.stringify(data.tags || []),
+                  }
+
+                  const result = await handleProductUpdate(basicProductData)
+
+                  if (result) {
+                    router.push(`/store/${storeId}/products`)
+                  } else {
+                    setIsSubmitting(false) // Solo reactivar el botón si la actualización falla
+                  }
+                } catch (error) {
+                  console.error('Error al actualizar producto:', error)
+                  setIsSubmitting(false) // Reactivar el botón en caso de error
                 }
-
-                basicProductData.images = JSON.stringify(data.images || [])
-                basicProductData.attributes = JSON.stringify(data.attributes || [])
-                basicProductData.variants = JSON.stringify(data.variants || [])
-                basicProductData.tags = JSON.stringify(data.tags || [])
-
-                handleProductUpdate(basicProductData)
-                  .then(result => {
-                    if (result) {
-                      router.push(`/store/${storeId}/products`)
-                    }
-                  })
-                  .finally(() => {
-                    setIsSubmitting(false)
-                  })
               }}
             >
               {isSubmitting ? (
