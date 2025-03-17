@@ -49,6 +49,8 @@ export interface IProduct {
     }>
   }>
   owner: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 /**

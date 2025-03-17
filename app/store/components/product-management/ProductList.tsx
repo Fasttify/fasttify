@@ -22,30 +22,38 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { useProducts } from '@/app/store/hooks/useProducts'
+import { IProduct } from '@/app/store/hooks/useProducts'
 import { toast } from 'sonner'
 import { routes } from '@/utils/routes'
+import { exportProductsToCSV } from '@/app/store/components/product-management/utils/exportUtils'
 
 interface ProductListProps {
   storeId: string
+  products: IProduct[]
+  loading: boolean
+  error: Error | null
+  hasNextPage: boolean
+  loadNextPage: () => void
+  deleteMultipleProducts: (ids: string[]) => Promise<boolean>
+  refreshProducts: () => void
+  deleteProduct: (id: string) => Promise<boolean>
 }
 
-export function ProductList({ storeId }: ProductListProps) {
+export function ProductList({
+  storeId,
+  products,
+  loading,
+  error,
+  hasNextPage,
+  loadNextPage,
+  deleteMultipleProducts,
+  refreshProducts,
+  deleteProduct,
+}: ProductListProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('all')
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-
-  const {
-    products,
-    loading,
-    error,
-    hasNextPage,
-    loadNextPage,
-    deleteMultipleProducts,
-    refreshProducts,
-    deleteProduct,
-  } = useProducts(storeId)
 
   // Filtrar productos según la pestaña activa
   const filteredProducts = products
@@ -123,14 +131,37 @@ export function ProductList({ storeId }: ProductListProps) {
     return <span>{quantity} en stock</span>
   }
 
+  // Add a function to handle the export action
+  const handleExportProducts = () => {
+    // Use the filtered products or selected products
+    const productsToExport =
+      selectedProducts.length > 0
+        ? products.filter(product => selectedProducts.includes(product.id))
+        : filteredProducts
+
+    if (productsToExport.length === 0) {
+      toast.error('No hay productos para exportar')
+      return
+    }
+
+    const date = new Date().toISOString().split('T')[0]
+    const fileName = `productos-${date}.csv`
+
+    exportProductsToCSV(productsToExport, fileName)
+
+    // Show a success message
+    toast.success(`${productsToExport.length} productos exportados correctamente`)
+  }
+
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm border">
+    <div className="w-full bg-white rounded-lg shadow-sm border mt-8">
       <div className="p-4 sm:p-6 flex flex-col gap-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 className="text-xl font-semibold text-gray-800">Productos</h1>
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            <Button variant="outline" size="sm" className="h-9">
+            {/* Update the Export button to use the new function */}
+            <Button variant="outline" size="sm" className="h-9" onClick={handleExportProducts}>
               <Upload className="h-4 w-4 mr-2" />
               Exportar
             </Button>

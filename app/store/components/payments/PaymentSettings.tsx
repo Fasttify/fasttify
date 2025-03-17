@@ -18,6 +18,10 @@ import {
 import { WompiGuide } from '@/app/store/components/payments/WompiGuide'
 import { MercadoPagoGuide } from '@/app/store/components/payments/MercadoPagoGuide'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  WompiPaymentIcons,
+  MercadoPagoIcons,
+} from '@/app/store/components/payments/PaymentMethodIcons'
 
 export function PaymentSettings() {
   const params = useParams()
@@ -175,11 +179,12 @@ export function PaymentSettings() {
                 </Button>
               </div>
 
-              <button className="w-full p-4 flex items-center text-gray-600 hover:bg-gray-50 transition-colors">
-                <Plus className="w-5 h-5 mr-2 text-gray-500" />
-                <span className="text-sm">Añadir nuevo método de pago</span>
-              </button>
+              <div className="w-full p-4 flex flex-col text-gray-600 hover:bg-gray-50 transition-colors">
+                <span className="text-sm mb-2">Métodos de pago</span>
+                <WompiPaymentIcons />
+              </div>
             </div>
+
             <div className="border border-gray-200 rounded-lg mt-4">
               <div className="p-4 border-b border-gray-200 flex justify-between items-center">
                 <div className="flex flex-col">
@@ -212,10 +217,10 @@ export function PaymentSettings() {
                 </Button>
               </div>
 
-              <button className="w-full p-4 flex items-center text-gray-600 hover:bg-gray-50 transition-colors">
-                <Plus className="w-5 h-5 mr-2 text-gray-500" />
-                <span className="text-sm">Añadir nuevo método de pago</span>
-              </button>
+              <div className="w-full p-4 flex flex-col text-gray-600 hover:bg-gray-50 transition-colors">
+                <span className="text-sm mb-2">Métodos de pago</span>
+                <MercadoPagoIcons />
+              </div>
             </div>
           </div>
 

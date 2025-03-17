@@ -10,7 +10,17 @@ interface ProductManagerProps {
 }
 
 export function ProductManager({ storeId, productId }: ProductManagerProps) {
-  const { products, loading } = useProducts(storeId)
+  // Get all the data and states from useProducts
+  const {
+    products,
+    loading,
+    error,
+    hasNextPage,
+    loadNextPage,
+    deleteMultipleProducts,
+    refreshProducts,
+    deleteProduct,
+  } = useProducts(storeId)
 
   if (productId) {
     return <ProductForm storeId={storeId} productId={productId} />
@@ -48,7 +58,21 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
     )
   }
 
-  return products.length === 0 ? <ProductsPage /> : <ProductList storeId={storeId} />
+  return products.length === 0 ? (
+    <ProductsPage />
+  ) : (
+    <ProductList
+      storeId={storeId}
+      products={products}
+      loading={loading}
+      error={error}
+      hasNextPage={hasNextPage}
+      loadNextPage={loadNextPage}
+      deleteMultipleProducts={deleteMultipleProducts}
+      refreshProducts={refreshProducts}
+      deleteProduct={deleteProduct}
+    />
+  )
 }
 
 export default ProductManager

@@ -60,7 +60,7 @@ export function ProductsPage() {
                 </p>
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Link href={routes.store.products.add(storeId)}>
-                    <Button className="bg-gray-800 hover:bg-gray-700">
+                    <Button className="bg-[#2a2a2a] hover:bg-[#3a3a3a]">
                       <Plus className="h-4 w-4 mr-2" />
                       Añadir producto
                     </Button>
