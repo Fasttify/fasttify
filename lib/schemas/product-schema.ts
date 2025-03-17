@@ -8,7 +8,7 @@ export const productFormSchema = z.object({
     message: 'La descripción del producto debe tener al menos 10 caracteres.',
   }),
   price: z.preprocess(
-    val => (val === '' ? undefined : val),
+    val => (val === '' || val === null ? undefined : val),
     z.coerce
       .number({
         invalid_type_error: 'El precio debe ser un número válido.',
@@ -17,9 +17,11 @@ export const productFormSchema = z.object({
       .positive({
         message: 'El precio debe ser un número positivo.',
       })
+      .optional()
+      .nullable()
   ),
   compareAtPrice: z.preprocess(
-    val => (val === '' ? undefined : val),
+    val => (val === '' || val === null ? undefined : val),
     z.coerce
       .number({
         invalid_type_error: 'El precio de comparación debe ser un número válido.',
@@ -28,9 +30,10 @@ export const productFormSchema = z.object({
         message: 'El precio de comparación debe ser un número positivo.',
       })
       .optional()
+      .nullable()
   ),
   costPerItem: z.preprocess(
-    val => (val === '' ? undefined : val),
+    val => (val === '' || val === null ? undefined : val),
     z.coerce
       .number({
         invalid_type_error: 'El costo por artículo debe ser un número válido.',
@@ -39,6 +42,7 @@ export const productFormSchema = z.object({
         message: 'El costo por artículo debe ser un número positivo.',
       })
       .optional()
+      .nullable()
   ),
   sku: z.string().optional(),
   barcode: z.string().optional(),

@@ -332,7 +332,11 @@ export function ProductList({
                       )}
                     </td>
                     <td className="py-3 px-4">{formatInventory(product.quantity)}</td>
-                    <td className="py-3 px-4">${product.price.toFixed(2)}</td>
+                    <td className="py-3 px-4">
+                      {product.price !== null && product.price !== undefined
+                        ? `$${product.price.toFixed(2)}`
+                        : '$0.00'}
+                    </td>
                     <td className="py-3 px-4">{product.category || 'Sin categoría'}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">

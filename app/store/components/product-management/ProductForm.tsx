@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -148,11 +146,8 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
           onSave={async () => {
             if (productId) {
               try {
-                const isValid = await form.trigger(['name'])
+                const isValid = await form.trigger()
                 if (!isValid) {
-                  toast.error('Error de validación', {
-                    description: 'Por favor complete el nombre del producto.',
-                  })
                   return Promise.reject(new Error('Validation failed'))
                 }
 
@@ -176,19 +171,19 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                 }
               } catch (error) {
                 console.error('Error al guardar producto:', error)
-                toast.error('Error', {
-                  description:
-                    'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
-                })
+
+                if (!(error instanceof Error && error.message === 'Validation failed')) {
+                  toast.error('Error', {
+                    description:
+                      'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
+                  })
+                }
                 throw error
               }
             } else {
               try {
-                const isValid = await form.trigger(['name'])
+                const isValid = await form.trigger()
                 if (!isValid) {
-                  toast.error('Error de validación', {
-                    description: 'Por favor complete el nombre del producto.',
-                  })
                   return Promise.reject(new Error('Validation failed'))
                 }
 
@@ -209,10 +204,12 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                 }
               } catch (error) {
                 console.error('Error al guardar producto:', error)
-                toast.error('Error', {
-                  description:
-                    'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
-                })
+                if (!(error instanceof Error && error.message === 'Validation failed')) {
+                  toast.error('Error', {
+                    description:
+                      'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
+                  })
+                }
                 throw error
               }
             }
@@ -450,6 +447,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                                   placeholder="0.00"
                                   className="pl-7"
                                   {...field}
+                                  value={field.value === null ? '' : field.value}
                                 />
                               </div>
                             </FormControl>

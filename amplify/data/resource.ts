@@ -78,7 +78,7 @@ const schema = a
         storeId: a.string().required(), // Relaciona el producto con la tienda
         name: a.string().required(), // Nombre del producto
         description: a.string(), // Descripción del producto
-        price: a.float().required(), // Precio del producto
+        price: a.float(), // Precio del producto
         compareAtPrice: a.float(), // Precio de comparación (opcional)
         costPerItem: a.float(), // Costo por artículo (opcional)
         sku: a.string(), // SKU del producto (opcional)
