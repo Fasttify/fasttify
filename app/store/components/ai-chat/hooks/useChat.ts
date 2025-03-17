@@ -49,8 +49,6 @@ export function useChat() {
     setError(null)
 
     try {
-      console.log('Enviando mensaje al chatbot:', message)
-
       // Añadir el mensaje del usuario a la lista
       setMessages(prev => [...prev, { content: message, role: 'user' }])
 

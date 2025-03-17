@@ -4,7 +4,6 @@ import {
   InvokeModelCommand,
   InvokeModelCommandInput,
 } from '@aws-sdk/client-bedrock-runtime'
-import { env } from '$amplify/env/generateHaiku'
 
 // initialize bedrock runtime client
 const client = new BedrockRuntimeClient()
@@ -33,7 +32,7 @@ export const handler: Schema['generateHaiku']['functionHandler'] = async (event,
           ],
         },
       ],
-      max_tokens: 1000,
+      max_tokens: 2000,
       temperature: 0.5,
     }),
   } as InvokeModelCommandInput
