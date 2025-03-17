@@ -16,7 +16,7 @@ export function useProductImageUpload() {
   const [error, setError] = useState<Error | null>(null)
 
   // Obtener el bucket correcto para imágenes de productos
-  const productBucket = 'amplify-awsamplifygen2-xo-productsimagesbucketfa05-emowowftxo9z'
+  const productBucket = outputs.storage.buckets.find(bucket => bucket.name === 'productsImages')
   const aws_region = outputs.auth.aws_region
 
   if (!productBucket) {
@@ -40,8 +40,8 @@ export function useProductImageUpload() {
         data: file,
       }).result
 
-      // Construir la URL pública correcta
-      const publicUrl = `https://${productBucket}.s3.${aws_region}.amazonaws.com/${result.path}`
+      // Construir la URL pública correcta usando el nombre del bucket
+      const publicUrl = `https://${productBucket.bucket_name}.s3.${aws_region}.amazonaws.com/${result.path}`
 
       return {
         url: publicUrl,
