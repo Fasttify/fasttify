@@ -60,18 +60,14 @@ const schema = a
         storeStatus: a.string(), // Estado de la tienda (activa, inactiva, etc.)
         storePolicy: a.string(), // Política de la tienda (opcional)
         storeAdress: a.string(), // Dirección de la tienda
-
         contactEmail: a.email(),
         contactPhone: a.phone(),
         contactName: a.string(),
         conctactIdentification: a.string(),
         contactIdentificationType: a.string(),
-
         wompiConfig: a.json(),
         mercadoPagoConfig: a.json(),
-
         customDomain: a.string(),
-
         onboardingCompleted: a.boolean().required(),
       })
       .authorization(allow => [allow.authenticated().to(['read', 'update', 'delete', 'create'])]),
