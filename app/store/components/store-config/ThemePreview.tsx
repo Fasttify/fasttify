@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 export function ThemePreview() {
   return (
-    <div className="bg-gray-100 ">
+    <div className="bg-gray-100 mt-8">
       <div className="max-w-full sm:max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">

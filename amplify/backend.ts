@@ -1,6 +1,6 @@
 import { defineBackend } from '@aws-amplify/backend'
 import { auth } from './auth/resource'
-import { storage } from './storage/resource'
+import { storage, productsImages } from './storage/resource'
 import { createSubscription } from './functions/createSubscription/resource'
 import { webHookPlan } from './functions/webHookPlan/resource'
 import { cancelPlan } from './functions/cancelPlan/resource'
@@ -28,6 +28,7 @@ const backend = defineBackend({
   checkStoreName,
   postConfirmation,
   generateHaikuFunction,
+  productsImages,
 })
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(

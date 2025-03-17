@@ -32,7 +32,7 @@ export function EcommerceSetup() {
   const completedTasksCount = tasks.filter(task => task.completed).length
 
   return (
-    <div className="p-3 max-w-5xl mx-auto bg-gray-100 ">
+    <div className="p-3 max-w-5xl mx-auto bg-gray-100 mt-8 ">
       {/* Header banner */}
       <div className="mb-3 rounded-lg bg-[#2a2a2a] p-2 text-white flex justify-between items-center">
         <div className="text-xs sm:text-sm">

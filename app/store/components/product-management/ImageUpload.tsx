@@ -1,11 +1,12 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
-import { X, Upload } from 'lucide-react'
+import { X, Upload, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { useProductImageUpload } from '@/app/store/hooks/useProductImageUpload'
 
 interface ImageFile {
   url: string
@@ -15,25 +16,57 @@ interface ImageFile {
 interface ImageUploadProps {
   value: ImageFile[]
   onChange: (value: ImageFile[]) => void
+  storeId: string
 }
 
-export function ImageUpload({ value, onChange }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [enlargedImage, setEnlargedImage] = useState<ImageFile | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadingFiles, setUploadingFiles] = useState<{ file: File; preview: string }[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { uploadMultipleProductImages, isLoading } = useProductImageUpload()
 
-  const handleFileSelect = (files: FileList | null) => {
+  useEffect(() => {
+    setIsUploading(isLoading)
+  }, [isLoading])
+
+  const handleFileSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return
 
-    const newImages = Array.from(files)
-      .filter(file => file.type.startsWith('image/') && file.size <= 5242880) // 5MB
-      .map(file => ({
-        url: URL.createObjectURL(file),
-        alt: '',
+    setIsUploading(true)
+
+    try {
+      const validFiles = Array.from(files).filter(
+        file => file.type.startsWith('image/') && file.size <= 5242880
+      )
+
+      if (validFiles.length === 0) {
+        return
+      }
+
+      // Create previews for uploading files
+      const uploading = validFiles.map(file => ({
+        file,
+        preview: URL.createObjectURL(file),
       }))
 
-    onChange([...value, ...newImages])
+      setUploadingFiles(uploading)
+
+      const uploadedImages = await uploadMultipleProductImages(validFiles, storeId)
+
+      if (uploadedImages.length > 0) {
+        onChange([...value, ...uploadedImages])
+      }
+    } catch (error) {
+      console.error('Error uploading images:', error)
+    } finally {
+      // Clean up object URLs to avoid memory leaks
+      uploadingFiles.forEach(item => URL.revokeObjectURL(item.preview))
+      setUploadingFiles([])
+      setIsUploading(false)
+    }
   }
 
   const handleDragEnter = (e: React.DragEvent) => {
@@ -105,6 +138,13 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
     setEnlargedImage(image)
   }
 
+  useEffect(() => {
+    // Clean up object URLs when component unmounts
+    return () => {
+      uploadingFiles.forEach(item => URL.revokeObjectURL(item.preview))
+    }
+  }, [uploadingFiles])
+
   return (
     <div className="space-y-4">
       <div
@@ -125,6 +165,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
           accept="image/jpeg,image/png,image/webp,image/jpg"
           multiple
           onChange={e => handleFileSelect(e.target.files)}
+          disabled={isUploading}
         />
         <div className="flex flex-col items-center justify-center gap-2">
           <Upload className="h-10 w-10 text-muted-foreground" />
@@ -132,11 +173,36 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
           <p className="text-sm text-muted-foreground">
             o haga clic para buscar (máximo 5MB por imagen)
           </p>
-          <Button type="button" variant="secondary" className="mt-2">
-            Seleccionar Archivos
+          <Button type="button" variant="secondary" className="mt-2" disabled={isUploading}>
+            {isUploading ? 'Subiendo...' : 'Seleccionar Archivos'}
           </Button>
         </div>
       </div>
+
+      {uploadingFiles.length > 0 && (
+        <div className="space-y-4 mt-4">
+          <h3 className="font-medium">Subiendo imágenes ({uploadingFiles.length})</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {uploadingFiles.map((item, index) => (
+              <div key={`uploading-${index}`} className="border rounded-lg p-2 space-y-2">
+                <div className="relative aspect-square rounded-md overflow-hidden bg-muted">
+                  <Image
+                    src={item.preview || '/placeholder.svg'}
+                    alt="Imagen cargando"
+                    fill
+                    className="object-cover opacity-60"
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 text-white">
+                    <Loader2 className="h-8 w-8 animate-spin mb-2" />
+                    <span className="text-sm font-medium">Subiendo...</span>
+                  </div>
+                </div>
+                <div className="text-xs text-muted-foreground truncate">{item.file.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {value.length > 0 && (
         <div className="space-y-4">
@@ -196,10 +262,6 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
 
       <Dialog open={!!enlargedImage} onOpenChange={open => !open && setEnlargedImage(null)}>
         <DialogContent className="max-w-4xl w-full p-1 sm:p-2">
-          <DialogClose className="absolute right-2 top-2 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-            <X className="h-6 w-6" />
-            <span className="sr-only">Cerrar</span>
-          </DialogClose>
           {enlargedImage && (
             <div className="relative w-full h-[80vh]">
               <Image
