@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { generateClient } from 'aws-amplify/data'
 import type { Schema } from '@/amplify/data/resource'
+import { CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/data'
+import { Hub } from 'aws-amplify/utils'
 
 const client = generateClient<Schema>()
 
@@ -11,18 +13,33 @@ interface StoreDataState {
   storeId: string | null
   isLoading: boolean
   error: Error | null
+  connectionState: ConnectionState | null
   setStoreId: (id: string | null) => void
   fetchStoreData: (id: string) => Promise<void>
   clearStore: () => void
+  setupSubscription: (id: string) => () => void
+  setConnectionState: (state: ConnectionState) => void
 }
+
+// Configurar el listener de estado de conexión
+Hub.listen('api', (data: any) => {
+  const { payload } = data
+  if (payload.event === CONNECTION_STATE_CHANGE) {
+    const connectionState = payload.data.connectionState as ConnectionState
+    useStoreDataStore.getState().setConnectionState(connectionState)
+  }
+})
 
 const useStoreDataStore = create<StoreDataState>((set, get) => ({
   currentStore: null,
   storeId: null,
-  isLoading: true, // Start with loading true by default
+  isLoading: true,
   error: null,
+  connectionState: null,
 
   setStoreId: id => set({ storeId: id }),
+
+  setConnectionState: (state: ConnectionState) => set({ connectionState: state }),
 
   fetchStoreData: async id => {
     // No hacer fetch si ya tenemos los datos de esta tienda
@@ -45,6 +62,9 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
           storeId: id,
           isLoading: false,
         })
+
+        // Configurar suscripción automáticamente después de obtener los datos
+        get().setupSubscription(id)
       } else {
         set({
           error: new Error('Tienda no encontrada'),
@@ -60,6 +80,42 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
   },
 
   clearStore: () => set({ currentStore: null, storeId: null, error: null, isLoading: true }),
+
+  // Configurar suscripción para actualizaciones en tiempo real
+  setupSubscription: (id: string) => {
+    // Usar observeQuery para mantener los datos actualizados automáticamente
+    const subscription = client.models.UserStore.observeQuery({
+      filter: { storeId: { eq: id } },
+      authMode: 'userPool',
+    }).subscribe({
+      next: ({ items, isSynced }) => {
+        if (items.length > 0) {
+          // Actualizar el estado con los datos más recientes
+          set({
+            currentStore: items[0] as StoreType,
+            isLoading: false,
+          })
+        } else if (isSynced) {
+          // Si no hay elementos después de sincronizar, la tienda podría haber sido eliminada
+          set({
+            currentStore: null,
+            error: new Error('Tienda no encontrada o eliminada'),
+            isLoading: false,
+          })
+        }
+      },
+      error: error => {
+        console.error('Error en la suscripción:', error)
+        set({
+          error: new Error('Error en la suscripción de datos'),
+          isLoading: false,
+        })
+      },
+    })
+
+    // Devolver función para cancelar la suscripción
+    return () => subscription.unsubscribe()
+  },
 }))
 
 export default useStoreDataStore

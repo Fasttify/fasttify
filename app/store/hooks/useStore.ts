@@ -1,22 +1,14 @@
 import { useEffect, useState } from 'react'
-import type { Schema } from '@/amplify/data/resource'
 import useStoreDataStore from '@/zustand-states/storeDataStore'
 
-type StoreType = Schema['UserStore']['type']
-
 interface UseStoreReturn {
-  store: StoreType | null
+  store: any
   loading: boolean
   error: Error | null
 }
 
 /**
- * Hook personalizado para obtener y gestionar los datos de una tienda específica.
- * Proporciona estados de carga, error y los datos de la tienda.
- * Utiliza Zustand para compartir los datos entre componentes.
- *
- * @param {string | null} storeId - El ID de la tienda a consultar
- * @returns {UseStoreReturn} Un objeto con los estados y datos de la tienda
+ * Hook para obtener y gestionar los datos de una tienda
  */
 export function useStore(storeId: string | null): UseStoreReturn {
   const { currentStore, isLoading, error, fetchStoreData } = useStoreDataStore()
