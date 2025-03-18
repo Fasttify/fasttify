@@ -29,10 +29,6 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-10 w-32" />
-        </div>
         <div className="border rounded-lg p-4">
           <div className="flex items-center space-x-4 mb-4">
             <Skeleton className="h-6 w-24" />

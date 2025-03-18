@@ -20,7 +20,7 @@ export interface UserStoreInput {
   storePolicy?: string // Política de la tienda
   storeAdress?: string // Dirección de la tienda
   contactEmail?: string
-  contactPhone?: string
+  contactPhone?: number
   contactName?: string
   contactIdentification?: string
   contactIdentificationType?: string

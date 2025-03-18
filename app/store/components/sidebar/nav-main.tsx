@@ -13,6 +13,7 @@ import {
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import useStoreDataStore from '@/zustand-states/storeDataStore'
 
 interface NavMainProps {
   items: {
@@ -29,9 +30,9 @@ interface NavMainProps {
   isLoading?: boolean
 }
 
-export function NavMain({ items, storeName, isLoading = false }: NavMainProps) {
+export function NavMain({ items }: NavMainProps) {
   const pathname = usePathname()
-
+  const { currentStore, isLoading, clearStore } = useStoreDataStore()
   const [openItem, setOpenItem] = useState<string | null>(null)
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export function NavMain({ items, storeName, isLoading = false }: NavMainProps) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="font-medium text-gray-800">
-        Mi tienda - {isLoading ? 'Cargando...' : storeName}
+        Mi tienda - {isLoading ? 'Cargando...' : currentStore?.storeName}
       </SidebarGroupLabel>
       <SidebarMenu>
         {items.map(item => (

@@ -5,17 +5,18 @@ import { NavMain } from '@/app/store/components/sidebar/nav-main'
 import { NavUser } from '@/app/store/components/sidebar/nav-user'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from '@/components/ui/sidebar'
 import { useAuth } from '@/hooks/auth/useAuth'
-import { useParams } from 'next/navigation'
-import { useStore } from '@/app/store/hooks/useStore'
 import { routes } from '@/utils/routes'
+import { getStoreId } from '@/utils/store-utils'
+import { useParams, usePathname } from 'next/navigation'
 import useUserStore from '@/zustand-states/userStore'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useUserStore()
   const [isClient, setIsClient] = useState(false)
+  const pathname = usePathname()
   const params = useParams()
-  const storeId = params.slug as string
-  const { store } = useStore(storeId)
+  const storeId = getStoreId(params, pathname)
+
   useAuth()
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: LayoutGrid,
         items: [
           {
-            title: 'Dominio',
+            title: 'Dominio y Nombre',
             url: routes.store.setup.domain(storeId),
           },
           {
@@ -113,11 +114,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarContent className="bg-[#ebebeb] font-medium text-gray-800">
-        <NavMain
-          items={data.navMain}
-          storeName={store?.storeName}
-          isLoading={loading || !isClient}
-        />
+        <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter className="bg-[#ebebeb] text-gray-800">
         <NavUser user={user} loading={loading} />

@@ -4,6 +4,7 @@ import { webHookPlan } from '../functions/webHookPlan/resource'
 import { cancelPlan } from '../functions/cancelPlan/resource'
 import { planScheduler } from '../functions/planScheduler/resource'
 import { checkStoreName } from '../functions/checkStoreName/resource'
+import { checkStoreDomain } from '../functions/checkStoreDomain/resource'
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
 
@@ -61,7 +62,7 @@ const schema = a
         storePolicy: a.string(), // Política de la tienda (opcional)
         storeAdress: a.string(), // Dirección de la tienda
         contactEmail: a.email(),
-        contactPhone: a.phone(),
+        contactPhone: a.float(),
         contactName: a.string(),
         conctactIdentification: a.string(),
         contactIdentificationType: a.string(),
@@ -105,6 +106,7 @@ const schema = a
     allow.resource(cancelPlan),
     allow.resource(planScheduler),
     allow.resource(checkStoreName),
+    allow.resource(checkStoreDomain),
   ])
 
 export type Schema = ClientSchema<typeof schema>

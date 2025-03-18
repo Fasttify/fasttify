@@ -7,6 +7,7 @@ import { cancelPlan } from './functions/cancelPlan/resource'
 import { planScheduler } from './functions/planScheduler/resource'
 import { planManagement } from './functions/planManagement/resource'
 import { checkStoreName } from './functions/checkStoreName/resource'
+import { checkStoreDomain } from './functions/checkStoreDomain/resource'
 import { postConfirmation } from './auth/post-confirmation/resource'
 import { data, generateHaikuFunction } from './data/resource'
 import { Stack } from 'aws-cdk-lib'
@@ -29,6 +30,7 @@ const backend = defineBackend({
   postConfirmation,
   generateHaikuFunction,
   productsImages,
+  checkStoreDomain,
 })
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
@@ -181,6 +183,29 @@ checkStoreNameResource.addMethod('GET', checkStoreNameIntegration)
 
 /**
  *
+ * API para Validar Disponibilidad de Dominio
+ *
+ */
+const checkStoreDomainApi = new RestApi(apiStack, 'CheckStoreDomainApi', {
+  restApiName: 'CheckStoreDomain',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
+  },
+})
+const checkStoreDomainIntegration = new LambdaIntegration(backend.checkStoreDomain.resources.lambda)
+
+const checkStoreDomainResource = checkStoreDomainApi.root.addResource('check-store-domain', {
+  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
+})
+
+checkStoreDomainResource.addMethod('GET', checkStoreDomainIntegration)
+
+/**
+ *
  * Política de IAM para Invocar las APIs
  *
  */
@@ -194,6 +219,7 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
         `${cancelPlanApi.arnForExecuteApi('*', '/cancel-plan', 'dev')}`,
         `${planManagementApi.arnForExecuteApi('*', '/plan-management', 'dev')}`,
         `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', 'dev')}`,
+        `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', 'dev')}`,
       ],
     }),
   ],
@@ -235,6 +261,11 @@ backend.addOutput({
         endpoint: checkStoreNameApi.url,
         region: Stack.of(checkStoreNameApi).region,
         apiName: checkStoreNameApi.restApiName,
+      },
+      CheckStoreDomainApi: {
+        endpoint: checkStoreDomainApi.url,
+        region: Stack.of(checkStoreDomainApi).region,
+        apiName: checkStoreDomainApi.restApiName,
       },
     },
   },

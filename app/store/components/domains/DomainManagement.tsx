@@ -1,7 +1,84 @@
-import { Search, Globe } from 'lucide-react'
+import { Search, Globe, Store, MapPin } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { ChangeDomainDialog } from '@/app/store/components/domains/ChangeDomainDialog'
+import { EditStoreProfileDialog } from '@/app/store/components/domains/EditStoreProfileDialog'
+import { Skeleton } from '@/components/ui/skeleton'
+import useStoreDataStore from '@/zustand-states/storeDataStore'
 
 export function DomainManagement() {
+  const { currentStore, isLoading } = useStoreDataStore()
+  const [openChangeDomainDialog, setOpenChangeDomainDialog] = useState(false)
+  const [openEditProfileDialog, setOpenEditProfileDialog] = useState(false)
+
+  if (isLoading) {
+    return (
+      <div className="bg-gray-100 p-4 md:p-6">
+        <Skeleton className="h-8 w-48 mb-6" />
+
+        {/* Skeleton for domain configuration section */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex-1">
+              <Skeleton className="h-6 w-64 mb-2" />
+              <Skeleton className="h-4 w-full mb-1" />
+              <Skeleton className="h-4 w-full mb-1" />
+              <Skeleton className="h-4 w-3/4 mb-4" />
+              <div className="flex flex-wrap gap-3">
+                <Skeleton className="h-9 w-32" />
+                <Skeleton className="h-9 w-48" />
+              </div>
+            </div>
+            <Skeleton className="w-24 h-24 rounded-full" />
+          </div>
+        </div>
+
+        {/* Skeleton for store details section */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <Skeleton className="h-6 w-40 mb-4" />
+          <div className="space-y-4">
+            <div className="flex items-center py-2 border-t border-gray-100">
+              <Skeleton className="h-5 w-5 rounded-full mr-3" />
+              <Skeleton className="h-5 w-40" />
+            </div>
+            <div className="flex items-start py-2 border-t border-gray-100">
+              <Skeleton className="h-5 w-5 rounded-full mr-3 mt-0.5" />
+              <div className="w-full">
+                <Skeleton className="h-5 w-40 mb-1" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            </div>
+            <div className="mt-4 pt-2 pl-9">
+              <Skeleton className="h-4 w-48" />
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton for domain search and list */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-4 border-b border-gray-200">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-8 h-8 rounded-full" />
+                <div>
+                  <Skeleton className="h-5 w-40 mb-1" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </div>
+              <Skeleton className="h-5 w-16" />
+            </div>
+            <div className="mt-3 pl-11">
+              <Skeleton className="h-4 w-56" />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-gray-100 p-4 md:p-6">
       <h1 className="text-xl md:text-xl font-medium text-gray-800 mb-6">Gestión de Dominios</h1>
@@ -38,6 +115,35 @@ export function DomainManagement() {
         </div>
       </div>
 
+      {/* Detalles de la tienda */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <h2 className="text-base font-medium text-gray-800 mb-4">Detalles de la tienda</h2>
+
+        <div className="space-y-4">
+          <div className="flex items-center py-2 border-t border-gray-100">
+            <Store className="h-5 w-5 text-gray-500 mr-3" />
+            <span className="font-medium text-gray-800">{currentStore?.storeName}</span>
+          </div>
+
+          <div className="flex items-start py-2 border-t border-gray-100">
+            <MapPin className="h-5 w-5 text-gray-500 mr-3 mt-0.5" />
+            <div>
+              <div className="font-medium text-gray-800">Dirección de facturación</div>
+              <div className="text-sm text-gray-500">Colombia</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-2 pl-9">
+          <button
+            onClick={() => setOpenEditProfileDialog(true)}
+            className="text-blue-600 hover:underline text-sm text-left"
+          >
+            Editar detalles de la tienda
+          </button>
+        </div>
+      </div>
+
       {/* Buscador y lista de dominios */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-200">
@@ -60,19 +166,39 @@ export function DomainManagement() {
                 <Globe className="h-5 w-5 text-gray-500" />
               </div>
               <div>
-                <div className="font-medium text-gray-800">mitienda.fasttify.com</div>
+                <div className="font-medium text-gray-800">{currentStore?.customDomain}</div>
                 <div className="text-sm text-gray-500">Dominio predeterminado</div>
               </div>
             </div>
             <div className="text-gray-700">Activo</div>
           </div>
           <div className="mt-3 pl-11">
-            <a href="#" className="text-blue-600 hover:underline text-sm">
+            <button
+              onClick={() => setOpenChangeDomainDialog(true)}
+              className="text-blue-600 hover:underline text-sm text-left"
+            >
               Cambiar a un nuevo subdominio Fasttify
-            </a>
+            </button>
           </div>
         </div>
       </div>
+
+      <ChangeDomainDialog
+        open={openChangeDomainDialog}
+        onOpenChange={setOpenChangeDomainDialog}
+        storeId={currentStore?.id || ''}
+      />
+
+      <EditStoreProfileDialog
+        open={openEditProfileDialog}
+        onOpenChange={setOpenEditProfileDialog}
+        storeId={currentStore?.id || ''}
+        initialData={{
+          storeName: currentStore?.storeName,
+          contactEmail: currentStore?.contactEmail || '',
+          contactPhone: currentStore?.contactPhone?.toString() || '',
+        }}
+      />
     </div>
   )
 }
