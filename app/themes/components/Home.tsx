@@ -1,12 +1,63 @@
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ThemeCard } from '@/app/themes/components/ThemeCard'
 import { TestimonialSlider } from '@/app/themes/components/TestimonialSlider'
 import { popularThemes, newThemes } from '@/app/themes/data/themesData'
+import { ArrowLeft, ArrowUp } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export function Home() {
+  const router = useRouter()
+  const [showScrollTop, setShowScrollTop] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show button when user scrolls down 300px
+      if (window.scrollY > 300) {
+        setShowScrollTop(true)
+      } else {
+        setShowScrollTop(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Function to scroll back to top
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }
+
   return (
     <main className="min-h-screen">
+      {/* Back Button */}
+      <div className="container px-4 md:px-6 pt-4">
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 mb-4 hover:bg-gray-100"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft size={16} />
+          Volver atrás
+        </Button>
+      </div>
+
+      {/* Back to Top Button */}
+      {showScrollTop && (
+        <Button
+          variant="outline"
+          className="fixed bottom-6 right-6 z-50 rounded-full p-3 shadow-md bg-white hover:bg-gray-100"
+          onClick={scrollToTop}
+          aria-label="Volver arriba"
+        >
+          <ArrowUp size={20} />
+        </Button>
+      )}
+
       {/* Hero Section */}
       <section className="w-full py-12 md:py-24">
         <div className="container px-4 md:px-6">

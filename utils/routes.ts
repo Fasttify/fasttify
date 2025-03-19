@@ -11,6 +11,7 @@ export const routes = {
       list: (storeId: string) => `/store/${storeId}/products/inventory  `,
       add: (storeId: string) => `/store/${storeId}/products/new`,
       edit: (storeId: string, productId: string) => `/store/${storeId}/products/${productId}`,
+      explore: (storeId: string) => `/store/${storeId}/products/connect-products`,
       categories: (storeId: string) => `/store/${storeId}/products/categories`,
     },
     orders: (storeId: string) => `/store/${storeId}/orders`,
