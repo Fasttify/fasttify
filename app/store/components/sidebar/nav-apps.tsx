@@ -22,6 +22,7 @@ import useStoreDataStore from '@/zustand-states/storeDataStore'
 import { routes } from '@/utils/routes'
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
+import Link from 'next/link'
 
 interface AppItem {
   name: string
@@ -63,7 +64,7 @@ export function NavApps() {
         {activeApps.map(app => (
           <SidebarMenuItem key={app.name}>
             <SidebarMenuButton asChild>
-              <a href={app.url}>
+              <Link href={app.url}>
                 {typeof app.icon === 'string' ? (
                   <div className="relative h-5 w-5 mr-2">
                     <Image src={app.icon} alt={app.name} fill className="object-contain" />
@@ -72,7 +73,7 @@ export function NavApps() {
                   <app.icon />
                 )}
                 <span>{app.name}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

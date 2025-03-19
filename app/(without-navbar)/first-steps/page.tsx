@@ -20,7 +20,6 @@ import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
 import { routes } from '@/utils/routes'
 import sellingOptions from '@/app/(without-navbar)/first-steps/data/selling-options.json'
-import { custom } from 'zod'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)

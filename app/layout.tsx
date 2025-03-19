@@ -2,8 +2,20 @@ import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import { ReactQueryProvider } from '@/utils/ReactQueryProvider'
 import { Toaster } from '@/components/ui/sonner'
+import { Amplify } from 'aws-amplify'
 import ConfigureAmplifyClientSide from '@/utils/ConfigureAmplify'
+import outputs from '@/amplify_outputs.json'
 import './global.css'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
