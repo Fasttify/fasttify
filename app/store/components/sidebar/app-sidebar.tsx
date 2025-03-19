@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { SquareTerminal, ShoppingCart, Box, Settings2, LayoutGrid } from 'lucide-react'
+import { SquareTerminal, ShoppingCart, Box, Settings2, LayoutGrid, Puzzle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { NavMain } from '@/app/store/components/sidebar/nav-main'
 import { NavUser } from '@/app/store/components/sidebar/nav-user'
@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/auth/useAuth'
 import { routes } from '@/utils/routes'
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname } from 'next/navigation'
+import { NavApps } from '@/app/store/components/sidebar/nav-apps'
 import useUserStore from '@/zustand-states/userStore'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -70,6 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           },
         ],
       },
+
       {
         title: 'Configuración de Tienda',
         url: routes.store.setup.main(storeId),
@@ -83,9 +85,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: 'Pagos',
             url: routes.store.setup.payments(storeId),
           },
+          // Add Apps section to main navigation
           {
             title: 'Apps',
             url: routes.store.setup.apps(storeId),
+            icon: Puzzle,
+            items: [], // No subitems
           },
         ],
       },
@@ -119,6 +124,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarContent className="bg-[#ebebeb] font-medium text-gray-800">
         <NavMain items={data.navMain} />
+        <NavApps />
       </SidebarContent>
       <SidebarFooter className="bg-[#ebebeb] text-gray-800">
         <NavUser user={user} loading={loading} />

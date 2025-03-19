@@ -14,7 +14,7 @@ import useStoreDataStore from '@/zustand-states/storeDataStore'
 
 export function AppIntegrationPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { currentStore, hasMasterShopApiKey } = useStoreDataStore()
+  const { hasMasterShopApiKey } = useStoreDataStore()
 
   return (
     <div className="container py-8">

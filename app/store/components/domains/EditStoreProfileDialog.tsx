@@ -17,6 +17,19 @@ import {
   type StoreNameValidationState,
 } from '@/app/store/components/domains/utils/storeProfileUtils'
 
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
+
 interface EditStoreProfileDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
