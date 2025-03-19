@@ -12,7 +12,7 @@ export function ProductsPage() {
   const storeId = params.slug as string
 
   return (
-    <div className="bg-gray-100 ">
+    <div className="bg-gray-100 mt-8">
       <h1 className="text-xl md:text-xl font-medium text-gray-800 mb-6">Productos</h1>
 
       <Card className="border rounded-lg shadow-sm overflow-hidden">

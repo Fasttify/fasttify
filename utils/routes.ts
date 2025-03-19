@@ -11,7 +11,6 @@ export const routes = {
       list: (storeId: string) => `/store/${storeId}/products/inventory  `,
       add: (storeId: string) => `/store/${storeId}/products/new`,
       edit: (storeId: string, productId: string) => `/store/${storeId}/products/${productId}`,
-      explore: (storeId: string) => `/store/${storeId}/products/connect-products`,
       categories: (storeId: string) => `/store/${storeId}/products/categories`,
     },
     orders: (storeId: string) => `/store/${storeId}/orders`,
@@ -19,9 +18,10 @@ export const routes = {
 
     setup: {
       main: (storeId: string) => `/store/${storeId}/setup`,
-      products: (storeId: string) => `/store/${storeId}/setup/products`,
+      explore: (storeId: string) => `/store/${storeId}/products/connect-products`,
       design: (storeId: string) => `/store/${storeId}/setup/design`,
       domain: (storeId: string) => `/store/${storeId}/setup/domain`,
+      apps: (storeId: string) => `/store/${storeId}/setup/apps`,
       shipping: (storeId: string) => `/store/${storeId}/setup/shipping`,
       payments: (storeId: string) => `/store/${storeId}/setup/payments`,
       testOrder: (storeId: string) => `/store/${storeId}/setup/test-order`,

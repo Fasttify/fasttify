@@ -10,9 +10,11 @@ import {
 } from '@/components/ui/card'
 import Image from 'next/image'
 import { ConnectModal } from '@/app/store/components/app-integration/ConnectModal'
+import useStoreDataStore from '@/zustand-states/storeDataStore'
 
 export function AppIntegrationPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { currentStore, hasMasterShopApiKey } = useStoreDataStore()
 
   return (
     <div className="container py-8">
@@ -71,7 +73,7 @@ export function AppIntegrationPage() {
                   className="bg-[#2a2a2a] h-9 px-4 text-sm font-medium text-white py-2 rounded-md hover:bg-[#3a3a3a] transition-colors"
                   onClick={() => setIsModalOpen(true)}
                 >
-                  Conectar
+                  {hasMasterShopApiKey ? 'Activo' : 'Conectar'}
                 </Button>
               </CardFooter>
             </div>

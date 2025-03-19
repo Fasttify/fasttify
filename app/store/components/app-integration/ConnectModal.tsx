@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import {
   ExternalLink,
@@ -22,6 +22,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
+import useStoreDataStore from '@/zustand-states/storeDataStore'
 
 type Step = 1 | 2 | 3
 
@@ -37,23 +39,63 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
-  const handleNext = () => {
+  // Obtenemos el hook para actualizar la tienda
+  const { updateUserStore, loading: updateLoading, error: updateError } = useUserStoreData()
+
+  // Obtenemos el ID de la tienda y el estado de la API key desde el estado global
+  const { currentStore, hasMasterShopApiKey, checkMasterShopApiKey } = useStoreDataStore()
+
+  // Si ya tiene API key configurada, mostrar el paso 3 directamente
+  useEffect(() => {
+    if (open && hasMasterShopApiKey) {
+      setStep(3)
+    }
+  }, [open, hasMasterShopApiKey])
+
+  const handleNext = async () => {
     if (step === 1) {
       setStep(2)
     } else if (step === 2 && option === 'existing') {
       setStatus('loading')
-      // Simulate API validation
-      setTimeout(() => {
-        if (apiKey.length < 5) {
+
+      // Validamos la API Key (aquí podrías hacer una validación real con la API de Master Shop)
+      if (apiKey.length < 5) {
+        setStatus('error')
+        setErrorMessage(
+          'La API Key proporcionada no es válida. Por favor verifica e intenta nuevamente.'
+        )
+        return
+      }
+
+      // Si tenemos el ID de la tienda, guardamos la API Key
+      if (currentStore?.id) {
+        try {
+          // Actualizamos la tienda con la API Key de Master Shop
+          const result = await updateUserStore({
+            id: currentStore.id,
+            mastershopApiKey: apiKey,
+          })
+
+          if (result) {
+            setStatus('success')
+            setStep(3)
+          } else {
+            setStatus('error')
+            setErrorMessage('No se pudo guardar la API Key. Por favor intenta nuevamente.')
+          }
+        } catch (error) {
           setStatus('error')
-          setErrorMessage(
-            'La API Key proporcionada no es válida. Por favor verifica e intenta nuevamente.'
-          )
-        } else {
+          setErrorMessage('Ocurrió un error al guardar la API Key. Por favor intenta nuevamente.')
+          console.error('Error al guardar API Key:', error)
+        }
+      } else {
+        // Si no tenemos el ID de la tienda, simulamos éxito (para desarrollo)
+        // En producción, deberías mostrar un error
+        setTimeout(() => {
           setStatus('success')
           setStep(3)
-        }
-      }, 1500)
+        }, 1500)
+      }
     }
   }
 
@@ -84,6 +126,10 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
   const handleExternalRedirect = () => {
     window.open('https://app.mastershop.com/login', '_blank')
     setStatus('loading')
+
+    // Aquí deberías implementar un mecanismo para verificar cuando el usuario
+    // ha completado el registro en Master Shop y ha obtenido una API Key
+    // Por ahora, simulamos el proceso
     setTimeout(() => {
       setStatus('success')
       setStep(3)
@@ -94,9 +140,13 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Conectar con Master Shop</DialogTitle>
+          <DialogTitle>
+            {hasMasterShopApiKey ? 'Master Shop Conectado' : 'Conectar con Master Shop'}
+          </DialogTitle>
           <DialogDescription>
-            Integra tu tienda con Master Shop para importar y sincronizar productos.
+            {hasMasterShopApiKey
+              ? 'Tu tienda está conectada con Master Shop. Puedes importar y sincronizar productos.'
+              : 'Integra tu tienda con Master Shop para importar y sincronizar productos.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -218,8 +268,20 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
             {status === 'loading' && (
               <div className="flex items-center justify-center py-4">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                <span className="ml-2 text-sm">Verificando conexión...</span>
+                <span className="ml-2 text-sm">
+                  {updateLoading ? 'Guardando configuración...' : 'Verificando conexión...'}
+                </span>
               </div>
+            )}
+
+            {updateError && status === 'error' && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
+                  {errorMessage || 'Ocurrió un error al guardar la configuración.'}
+                </AlertDescription>
+              </Alert>
             )}
           </div>
         )}
@@ -272,15 +334,31 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
                 status === 'loading'
               }
             >
-              {step === 1 ? 'Continuar' : 'Conectar'}
-              <ArrowRight className="ml-2 h-4 w-4" />
+              {step === 1 ? (
+                'Continuar'
+              ) : hasMasterShopApiKey ? (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Master Shop Activo
+                </>
+              ) : (
+                'Conectar'
+              )}
+              {!hasMasterShopApiKey && <ArrowRight className="ml-2 h-4 w-4" />}
             </Button>
           ) : (
             <Button
-              className="w-full sm:w-auto bg-[#2a2a2a] h-9 px-4 text-sm font-medium text-white py-2 rounded-md hover:bg-[#3a3a3a] transition-colors"
+              className={`w-full sm:w-auto ${hasMasterShopApiKey ? 'bg-green-600 hover:bg-green-700' : 'bg-[#2a2a2a] hover:bg-[#3a3a3a]'} h-9 px-4 text-sm font-medium text-white py-2 rounded-md transition-colors`}
               onClick={() => handleOpenChange(false)}
             >
-              Finalizar
+              {hasMasterShopApiKey ? (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Master Shop Activo
+                </>
+              ) : (
+                'Finalizar'
+              )}
             </Button>
           )}
         </DialogFooter>

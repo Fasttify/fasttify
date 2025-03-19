@@ -103,7 +103,7 @@ export default function FirstStepsPage() {
         storeCurrency: 'COP',
         storeAdress: formData.location,
         contactEmail: formData.email,
-        contactPhone: formData.phone,
+        contactPhone: parseInt(formData.phone),
         contactName: formData.fullName,
         customDomain:
           formData.customDomain ||
@@ -111,6 +111,7 @@ export default function FirstStepsPage() {
         conctactIdentification: formData.documentNumber,
         contactIdentificationType: formData.documentType,
         wompiConfig: JSON.stringify({
+          isActive: true,
           publicKey: formData.wompiConfig.publicKey,
           signature: formData.wompiConfig.signature,
         }),

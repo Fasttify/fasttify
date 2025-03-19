@@ -69,6 +69,7 @@ const schema = a
         contactIdentificationType: a.string(),
         wompiConfig: a.json(),
         mercadoPagoConfig: a.json(),
+        mastershopApiKey: a.string(),
         customDomain: a.string(),
         onboardingCompleted: a.boolean().required(),
       })

@@ -50,10 +50,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: routes.store.products.list(storeId),
           },
           {
-            title: 'Catálogo Externo',
-            url: routes.store.products.explore(storeId),
-          },
-          {
             title: 'Categorías',
             url: routes.store.products.categories(storeId),
           },
@@ -86,6 +82,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: 'Pagos',
             url: routes.store.setup.payments(storeId),
+          },
+          {
+            title: 'Apps',
+            url: routes.store.setup.apps(storeId),
           },
         ],
       },

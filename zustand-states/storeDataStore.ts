@@ -14,11 +14,13 @@ interface StoreDataState {
   isLoading: boolean
   error: Error | null
   connectionState: ConnectionState | null
+  hasMasterShopApiKey: boolean
   setStoreId: (id: string | null) => void
   fetchStoreData: (id: string) => Promise<void>
   clearStore: () => void
   setupSubscription: (id: string) => () => void
   setConnectionState: (state: ConnectionState) => void
+  checkMasterShopApiKey: (id: string) => Promise<boolean>
 }
 
 // Configurar el listener de estado de conexión
@@ -36,6 +38,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
   isLoading: true,
   error: null,
   connectionState: null,
+  hasMasterShopApiKey: false,
 
   setStoreId: id => set({ storeId: id }),
 
@@ -54,6 +57,17 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
       const { data: stores } = await client.models.UserStore.list({
         authMode: 'userPool',
         filter: { storeId: { eq: id } },
+        selectionSet: [
+          'id',
+          'storeId',
+          'storeName',
+          'storeLogo',
+          'customDomain',
+          'contactPhone',
+          'contactEmail',
+          'storeFavicon',
+          'storeTheme',
+        ],
       })
 
       if (stores && stores.length > 0) {
@@ -62,6 +76,10 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
           storeId: id,
           isLoading: false,
         })
+
+        // Verificar si existe la API key de Master Shop
+        const hasMasterShopApiKey = await get().checkMasterShopApiKey(stores[0].id)
+        set({ hasMasterShopApiKey })
 
         // Configurar suscripción automáticamente después de obtener los datos
         get().setupSubscription(id)
@@ -79,7 +97,35 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     }
   },
 
-  clearStore: () => set({ currentStore: null, storeId: null, error: null, isLoading: true }),
+  // Verificar si existe la API key de Master Shop sin traer su valor
+  checkMasterShopApiKey: async (id: string) => {
+    try {
+      const { data } = await client.models.UserStore.list({
+        filter: {
+          id: { eq: id },
+          mastershopApiKey: { attributeExists: true },
+        },
+        selectionSet: ['id'],
+        authMode: 'userPool',
+      })
+
+      const hasApiKey = data && data.length > 0
+      set({ hasMasterShopApiKey: hasApiKey })
+      return hasApiKey
+    } catch (error) {
+      console.error('Error al verificar API key:', error)
+      return false
+    }
+  },
+
+  clearStore: () =>
+    set({
+      currentStore: null,
+      storeId: null,
+      error: null,
+      isLoading: true,
+      hasMasterShopApiKey: false,
+    }),
 
   // Configurar suscripción para actualizaciones en tiempo real
   setupSubscription: (id: string) => {
@@ -87,6 +133,17 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     const subscription = client.models.UserStore.observeQuery({
       filter: { storeId: { eq: id } },
       authMode: 'userPool',
+      selectionSet: [
+        'id',
+        'storeId',
+        'storeName',
+        'storeLogo',
+        'customDomain',
+        'contactPhone',
+        'contactEmail',
+        'storeFavicon',
+        'storeTheme',
+      ],
     }).subscribe({
       next: ({ items, isSynced }) => {
         if (items.length > 0) {
@@ -95,12 +152,18 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
             currentStore: items[0] as StoreType,
             isLoading: false,
           })
+
+          // Verificar si existe la API key cuando hay cambios
+          if (isSynced) {
+            get().checkMasterShopApiKey(items[0].id)
+          }
         } else if (isSynced) {
           // Si no hay elementos después de sincronizar, la tienda podría haber sido eliminada
           set({
             currentStore: null,
             error: new Error('Tienda no encontrada o eliminada'),
             isLoading: false,
+            hasMasterShopApiKey: false,
           })
         }
       },
