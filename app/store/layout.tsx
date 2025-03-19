@@ -8,8 +8,29 @@ import { useEffect, useState } from 'react'
 import { SearchNavigation } from '@/app/store/components/search-bar/SearchNavigation'
 import { NotificationPopover } from '@/app/store/components/notifications/NotificationPopover'
 import { PageTransition } from '@/components/ui/page-transition'
+import { getStoreId } from '@/utils/store-utils'
+import { useParams, usePathname } from 'next/navigation'
+import { useStore } from '@/app/store/hooks/useStore'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const params = useParams()
+
+  const storeId = getStoreId(params, pathname)
+  useStore(storeId)
+
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   useEffect(() => {

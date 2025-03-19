@@ -18,9 +18,10 @@ export const routes = {
 
     setup: {
       main: (storeId: string) => `/store/${storeId}/setup`,
-      products: (storeId: string) => `/store/${storeId}/setup/products`,
+      explore: (storeId: string) => `/store/${storeId}/products/connect-products`,
       design: (storeId: string) => `/store/${storeId}/setup/design`,
       domain: (storeId: string) => `/store/${storeId}/setup/domain`,
+      apps: (storeId: string) => `/store/${storeId}/setup/apps`,
       shipping: (storeId: string) => `/store/${storeId}/setup/shipping`,
       payments: (storeId: string) => `/store/${storeId}/setup/payments`,
       testOrder: (storeId: string) => `/store/${storeId}/setup/test-order`,

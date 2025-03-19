@@ -4,6 +4,7 @@ import { webHookPlan } from '../functions/webHookPlan/resource'
 import { cancelPlan } from '../functions/cancelPlan/resource'
 import { planScheduler } from '../functions/planScheduler/resource'
 import { checkStoreName } from '../functions/checkStoreName/resource'
+import { checkStoreDomain } from '../functions/checkStoreDomain/resource'
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
 
@@ -53,6 +54,7 @@ const schema = a
         storeName: a.string().required(), // Nombre de la tienda
         storeDescription: a.string(), // Descripción opcional de la tienda
         storeLogo: a.string(), // URL de la imagen del logo de la tienda
+        storeFavicon: a.string(), // URL de la imagen del favicon de la tienda
         storeBanner: a.string(), // URL de la imagen del banner de la tienda
         storeTheme: a.string(), // Tema de la tienda (opcional)
         storeCurrency: a.string(), // Moneda de la tienda
@@ -61,12 +63,13 @@ const schema = a
         storePolicy: a.string(), // Política de la tienda (opcional)
         storeAdress: a.string(), // Dirección de la tienda
         contactEmail: a.email(),
-        contactPhone: a.phone(),
+        contactPhone: a.float(),
         contactName: a.string(),
         conctactIdentification: a.string(),
         contactIdentificationType: a.string(),
         wompiConfig: a.json(),
         mercadoPagoConfig: a.json(),
+        mastershopApiKey: a.string(),
         customDomain: a.string(),
         onboardingCompleted: a.boolean().required(),
       })
@@ -105,6 +108,7 @@ const schema = a
     allow.resource(cancelPlan),
     allow.resource(planScheduler),
     allow.resource(checkStoreName),
+    allow.resource(checkStoreDomain),
   ])
 
 export type Schema = ClientSchema<typeof schema>

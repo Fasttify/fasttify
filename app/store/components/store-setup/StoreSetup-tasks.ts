@@ -51,7 +51,7 @@ export const defaultStoreTasks: Task[] = [
     actions: {
       primary: {
         text: 'Personalizar diseño',
-        getHref: (storeId: string) => routes.store.setup.design(storeId),
+        getHref: (storeId: string) => routes.store.setup.main(storeId),
       },
     },
     imageUrl:
@@ -85,7 +85,7 @@ export const defaultStoreTasks: Task[] = [
     actions: {
       primary: {
         text: 'Editar nombre',
-        getHref: (storeId: string) => routes.store.settings(storeId),
+        getHref: (storeId: string) => routes.store.setup.domain(storeId),
       },
     },
     imageUrl:

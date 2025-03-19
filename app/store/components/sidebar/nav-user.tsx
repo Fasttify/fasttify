@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/sidebar'
 import { routes } from '@/utils/routes'
 import { useState, useEffect } from 'react'
+import useStoreDataStore from '@/zustand-states/storeDataStore'
 import Link from 'next/link'
 
 interface User {
@@ -36,6 +37,7 @@ interface NavUserProps {
 export function NavUser({ user, loading }: NavUserProps) {
   const { isMobile } = useSidebar()
   const [isClient, setIsClient] = useState(false)
+  const { clearStore } = useStoreDataStore()
 
   // Set isClient to true after component mounts
   useEffect(() => {
@@ -132,7 +134,7 @@ export function NavUser({ user, loading }: NavUserProps) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <Link href="/my-store">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={clearStore}>
                 <LogOut />
                 Cambiar de Tienda
               </DropdownMenuItem>

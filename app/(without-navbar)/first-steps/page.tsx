@@ -20,6 +20,7 @@ import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
 import { routes } from '@/utils/routes'
 import sellingOptions from '@/app/(without-navbar)/first-steps/data/selling-options.json'
+import { custom } from 'zod'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)
@@ -95,18 +96,22 @@ export default function FirstStepsPage() {
 
       const storeInput = {
         userId: cognitoUsername,
-        storeId: `${uuidv4()}`,
+        storeId: `${uuidv4().slice(0, 7)}`,
         storeType: selectedOption || '',
         storeName: formData.storeName,
         storeDescription: formData.description,
         storeCurrency: 'COP',
         storeAdress: formData.location,
         contactEmail: formData.email,
-        contactPhone: formData.phone,
+        contactPhone: parseInt(formData.phone),
         contactName: formData.fullName,
+        customDomain:
+          formData.customDomain ||
+          `${formData.storeName.toLowerCase().replace(/\s+/g, '-')}.fasttify.com`,
         conctactIdentification: formData.documentNumber,
         contactIdentificationType: formData.documentType,
         wompiConfig: JSON.stringify({
+          isActive: true,
           publicKey: formData.wompiConfig.publicKey,
           signature: formData.wompiConfig.signature,
         }),
@@ -128,11 +133,14 @@ export default function FirstStepsPage() {
 
     setSaving(true)
     const quickStoreId = uuidv4()
+    const storeIdShort = quickStoreId.slice(0, 7)
+    const storeName = `Tienda ${storeIdShort}`
 
     const quickStoreInput = {
       userId: cognitoUsername,
-      storeId: quickStoreId,
-      storeName: `Tienda ${quickStoreId.slice(0, 4)}`,
+      storeId: storeIdShort,
+      storeName: storeName,
+      customDomain: `${storeName.toLowerCase().replace(/\s+/g, '-')}.fasttify.com`,
       storeType: 'quick-setup',
       storeCurrency: 'COP',
       onboardingCompleted: true,
