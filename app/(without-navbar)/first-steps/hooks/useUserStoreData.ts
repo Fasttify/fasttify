@@ -13,6 +13,7 @@ export interface UserStoreInput {
   storeDescription?: string // Descripción opcional
   storeCurrency?: string // Moneda de la tienda
   storeLogo?: string // URL de la imagen del logo
+  storeFavicon?: string // URL de la imagen del favicon
   storeTheme?: string // Tema de la tienda (opcional)
   storeBanner?: string // URL de la imagen del banner
   storeType?: string // Tipo de tienda

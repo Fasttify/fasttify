@@ -54,6 +54,7 @@ const schema = a
         storeName: a.string().required(), // Nombre de la tienda
         storeDescription: a.string(), // Descripción opcional de la tienda
         storeLogo: a.string(), // URL de la imagen del logo de la tienda
+        storeFavicon: a.string(), // URL de la imagen del favicon de la tienda
         storeBanner: a.string(), // URL de la imagen del banner de la tienda
         storeTheme: a.string(), // Tema de la tienda (opcional)
         storeCurrency: a.string(), // Moneda de la tienda
