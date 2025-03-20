@@ -10,10 +10,10 @@ interface ProductManagerProps {
 }
 
 export function ProductManager({ storeId, productId }: ProductManagerProps) {
-  // Get all the data and states from useProducts
   const {
     products,
     loading,
+    paginationLoading,
     error,
     hasNextPage,
     loadNextPage,
@@ -60,7 +60,7 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
     <ProductList
       storeId={storeId}
       products={products}
-      loading={loading}
+      loading={paginationLoading}
       error={error}
       hasNextPage={hasNextPage}
       loadNextPage={loadNextPage}

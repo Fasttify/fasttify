@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
 import { generateClient } from 'aws-amplify/api'
 import { getCurrentUser } from 'aws-amplify/auth'
 import type { Schema } from '@/amplify/data/resource'
@@ -90,6 +90,7 @@ export interface PaginationOptions {
 export interface UseProductsResult {
   products: IProduct[]
   loading: boolean
+  paginationLoading: boolean
   error: Error | null
   currentPage: number
   hasNextPage: boolean
@@ -101,6 +102,7 @@ export interface UseProductsResult {
   deleteMultipleProducts: (ids: string[]) => Promise<boolean>
   refreshProducts: () => void
   fetchProduct: (id: string) => Promise<IProduct | null>
+  isFetchingNextPage: boolean
 }
 
 /**
@@ -108,10 +110,11 @@ export interface UseProductsResult {
  */
 export interface UseProductsOptions extends PaginationOptions {
   skipInitialFetch?: boolean
+  enabled?: boolean
 }
 
 /**
- * Hook para gestionar productos con paginación
+ * Hook para gestionar productos con paginación y caché usando React Query
  * @param storeId - ID de la tienda para la que se gestionan los productos
  * @param options - Opciones de paginación y configuración (opcional)
  * @returns Objeto con productos, estado de carga, error, funciones CRUD y funciones de paginación
@@ -120,116 +123,68 @@ export function useProducts(
   storeId: string | undefined,
   options?: UseProductsOptions
 ): UseProductsResult {
-  const [products, setProducts] = useState<IProduct[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<Error | null>(null)
-
-  // Estado para paginación
-  const [nextToken, setNextToken] = useState<string | null>(null)
-  const [hasNextPage, setHasNextPage] = useState<boolean>(false)
-  const [currentPage, setCurrentPage] = useState<number>(1)
+  const queryClient = useQueryClient()
 
   // Valores por defecto para paginación
-  const limit = options?.limit || 50
+  const limit = options?.limit || 60
   const sortDirection = options?.sortDirection || 'DESC'
   const sortField = options?.sortField || 'creationDate'
+  const enabled = options?.enabled !== false && !!storeId
 
-  /**
-   * Carga los productos de la tienda especificada con paginación
-   */
-  useEffect(() => {
-    if (!storeId || options?.skipInitialFetch) {
-      setLoading(false)
-      return
-    }
+  // Función para obtener productos con paginación
+  const fetchProductsPage = async ({ pageParam = null }: { pageParam: string | null }) => {
+    if (!storeId) throw new Error('Store ID is required')
 
-    fetchProductsPage(null)
-  }, [storeId, limit, sortDirection, sortField])
+    const { data, nextToken } = await client.models.Product.list({
+      filter: { storeId: { eq: storeId } },
+      authMode: 'userPool',
+      limit,
+      nextToken: pageParam,
+    })
 
-  /**
-   * Obtiene una página de productos
-   * @param token - Token de paginación para obtener la siguiente página
-   */
-  const fetchProductsPage = async (token: string | null) => {
-    if (!storeId) return
+    // Ordenamos manualmente los resultados
+    const sortedData = [...(data || [])].sort((a, b) => {
+      const fieldA = a[sortField as keyof typeof a]
+      const fieldB = b[sortField as keyof typeof b]
 
-    try {
-      setLoading(true)
+      // Manejar valores undefined o null
+      if (fieldA === undefined || fieldA === null) return sortDirection === 'ASC' ? -1 : 1
+      if (fieldB === undefined || fieldB === null) return sortDirection === 'ASC' ? 1 : -1
 
-      // La API de Amplify Gen 2 no tiene un parámetro de ordenación directo en list()
-      // Usamos solo los parámetros básicos y ordenamos manualmente después
-      const { data, nextToken: newNextToken } = await client.models.Product.list({
-        filter: { storeId: { eq: storeId } },
-        authMode: 'userPool',
-        limit,
-        nextToken: token,
-      })
+      // Comparación estándar
+      if (fieldA < fieldB) return sortDirection === 'ASC' ? -1 : 1
+      if (fieldA > fieldB) return sortDirection === 'ASC' ? 1 : -1
+      return 0
+    })
 
-      // Ordenamos manualmente los resultados
-      const sortedData = [...(data || [])].sort((a, b) => {
-        const fieldA = a[sortField as keyof typeof a]
-        const fieldB = b[sortField as keyof typeof b]
-
-        // Manejar valores undefined o null
-        if (fieldA === undefined || fieldA === null) return sortDirection === 'ASC' ? -1 : 1
-        if (fieldB === undefined || fieldB === null) return sortDirection === 'ASC' ? 1 : -1
-
-        // Comparación estándar
-        if (fieldA < fieldB) return sortDirection === 'ASC' ? -1 : 1
-        if (fieldA > fieldB) return sortDirection === 'ASC' ? 1 : -1
-        return 0
-      })
-
-      if (token === null) {
-        // Primera página o reinicio
-        setProducts((sortedData as IProduct[]) || [])
-      } else {
-        // Agregar a la lista existente
-        setProducts(prev => [...prev, ...((sortedData as IProduct[]) || [])])
-      }
-
-      setNextToken(newNextToken || null)
-      setHasNextPage(!!newNextToken)
-
-      if (token === null) {
-        setCurrentPage(1)
-      } else if (newNextToken) {
-        setCurrentPage(prev => prev + 1)
-      }
-    } catch (err) {
-      console.error('Error al cargar productos:', err)
-      setError(err instanceof Error ? err : new Error('Error desconocido al cargar productos'))
-    } finally {
-      setLoading(false)
+    return {
+      products: sortedData as IProduct[],
+      nextToken: nextToken as string | null,
+      page: pageParam ? 'next' : 'first',
     }
   }
+  // Consulta infinita para productos con paginación
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    error: queryError,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ['products', storeId, limit, sortDirection, sortField],
+    queryFn: fetchProductsPage,
+    initialPageParam: null as string | null,
+    getNextPageParam: lastPage => lastPage.nextToken as string | null,
+    enabled,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
 
-  /**
-   * Carga la siguiente página de productos
-   */
-  const loadNextPage = () => {
-    if (hasNextPage && nextToken) {
-      fetchProductsPage(nextToken)
-    }
-  }
-
-  /**
-   * Reinicia la paginación y carga la primera página
-   */
-  const resetPagination = () => {
-    fetchProductsPage(null)
-  }
-
-  /**
-   * Crea un nuevo producto
-   * @param productData - Datos del producto a crear
-   * @returns El producto creado o null si hay un error
-   */
-  const createProduct = async (productData: ProductCreateInput): Promise<IProduct | null> => {
-    try {
-      setLoading(true)
-
-      // Obtener el usuario actual para asignarlo como propietario
+  // Mutación para crear un producto
+  const createProductMutation = useMutation({
+    mutationFn: async (productData: ProductCreateInput) => {
       const { username } = await getCurrentUser()
 
       const { data } = await client.models.Product.create(
@@ -243,164 +198,212 @@ export function useProducts(
         { authMode: 'userPool' }
       )
 
-      if (data) {
-        // Si estamos en la primera página, añadir el nuevo producto
-        if (currentPage === 1) {
-          setProducts(prev => [data as IProduct, ...prev].slice(0, limit))
+      return data as IProduct
+    },
+    onSuccess: newProduct => {
+      // Invalidar la caché para que se actualice
+      queryClient.invalidateQueries({ queryKey: ['products', storeId] })
+
+      // Opcionalmente, actualizar la caché directamente
+      queryClient.setQueryData(
+        ['products', storeId, limit, sortDirection, sortField],
+        (oldData: any) => {
+          if (!oldData || !oldData.pages || oldData.pages.length === 0) return oldData
+
+          // Añadir el nuevo producto a la primera página
+          const newPages = [...oldData.pages]
+          newPages[0] = {
+            ...newPages[0],
+            products: [newProduct, ...newPages[0].products].slice(0, limit),
+          }
+
+          return {
+            ...oldData,
+            pages: newPages,
+          }
         }
+      )
+    },
+  })
 
-        return data as IProduct
-      }
-      return null
-    } catch (err) {
-      console.error('Error al crear producto:', err)
-      setError(err instanceof Error ? err : new Error('Error desconocido al crear producto'))
-      return null
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  /**
-   * Actualiza un producto existente
-   * @param productData - Datos del producto a actualizar (debe incluir id)
-   * @returns El producto actualizado o null si hay un error
-   */
-  const updateProduct = async (productData: ProductUpdateInput): Promise<IProduct | null> => {
-    try {
-      setLoading(true)
+  // Mutación para actualizar un producto
+  const updateProductMutation = useMutation({
+    mutationFn: async (productData: ProductUpdateInput) => {
       const { data } = await client.models.Product.update(productData, { authMode: 'userPool' })
+      return data as IProduct
+    },
+    onSuccess: updatedProduct => {
+      // Actualizar la caché directamente
+      queryClient.setQueryData(
+        ['products', storeId, limit, sortDirection, sortField],
+        (oldData: any) => {
+          if (!oldData || !oldData.pages) return oldData
 
-      if (data) {
-        // Actualizar el producto en la lista actual si existe
-        setProducts(prev => prev.map(p => (p.id === data.id ? (data as IProduct) : p)))
-        return data as IProduct
-      }
-      return null
-    } catch (err) {
-      console.error('Error al actualizar producto:', err)
-      setError(err instanceof Error ? err : new Error('Error desconocido al actualizar producto'))
-      return null
-    } finally {
-      setLoading(false)
-    }
-  }
+          // Actualizar el producto en todas las páginas
+          const newPages = oldData.pages.map((page: any) => ({
+            ...page,
+            products: page.products.map((p: IProduct) =>
+              p.id === updatedProduct.id ? updatedProduct : p
+            ),
+          }))
 
-  /**
-   * Elimina un producto
-   * @param id - ID del producto a eliminar
-   * @returns true si se eliminó correctamente, false en caso contrario
-   */
-  const deleteProduct = async (id: string): Promise<boolean> => {
-    try {
-      setLoading(true)
+          return {
+            ...oldData,
+            pages: newPages,
+          }
+        }
+      )
+    },
+  })
+
+  // Mutación para eliminar un producto
+  const deleteProductMutation = useMutation({
+    mutationFn: async (id: string) => {
       await client.models.Product.delete({ id }, { authMode: 'userPool' })
+      return id
+    },
+    onSuccess: deletedId => {
+      // Actualizar la caché directamente
+      queryClient.setQueryData(
+        ['products', storeId, limit, sortDirection, sortField],
+        (oldData: any) => {
+          if (!oldData || !oldData.pages) return oldData
 
-      // Eliminar el producto de la lista actual
-      setProducts(prev => prev.filter(p => p.id !== id))
+          // Eliminar el producto de todas las páginas
+          const newPages = oldData.pages.map((page: any) => ({
+            ...page,
+            products: page.products.filter((p: IProduct) => p.id !== deletedId),
+          }))
 
-      return true
-    } catch (err) {
-      console.error('Error al eliminar producto:', err)
-      setError(err instanceof Error ? err : new Error('Error desconocido al eliminar producto'))
-      return false
-    } finally {
-      setLoading(false)
-    }
-  }
+          return {
+            ...oldData,
+            pages: newPages,
+          }
+        }
+      )
+    },
+  })
 
-  /**
-   * Elimina múltiples productos
-   * @param ids - Arreglo de IDs de los productos a eliminar
-   * @returns true si se eliminaron correctamente todos, false en caso de error
-   */
-  const deleteMultipleProducts = async (ids: string[]): Promise<boolean> => {
-    try {
-      setLoading(true)
-      // Ejecutamos todas las peticiones de eliminación en paralelo
+  // Mutación para eliminar múltiples productos
+  const deleteMultipleProductsMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
       await Promise.all(
         ids.map(id => client.models.Product.delete({ id }, { authMode: 'userPool' }))
       )
+      return ids
+    },
+    onSuccess: deletedIds => {
+      // Actualizar la caché directamente
+      queryClient.setQueryData(
+        ['products', storeId, limit, sortDirection, sortField],
+        (oldData: any) => {
+          if (!oldData || !oldData.pages) return oldData
 
-      // Actualizamos el estado eliminando los productos borrados
-      setProducts(prev => prev.filter(p => !ids.includes(p.id)))
+          // Eliminar los productos de todas las páginas
+          const newPages = oldData.pages.map((page: any) => ({
+            ...page,
+            products: page.products.filter((p: IProduct) => !deletedIds.includes(p.id)),
+          }))
 
-      return true
-    } catch (err) {
-      console.error('Error al eliminar múltiples productos:', err)
-      setError(
-        err instanceof Error ? err : new Error('Error desconocido al eliminar múltiples productos')
-      )
-      return false
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  /**
-   * Obtiene un producto específico por su ID
-   * @param id - ID del producto a obtener
-   * @returns El producto obtenido o null si hay un error
-   */
-  const fetchProduct = async (id: string): Promise<IProduct | null> => {
-    try {
-      setLoading(true)
-
-      // Primero verificamos si ya tenemos el producto en el estado
-      const existingProduct = products.find(p => p.id === id)
-      if (existingProduct) {
-        return existingProduct
-      }
-
-      // Si no lo tenemos, lo buscamos en la API
-      const { data } = await client.models.Product.get({ id }, { authMode: 'userPool' })
-
-      if (data) {
-        // Añadimos el producto al estado si no está ya
-        setProducts(prev => {
-          // Verificamos si ya existe en el array
-          const exists = prev.some(p => p.id === data.id)
-          if (!exists) {
-            return [...prev, data as IProduct]
+          return {
+            ...oldData,
+            pages: newPages,
           }
-          return prev
-        })
+        }
+      )
+    },
+  })
 
-        return data as IProduct
+  // Consulta para obtener un producto específico
+  const fetchProductById = async (id: string): Promise<IProduct | null> => {
+    // Primero verificamos si ya tenemos el producto en la caché
+    const cachedProducts = queryClient.getQueryData([
+      'products',
+      storeId,
+      limit,
+      sortDirection,
+      sortField,
+    ]) as any
+
+    if (cachedProducts && cachedProducts.pages) {
+      for (const page of cachedProducts.pages) {
+        const existingProduct = page.products.find((p: IProduct) => p.id === id)
+        if (existingProduct) return existingProduct
       }
-
-      return null
-    } catch (err) {
-      console.error('Error al obtener producto:', err)
-      setError(err instanceof Error ? err : new Error('Error desconocido al obtener producto'))
-      return null
-    } finally {
-      setLoading(false)
     }
+
+    // Si no está en caché, lo buscamos en la API
+    const { data } = await client.models.Product.get({ id }, { authMode: 'userPool' })
+
+    if (data) {
+      // Añadimos el producto a la caché si no está ya
+      queryClient.setQueryData(['product', id], data)
+      return data as IProduct
+    }
+
+    return null
   }
+
+  // Extraer productos de todas las páginas
+  const products = data?.pages.flatMap(page => page.products) || []
+
+  // Calcular el número de página actual
+  const currentPage = data?.pages.length || 1
 
   return {
     // Datos y estado
     products,
-    loading,
-    error,
+    loading: isFetching && !isFetchingNextPage,
+    paginationLoading: isFetchingNextPage,
+    error: queryError ? new Error(queryError.message) : null,
 
     // Información de paginación
     currentPage,
-    hasNextPage,
+    hasNextPage: !!hasNextPage,
+    isFetchingNextPage,
 
     // Funciones de paginación
-    loadNextPage,
-    resetPagination,
+    loadNextPage: fetchNextPage,
+    resetPagination: () => refetch(),
 
     // Funciones CRUD
-    createProduct,
-    updateProduct,
-    deleteProduct,
-    deleteMultipleProducts,
-    fetchProduct,
+    createProduct: async productData => {
+      try {
+        return await createProductMutation.mutateAsync(productData)
+      } catch (err) {
+        console.error('Error al crear producto:', err)
+        return null
+      }
+    },
+    updateProduct: async productData => {
+      try {
+        return await updateProductMutation.mutateAsync(productData)
+      } catch (err) {
+        console.error('Error al actualizar producto:', err)
+        return null
+      }
+    },
+    deleteProduct: async id => {
+      try {
+        await deleteProductMutation.mutateAsync(id)
+        return true
+      } catch (err) {
+        console.error('Error al eliminar producto:', err)
+        return false
+      }
+    },
+    deleteMultipleProducts: async ids => {
+      try {
+        await deleteMultipleProductsMutation.mutateAsync(ids)
+        return true
+      } catch (err) {
+        console.error('Error al eliminar múltiples productos:', err)
+        return false
+      }
+    },
+    fetchProduct: fetchProductById,
 
     // Otras funciones útiles
-    refreshProducts: resetPagination,
+    refreshProducts: () => refetch(),
   }
 }

@@ -65,7 +65,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
         // Establecer una escala inicial más pequeña para las vistas de store
         viewportMeta.setAttribute(
           'content',
-          'width=device-width, initial-scale=0.8, maximum-scale=3, user-scalable=yes'
+          'width=device-width, initial-scale=0.98, maximum-scale=3, user-scalable=yes'
         )
       }
     }
