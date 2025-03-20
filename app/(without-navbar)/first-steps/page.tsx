@@ -20,6 +20,7 @@ import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
 import { routes } from '@/utils/routes'
 import sellingOptions from '@/app/(without-navbar)/first-steps/data/selling-options.json'
+import { useApiKeyEncryption } from '@/app/(without-navbar)/first-steps/hooks/useApiKeyEncryption'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)
@@ -49,6 +50,7 @@ export default function FirstStepsPage() {
   const [saving, setSaving] = useState(false)
   const { userData } = useAuthUser()
   const { loading, createUserStore } = useUserStoreData()
+  const { encryptApiKey } = useApiKeyEncryption()
 
   const cognitoUsername =
     userData && userData['cognito:username'] ? userData['cognito:username'] : null
@@ -93,35 +95,61 @@ export default function FirstStepsPage() {
     } else if (step === 4) {
       setSaving(true)
 
-      const storeInput = {
-        userId: cognitoUsername,
-        storeId: `${uuidv4().slice(0, 7)}`,
-        storeType: selectedOption || '',
-        storeName: formData.storeName,
-        storeDescription: formData.description,
-        storeCurrency: 'COP',
-        storeAdress: formData.location,
-        contactEmail: formData.email,
-        contactPhone: parseInt(formData.phone),
-        contactName: formData.fullName,
-        customDomain:
-          formData.customDomain ||
-          `${formData.storeName.toLowerCase().replace(/\s+/g, '-')}.fasttify.com`,
-        conctactIdentification: formData.documentNumber,
-        contactIdentificationType: formData.documentType,
-        wompiConfig: JSON.stringify({
-          isActive: true,
-          publicKey: formData.wompiConfig.publicKey,
-          signature: formData.wompiConfig.signature,
-        }),
-        onboardingCompleted: true,
-      }
-      const result = await createUserStore(storeInput)
-      if (result) {
-        setTimeout(() => {
-          window.location.href = routes.store.dashboard.main(result.storeId)
-        }, 3000)
-      } else {
+      try {
+        // Cifrar las claves de Wompi usando la Lambda
+        let encryptedPublicKey = null
+        let encryptedSignature = null
+
+        if (formData.wompiConfig.publicKey) {
+          encryptedPublicKey = await encryptApiKey(
+            formData.wompiConfig.publicKey,
+            'wompi',
+            'publicKey'
+          )
+        }
+
+        if (formData.wompiConfig.signature) {
+          encryptedSignature = await encryptApiKey(
+            formData.wompiConfig.signature,
+            'wompi',
+            'signature'
+          )
+        }
+
+        const storeInput = {
+          userId: cognitoUsername,
+          storeId: `${uuidv4().slice(0, 7)}`,
+          storeType: selectedOption || '',
+          storeName: formData.storeName,
+          storeDescription: formData.description,
+          storeCurrency: 'COP',
+          storeAdress: formData.location,
+          contactEmail: formData.email,
+          contactPhone: parseInt(formData.phone),
+          contactName: formData.fullName,
+          customDomain:
+            formData.customDomain ||
+            `${formData.storeName.toLowerCase().replace(/\s+/g, '-')}.fasttify.com`,
+          conctactIdentification: formData.documentNumber,
+          contactIdentificationType: formData.documentType,
+          wompiConfig: JSON.stringify({
+            isActive: true,
+            publicKey: encryptedPublicKey || formData.wompiConfig.publicKey,
+            signature: encryptedSignature || formData.wompiConfig.signature,
+          }),
+          onboardingCompleted: true,
+        }
+
+        const result = await createUserStore(storeInput)
+        if (result) {
+          setTimeout(() => {
+            window.location.href = routes.store.dashboard.main(result.storeId)
+          }, 3000)
+        } else {
+          setSaving(false)
+        }
+      } catch (error) {
+        console.error('Error al cifrar las claves API:', error)
         setSaving(false)
       }
     }

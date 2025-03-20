@@ -9,6 +9,7 @@ import { planManagement } from './functions/planManagement/resource'
 import { checkStoreName } from './functions/checkStoreName/resource'
 import { checkStoreDomain } from './functions/checkStoreDomain/resource'
 import { postConfirmation } from './auth/post-confirmation/resource'
+import { apiKeyManager } from './functions/LambdaEncryptKeys/resource'
 import { data, generateHaikuFunction } from './data/resource'
 import { Stack } from 'aws-cdk-lib'
 import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway'
@@ -32,6 +33,7 @@ const backend = defineBackend({
   productsImages,
   checkStoreDomain,
   storeLogo,
+  apiKeyManager,
 })
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
@@ -207,6 +209,27 @@ checkStoreDomainResource.addMethod('GET', checkStoreDomainIntegration)
 
 /**
  *
+ * API para Gestión de Claves API
+ *
+ */
+const apiKeyManagerApi = new RestApi(apiStack, 'ApiKeyManagerApi', {
+  restApiName: 'ApiKeyManagerApi',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
+  },
+})
+
+const apiKeyManagerIntegration = new LambdaIntegration(backend.apiKeyManager.resources.lambda)
+
+const apiKeyManagerResource = apiKeyManagerApi.root.addResource('api-keys')
+apiKeyManagerResource.addMethod('POST', apiKeyManagerIntegration)
+
+/**
+ *
  * Política de IAM para Invocar las APIs
  *
  */
@@ -221,6 +244,7 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
         `${planManagementApi.arnForExecuteApi('*', '/plan-management', 'dev')}`,
         `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', 'dev')}`,
         `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', 'dev')}`,
+        `${apiKeyManagerApi.arnForExecuteApi('*', '/api-keys', 'dev')}`,
       ],
     }),
   ],
@@ -267,6 +291,11 @@ backend.addOutput({
         endpoint: checkStoreDomainApi.url,
         region: Stack.of(checkStoreDomainApi).region,
         apiName: checkStoreDomainApi.restApiName,
+      },
+      ApiKeyManagerApi: {
+        endpoint: apiKeyManagerApi.url,
+        region: Stack.of(apiKeyManagerApi).region,
+        apiName: apiKeyManagerApi.restApiName,
       },
     },
   },

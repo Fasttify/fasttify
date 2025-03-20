@@ -22,6 +22,7 @@ import {
   WompiPaymentIcons,
   MercadoPagoIcons,
 } from '@/app/store/components/payments/PaymentMethodIcons'
+import { useApiKeyEncryption } from '@/app/(without-navbar)/first-steps/hooks/useApiKeyEncryption'
 
 export function PaymentSettings() {
   const params = useParams()
@@ -29,6 +30,7 @@ export function PaymentSettings() {
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedGateway, setSelectedGateway] = useState<PaymentGatewayType>('mercadoPago')
   const { getStorePaymentInfo, configurePaymentGateway } = useUserStoreData()
+  const { encryptApiKey, isEncrypting } = useApiKeyEncryption()
   const queryClient = useQueryClient()
 
   const { data, isLoading, isRefetching } = useQuery({
@@ -84,20 +86,95 @@ export function PaymentSettings() {
         return false
       }
 
-      let configData: any = {}
+      // Encriptar las claves API antes de guardarlas
+      let configData: any = { isActive: true }
 
       if (data.gateway === 'wompi') {
-        configData = {
-          publicKey: data.publicKey,
-          signature: data.privateKey,
-          isActive: true,
+        // Encriptar la clave pública de Wompi
+        if (data.publicKey) {
+          const encryptedPublicKey = await encryptApiKey(
+            data.publicKey,
+            'wompi',
+            'publicKey',
+            storeId
+          )
+          if (encryptedPublicKey) {
+            configData.publicKey = encryptedPublicKey
+          } else {
+            console.error('Error al encriptar la clave pública de Wompi')
+            toast.error('Error de configuración', {
+              description:
+                'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
+            })
+            return false
+          }
         }
-      } else {
-        configData = {
-          publicKey: data.publicKey,
-          privateKey: data.privateKey,
-          isActive: true,
+
+        // Encriptar la firma (clave privada) de Wompi
+        if (data.privateKey) {
+          const encryptedSignature = await encryptApiKey(
+            data.privateKey,
+            'wompi',
+            'signature',
+            storeId
+          )
+          if (encryptedSignature) {
+            configData.signature = encryptedSignature
+          } else {
+            console.error('Error al encriptar la firma de Wompi')
+            toast.error('Error de configuración', {
+              description:
+                'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
+            })
+            return false
+          }
         }
+      } else if (data.gateway === 'mercadoPago') {
+        // Encriptar la clave pública de Mercado Pago
+        if (data.publicKey) {
+          const encryptedPublicKey = await encryptApiKey(
+            data.publicKey,
+            'mercadopago',
+            'publicKey',
+            storeId
+          )
+          if (encryptedPublicKey) {
+            configData.publicKey = encryptedPublicKey
+          } else {
+            console.error('Error al encriptar la clave pública de Mercado Pago')
+            toast.error('Error de configuración', {
+              description:
+                'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
+            })
+            return false
+          }
+        }
+
+        // Encriptar la clave privada de Mercado Pago
+        if (data.privateKey) {
+          const encryptedPrivateKey = await encryptApiKey(
+            data.privateKey,
+            'mercadopago',
+            'privateKey',
+            storeId
+          )
+          if (encryptedPrivateKey) {
+            configData.privateKey = encryptedPrivateKey
+          } else {
+            console.error('Error al encriptar la clave privada de Mercado Pago')
+            toast.error('Error de configuración', {
+              description:
+                'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
+            })
+            return false
+          }
+        }
+      }
+
+      if (isEncrypting) {
+        // Si todavía está encriptando, mostrar un mensaje genérico
+        toast.loading('Configurando pasarela de pago...')
+        return false
       }
 
       const success = await configureGatewayMutation.mutateAsync({
@@ -109,6 +186,9 @@ export function PaymentSettings() {
       return success
     } catch (err) {
       console.error('Error al configurar la pasarela de pago:', err)
+      toast.error('Error de configuración', {
+        description: 'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
+      })
       return false
     }
   }

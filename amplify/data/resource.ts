@@ -5,6 +5,7 @@ import { cancelPlan } from '../functions/cancelPlan/resource'
 import { planScheduler } from '../functions/planScheduler/resource'
 import { checkStoreName } from '../functions/checkStoreName/resource'
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource'
+import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource'
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
 
@@ -109,6 +110,7 @@ const schema = a
     allow.resource(planScheduler),
     allow.resource(checkStoreName),
     allow.resource(checkStoreDomain),
+    allow.resource(apiKeyManager),
   ])
 
 export type Schema = ClientSchema<typeof schema>
