@@ -22,6 +22,7 @@ import useStoreDataStore from '@/zustand-states/storeDataStore'
 import { routes } from '@/utils/routes'
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
+import Link from 'next/link'
 
 interface AppItem {
   name: string
@@ -30,28 +31,41 @@ interface AppItem {
   isActive: boolean
 }
 
+import { useRouter } from 'next/navigation'
+
 export function NavApps() {
   const { isMobile } = useSidebar()
   const { hasMasterShopApiKey } = useStoreDataStore()
   const pathname = usePathname()
   const params = useParams()
   const storeId = getStoreId(params, pathname)
+  const router = useRouter()
 
   // Define available apps
   const availableApps: AppItem[] = [
     {
       name: 'Master Shop',
-      url: routes.store.setup.apps(storeId),
+      url: `/store/${storeId}/apps/mastershop`,
       icon: '/svgs/mastershop-svg.svg',
       isActive: hasMasterShopApiKey,
     },
-    // Add more apps here as they become available
+    // Añadir más apps aquí cuando estén disponibles
   ]
 
-  // Filter to only show active apps
+  // Filtrar para mostrar solo apps activas
   const activeApps = availableApps.filter(app => app.isActive)
 
-  // If no active apps, don't render the component
+  // Función para manejar la navegación
+  const handleAppNavigation = (app: AppItem) => {
+    if (app.isActive) {
+      router.push(app.url)
+    } else {
+      // Si la app no está activa, redirigir a la página de configuración de apps
+      router.push(routes.store.setup.apps(storeId))
+    }
+  }
+
+  // Si no hay apps activas, no renderizar el componente
   if (activeApps.length === 0) {
     return null
   }
@@ -62,17 +76,15 @@ export function NavApps() {
       <SidebarMenu>
         {activeApps.map(app => (
           <SidebarMenuItem key={app.name}>
-            <SidebarMenuButton asChild>
-              <a href={app.url}>
-                {typeof app.icon === 'string' ? (
-                  <div className="relative h-5 w-5 mr-2">
-                    <Image src={app.icon} alt={app.name} fill className="object-contain" />
-                  </div>
-                ) : (
-                  <app.icon />
-                )}
-                <span>{app.name}</span>
-              </a>
+            <SidebarMenuButton onClick={() => handleAppNavigation(app)}>
+              {typeof app.icon === 'string' ? (
+                <div className="relative h-5 w-5 mr-2">
+                  <Image src={app.icon} alt={app.name} fill className="object-contain" />
+                </div>
+              ) : (
+                <app.icon />
+              )}
+              <span>{app.name}</span>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

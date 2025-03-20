@@ -130,7 +130,7 @@ export function useProducts(
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   // Valores por defecto para paginación
-  const limit = options?.limit || 10
+  const limit = options?.limit || 50
   const sortDirection = options?.sortDirection || 'DESC'
   const sortField = options?.sortField || 'creationDate'
 

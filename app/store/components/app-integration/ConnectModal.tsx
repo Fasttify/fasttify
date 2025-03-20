@@ -24,6 +24,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
 import useStoreDataStore from '@/zustand-states/storeDataStore'
+import { useApiKeyEncryption } from '@/app/(without-navbar)/first-steps/hooks/useApiKeyEncryption'
 
 type Step = 1 | 2 | 3
 
@@ -38,11 +39,8 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
   const [apiKey, setApiKey] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
-
-  // Obtenemos el hook para actualizar la tienda
   const { updateUserStore, loading: updateLoading, error: updateError } = useUserStoreData()
-
-  // Obtenemos el ID de la tienda y el estado de la API key desde el estado global
+  const { encryptApiKey } = useApiKeyEncryption()
   const { currentStore, hasMasterShopApiKey, checkMasterShopApiKey } = useStoreDataStore()
 
   // Si ya tiene API key configurada, mostrar el paso 3 directamente
@@ -70,22 +68,41 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
       // Si tenemos el ID de la tienda, guardamos la API Key
       if (currentStore?.id) {
         try {
-          // Actualizamos la tienda con la API Key de Master Shop
+          // Encriptamos la API Key antes de guardarla
+          const encryptedKey = await encryptApiKey(
+            apiKey,
+            'mastershop',
+            undefined,
+            currentStore.storeId
+          )
+
+          if (!encryptedKey) {
+            console.error('Error al encriptar la API Key de Master Shop')
+            setStatus('error')
+            setErrorMessage('No se pudo configurar la integración. Por favor intenta nuevamente.')
+            return
+          }
+
+          // Actualizamos la tienda con la API Key encriptada de Master Shop
           const result = await updateUserStore({
             id: currentStore.id,
-            mastershopApiKey: apiKey,
+            mastershopApiKey: encryptedKey,
           })
 
           if (result) {
             setStatus('success')
             setStep(3)
+
+            checkMasterShopApiKey(currentStore.id)
           } else {
             setStatus('error')
-            setErrorMessage('No se pudo guardar la API Key. Por favor intenta nuevamente.')
+            setErrorMessage('No se pudo guardar la configuración. Por favor intenta nuevamente.')
           }
         } catch (error) {
           setStatus('error')
-          setErrorMessage('Ocurrió un error al guardar la API Key. Por favor intenta nuevamente.')
+          setErrorMessage(
+            'Ocurrió un error al guardar la configuración. Por favor intenta nuevamente.'
+          )
           console.error('Error al guardar API Key:', error)
         }
       } else {

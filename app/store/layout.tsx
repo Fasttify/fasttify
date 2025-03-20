@@ -48,6 +48,49 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [])
 
+  // Efecto para ajustar el viewport en dispositivos móviles
+  useEffect(() => {
+    // Función para ajustar la escala de visualización
+    const adjustViewport = () => {
+      // Verificar si es un dispositivo móvil (ancho menor a 768px)
+      if (window.innerWidth < 768) {
+        // Crear o actualizar la meta tag de viewport
+        let viewportMeta = document.querySelector('meta[name="viewport"]')
+        if (!viewportMeta) {
+          viewportMeta = document.createElement('meta')
+          viewportMeta.setAttribute('name', 'viewport')
+          document.head.appendChild(viewportMeta)
+        }
+
+        // Establecer una escala inicial más pequeña para las vistas de store
+        viewportMeta.setAttribute(
+          'content',
+          'width=device-width, initial-scale=0.8, maximum-scale=3, user-scalable=yes'
+        )
+      }
+    }
+
+    // Aplicar el ajuste al cargar la página
+    adjustViewport()
+
+    // Aplicar el ajuste al cambiar el tamaño de la ventana
+    window.addEventListener('resize', adjustViewport)
+
+    // Limpiar el event listener cuando el componente se desmonte
+    return () => {
+      window.removeEventListener('resize', adjustViewport)
+
+      // Restaurar el viewport original al salir de las rutas /store
+      const viewportMeta = document.querySelector('meta[name="viewport"]')
+      if (viewportMeta) {
+        viewportMeta.setAttribute(
+          'content',
+          'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes'
+        )
+      }
+    }
+  }, [])
+
   return (
     <SidebarProvider>
       <AppSidebar />
