@@ -1,4 +1,4 @@
-import { SortAsc, SortDesc, Eye, Edit, Trash } from 'lucide-react'
+import { SortAsc, SortDesc, Edit, Trash, Image } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -115,7 +115,12 @@ export function ProductTableDesktop({
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  {product.images && product.images.length > 0 ? (
+                  {product.images &&
+                  (Array.isArray(product.images)
+                    ? product.images.length > 0
+                    : typeof product.images === 'string' &&
+                      product.images !== '[]' &&
+                      product.images !== '') ? (
                     <img
                       src={
                         typeof product.images === 'string'
@@ -127,7 +132,7 @@ export function ProductTableDesktop({
                     />
                   ) : (
                     <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                      <Eye className="h-4 w-4 text-gray-500" />
+                      <Image className="h-4 w-4 text-gray-500" />
                     </div>
                   )}
                   <span className="font-medium">{product.name}</span>

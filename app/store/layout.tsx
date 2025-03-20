@@ -94,8 +94,8 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between px-4 text-[#f3f4f6] transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b">
+      <SidebarInset className="flex flex-col">
+        <header className="flex h-16 shrink-0 items-center justify-between px-4 text-[#f3f4f6] transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b bg-white sticky top-0 z-10">
           <div className="flex items-center gap-4">
             <SidebarTrigger className="text-[#2a2a2a]" />
             <Separator orientation="vertical" className="h-4" />
@@ -110,7 +110,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
 
-        <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6]">
+        <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6] overflow-auto">
           <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
           <ChatWidget />
         </main>

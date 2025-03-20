@@ -1,4 +1,4 @@
-import { Eye, Edit, Trash } from 'lucide-react'
+import { Image, Edit, Trash } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -29,7 +29,12 @@ export function ProductCardMobile({
         <div key={product.id} className="border-b p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex items-center gap-2">
-              {product.images && product.images.length > 0 ? (
+              {product.images &&
+              (Array.isArray(product.images)
+                ? product.images.length > 0
+                : typeof product.images === 'string' &&
+                  product.images !== '[]' &&
+                  product.images !== '') ? (
                 <img
                   src={
                     typeof product.images === 'string'
@@ -41,7 +46,7 @@ export function ProductCardMobile({
                 />
               ) : (
                 <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
-                  <Eye className="h-5 w-5 text-gray-500" />
+                  <Image className="h-5 w-5 text-gray-500" />
                 </div>
               )}
               <div>
