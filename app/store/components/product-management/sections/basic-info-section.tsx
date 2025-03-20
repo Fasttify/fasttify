@@ -1,7 +1,7 @@
 import type { UseFormReturn } from 'react-hook-form'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { CalendarIcon, Check, RefreshCw, X } from 'lucide-react'
+import { CalendarIcon, Check, HelpCircle, RefreshCw, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   FormControl,
@@ -29,6 +29,7 @@ import type { ProductFormValues } from '@/lib/schemas/product-schema'
 import { useProductDescription } from '@/app/store/components/product-management/hooks/useProductDescription'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { AIGenerateButton } from '@/app/store/components/product-management/sections/ai-generate-button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface BasicInfoSectionProps {
   form: UseFormReturn<ProductFormValues>
@@ -89,7 +90,22 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nombre del Producto</FormLabel>
+            <div className="flex items-center gap-2">
+              <FormLabel>Nombre del Producto</FormLabel>
+              <TooltipProvider>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p>
+                      Un nombre descriptivo y específico mejorará la calidad de las descripciones
+                      generadas con IA.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <FormControl>
               <Input placeholder="Ingrese el nombre del producto" {...field} />
             </FormControl>
@@ -107,7 +123,24 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
         render={({ field }) => (
           <FormItem>
             <div className="flex justify-between items-center rounded-md p-2 bg-gradient-to-r from-background to-muted/30">
-              <FormLabel className="text-sm font-medium">Descripción</FormLabel>
+              <div className="flex items-center gap-2">
+                <FormLabel className="text-sm font-medium">Descripción</FormLabel>
+                <TooltipProvider>
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="w-72 p-3">
+                      <p className="font-medium mb-1">Para obtener mejores resultados:</p>
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>Use un nombre de producto descriptivo</li>
+                        <li>Seleccione una categoría adecuada</li>
+                        <li>Incluya características clave y beneficios</li>
+                      </ul>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <AIGenerateButton
                 onClick={handleGenerateDescription}
                 isLoading={isGeneratingDescription}

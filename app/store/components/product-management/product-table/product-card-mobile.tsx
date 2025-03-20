@@ -87,8 +87,11 @@ export function ProductCardMobile({
                 <p className="text-xs text-muted-foreground mb-1">Precio</p>
                 <p>
                   {product.price !== null && product.price !== undefined
-                    ? `$${product.price.toFixed(2)}`
-                    : '$0.00'}
+                    ? `$${Number(product.price).toLocaleString('es-CO', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}`
+                    : '$0'}
                 </p>
               </div>
             )}

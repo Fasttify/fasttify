@@ -160,8 +160,11 @@ export function ProductTableDesktop({
               {visibleColumns.price && (
                 <TableCell>
                   {product.price !== null && product.price !== undefined
-                    ? `$${product.price.toFixed(2)}`
-                    : '$0.00'}
+                    ? `$${Number(product.price).toLocaleString('es-CO', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}`
+                    : '$0'}
                 </TableCell>
               )}
               {visibleColumns.category && (
