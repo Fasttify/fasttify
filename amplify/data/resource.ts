@@ -16,6 +16,13 @@ export const generateHaikuFunction = defineFunction({
   },
 })
 
+export const generateProductDescriptionFunction = defineFunction({
+  entry: './generateProductDescription.ts',
+  environment: {
+    MODEL_ID,
+  },
+})
+
 const schema = a
   .schema({
     generateHaiku: a
@@ -24,6 +31,16 @@ const schema = a
       .returns(a.string())
       .authorization(allow => [allow.publicApiKey()])
       .handler(a.handler.function(generateHaikuFunction)),
+
+    generateProductDescription: a
+      .query()
+      .arguments({
+        productName: a.string().required(),
+        category: a.string(),
+      })
+      .returns(a.string())
+      .authorization(allow => [allow.publicApiKey()])
+      .handler(a.handler.function(generateProductDescriptionFunction)),
 
     UserProfile: a
       .model({

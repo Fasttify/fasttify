@@ -10,7 +10,7 @@ import { checkStoreName } from './functions/checkStoreName/resource'
 import { checkStoreDomain } from './functions/checkStoreDomain/resource'
 import { postConfirmation } from './auth/post-confirmation/resource'
 import { apiKeyManager } from './functions/LambdaEncryptKeys/resource'
-import { data, generateHaikuFunction } from './data/resource'
+import { data, generateHaikuFunction, generateProductDescriptionFunction } from './data/resource'
 import { Stack } from 'aws-cdk-lib'
 import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway'
 import { Policy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam'
@@ -34,9 +34,28 @@ const backend = defineBackend({
   checkStoreDomain,
   storeLogo,
   apiKeyManager,
+  generateProductDescriptionFunction,
 })
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: [
+      'bedrock:InvokeModel',
+      'bedrock:InvokeModelWithResponseStream',
+      'bedrock:CreateInferenceProfile',
+      'bedrock:GetInferenceProfile',
+      'bedrock:ListInferenceProfiles',
+    ],
+    resources: [
+      'arn:aws:bedrock:*::foundation-model/*',
+      'arn:aws:bedrock:*:*:inference-profile/*',
+      'arn:aws:bedrock:*:*:application-inference-profile/*',
+    ],
+  })
+)
+
+backend.generateProductDescriptionFunction.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     effect: Effect.ALLOW,
     actions: [

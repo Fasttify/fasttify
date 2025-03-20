@@ -1,7 +1,7 @@
 import type { UseFormReturn } from 'react-hook-form'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { CalendarIcon, Sparkles } from 'lucide-react'
+import { CalendarIcon, Check, RefreshCw, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   FormControl,
@@ -26,15 +26,19 @@ import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import type { ProductFormValues } from '@/lib/schemas/product-schema'
+import { useProductDescription } from '@/app/store/components/product-management/hooks/useProductDescription'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { AIGenerateButton } from '@/app/store/components/product-management/sections/ai-generate-button'
 
 interface BasicInfoSectionProps {
   form: UseFormReturn<ProductFormValues>
 }
 
 export function BasicInfoSection({ form }: BasicInfoSectionProps) {
-  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false)
+  const { generateDescription, loading: isGeneratingDescription } = useProductDescription()
+  const [previewDescription, setPreviewDescription] = useState<string | null>(null)
 
-  const generateAIDescription = async () => {
+  const handleGenerateDescription = async () => {
     const productName = form.getValues('name')
     const category = form.getValues('category')
 
@@ -45,36 +49,37 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
       return
     }
 
-    setIsGeneratingDescription(true)
-
     try {
-      // Simulate API call to AI service
-      // In a real implementation, you would call your AI service here
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      const categoryText = category ? ` en la categoría de ${category}` : ''
-      const aiDescription = `Este es un producto de alta calidad llamado "${productName}"${categoryText}. 
-Fabricado con los mejores materiales para garantizar durabilidad y satisfacción del cliente. 
-Diseñado pensando en la comodidad y funcionalidad, este producto es perfecto para uso diario.
-Características principales:
-- Diseño elegante y moderno
-- Materiales de alta calidad
-- Fácil de usar
-- Durabilidad garantizada
-
-¡Añada este producto a su colección hoy mismo!`
-
-      form.setValue('description', aiDescription, { shouldDirty: true, shouldTouch: true })
-      toast.success('Descripción generada', {
-        description: 'Se ha generado una descripción con IA para su producto.',
+      const description = await generateDescription({
+        productName,
+        category: category || undefined,
       })
+
+      // En lugar de establecer directamente el valor, mostramos la vista previa
+      setPreviewDescription(description)
     } catch (error) {
+      console.error('Error al generar descripción:', error)
       toast.error('Error', {
         description: 'No se pudo generar la descripción. Inténtelo de nuevo más tarde.',
       })
-    } finally {
-      setIsGeneratingDescription(false)
     }
+  }
+
+  const acceptDescription = () => {
+    if (previewDescription) {
+      form.setValue('description', previewDescription, { shouldDirty: true, shouldTouch: true })
+      toast.success('Descripción aplicada', {
+        description: 'La descripción generada ha sido aplicada al producto.',
+      })
+      setPreviewDescription(null)
+    }
+  }
+
+  const rejectDescription = () => {
+    setPreviewDescription(null)
+    toast.info('Descripción descartada', {
+      description: 'La descripción generada ha sido descartada.',
+    })
   }
 
   return (
@@ -101,20 +106,59 @@ Características principales:
         name="description"
         render={({ field }) => (
           <FormItem>
-            <div className="flex justify-between items-center">
-              <FormLabel>Descripción</FormLabel>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={generateAIDescription}
-                disabled={isGeneratingDescription}
-                className="h-8 gap-1 text-xs"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                {isGeneratingDescription ? 'Generando...' : 'Generar con IA'}
-              </Button>
+            <div className="flex justify-between items-center rounded-md p-2 bg-gradient-to-r from-background to-muted/30">
+              <FormLabel className="text-sm font-medium">Descripción</FormLabel>
+              <AIGenerateButton
+                onClick={handleGenerateDescription}
+                isLoading={isGeneratingDescription}
+                isDisabled={!!previewDescription}
+              />
             </div>
+
+            {previewDescription ? (
+              <Card className="mt-2 mb-4 border-dashed border-blue-200 bg-blue-50">
+                <CardHeader className="py-3">
+                  <CardTitle className="text-sm font-medium text-blue-700">
+                    Vista previa de descripción generada
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="py-2 text-sm">{previewDescription}</CardContent>
+                <CardFooter className="flex justify-end gap-2 py-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateDescription}
+                    disabled={isGeneratingDescription}
+                    className="h-8 gap-1 text-xs"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    Regenerar
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={rejectDescription}
+                    className="h-8 gap-1 text-xs"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    Descartar
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="default"
+                    size="sm"
+                    onClick={acceptDescription}
+                    className="h-8 gap-1 text-xs bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    Aplicar
+                  </Button>
+                </CardFooter>
+              </Card>
+            ) : null}
+
             <FormControl>
               <Textarea
                 placeholder="Ingrese la descripción del producto"
