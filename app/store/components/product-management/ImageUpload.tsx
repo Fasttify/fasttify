@@ -46,7 +46,7 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
         return
       }
 
-      // Create previews for uploading files
+      // Crear previsualizaciones inmediatamente y mostrarlas
       const uploading = validFiles.map(file => ({
         file,
         preview: URL.createObjectURL(file),
@@ -54,13 +54,32 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
 
       setUploadingFiles(uploading)
 
+      // Mostrar temporalmente las imágenes en la interfaz mientras se suben
+      const tempImages = uploading.map(item => ({
+        url: item.preview,
+        alt: '',
+        isTemp: true,
+      }))
+
+      // Añadir temporalmente las imágenes a la vista
+      onChange([...value, ...tempImages])
+
+      // Subir las imágenes en segundo plano
       const uploadedImages = await uploadMultipleProductImages(validFiles, storeId)
 
       if (uploadedImages.length > 0) {
-        onChange([...value, ...uploadedImages])
+        // Reemplazar las imágenes temporales con las reales
+        const newImages = [...value]
+        // Eliminar las imágenes temporales
+        const finalImages = newImages.filter(img => !(img as any).isTemp)
+        // Añadir las imágenes subidas
+        onChange([...finalImages, ...uploadedImages])
       }
     } catch (error) {
       console.error('Error uploading images:', error)
+      // En caso de error, eliminar las imágenes temporales
+      const newImages = [...value]
+      onChange(newImages.filter(img => !(img as any).isTemp))
     } finally {
       // Clean up object URLs to avoid memory leaks
       uploadingFiles.forEach(item => URL.revokeObjectURL(item.preview))
@@ -222,9 +241,17 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
                     src={image.url || '/placeholder.svg'}
                     alt={image.alt || 'Imagen del producto'}
                     fill
-                    className="object-cover cursor-pointer"
+                    className={cn(
+                      'object-cover cursor-pointer',
+                      (image as any).isTemp ? 'opacity-70' : ''
+                    )}
                     onClick={() => openEnlargedView(image)}
                   />
+                  {(image as any).isTemp && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <Loader2 className="h-6 w-6 animate-spin text-white" />
+                    </div>
+                  )}
                   <Button
                     type="button"
                     variant="destructive"
