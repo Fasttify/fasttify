@@ -316,6 +316,11 @@ export function useProducts(
 
   // Consulta para obtener un producto específico
   const fetchProductById = async (id: string): Promise<IProduct | null> => {
+    if (!storeId) {
+      console.error('No se puede obtener el producto: storeId no definido')
+      return null
+    }
+
     // Primero verificamos si ya tenemos el producto en la caché
     const cachedProducts = queryClient.getQueryData([
       'products',
@@ -328,20 +333,46 @@ export function useProducts(
     if (cachedProducts && cachedProducts.pages) {
       for (const page of cachedProducts.pages) {
         const existingProduct = page.products.find((p: IProduct) => p.id === id)
-        if (existingProduct) return existingProduct
+        if (existingProduct) {
+          // Verificar que el producto pertenezca a la tienda actual
+          if (existingProduct.storeId === storeId) {
+            return existingProduct
+          } else {
+            console.error(
+              `Acceso denegado: El producto ${id} no pertenece a la tienda actual ${storeId}`
+            )
+            return null
+          }
+        }
       }
     }
 
-    // Si no está en caché, lo buscamos en la API
-    const { data } = await client.models.Product.get({ id }, { authMode: 'userPool' })
+    // Verificar si el producto pertenece a la tienda actual antes de hacer la petición
+    try {
+      // Primero obtenemos todos los productos de la tienda actual
+      const { data: storeProducts } = await client.models.Product.list({
+        filter: { storeId: { eq: storeId } },
+        authMode: 'userPool',
+      })
 
-    if (data) {
-      // Añadimos el producto a la caché si no está ya
-      queryClient.setQueryData(['product', id], data)
-      return data as IProduct
+      // Buscamos el producto en los productos de la tienda
+      const productInStore = storeProducts?.find(p => p.id === id)
+
+      if (productInStore) {
+        // El producto pertenece a la tienda actual, lo añadimos a la caché
+        queryClient.setQueryData(['product', id], productInStore)
+        return productInStore as IProduct
+      } else {
+        // El producto no pertenece a la tienda actual o no existe
+        console.error(
+          `Acceso denegado: El producto ${id} no pertenece a la tienda actual ${storeId}`
+        )
+        return null
+      }
+    } catch (error) {
+      console.error(`Error al verificar el producto ${id}:`, error)
+      return null
     }
-
-    return null
   }
 
   // Extraer productos de todas las páginas
