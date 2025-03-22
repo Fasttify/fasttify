@@ -25,6 +25,18 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
 import useStoreDataStore from '@/zustand-states/storeDataStore'
 import { useApiKeyEncryption } from '@/app/(without-navbar)/first-steps/hooks/useApiKeyEncryption'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 type Step = 1 | 2 | 3
 
