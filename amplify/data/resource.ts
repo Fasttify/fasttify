@@ -23,6 +23,13 @@ export const generateProductDescriptionFunction = defineFunction({
   },
 })
 
+export const generatePriceSuggestionFunction = defineFunction({
+  entry: './generatePriceSuggestion.ts',
+  environment: {
+    MODEL_ID,
+  },
+})
+
 const schema = a
   .schema({
     generateHaiku: a
@@ -41,6 +48,16 @@ const schema = a
       .returns(a.string())
       .authorization(allow => [allow.publicApiKey()])
       .handler(a.handler.function(generateProductDescriptionFunction)),
+
+    generatePriceSuggestion: a
+      .query()
+      .arguments({
+        productName: a.string().required(),
+        category: a.string(),
+      })
+      .returns(a.json())
+      .authorization(allow => [allow.publicApiKey()])
+      .handler(a.handler.function(generatePriceSuggestionFunction)),
 
     UserProfile: a
       .model({

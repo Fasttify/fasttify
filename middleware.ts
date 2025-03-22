@@ -3,11 +3,18 @@ import { handleAuthenticationMiddleware } from './middlewares/auth'
 import { handleSubscriptionMiddleware } from './middlewares/subscription'
 import { handleStoreMiddleware } from './middlewares/store'
 import { handleStoreAccessMiddleware } from './middlewares/storeAccess'
+import { handleProductOwnershipMiddleware } from './middlewares/productOwnership'
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
-  // Proteger todas las rutas de tienda (debe ir primero para mayor prioridad)
+  // Verificar propiedad de productos específicos - Corregido el patrón de URL
+  if (path.includes('/products/') && path.match(/\/products\/([^\/]+)/)) {
+    console.log('Middleware: Verificando propiedad del producto en ruta:', path)
+    return handleProductOwnershipMiddleware(request)
+  }
+
+  // Proteger todas las rutas de tienda
   if (path.match(/^\/store\/[^\/]+/)) {
     return handleStoreAccessMiddleware(request)
   }

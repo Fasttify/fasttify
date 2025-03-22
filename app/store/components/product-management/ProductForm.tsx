@@ -43,22 +43,22 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
 
   useEffect(() => {
     const loadProduct = async () => {
-      if (productId) {
-        const existingProduct = products.find(p => p.id === productId)
+      if (!productId) return
 
-        if (existingProduct) {
-          setProductToEdit(existingProduct)
-        } else {
-          const product = await fetchProduct(productId)
-          if (product) {
-            setProductToEdit(product)
-          }
+      const existingProduct = products.find(p => p.id === productId && p.storeId === storeId)
+
+      if (existingProduct) {
+        setProductToEdit(existingProduct)
+      } else {
+        const product = await fetchProduct(productId)
+        if (product && product.storeId === storeId) {
+          setProductToEdit(product)
         }
       }
     }
 
     loadProduct()
-  }, [productId, products, fetchProduct])
+  }, [productId, storeId, fetchProduct])
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
