@@ -11,6 +11,18 @@ import {
 import Image from 'next/image'
 import { ConnectModal } from '@/app/store/components/app-integration/ConnectModal'
 import useStoreDataStore from '@/zustand-states/storeDataStore'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 export function AppIntegrationPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
