@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Check, ExternalLink } from 'lucide-react'
+import { X, Check, ExternalLink, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -13,20 +13,87 @@ import {
 } from '@/components/ui/accordion'
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
+import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
+import useStoreDataStore from '@/zustand-states/storeDataStore'
 
 export function EcommerceSetup() {
   const [tasks, setTasks] = useState<Task[]>(defaultStoreTasks)
   const [expandedTaskId, setExpandedTaskId] = useState<string>('task-1')
+  const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null)
   const params = useParams()
   const pathname = usePathname()
+  const { updateUserStore } = useUserStoreData()
+
+  const { currentStore } = useStoreDataStore()
 
   const storeId = getStoreId(params, pathname)
 
-  const toggleTaskCompletion = (taskId: number, event: React.MouseEvent) => {
+  useEffect(() => {
+    if (currentStore?.onboardingData) {
+      try {
+        const onboardingData =
+          typeof currentStore.onboardingData === 'string'
+            ? JSON.parse(currentStore.onboardingData)
+            : currentStore.onboardingData
+
+        if (onboardingData.completedTasks) {
+          setTasks(
+            tasks.map(task => ({
+              ...task,
+              completed: onboardingData.completedTasks.includes(task.id),
+            }))
+          )
+        }
+      } catch (error) {
+        console.error('Error parsing onboarding data:', error)
+      }
+    }
+  }, [currentStore])
+
+  const toggleTaskCompletion = async (taskId: number, event: React.MouseEvent) => {
     event.stopPropagation()
-    setTasks(
-      tasks.map(task => (task.id === taskId ? { ...task, completed: !task.completed } : task))
+
+    if (!currentStore || updatingTaskId !== null) return
+
+    // Set the task as updating
+    setUpdatingTaskId(taskId)
+
+    // Update local state first
+    const updatedTasks = tasks.map(task =>
+      task.id === taskId ? { ...task, completed: !task.completed } : task
     )
+    setTasks(updatedTasks)
+
+    try {
+      // Prepare data for update
+      const completedTaskIds = updatedTasks.filter(task => task.completed).map(task => task.id)
+
+      // Convert to JSON string to ensure proper format
+      const onboardingDataString = JSON.stringify({
+        completedTasks: completedTaskIds,
+        lastUpdated: new Date().toISOString(),
+      })
+
+      // Check if all tasks are completed
+      const allCompleted = updatedTasks.every(task => task.completed)
+
+      // Update in database
+      await updateUserStore({
+        id: currentStore.id,
+        onboardingData: onboardingDataString,
+        onboardingCompleted: allCompleted,
+      })
+    } catch (error) {
+      console.error('Error updating task state:', error)
+
+      // Revert changes on error
+      setTasks(
+        tasks.map(task => (task.id === taskId ? { ...task, completed: !task.completed } : task))
+      )
+    } finally {
+      // Remove updating state
+      setUpdatingTaskId(null)
+    }
   }
 
   const completedTasksCount = tasks.filter(task => task.completed).length
@@ -120,7 +187,11 @@ export function EcommerceSetup() {
                       }}
                       aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
                     >
-                      {task.completed && <Check className="h-3 w-3 text-white" />}
+                      {updatingTaskId === task.id ? (
+                        <Loader2 className="h-3 w-3 text-white animate-spin" />
+                      ) : (
+                        task.completed && <Check className="h-3 w-3 text-white" />
+                      )}
                     </div>
 
                     <AccordionTrigger className="hover:no-underline flex-1 p-0">
@@ -186,14 +257,15 @@ export function EcommerceSetup() {
                       </div>
 
                       {task.imageUrl && (
-                        <div className="hidden md:block -mt-2">
-                          <div className="bg-white p-1 rounded-md border border-gray-200 w-[100px] h-[75px] overflow-hidden">
+                        <div className="md:block">
+                          <div className="bg-white p-2 rounded-md border border-gray-200 w-[140px] h-[100px] overflow-hidden shadow-sm">
                             <Image
                               src={task.imageUrl}
-                              width={100}
-                              height={75}
+                              width={140}
+                              height={100}
                               alt={`Ilustración para ${task.title}`}
                               className="object-cover w-full h-full rounded"
+                              priority
                             />
                           </div>
                         </div>

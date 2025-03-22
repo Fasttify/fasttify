@@ -28,7 +28,7 @@ export function PriceSuggestionPanel({
         <div className="flex items-center gap-2">
           <span className="font-medium">Precio</span>
           <TooltipProvider>
-            <Tooltip>
+            <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <HelpCircle className="h-4 w-4 text-muted-foreground" />
               </TooltipTrigger>

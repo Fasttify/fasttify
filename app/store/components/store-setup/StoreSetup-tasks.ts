@@ -38,8 +38,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => `${routes.store.products.main(storeId)}/import`,
       },
     },
-    imageUrl:
-      'https://images.unsplash.com/vector-1738317129462-9ba78746ceb2?q=80&w=2360&auto=format&fit=crop',
+    imageUrl: '/svgs/product.svg',
     completed: false,
   },
   {
@@ -54,8 +53,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => routes.store.setup.main(storeId),
       },
     },
-    imageUrl:
-      'https://images.unsplash.com/vector-1738934022191-816477188009?q=80&w=2360&auto=format&fit=crop',
+    imageUrl: '/svgs/personalized.svg',
     completed: false,
   },
   {
@@ -73,8 +71,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => `${routes.store.setup.domain(storeId)}/buy`,
       },
     },
-    imageUrl:
-      'https://images.unsplash.com/vector-1738934022231-631858d2e27d?q=80&w=2360&auto=format&fit=crop',
+    imageUrl: '/svgs/domain.svg',
     completed: false,
   },
   {
@@ -88,8 +85,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => routes.store.setup.domain(storeId),
       },
     },
-    imageUrl:
-      'https://images.unsplash.com/vector-1738223599537-9eeb4dd70275?q=80&w=2360&auto=format&fit=crop',
+    imageUrl: '/svgs/name.svg',
     completed: false,
   },
   {
@@ -104,8 +100,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => routes.store.setup.shipping(storeId),
       },
     },
-    imageUrl:
-      'https://images.unsplash.com/vector-1739805925148-5ef9f0a06ccd?q=80&w=2360&auto=format&fit=crop',
+    imageUrl: '/svgs/shipping.svg',
     completed: false,
   },
   {
@@ -135,8 +130,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => routes.store.setup.testOrder(storeId),
       },
     },
-    imageUrl:
-      'https://images.unsplash.com/vector-1738382122219-c54bbe640887?q=80&w=2062&auto=format&fit=crop',
+    imageUrl: '/svgs/test.svg',
     completed: false,
   },
 ]
