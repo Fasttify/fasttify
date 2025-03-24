@@ -92,7 +92,13 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
   }, [])
 
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      style={
+        {
+          '--sidebar-width': '19rem',
+        } as React.CSSProperties
+      }
+    >
       <AppSidebar />
       <SidebarInset className="flex flex-col">
         <header className="flex h-16 shrink-0 items-center justify-between px-4 text-[#f3f4f6] transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b bg-white sticky top-0 z-10">
