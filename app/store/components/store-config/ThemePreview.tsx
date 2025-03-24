@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { MoreHorizontal } from 'lucide-react'
 import { LogoUploader } from '@/app/store/components/store-config/LogoUploader'
-
+import useStoreDataStore from '@/zustand-states/storeDataStore'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -90,14 +90,30 @@ function AvailableThemesCard() {
   )
 }
 
-// Logo upload component
 function LogoUploadCard() {
+  const { currentStore } = useStoreDataStore()
+
   return (
     <Card className="p-6">
       <h3 className="text-xl font-bold mb-2 text-gray-800">Logo de tu tienda</h3>
       <p className="text-gray-600 mb-4">
         Sube el logo y muestra la imagen de tu marca en tu tienda.
       </p>
+
+      {currentStore?.storeLogo && (
+        <div className="mb-4 p-3 border border-gray-200 rounded-md">
+          <div className="relative h-32 w-full">
+            <Image
+              src={currentStore.storeLogo}
+              alt={`Logo de ${currentStore.storeName || 'la tienda'}`}
+              fill
+              sizes="(max-width: 768px) 100vw, 300px"
+              className="object-contain"
+            />
+          </div>
+        </div>
+      )}
+
       <LogoUploader />
     </Card>
   )

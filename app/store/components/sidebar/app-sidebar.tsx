@@ -121,8 +121,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarContent className="bg-[#ebebeb] font-medium text-gray-800">
+    <Sidebar variant="inset" collapsible="icon" {...props}>
+      <SidebarContent className="bg-[#ebebeb] rounded-xl font-medium text-gray-800">
         <NavMain items={data.navMain} />
         <NavApps />
       </SidebarContent>

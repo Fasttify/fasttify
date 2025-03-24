@@ -48,18 +48,15 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
     }
 
     try {
-      console.log('Enviando solicitud para:', productName, category)
       const rawResult = await generatePriceSuggestion({
         productName,
         category: category || undefined,
       })
-      console.log('Resultado de generación de precio:', rawResult)
 
       let parsedResult
       if (typeof rawResult === 'string') {
         try {
           parsedResult = JSON.parse(rawResult)
-          console.log('Resultado parseado:', parsedResult)
 
           setLocalPriceResult(parsedResult)
         } catch (parseError) {

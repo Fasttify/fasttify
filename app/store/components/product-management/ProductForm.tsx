@@ -25,6 +25,7 @@ import { BasicInfoSection } from '@/app/store/components/product-management/sect
 import { PricingInventorySection } from '@/app/store/components/product-management/sections/pricing-inventory-section'
 import { ImagesSection } from '@/app/store/components/product-management/sections/images-section'
 import { AttributesSection } from '@/app/store/components/product-management/sections/attributes-section'
+import { PublicationSection } from '@/app/store/components/product-management/sections/publication-section'
 
 interface ProductFormProps {
   storeId: string
@@ -207,133 +208,143 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
           setIsSubmitting={setIsSubmitting}
         />
       )}
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="max-w-5xl mx-auto px-4 mt-8">
+        <div className="flex items-center mb-6">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              confirmNavigation(() => router.back())
+            }}
+            className="text-gray-800 text-lg"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-1"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            Añadir producto
+          </Button>
+        </div>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">Información Básica</h2>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    confirmNavigation(() => router.back())
-                  }}
-                  className="text-muted-foreground"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="mr-1"
-                  >
-                    <path d="m15 18-6-6 6-6" />
-                  </svg>
-                  Volver
-                </Button>
-              </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col lg:flex-row gap-6">
+            {/* Main content column */}
+            <div className="flex-1 space-y-6 order-2 lg:order-1">
               <Card className="shadow-sm">
                 <CardContent className="pt-5 pb-4">
                   <BasicInfoSection form={form} />
                 </CardContent>
               </Card>
 
-              <h2 className="text-xl font-bold">Precios e Inventario</h2>
-              <Card className="shadow-sm">
-                <CardContent className="pt-5 pb-4">
-                  <PricingInventorySection form={form} />
-                </CardContent>
-              </Card>
-
-              <h2 className="text-xl font-bold">Imágenes</h2>
               <Card className="shadow-sm">
                 <CardContent className="pt-5 pb-4">
                   <ImagesSection form={form} storeId={storeId} />
                 </CardContent>
               </Card>
 
-              <h2 className="text-xl font-bold">Atributos</h2>
+              <Card className="shadow-sm">
+                <CardContent className="pt-5 pb-4">
+                  <PricingInventorySection form={form} />
+                </CardContent>
+              </Card>
+
               <Card className="shadow-sm">
                 <CardContent className="pt-5 pb-4">
                   <AttributesSection form={form} />
                 </CardContent>
               </Card>
-            </div>
 
-            <div className="flex justify-end gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  confirmNavigation(() => router.back())
-                }}
-              >
-                Cancelar
-              </Button>
-
-              {productId ? (
+              <div className="flex justify-end gap-4">
                 <Button
                   type="button"
-                  className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
-                  disabled={isSubmitting}
-                  onClick={async () => {
-                    if (isSubmitting) return
-                    setIsSubmitting(true)
-
-                    try {
-                      const data = form.getValues()
-                      const basicProductData = prepareProductData(data, storeId)
-                      const result = await handleProductUpdate(
-                        basicProductData,
-                        productId,
-                        storeId,
-                        updateProduct
-                      )
-
-                      if (result) {
-                        resetUnsavedChanges()
-                        router.push(`/store/${storeId}/products`)
-                      } else {
-                        setIsSubmitting(false)
-                      }
-                    } catch (error) {
-                      console.error('Error al actualizar producto:', error)
-                      setIsSubmitting(false)
-                    }
+                  variant="outline"
+                  onClick={() => {
+                    confirmNavigation(() => router.back())
                   }}
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Actualizando...
-                    </>
-                  ) : (
-                    'Actualizar Producto'
-                  )}
+                  Cancelar
                 </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creando...
-                    </>
-                  ) : (
-                    'Crear Producto'
-                  )}
-                </Button>
-              )}
+
+                {productId ? (
+                  <Button
+                    type="button"
+                    className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+                    disabled={isSubmitting}
+                    onClick={async () => {
+                      if (isSubmitting) return
+                      setIsSubmitting(true)
+
+                      try {
+                        const data = form.getValues()
+                        const basicProductData = prepareProductData(data, storeId)
+                        const result = await handleProductUpdate(
+                          basicProductData,
+                          productId,
+                          storeId,
+                          updateProduct
+                        )
+
+                        if (result) {
+                          resetUnsavedChanges()
+                          router.push(`/store/${storeId}/products`)
+                        } else {
+                          setIsSubmitting(false)
+                        }
+                      } catch (error) {
+                        console.error('Error al actualizar producto:', error)
+                        setIsSubmitting(false)
+                      }
+                    }}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Actualizando...
+                      </>
+                    ) : (
+                      'Actualizar Producto'
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creando...
+                      </>
+                    ) : (
+                      'Crear Producto'
+                    )}
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Sidebar column */}
+            <div className="w-full lg:w-80 space-y-6 order-1 lg:order-2">
+              <Card className="shadow-sm">
+                <CardContent className="pt-5 pb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium">Publicación</h3>
+                  </div>
+                  <PublicationSection form={form} />
+                </CardContent>
+              </Card>
             </div>
           </form>
         </Form>

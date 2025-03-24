@@ -30,6 +30,7 @@ export interface UserStoreInput {
   mastershopApiKey?: string // Clave API de Mastershop
   customDomain?: string // Dominio propio a asignar (opcional)
   onboardingCompleted: boolean
+  onboardingData: any
 }
 
 // Definimos el tipo de autorización a usar

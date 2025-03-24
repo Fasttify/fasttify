@@ -107,6 +107,7 @@ const schema = a
         mastershopApiKey: a.string(),
         customDomain: a.string(),
         onboardingCompleted: a.boolean().required(),
+        onboardingData: a.json(),
       })
       .authorization(allow => [allow.authenticated().to(['read', 'update', 'delete', 'create'])]),
 
@@ -130,6 +131,7 @@ const schema = a
         featured: a.boolean(), // Producto destacado
         tags: a.json(), // Array de etiquetas
         variants: a.json(), // Variantes del producto
+        supplier: a.string(), // Proveedor del producto
         owner: a.string().required(), // Usuario que creo el producto
       })
       .authorization(allow => [

@@ -56,7 +56,6 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
         category: category || undefined,
       })
 
-      // En lugar de establecer directamente el valor, mostramos la vista previa
       setPreviewDescription(description)
     } catch (error) {
       console.error('Error al generar descripción:', error)

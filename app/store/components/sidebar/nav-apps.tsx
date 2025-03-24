@@ -22,7 +22,6 @@ import useStoreDataStore from '@/zustand-states/storeDataStore'
 import { routes } from '@/utils/routes'
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
-import Link from 'next/link'
 
 interface AppItem {
   name: string
@@ -45,7 +44,7 @@ export function NavApps() {
   const availableApps: AppItem[] = [
     {
       name: 'Master Shop',
-      url: `/store/${storeId}/apps/mastershop`,
+      url: `${routes.store.masterShop(storeId)}`,
       icon: '/svgs/mastershop-svg.svg',
       isActive: hasMasterShopApiKey,
     },

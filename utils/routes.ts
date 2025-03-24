@@ -15,6 +15,7 @@ export const routes = {
     },
     orders: (storeId: string) => `/store/${storeId}/orders`,
     customers: (storeId: string) => `/store/${storeId}/customers`,
+    masterShop: (storeId: string) => `/store/${storeId}/mastershop`,
 
     setup: {
       main: (storeId: string) => `/store/${storeId}/setup`,

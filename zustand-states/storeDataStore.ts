@@ -67,6 +67,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
           'contactEmail',
           'storeFavicon',
           'storeTheme',
+          'onboardingData',
         ],
       })
 
@@ -143,6 +144,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
         'contactEmail',
         'storeFavicon',
         'storeTheme',
+        'onboardingData',
       ],
     }).subscribe({
       next: ({ items, isSynced }) => {
