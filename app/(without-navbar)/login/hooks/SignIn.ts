@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react'
 import { signIn, resendSignUpCode, type SignInInput } from 'aws-amplify/auth'
-import { useRouter } from 'next/navigation'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 
@@ -32,8 +31,6 @@ export function useAuth({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-
-  const router = useRouter()
 
   const getErrorMessage = (error: AuthError): string => {
     switch (error.message) {
@@ -90,7 +87,8 @@ export function useAuth({
 
         if (isSignedIn) {
           setIsAuthenticated(true)
-          await router.push(redirectPath)
+          // Reemplazar router.push con window.location.href
+          window.location.href = redirectPath
         } else if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
           // Si el usuario no ha confirmado su registro, reenvía el código
           await resendConfirmationCode(email)
@@ -115,7 +113,7 @@ export function useAuth({
         setIsLoading(false)
       }
     },
-    [router, redirectPath, onVerificationNeeded, resendConfirmationCode]
+    [redirectPath, onVerificationNeeded, resendConfirmationCode]
   )
 
   return {
