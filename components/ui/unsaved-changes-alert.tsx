@@ -52,11 +52,11 @@ export function UnsavedChangesAlert({
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
+          exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3 }}
-          className="fixed top-0 left-0 right-0 z-50 flex flex-col md:flex-row items-center justify-between px-2 py-1 md:px-4 md:py-2 bg-[#1a1a1a] text-white md:left-64 rounded-b-lg text-xs md:text-base"
+          className="fixed bottom-4 left-0 right-0 mx-auto z-50 w-[95%] md:max-w-xl flex flex-col md:flex-row items-center justify-between px-3 py-2 md:px-4 md:py-3 bg-[#1a1a1a] text-white rounded-lg shadow-lg text-xs md:text-sm"
         >
           <div className="flex items-center space-x-1 md:space-x-2">
             <AlertCircle className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />

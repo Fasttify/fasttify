@@ -148,14 +148,16 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
             </div>
 
             {previewDescription ? (
-              <Card className="mt-2 mb-4 border-dashed border-blue-200 bg-blue-50">
+              <Card className="mt-2 mb-4 border-dashed border-blue-200 bg-blue-50 max-w-full overflow-hidden">
                 <CardHeader className="py-3">
                   <CardTitle className="text-sm font-medium text-blue-700">
                     Vista previa de descripción generada
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="py-2 text-sm">{previewDescription}</CardContent>
-                <CardFooter className="flex justify-end gap-2 py-3">
+                <CardContent className="py-2 text-sm overflow-x-auto">
+                  {previewDescription}
+                </CardContent>
+                <CardFooter className="flex flex-wrap justify-end gap-2 py-3">
                   <Button
                     type="button"
                     variant="outline"
@@ -165,7 +167,7 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
                     className="h-8 gap-1 text-xs"
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
-                    Regenerar
+                    <span className="whitespace-nowrap">Regenerar</span>
                   </Button>
                   <Button
                     type="button"
@@ -175,7 +177,7 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
                     className="h-8 gap-1 text-xs"
                   >
                     <X className="h-3.5 w-3.5" />
-                    Descartar
+                    <span className="whitespace-nowrap">Descartar</span>
                   </Button>
                   <Button
                     type="button"
@@ -185,7 +187,7 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
                     className="h-8 gap-1 text-xs bg-[#2a2a2a] hover:bg-[#3a3a3a]"
                   >
                     <Check className="h-3.5 w-3.5" />
-                    Aplicar
+                    <span className="whitespace-nowrap">Aplicar</span>
                   </Button>
                 </CardFooter>
               </Card>

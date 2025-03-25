@@ -1,8 +1,11 @@
+'use client'
+
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { TextShimmer } from '@/app/store/components/product-management/sections/text-shimmer'
 
 interface AIGenerateButtonProps {
   onClick: () => Promise<void>
@@ -48,32 +51,9 @@ export function AIGenerateButton({
         onMouseLeave={() => setIsHovered(false)}
       >
         {isLoading ? (
-          <div className="flex items-center">
-            <span className="mr-1">{loadingLabel}</span>
-            <div className="flex space-x-0.5 overflow-hidden">
-              <motion.span
-                animate={{ y: [0, -5, 0] }}
-                transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, delay: 0 }}
-                className="inline-block"
-              >
-                .
-              </motion.span>
-              <motion.span
-                animate={{ y: [0, -5, 0] }}
-                transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, delay: 0.2 }}
-                className="inline-block"
-              >
-                .
-              </motion.span>
-              <motion.span
-                animate={{ y: [0, -5, 0] }}
-                transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, delay: 0.4 }}
-                className="inline-block"
-              >
-                .
-              </motion.span>
-            </div>
-          </div>
+          <TextShimmer className="text-xs font-medium" duration={1.5} spread={1}>
+            {loadingLabel}
+          </TextShimmer>
         ) : (
           <>
             <motion.div

@@ -10,7 +10,6 @@ export async function middleware(request: NextRequest) {
 
   // Verificar propiedad de productos específicos - Corregido el patrón de URL
   if (path.includes('/products/') && path.match(/\/products\/([^\/]+)/)) {
-    console.log('Middleware: Verificando propiedad del producto en ruta:', path)
     return handleProductOwnershipMiddleware(request)
   }
 

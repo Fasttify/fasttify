@@ -121,14 +121,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   return (
-    <Sidebar variant="inset" collapsible="icon" {...props}>
+    <Sidebar variant="floating" collapsible="icon" {...props}>
       <SidebarContent className="bg-[#ebebeb] rounded-xl font-medium text-gray-800">
         <NavMain items={data.navMain} />
         <NavApps />
+        <SidebarFooter className="bg-[#ebebeb] text-gray-800 mt-auto">
+          <NavUser user={user} loading={loading} />
+        </SidebarFooter>
       </SidebarContent>
-      <SidebarFooter className="bg-[#ebebeb] text-gray-800">
-        <NavUser user={user} loading={loading} />
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
