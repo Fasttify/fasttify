@@ -4,6 +4,7 @@ import { handleSubscriptionMiddleware } from './middlewares/subscription'
 import { handleStoreMiddleware } from './middlewares/store'
 import { handleStoreAccessMiddleware } from './middlewares/storeAccess'
 import { handleProductOwnershipMiddleware } from './middlewares/productOwnership'
+import { handleAuthenticatedRedirect } from './middlewares/auth'
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -29,6 +30,9 @@ export async function middleware(request: NextRequest) {
   if (['/first-steps', '/my-store'].includes(path)) {
     return handleStoreMiddleware(request, NextResponse.next())
   }
+  if (path === '/login') {
+    return handleAuthenticatedRedirect(request, NextResponse.next())
+  }
 
   return NextResponse.next()
 }
@@ -39,6 +43,7 @@ export const config = {
     '/account-settings',
     '/first-steps',
     '/my-store',
+    '/login',
     '/store/:path*',
   ],
 }

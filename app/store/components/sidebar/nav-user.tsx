@@ -39,6 +39,22 @@ export function NavUser({ user, loading }: NavUserProps) {
   const [isClient, setIsClient] = useState(false)
   const { clearStore } = useStoreDataStore()
 
+  const getUserInitials = () => {
+    if (!user) return ''
+
+    const displayName = user.preferredUsername || user.nickName || user.email || ''
+
+    if (displayName.includes('@')) {
+      return displayName.split('@')[0].charAt(0).toUpperCase()
+    }
+
+    const nameParts = displayName.split(' ')
+    const firstInitial = nameParts[0]?.charAt(0) || ''
+    const secondInitial = nameParts[1]?.charAt(0) || ''
+
+    return (firstInitial + secondInitial).toUpperCase() || 'U'
+  }
+
   // Set isClient to true after component mounts
   useEffect(() => {
     setIsClient(true)
@@ -82,7 +98,9 @@ export function NavUser({ user, loading }: NavUserProps) {
                   referrerPolicy="no-referrer"
                   className="object-cover"
                 />
-                <AvatarFallback className="rounded-lg">{user?.nickName}</AvatarFallback>
+                <AvatarFallback className="rounded-lg bg-pink-100 text-pink-700">
+                  {getUserInitials()}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user?.nickName}</span>
