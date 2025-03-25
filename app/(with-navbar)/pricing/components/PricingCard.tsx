@@ -50,6 +50,8 @@ export function PricingCard({ plan }: PricingCardProps) {
   const cognitoUsername = user?.cognitoUsername
   const hasActivePlan = user && user.plan ? user.plan === plan.name : false
 
+  console.log(cognitoUsername)
+
   const formatPrice = (price: string) => {
     if (price === '0') return 'Gratis'
     const numPrice = Number.parseInt(price, 10)

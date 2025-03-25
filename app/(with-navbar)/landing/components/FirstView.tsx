@@ -33,6 +33,10 @@ export function FirstView() {
   const swiperRef = useRef<SwiperType>()
   const [activeIndex, setActiveIndex] = useState(0)
 
+  const rediret = () => {
+    window.location.href = '/first-steps'
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0.0, y: 40 }}
@@ -86,15 +90,15 @@ export function FirstView() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/first-steps">
-                  <Button
-                    size="lg"
-                    className="bg-primary hover:bg-primary/90 text-white px-8 rounded-full"
-                  >
-                    Crear mi tienda
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                <Button
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-white px-8 rounded-full"
+                  onClick={rediret}
+                >
+                  Crear mi tienda
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+
                 <Link href="/pricing">
                   <Button
                     size="lg"
