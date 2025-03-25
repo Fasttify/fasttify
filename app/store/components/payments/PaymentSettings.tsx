@@ -23,6 +23,18 @@ import {
   MercadoPagoIcons,
 } from '@/app/store/components/payments/PaymentMethodIcons'
 import { useApiKeyEncryption } from '@/app/(without-navbar)/first-steps/hooks/useApiKeyEncryption'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 export function PaymentSettings() {
   const params = useParams()

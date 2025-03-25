@@ -7,8 +7,20 @@ import { LoadingIndicator } from '@/components/ui/loading-indicator'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/hooks/custom-toast/use-toast'
 import { Toast } from '@/components/ui/toasts'
-import useUserStore from '@/zustand-states/userStore'
 import { useAuth } from '@/hooks/auth/useAuth'
+import useUserStore from '@/zustand-states/userStore'
+import outputs from '@/amplify_outputs.json'
+import { Amplify } from 'aws-amplify'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 interface PricingCardProps {
   plan: {
