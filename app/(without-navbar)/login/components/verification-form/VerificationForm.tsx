@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
 import { handleConfirmSignUp } from '@/app/(without-navbar)/login/hooks/signUp'
 import { signIn } from 'aws-amplify/auth'
 import { Button } from '@/components/ui/button'
@@ -27,7 +26,6 @@ interface VerificationFormProps {
 }
 
 export function VerificationForm({ email, password, onBack }: VerificationFormProps) {
-  const router = useRouter()
   const [error, setError] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
 
@@ -79,7 +77,7 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
       if (isCompleted) {
         // Iniciar sesión automáticamente
         await signIn({ username: email, password: password })
-        router.push('/')
+        window.location.href = '/'
       }
     } catch (err: any) {
       setError(getErrorMessage(err))
