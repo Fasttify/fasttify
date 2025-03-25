@@ -30,30 +30,11 @@ export const handler: APIGatewayProxyHandler = async event => {
       }),
     })
 
-    // Capture the full response details for better error handling
-    const responseData = await response.json()
-
     if (!response.ok) {
-      console.error('MercadoPago API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        responseData,
-      })
-
-      return {
-        statusCode: response.status,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': '*',
-        },
-        body: JSON.stringify({
-          error: 'Error from MercadoPago API',
-          status: response.status,
-          statusText: response.statusText,
-          details: responseData,
-        }),
-      }
+      throw new Error(`Error de MercadoPago: ${response.statusText}`)
     }
+
+    const subscription = await response.json()
 
     return {
       statusCode: 200,
@@ -62,19 +43,11 @@ export const handler: APIGatewayProxyHandler = async event => {
         'Access-Control-Allow-Headers': '*',
       },
       body: JSON.stringify({
-        checkoutUrl: responseData.init_point,
+        checkoutUrl: subscription.init_point,
       }),
     }
   } catch (error) {
     console.error('Error en la función Lambda:', error)
-
-    // Capture more detailed error information
-    const errorDetails = {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      name: error instanceof Error ? error.name : undefined,
-      toString: error instanceof Error ? error.toString() : String(error),
-    }
 
     return {
       statusCode: 500,
@@ -83,8 +56,8 @@ export const handler: APIGatewayProxyHandler = async event => {
         'Access-Control-Allow-Headers': '*',
       },
       body: JSON.stringify({
-        error: 'Error creating subscription',
-        details: errorDetails,
+        error: 'Error creando suscripción',
+        details: error instanceof Error ? error.message : 'Error desconocido',
       }),
     }
   }

@@ -25,6 +25,14 @@ import useUserStore from '@/zustand-states/userStore'
 import outputs from '@/amplify_outputs.json'
 
 Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 export function Navbar() {
   const { user, loading, clearUser } = useUserStore()
