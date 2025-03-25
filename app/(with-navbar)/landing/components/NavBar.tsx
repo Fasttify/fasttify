@@ -67,7 +67,7 @@ export function Navbar() {
     try {
       await signOut()
       clearUser()
-      router.push('/login')
+      window.location.href = '/login'
     } catch (error) {
       console.error('Error al cerrar sesión:', error)
     }
