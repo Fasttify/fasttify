@@ -6,6 +6,19 @@ import { ConsoleLogger, Hub } from 'aws-amplify/utils'
 import DocsLanding from '@/app/(with-navbar)/landing/components/DocsLanding'
 import 'aws-amplify/auth/enable-oauth-listener'
 
+import outputs from '@/amplify_outputs.json'
+import { Amplify } from 'aws-amplify'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
+
 const logger = new ConsoleLogger('HomePage')
 
 export default function Home() {
