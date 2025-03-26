@@ -19,8 +19,8 @@ import {
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { v4 as uuidv4 } from 'uuid'
 import { routes } from '@/utils/routes'
-import sellingOptions from '@/app/(without-navbar)/first-steps/data/selling-options.json'
 import { useApiKeyEncryption } from '@/app/(without-navbar)/first-steps/hooks/useApiKeyEncryption'
+import sellingOptions from '@/app/(without-navbar)/first-steps/data/selling-options.json'
 
 export default function FirstStepsPage() {
   const [step, setStep] = useState(1)

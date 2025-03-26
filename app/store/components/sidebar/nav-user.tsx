@@ -60,6 +60,9 @@ export function NavUser({ user, loading }: NavUserProps) {
     setIsClient(true)
   }, [])
 
+  const handleLogout = async () => {
+    await clearStore()
+  }
   if (!isClient || loading) {
     return (
       <SidebarMenu>
@@ -152,7 +155,7 @@ export function NavUser({ user, loading }: NavUserProps) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <Link href="/my-store">
-              <DropdownMenuItem onClick={clearStore}>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut />
                 Cambiar de Tienda
               </DropdownMenuItem>
