@@ -23,8 +23,6 @@ export const handler: PostAuthenticationTriggerHandler = async event => {
 
   // Verificar si el email está verificado
   if (event.request.userAttributes['email_verified'] !== 'true') {
-    console.log('El email no está verificado. Verificando el email...')
-
     try {
       const command = new AdminUpdateUserAttributesCommand({
         UserPoolId: event.userPoolId,
@@ -38,7 +36,6 @@ export const handler: PostAuthenticationTriggerHandler = async event => {
       })
 
       await client.send(command)
-      console.log('Email verificado exitosamente.')
     } catch (error) {
       console.error('Error al verificar el email del usuario:', error)
     }

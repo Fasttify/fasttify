@@ -1,6 +1,5 @@
 'use client'
 
-import { ChatWidget } from '@/app/store/components/ai-chat/ChatWidget'
 import { AppSidebar } from '@/app/store/components/sidebar/app-sidebar'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
@@ -13,6 +12,7 @@ import { useParams, usePathname } from 'next/navigation'
 import { useStore } from '@/app/store/hooks/useStore'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
+import { ChatTrigger } from '@/app/store/components/ai-chat/ChatTrigger'
 
 Amplify.configure(outputs)
 const existingConfig = Amplify.getConfig()
@@ -112,13 +112,13 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-3">
+            <ChatTrigger />
             <NotificationPopover />
           </div>
         </header>
 
         <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6] overflow-auto">
           <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
-          <ChatWidget />
         </main>
       </SidebarInset>
     </SidebarProvider>

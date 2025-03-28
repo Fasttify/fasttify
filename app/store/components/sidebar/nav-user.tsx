@@ -20,6 +20,7 @@ import { routes } from '@/utils/routes'
 import { useState, useEffect } from 'react'
 import useStoreDataStore from '@/zustand-states/storeDataStore'
 import Link from 'next/link'
+import { PricingDrawer } from '@/app/store/components/store-setup/PricingDrawer'
 
 interface User {
   picture?: string
@@ -38,6 +39,7 @@ export function NavUser({ user, loading }: NavUserProps) {
   const { isMobile } = useSidebar()
   const [isClient, setIsClient] = useState(false)
   const { clearStore } = useStoreDataStore()
+  const [isPricingDrawerOpen, setIsPricingDrawerOpen] = useState(false)
 
   const getUserInitials = () => {
     if (!user) return ''
@@ -63,6 +65,7 @@ export function NavUser({ user, loading }: NavUserProps) {
   const handleLogout = async () => {
     await clearStore()
   }
+
   if (!isClient || loading) {
     return (
       <SidebarMenu>
@@ -86,83 +89,89 @@ export function NavUser({ user, loading }: NavUserProps) {
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage
-                  src={user?.picture}
-                  alt={user?.nickName}
-                  referrerPolicy="no-referrer"
-                  className="object-cover"
-                />
-                <AvatarFallback className="rounded-lg bg-pink-100 text-pink-700">
-                  {getUserInitials()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{user?.nickName}</span>
-                <span className="truncate text-xs">{user?.email}</span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
+    <>
+      <PricingDrawer open={isPricingDrawerOpen} onOpenChange={setIsPricingDrawerOpen} />
 
-          <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg text-gray-800 font-medium"
-            side={isMobile ? 'bottom' : 'right'}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user?.picture} alt={user?.nickName} className="object-cover" />
-                  <AvatarFallback className="rounded-lg">{user?.nickName}</AvatarFallback>
+                  <AvatarImage
+                    src={user?.picture}
+                    alt={user?.nickName}
+                    referrerPolicy="no-referrer"
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="rounded-lg bg-pink-100 text-pink-700">
+                    {getUserInitials()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user?.nickName}</span>
                   <span className="truncate text-xs">{user?.email}</span>
                 </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <Link href={routes.account.payments}>
-                <DropdownMenuItem>
+                <ChevronsUpDown className="ml-auto size-4" />
+              </SidebarMenuButton>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+              className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg text-gray-800 font-medium"
+              side={isMobile ? 'bottom' : 'right'}
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuLabel className="p-0 font-normal">
+                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage
+                      src={user?.picture}
+                      alt={user?.nickName}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="rounded-lg">{user?.nickName}</AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">{user?.nickName}</span>
+                    <span className="truncate text-xs">{user?.email}</span>
+                  </div>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => setIsPricingDrawerOpen(true)}>
                   <Sparkles />
                   Actualizar plan
                 </DropdownMenuItem>
-              </Link>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <Link href={routes.account.profile}>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <Link href={routes.account.profile}>
+                  <DropdownMenuItem>
+                    <BadgeCheck />
+                    Cuenta
+                  </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem>
-                  <BadgeCheck />
-                  Cuenta
+                  <Bell />
+                  Notificaciones
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <Link href="/my-store">
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut />
+                  Cambiar de Tienda
                 </DropdownMenuItem>
               </Link>
-              <DropdownMenuItem>
-                <Bell />
-                Notificaciones
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <Link href="/my-store">
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut />
-                Cambiar de Tienda
-              </DropdownMenuItem>
-            </Link>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </>
   )
 }

@@ -14,12 +14,26 @@ import {
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
 import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
+import { PricingDrawer } from '@/app/store/components/store-setup/PricingDrawer'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
 import useStoreDataStore from '@/zustand-states/storeDataStore'
+
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 export function EcommerceSetup() {
   const [tasks, setTasks] = useState<Task[]>(defaultStoreTasks)
   const [expandedTaskId, setExpandedTaskId] = useState<string>('task-1')
   const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null)
+  const [isPricingOpen, setIsPricingOpen] = useState(false)
   const params = useParams()
   const pathname = usePathname()
   const { updateUserStore } = useUserStoreData()
@@ -106,15 +120,14 @@ export function EcommerceSetup() {
           Suscríbete a un plan y obtén 3 meses a solo $1 al mes en Fasttify
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/pricing">
-            <Button
-              variant="outline"
-              className="h-6 md:h-7 bg-white text-black hover:bg-gray-100 border-none text-xs px-2 md:px-3"
-            >
-              <span className="hidden md:inline">Ver planes</span>
-              <span className="md:hidden">Planes</span>
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            className="h-6 md:h-7 bg-white text-black hover:bg-gray-100 border-none text-xs px-2 md:px-3"
+            onClick={() => setIsPricingOpen(true)}
+          >
+            <span className="hidden md:inline">Ver planes</span>
+            <span className="md:hidden">Planes</span>
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -275,6 +288,7 @@ export function EcommerceSetup() {
                 </AccordionItem>
               ))}
             </Accordion>
+            <PricingDrawer open={isPricingOpen} onOpenChange={setIsPricingOpen} />
           </div>
         </div>
       </div>
