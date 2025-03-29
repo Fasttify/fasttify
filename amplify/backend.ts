@@ -1,6 +1,6 @@
 import { defineBackend } from '@aws-amplify/backend'
 import { auth } from './auth/resource'
-import { storage, productsImages, storeLogo } from './storage/resource'
+import { storage, productsImages, storeLogo, templates } from './storage/resource'
 import { createSubscription } from './functions/createSubscription/resource'
 import { webHookPlan } from './functions/webHookPlan/resource'
 import { cancelPlan } from './functions/cancelPlan/resource'
@@ -19,6 +19,7 @@ import {
 import { Stack } from 'aws-cdk-lib'
 import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway'
 import { Policy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam'
+import * as s3 from 'aws-cdk-lib/aws-s3'
 
 /**
  * Definición del backend con sus respectivos recursos.
@@ -41,6 +42,7 @@ const backend = defineBackend({
   apiKeyManager,
   generateProductDescriptionFunction,
   generatePriceSuggestionFunction,
+  templates,
 })
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
@@ -103,6 +105,14 @@ backend.postConfirmation.resources.lambda.addToRolePolicy(
     resources: ['*'],
   })
 )
+
+const s3Bucket = backend.templates.resources.bucket
+
+const cfnBucket = s3Bucket.node.defaultChild as s3.CfnBucket
+
+cfnBucket.accelerateConfiguration = {
+  accelerationStatus: 'Enabled',
+}
 
 const apiStack = backend.createStack('api-stack')
 

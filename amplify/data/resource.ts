@@ -97,7 +97,7 @@ const schema = a
         storeStatus: a.string(), // Estado de la tienda (activa, inactiva, etc.)
         storePolicy: a.string(), // Política de la tienda (opcional)
         storeAdress: a.string(), // Dirección de la tienda
-        contactEmail: a.email(),
+        contactEmail: a.string(),
         contactPhone: a.float(),
         contactName: a.string(),
         conctactIdentification: a.string(),

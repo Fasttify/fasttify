@@ -108,7 +108,10 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="p-0 sm:max-w-md w-full flex flex-col h-full">
+      <SheetContent
+        side="right"
+        className="p-0 sm:max-w-md w-full flex flex-col h-full rounded-t-2xl"
+      >
         <SheetHeader className="flex items-center  bg-white/50 backdrop-blur-sm border-b border-gray-200 shrink-0">
           {isMobile && (
             <Button
@@ -141,7 +144,7 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
                     <button
                       key={suggestion.id}
                       onClick={() => handleSuggestionClick(suggestion.text)}
-                      className="bg-white py-2 px-4 rounded-full text-sm shadow-sm hover:shadow-md transition-all hover:bg-gray-50"
+                      className="bg-gray-50 py-2 px-4 rounded-full text-sm shadow-sm transition-all hover:bg-gray-100"
                     >
                       {suggestion.text}
                     </button>

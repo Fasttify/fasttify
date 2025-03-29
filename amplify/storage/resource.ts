@@ -78,3 +78,13 @@ export const storeLogo = defineStorage({
     ],
   }),
 })
+
+export const templates = defineStorage({
+  name: 'templates',
+  access: allow => ({
+    'templates/{entity_id}/*': [
+      allow.authenticated.to(['read', 'write']),
+      allow.guest.to(['read']),
+    ],
+  }),
+})

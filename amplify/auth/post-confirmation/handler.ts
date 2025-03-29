@@ -31,7 +31,6 @@ export const handler: PostConfirmationTriggerHandler = async event => {
 
   // Asignar plan 'royal' como prueba gratuita en Cognito
   try {
-    console.log("Asignando prueba gratuita del plan 'royal' por 7 días al usuario...")
     const command = new AdminUpdateUserAttributesCommand({
       UserPoolId: event.userPoolId,
       Username: event.userName,
@@ -40,18 +39,17 @@ export const handler: PostConfirmationTriggerHandler = async event => {
           Name: 'custom:plan',
           Value: 'Royal',
         },
+        {
+          Name: 'custom:user_type',
+          Value: 'store_owner',
+        },
       ],
     })
 
     await cognitoClient.send(command)
-    console.log(
-      "Prueba gratuita del plan 'royal' asignada exitosamente. Finaliza el:",
-      trialEndDateISO
-    )
 
     // Crear registro en la tabla UserSubscription
     try {
-      console.log('Creando registro de suscripción en DynamoDB...')
       await client.models.UserSubscription.create({
         userId: event.userName,
         subscriptionId: `trial-${event.userName}-${Date.now()}`, // ID único para la suscripción de prueba
@@ -60,7 +58,6 @@ export const handler: PostConfirmationTriggerHandler = async event => {
         pendingStartDate: trialEndDateISO, // Fecha en que se asignará el plan free
         planPrice: 0, // Es una prueba gratuita
       })
-      console.log('Registro de suscripción creado exitosamente en DynamoDB')
 
       // Enviar email de bienvenida con información de la prueba
       const userEmail = event.request.userAttributes.email

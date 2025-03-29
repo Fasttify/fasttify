@@ -38,6 +38,19 @@ export const auth = defineAuth({
   },
 
   userAttributes: {
+    'custom:user_type': {
+      mutable: true,
+      dataType: 'String',
+      maxLen: 50,
+      minLen: 1,
+    },
+    'custom:store_id': {
+      mutable: true,
+      dataType: 'String',
+      maxLen: 255,
+      minLen: 1,
+    },
+
     nickname: {
       mutable: true,
       required: false,

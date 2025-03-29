@@ -20,7 +20,7 @@ Amplify.configure({
   },
 })
 
-const plans = [
+export const plans = [
   {
     name: 'Royal',
     title: '$20.000 COP/mes',

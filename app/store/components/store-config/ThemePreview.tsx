@@ -5,6 +5,7 @@ import { LogoUploader } from '@/app/store/components/store-config/LogoUploader'
 import useStoreDataStore from '@/zustand-states/storeDataStore'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState } from 'react'
 
 export function ThemePreview() {
   return (
