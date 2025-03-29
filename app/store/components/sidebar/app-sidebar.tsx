@@ -1,5 +1,12 @@
-import * as React from 'react'
-import { SquareTerminal, ShoppingCart, Box, Settings2, LayoutGrid, Puzzle } from 'lucide-react'
+import type * as React from 'react'
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  PackageCheck,
+  Store,
+  Settings,
+  PuzzleIcon as PuzzlePiece,
+} from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { NavMain } from '@/app/store/components/sidebar/nav-main'
 import { NavUser } from '@/app/store/components/sidebar/nav-user'
@@ -28,7 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: 'Dashboard',
         url: routes.store.dashboard.main(storeId),
-        icon: SquareTerminal,
+        icon: LayoutDashboard,
         isActive: true,
         items: [
           {
@@ -44,7 +51,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: 'Productos',
         url: routes.store.products.main(storeId),
-        icon: ShoppingCart,
+        icon: ShoppingBag,
         items: [
           {
             title: 'Inventario',
@@ -59,7 +66,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: 'Pedidos',
         url: routes.store.orders(storeId),
-        icon: Box,
+        icon: PackageCheck,
         items: [
           {
             title: 'En Proceso',
@@ -75,7 +82,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: 'Configuración de Tienda',
         url: routes.store.setup.main(storeId),
-        icon: LayoutGrid,
+        icon: Store,
         items: [
           {
             title: 'Dominio y Nombre',
@@ -89,7 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: 'Apps',
             url: routes.store.setup.apps(storeId),
-            icon: Puzzle,
+            icon: PuzzlePiece,
             items: [], // No subitems
           },
         ],
@@ -97,7 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: 'Configuración',
         url: routes.store.settings(storeId),
-        icon: Settings2,
+        icon: Settings,
         items: [
           {
             title: 'General',

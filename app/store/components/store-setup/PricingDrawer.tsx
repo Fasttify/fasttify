@@ -7,7 +7,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer'
-import { plans } from '@/app/(with-navbar)/pricing/page'
+import { plans } from '@/app/(with-navbar)/pricing/components/plans'
 import { FAQSection } from '@/app/(with-navbar)/pricing/components/FAQSection'
 import { faqItems } from '@/app/(with-navbar)/pricing/components/FAQItem'
 import { ScrollArea } from '@/components/ui/scroll-area'
