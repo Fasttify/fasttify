@@ -10,9 +10,9 @@ import { PageTransition } from '@/components/ui/page-transition'
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname } from 'next/navigation'
 import { useStore } from '@/app/store/hooks/useStore'
+import { ChatTrigger } from '@/app/store/components/ai-chat/ChatTrigger'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
-import { ChatTrigger } from '@/app/store/components/ai-chat/ChatTrigger'
 
 Amplify.configure(outputs)
 const existingConfig = Amplify.getConfig()
