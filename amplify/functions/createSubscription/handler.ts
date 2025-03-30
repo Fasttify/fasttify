@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
-import { env } from '../../../.amplify/generated/env/createSubscription'
+import { env } from '$amplify/env/createSubscription'
 
 const MERCADOPAGO_API_URL = 'https://api.mercadopago.com/preapproval'
 

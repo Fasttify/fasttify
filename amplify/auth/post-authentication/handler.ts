@@ -17,7 +17,6 @@ export const handler: PostAuthenticationTriggerHandler = async event => {
   const isGoogleLogin = identities.some((identity: any) => identity.providerName === 'Google')
 
   if (!isGoogleLogin) {
-    console.log('El usuario no inició sesión con Google. Terminando ejecución.')
     return event
   }
 

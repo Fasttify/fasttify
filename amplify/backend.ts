@@ -10,6 +10,8 @@ import { checkStoreName } from './functions/checkStoreName/resource'
 import { checkStoreDomain } from './functions/checkStoreDomain/resource'
 import { postConfirmation } from './auth/post-confirmation/resource'
 import { apiKeyManager } from './functions/LambdaEncryptKeys/resource'
+import { getStoreProducts } from './functions/getStoreProducts/resource'
+import { getStoreData } from './functions/getStoreData/resource'
 import {
   data,
   generateHaikuFunction,
@@ -43,6 +45,8 @@ const backend = defineBackend({
   generateProductDescriptionFunction,
   generatePriceSuggestionFunction,
   templates,
+  getStoreProducts,
+  getStoreData,
 })
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
@@ -283,6 +287,49 @@ apiKeyManagerResource.addMethod('POST', apiKeyManagerIntegration)
 
 /**
  *
+ * API para Obtener Productos de Tienda
+ *
+ */
+
+const getStoreProductsApi = new RestApi(apiStack, 'GetStoreProductsApi', {
+  restApiName: 'GetStoreProductsApi',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
+  },
+})
+
+const getStoreProductsIntegration = new LambdaIntegration(backend.getStoreProducts.resources.lambda)
+
+const getStoreProductsResource = getStoreProductsApi.root.addResource('get-store-products')
+getStoreProductsResource.addMethod('GET', getStoreProductsIntegration)
+
+/**
+ *
+ * API para Obtener Datos de Tienda
+ *
+ */
+
+const getStoreDataApi = new RestApi(apiStack, 'GetStoreDataApi', {
+  restApiName: 'GetStoreDataApi',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
+  },
+})
+const getStoreDataIntegration = new LambdaIntegration(backend.getStoreData.resources.lambda)
+
+const getStoreDataResource = getStoreDataApi.root.addResource('get-store-data')
+getStoreDataResource.addMethod('GET', getStoreDataIntegration)
+
+/**
+ *
  * Política de IAM para Invocar las APIs
  *
  */
@@ -298,6 +345,8 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
         `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', 'dev')}`,
         `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', 'dev')}`,
         `${apiKeyManagerApi.arnForExecuteApi('*', '/api-keys', 'dev')}`,
+        `${getStoreProductsApi.arnForExecuteApi('*', '/get-store-products', 'dev')}`,
+        `${getStoreDataApi.arnForExecuteApi('*', '/get-store-data', 'dev')}`,
       ],
     }),
   ],
@@ -349,6 +398,16 @@ backend.addOutput({
         endpoint: apiKeyManagerApi.url,
         region: Stack.of(apiKeyManagerApi).region,
         apiName: apiKeyManagerApi.restApiName,
+      },
+      GetStoreProductsApi: {
+        endpoint: getStoreProductsApi.url,
+        region: Stack.of(getStoreProductsApi).region,
+        apiName: getStoreProductsApi.restApiName,
+      },
+      GetStoreDataApi: {
+        endpoint: getStoreDataApi.url,
+        region: Stack.of(getStoreDataApi).region,
+        apiName: getStoreDataApi.restApiName,
       },
     },
   },

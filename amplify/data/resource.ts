@@ -6,6 +6,8 @@ import { planScheduler } from '../functions/planScheduler/resource'
 import { checkStoreName } from '../functions/checkStoreName/resource'
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource'
 import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource'
+import { getStoreProducts } from '../functions/getStoreProducts/resource'
+import { getStoreData } from '../functions/getStoreData/resource'
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
 
@@ -109,6 +111,7 @@ const schema = a
         onboardingCompleted: a.boolean().required(),
         onboardingData: a.json(),
       })
+      .secondaryIndexes(index => [index('storeId')])
       .authorization(allow => [allow.authenticated().to(['read', 'update', 'delete', 'create'])]),
 
     Product: a
@@ -147,6 +150,8 @@ const schema = a
     allow.resource(checkStoreName),
     allow.resource(checkStoreDomain),
     allow.resource(apiKeyManager),
+    allow.resource(getStoreProducts),
+    allow.resource(getStoreData),
   ])
 
 export type Schema = ClientSchema<typeof schema>
