@@ -8,6 +8,7 @@ import { checkStoreDomain } from '../functions/checkStoreDomain/resource'
 import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource'
 import { getStoreProducts } from '../functions/getStoreProducts/resource'
 import { getStoreData } from '../functions/getStoreData/resource'
+import { SortOrder } from '@aws-sdk/client-bedrock-runtime'
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
 
@@ -140,6 +141,24 @@ const schema = a
       .authorization(allow => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']), // Solo el creador puede editar y eliminar
         allow.guest().to(['read']),
+      ]),
+
+    Collection: a
+      .model({
+        storeId: a.string().required(), // Relaciona la colección con la tienda
+        title: a.string().required(), // Nombre de la colección
+        description: a.string(), // Descripción de la colección
+        image: a.string(), // URL de la imagen de la colección
+        slug: a.string(), // URL amigable de la colección
+        isActive: a.boolean().required(),
+        sortOrder: a.integer(), // Orden de la colección
+        owner: a.string().required(), // Usuario que creo la colección
+        products: a.json(), // Array de productos [{id: string, quantity: number}]
+      })
+      .secondaryIndexes(index => [index('storeId')])
+      .authorization(allow => [
+        allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']), // Solo el creador puede editar y eliminar
+        allow.guest().to(['read']), // Visitantes pueden ver las colecciones
       ]),
   })
   .authorization(allow => [

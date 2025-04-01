@@ -57,7 +57,7 @@ export function generateSearchRoutes(storeId: string): SearchRoute[] {
       keywords: ['nuevo', 'crear', 'agregar'],
     },
     {
-      path: routes.store.products.categories(storeId),
+      path: routes.store.categories(storeId),
       label: 'Categorías',
       icon: Package,
       section: 'Productos',

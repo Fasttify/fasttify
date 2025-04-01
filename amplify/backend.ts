@@ -12,6 +12,7 @@ import { postConfirmation } from './auth/post-confirmation/resource'
 import { apiKeyManager } from './functions/LambdaEncryptKeys/resource'
 import { getStoreProducts } from './functions/getStoreProducts/resource'
 import { getStoreData } from './functions/getStoreData/resource'
+import { storeImages } from './functions/storeImages/resource'
 import {
   data,
   generateHaikuFunction,
@@ -47,6 +48,7 @@ const backend = defineBackend({
   templates,
   getStoreProducts,
   getStoreData,
+  storeImages,
 })
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
@@ -110,13 +112,16 @@ backend.postConfirmation.resources.lambda.addToRolePolicy(
   })
 )
 
-const s3Bucket = backend.templates.resources.bucket
-
-const cfnBucket = s3Bucket.node.defaultChild as s3.CfnBucket
-
-cfnBucket.accelerateConfiguration = {
-  accelerationStatus: 'Enabled',
-}
+backend.storeImages.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ['s3:ListBucket', 's3:GetObject', 's3:PutObject', 's3:DeleteObject'],
+    resources: [
+      backend.productsImages.resources.bucket.bucketArn,
+      `${backend.productsImages.resources.bucket.bucketArn}/*`,
+    ],
+  })
+)
 
 const apiStack = backend.createStack('api-stack')
 
@@ -330,6 +335,27 @@ getStoreDataResource.addMethod('GET', getStoreDataIntegration)
 
 /**
  *
+ * API para Almacenar Imágenes
+ *
+ */
+
+const storeImagesApi = new RestApi(apiStack, 'StoreImagesApi', {
+  restApiName: 'StoreImagesApi',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
+  },
+})
+const storeImagesIntegration = new LambdaIntegration(backend.storeImages.resources.lambda)
+const storeImagesResource = storeImagesApi.root.addResource('store-images')
+
+storeImagesResource.addMethod('POST', storeImagesIntegration)
+
+/**
+ *
  * Política de IAM para Invocar las APIs
  *
  */
@@ -347,6 +373,7 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
         `${apiKeyManagerApi.arnForExecuteApi('*', '/api-keys', 'dev')}`,
         `${getStoreProductsApi.arnForExecuteApi('*', '/get-store-products', 'dev')}`,
         `${getStoreDataApi.arnForExecuteApi('*', '/get-store-data', 'dev')}`,
+        `${storeImagesApi.arnForExecuteApi('*', '/store-images', 'dev')}`,
       ],
     }),
   ],
@@ -408,6 +435,11 @@ backend.addOutput({
         endpoint: getStoreDataApi.url,
         region: Stack.of(getStoreDataApi).region,
         apiName: getStoreDataApi.restApiName,
+      },
+      StoreImagesApi: {
+        endpoint: storeImagesApi.url,
+        region: Stack.of(storeImagesApi).region,
+        apiName: storeImagesApi.restApiName,
       },
     },
   },

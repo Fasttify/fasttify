@@ -54,12 +54,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: ShoppingBag,
         items: [
           {
+            title: 'Colecciones',
+            url: routes.store.collections(storeId),
+          },
+          {
             title: 'Inventario',
-            url: routes.store.products.list(storeId),
+            url: routes.store.inventory(storeId),
           },
           {
             title: 'Categorías',
-            url: routes.store.products.categories(storeId),
+            url: routes.store.categories(storeId),
           },
         ],
       },

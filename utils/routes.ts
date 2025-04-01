@@ -11,11 +11,16 @@ export const routes = {
       list: (storeId: string) => `/store/${storeId}/products/inventory  `,
       add: (storeId: string) => `/store/${storeId}/products/new`,
       edit: (storeId: string, productId: string) => `/store/${storeId}/products/${productId}`,
-      categories: (storeId: string) => `/store/${storeId}/products/categories`,
     },
     orders: (storeId: string) => `/store/${storeId}/orders`,
     customers: (storeId: string) => `/store/${storeId}/customers`,
     masterShop: (storeId: string) => `/store/${storeId}/mastershop`,
+    collections: (storeId: string) => `/store/${storeId}/collections`,
+    categories: (storeId: string) => `/store/${storeId}/categories`,
+    inventory: (storeId: string) => `/store/${storeId}/inventory`,
+    collectionsNew: (storeId: string) => `/store/${storeId}/collections/new`,
+    collectionsEdit: (storeId: string, collectionId: string) =>
+      `/store/${storeId}/collections/${collectionId}`,
 
     setup: {
       main: (storeId: string) => `/store/${storeId}/setup`,
