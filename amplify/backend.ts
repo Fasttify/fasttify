@@ -12,6 +12,7 @@ import { postConfirmation } from './auth/post-confirmation/resource'
 import { apiKeyManager } from './functions/LambdaEncryptKeys/resource'
 import { getStoreProducts } from './functions/getStoreProducts/resource'
 import { getStoreData } from './functions/getStoreData/resource'
+import { getStoreCollections } from './functions/getStoreCollections/resource'
 import { storeImages } from './functions/storeImages/resource'
 import {
   data,
@@ -22,7 +23,6 @@ import {
 import { Stack } from 'aws-cdk-lib'
 import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway'
 import { Policy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam'
-import * as s3 from 'aws-cdk-lib/aws-s3'
 
 /**
  * Definición del backend con sus respectivos recursos.
@@ -49,6 +49,7 @@ const backend = defineBackend({
   getStoreProducts,
   getStoreData,
   storeImages,
+  getStoreCollections,
 })
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
@@ -356,6 +357,29 @@ storeImagesResource.addMethod('POST', storeImagesIntegration)
 
 /**
  *
+ * API para Obtener Colecciones de Tienda
+ *
+ */
+const getStoreCollectionsApi = new RestApi(apiStack, 'GetStoreCollectionsApi', {
+  restApiName: 'GetStoreCollectionsApi',
+  deploy: true,
+  deployOptions: { stageName: 'dev' },
+  defaultCorsPreflightOptions: {
+    allowOrigins: Cors.ALL_ORIGINS,
+    allowMethods: Cors.ALL_METHODS,
+    allowHeaders: Cors.DEFAULT_HEADERS,
+  },
+})
+
+const getStoreCollectionsIntegration = new LambdaIntegration(
+  backend.getStoreCollections.resources.lambda
+)
+const getStoreCollectionsResource = getStoreCollectionsApi.root.addResource('get-store-collections')
+
+getStoreCollectionsResource.addMethod('GET', getStoreCollectionsIntegration)
+
+/**
+ *
  * Política de IAM para Invocar las APIs
  *
  */
@@ -374,6 +398,7 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
         `${getStoreProductsApi.arnForExecuteApi('*', '/get-store-products', 'dev')}`,
         `${getStoreDataApi.arnForExecuteApi('*', '/get-store-data', 'dev')}`,
         `${storeImagesApi.arnForExecuteApi('*', '/store-images', 'dev')}`,
+        `${getStoreCollectionsApi.arnForExecuteApi('*', '/get-store-collections', 'dev')}`,
       ],
     }),
   ],
@@ -440,6 +465,11 @@ backend.addOutput({
         endpoint: storeImagesApi.url,
         region: Stack.of(storeImagesApi).region,
         apiName: storeImagesApi.restApiName,
+      },
+      GetStoreCollectionsApi: {
+        endpoint: getStoreCollectionsApi.url,
+        region: Stack.of(getStoreCollectionsApi).region,
+        apiName: getStoreCollectionsApi.restApiName,
       },
     },
   },

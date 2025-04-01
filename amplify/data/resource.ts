@@ -8,7 +8,7 @@ import { checkStoreDomain } from '../functions/checkStoreDomain/resource'
 import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource'
 import { getStoreProducts } from '../functions/getStoreProducts/resource'
 import { getStoreData } from '../functions/getStoreData/resource'
-import { SortOrder } from '@aws-sdk/client-bedrock-runtime'
+import { getStoreCollections } from '../functions/getStoreCollections/resource'
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
 
@@ -173,6 +173,7 @@ const schema = a
     allow.resource(apiKeyManager),
     allow.resource(getStoreProducts),
     allow.resource(getStoreData),
+    allow.resource(getStoreCollections),
   ])
 
 export type Schema = ClientSchema<typeof schema>
