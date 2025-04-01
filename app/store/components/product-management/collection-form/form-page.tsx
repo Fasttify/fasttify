@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ArrowLeft, Edit } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowLeft, Edit, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -13,11 +13,15 @@ import { DescriptionEditor } from '@/app/store/components/product-management/col
 import { ProductSection } from '@/app/store/components/product-management/collection-form/product-section'
 import { PublicationSection } from '@/app/store/components/product-management/collection-form/publication-section'
 import { ImageSection } from '@/app/store/components/product-management/collection-form/image-section'
-import { useRouter } from 'next/navigation'
-import { IProduct } from '@/app/store/hooks/useProducts'
+import { useRouter, useParams, usePathname } from 'next/navigation'
 import useStoreDataStore from '@/zustand-states/storeDataStore'
+import useUserStore from '@/zustand-states/userStore'
+import { useCollections } from '@/app/store/hooks/useCollections'
 import { Amplify } from 'aws-amplify'
+import { getStoreId } from '@/utils/store-utils'
 import outputs from '@/amplify_outputs.json'
+import { UnsavedChangesAlert } from '@/components/ui/unsaved-changes-alert'
+import { useCollectionForm } from '@/app/store/components/product-management/utils/collection-form-utils'
 
 Amplify.configure(outputs)
 const existingConfig = Amplify.getConfig()
@@ -31,19 +35,63 @@ Amplify.configure({
 
 export function FormPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const params = useParams()
+  const storeId = getStoreId(params, pathname)
   const { currentStore } = useStoreDataStore()
-  // Estado para almacenar los productos seleccionados
-  const [selectedProducts, setSelectedProducts] = useState<IProduct[]>([])
+  const { user } = useUserStore()
 
-  // Función para añadir un producto a la selección
-  const handleAddProduct = (product: IProduct) => {
-    setSelectedProducts(prev => [...prev, product])
-  }
+  // Obtener el ID de la colección de los parámetros
+  const collectionId = (params?.collectionId as string) || (params?.id as string)
+  const isEditing = !!collectionId
 
-  // Función para eliminar un producto de la selección
-  const handleRemoveProduct = (productId: string) => {
-    setSelectedProducts(prev => prev.filter(p => p.id !== productId))
-  }
+  // Usar el hook de colecciones
+  const {
+    useGetCollection,
+    useCreateCollection,
+    useUpdateCollection,
+    useDeleteCollection,
+    addProductToCollection,
+    removeProductFromCollection,
+  } = useCollections()
+
+  // Consultar datos de la colección si estamos editando
+  const { data: collectionData, isLoading, error } = useGetCollection(collectionId || '')
+
+  // Usar el hook personalizado para la lógica del formulario
+  const {
+    title,
+    description,
+    slug,
+    isActive,
+    imageUrl,
+    isSubmitting,
+    hasUnsavedChanges,
+    selectedProducts,
+    isDataLoaded,
+    setTitle,
+    setIsActive,
+    setIsSubmitting,
+    handleAddProduct,
+    handleRemoveProduct,
+    handleDescriptionChange,
+    handleImageChange,
+    handleSaveCollection,
+    handleDeleteCollection,
+    handleDiscardChanges,
+  } = useCollectionForm({
+    isEditing,
+    collectionId,
+    storeId,
+    collectionData,
+    currentStore,
+    user,
+    useCreateCollection,
+    useUpdateCollection,
+    useDeleteCollection,
+    addProductToCollection,
+    removeProductFromCollection,
+  })
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans mt-8">
@@ -54,7 +102,9 @@ export function FormPage() {
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={router.back}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-xl font-medium">Página de inicio</h1>
+            <h1 className="text-xl font-medium">
+              {isEditing ? 'Editar colección' : 'Nueva colección'}
+            </h1>
           </div>
           <Button
             variant="outline"
@@ -73,14 +123,22 @@ export function FormPage() {
                   <label htmlFor="title" className="block text-sm font-medium mb-1">
                     Título
                   </label>
-                  <Input id="title" defaultValue="Página de inicio" className="border-gray-300" />
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    className="border-gray-300"
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="description" className="block text-sm font-medium mb-1">
                     Descripción
                   </label>
-                  <DescriptionEditor />
+                  <DescriptionEditor
+                    initialValue={description}
+                    onChange={handleDescriptionChange}
+                  />
                 </div>
               </div>
             </div>
@@ -103,19 +161,19 @@ export function FormPage() {
               <div className="space-y-2">
                 <div className="text-sm">Mi tienda</div>
                 <div className="text-xs text-blue-600">
-                  {currentStore?.customDomain} › collections › frontpage
+                  {currentStore?.customDomain} › collections › {slug || 'frontpage'}
                 </div>
-                <div className="text-blue-600 text-base font-medium">Página de inicio</div>
+                <div className="text-blue-600 text-base font-medium">{title}</div>
               </div>
             </div>
           </div>
 
           <div className="space-y-6">
             {/* Publication Section */}
-            <PublicationSection />
+            <PublicationSection isActive={isActive} onActiveChange={setIsActive} />
 
             {/* Image Section */}
-            <ImageSection />
+            <ImageSection imageUrl={imageUrl} onImageChange={handleImageChange} />
 
             {/* Theme Template Section */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -134,12 +192,41 @@ export function FormPage() {
 
         {/* Footer */}
         <div className="flex justify-end gap-2 mt-6">
-          <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
-            Eliminar colección
+          {isEditing && (
+            <Button
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDeleteCollection}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Eliminando...' : 'Eliminar colección'}
+            </Button>
+          )}
+          <Button
+            className="bg-[#2a2a2a] text-white hover:bg-[#3a3a3a]"
+            onClick={handleSaveCollection}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Guardando...
+              </>
+            ) : (
+              'Guardar'
+            )}
           </Button>
-          <Button className="bg-[#2a2a2a] text-white hover:bg-[#3a3a3a]">Guardar</Button>
         </div>
       </div>
+
+      {/* Alerta de cambios sin guardar - only show if data is loaded */}
+      {hasUnsavedChanges && !isSubmitting && isDataLoaded && (
+        <UnsavedChangesAlert
+          onSave={handleSaveCollection}
+          onDiscard={handleDiscardChanges}
+          setIsSubmitting={setIsSubmitting}
+        />
+      )}
     </div>
   )
 }

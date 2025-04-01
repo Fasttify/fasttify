@@ -12,6 +12,8 @@ import { env } from '$amplify/env/storeImages'
 const s3Client = new S3Client()
 
 const bucketName = env.BUCKET_NAME
+// URL base de CloudFront
+const cloudFrontDomain = 'https://d1etr7t5j9fzio.cloudfront.net'
 
 export const handler = async (event: any) => {
   try {
@@ -86,20 +88,15 @@ async function listImages(storeId: string, limit: number = 1000, prefix: string 
       }
     }
 
-    // Generar URLs firmadas para cada objeto
+    // Generar URLs para cada objeto usando CloudFront
     const imagePromises = listResponse.Contents.map(async item => {
       if (!item.Key) return null
 
       // Omitir objetos de carpeta
       if (item.Key.endsWith('/')) return null
 
-      // Generar una URL firmada para el objeto
-      const command = new GetObjectCommand({
-        Bucket: bucketName,
-        Key: item.Key,
-      })
-
-      const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 })
+      // Construir la URL de CloudFront
+      const cloudFrontUrl = `${cloudFrontDomain}/${item.Key}`
 
       // Extraer el nombre del archivo de la clave
       const keyParts = item.Key.split('/')
@@ -116,7 +113,7 @@ async function listImages(storeId: string, limit: number = 1000, prefix: string 
 
       return {
         key: item.Key,
-        url,
+        url: cloudFrontUrl,
         filename,
         lastModified: item.LastModified,
         size: item.Size,
@@ -171,18 +168,13 @@ async function uploadImage(
 
     await s3Client.send(putCommand)
 
-    // Generar una URL firmada para el objeto subido
-    const getCommand = new GetObjectCommand({
-      Bucket: bucketName,
-      Key: key,
-    })
-
-    const url = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 })
+    // Construir la URL de CloudFront
+    const cloudFrontUrl = `${cloudFrontDomain}/${key}`
 
     // Crear un objeto de imagen para devolver
     const image = {
       key,
-      url,
+      url: cloudFrontUrl,
       filename,
       lastModified: new Date(),
       size: buffer.length,

@@ -29,7 +29,6 @@ export const useUserStores = (userId: string | null, userPlan?: string) => {
   useEffect(() => {
     const fetchStores = async () => {
       if (!userId) {
-        console.log('useUserStores: No userId provided, returning empty stores array')
         setStores([])
         setAllStores([])
         setCanCreateStore(false)
@@ -38,8 +37,6 @@ export const useUserStores = (userId: string | null, userPlan?: string) => {
       }
 
       try {
-        console.log(`useUserStores: Fetching stores for userId: ${userId}`)
-
         // Obtener todas las tiendas del usuario (para verificar límites)
         const { data: allUserStores } = await client.models.UserStore.list({
           authMode: 'userPool',
@@ -49,9 +46,6 @@ export const useUserStores = (userId: string | null, userPlan?: string) => {
           selectionSet: ['storeId', 'storeName', 'storeType', 'onboardingCompleted'],
         })
 
-        console.log(`useUserStores: Found ${allUserStores?.length || 0} total stores for user`)
-        console.log('useUserStores: All stores data:', JSON.stringify(allUserStores))
-
         // Guardar todas las tiendas
         setAllStores(allUserStores || [])
 
@@ -60,16 +54,10 @@ export const useUserStores = (userId: string | null, userPlan?: string) => {
           allUserStores?.filter(store => store.onboardingCompleted === true) || []
         setStores(completedStores)
 
-        console.log(`useUserStores: Found ${completedStores.length} completed stores for user`)
-
         // Verificar límite de tiendas según el plan
         const currentCount = allUserStores?.length || 0
         const limit = userPlan ? STORE_LIMITS[userPlan as keyof typeof STORE_LIMITS] || 0 : 0
         setCanCreateStore(currentCount < limit)
-
-        console.log(
-          `useUserStores: Store limit check - Current: ${currentCount}, Limit: ${limit}, Can create: ${currentCount < limit}`
-        )
       } catch (err) {
         console.error('useUserStores: Error fetching stores:', err)
         setError(err)

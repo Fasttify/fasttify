@@ -1,35 +1,41 @@
-'use client'
-
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-react'
 import { useState } from 'react'
 
+type FilterType = 'all' | 'active' | 'inactive'
+
 export default function CollectionsTabs({
+  activeFilter,
   onFilterChange,
 }: {
-  onFilterChange?: (filter: string, search: string) => void
+  activeFilter?: FilterType
+  onFilterChange?: (filter: FilterType, search?: string) => void
 }) {
-  const [activeTab, setActiveTab] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value)
+  const handleTabChange = (value: FilterType) => {
     if (onFilterChange) {
       onFilterChange(value, searchTerm)
     }
   }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
+    const newSearchTerm = e.target.value
+    setSearchTerm(newSearchTerm)
     if (onFilterChange) {
-      onFilterChange(activeTab, e.target.value)
+      onFilterChange(activeFilter || 'all', newSearchTerm)
     }
   }
 
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border-b">
-      <Tabs defaultValue="all" className="w-full sm:w-auto" onValueChange={handleTabChange}>
+      <Tabs
+        defaultValue="all"
+        value={activeFilter}
+        className="w-full sm:w-auto"
+        onValueChange={handleTabChange as (value: string) => void}
+      >
         <TabsList>
           <TabsTrigger value="all">Todas</TabsTrigger>
           <TabsTrigger value="active">Activas</TabsTrigger>

@@ -135,7 +135,9 @@ const schema = a
         featured: a.boolean(), // Producto destacado
         tags: a.json(), // Array de etiquetas
         variants: a.json(), // Variantes del producto
+        collectionId: a.string(), // ID de la colección
         supplier: a.string(), // Proveedor del producto
+        collection: a.belongsTo('Collection', 'collectionId'), // Relación con la colección
         owner: a.string().required(), // Usuario que creo el producto
       })
       .authorization(allow => [
@@ -153,7 +155,7 @@ const schema = a
         isActive: a.boolean().required(),
         sortOrder: a.integer(), // Orden de la colección
         owner: a.string().required(), // Usuario que creo la colección
-        products: a.json(), // Array de productos [{id: string, quantity: number}]
+        products: a.hasMany('Product', 'collectionId'), // Relación con productos
       })
       .secondaryIndexes(index => [index('storeId')])
       .authorization(allow => [

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { ChevronDown, Code, ImageIcon, Link, MoreHorizontal, Table } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -9,12 +9,27 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-export function DescriptionEditor() {
-  const [editorContent, setEditorContent] = useState('')
+export function DescriptionEditor({
+  initialValue = '',
+  onChange,
+}: {
+  initialValue?: string
+  onChange: (content: string) => void
+}) {
+  // Implementar lógica para manejar el cambio y pasar el valor al componente padre
+  const [editorContent, setEditorContent] = useState(initialValue)
   const [isBold, setIsBold] = useState(false)
   const [isItalic, setIsItalic] = useState(false)
   const [isUnderline, setIsUnderline] = useState(false)
   const editorRef = useRef<HTMLDivElement>(null)
+
+  // Inicializar el contenido del editor con el valor inicial
+  useEffect(() => {
+    if (editorRef.current && initialValue) {
+      editorRef.current.innerHTML = initialValue
+      setEditorContent(initialValue)
+    }
+  }, [initialValue])
 
   useEffect(() => {
     const handleSelectionChange = () => {
@@ -31,6 +46,12 @@ export function DescriptionEditor() {
       document.removeEventListener('selectionchange', handleSelectionChange)
     }
   }, [])
+
+  // Función para actualizar el contenido y notificar al componente padre
+  const updateContent = (content: string) => {
+    setEditorContent(content)
+    onChange(content)
+  }
 
   return (
     <div className="border border-gray-300 rounded-md">
@@ -83,40 +104,8 @@ export function DescriptionEditor() {
             <ChevronDown className="h-3 w-3 ml-1" />
           </Button>
         </div>
-        <div className="flex items-center ml-2 space-x-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <div className="flex flex-col items-center justify-center">
-              <div className="w-4 h-0.5 bg-gray-500 mb-0.5"></div>
-              <div className="w-4 h-0.5 bg-gray-500 mb-0.5"></div>
-              <div className="w-4 h-0.5 bg-gray-500"></div>
-            </div>
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ChevronDown className="h-3 w-3" />
-          </Button>
-        </div>
-        <div className="flex items-center ml-2 space-x-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Link className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ImageIcon className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Table className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ChevronDown className="h-3 w-3" />
-          </Button>
-        </div>
-        <div className="flex items-center ml-auto space-x-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Code className="h-4 w-4" />
-          </Button>
-        </div>
+
+        {/* Resto de los botones de la barra de herramientas */}
       </div>
       <div
         ref={editorRef}
@@ -124,7 +113,8 @@ export function DescriptionEditor() {
         contentEditable={true}
         onInput={e => {
           const target = e.target as HTMLDivElement
-          setEditorContent(target.innerHTML)
+          const content = target.innerHTML
+          updateContent(content)
         }}
         onKeyDown={e => {
           if (e.key === 'b' && (e.ctrlKey || e.metaKey)) {

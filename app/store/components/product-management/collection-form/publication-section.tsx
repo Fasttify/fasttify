@@ -1,7 +1,15 @@
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 
-export function PublicationSection() {
+// Añadir props para isActive y onActiveChange
+export function PublicationSection({
+  isActive = true,
+  onActiveChange,
+}: {
+  isActive?: boolean
+  onActiveChange: (isActive: boolean) => void
+}) {
+  // Implementar lógica para manejar el cambio y pasar el valor al componente padre
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex justify-between items-center mb-4">

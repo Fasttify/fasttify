@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Edit, Image as ImageIcon, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
@@ -17,14 +17,45 @@ Amplify.configure({
   },
 })
 
-export function ImageSection() {
+// Añadir props para imageUrl y onImageChange
+export function ImageSection({
+  imageUrl = '',
+  onImageChange,
+}: {
+  imageUrl: string
+  onImageChange: (image: string) => void
+}) {
+  // Implementar lógica para manejar el cambio y pasar el valor al componente padre
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<S3Image | null>(null)
 
+  // Inicializar selectedImage si hay una imageUrl proporcionada
+  useEffect(() => {
+    if (imageUrl && !selectedImage) {
+      // Crear un objeto de imagen a partir de la URL
+      setSelectedImage({
+        key: imageUrl,
+        url: imageUrl,
+        filename: imageUrl.split('/').pop() || 'imagen',
+        type: 'image/jpeg',
+        size: 0,
+        lastModified: new Date(),
+      })
+    }
+  }, [imageUrl, selectedImage])
+
   const handleImageSelect = (image: S3Image | null) => {
     setSelectedImage(image)
+
+    // Llamar a onImageChange con la URL de la imagen seleccionada
+    if (image) {
+      onImageChange(image.url)
+    } else {
+      onImageChange('')
+    }
   }
 
+  // Resto del componente permanece igual
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex justify-between items-center mb-4">

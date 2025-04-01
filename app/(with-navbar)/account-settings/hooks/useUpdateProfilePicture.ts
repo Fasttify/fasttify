@@ -24,6 +24,9 @@ export function useUpdateProfilePicture() {
       const result = await uploadData({
         path: `public/profile-pictures/${userData?.sub}/${uniqueFileName}`,
         data: file,
+        options: {
+          contentType: file.type,
+        },
       }).result
 
       // 2. Construir la URL pública manualmente.

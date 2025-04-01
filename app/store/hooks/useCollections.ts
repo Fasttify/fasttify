@@ -7,6 +7,7 @@ const client = generateClient<Schema>()
 
 // Clave base para las consultas de colecciones
 const COLLECTIONS_KEY = 'collections'
+const PRODUCTS_KEY = 'products'
 
 /**
  * Interfaz para los datos de entrada de una colección
@@ -16,7 +17,6 @@ export interface CollectionInput {
   title: string // Título de la colección
   description?: string // Descripción opcional de la colección
   image?: string // URL de la imagen de la colección (opcional)
-  products?: any[] // Array de productos en la colección (opcional)
   slug?: string // URL amigable para la colección (opcional)
   isActive: boolean // Indica si la colección está activa
   sortOrder?: number // Orden de clasificación (opcional)
@@ -64,8 +64,31 @@ export const useCollections = () => {
   const useGetCollection = (id: string): UseQueryResult<any, Error> => {
     return useQuery({
       queryKey: [COLLECTIONS_KEY, id],
-      queryFn: () =>
-        performOperation(() => client.models.Collection.get({ id }, { authMode: 'userPool' })),
+      queryFn: async () => {
+        // Obtener la colección
+        const collection = await performOperation(() =>
+          client.models.Collection.get({ id }, { authMode: 'userPool' })
+        )
+
+        // Si la colección existe, obtener sus productos
+        if (collection) {
+          // Obtener productos de la colección
+          const productsData = await performOperation(() =>
+            client.models.Product.list({
+              filter: { collectionId: { eq: id } },
+              authMode: 'userPool',
+            })
+          )
+
+          // Añadir productos a la colección
+          return {
+            ...collection,
+            products: productsData,
+          }
+        }
+
+        return collection
+      },
       staleTime: 5 * 60 * 1000, // 5 minutos en caché
       enabled: !!id,
     })
@@ -89,6 +112,27 @@ export const useCollections = () => {
         )
       },
       staleTime: 5 * 60 * 1000, // 5 minutos en caché
+    })
+  }
+
+  /**
+   * Obtiene los productos de una colección específica
+   * @param collectionId - ID de la colección
+   * @returns Resultado de la consulta con los productos de la colección
+   */
+  const useGetCollectionProducts = (collectionId: string): UseQueryResult<any[], Error> => {
+    return useQuery({
+      queryKey: [COLLECTIONS_KEY, collectionId, 'products'],
+      queryFn: () => {
+        return performOperation(() =>
+          client.models.Product.list({
+            filter: { collectionId: { eq: collectionId } },
+            authMode: 'userPool',
+          })
+        )
+      },
+      staleTime: 5 * 60 * 1000, // 5 minutos en caché
+      enabled: !!collectionId,
     })
   }
 
@@ -153,80 +197,45 @@ export const useCollections = () => {
   /**
    * Añade un producto a una colección
    * @param collectionId - ID de la colección
-   * @param product - Datos del producto a añadir
-   * @returns La colección actualizada o null en caso de error
+   * @param productId - ID del producto a añadir
+   * @returns El producto actualizado o null en caso de error
    */
-  const addProductToCollection = async (collectionId: string, product: any) => {
-    // Obtener la colección actual de la caché o de la API
-    const collection = await queryClient.fetchQuery({
-      queryKey: [COLLECTIONS_KEY, collectionId],
-      queryFn: () =>
-        performOperation(() =>
-          client.models.Collection.get({ id: collectionId }, { authMode: 'userPool' })
-        ),
-    })
-
-    if (!collection) throw new Error('Colección no encontrada')
-
-    // Obtenemos los productos actuales o inicializamos un array vacío
-    const currentProducts = collection.products || []
-
-    // Verificamos si el producto ya existe en la colección
-    if (Array.isArray(currentProducts) && currentProducts.some((p: any) => p.id === product.id)) {
-      return collection
-    }
-
-    // Añadimos el nuevo producto
-    const updatedProducts = Array.isArray(currentProducts)
-      ? [...currentProducts, product]
-      : [product]
-
-    // Actualizamos la colección
-    const updateMutation = useUpdateCollection()
-    return updateMutation.mutateAsync({
-      id: collectionId,
-      data: { products: updatedProducts },
-    })
+  const addProductToCollection = async (collectionId: string, productId: string) => {
+    // Actualizar el producto para asignarle la colección
+    return performOperation(() =>
+      client.models.Product.update(
+        {
+          id: productId,
+          collectionId: collectionId,
+        },
+        { authMode: 'userPool' }
+      )
+    )
   }
 
   /**
    * Elimina un producto de una colección
-   * @param collectionId - ID de la colección
-   * @param productId - ID del producto a eliminar
-   * @returns La colección actualizada o null en caso de error
+   * @param productId - ID del producto a eliminar de la colección
+   * @returns El producto actualizado o null en caso de error
    */
-  const removeProductFromCollection = async (collectionId: string, productId: string) => {
-    // Obtener la colección actual de la caché o de la API
-    const collection = await queryClient.fetchQuery({
-      queryKey: [COLLECTIONS_KEY, collectionId],
-      queryFn: () =>
-        performOperation(() =>
-          client.models.Collection.get({ id: collectionId }, { authMode: 'userPool' })
-        ),
-    })
-
-    if (!collection) throw new Error('Colección no encontrada')
-
-    // Obtenemos los productos actuales o inicializamos un array vacío
-    const currentProducts = collection.products || []
-
-    // Filtramos el producto a eliminar
-    const updatedProducts = Array.isArray(currentProducts)
-      ? currentProducts.filter((p: any) => p.id !== productId)
-      : []
-
-    // Actualizamos la colección
-    const updateMutation = useUpdateCollection()
-    return updateMutation.mutateAsync({
-      id: collectionId,
-      data: { products: updatedProducts },
-    })
+  const removeProductFromCollection = async (productId: string) => {
+    // Actualizar el producto para eliminar la referencia a la colección
+    return performOperation(() =>
+      client.models.Product.update(
+        {
+          id: productId,
+          collectionId: null, // Eliminar la referencia a la colección
+        },
+        { authMode: 'userPool' }
+      )
+    )
   }
 
   return {
     error,
     useGetCollection,
     useListCollections,
+    useGetCollectionProducts,
     useCreateCollection,
     useUpdateCollection,
     useDeleteCollection,

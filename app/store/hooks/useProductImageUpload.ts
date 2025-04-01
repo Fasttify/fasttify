@@ -35,13 +35,14 @@ export function useProductImageUpload() {
       const result = await uploadData({
         options: {
           bucket: 'productsImages',
+          contentType: file.type,
         },
         path: `products/${storeId}/${uniqueFileName}`,
         data: file,
       }).result
 
       // Construir la URL pública correcta usando el nombre del bucket
-      const publicUrl = `https://${productBucket.bucket_name}.s3.${aws_region}.amazonaws.com/${result.path}`
+      const publicUrl = `https://d1etr7t5j9fzio.cloudfront.net/${result.path}`
 
       return {
         url: publicUrl,

@@ -193,8 +193,10 @@ export function ProductSection({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-gray-400"
-                    onClick={() => onRemoveProduct(product.id)}
+                    className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50"
+                    onClick={() => {
+                      onRemoveProduct(product.id)
+                    }}
                   >
                     <X className="h-4 w-4" />
                   </Button>

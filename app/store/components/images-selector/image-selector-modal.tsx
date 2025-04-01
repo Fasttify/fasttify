@@ -277,7 +277,7 @@ export default function ImageSelectorModal({
                       priority={selectedImage === image.key || index < 12}
                       className="object-cover w-full h-full hover:scale-105 transition-transform duration-200"
                       style={{ objectFit: 'cover' }}
-                      loading={index < 12 ? 'eager' : 'lazy'}
+                      loading={selectedImage === image.key || index < 12 ? undefined : 'lazy'}
                       placeholder="blur"
                       blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PC9zdmc+"
                     />
@@ -324,7 +324,7 @@ export default function ImageSelectorModal({
                       priority={selectedImage === image.key || index < 20}
                       className="object-cover w-full h-full rounded"
                       style={{ objectFit: 'cover' }}
-                      loading={index < 20 ? 'eager' : 'lazy'}
+                      loading={selectedImage === image.key || index < 20 ? undefined : 'lazy'}
                       placeholder="blur"
                       blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2YwZjBmMCIvPjwvc3ZnPg=="
                     />
