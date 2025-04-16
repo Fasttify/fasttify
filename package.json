@@ -54,7 +54,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.20",
-    "aws-cdk": "^2.176.0",
+    "aws-cdk": "^2.1010.0",
     "aws-cdk-lib": "^2.189.1",
     "constructs": "^10.4.2",
     "esbuild": "^0.25.2",
