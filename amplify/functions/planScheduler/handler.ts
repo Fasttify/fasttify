@@ -5,7 +5,7 @@ import {
 import { Amplify } from 'aws-amplify'
 import { generateClient } from 'aws-amplify/data'
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime'
-import { env } from '../../../.amplify/generated/env/planScheduler'
+import { env } from '$amplify/env/planScheduler'
 import { type Schema } from '../../data/resource'
 import type { EventBridgeHandler } from 'aws-lambda'
 
@@ -23,10 +23,8 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
   try {
     // 1. Obtener la fecha actual
     const now = new Date()
-    console.log('📅 Fecha actual:', now.toISOString())
 
     // 2. Consultar DynamoDB para obtener las suscripciones pendientes con un plan asignado
-    console.log('🔍 Consultando suscripciones pendientes...')
     const pendingSubscriptionsResponse = await clientSchema.models.UserSubscription.list({
       filter: {
         pendingPlan: { attributeExists: true },
@@ -35,15 +33,12 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
     })
 
     const pendingSubscriptions = pendingSubscriptionsResponse.data || []
-    console.log('📊 Suscripciones encontradas:', pendingSubscriptions.length)
 
     // Consulta adicional para fines de log (opcional)
     const allSubscriptionsResponse = await clientSchema.models.UserSubscription.list()
-    console.log('📋 Todas las suscripciones:', JSON.stringify(allSubscriptionsResponse, null, 2))
 
     // 3. Iterar sobre cada registro pendiente
     for (const subscription of pendingSubscriptions) {
-      console.log('➡️ Procesando suscripción:', JSON.stringify(subscription, null, 2))
       const userId = subscription.userId
       if (!userId) {
         console.warn('⚠️ Suscripción sin userId, omitiendo...')
@@ -61,14 +56,12 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
 
       try {
         // 3.1. Actualizar el atributo en Cognito para asignar el plan pendiente
-        console.log(`🔄 Actualizando plan de usuario ${userId} en Cognito a '${newPlan}'...`)
         const updateCommand = new AdminUpdateUserAttributesCommand({
           UserPoolId: env.USER_POOL_ID,
           Username: userId,
           UserAttributes: [{ Name: 'custom:plan', Value: newPlan }],
         })
         await cognitoClient.send(updateCommand)
-        console.log(`✅ Usuario ${userId} actualizado en Cognito.`)
       } catch (cognitoError) {
         console.error(`❌ Error actualizando usuario ${userId} en Cognito:`, cognitoError)
         continue
@@ -76,7 +69,6 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
 
       try {
         // 3.2. Actualizar el registro en DynamoDB asignando el plan pendiente
-        console.log(`🔄 Actualizando suscripción en DynamoDB para usuario ${userId}...`)
         await clientSchema.models.UserSubscription.update({
           id: userId,
           subscriptionId: subscription.subscriptionId,
@@ -87,7 +79,6 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
           planPrice: null,
           lastFourDigits: null,
         })
-        console.log(`✅ Suscripción de usuario ${userId} actualizada en DynamoDB.`)
       } catch (dbError) {
         console.error(
           `❌ Error actualizando suscripción de usuario ${userId} en DynamoDB:`,
@@ -95,8 +86,6 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
         )
       }
     }
-
-    console.log('✅ Se han actualizado todas las suscripciones pendientes.')
   } catch (error) {
     console.error('❌ Error en la Lambda programada:', error)
   }

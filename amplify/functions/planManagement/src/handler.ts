@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { APIGatewayProxyHandler } from 'aws-lambda'
-import { env } from '../../../../.amplify/generated/env/planManagement'
+import { env } from '$amplify/env/planManagement'
 
 /**
  * Función auxiliar que calcula la fecha de finalización exactamente un mes después de la fecha de inicio.

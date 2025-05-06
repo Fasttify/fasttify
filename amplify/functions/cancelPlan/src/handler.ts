@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Amplify } from 'aws-amplify'
 import { generateClient } from 'aws-amplify/data'
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime'
-import { env } from '../../../../.amplify/generated/env/hookPlan'
+import { env } from '$amplify/env/hookPlan'
 import { type Schema } from '../../../data/resource'
 
 // Configurar Amplify para acceso a datos
