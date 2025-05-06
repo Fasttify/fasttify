@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 
 const MERCADOPAGO_ACCESS_TOKEN =
-  "APP_USR-7125774029717459-012516-6dbf616e4d2c31d97793b6b42c04469a-2229811359";
+  "";
 const MERCADOPAGO_API_URL = "https://api.mercadopago.com/preapproval";
 
 export const handler: APIGatewayProxyHandler = async (event) => {

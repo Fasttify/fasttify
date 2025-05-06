@@ -12,11 +12,11 @@ const client = new CognitoIdentityProviderClient();
 
 // Clave secreta de Mercado Pago (debes configurarla en el panel de Mercado Pago)
 const MERCADO_PAGO_WEBHOOK_SECRET =
-  "086cb13be04912968067956f4b3f887508fa64c6b1177955e1c7f10aaebd098b";
+  "";
 
 // Token de acceso de Mercado Pago
 const MERCADO_PAGO_ACCESS_TOKEN =
-  "APP_USR-7125774029717459-012516-6dbf616e4d2c31d97793b6b42c04469a-2229811359";
+  "";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   console.log("Evento recibido:", JSON.stringify(event, null, 2));
