@@ -1,11 +1,9 @@
 import {
   S3Client,
   ListObjectsV2Command,
-  GetObjectCommand,
   PutObjectCommand,
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { env } from '$amplify/env/storeImages'
 
 // Inicializar el cliente S3
