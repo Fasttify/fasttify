@@ -7,9 +7,16 @@ import { routes } from '@/utils/routes'
 interface SidebarProps {
   currentView: string
   onViewChange: (view: string) => void
+  hideSessionsOption?: boolean
+  isUserLoading?: boolean
 }
 
-export function Sidebar({ currentView, onViewChange }: SidebarProps) {
+export function Sidebar({
+  currentView,
+  onViewChange,
+  hideSessionsOption = false,
+  isUserLoading = false,
+}: SidebarProps) {
   const router = useRouter()
 
   const handleViewChange = (view: string): void => {
@@ -56,18 +63,20 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
               <CreditCard className="h-4 w-4" />
               Pagos
             </button>
-            <button
-              onClick={() => handleViewChange('sesiones')}
-              className={cn(
-                buttonVariants({
-                  variant: currentView === 'sesiones' ? 'outline' : 'ghost',
-                }),
-                'justify-start gap-2 w-full'
-              )}
-            >
-              <MonitorSmartphone className="h-4 w-4" />
-              Sesiones Activas
-            </button>
+            {!isUserLoading && !hideSessionsOption && (
+              <button
+                onClick={() => handleViewChange('sesiones')}
+                className={cn(
+                  buttonVariants({
+                    variant: currentView === 'sesiones' ? 'outline' : 'ghost',
+                  }),
+                  'justify-start gap-2 w-full'
+                )}
+              >
+                <MonitorSmartphone className="h-4 w-4" />
+                Sesiones Activas
+              </button>
+            )}
           </nav>
         </div>
       </div>

@@ -158,9 +158,6 @@ export function AccountSettings() {
                   </p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="gap-2">
-                <LogOut className="h-4 w-4" /> Desconectar
-              </Button>
             </div>
           </div>
         </div>
