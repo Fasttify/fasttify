@@ -9,14 +9,10 @@ import { env } from '$amplify/env/planScheduler'
 import { type Schema } from '../../data/resource'
 import type { EventBridgeHandler } from 'aws-lambda'
 
-// Configurar Amplify para acceso a datos
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 Amplify.configure(resourceConfig, libraryOptions)
 
-// Inicializar el cliente para DynamoDB (Amplify Data)
 const clientSchema = generateClient<Schema>()
-
-// Inicializar el cliente de Cognito
 const cognitoClient = new CognitoIdentityProviderClient()
 
 export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async (event: any) => {
@@ -33,9 +29,6 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
     })
 
     const pendingSubscriptions = pendingSubscriptionsResponse.data || []
-
-    // Consulta adicional para fines de log (opcional)
-    const allSubscriptionsResponse = await clientSchema.models.UserSubscription.list()
 
     // 3. Iterar sobre cada registro pendiente
     for (const subscription of pendingSubscriptions) {

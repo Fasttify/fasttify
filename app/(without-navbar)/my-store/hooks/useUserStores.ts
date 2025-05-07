@@ -1,84 +1,82 @@
-import { useState, useEffect } from 'react'
+import { use } from 'react'
 import { generateClient } from 'aws-amplify/data'
 import type { Schema } from '@/amplify/data/resource'
 
 const client = generateClient<Schema>()
 
-// Define store limits by plan
 const STORE_LIMITS = {
   Imperial: 5,
   Majestic: 3,
   Royal: 1,
 }
 
+// Caché para almacenar promesas de datos
+const storeCache = new Map()
+
 /**
- * Hook personalizado para obtener las tiendas de un usuario y verificar límites.
- * Gestiona el estado de carga y errores durante la consulta.
+ * Función para obtener las tiendas de un usuario
+ * Esta función es compatible con Suspense
  */
-export const useUserStores = (userId: string | null, userPlan?: string) => {
-  const [stores, setStores] = useState<any[]>([])
-  const [allStores, setAllStores] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<any>(null)
-  const [canCreateStore, setCanCreateStore] = useState(false)
-
-  /**
-   * Efecto que se ejecuta cuando cambia el userId
-   * Realiza la consulta a la base de datos para obtener las tiendas del usuario
-   */
-  useEffect(() => {
-    const fetchStores = async () => {
-      if (!userId) {
-        setStores([])
-        setAllStores([])
-        setCanCreateStore(false)
-        setLoading(false)
-        return
-      }
-
-      try {
-        // Obtener todas las tiendas del usuario (para verificar límites)
-        const { data: allUserStores } = await client.models.UserStore.list({
-          authMode: 'userPool',
-          filter: {
-            userId: { eq: userId },
-          },
-          selectionSet: ['storeId', 'storeName', 'storeType', 'onboardingCompleted'],
-        })
-
-        // Guardar todas las tiendas
-        setAllStores(allUserStores || [])
-
-        // Filtrar solo las tiendas con onboarding completado para mostrar
-        const completedStores =
-          allUserStores?.filter(store => store.onboardingCompleted === true) || []
-        setStores(completedStores)
-
-        // Verificar límite de tiendas según el plan
-        const currentCount = allUserStores?.length || 0
-        const limit = userPlan ? STORE_LIMITS[userPlan as keyof typeof STORE_LIMITS] || 0 : 0
-        setCanCreateStore(currentCount < limit)
-      } catch (err) {
-        console.error('useUserStores: Error fetching stores:', err)
-        setError(err)
-        // En caso de error, establecer arrays vacíos
-        setStores([])
-        setAllStores([])
-        setCanCreateStore(false)
-      } finally {
-        setLoading(false)
-      }
+export function getUserStores(userId: string | null, userPlan?: string) {
+  // Si no hay userId, devolver datos vacíos
+  if (!userId) {
+    return {
+      stores: [],
+      allStores: [],
+      canCreateStore: false,
+      error: null,
+      storeCount: 0,
     }
+  }
 
-    fetchStores()
-  }, [userId, userPlan])
+  // Crear una clave única para la caché
+  const cacheKey = `${userId}-${userPlan || 'default'}`
 
-  return {
-    stores, // Tiendas con onboarding completado (para mostrar)
-    allStores, // Todas las tiendas (para referencia)
-    loading,
-    error,
-    canCreateStore, // Si el usuario puede crear más tiendas
-    storeCount: allStores.length, // Número total de tiendas
+  // Si no existe en caché, crear una nueva promesa
+  if (!storeCache.has(cacheKey)) {
+    const promise = fetchUserStores(userId, userPlan)
+    storeCache.set(cacheKey, promise)
+  }
+  // Usar la promesa de la caché
+  return use(storeCache.get(cacheKey))
+}
+
+/**
+ * Función que realiza la consulta a la base de datos
+ */
+async function fetchUserStores(userId: string, userPlan?: string) {
+  try {
+    // Obtener todas las tiendas del usuario (para verificar límites)
+    const { data: allUserStores } = await client.models.UserStore.list({
+      authMode: 'userPool',
+      filter: {
+        userId: { eq: userId },
+      },
+      selectionSet: ['storeId', 'storeName', 'storeType', 'onboardingCompleted'],
+    })
+
+    // Filtrar solo las tiendas con onboarding completado para mostrar
+    const completedStores = allUserStores?.filter(store => store.onboardingCompleted === true) || []
+
+    // Verificar límite de tiendas según el plan
+    const currentCount = allUserStores?.length || 0
+    const limit = userPlan ? STORE_LIMITS[userPlan as keyof typeof STORE_LIMITS] || 0 : 0
+
+    return {
+      stores: completedStores,
+      allStores: allUserStores || [],
+      canCreateStore: currentCount < limit,
+      error: null,
+      storeCount: allUserStores?.length || 0,
+    }
+  } catch (err) {
+    console.error('getUserStores: Error fetching stores:', err)
+    return {
+      stores: [],
+      allStores: [],
+      canCreateStore: false,
+      error: err,
+      storeCount: 0,
+    }
   }
 }
