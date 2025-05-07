@@ -13,8 +13,6 @@ jest.mock('aws-amplify', () => ({
   },
 }))
 
-jest.mock('@/amplify_outputs.json', () => ({}), { virtual: true })
-
 describe('Funciones de registro', () => {
   beforeEach(() => {
     jest.clearAllMocks()

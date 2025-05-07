@@ -1,5 +1,3 @@
-const path = require('path')
-
 module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
@@ -7,6 +5,7 @@ module.exports = {
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '<rootDir>/amplify/functions/.*/src/package.json',
+    '<rootDir>/__mocks__/amplify_outputs.json.js',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
@@ -22,5 +21,4 @@ module.exports = {
     '!**/.next/**',
     '!**/coverage/**',
   ],
-  rootDir: path.join(__dirname),
 }
