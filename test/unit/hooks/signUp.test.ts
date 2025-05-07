@@ -18,6 +18,10 @@ describe('Funciones de registro', () => {
     jest.clearAllMocks()
   })
 
+  jest.mock('@/amplify_outputs.json', () => require('../../__mocks__/amplify_outputs.json.js'), {
+    virtual: true,
+  })
+
   describe('handleSignUp', () => {
     test('debería registrar un usuario correctamente', async () => {
       // Configurar el mock para simular un registro exitoso
