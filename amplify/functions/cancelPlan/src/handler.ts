@@ -53,7 +53,6 @@ export const handler = async (event: any) => {
         error.response.data.message.toLowerCase().includes('cancelled preapproval')
       ) {
         // Tratamos el error como si fuera exitoso.
-        console.log('La preaprobación ya estaba cancelada.')
         response = error.response // Usamos el objeto de error.response para continuar.
       } else {
         throw error // Para otros errores, relanzamos.
