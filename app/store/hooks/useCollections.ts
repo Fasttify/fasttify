@@ -7,7 +7,6 @@ const client = generateClient<Schema>()
 
 // Clave base para las consultas de colecciones
 const COLLECTIONS_KEY = 'collections'
-const PRODUCTS_KEY = 'products'
 
 /**
  * Interfaz para los datos de entrada de una colección
@@ -47,7 +46,7 @@ export const useCollections = () => {
       const result = await operation()
       if (result.errors && result.errors.length > 0) {
         setError(result.errors)
-        throw new Error(result.errors[0].message || 'Error en la operación')
+        throw new Error(result.errors[0].message || 'Operation error')
       }
       return result.data
     } catch (err) {

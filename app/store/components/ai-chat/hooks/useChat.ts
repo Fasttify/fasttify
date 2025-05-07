@@ -58,16 +58,16 @@ export function useChat() {
       })
 
       if (errors) {
-        throw new Error(errors[0]?.message || 'Error en la generación')
+        throw new Error(errors[0]?.message || 'Generation error')
       } else if (data) {
         // Añadir la respuesta del asistente a los mensajes
         setMessages(prev => [...prev, { content: data, role: 'assistant' }])
       } else {
-        throw new Error('No se recibió respuesta del asistente')
+        throw new Error('No response was received from the assistant')
       }
     } catch (err: any) {
-      console.error('Error en chat:', err)
-      setError(new Error(err.message || 'Error desconocido'))
+      console.error('Error in chat:', err)
+      setError(new Error(err.message || 'Unknown error'))
       // Añadir mensaje de error como respuesta del asistente
       setMessages(prev => [
         ...prev,

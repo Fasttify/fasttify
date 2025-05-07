@@ -83,7 +83,7 @@ export default function ImageSelectorModal({
     } finally {
       setIsUploading(false)
       setUploadPreview(null)
-      // Limpiar el input de archivo
+
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }

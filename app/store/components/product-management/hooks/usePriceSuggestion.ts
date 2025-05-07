@@ -69,16 +69,16 @@ export function usePriceSuggestion() {
         })
 
         if (errors) {
-          throw new Error(errors[0]?.message || 'Error en la generación de sugerencia de precio')
+          throw new Error(errors[0]?.message || 'Error generating price suggestion')
         } else if (data) {
           setResult(data as PriceSuggestionResult)
           return data as PriceSuggestionResult
         } else {
-          throw new Error('No se recibió respuesta del servicio')
+          throw new Error('No response was received from the service')
         }
       } catch (err: any) {
-        console.error('Error al generar sugerencia de precio:', err)
-        const errorMessage = err.message || 'Error desconocido'
+        console.error('Error generating price suggestion:', err)
+        const errorMessage = err.message || 'Unknown error'
         setError(new Error(errorMessage))
         throw new Error(errorMessage)
       } finally {

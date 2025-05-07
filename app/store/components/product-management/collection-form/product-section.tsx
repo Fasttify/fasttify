@@ -36,7 +36,6 @@ export function ProductSection({
   const [sortOption, setSortOption] = useState('mas-recientes')
   const { storeId } = useStoreDataStore()
 
-  // Usar el hook useProducts para cargar los productos
   const { products, loading } = useProducts(storeId ?? undefined, {
     limit: 100,
     sortDirection: 'DESC',
@@ -51,7 +50,7 @@ export function ProductSection({
     if (isDialogOpen) {
       setDialogSelectedProducts(selectedProducts.map(p => p.id))
     }
-  }, [isDialogOpen]) // Solo se ejecuta cuando el diálogo se abre, no cuando selectedProducts cambia
+  }, [isDialogOpen])
 
   // Filtrar productos basados en el término de búsqueda
   const filteredProducts = products.filter(
