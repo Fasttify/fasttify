@@ -18,14 +18,8 @@ import { useUserAttributes } from '@/app/(with-navbar)/account-settings/hooks/us
 import { Loader } from '@/components/ui/loader'
 import { useToast } from '@/hooks/custom-toast/use-toast'
 import { Toast } from '@/components/ui/toasts'
+import { formSchema } from '@/lib/schemas/email-change'
 import useAuthStore from '@/zustand-states/userStore'
-
-const formSchema = z.object({
-  firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-  lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
-  phone: z.string().min(10, 'El teléfono debe tener al menos 10 caracteres'),
-  bio: z.string(),
-})
 
 interface EditProfileDialogProps {
   open: boolean
@@ -35,7 +29,7 @@ interface EditProfileDialogProps {
 export function EditProfileDialog({ open, onOpenChange }: EditProfileDialogProps) {
   const { toasts, addToast, removeToast } = useToast()
   const { user } = useAuthStore()
-  const { updateAttributes, loading, error, nextStep } = useUserAttributes()
+  const { updateAttributes, loading, nextStep } = useUserAttributes()
 
   const fullName = user?.nickName
   const nameParts = fullName ? fullName.split(' ') : []

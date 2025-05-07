@@ -44,7 +44,6 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
   })
 
   const {
-    register: registerVerification,
     handleSubmit: handleSubmitVerification,
     formState: { errors: verificationErrors },
     reset: resetVerification,
