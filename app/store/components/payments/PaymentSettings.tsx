@@ -49,11 +49,11 @@ export function PaymentSettings() {
     queryKey: ['storePaymentInfo', storeId],
     queryFn: () => getStorePaymentInfo(storeId),
     enabled: !!storeId,
-    staleTime: Infinity, // Los datos nunca se consideran obsoletos
-    gcTime: Infinity, // Los datos permanecen en caché indefinidamente
-    refetchOnWindowFocus: false, // No refetch al enfocar la ventana
-    refetchOnMount: false, // No refetch al montar el componente
-    refetchOnReconnect: false, // No refetch al reconectar
+    staleTime: 5 * 60 * 1000, // Los datos se consideran frescos por 5 minutos
+    gcTime: 5 * 60 * 1000, // Los datos se eliminan de caché después de 5 minutos sin usarse
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   })
 
   const storeRecordId = data?.id || null
@@ -94,7 +94,7 @@ export function PaymentSettings() {
         toast.error('Error de configuración', {
           description: 'Uyps! Hubo un error al configurar la pasarela de pago.',
         })
-        console.error('No se encontró el ID del registro de la tienda')
+        console.error('Store record ID not found')
         return false
       }
 
@@ -113,7 +113,7 @@ export function PaymentSettings() {
           if (encryptedPublicKey) {
             configData.publicKey = encryptedPublicKey
           } else {
-            console.error('Error al encriptar la clave pública de Wompi')
+            console.error('Error encrypting Wompi public key')
             toast.error('Error de configuración', {
               description:
                 'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
@@ -133,7 +133,7 @@ export function PaymentSettings() {
           if (encryptedSignature) {
             configData.signature = encryptedSignature
           } else {
-            console.error('Error al encriptar la firma de Wompi')
+            console.error('Error encrypting Wompi signature')
             toast.error('Error de configuración', {
               description:
                 'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
@@ -153,7 +153,7 @@ export function PaymentSettings() {
           if (encryptedPublicKey) {
             configData.publicKey = encryptedPublicKey
           } else {
-            console.error('Error al encriptar la clave pública de Mercado Pago')
+            console.error('Error encrypting the Mercado Pago public key')
             toast.error('Error de configuración', {
               description:
                 'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
@@ -173,7 +173,7 @@ export function PaymentSettings() {
           if (encryptedPrivateKey) {
             configData.privateKey = encryptedPrivateKey
           } else {
-            console.error('Error al encriptar la clave privada de Mercado Pago')
+            console.error('Error encrypting the Mercado Pago private key')
             toast.error('Error de configuración', {
               description:
                 'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
@@ -184,7 +184,6 @@ export function PaymentSettings() {
       }
 
       if (isEncrypting) {
-        // Si todavía está encriptando, mostrar un mensaje genérico
         toast.loading('Configurando pasarela de pago...')
         return false
       }
@@ -197,7 +196,7 @@ export function PaymentSettings() {
 
       return success
     } catch (err) {
-      console.error('Error al configurar la pasarela de pago:', err)
+      console.error('Error configuring the payment gateway:', err)
       toast.error('Error de configuración', {
         description: 'No se pudo configurar la pasarela de pago. Por favor, intenta nuevamente.',
       })

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Loader } from '@/components/ui/loader'
 import Link from 'next/link'
 import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
 import { useStoreNameValidator } from '@/app/(without-navbar)/first-steps/hooks/useStoreNameValidator'
@@ -223,7 +224,14 @@ export function EditStoreProfileDialog({
               className="bg-[#2a2a2a] h-9 px-4 text-sm font-medium text-white py-2 rounded-md hover:bg-[#3a3a3a] transition-colors"
               disabled={isSubmitDisabled}
             >
-              {isUpdating || form.formState.isSubmitting ? 'Guardando...' : 'Guardar'}
+              {isUpdating || form.formState.isSubmitting ? (
+                <>
+                  <Loader color="white" />
+                  Guardando...
+                </>
+              ) : (
+                'Guardar cambios'
+              )}
             </Button>
           </div>
         </form>

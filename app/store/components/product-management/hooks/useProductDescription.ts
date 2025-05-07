@@ -58,16 +58,16 @@ export function useProductDescription() {
         })
 
         if (errors) {
-          throw new Error(errors[0]?.message || 'Error en la generación de descripción')
+          throw new Error(errors[0]?.message || 'Error in generating description')
         } else if (data) {
           setDescription(data)
           return data
         } else {
-          throw new Error('No se recibió respuesta del servicio')
+          throw new Error('No response was received from the service')
         }
       } catch (err: any) {
-        console.error('Error al generar descripción:', err)
-        const errorMessage = err.message || 'Error desconocido'
+        console.error('Error generating description:', err)
+        const errorMessage = err.message || 'Unknown error'
         setError(new Error(errorMessage))
         throw new Error(errorMessage)
       } finally {

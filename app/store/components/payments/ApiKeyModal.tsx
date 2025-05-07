@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { Eye, EyeOff, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,6 +24,8 @@ import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { createApiKeySchema, PaymentGatewayType, PAYMENT_GATEWAYS } from '@/lib/schemas/api-keys'
+
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 
@@ -37,75 +38,6 @@ Amplify.configure({
     REST: outputs.custom.APIs,
   },
 })
-
-const PAYMENT_GATEWAYS = {
-  mercadoPago: {
-    name: 'Mercado Pago',
-    transactionFee: 3.99,
-    publicKeyPrefix: 'APP_USR-',
-    privateKeyPrefix: 'TEST-',
-    publicKeyPattern: /^APP_USR-[a-zA-Z0-9-]+$/,
-    privateKeyPattern: /^TEST-[a-zA-Z0-9-]+$/,
-    publicKeyPlaceholder: 'APP_USR-1234567890123456',
-    privateKeyPlaceholder: 'Kw4aC0rZVgLZQn209NbEKPuXLzBD28Zx',
-    color: 'bg-blue-100 text-blue-800 border-blue-200',
-    description: 'Popular en América Latina con amplio soporte regional.',
-    publicKeyLabel: 'Access Token',
-    privateKeyLabel: 'Clave Secreta',
-  },
-  wompi: {
-    name: 'Wompi',
-    transactionFee: 2.9,
-    publicKeyPrefix: 'pub_',
-    privateKeyPrefix: 'prv_',
-    publicKeyPattern: /^(pub_test|pub_prod|prod)_[a-zA-Z0-9]{16,}$/,
-    privateKeyPattern: /^[a-zA-Z0-9_-]+$/,
-    publicKeyPlaceholder: 'pub_prod_1234567890abcdef',
-    privateKeyPlaceholder: 'prod_integrity_Z5mMke9x0k8gpErbDqwrJXMqs',
-    color: 'bg-purple-100 text-purple-800 border-purple-200',
-    description: 'Tarifas más bajas con fuerte soporte en Colombia y otras regiones.',
-    publicKeyLabel: 'Llave Pública',
-    privateKeyLabel: 'Firma (Signature)',
-  },
-}
-
-type PaymentGatewayType = keyof typeof PAYMENT_GATEWAYS
-
-const createApiKeySchema = (gateway: PaymentGatewayType) => {
-  if (gateway === 'wompi') {
-    return z.object({
-      publicKey: z
-        .string()
-        .min(16, { message: 'La llave pública debe tener al menos 16 caracteres' })
-        .regex(PAYMENT_GATEWAYS.wompi.publicKeyPattern, {
-          message: 'Formato de llave pública inválido. Debe comenzar con pub_ o prod_',
-        }),
-      privateKey: z
-        .string()
-        .min(32, { message: 'La firma debe tener al menos 32 caracteres' })
-        .max(128, { message: 'La firma no puede exceder 128 caracteres' })
-        .regex(PAYMENT_GATEWAYS.wompi.privateKeyPattern, {
-          message: 'La firma solo puede contener caracteres alfanuméricos, guiones y guiones bajos',
-        }),
-    })
-  }
-
-  const gatewayConfig = PAYMENT_GATEWAYS[gateway]
-  return z.object({
-    publicKey: z
-      .string()
-      .min(10, { message: 'La clave pública debe tener al menos 10 caracteres' })
-      .regex(gatewayConfig.publicKeyPattern, {
-        message: `La clave pública debe comenzar con '${gatewayConfig.publicKeyPrefix}' seguido del formato correcto`,
-      }),
-    privateKey: z
-      .string()
-      .min(10, { message: 'La clave privada debe tener al menos 10 caracteres' })
-      .regex(gatewayConfig.privateKeyPattern, {
-        message: `La clave privada debe comenzar con '${gatewayConfig.privateKeyPrefix}' seguido del formato correcto`,
-      }),
-  })
-}
 
 type ApiKeyFormValues = {
   publicKey: string

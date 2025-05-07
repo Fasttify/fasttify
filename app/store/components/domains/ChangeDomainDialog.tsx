@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Check, Loader2 } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
+import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   Dialog,
@@ -132,7 +133,7 @@ export function ChangeDomainDialog({
                 {domainName && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     {isChecking ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+                      <Loader color="white" />
                     ) : exists ? null : hasBeenValidated ? (
                       <Check className="h-4 w-4 text-green-500" />
                     ) : null}
@@ -168,7 +169,7 @@ export function ChangeDomainDialog({
           >
             {isUpdating ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader color="white" />
                 Guardando...
               </>
             ) : (

@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import { handleSignUp } from '@/app/(without-navbar)/login/hooks/signUp'
 import { Button } from '@/components/ui/button'
 import {
@@ -168,7 +169,7 @@ export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
         >
           {isSubmitted ? (
             <>
-              <Loader2 className="animate-spin" /> Creando cuenta
+              <Loader color="white" /> Creando cuenta
             </>
           ) : (
             'Crear cuenta'

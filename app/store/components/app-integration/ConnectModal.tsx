@@ -68,7 +68,6 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
     } else if (step === 2 && option === 'existing') {
       setStatus('loading')
 
-      // Validamos la API Key (aquí podrías hacer una validación real con la API de Master Shop)
       if (apiKey.length < 5) {
         setStatus('error')
         setErrorMessage(
@@ -77,10 +76,8 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
         return
       }
 
-      // Si tenemos el ID de la tienda, guardamos la API Key
       if (currentStore?.id) {
         try {
-          // Encriptamos la API Key antes de guardarla
           const encryptedKey = await encryptApiKey(
             apiKey,
             'mastershop',
@@ -89,7 +86,7 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
           )
 
           if (!encryptedKey) {
-            console.error('Error al encriptar la API Key de Master Shop')
+            console.error('Error encrypting the Master Shop API Key')
             setStatus('error')
             setErrorMessage('No se pudo configurar la integración. Por favor intenta nuevamente.')
             return
@@ -115,11 +112,9 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
           setErrorMessage(
             'Ocurrió un error al guardar la configuración. Por favor intenta nuevamente.'
           )
-          console.error('Error al guardar API Key:', error)
+          console.error('Error saving API Key:', error)
         }
       } else {
-        // Si no tenemos el ID de la tienda, simulamos éxito (para desarrollo)
-        // En producción, deberías mostrar un error
         setTimeout(() => {
           setStatus('success')
           setStep(3)
@@ -140,7 +135,6 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      // Reset state when modal is closed
       setTimeout(() => {
         setStep(1)
         setOption(null)
@@ -156,9 +150,6 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
     window.open('https://app.mastershop.com/login', '_blank')
     setStatus('loading')
 
-    // Aquí deberías implementar un mecanismo para verificar cuando el usuario
-    // ha completado el registro en Master Shop y ha obtenido una API Key
-    // Por ahora, simulamos el proceso
     setTimeout(() => {
       setStatus('success')
       setStep(3)

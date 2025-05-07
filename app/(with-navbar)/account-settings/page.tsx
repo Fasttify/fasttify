@@ -5,9 +5,11 @@ import { AccountSettings } from '@/app/(with-navbar)/account-settings/components
 import { PaymentSettings } from '@/app/(with-navbar)/account-settings/components/PaymentSettings'
 import { ActiveSessions } from '@/app/(with-navbar)/account-settings/components/ActiveSessions'
 import { useState, useEffect, Suspense } from 'react'
+import { Loader } from '@/components/ui/loader'
 import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
 import { useSearchParams } from 'next/navigation'
+import useUserStore from '@/zustand-states/userStore'
+import outputs from '@/amplify_outputs.json'
 
 Amplify.configure(outputs)
 const existingConfig = Amplify.getConfig()
@@ -24,13 +26,22 @@ function AccountSettingsContent() {
   const searchParams = useSearchParams()
   const sectionParam = searchParams.get('section')
   const [currentView, setCurrentView] = useState(sectionParam || 'cuenta')
+  const { user, loading } = useUserStore()
+
+  const isGoogleUser = user?.identities?.some(
+    identity => identity.providerType === 'Google' || identity.providerName === 'Google'
+  )
 
   useEffect(() => {
     // Update view when URL parameter changes
     if (sectionParam && ['cuenta', 'pagos', 'sesiones'].includes(sectionParam)) {
-      setCurrentView(sectionParam)
+      if (isGoogleUser && sectionParam === 'sesiones') {
+        setCurrentView('cuenta')
+      } else {
+        setCurrentView(sectionParam)
+      }
     }
-  }, [sectionParam])
+  }, [sectionParam, isGoogleUser])
 
   useEffect(() => {
     document.title = 'Mi Perfil • Fasttify'
@@ -38,11 +49,16 @@ function AccountSettingsContent() {
 
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-      <Sidebar currentView={currentView} onViewChange={setCurrentView} />
+      <Sidebar
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        hideSessionsOption={isGoogleUser}
+        isUserLoading={loading}
+      />
       <div className="p-6">
         {currentView === 'cuenta' && <AccountSettings />}
         {currentView === 'pagos' && <PaymentSettings />}
-        {currentView === 'sesiones' && <ActiveSessions />}
+        {!isGoogleUser && currentView === 'sesiones' && <ActiveSessions />}
       </div>
     </div>
   )
@@ -53,9 +69,13 @@ export default function AccountSettingsPage() {
     <div className="overflow-x-hidden">
       <Suspense
         fallback={
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
+          <Loader
+            color="black"
+            content="Cargando perfil"
+            size="large"
+            fullWidth={true}
+            centered={true}
+          />
         }
       >
         <AccountSettingsContent />

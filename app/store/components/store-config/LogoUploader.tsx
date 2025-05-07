@@ -13,7 +13,8 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import Image from 'next/image'
-import { Upload, ImageIcon, Loader2 } from 'lucide-react'
+import { Upload, ImageIcon } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import { useLogoUpload } from '@/app/store/hooks/useLogoUpload'
 import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
 import useStoreDataStore from '@/zustand-states/storeDataStore'
@@ -26,7 +27,6 @@ export function LogoUploader() {
 
   const { uploadLogo, status, error, reset } = useLogoUpload()
   const { updateUserStore } = useUserStoreData()
-
   const { currentStore, isLoading } = useStoreDataStore()
 
   useEffect(() => {
@@ -162,7 +162,7 @@ export function LogoUploader() {
   if (isLoading) {
     return (
       <Button variant="outline" className="w-auto" disabled>
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        <Loader color="white" />
         Cargando...
       </Button>
     )
@@ -244,7 +244,7 @@ export function LogoUploader() {
             >
               {status === 'uploading' ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader color="white" />
                   Subiendo...
                 </>
               ) : (
@@ -314,7 +314,7 @@ export function LogoUploader() {
             >
               {status === 'uploading' ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader color="white" />
                   Subiendo...
                 </>
               ) : (

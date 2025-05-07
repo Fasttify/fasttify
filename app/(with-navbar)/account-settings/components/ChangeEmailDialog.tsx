@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import {
   Dialog,
   DialogContent,
@@ -44,7 +44,6 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
   })
 
   const {
-    register: registerVerification,
     handleSubmit: handleSubmitVerification,
     formState: { errors: verificationErrors },
     reset: resetVerification,
@@ -149,7 +148,7 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
                 <Button type="submit" disabled={loading}>
                   {loading ? (
                     <span className="flex items-center gap-2">
-                      <Loader2 className="animate-spin" />
+                      <Loader color="white" />
                       Procesando...
                     </span>
                   ) : (
@@ -185,7 +184,7 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">
-                      <Loader2 className="animate-spin" />
+                      <Loader color="white" />
                       Procesando...
                     </span>
                   ) : (

@@ -42,7 +42,7 @@ export function CancellationDialog({
       await onCancel()
       setIsCancelled(true)
     } catch (error) {
-      console.error('Error al cancelar la suscripción:', error)
+      console.error('Error unsubscribing:', error)
     } finally {
       setIsSubmitting(false)
     }

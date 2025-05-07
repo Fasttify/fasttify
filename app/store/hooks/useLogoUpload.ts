@@ -73,7 +73,7 @@ export function useLogoUpload(): UseLogoUploadReturn {
       }
     } catch (err) {
       setStatus('error')
-      setError(err instanceof Error ? err.message : 'Ha ocurrido un error desconocido')
+      setError(err instanceof Error ? err.message : 'An unknown error has occurred')
       console.error('Error uploading logo:', err)
       return null
     }

@@ -1,7 +1,7 @@
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { routes } from '@/utils/routes'
-import { Loader2 } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 
 // Hooks
 import { useProductFilters } from '@/app/store/components/product-management/hooks/useProductFilters'
@@ -125,7 +125,7 @@ export function ProductList({
         <div className="rounded-md border">
           {loading && (
             <div className="py-8 text-center">
-              <Loader2 className="mx-auto h-10 w-10 text-[#2a2a2a] animate-spin" />
+              <Loader color="white" />
               <p className="mt-2 text-sm text-muted-foreground">Cargando productos...</p>
             </div>
           )}

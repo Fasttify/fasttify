@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, ChevronDown, X } from 'lucide-react'
+import { Menu, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Amplify } from 'aws-amplify'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'

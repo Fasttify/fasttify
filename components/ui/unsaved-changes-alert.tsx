@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, Loader2 } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface UnsavedChangesAlertProps {
@@ -80,7 +81,7 @@ export function UnsavedChangesAlert({
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  <Loader color="black" />
                   Guardando...
                 </>
               ) : (

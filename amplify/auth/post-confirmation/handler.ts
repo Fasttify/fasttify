@@ -51,6 +51,7 @@ export const handler: PostConfirmationTriggerHandler = async event => {
     // Crear registro en la tabla UserSubscription
     try {
       await client.models.UserSubscription.create({
+        id: event.userName,
         userId: event.userName,
         subscriptionId: `trial-${event.userName}-${Date.now()}`, // ID único para la suscripción de prueba
         planName: 'Royal',

@@ -317,7 +317,7 @@ export function useProducts(
   // Consulta para obtener un producto específico
   const fetchProductById = async (id: string): Promise<IProduct | null> => {
     if (!storeId) {
-      console.error('No se puede obtener el producto: storeId no definido')
+      console.error('Cannot get product: storeId not defined')
       return null
     }
 
@@ -339,7 +339,7 @@ export function useProducts(
             return existingProduct
           } else {
             console.error(
-              `Acceso denegado: El producto ${id} no pertenece a la tienda actual ${storeId}`
+              `Access denied: Product ${id} does not belong to the current store ${storeId}`
             )
             return null
           }
@@ -365,12 +365,12 @@ export function useProducts(
       } else {
         // El producto no pertenece a la tienda actual o no existe
         console.error(
-          `Acceso denegado: El producto ${id} no pertenece a la tienda actual ${storeId}`
+          `Access denied: Product ${id} does not belong to the current store ${storeId}`
         )
         return null
       }
     } catch (error) {
-      console.error(`Error al verificar el producto ${id}:`, error)
+      console.error(`Error verifying product ${id}:`, error)
       return null
     }
   }
@@ -402,7 +402,7 @@ export function useProducts(
       try {
         return await createProductMutation.mutateAsync(productData)
       } catch (err) {
-        console.error('Error al crear producto:', err)
+        console.error('Error creating product:', err)
         return null
       }
     },
@@ -410,7 +410,7 @@ export function useProducts(
       try {
         return await updateProductMutation.mutateAsync(productData)
       } catch (err) {
-        console.error('Error al actualizar producto:', err)
+        console.error('Error updating product:', err)
         return null
       }
     },
@@ -419,7 +419,7 @@ export function useProducts(
         await deleteProductMutation.mutateAsync(id)
         return true
       } catch (err) {
-        console.error('Error al eliminar producto:', err)
+        console.error('Error deleting product:', err)
         return false
       }
     },
@@ -428,13 +428,11 @@ export function useProducts(
         await deleteMultipleProductsMutation.mutateAsync(ids)
         return true
       } catch (err) {
-        console.error('Error al eliminar múltiples productos:', err)
+        console.error('Error deleting multiple products:', err)
         return false
       }
     },
     fetchProduct: fetchProductById,
-
-    // Otras funciones útiles
     refreshProducts: () => refetch(),
   }
 }

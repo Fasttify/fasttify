@@ -71,6 +71,7 @@ const schema = a
 
     UserSubscription: a
       .model({
+        id: a.id().required(),
         userId: a.string().required(), // Llave primaria (external_reference)
         subscriptionId: a.string().required(), // Id de la suscripción
         planName: a.string().required(), // Nombre del plan (reason)
@@ -80,6 +81,7 @@ const schema = a
         planPrice: a.float(), // Precio del plan
         lastFourDigits: a.integer(), // Últimos 4 dígitos de la tarjeta
       })
+      .identifier(['id'])
       .authorization(allow => [
         allow.ownerDefinedIn('userId').to(['read', 'update', 'delete']),
         allow.authenticated().to(['create']),

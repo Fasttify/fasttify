@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, BadgeCheck, LogOut } from 'lucide-react'
+import { Pencil, BadgeCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EditProfileDialog } from '@/app/(with-navbar)/account-settings/components/EditProfileDialog'
 import {
@@ -158,9 +158,6 @@ export function AccountSettings() {
                   </p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="gap-2">
-                <LogOut className="h-4 w-4" /> Desconectar
-              </Button>
             </div>
           </div>
         </div>

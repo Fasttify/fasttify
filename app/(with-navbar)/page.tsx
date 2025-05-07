@@ -3,11 +3,10 @@
 import { useEffect } from 'react'
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth'
 import { ConsoleLogger, Hub } from 'aws-amplify/utils'
-import DocsLanding from '@/app/(with-navbar)/landing/components/DocsLanding'
-import 'aws-amplify/auth/enable-oauth-listener'
-
-import outputs from '@/amplify_outputs.json'
 import { Amplify } from 'aws-amplify'
+import 'aws-amplify/auth/enable-oauth-listener'
+import DocsLanding from '@/app/(with-navbar)/landing/components/DocsLanding'
+import outputs from '@/amplify_outputs.json'
 
 Amplify.configure(outputs)
 const existingConfig = Amplify.getConfig()
@@ -31,15 +30,15 @@ export default function Home() {
             const userAttributes = await fetchUserAttributes()
             logger.log({ user, userAttributes })
           } catch (error) {
-            logger.error('Error al obtener la sesión del usuario:', error)
+            logger.error('Error getting user session:', error)
           }
           break
         case 'signInWithRedirect_failure':
-          logger.error('Error en el inicio de sesión con redirección:', payload.data)
+          logger.error('Login failed with redirect:', payload.data)
           break
         case 'customOAuthState':
           const state = payload.data
-          logger.log('Estado personalizado:', state)
+          logger.log('Custom status:', state)
           break
       }
     })

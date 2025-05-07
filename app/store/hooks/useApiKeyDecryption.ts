@@ -49,7 +49,7 @@ export function useApiKeyDecryption() {
 
       return null
     } catch (error) {
-      console.error('Error descifrando clave API:', error)
+      console.error('Error decrypting API key:', error)
       return null
     } finally {
       setIsDecrypting(false)

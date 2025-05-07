@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { handleConfirmSignUp } from '@/app/(without-navbar)/login/hooks/signUp'
@@ -123,7 +123,7 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
         >
           {isSubmitted ? (
             <>
-              <Loader2 className="animate-spin mr-2" /> Verificando código
+              <Loader color="white" /> Verificando código
             </>
           ) : (
             'Verificar código'

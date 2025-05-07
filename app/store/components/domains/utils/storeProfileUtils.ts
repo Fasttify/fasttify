@@ -32,13 +32,12 @@ export const createStoreNameValidator = (
   return debounce(async (name: string) => {
     if (name !== originalStoreName) {
       setNameChanged(true)
-      // Solo verificamos con la API si tiene al menos 3 caracteres
+
       if (name.length >= 3) {
         await checkStoreName(name)
-        // Luego de la validación, si "exists" es false, se considera válido
+
         setIsStoreNameValid(!exists)
       } else {
-        // Mantener inválido si es muy corto
         setIsStoreNameValid(false)
       }
     } else if (name === originalStoreName) {
@@ -128,7 +127,7 @@ export const handleStoreProfileSubmit = async (
       return false
     }
   } catch (error) {
-    console.error('Error al actualizar la información de la tienda:', error)
+    console.error('Error updating store information:', error)
     toast.error('Ocurrió un error al actualizar la información')
     return false
   }

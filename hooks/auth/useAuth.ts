@@ -78,7 +78,7 @@ export const useAuth = () => {
           clearUser()
         }
       } catch (error) {
-        console.error('Error al obtener el usuario:', error)
+        console.error('Error getting user:', error)
         clearUser()
       } finally {
         setLoading(false)
