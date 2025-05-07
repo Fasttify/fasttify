@@ -48,9 +48,6 @@ export const handler: APIGatewayProxyHandler = async event => {
     const startDate = new Date()
     const endDate = calcularEndDate(startDate)
 
-    console.log('📅 start_date:', startDate.toISOString())
-    console.log('📅 end_date:', endDate.toISOString())
-
     // 3. Construir el payload para actualizar la suscripción en Mercado Pago.
     // De acuerdo con la documentación, se debe enviar:
     // {
@@ -71,12 +68,8 @@ export const handler: APIGatewayProxyHandler = async event => {
         currency_id: currencyId,
       },
     }
-
-    console.log('📦 Payload a enviar:', JSON.stringify(payload, null, 2))
-
     // 4. Realizar la solicitud PUT a Mercado Pago para actualizar la suscripción.
     const url = `https://api.mercadopago.com/preapproval/${subscriptionId}`
-    console.log('🔍 URL de actualización:', url)
 
     const response = await axios.put(url, payload, {
       headers: {
@@ -85,13 +78,10 @@ export const handler: APIGatewayProxyHandler = async event => {
       },
     })
 
-    console.log('✅ Respuesta de Mercado Pago:', JSON.stringify(response.data, null, 2))
-
     // 5. Extraer la URL de confirmación de la respuesta.
     // Se asume que Mercado Pago devuelve la URL en el campo 'init_point'.
     const confirmationUrl = response.data?.init_point
     if (confirmationUrl) {
-      console.log('🔗 URL de confirmación recibida:', confirmationUrl)
     } else {
       console.warn('⚠️ No se recibió URL de confirmación en la respuesta.')
     }
