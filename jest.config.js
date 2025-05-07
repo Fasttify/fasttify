@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
@@ -20,4 +22,5 @@ module.exports = {
     '!**/.next/**',
     '!**/coverage/**',
   ],
+  rootDir: path.join(__dirname),
 }
