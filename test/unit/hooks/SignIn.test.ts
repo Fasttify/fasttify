@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import { useAuth } from '@/app/(without-navbar)/login/hooks/SignIn'
 import { signIn, resendSignUpCode } from 'aws-amplify/auth'
+import '@/amplify_outputs.json'
 
 jest.mock('aws-amplify/auth', () => ({
   signIn: jest.fn(),
