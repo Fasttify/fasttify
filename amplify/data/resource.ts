@@ -6,6 +6,9 @@ import { planScheduler } from '../functions/planScheduler/resource'
 import { checkStoreName } from '../functions/checkStoreName/resource'
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource'
 import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource'
+import { getStoreProducts } from '../functions/getStoreProducts/resource'
+import { getStoreData } from '../functions/getStoreData/resource'
+import { getStoreCollections } from '../functions/getStoreCollections/resource'
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
 
@@ -109,6 +112,7 @@ const schema = a
         onboardingCompleted: a.boolean().required(),
         onboardingData: a.json(),
       })
+      .secondaryIndexes(index => [index('storeId')])
       .authorization(allow => [allow.authenticated().to(['read', 'update', 'delete', 'create'])]),
 
     Product: a
@@ -131,12 +135,32 @@ const schema = a
         featured: a.boolean(), // Producto destacado
         tags: a.json(), // Array de etiquetas
         variants: a.json(), // Variantes del producto
+        collectionId: a.string(), // ID de la colección
         supplier: a.string(), // Proveedor del producto
+        collection: a.belongsTo('Collection', 'collectionId'), // Relación con la colección
         owner: a.string().required(), // Usuario que creo el producto
       })
       .authorization(allow => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']), // Solo el creador puede editar y eliminar
         allow.guest().to(['read']),
+      ]),
+
+    Collection: a
+      .model({
+        storeId: a.string().required(), // Relaciona la colección con la tienda
+        title: a.string().required(), // Nombre de la colección
+        description: a.string(), // Descripción de la colección
+        image: a.string(), // URL de la imagen de la colección
+        slug: a.string(), // URL amigable de la colección
+        isActive: a.boolean().required(),
+        sortOrder: a.integer(), // Orden de la colección
+        owner: a.string().required(), // Usuario que creo la colección
+        products: a.hasMany('Product', 'collectionId'), // Relación con productos
+      })
+      .secondaryIndexes(index => [index('storeId')])
+      .authorization(allow => [
+        allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']), // Solo el creador puede editar y eliminar
+        allow.guest().to(['read']), // Visitantes pueden ver las colecciones
       ]),
   })
   .authorization(allow => [
@@ -147,6 +171,9 @@ const schema = a
     allow.resource(checkStoreName),
     allow.resource(checkStoreDomain),
     allow.resource(apiKeyManager),
+    allow.resource(getStoreProducts),
+    allow.resource(getStoreData),
+    allow.resource(getStoreCollections),
   ])
 
 export type Schema = ClientSchema<typeof schema>

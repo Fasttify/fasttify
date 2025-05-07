@@ -9,7 +9,7 @@ import axios from 'axios'
 import { Amplify } from 'aws-amplify'
 import { generateClient } from 'aws-amplify/data'
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime'
-import { env } from '../../../../.amplify/generated/env/hookPlan'
+import { env } from '$amplify/env/hookPlan'
 import { type Schema } from '../../../data/resource'
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
@@ -28,7 +28,6 @@ export const handler: APIGatewayProxyHandler = async event => {
     const signature = event.headers['x-signature'] || event.headers['X-Signature']
 
     if (!signature) throw new Error('Firma no proporcionada en el webhook.')
-    console.log('✅ Firma recibida:', signature)
 
     const match = signature.match(/ts=([^,]+),v1=([^,]+)/)
     if (!match) throw new Error('Formato de firma no válido.')

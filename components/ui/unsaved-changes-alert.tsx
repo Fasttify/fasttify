@@ -60,7 +60,7 @@ export function UnsavedChangesAlert({
         >
           <div className="flex items-center space-x-1 md:space-x-2">
             <AlertCircle className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
-            <span>Producto no guardado</span>
+            <span>Cambios no guardados</span>
           </div>
           <div className="flex items-center space-x-1 md:space-x-2 mt-1 md:mt-0">
             <Button

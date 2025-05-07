@@ -1,11 +1,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { PlusCircle } from 'lucide-react'
-import { useUserStores } from '@/app/(without-navbar)/my-store/hooks/useUserStores'
+import { getUserStores } from '@/app/(without-navbar)/my-store/hooks/useUserStores'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Loader } from '@/components/ui/loader'
 import { routes } from '@/utils/routes'
 
 function getInitials(name: string) {
@@ -17,61 +19,24 @@ function getInitials(name: string) {
     .slice(0, 2)
 }
 
-export function StoreSelector() {
-  const { userData } = useAuthUser()
-  const cognitoUsername = userData?.['cognito:username']
-  const userPlan = userData?.['custom:plan']
+function StoreError({ message }: { message: string }) {
+  return <div className="p-3 bg-red-50 text-red-600 rounded-lg text-xs sm:text-sm">{message}</div>
+}
 
-  // Use the optimized hook that combines store fetching and limit checking
-  const { stores, loading, canCreateStore, error } = useUserStores(cognitoUsername, userPlan)
-
+// Componente para mostrar la lista de tiendas
+function StoreList({ stores, canCreateStore }: { stores: any[]; canCreateStore: boolean }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="w-full max-w-md mx-auto p-4 sm:p-6 space-y-5 bg-white rounded-xl shadow-lg"
-    >
-      <div className="text-center space-y-2">
-        <Image
-          src="/icons/fast@4x.webp"
-          alt="Logo"
-          width={100}
-          height={32}
-          className="h-8 w-auto mx-auto"
-        />
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Selecciona una tienda</h1>
-        <p className="text-xs sm:text-sm text-gray-500">para continuar a tu dashboard</p>
-      </div>
-
-      {error && (
-        <div className="p-3 bg-red-50 text-red-600 rounded-lg text-xs sm:text-sm">
-          Hubo un error al cargar tus tiendas. Por favor, intenta de nuevo.
-        </div>
-      )}
-
+    <>
       <AnimatePresence mode="wait">
         <motion.div
-          key={loading ? 'loading' : 'content'}
+          key="content"
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.2 }}
           className="space-y-2 max-h-[40vh] overflow-y-auto px-1 py-2 rounded-lg"
         >
-          {loading ? (
-            // Loading state
-            Array(2)
-              .fill(0)
-              .map((_, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 rounded-lg animate-pulse">
-                  <div className="h-10 w-10 rounded-full bg-gray-200"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 w-24 bg-gray-200 rounded"></div>
-                    <div className="h-3 w-16 bg-gray-200 rounded"></div>
-                  </div>
-                </div>
-              ))
-          ) : stores.length > 0 ? (
+          {stores.length > 0 ? (
             // Stores list
             stores.map((store, index) => (
               <motion.div
@@ -130,6 +95,66 @@ export function StoreSelector() {
           )
         )}
       </motion.div>
+    </>
+  )
+}
+
+// Componente que carga los datos con Suspense
+function StoreData({ userId, userPlan }: { userId: string | null; userPlan?: string }) {
+  // Obtenemos los datos directamente
+  const result = getUserStores(userId, userPlan)
+  const {
+    stores = [],
+    canCreateStore = false,
+    error,
+  } = result as { stores: any[]; canCreateStore: boolean; error?: string }
+
+  if (error) {
+    return (
+      <StoreError message="Hubo un error al cargar tus tiendas. Por favor, intenta de nuevo." />
+    )
+  }
+
+  return <StoreList stores={stores} canCreateStore={canCreateStore} />
+}
+
+// Componente principal
+export function StoreSelector() {
+  const { userData } = useAuthUser()
+  const cognitoUsername = userData?.['cognito:username']
+  const userPlan = userData?.['custom:plan']
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="w-full max-w-md mx-auto p-4 sm:p-6 space-y-5 bg-white rounded-xl shadow-lg"
+    >
+      <div className="text-center space-y-2">
+        <Image
+          src="/icons/fast@4x.webp"
+          alt="Logo"
+          width={100}
+          height={32}
+          className="h-8 w-auto mx-auto"
+        />
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Selecciona una tienda</h1>
+        <p className="text-xs sm:text-sm text-gray-500">para continuar a tu dashboard</p>
+      </div>
+
+      <Suspense
+        fallback={
+          <Loader
+            size="large"
+            color="black"
+            centered
+            text="Cargando tus tiendas..."
+            className="bg-gray-50 p-6 rounded-xl shadow-sm"
+          />
+        }
+      >
+        <StoreData userId={cognitoUsername} userPlan={userPlan} />
+      </Suspense>
 
       <motion.div
         initial={{ opacity: 0 }}

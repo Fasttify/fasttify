@@ -155,7 +155,7 @@ export function Navbar() {
                   </NavigationMenuItem>
                 ))}
                 <NavigationMenuItem>
-                  <Link href="/pricing" legacyBehavior passHref>
+                  <Link href="/pricing">
                     <NavigationMenuLink className="text-base font-medium">
                       Precios
                     </NavigationMenuLink>

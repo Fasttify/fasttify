@@ -1,0 +1,30 @@
+name: Ejecutar tests con Jest
+
+on:
+  push:
+    branches:
+      - '*'  # En cualquier push a cualquier rama
+  pull_request:
+    branches:
+      - main
+      - dev  
+
+jobs:
+  tests:
+    name: Ejecutar pruebas unitarias
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar pruebas
+        run: npm run test -- --coverage

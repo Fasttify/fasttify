@@ -5,7 +5,7 @@ import { Icons } from '@/app/store/icons/index'
 
 export function InventoryTracking() {
   return (
-    <div className="bg-gray-100 p-3 w-full md:w-5xl mx-auto">
+    <div className="bg-gray-100 p-3 w-full md:w-5xl mx-auto mt-8">
       <h1 className="text-xl md:text-xl font-medium text-gray-800 mb-6">Inventario</h1>
       <Card className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8 flex flex-col items-center justify-center text-center">
         <div className="flex justify-center">

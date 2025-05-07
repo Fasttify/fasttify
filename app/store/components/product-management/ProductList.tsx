@@ -100,7 +100,7 @@ export function ProductList({
       <div className="p-3 sm:p-4 md:p-6 flex flex-col gap-4 sm:gap-6">
         {/* Header con título y acciones */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
-          <h1 className="text-xl font-semibold text-gray-800">Productos</h1>
+          <h1 className="text-xl font-medium text-gray-800">Productos</h1>
           <ProductActions
             storeId={storeId}
             products={sortedProducts}
