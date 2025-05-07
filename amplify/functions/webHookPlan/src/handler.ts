@@ -28,7 +28,6 @@ export const handler: APIGatewayProxyHandler = async event => {
     const signature = event.headers['x-signature'] || event.headers['X-Signature']
 
     if (!signature) throw new Error('Firma no proporcionada en el webhook.')
-    console.log('✅ Firma recibida:', signature)
 
     const match = signature.match(/ts=([^,]+),v1=([^,]+)/)
     if (!match) throw new Error('Formato de firma no válido.')
