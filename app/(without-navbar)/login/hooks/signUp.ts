@@ -1,7 +1,4 @@
 import { signUp, confirmSignUp } from 'aws-amplify/auth'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
-Amplify.configure(outputs)
 
 export async function handleSignUp(email: string, password: string, nickName: string) {
   try {

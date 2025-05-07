@@ -1,9 +1,5 @@
 import { useState, useCallback } from 'react'
 import { signIn, resendSignUpCode, type SignInInput } from 'aws-amplify/auth'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
-
-Amplify.configure(outputs)
 
 interface UseAuthReturn {
   login: (email: string, password: string) => Promise<void>

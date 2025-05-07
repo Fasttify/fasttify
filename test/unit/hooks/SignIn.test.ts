@@ -14,10 +14,6 @@ jest.mock('aws-amplify', () => ({
   },
 }))
 
-jest.mock('@/amplify_outputs.json', () => require('../../__mocks__/amplify_outputs.json.js'), {
-  virtual: true,
-})
-
 describe('useAuth hook', () => {
   beforeEach(() => {
     jest.clearAllMocks()
