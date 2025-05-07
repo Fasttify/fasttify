@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
-import { Search, Grid, List, Upload, Trash2, Loader2 } from 'lucide-react'
+import { Search, Grid, List, Upload, Trash2 } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -206,7 +207,7 @@ export default function ImageSelectorModal({
                 />
               </div>
               <div className="flex-1 flex items-center">
-                <Loader2 className="h-5 w-5 mr-3 text-[#2a2a2a] animate-spin" />
+                <Loader color="white" />
                 <span className="text-sm">Subiendo imagen...</span>
               </div>
             </div>
@@ -215,7 +216,7 @@ export default function ImageSelectorModal({
           {/* Loading state */}
           {loading && (
             <div className="flex justify-center py-8">
-              <Loader2 className="h-5 w-5 mr-3 text-[#2a2a2a] animate-spin" />
+              <Loader color="white" />
               <span className="text-sm">Cargando imágenes...</span>
             </div>
           )}

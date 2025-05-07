@@ -15,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useEffect } from 'react'
 import { useUserAttributes } from '@/app/(with-navbar)/account-settings/hooks/useUserAttributes'
-import { Loader2 } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import { useToast } from '@/hooks/custom-toast/use-toast'
 import { Toast } from '@/components/ui/toasts'
 import useAuthStore from '@/zustand-states/userStore'
@@ -155,7 +155,7 @@ export function EditProfileDialog({ open, onOpenChange }: EditProfileDialogProps
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">
-                      <Loader2 className="animate-spin" />
+                      <Loader color="white" />
                       Guardando
                     </span>
                   ) : (

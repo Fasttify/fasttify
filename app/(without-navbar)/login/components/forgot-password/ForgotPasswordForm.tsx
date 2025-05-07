@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader } from '@/components/ui/loader'
 import { resetPassword, confirmResetPassword } from 'aws-amplify/auth'
 import { Button } from '@/components/ui/button'
 import {
@@ -241,7 +242,14 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
             className="w-full bg-black text-white hover:bg-black/90"
             disabled={isLoading}
           >
-            {isLoading ? 'Confirmando...' : 'Confirmar nueva contraseña'}
+            {isLoading ? (
+              <>
+                <Loader color="white" />
+                Confirmando...
+              </>
+            ) : (
+              'Confirmar nueva contraseña'
+            )}
           </Button>
           <Button
             type="button"

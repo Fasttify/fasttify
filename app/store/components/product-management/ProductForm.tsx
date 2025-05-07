@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { Loader2 } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { Card, CardContent } from '@/components/ui/card'
@@ -309,7 +309,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader color="white" />
                         Actualizando...
                       </>
                     ) : (
@@ -324,7 +324,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader color="white" />
                         Creando...
                       </>
                     ) : (

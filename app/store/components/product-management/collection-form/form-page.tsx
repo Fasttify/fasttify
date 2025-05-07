@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { ArrowLeft, Edit, Loader2 } from 'lucide-react'
+import { ArrowLeft, Edit } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -209,7 +209,7 @@ export function FormPage() {
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader color="white" />
                 Guardando...
               </>
             ) : (

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { passwordSchema, PasswordFormValues } from '@/lib/schemas/password-change'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -14,26 +14,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import usePasswordManagement from '@/app/(with-navbar)/account-settings/hooks/usePasswordManagement'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
-
-const passwordSchema = z
-  .object({
-    oldPassword: z.string().min(1, 'La contraseña actual es requerida'),
-    newPassword: z
-      .string()
-      .min(8, 'La nueva contraseña debe tener al menos 8 caracteres')
-      .regex(
-        /[!@#$%^&*()\-_=+{};:,<.>]/,
-        'La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial'
-      ),
-    confirmPassword: z.string().min(1, 'Confirma tu nueva contraseña'),
-  })
-  .refine(data => data.newPassword === data.confirmPassword, {
-    message: 'Las contraseñas no coinciden',
-    path: ['confirmPassword'],
-  })
-
-type PasswordFormValues = z.infer<typeof passwordSchema>
+import { Eye, EyeOff } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 
 export function ChangePasswordDialog({
   open,
@@ -159,7 +141,7 @@ export function ChangePasswordDialog({
             >
               {loading ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 className="animate-spin" />
+                  <Loader color="white" />
                   Actualizando...
                 </span>
               ) : (

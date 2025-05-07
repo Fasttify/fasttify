@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
+import { Loader } from '@/components/ui/loader'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -149,7 +150,7 @@ export function SignInForm({
         >
           {isLoading ? (
             <>
-              <Loader2 className="animate-spin mr-2" />
+              <Loader color="white" />
               Iniciando sesión...
             </>
           ) : (

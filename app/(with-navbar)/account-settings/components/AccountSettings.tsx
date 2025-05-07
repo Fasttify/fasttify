@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, BadgeCheck, LogOut } from 'lucide-react'
+import { Pencil, BadgeCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EditProfileDialog } from '@/app/(with-navbar)/account-settings/components/EditProfileDialog'
 import {
