@@ -21,6 +21,7 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
     const now = new Date()
 
     // 2. Consultar DynamoDB para obtener las suscripciones pendientes con un plan asignado
+    // Modificado para solo procesar suscripciones que realmente han expirado o tienen un cambio de plan programado
     const pendingSubscriptionsResponse = await clientSchema.models.UserSubscription.list({
       filter: {
         pendingPlan: { attributeExists: true },
@@ -29,23 +30,46 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
     })
 
     const pendingSubscriptions = pendingSubscriptionsResponse.data || []
+    console.log(`Found ${pendingSubscriptions.length} subscriptions to process`)
 
     // 3. Iterar sobre cada registro pendiente
     for (const subscription of pendingSubscriptions) {
       const userId = subscription.userId
       if (!userId) {
-        console.warn('⚠️ Suscripción sin userId, omitiendo...')
+        console.warn('Subscription without userId, skipping')
         continue
       }
 
       // Leer el valor del plan pendiente desde el registro
       const newPlan = subscription.pendingPlan
       if (!newPlan) {
-        console.warn(
-          `⚠️ La suscripción de ${userId} no tiene un plan pendiente válido, omitiendo...`
+        console.warn(`The subscription for ${userId} does not have a valid pending plan, skipping`)
+        continue
+      }
+
+      // Verificar si la suscripción realmente ha expirado o es un cambio de plan programado
+      const nextPaymentDate = subscription.nextPaymentDate
+        ? new Date(subscription.nextPaymentDate)
+        : null
+      const pendingStartDate = subscription.pendingStartDate
+        ? new Date(subscription.pendingStartDate)
+        : null
+
+      // Solo procesar si:
+      // 1. No hay fecha de próximo pago (suscripción expirada)
+      // 2. La fecha de próximo pago ya pasó (suscripción expirada)
+      // 3. La fecha de inicio pendiente está definida y ya pasó (cambio de plan programado)
+      const shouldProcess =
+        !nextPaymentDate || nextPaymentDate <= now || (pendingStartDate && pendingStartDate <= now)
+
+      if (!shouldProcess) {
+        console.log(
+          `Skipping subscription for ${userId}: not expired yet and no pending plan change due`
         )
         continue
       }
+
+      console.log(`Processing subscription for ${userId}: changing plan to ${newPlan}`)
 
       try {
         // 3.1. Actualizar el atributo en Cognito para asignar el plan pendiente
@@ -56,7 +80,7 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
         })
         await cognitoClient.send(updateCommand)
       } catch (cognitoError) {
-        console.error(`❌ Error actualizando usuario ${userId} en Cognito:`, cognitoError)
+        console.error(`Error updating user ${userId} in Cognito:`, cognitoError)
         continue
       }
 
@@ -73,13 +97,10 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
           lastFourDigits: null,
         })
       } catch (dbError) {
-        console.error(
-          `❌ Error actualizando suscripción de usuario ${userId} en DynamoDB:`,
-          dbError
-        )
+        console.error(`Error updating user subscription ${userId} in DynamoDB:`, dbError)
       }
     }
   } catch (error) {
-    console.error('❌ Error en la Lambda programada:', error)
+    console.error('Error in scheduled Lambda:', error)
   }
 }
