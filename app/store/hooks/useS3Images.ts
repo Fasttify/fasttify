@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { post } from 'aws-amplify/api'
-import useStoreDataStore from '@/zustand-states/storeDataStore'
+import useStoreDataStore from '@/context/core/storeDataStore'
 
 export interface S3Image {
   key: string

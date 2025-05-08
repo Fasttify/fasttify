@@ -4,11 +4,14 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Loader } from '@/components/ui/loader'
 import Link from 'next/link'
-import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
-import { useStoreNameValidator } from '@/app/(without-navbar)/first-steps/hooks/useStoreNameValidator'
+import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
+import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { storeProfileSchema, type StoreProfileFormValues } from '@/lib/schemas/store-profile-schema'
+import {
+  storeProfileSchema,
+  type StoreProfileFormValues,
+} from '@/lib/zod-schemas/store-profile-schema'
 import {
   createStoreNameValidator,
   handleStoreNameChange,

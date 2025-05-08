@@ -1,7 +1,7 @@
 import { debounce } from 'lodash'
 import { toast } from 'sonner'
 import { Dispatch, SetStateAction } from 'react'
-import { StoreProfileFormValues } from '@/lib/schemas/store-profile-schema'
+import { StoreProfileFormValues } from '@/lib/zod-schemas/store-profile-schema'
 import { UseFormReturn } from 'react-hook-form'
 
 // Types for validation state

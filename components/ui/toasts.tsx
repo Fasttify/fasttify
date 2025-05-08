@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, CheckCircle, Info, X } from 'lucide-react'
-import type { Toast as ToastType } from '@/hooks/custom-toast/use-toast'
+import type { Toast as ToastType } from '@/hooks/ui/use-toasts'
 import { createPortal } from 'react-dom'
 
 const variants = {

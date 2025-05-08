@@ -1,5 +1,5 @@
 import { UseFormReturn } from 'react-hook-form'
-import { ProductFormValues } from '@/lib/schemas/product-schema'
+import { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 
 interface PublicationSectionProps {
   form: UseFormReturn<ProductFormValues>

@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import type { UseFormReturn } from 'react-hook-form'
-import type { ProductFormValues } from '@/lib/schemas/product-schema'
+import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 
 interface PricingSectionProps {
   form: UseFormReturn<ProductFormValues>

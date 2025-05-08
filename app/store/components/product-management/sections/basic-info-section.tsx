@@ -25,7 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import type { ProductFormValues } from '@/lib/schemas/product-schema'
+import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 import { useProductDescription } from '@/app/store/components/product-management/hooks/useProductDescription'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { AIGenerateButton } from '@/app/store/components/product-management/sections/ai-generate-button'

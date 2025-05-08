@@ -5,10 +5,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll'
 import { MessageLoading } from '@/app/store/components/ai-chat/MessageLoading'
 import { TypingMessage } from '@/app/store/components/ai-chat/TypingMessage'
-import { AIInputWithSearch } from '@/app/store/components/ai-chat/ai-input'
-import { useChat } from './hooks/useChat'
+import { AIInputWithSearch } from '@/app/store/components/ai-chat/AiInput'
+import { useChat } from '@/app/store/components/ai-chat/hooks/useChat'
 import { Button } from '@/components/ui/button'
-import { useMediaQuery } from '@/hooks/use-media-query'
+import { useMediaQuery } from '@/hooks/ui/use-media-query'
 import { GradientSparkles } from '@/app/store/components/ai-chat/GradientSparkles'
 import Orb from '@/app/store/components/ai-chat/Orb'
 
@@ -117,7 +117,7 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
             <Button
               variant="ghost"
               onClick={handleClose}
-              className="h-2 w-2 rounded-full -ml-96"
+              className="h-2 w-2 rounded-full -ml-96  "
               aria-label="Regresar"
             >
               <ChevronLeft className="h-6 w-6 scale-150 text-gray-900" />

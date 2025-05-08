@@ -3,7 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { AIGenerateButton } from '../sections/ai-generate-button'
 import type { PriceSuggestionResult } from '../hooks/usePriceSuggestion'
 import type { UseFormReturn } from 'react-hook-form'
-import type { ProductFormValues } from '@/lib/schemas/product-schema'
+import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 
 interface PriceSuggestionPanelProps {
   form: UseFormReturn<ProductFormValues>

@@ -7,18 +7,18 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer'
-import { plans } from '@/app/(with-navbar)/pricing/components/plans'
-import { FAQSection } from '@/app/(with-navbar)/pricing/components/FAQSection'
-import { faqItems } from '@/app/(with-navbar)/pricing/components/FAQItem'
+import { plans } from '@/app/(main-layout)/pricing/components/plans'
+import { FAQSection } from '@/app/(main-layout)/pricing/components/FAQSection'
+import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Amplify } from 'aws-amplify'
 import { post } from 'aws-amplify/api'
-import useUserStore from '@/zustand-states/userStore'
+import useUserStore from '@/context/core/userStore'
 import outputs from '@/amplify_outputs.json'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { LoadingIndicator } from '@/components/ui/loading-indicator'
-import { useToast } from '@/hooks/custom-toast/use-toast'
+import { useToast } from '@/hooks/ui/use-toasts'
 import { Toast } from '@/components/ui/toasts'
 
 Amplify.configure(outputs)
