@@ -8,7 +8,7 @@ jest.mock('@/hooks/auth/useAuthUser', () => ({
   useAuthUser: jest.fn(),
 }))
 
-jest.mock('@/app/(without-navbar)/my-store/hooks/useUserStores', () => ({
+jest.mock('@/app/(setup-layout)/my-store/hooks/useUserStores', () => ({
   getUserStores: jest.fn(),
 }))
 

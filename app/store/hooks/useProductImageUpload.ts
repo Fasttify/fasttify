@@ -17,7 +17,6 @@ export function useProductImageUpload() {
 
   // Obtener el bucket correcto para imágenes de productos
   const productBucket = outputs.storage.buckets.find(bucket => bucket.name === 'productsImages')
-  const aws_region = outputs.auth.aws_region
 
   if (!productBucket) {
     throw new Error('There is no bucket for product images')
