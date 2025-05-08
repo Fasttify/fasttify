@@ -11,8 +11,9 @@ import Link from 'next/link'
 
 function SubscriptionLoader() {
   const { subscriptionResource } = useSubscriptionStore()
-  const subscription = subscriptionResource.read()
+  const subscription = subscriptionResource?.read()
   const [isSubmitting, setIsSubmitting] = useState(false)
+
   const { user } = useUserStore()
   const cognitoUsername = user?.cognitoUsername
 
@@ -134,18 +135,6 @@ function SubscriptionLoader() {
   )
 }
 
-// Componente de fallback para errores
-function ErrorFallback() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Error al cargar la suscripción</CardTitle>
-        <CardDescription>Por favor, intenta de nuevo más tarde.</CardDescription>
-      </CardHeader>
-    </Card>
-  )
-}
-
 // Componente principal
 export function PaymentSettings() {
   const { setCognitoUsername } = useSubscriptionStore()
@@ -156,7 +145,7 @@ export function PaymentSettings() {
     if (user?.cognitoUsername) {
       setCognitoUsername(user.cognitoUsername)
     }
-  }, [user?.cognitoUsername, setCognitoUsername])
+  }, [user])
 
   return (
     <div className="space-y-8 px-4 pt-4 pb-4 min-h-screen flex flex-col justify-start">

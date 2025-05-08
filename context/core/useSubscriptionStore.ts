@@ -32,6 +32,7 @@ function createResource() {
   let result: MinimalSubscription | null = null
   let error: Error | null = null
   let suspender: Promise<void> | null = null
+  let lastUsername: string | null = null
 
   return {
     read() {
@@ -46,6 +47,12 @@ function createResource() {
     preload(username: string) {
       if (!username) return
 
+      // Evitar peticiones duplicadas si el username no ha cambiado y ya hay una petición en curso
+      if (username === lastUsername && (status === 'success' || suspender)) {
+        return
+      }
+
+      lastUsername = username
       status = 'pending'
       suspender = fetchSubscriptionData(username)
         .then(data => {
@@ -102,9 +109,9 @@ async function fetchSubscriptionData(username: string): Promise<MinimalSubscript
   }
 }
 
-export const useSubscriptionStore = create<SubscriptionState>((set, get) => {
-  const subscriptionResource = createResource()
+const subscriptionResource = createResource()
 
+export const useSubscriptionStore = create<SubscriptionState>((set, get) => {
   return {
     cognitoUsername: null,
     subscription: null,

@@ -14,8 +14,8 @@ import {
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import cancelAnimation from '@/app/(with-navbar)/account-settings/anim/cancel-animation.json'
-import successAnimation from '@/app/(with-navbar)/account-settings/anim/success-animation.json'
+import cancelAnimation from '@/app/(main-layout)/account-settings/anim/cancel-animation.json'
+import successAnimation from '@/app/(main-layout)/account-settings/anim/success-animation.json'
 
 interface CancellationDialogProps {
   onCancel: () => Promise<void>
