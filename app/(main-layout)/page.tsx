@@ -18,27 +18,21 @@ Amplify.configure({
   },
 })
 
-const logger = new ConsoleLogger('HomePage')
-
 export default function Home() {
   useEffect(() => {
     const hubListenerCancelToken = Hub.listen('auth', async ({ payload }) => {
       switch (payload.event) {
         case 'signInWithRedirect':
-          try {
-            const user = await getCurrentUser()
-            const userAttributes = await fetchUserAttributes()
-            logger.log({ user, userAttributes })
-          } catch (error) {
-            logger.error('Error getting user session:', error)
-          }
+          const user = await getCurrentUser()
+          const userAttributes = await fetchUserAttributes()
+          console.log({ user, userAttributes })
           break
         case 'signInWithRedirect_failure':
-          logger.error('Login failed with redirect:', payload.data)
+          console.log('error during sign in', Error)
           break
         case 'customOAuthState':
-          const state = payload.data
-          logger.log('Custom status:', state)
+          const state = payload.data // this will be customState provided on signInWithRedirect function
+          console.log(state)
           break
       }
     })
