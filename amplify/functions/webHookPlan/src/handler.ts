@@ -15,18 +15,11 @@ import { type Schema } from '../../../data/resource'
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 Amplify.configure(resourceConfig, libraryOptions)
 
-
 const client = new CognitoIdentityProviderClient()
 const clientSchema = generateClient<Schema>()
 
 const MP_AUTH_PAYMENTS_SEARCH_URL = 'https://api.mercadopago.com/v1/payments/'
 const MP_AUTHORIZED_PAYMENTS_URL = 'https://api.mercadopago.com/authorized_payments/'
-
-
-
-export const handler: APIGatewayProxyHandler = async (event) => {
-  console.log("Evento recibido:", JSON.stringify(event, null, 2));
-
 
 export const handler: APIGatewayProxyHandler = async event => {
   try {
