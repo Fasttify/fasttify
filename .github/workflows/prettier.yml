@@ -1,0 +1,47 @@
+name: Formateo con Prettier
+
+on:
+  push:
+    branches:
+      - '*' # Cualquier rama
+  pull_request:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: write # Permite que la acción haga push de los cambios
+
+jobs:
+  prettier:
+    name: Aplicar Prettier
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar Prettier
+        run: npx prettier --write .
+
+      - name: Verificar si hay cambios
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --name-only | grep -v "^.github/"
+          if git diff --staged --quiet; then
+            echo "✅ No hay cambios de formateo. No es necesario hacer commit."
+            exit 0
+          fi
+          git commit -m "✨ Formateo automático con Prettier"
+          git push origin $GITHUB_REF_NAME

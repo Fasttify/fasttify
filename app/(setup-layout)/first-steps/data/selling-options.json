@@ -1,0 +1,34 @@
+{
+  "options": [
+    {
+      "title": "Comercio Digital",
+      "description": "Crea tu escaparate virtual con diseños totalmente personalizados.",
+      "id": "online-store"
+    },
+    {
+      "title": "Local Comercial",
+      "description": "Establece tu presencia física con una experiencia de compra única.",
+      "id": "physical-store"
+    },
+    {
+      "title": "Experiencias en Vivo",
+      "description": "Destaca en ferias, mercados y eventos con espacios temporales innovadores.",
+      "id": "events"
+    },
+    {
+      "title": "Integración Digital",
+      "description": "Transforma tu sitio web o blog en una plataforma de ventas interactiva.",
+      "id": "existing-website"
+    },
+    {
+      "title": "Conexión Social",
+      "description": "Impulsa tu negocio a través de Facebook, Instagram, TikTok y más redes.",
+      "id": "social-media"
+    },
+    {
+      "title": "Marketplaces",
+      "description": "Expande tu alcance publicando productos en plataformas como Etsy, Amazon y otras.",
+      "id": "online-marketplace"
+    }
+  ]
+}

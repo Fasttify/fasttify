@@ -1,6 +1,7 @@
-import { defineFunction } from "@aws-amplify/backend";
+import { defineFunction } from '@aws-amplify/backend'
 
 export const postAuthentication = defineFunction({
-  name: "post-authentication",
-  resourceGroupName: "auth",
-});
+  timeoutSeconds: 120,
+  name: 'post-authentication',
+  resourceGroupName: 'auth',
+})

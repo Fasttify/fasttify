@@ -1,6 +1,6 @@
 {
   "whyContinueWithGen1": "Prefer not to answer",
-  "projectName": "MasterDop",
+  "projectName": "fasttify",
   "version": "3.1",
   "frontend": "javascript",
   "javascript": {
@@ -12,7 +12,5 @@
       "StartCommand": "npm.cmd run-script start"
     }
   },
-  "providers": [
-    "awscloudformation"
-  ]
+  "providers": ["awscloudformation"]
 }
