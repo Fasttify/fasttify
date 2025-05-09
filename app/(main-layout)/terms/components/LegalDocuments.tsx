@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import legalContent from '@/app/(with-navbar)/terms/components/legal-content.json'
+import legalContent from '@/app/(main-layout)/terms/components/legal-content.json'
 
 export function LegalDocuments() {
   const [activeDocument, setActiveDocument] = useState<'terms' | 'privacy'>('terms')
