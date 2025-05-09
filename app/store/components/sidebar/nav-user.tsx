@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/sidebar'
 import { routes } from '@/utils/routes'
 import { useState, useEffect } from 'react'
-import useStoreDataStore from '@/zustand-states/storeDataStore'
+import useStoreDataStore from '@/context/core/storeDataStore'
 import Link from 'next/link'
 import { PricingDrawer } from '@/app/store/components/store-setup/PricingDrawer'
 
@@ -133,7 +133,7 @@ export function NavUser({ user, loading }: NavUserProps) {
                       alt={user?.nickName}
                       className="object-cover"
                     />
-                    <AvatarFallback className="rounded-lg">{user?.nickName}</AvatarFallback>
+                    <AvatarFallback className="rounded-lg">{getUserInitials()}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{user?.nickName}</span>

@@ -18,7 +18,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { SearchInput } from '@/app/store/components/product-management/collection-form/search-input'
 import { useProducts, IProduct } from '@/app/store/hooks/useProducts'
-import useStoreDataStore from '@/zustand-states/storeDataStore'
+import useStoreDataStore from '@/context/core/storeDataStore'
 
 interface ProductSectionProps {
   selectedProducts: IProduct[]

@@ -18,7 +18,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import useStoreDataStore from '@/zustand-states/storeDataStore'
+import useStoreDataStore from '@/context/core/storeDataStore'
 import { routes } from '@/utils/routes'
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
@@ -40,7 +40,6 @@ export function NavApps() {
   const storeId = getStoreId(params, pathname)
   const router = useRouter()
 
-  // Define available apps
   const availableApps: AppItem[] = [
     {
       name: 'Master Shop',

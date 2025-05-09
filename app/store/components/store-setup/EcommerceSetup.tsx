@@ -13,11 +13,11 @@ import {
 } from '@/components/ui/accordion'
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
-import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
+import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import { PricingDrawer } from '@/app/store/components/store-setup/PricingDrawer'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
-import useStoreDataStore from '@/zustand-states/storeDataStore'
+import useStoreDataStore from '@/context/core/storeDataStore'
 
 Amplify.configure(outputs)
 const existingConfig = Amplify.getConfig()

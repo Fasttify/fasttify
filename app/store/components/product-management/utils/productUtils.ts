@@ -1,6 +1,6 @@
 import { toast } from 'sonner'
 import { IProduct } from '@/app/store/hooks/useProducts'
-import { ProductFormValues } from '@/lib/schemas/product-schema'
+import { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 
 /**
  * Mapea un producto a los valores del formulario

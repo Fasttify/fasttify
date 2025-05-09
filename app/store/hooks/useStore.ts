@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import useStoreDataStore from '@/zustand-states/storeDataStore'
+import useStoreDataStore from '@/context/core/storeDataStore'
 
 interface UseStoreReturn {
   store: any

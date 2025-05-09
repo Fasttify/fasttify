@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react'
-import { useResetPassword } from '@/app/(without-navbar)/login/hooks/useResetPassword'
+import { useResetPassword } from '@/app/(setup-layout)/login/hooks/useResetPassword'
 import { resetPassword } from 'aws-amplify/auth'
 
 // Mock del módulo de AWS Amplify

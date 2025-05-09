@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 import {
   useUserStoreData,
   PaymentGatewayType,
-} from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
+} from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import { WompiGuide } from '@/app/store/components/payments/WompiGuide'
 import { MercadoPagoGuide } from '@/app/store/components/payments/MercadoPagoGuide'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -22,7 +22,7 @@ import {
   WompiPaymentIcons,
   MercadoPagoIcons,
 } from '@/app/store/components/payments/PaymentMethodIcons'
-import { useApiKeyEncryption } from '@/app/(without-navbar)/first-steps/hooks/useApiKeyEncryption'
+import { useApiKeyEncryption } from '@/app/(setup-layout)/first-steps/hooks/useApiKeyEncryption'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

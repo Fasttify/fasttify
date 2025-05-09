@@ -24,7 +24,11 @@ import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { createApiKeySchema, PaymentGatewayType, PAYMENT_GATEWAYS } from '@/lib/schemas/api-keys'
+import {
+  createApiKeySchema,
+  PaymentGatewayType,
+  PAYMENT_GATEWAYS,
+} from '@/lib/zod-schemas/api-keys'
 
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'

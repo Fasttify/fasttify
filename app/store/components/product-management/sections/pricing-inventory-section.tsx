@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import type { ProductFormValues } from '@/lib/schemas/product-schema'
+import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import {

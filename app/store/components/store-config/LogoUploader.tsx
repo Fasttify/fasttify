@@ -16,8 +16,8 @@ import Image from 'next/image'
 import { Upload, ImageIcon } from 'lucide-react'
 import { Loader } from '@/components/ui/loader'
 import { useLogoUpload } from '@/app/store/hooks/useLogoUpload'
-import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
-import useStoreDataStore from '@/zustand-states/storeDataStore'
+import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
+import useStoreDataStore from '@/context/core/storeDataStore'
 
 export function LogoUploader() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null)

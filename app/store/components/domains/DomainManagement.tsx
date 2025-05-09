@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { ChangeDomainDialog } from '@/app/store/components/domains/ChangeDomainDialog'
 import { EditStoreProfileDialog } from '@/app/store/components/domains/EditStoreProfileDialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import useStoreDataStore from '@/zustand-states/storeDataStore'
+import useStoreDataStore from '@/context/core/storeDataStore'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

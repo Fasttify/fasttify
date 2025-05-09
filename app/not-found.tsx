@@ -1,7 +1,7 @@
 'use client'
 
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background'
-import notFound from '@/app/(with-navbar)/account-settings/anim/not-found.json'
+import notFound from '@/app/(main-layout)/account-settings/anim/not-found.json'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 

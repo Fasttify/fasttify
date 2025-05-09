@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { StoreSelector } from '@/app/(without-navbar)/my-store/components/StoreSelector'
+import { StoreSelector } from '@/app/(setup-layout)/my-store/components/StoreSelector'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
-import { getUserStores } from '@/app/(without-navbar)/my-store/hooks/useUserStores'
+import { getUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores'
 
 jest.mock('@/hooks/auth/useAuthUser', () => ({
   useAuthUser: jest.fn(),
 }))
 
-jest.mock('@/app/(without-navbar)/my-store/hooks/useUserStores', () => ({
+jest.mock('@/app/(setup-layout)/my-store/hooks/useUserStores', () => ({
   getUserStores: jest.fn(),
 }))
 

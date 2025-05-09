@@ -11,7 +11,7 @@ import {
   productFormSchema,
   type ProductFormValues,
   defaultValues,
-} from '@/lib/schemas/product-schema'
+} from '@/lib/zod-schemas/product-schema'
 import { useProducts, type IProduct } from '@/app/store/hooks/useProducts'
 import {
   mapProductToFormValues,
@@ -19,7 +19,7 @@ import {
   handleProductUpdate,
   handleProductCreate,
 } from '@/app/store/components/product-management/utils/productUtils'
-import { useUnsavedChangesWarning } from '@/hooks/use-unsaved-changes-warning'
+import { useUnsavedChangesWarning } from '@/hooks/ui/use-unsaved-changes-warning'
 import { UnsavedChangesAlert } from '@/components/ui/unsaved-changes-alert'
 import { BasicInfoSection } from '@/app/store/components/product-management/sections/basic-info-section'
 import { PricingInventorySection } from '@/app/store/components/product-management/sections/pricing-inventory-section'

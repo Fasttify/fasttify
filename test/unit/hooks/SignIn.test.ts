@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react'
-import { useAuth } from '@/app/(without-navbar)/login/hooks/SignIn'
+import { useAuth } from '@/app/(setup-layout)/login/hooks/SignIn'
 import { signIn, resendSignUpCode } from 'aws-amplify/auth'
 
 // Mock de los módulos de AWS Amplify

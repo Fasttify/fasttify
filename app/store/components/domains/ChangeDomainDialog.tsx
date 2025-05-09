@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useDomainValidator } from '@/app/store/hooks/useDomainValidator'
-import { useUserStoreData } from '@/app/(without-navbar)/first-steps/hooks/useUserStoreData'
+import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import { toast } from 'sonner'
 
 interface ChangeDomainDialogProps {

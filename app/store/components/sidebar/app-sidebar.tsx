@@ -11,12 +11,12 @@ import { useState, useEffect } from 'react'
 import { NavMain } from '@/app/store/components/sidebar/nav-main'
 import { NavUser } from '@/app/store/components/sidebar/nav-user'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from '@/components/ui/sidebar'
-import { useAuth } from '@/hooks/auth/useAuth'
+import { useAuth } from '@/context/hooks/useAuth'
 import { routes } from '@/utils/routes'
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname } from 'next/navigation'
 import { NavApps } from '@/app/store/components/sidebar/nav-apps'
-import useUserStore from '@/zustand-states/userStore'
+import useUserStore from '@/context/core/userStore'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useUserStore()
