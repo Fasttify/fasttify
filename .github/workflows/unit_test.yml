@@ -3,7 +3,8 @@ name: Ejecutar tests con Jest
 on:
   push:
     branches:
-      - '*'  # En cualquier push a cualquier rama
+      - main
+      - dev   
   pull_request:
     branches:
       - main
