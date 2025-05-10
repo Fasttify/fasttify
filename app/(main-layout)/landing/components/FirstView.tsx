@@ -1,4 +1,7 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -32,9 +35,10 @@ const slides = [
 export function FirstView() {
   const swiperRef = useRef<SwiperType>()
   const [activeIndex, setActiveIndex] = useState(0)
+  const router = useRouter()
 
-  const rediret = () => {
-    window.location.href = '/first-steps'
+  const redirect = () => {
+    router.push('/first-steps')
   }
 
   return (
@@ -93,7 +97,7 @@ export function FirstView() {
                 <Button
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-white px-8 rounded-full"
-                  onClick={rediret}
+                  onClick={redirect}
                 >
                   Crear mi tienda
                   <ArrowRight className="ml-2 h-4 w-4" />

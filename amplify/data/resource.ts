@@ -72,14 +72,14 @@ const schema = a
     UserSubscription: a
       .model({
         id: a.id().required(),
-        userId: a.string().required(), // Llave primaria (external_reference)
-        subscriptionId: a.string().required(), // Id de la suscripción
-        planName: a.string().required(), // Nombre del plan (reason)
-        nextPaymentDate: a.datetime(), // Próxima fecha de pago (opcional)
-        pendingPlan: a.string(), // Nuevo plan pendiente (opcional)
-        pendingStartDate: a.datetime(), // Fecha del plan pendiente a activar
-        planPrice: a.float(), // Precio del plan
-        lastFourDigits: a.integer(), // Últimos 4 dígitos de la tarjeta
+        userId: a.string().required(),
+        subscriptionId: a.string().required(),
+        planName: a.string().required(),
+        nextPaymentDate: a.datetime(),
+        pendingPlan: a.string(),
+        pendingStartDate: a.datetime(),
+        planPrice: a.float(),
+        lastFourDigits: a.integer(),
       })
       .identifier(['id'])
       .authorization(allow => [
@@ -89,19 +89,19 @@ const schema = a
 
     UserStore: a
       .model({
-        userId: a.string().required(), // Relaciona la tienda con el usuario
-        storeId: a.string().required(), // Identificador único de la tienda
-        storeName: a.string().required(), // Nombre de la tienda
-        storeDescription: a.string(), // Descripción opcional de la tienda
-        storeLogo: a.string(), // URL de la imagen del logo de la tienda
-        storeFavicon: a.string(), // URL de la imagen del favicon de la tienda
-        storeBanner: a.string(), // URL de la imagen del banner de la tienda
-        storeTheme: a.string(), // Tema de la tienda (opcional)
-        storeCurrency: a.string(), // Moneda de la tienda
-        storeType: a.string(), // Tipo de tienda (física, virtual, etc.)
-        storeStatus: a.string(), // Estado de la tienda (activa, inactiva, etc.)
-        storePolicy: a.string(), // Política de la tienda (opcional)
-        storeAdress: a.string(), // Dirección de la tienda
+        userId: a.string().required(),
+        storeId: a.string().required(),
+        storeName: a.string().required(),
+        storeDescription: a.string(),
+        storeLogo: a.string(),
+        storeFavicon: a.string(),
+        storeBanner: a.string(),
+        storeTheme: a.string(),
+        storeCurrency: a.string(),
+        storeType: a.string(),
+        storeStatus: a.string(),
+        storePolicy: a.string(),
+        storeAdress: a.string(),
         contactEmail: a.string(),
         contactPhone: a.float(),
         contactName: a.string(),
@@ -120,49 +120,49 @@ const schema = a
     Product: a
       .model({
         id: a.id().required(),
-        storeId: a.string().required(), // Relaciona el producto con la tienda
-        name: a.string().required(), // Nombre del producto
-        description: a.string(), // Descripción del producto
-        price: a.float(), // Precio del producto
-        compareAtPrice: a.float(), // Precio de comparación (opcional)
-        costPerItem: a.float(), // Costo por artículo (opcional)
-        sku: a.string(), // SKU del producto (opcional)
-        barcode: a.string(), // Código de barras (opcional)
-        quantity: a.integer(), // Cantidad en inventario
-        category: a.string(), // Categoría del producto
-        images: a.json(), // Array de imágenes [{url: string, alt: string}]
-        attributes: a.json(), // Array de atributos [{name: string, values: string[]}]
-        status: a.string(), // Estado: ACTIVE, INACTIVE, PENDING, DRAFT
-        slug: a.string(), // URL amigable del producto
-        featured: a.boolean(), // Producto destacado
-        tags: a.json(), // Array de etiquetas
-        variants: a.json(), // Variantes del producto
-        collectionId: a.string(), // ID de la colección
-        supplier: a.string(), // Proveedor del producto
-        collection: a.belongsTo('Collection', 'collectionId'), // Relación con la colección
-        owner: a.string().required(), // Usuario que creo el producto
+        storeId: a.string().required(),
+        name: a.string().required(),
+        description: a.string(),
+        price: a.float(),
+        compareAtPrice: a.float(),
+        costPerItem: a.float(),
+        sku: a.string(),
+        barcode: a.string(),
+        quantity: a.integer(),
+        category: a.string(),
+        images: a.json(),
+        attributes: a.json(),
+        status: a.string(),
+        slug: a.string(),
+        featured: a.boolean(),
+        tags: a.json(),
+        variants: a.json(),
+        collectionId: a.string(),
+        supplier: a.string(),
+        collection: a.belongsTo('Collection', 'collectionId'),
+        owner: a.string().required(),
       })
       .authorization(allow => [
-        allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']), // Solo el creador puede editar y eliminar
+        allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.guest().to(['read']),
       ]),
 
     Collection: a
       .model({
-        storeId: a.string().required(), // Relaciona la colección con la tienda
-        title: a.string().required(), // Nombre de la colección
-        description: a.string(), // Descripción de la colección
-        image: a.string(), // URL de la imagen de la colección
-        slug: a.string(), // URL amigable de la colección
+        storeId: a.string().required(),
+        title: a.string().required(),
+        description: a.string(),
+        image: a.string(),
+        slug: a.string(),
         isActive: a.boolean().required(),
-        sortOrder: a.integer(), // Orden de la colección
-        owner: a.string().required(), // Usuario que creo la colección
-        products: a.hasMany('Product', 'collectionId'), // Relación con productos
+        sortOrder: a.integer(),
+        owner: a.string().required(),
+        products: a.hasMany('Product', 'collectionId'),
       })
       .secondaryIndexes(index => [index('storeId')])
       .authorization(allow => [
-        allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']), // Solo el creador puede editar y eliminar
-        allow.guest().to(['read']), // Visitantes pueden ver las colecciones
+        allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
+        allow.guest().to(['read']),
       ]),
   })
   .authorization(allow => [
