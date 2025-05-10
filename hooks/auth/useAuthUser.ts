@@ -11,7 +11,7 @@ interface UserPayload {
   userId: string
   plan?: string
   picture?: string
-  identities?: unknown[]
+  identities?: any[]
   [key: string]: any
 }
 
