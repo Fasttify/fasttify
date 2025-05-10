@@ -55,8 +55,7 @@ async function fetchUserStores(userId: string, userPlan?: string) {
       selectionSet: ['storeId', 'storeName', 'storeType', 'onboardingCompleted'],
     })
 
-    // Filtrar solo las tiendas con onboarding completado para mostrar
-    const completedStores = allUserStores?.filter(store => store.onboardingCompleted === true) || []
+    const completedStores = allUserStores || []
 
     // Verificar límite de tiendas según el plan
     const currentCount = allUserStores?.length || 0
