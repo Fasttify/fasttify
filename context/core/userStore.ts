@@ -11,7 +11,7 @@ interface User {
   phone?: string
   cognitoUsername?: string
   userId?: string
-  identities?: unknown[]
+  identities?: any[]
 }
 
 // Define el estado y las acciones del store
