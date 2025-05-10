@@ -1,3 +1,5 @@
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Fasttify/fasttify)
 # Fasttify - Dropshipping Ecommerce Platform
 
 Welcome to **Fasttify**, the ultimate SaaS solution for creating and managing personalized dropshipping stores effortlessly. Built on **AWS Amplify Gen2** with a modern **Next.js** front end, Fasttify combines scalability, performance, and a user-friendly interface.
