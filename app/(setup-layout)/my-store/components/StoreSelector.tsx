@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -107,7 +109,7 @@ function StoreData({ userId, userPlan }: { userId: string | null; userPlan?: str
     stores = [],
     canCreateStore = false,
     error,
-  } = result as { stores: any[]; canCreateStore: boolean; error?: string }
+  } = result as { stores: unknown[]; canCreateStore: boolean; error?: string }
 
   if (error) {
     return (
@@ -120,9 +122,21 @@ function StoreData({ userId, userPlan }: { userId: string | null; userPlan?: str
 
 // Componente principal
 export function StoreSelector() {
-  const { userData } = useAuthUser()
+  const { userData, isLoading } = useAuthUser()
   const cognitoUsername = userData?.['cognito:username']
   const userPlan = userData?.['custom:plan']
+
+  if (isLoading) {
+    return (
+      <Loader
+        size="large"
+        color="black"
+        centered
+        text="Cargando tus tiendas..."
+        className="bg-gray-50 p-6 rounded-xl shadow-sm"
+      />
+    )
+  }
 
   return (
     <motion.div
