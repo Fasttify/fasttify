@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { uploadData } from 'aws-amplify/storage'
 import { Amplify } from 'aws-amplify'
 import { v4 as uuidv4 } from 'uuid'
+import { getCurrentUser } from 'aws-amplify/auth'
 import outputs from '@/amplify_outputs.json'
 
 Amplify.configure(outputs)
@@ -16,7 +17,8 @@ export function useProductImageUpload() {
   const [error, setError] = useState<Error | null>(null)
 
   // Obtener el bucket correcto para imágenes de productos
-  const productBucket = outputs.storage.buckets.find(bucket => bucket.name === 'productsImages')
+  const productBucket = outputs.storage.bucket_name
+  const aws_region = outputs.storage.aws_region
 
   if (!productBucket) {
     throw new Error('There is no bucket for product images')
@@ -29,20 +31,22 @@ export function useProductImageUpload() {
     try {
       // Generar un UUID único para el archivo
       const uniqueFileName = `${uuidv4()}-${file.name.replace(/\s+/g, '-')}`
+      // Obtener el usuario actual para usar su ID en la ruta
+      const user = await getCurrentUser()
+      const userId = user.userId
 
       // Subir la imagen al bucket correcto
       const result = await uploadData({
+        path: `products/${userId}/${uniqueFileName}`,
         options: {
-          bucket: 'productsImages',
+          bucket: 'fasttifyAssets',
           contentType: file.type,
         },
-        path: `products/${storeId}/${uniqueFileName}`,
         data: file,
       }).result
 
       // Construir la URL pública correcta usando el nombre del bucket
-      const publicUrl = `https://d1etr7t5j9fzio.cloudfront.net/${result.path}`
-
+      const publicUrl = `https://${productBucket}.s3.${aws_region}.amazonaws.com/${result.path}`
       return {
         url: publicUrl,
         alt: '',
