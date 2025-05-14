@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll'
 import { MessageLoading } from '@/app/store/components/ai-chat/MessageLoading'
 import { TypingMessage } from '@/app/store/components/ai-chat/TypingMessage'
@@ -10,6 +9,7 @@ import { useChat } from '@/app/store/components/ai-chat/hooks/useChat'
 import { Button } from '@/components/ui/button'
 import { useMediaQuery } from '@/hooks/ui/use-media-query'
 import { GradientSparkles } from '@/app/store/components/ai-chat/GradientSparkles'
+import { Drawer, Text } from '@medusajs/ui'
 import Orb from '@/app/store/components/ai-chat/Orb'
 
 interface Suggestion {
@@ -107,17 +107,20 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
   }))
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="p-0 sm:max-w-md w-full flex flex-col h-full rounded-t-2xl"
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <Drawer.Content
+        className="z-50"
+        overlayProps={{
+          className: 'bg-transparent',
+        }}
       >
-        <SheetHeader className="flex items-center  bg-white/50 backdrop-blur-sm border-b border-gray-200 shrink-0">
+        <Drawer.Header className="flex items-center bg-white border-b border-gray-200 shrink-0">
+          {' '}
           {isMobile && (
             <Button
               variant="ghost"
               onClick={handleClose}
-              className="h-2 w-2 rounded-full -ml-96  "
+              className="h-2 w-2 rounded-full -ml-96"
               aria-label="Regresar"
             >
               <ChevronLeft className="h-6 w-6 scale-150 text-gray-900" />
@@ -125,75 +128,77 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
           )}
           <div className="flex flex-1 justify-center items-center gap-2">
             <GradientSparkles />
-            <SheetTitle className="font-medium text-gray-800">FastBot</SheetTitle>
+            <Drawer.Title className="font-medium text-gray-800">FastBot</Drawer.Title>
           </div>
-        </SheetHeader>
+        </Drawer.Header>
 
-        <ScrollArea className="flex-1 overflow-y-auto">
-          <div ref={scrollRef} className="px-4">
-            {chatMessages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full py-20">
-                <div className="mb-6 relative">
-                  <Orb rotateOnHover={false} hoverIntensity={0.0} />
-                </div>
-                <p className="text-gray-600 text-center mb-6">
-                  ¿Qué te gustaría saber sobre ecommerce o dropshipping?
-                </p>
-                <div className="flex flex-col items-end gap-2 w-full">
-                  {suggestions.map(suggestion => (
-                    <button
-                      key={suggestion.id}
-                      onClick={() => handleSuggestionClick(suggestion.text)}
-                      className="bg-gray-50 py-2 px-4 rounded-full text-sm shadow-sm transition-all hover:bg-gray-100"
-                    >
-                      {suggestion.text}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4 py-2">
-                {transformedMessages.map(message => (
-                  <TypingMessage
-                    key={message.id}
-                    id={message.id}
-                    content={message.content}
-                    type={message.type as 'user' | 'ai'}
-                    longMessageThreshold={LONG_MESSAGE_THRESHOLD}
-                    isExpanded={isMessageExpanded(message.id)}
-                    onExpand={toggleMessageExpansion}
-                  />
-                ))}
-                {loading && (
-                  <div className="flex justify-start">
-                    <MessageLoading />
+        <Drawer.Body className="p-0 flex flex-col h-full overflow-hidden">
+          <ScrollArea className="flex-1 overflow-y-auto">
+            <div ref={scrollRef} className="px-4">
+              {chatMessages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full py-20">
+                  <div className="mb-6 relative">
+                    <Orb rotateOnHover={false} hoverIntensity={0.0} />
                   </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+                  <p className="text-gray-600 text-center mb-6">
+                    ¿Qué te gustaría saber sobre ecommerce o dropshipping?
+                  </p>
+                  <div className="flex flex-col items-end gap-2 w-full">
+                    {suggestions.map(suggestion => (
+                      <button
+                        key={suggestion.id}
+                        onClick={() => handleSuggestionClick(suggestion.text)}
+                        className="bg-gray-50 py-2 px-4 rounded-full text-sm shadow-sm transition-all hover:bg-gray-100"
+                      >
+                        {suggestion.text}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4 py-2">
+                  {transformedMessages.map(message => (
+                    <TypingMessage
+                      key={message.id}
+                      id={message.id}
+                      content={message.content}
+                      type={message.type as 'user' | 'ai'}
+                      longMessageThreshold={LONG_MESSAGE_THRESHOLD}
+                      isExpanded={isMessageExpanded(message.id)}
+                      onExpand={toggleMessageExpansion}
+                    />
+                  ))}
+                  {loading && (
+                    <div className="flex justify-start">
+                      <MessageLoading />
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              )}
+            </div>
+          </ScrollArea>
 
-        <div className="  border-gray-200 shrink-0 bg-white">
-          <AIInputWithSearch
-            placeholder="Pregúntame cualquier cosa..."
-            minHeight={48}
-            maxHeight={96}
-            onSubmit={(value, withSearch) => {
-              if (value.trim()) {
-                chat(value)
-                setTimeout(scrollToBottom, 100)
-              }
-            }}
-            onFileSelect={file => {
-              // Handle file if needed, or leave empty
-              console.log('File selected:', file.name)
-            }}
-            className="py-2"
-          />
-        </div>
-      </SheetContent>
-    </Sheet>
+          <div className="border-gray-200 shrink-0 bg-white">
+            <AIInputWithSearch
+              placeholder="Pregúntame cualquier cosa..."
+              minHeight={48}
+              maxHeight={96}
+              onSubmit={(value, withSearch) => {
+                if (value.trim()) {
+                  chat(value)
+                  setTimeout(scrollToBottom, 100)
+                }
+              }}
+              onFileSelect={file => {
+                // Handle file if needed, or leave empty
+                console.log('File selected:', file.name)
+              }}
+              className="py-2"
+            />
+          </div>
+        </Drawer.Body>
+      </Drawer.Content>
+    </Drawer>
   )
 }

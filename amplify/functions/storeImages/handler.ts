@@ -6,7 +6,6 @@ import {
 } from '@aws-sdk/client-s3'
 import { env } from '$amplify/env/storeImages'
 
-// Inicializar el cliente S3
 const s3Client = new S3Client()
 
 const bucketName = env.BUCKET_NAME

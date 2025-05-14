@@ -1,6 +1,6 @@
 import { defineBackend } from '@aws-amplify/backend'
 import { auth } from './auth/resource'
-import { storage, productsImages, storeLogo, templates } from './storage/resource'
+import { storage } from './storage/resource'
 import { createSubscription } from './functions/createSubscription/resource'
 import { webHookPlan } from './functions/webHookPlan/resource'
 import { cancelPlan } from './functions/cancelPlan/resource'
@@ -39,13 +39,10 @@ const backend = defineBackend({
   checkStoreName,
   postConfirmation,
   generateHaikuFunction,
-  productsImages,
   checkStoreDomain,
-  storeLogo,
   apiKeyManager,
   generateProductDescriptionFunction,
   generatePriceSuggestionFunction,
-  templates,
   getStoreProducts,
   getStoreData,
   storeImages,
@@ -118,8 +115,8 @@ backend.storeImages.resources.lambda.addToRolePolicy(
     effect: Effect.ALLOW,
     actions: ['s3:ListBucket', 's3:GetObject', 's3:PutObject', 's3:DeleteObject'],
     resources: [
-      backend.productsImages.resources.bucket.bucketArn,
-      `${backend.productsImages.resources.bucket.bucketArn}/*`,
+      backend.storage.resources.bucket.bucketArn,
+      `${backend.storage.resources.bucket.bucketArn}/*`,
     ],
   })
 )
