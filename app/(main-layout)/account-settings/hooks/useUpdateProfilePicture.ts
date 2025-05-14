@@ -22,10 +22,11 @@ export function useUpdateProfilePicture() {
 
       // 1. Subir la imagen a S3 en una carpeta pública con el nombre único.
       const result = await uploadData({
-        path: `public/profile-pictures/${userData?.sub}/${uniqueFileName}`,
+        path: `profile-pictures/${userData?.sub}/${uniqueFileName}`,
         data: file,
         options: {
           contentType: file.type,
+          bucket: 'fasttifyAssets',
         },
       }).result
 
