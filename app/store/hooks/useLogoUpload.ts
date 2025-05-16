@@ -27,8 +27,8 @@ export function useLogoUpload(): UseLogoUploadReturn {
   const [error, setError] = useState<string | null>(null)
 
   // Obtener el bucket correcto para logos de tienda
-  const logoBucket = outputs.storage.buckets.find(bucket => bucket.name === 'storeLogo')
-  const aws_region = outputs.auth.aws_region
+  const logoBucket = outputs.storage.bucket_name
+  const aws_region = outputs.storage.aws_region
 
   if (!logoBucket) {
     throw new Error('There is no bucket for store logos')
@@ -51,18 +51,19 @@ export function useLogoUpload(): UseLogoUploadReturn {
       // Crear un nombre de archivo único con UUID
       const fileExtension = file.name.split('.').pop()
       const uniqueId = uuidv4()
-      const key = `store/${userId}/${type}-${uniqueId}.${fileExtension}`
+      const key = `store-logos/${userId}/${type}-${uniqueId}.${fileExtension}`
 
       const result = await uploadData({
-        key,
+        path: key,
         data: file,
         options: {
-          bucket: 'storeLogo',
+          bucket: 'fasttifyAssets',
+          contentType: file.type,
         },
       }).result
 
       // Construir la URL pública correcta usando el nombre del bucket
-      const publicUrl = `https://${logoBucket.bucket_name}.s3.${aws_region}.amazonaws.com/public/${result.key}`
+      const publicUrl = `https://${logoBucket}.s3.${aws_region}.amazonaws.com/${key}`
 
       setStatus('success')
 

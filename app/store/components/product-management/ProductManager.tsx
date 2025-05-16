@@ -2,7 +2,7 @@ import { useProducts } from '@/app/store/hooks/useProducts'
 import { ProductForm } from './ProductForm'
 import { ProductList } from './ProductList'
 import { ProductsPage } from './ProductPage'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Loader } from '@/components/ui/loader'
 
 interface ProductManagerProps {
   storeId: string
@@ -28,28 +28,8 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
 
   if (loading) {
     return (
-      <div className="mt-8">
-        <div className="border rounded-lg p-4">
-          <div className="flex items-center space-x-4 mb-4">
-            <Skeleton className="h-6 w-24" />
-            <Skeleton className="h-6 w-24" />
-            <Skeleton className="h-6 w-24" />
-          </div>
-          {Array(5)
-            .fill(0)
-            .map((_, i) => (
-              <div key={i} className="flex items-center justify-between py-3 border-b">
-                <div className="flex items-center space-x-4">
-                  <Skeleton className="h-12 w-12 rounded" />
-                  <Skeleton className="h-5 w-40" />
-                </div>
-                <div className="flex space-x-2">
-                  <Skeleton className="h-8 w-16" />
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                </div>
-              </div>
-            ))}
-        </div>
+      <div className="py-20">
+        <Loader color="black" size="large" centered text="Cargando nuevos productos..." />
       </div>
     )
   }
