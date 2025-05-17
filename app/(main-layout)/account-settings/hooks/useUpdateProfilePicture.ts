@@ -30,15 +30,26 @@ export function useUpdateProfilePicture() {
         },
       }).result
 
-      // 2. Construir la URL pública manualmente.
+      // 2. Construir la URL pública condicionalmente.
       const bucketName = process.env.NEXT_PUBLIC_S3_URL
       const awsRegion = process.env.NEXT_PUBLIC_AWS_REGION
+      const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN
 
       if (!bucketName) {
-        throw new Error('There is no bucket for profile pictures')
+        throw new Error('NEXT_PUBLIC_S3_URL is not defined in your environment variables')
       }
 
-      const publicUrl = `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${result.path}`
+      let publicUrl: string
+      const s3Key = result.path
+
+      if (cloudFrontDomain && cloudFrontDomain.trim() !== '') {
+        // Usar CloudFront para producción (o cuando esté configurado)
+        publicUrl = `https://${cloudFrontDomain}/${s3Key}`
+      } else {
+        // Fallback a la URL de S3 para otros entornos
+        const regionForS3Url = awsRegion
+        publicUrl = `https://${bucketName}.s3.${regionForS3Url}.amazonaws.com/${s3Key}`
+      }
 
       // 3. Actualizar el atributo 'picture' del usuario con la URL pública.
       await updateUserAttributes({
