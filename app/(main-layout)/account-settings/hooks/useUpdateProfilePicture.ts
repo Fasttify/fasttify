@@ -31,9 +31,13 @@ export function useUpdateProfilePicture() {
       }).result
 
       // 2. Construir la URL pública manualmente.
-      const bucketName = outputs.storage.bucket_name
-      const region = outputs.storage.aws_region
-      const publicUrl = `https://cdn.fasttify.com/sandbox/${result.path}`
+      const bucketName = process.env.NEXT_PUBLIC_S3_URL
+
+      if (!bucketName) {
+        throw new Error('There is no bucket for profile pictures')
+      }
+
+      const publicUrl = `${bucketName}/${result.path}`
 
       // 3. Actualizar el atributo 'picture' del usuario con la URL pública.
       await updateUserAttributes({

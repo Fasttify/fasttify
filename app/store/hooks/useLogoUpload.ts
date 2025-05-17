@@ -27,10 +27,9 @@ export function useLogoUpload(): UseLogoUploadReturn {
   const [error, setError] = useState<string | null>(null)
 
   // Obtener el bucket correcto para logos de tienda
-  const logoBucket = outputs.storage.bucket_name
-  const aws_region = outputs.storage.aws_region
+  const bucketName = process.env.NEXT_PUBLIC_S3_URL
 
-  if (!logoBucket) {
+  if (!bucketName) {
     throw new Error('There is no bucket for store logos')
   }
 
@@ -63,7 +62,7 @@ export function useLogoUpload(): UseLogoUploadReturn {
       }).result
 
       // Construir la URL pública correcta usando el nombre del bucket
-      const publicUrl = `https://${logoBucket}.s3.${aws_region}.amazonaws.com/${key}`
+      const publicUrl = `${bucketName}/${key}`
 
       setStatus('success')
 
