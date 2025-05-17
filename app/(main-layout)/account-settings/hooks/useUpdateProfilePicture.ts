@@ -33,7 +33,7 @@ export function useUpdateProfilePicture() {
       // 2. Construir la URL pública manualmente.
       const bucketName = outputs.storage.bucket_name
       const region = outputs.storage.aws_region
-      const publicUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${result.path}`
+      const publicUrl = `https://cdn.fasttify.com/sandbox/${result.path}`
 
       // 3. Actualizar el atributo 'picture' del usuario con la URL pública.
       await updateUserAttributes({
@@ -42,7 +42,7 @@ export function useUpdateProfilePicture() {
         },
       })
     } catch (error) {
-      console.error('Error al actualizar la foto de perfil:', error)
+      console.error('Error updating profile picture:', error)
     } finally {
       setIsLoading(false)
     }
