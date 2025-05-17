@@ -29,6 +29,11 @@ const nextConfig = {
         hostname: 'd1etr7t5j9fzio.cloudfront.net',
         port: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.fasttify.com',
+        port: '',
+      },
     ],
   },
 }

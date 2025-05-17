@@ -26,11 +26,19 @@ export function useLogoUpload(): UseLogoUploadReturn {
   const [status, setStatus] = useState<UploadStatus>('idle')
   const [error, setError] = useState<string | null>(null)
 
-  // Obtener el bucket correcto para logos de tienda
+  // Obtener el bucket y la región desde las variables de entorno
   const bucketName = process.env.NEXT_PUBLIC_S3_URL
+  const awsRegion = process.env.NEXT_PUBLIC_AWS_REGION
+  const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN
 
   if (!bucketName) {
-    throw new Error('There is no bucket for store logos')
+    throw new Error('environment variable NEXT_PUBLIC_S3_URL is not defined')
+  }
+
+  if (!awsRegion && (!cloudFrontDomain || cloudFrontDomain.trim() === '')) {
+    throw new Error(
+      'environment variable NEXT_PUBLIC_AWS_REGION is not defined or NEXT_PUBLIC_CLOUDFRONT_DOMAIN is not defined or empty'
+    )
   }
 
   const reset = () => {
@@ -61,8 +69,17 @@ export function useLogoUpload(): UseLogoUploadReturn {
         },
       }).result
 
-      // Construir la URL pública correcta usando el nombre del bucket
-      const publicUrl = `${bucketName}/${key}`
+      // Construir la URL pública condicionalmente
+      let publicUrl: string
+      const s3Key = result.path
+
+      if (cloudFrontDomain && cloudFrontDomain.trim() !== '') {
+        publicUrl = `https://${cloudFrontDomain}/${s3Key}`
+      } else {
+        // Fallback a la URL de S3
+        const regionForS3Url = awsRegion
+        publicUrl = `https://${bucketName}.s3.${regionForS3Url}.amazonaws.com/${s3Key}`
+      }
 
       setStatus('success')
 
