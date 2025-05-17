@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Lottie from 'lottie-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
@@ -14,6 +13,7 @@ import {
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import dynamic from 'next/dynamic'
 import cancelAnimation from '@/app/(main-layout)/account-settings/anim/cancel-animation.json'
 import successAnimation from '@/app/(main-layout)/account-settings/anim/success-animation.json'
 
@@ -32,6 +32,11 @@ export function CancellationDialog({
   isPendingFree,
   expirationDate,
 }: CancellationDialogProps) {
+  const LottieWrapper = dynamic(
+    () => import('@/app/(main-layout)/account-settings/components/LottieWrapper'),
+    { ssr: false }
+  )
+
   const [isOpen, setIsOpen] = useState(false)
   const [isCancelled, setIsCancelled] = useState(false)
   const router = useRouter()
@@ -80,7 +85,7 @@ export function CancellationDialog({
             >
               <AlertDialogHeader>
                 <div className="mx-auto w-32 h-32 mb-4">
-                  <Lottie animationData={cancelAnimation} loop={true} />
+                  <LottieWrapper animationData={cancelAnimation} />
                 </div>
                 <AlertDialogTitle className="text-center">
                   ¿Estás seguro de cancelar tu suscripción?
@@ -118,7 +123,7 @@ export function CancellationDialog({
             >
               <AlertDialogHeader>
                 <div className="mx-auto w-32 h-32 mb-4 mt-2">
-                  <Lottie animationData={successAnimation} loop={false} />
+                  <LottieWrapper animationData={successAnimation} />
                 </div>
                 <AlertDialogTitle className="text-center">
                   Tu suscripción ha sido cancelada

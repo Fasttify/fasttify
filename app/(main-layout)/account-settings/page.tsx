@@ -5,7 +5,6 @@ import { AccountSettings } from '@/app/(main-layout)/account-settings/components
 import { PaymentSettings } from '@/app/(main-layout)/account-settings/components/PaymentSettings'
 import { ActiveSessions } from '@/app/(main-layout)/account-settings/components/ActiveSessions'
 import { useState, useEffect, Suspense } from 'react'
-import { Loader } from '@/components/ui/loader'
 import { Amplify } from 'aws-amplify'
 import { useSearchParams } from 'next/navigation'
 import useUserStore from '@/context/core/userStore'
@@ -67,17 +66,7 @@ function AccountSettingsContent() {
 export default function AccountSettingsPage() {
   return (
     <div className="overflow-x-hidden">
-      <Suspense
-        fallback={
-          <Loader
-            color="black"
-            content="Cargando perfil"
-            size="large"
-            fullWidth={true}
-            centered={true}
-          />
-        }
-      >
+      <Suspense>
         <AccountSettingsContent />
       </Suspense>
     </div>
