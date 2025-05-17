@@ -18,6 +18,7 @@ export function useProductImageUpload() {
 
   // Obtener el bucket correcto para imágenes de productos
   const bucketName = process.env.NEXT_PUBLIC_S3_URL
+  const awsRegion = process.env.NEXT_PUBLIC_AWS_REGION
 
   if (!bucketName) {
     throw new Error('There is no bucket for product images')
@@ -45,7 +46,8 @@ export function useProductImageUpload() {
       }).result
 
       // Construir la URL pública correcta usando el nombre del bucket
-      const publicUrl = `${bucketName}/${result.path}`
+      const publicUrl = `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${result.path}`
+
       return {
         url: publicUrl,
         alt: '',

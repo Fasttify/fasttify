@@ -32,12 +32,13 @@ export function useUpdateProfilePicture() {
 
       // 2. Construir la URL pública manualmente.
       const bucketName = process.env.NEXT_PUBLIC_S3_URL
+      const awsRegion = process.env.NEXT_PUBLIC_AWS_REGION
 
       if (!bucketName) {
         throw new Error('There is no bucket for profile pictures')
       }
 
-      const publicUrl = `${bucketName}/${result.path}`
+      const publicUrl = `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${result.path}`
 
       // 3. Actualizar el atributo 'picture' del usuario con la URL pública.
       await updateUserAttributes({
