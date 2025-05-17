@@ -9,8 +9,41 @@ import { env } from '$amplify/env/storeImages'
 const s3Client = new S3Client()
 
 const bucketName = env.BUCKET_NAME
-// URL base de CloudFront
-const cloudFrontDomain = 'https://d1etr7t5j9fzio.cloudfront.net'
+const awsRegion = env.AWS_REGION_BUCKET
+
+// Determinar el dominio de CloudFront a usar, si aplica.
+// cloudFrontDomainBase contendrá solo el nombre de host (ej: d123.cloudfront.net) si está en producción y configurado.
+// De lo contrario, permanecerá vacío, y se usará la URL directa de S3.
+let cloudFrontDomainBase = ''
+if (
+  env.APP_ENV === 'production' &&
+  env.CLOUDFRONT_DOMAIN_NAME &&
+  env.CLOUDFRONT_DOMAIN_NAME.trim() !== ''
+) {
+  cloudFrontDomainBase = env.CLOUDFRONT_DOMAIN_NAME
+}
+
+if (!bucketName) {
+  console.error(
+    'Error: BUCKET_NAME is not defined in the environment variables of the storeImages function.'
+  )
+}
+// AWS_REGION_BUCKET es necesario si no se usa CloudFront (no producción o CloudFront no configurado)
+if (!awsRegion && (!cloudFrontDomainBase || cloudFrontDomainBase.trim() === '')) {
+  console.warn(
+    "Warning: AWS_REGION_BUCKET is not defined. S3 URLs may default to 'us-east-2' if CloudFront is not used or not configured."
+  )
+}
+
+// Advertencia específica si es producción pero CLOUDFRONT_DOMAIN_NAME no está configurado
+if (
+  env.APP_ENV === 'production' &&
+  (!env.CLOUDFRONT_DOMAIN_NAME || env.CLOUDFRONT_DOMAIN_NAME.trim() === '')
+) {
+  console.warn(
+    'Warning: APP_ENV is "production" but CLOUDFRONT_DOMAIN_NAME is not set. Image URLs will use S3 direct links.'
+  )
+}
 
 export const handler = async (event: any) => {
   try {
@@ -88,12 +121,19 @@ async function listImages(storeId: string, limit: number = 1000, prefix: string 
     // Generar URLs para cada objeto usando CloudFront
     const imagePromises = listResponse.Contents.map(async item => {
       if (!item.Key) return null
-
-      // Omitir objetos de carpeta
       if (item.Key.endsWith('/')) return null
 
-      // Construir la URL de CloudFront
-      const cloudFrontUrl = `${cloudFrontDomain}/${item.Key}`
+      let imageUrl: string
+      const s3Key = item.Key
+
+      if (cloudFrontDomainBase && cloudFrontDomainBase.trim() !== '') {
+        // Usar CloudFront para producción
+        imageUrl = `https://${cloudFrontDomainBase}/${s3Key}`
+      } else {
+        // Fallback a la URL de S3 para otros entornos o si CloudFront no está configurado
+        const regionForS3Url = awsRegion || 'us-east-2'
+        imageUrl = `https://${bucketName}.s3.${regionForS3Url}.amazonaws.com/${s3Key}`
+      }
 
       // Extraer el nombre del archivo de la clave
       const keyParts = item.Key.split('/')
@@ -110,7 +150,7 @@ async function listImages(storeId: string, limit: number = 1000, prefix: string 
 
       return {
         key: item.Key,
-        url: cloudFrontUrl,
+        url: imageUrl, // Usar la URL construida dinámicamente
         filename,
         lastModified: item.LastModified,
         size: item.Size,
@@ -165,13 +205,21 @@ async function uploadImage(
 
     await s3Client.send(putCommand)
 
-    // Construir la URL de CloudFront
-    const cloudFrontUrl = `${cloudFrontDomain}/${key}`
+    let imageUrl: string
+    const s3Key = key
 
-    // Crear un objeto de imagen para devolver
+    if (cloudFrontDomainBase && cloudFrontDomainBase.trim() !== '') {
+      // Usar CloudFront para producción
+      imageUrl = `https://${cloudFrontDomainBase}/${s3Key}`
+    } else {
+      // Fallback a la URL de S3 para otros entornos o si CloudFront no está configurado
+      const regionForS3Url = awsRegion || 'us-east-2'
+      imageUrl = `https://${bucketName}.s3.${regionForS3Url}.amazonaws.com/${s3Key}`
+    }
+
     const image = {
       key,
-      url: cloudFrontUrl,
+      url: imageUrl, // Usar la URL construida dinámicamente
       filename,
       lastModified: new Date(),
       size: buffer.length,
