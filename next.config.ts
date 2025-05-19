@@ -31,8 +31,9 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'cdn.fasttify.com',
+        hostname: '*cdn.fasttify.com',
         port: '',
+        pathname: '/**',
       },
     ],
   },

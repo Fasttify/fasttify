@@ -8,7 +8,7 @@ import { IProduct } from '@/app/store/hooks/useProducts'
  */
 export const exportProductsToCSV = (products: IProduct[], fileName: string): boolean => {
   if (!products || products.length === 0) {
-    console.error('No hay productos para exportar')
+    console.error('There are no products to export')
     return false
   }
 
@@ -126,7 +126,7 @@ export const exportProductsToCSV = (products: IProduct[], fileName: string): boo
 
     return true
   } catch (error) {
-    console.error('Error al exportar productos a CSV:', error)
+    console.error('Error exporting products to CSV:', error)
     return false
   }
 }

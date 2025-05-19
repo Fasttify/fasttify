@@ -5,17 +5,22 @@ import { handleStoreMiddleware } from './middlewares/store'
 import { handleStoreAccessMiddleware } from './middlewares/storeAccess'
 import { handleProductOwnershipMiddleware } from './middlewares/productOwnership'
 import { handleAuthenticatedRedirect } from './middlewares/auth'
+import { handleCollectionOwnership } from './middlewares/collectionOwnership'
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
-  // Verificar propiedad de productos específicos - Corregido el patrón de URL
+  // Verificar propiedad de productos específicos
   if (path.includes('/products/') && path.match(/\/products\/([^\/]+)/)) {
     return handleProductOwnershipMiddleware(request)
   }
+  // verificar propiedad de coleccione especifica
+  if (path.includes('/collection') && path.match(/\/collections\/([^\/]+)/)) {
+    return handleCollectionOwnership(request)
+  }
 
-  // Proteger todas las rutas de tienda
   if (path.match(/^\/store\/[^\/]+/)) {
+    // Proteger todas las rutas de tienda
     return handleStoreAccessMiddleware(request)
   }
 
