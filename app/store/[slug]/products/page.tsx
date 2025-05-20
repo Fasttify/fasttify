@@ -19,7 +19,6 @@ Amplify.configure({
 export default function StoreProductsPage() {
   const pathname = usePathname()
   const params = useParams()
-
   const storeId = getStoreId(params, pathname)
   return <ProductManager storeId={storeId} />
 }

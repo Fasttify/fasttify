@@ -1,6 +1,6 @@
 import { HelpCircle } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { AIGenerateButton } from '../sections/ai-generate-button'
+import { AIGenerateButton } from './ai-generate-button'
 import type { PriceSuggestionResult } from '../hooks/usePriceSuggestion'
 import type { UseFormReturn } from 'react-hook-form'
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'

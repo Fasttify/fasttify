@@ -1,7 +1,9 @@
 'use client'
 
-import { InventoryTracking } from '@/app/store/components/product-management/InventoryTracking'
+import { InventoryManager } from '@/app/store/components/product-management/InventoryManager'
 import { Amplify } from 'aws-amplify'
+import { getStoreId } from '@/utils/store-utils'
+import { useParams, usePathname } from 'next/navigation'
 import outputs from '@/amplify_outputs.json'
 
 Amplify.configure(outputs)
@@ -15,5 +17,8 @@ Amplify.configure({
 })
 
 export default function InventoryPage() {
-  return <InventoryTracking />
+  const pathname = usePathname()
+  const params = useParams()
+  const storeId = getStoreId(params, pathname)
+  return <InventoryManager storeId={storeId} />
 }

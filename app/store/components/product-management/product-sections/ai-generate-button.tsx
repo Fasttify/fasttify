@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { TextShimmer } from '@/app/store/components/product-management/sections/text-shimmer'
+import { TextShimmer } from '@/app/store/components/product-management/product-sections/text-shimmer'
 
 interface AIGenerateButtonProps {
   onClick: () => Promise<void>

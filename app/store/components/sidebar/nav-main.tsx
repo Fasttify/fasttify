@@ -57,11 +57,7 @@ export function NavMain({ items }: NavMainProps) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="font-medium text-gray-800">
-        {isLoading ? (
-          <Skeleton className="w-full h-4" />
-        ) : (
-          <>Mi tienda - {currentStore?.storeName}</>
-        )}
+        {isLoading ? <Skeleton className="w-full h-4" /> : <> {currentStore?.storeName}</>}
       </SidebarGroupLabel>
       <SidebarMenu>
         {items.map(item => {
