@@ -21,11 +21,11 @@ import {
 } from '@/app/store/components/product-management/utils/productUtils'
 import { useUnsavedChangesWarning } from '@/hooks/ui/use-unsaved-changes-warning'
 import { UnsavedChangesAlert } from '@/components/ui/unsaved-changes-alert'
-import { BasicInfoSection } from '@/app/store/components/product-management/sections/basic-info-section'
-import { PricingInventorySection } from '@/app/store/components/product-management/sections/pricing-inventory-section'
-import { ImagesSection } from '@/app/store/components/product-management/sections/images-section'
-import { AttributesSection } from '@/app/store/components/product-management/sections/attributes-section'
-import { PublicationSection } from '@/app/store/components/product-management/sections/publication-section'
+import { BasicInfoSection } from '@/app/store/components/product-management/product-sections/basic-info-section'
+import { PricingInventorySection } from '@/app/store/components/product-management/product-sections/pricing-inventory-section'
+import { ImagesSection } from '@/app/store/components/product-management/product-sections/images-section'
+import { AttributesSection } from '@/app/store/components/product-management/product-sections/attributes-section'
+import { PublicationSection } from '@/app/store/components/product-management/product-sections/publication-section'
 
 interface ProductFormProps {
   storeId: string
@@ -118,10 +118,10 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
         router.push(`/store/${storeId}/products`)
         return
       } else {
-        throw new Error('No se pudo guardar el producto')
+        throw new Error('The product could not be saved')
       }
     } catch (error) {
-      console.error('Error al guardar producto:', error)
+      console.error('The product could not be saved', error)
       toast.error('Error', {
         description: 'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
       })
@@ -160,7 +160,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                   }
                 }
               } catch (error) {
-                console.error('Error al guardar producto:', error)
+                console.error('The product could not be saved', error)
 
                 if (!(error instanceof Error && error.message === 'Validation failed')) {
                   toast.error('Error', {
@@ -190,7 +190,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                     router.push(`/store/${storeId}/products`)
                   }
                 } else {
-                  throw new Error('No se pudo crear el producto')
+                  throw new Error('The product could not be created')
                 }
               } catch (error) {
                 console.error('Error al guardar producto:', error)

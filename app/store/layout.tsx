@@ -27,10 +27,8 @@ Amplify.configure({
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const params = useParams()
-
   const storeId = getStoreId(params, pathname)
   useStore(storeId)
-
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   useEffect(() => {

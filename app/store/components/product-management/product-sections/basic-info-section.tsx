@@ -28,7 +28,7 @@ import { toast } from 'sonner'
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 import { useProductDescription } from '@/app/store/components/product-management/hooks/useProductDescription'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { AIGenerateButton } from '@/app/store/components/product-management/sections/ai-generate-button'
+import { AIGenerateButton } from '@/app/store/components/product-management/product-sections/ai-generate-button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface BasicInfoSectionProps {

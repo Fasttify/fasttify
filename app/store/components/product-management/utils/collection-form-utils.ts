@@ -285,7 +285,7 @@ export const useCollectionForm = ({
         router.push(routes.store.collections(storeId))
         // No desactivamos isSubmitting para mantener el botón deshabilitado hasta la redirección
       } catch (error) {
-        console.error('Error al eliminar la colección:', error)
+        console.error('Error deleting collection:', error)
         toast.error('Ocurrió un error al eliminar la colección')
         setIsSubmitting(false) // Solo desactivamos en caso de error
       }
@@ -323,7 +323,7 @@ export const useCollectionForm = ({
     isSubmitting,
     hasUnsavedChanges,
     selectedProducts,
-    isDataLoaded, // Add this to the returned object
+    isDataLoaded,
 
     // Acciones
     setTitle,
