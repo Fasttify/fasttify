@@ -16,6 +16,10 @@ import type {
   SortField,
   VisibleColumns,
 } from '@/app/store/components/product-management/types/product-types'
+import { getStoreId } from '@/utils/store-utils'
+import { useParams, usePathname } from 'next/navigation'
+import { routes } from '@/utils/routes'
+import Link from 'next/link'
 
 interface ProductTableDesktopProps {
   products: IProduct[]
@@ -40,6 +44,10 @@ export function ProductTableDesktop({
   toggleSort,
   renderSortIndicator,
 }: ProductTableDesktopProps) {
+  const pathname = usePathname()
+  const params = useParams()
+  const storeId = getStoreId(params, pathname)
+
   return (
     <div className="hidden sm:block">
       <Table>
@@ -135,7 +143,11 @@ export function ProductTableDesktop({
                       <Image className="h-4 w-4 text-gray-500" />
                     </div>
                   )}
-                  <span className="font-medium">{product.name}</span>
+                  <Link href={routes.store.products.edit(storeId, product.id)}>
+                    <Button variant="link" className="font-medium text-black">
+                      {product.name}
+                    </Button>
+                  </Link>
                 </div>
               </TableCell>
               {visibleColumns.status && (

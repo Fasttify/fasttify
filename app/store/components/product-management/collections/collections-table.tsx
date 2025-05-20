@@ -47,7 +47,7 @@ export default function CollectionsTable({ collections, storeId }: CollectionsTa
 
                 <TableCell className="p-4">
                   <Link
-                    href={`/store/${storeId}/collections/${collection.id}`}
+                    href={routes.store.products.collectionsEdit(storeId, collection.id)}
                     className="flex items-center gap-2 hover:underline"
                   >
                     <FileText className="h-5 w-5 text-gray-500" />

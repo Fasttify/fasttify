@@ -123,7 +123,7 @@ export async function handleProductCreate(
       return result
     }
 
-    throw new Error('No se pudo crear el producto')
+    throw new Error('The product could not be created')
   } catch (error) {
     console.error('Error in handleProductCreate:', error)
     toast.error('Error', {

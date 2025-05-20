@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookiesClient } from '@/utils/amplify-utils'
-import { getSession } from './auth'
+import { cookiesClient } from '@/utils/AmplifyUtils'
+import { getSession } from '../auth/auth'
 
 /**
- * Middleware para verificar que un usuario solo pueda acceder a productos
+ * Middleware para verificar que un usuario solo pueda acceder a colecciones
  * que pertenecen a la tienda que está visualizando actualmente.
  *
  * Este middleware realiza las siguientes verificaciones:
  * 1. Comprueba si el usuario está autenticado
  * 2. Verifica que el usuario tenga acceso a la tienda (como propietario o colaborador)
- * 3. Para productos existentes, verifica que pertenezcan a la tienda actual
+ * 3. Para colecciones existentes, verifica que pertenezcan a la tienda actual
  * 4. Permite acceso a la ruta "new" si el usuario tiene acceso a la tienda
  *
  * @param request - La solicitud HTTP entrante
  * @returns Respuesta HTTP apropiada según la verificación de propiedad
  */
-export async function handleProductOwnershipMiddleware(request: NextRequest) {
+export async function handleCollectionOwnershipMiddleware(request: NextRequest) {
   // Verificar si esta es una redirección para evitar bucles
   const isRedirect = request.headers.get('x-redirect-check') === 'true'
   if (isRedirect) {
@@ -42,7 +42,6 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
   const currentStoreId = request.cookies.get('currentStore')?.value || storeIdFromUrl
 
   if (!currentStoreId) {
-    // Redirigir a la selección de tienda si no se puede determinar la tienda actual
     const redirectUrl = new URL('/my-store', request.url)
     const response = NextResponse.redirect(redirectUrl)
     response.headers.set('x-redirect-check', 'true')
@@ -51,7 +50,6 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
 
   try {
     // Verificar que el usuario tenga acceso a la tienda
-    // Primero intentamos verificar si es propietario
     const storeResult = await cookiesClient.models.UserStore.get(
       {
         id: currentStoreId,
@@ -63,7 +61,6 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
 
     // Si la tienda no existe o no pertenece al usuario, verificar si es colaborador
     if (!storeResult.data || storeResult.data.userId !== userId) {
-      // Intentar verificar acceso a través de UserStore (para colaboradores)
       const userStoreResult = await cookiesClient.models.UserStore.list({
         filter: {
           storeId: {
@@ -76,7 +73,6 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
         authMode: 'userPool',
       })
 
-      // Si no hay registros de UserStore, el usuario no tiene acceso
       if (!userStoreResult.data || userStoreResult.data.length === 0) {
         const redirectUrl = new URL('/my-store', request.url)
         const response = NextResponse.redirect(redirectUrl)
@@ -85,50 +81,46 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
       }
     }
 
-    // Extraer el ID del producto de la URL
-    const productMatches = path.match(/\/products\/([^\/]+)/)
-    const productId = productMatches ? productMatches[1] : null
+    // Extraer el ID de la colección de la URL
+    const collectionMatches = path.match(/\/collections\/([^\/]+)$/)
+    const collectionId = collectionMatches ? collectionMatches[1] : null
 
-    // Si es la ruta "new", permitir el acceso (ya verificamos que el usuario tiene acceso a la tienda)
-    if (productId === 'new') {
+    // Si es la ruta "new", permitir el acceso
+    if (collectionId === 'new') {
       return NextResponse.next()
     }
 
-    if (!productId) {
+    // Si no hay ID de colección o es una ruta especial, permitir el acceso
+    if (!collectionId) {
       return NextResponse.next()
     }
 
-    // Para productos existentes, verificar que pertenezcan a la tienda actual
-    const { data: product } = await cookiesClient.models.Product.get(
+    // Para colecciones existentes, verificar que pertenezcan a la tienda actual
+    const { data: collection } = await cookiesClient.models.Collection.get(
       {
-        id: productId,
+        id: collectionId,
       },
       {
         authMode: 'userPool',
       }
     )
 
-    // Verificar que el producto exista y pertenezca a la tienda actual
-    if (!product) {
-      // El producto no existe, redirigir a la lista de productos
-      const redirectUrl = new URL(`/store/${currentStoreId}/products`, request.url)
+    if (!collection) {
+      const redirectUrl = new URL(`/store/${currentStoreId}/products/collections`, request.url)
       const response = NextResponse.redirect(redirectUrl)
       response.headers.set('x-redirect-check', 'true')
       return response
     }
 
-    if (product.storeId !== currentStoreId) {
-      // El producto pertenece a otra tienda, denegar acceso
-      const redirectUrl = new URL(`/store/${currentStoreId}/products`, request.url)
+    if (collection.storeId !== currentStoreId) {
+      const redirectUrl = new URL(`/store/${currentStoreId}/products/collections`, request.url)
       const response = NextResponse.redirect(redirectUrl)
       response.headers.set('x-redirect-check', 'true')
       return response
     }
 
-    // El producto pertenece a la tienda actual, continuar con la solicitud
     return NextResponse.next()
   } catch (error) {
-    // Error al verificar el producto o la tienda, redirigir por seguridad
     const redirectUrl = new URL(`/my-store`, request.url)
     const response = NextResponse.redirect(redirectUrl)
     response.headers.set('x-redirect-check', 'true')

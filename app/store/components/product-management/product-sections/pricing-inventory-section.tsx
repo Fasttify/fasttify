@@ -16,7 +16,7 @@ import {
   usePriceSuggestion,
   type PriceSuggestionResult,
 } from '@/app/store/components/product-management/hooks/usePriceSuggestion'
-import { PriceSuggestionPanel } from '@/app/store/components/product-management/sections/price-suggestion-panel'
+import { PriceSuggestionPanel } from '@/app/store/components/product-management/product-sections/price-suggestion-panel'
 import { cn } from '@/lib/utils'
 import CurrencyInput from 'react-currency-input-field'
 
@@ -60,8 +60,8 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
 
           setLocalPriceResult(parsedResult)
         } catch (parseError) {
-          console.error('Error al parsear el resultado:', parseError)
-          throw new Error('El formato de respuesta es inválido')
+          console.error('Error parsing result:', parseError)
+          throw new Error('The response format is invalid')
         }
       } else {
         parsedResult = rawResult
@@ -88,10 +88,10 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
           }
         }
       } else {
-        console.warn('No se recibió un resultado válido de la API')
+        console.warn('No valid result was received from the API')
       }
     } catch (error) {
-      console.error('Error al generar sugerencia de precio:', error)
+      console.error('Error generating price suggestion:', error)
       toast.error('Error', {
         description: 'No se pudo generar la sugerencia de precio. Inténtelo de nuevo más tarde.',
       })
