@@ -1,6 +1,8 @@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import InventoryTableRow, { InventoryRowProps } from './inventory-table-row'
-import { InventoryCardMobile } from './inventory-card-mobile'
+import InventoryTableRow, {
+  InventoryRowProps,
+} from '@/app/store/components/product-management/inventory/inventory-table-row'
+import { InventoryCardMobile } from '@/app/store/components/product-management/inventory/inventory-card-mobile'
 
 interface InventoryTableProps {
   data: InventoryRowProps[]

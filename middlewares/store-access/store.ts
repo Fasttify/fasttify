@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookiesClient } from '@/utils/AmplifyUtils'
-import { getSession } from './auth'
+import { getSession } from '../auth/auth'
 
 const STORE_LIMITS = {
   Imperial: 5,

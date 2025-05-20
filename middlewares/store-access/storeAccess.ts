@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from './auth'
+import { getSession } from '../auth/auth'
 import { cookiesClient } from '@/utils/AmplifyUtils'
 
 /**

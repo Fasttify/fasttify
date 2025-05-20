@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookiesClient } from '@/utils/AmplifyUtils'
-import { getSession } from './auth'
+import { getSession } from '../auth/auth'
 
 /**
  * Middleware para verificar que un usuario solo pueda acceder a productos
@@ -42,7 +42,6 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
   const currentStoreId = request.cookies.get('currentStore')?.value || storeIdFromUrl
 
   if (!currentStoreId) {
-    // Redirigir a la selección de tienda si no se puede determinar la tienda actual
     const redirectUrl = new URL('/my-store', request.url)
     const response = NextResponse.redirect(redirectUrl)
     response.headers.set('x-redirect-check', 'true')
@@ -51,7 +50,6 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
 
   try {
     // Verificar que el usuario tenga acceso a la tienda
-    // Primero intentamos verificar si es propietario
     const storeResult = await cookiesClient.models.UserStore.get(
       {
         id: currentStoreId,
@@ -63,7 +61,6 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
 
     // Si la tienda no existe o no pertenece al usuario, verificar si es colaborador
     if (!storeResult.data || storeResult.data.userId !== userId) {
-      // Intentar verificar acceso a través de UserStore (para colaboradores)
       const userStoreResult = await cookiesClient.models.UserStore.list({
         filter: {
           storeId: {
@@ -76,7 +73,6 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
         authMode: 'userPool',
       })
 
-      // Si no hay registros de UserStore, el usuario no tiene acceso
       if (!userStoreResult.data || userStoreResult.data.length === 0) {
         const redirectUrl = new URL('/my-store', request.url)
         const response = NextResponse.redirect(redirectUrl)
@@ -86,15 +82,19 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
     }
 
     // Extraer el ID del producto de la URL
-    const productMatches = path.match(/\/products\/([^\/]+)/)
+    const productMatches = path.match(/\/products\/([^\/]+)$/)
     const productId = productMatches ? productMatches[1] : null
 
-    // Si es la ruta "new", permitir el acceso (ya verificamos que el usuario tiene acceso a la tienda)
+    // Si es la ruta "new", permitir el acceso
     if (productId === 'new') {
       return NextResponse.next()
     }
 
-    if (!productId) {
+    const excludedRoutes = ['/products/inventory', '/products/collections']
+
+    // Si no hay ID de producto o es una ruta especial, permitir el acceso
+
+    if (!productId || excludedRoutes.some(route => path.includes(route))) {
       return NextResponse.next()
     }
 
@@ -108,9 +108,7 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
       }
     )
 
-    // Verificar que el producto exista y pertenezca a la tienda actual
     if (!product) {
-      // El producto no existe, redirigir a la lista de productos
       const redirectUrl = new URL(`/store/${currentStoreId}/products`, request.url)
       const response = NextResponse.redirect(redirectUrl)
       response.headers.set('x-redirect-check', 'true')
@@ -118,17 +116,14 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
     }
 
     if (product.storeId !== currentStoreId) {
-      // El producto pertenece a otra tienda, denegar acceso
       const redirectUrl = new URL(`/store/${currentStoreId}/products`, request.url)
       const response = NextResponse.redirect(redirectUrl)
       response.headers.set('x-redirect-check', 'true')
       return response
     }
 
-    // El producto pertenece a la tienda actual, continuar con la solicitud
     return NextResponse.next()
   } catch (error) {
-    // Error al verificar el producto o la tienda, redirigir por seguridad
     const redirectUrl = new URL(`/my-store`, request.url)
     const response = NextResponse.redirect(redirectUrl)
     response.headers.set('x-redirect-check', 'true')

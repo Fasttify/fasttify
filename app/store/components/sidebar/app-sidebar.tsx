@@ -55,11 +55,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         items: [
           {
             title: 'Colecciones',
-            url: routes.store.collections(storeId),
+            url: routes.store.products.collections(storeId),
           },
           {
             title: 'Inventario',
-            url: routes.store.inventory(storeId),
+            url: routes.store.products.inventory(storeId),
           },
           {
             title: 'Categorías',
