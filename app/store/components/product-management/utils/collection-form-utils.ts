@@ -264,7 +264,7 @@ export const useCollectionForm = ({
       )
 
       // Redirigir a la lista de colecciones
-      router.push(routes.store.collections(storeId))
+      router.push(routes.store.products.collections(storeId))
       // No desactivamos isSubmitting para mantener el botón deshabilitado hasta la redirección
     } catch (error) {
       console.error('Error al guardar la colección:', error)

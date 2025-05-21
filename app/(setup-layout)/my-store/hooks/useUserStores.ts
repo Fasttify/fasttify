@@ -2,7 +2,9 @@ import { use } from 'react'
 import { generateClient } from 'aws-amplify/data'
 import type { Schema } from '@/amplify/data/resource'
 
-const client = generateClient<Schema>()
+const client = generateClient<Schema>({
+  authMode: 'userPool',
+})
 
 const STORE_LIMITS = {
   Imperial: 5,
@@ -47,13 +49,14 @@ export function getUserStores(userId: string | null, userPlan?: string) {
 async function fetchUserStores(userId: string, userPlan?: string) {
   try {
     // Obtener todas las tiendas del usuario (para verificar límites)
-    const { data: allUserStores } = await client.models.UserStore.list({
-      authMode: 'userPool',
-      filter: {
-        userId: { eq: userId },
+    const { data: allUserStores } = await client.models.UserStore.listUserStoreByUserId(
+      {
+        userId: userId,
       },
-      selectionSet: ['storeId', 'storeName', 'storeType', 'onboardingCompleted'],
-    })
+      {
+        selectionSet: ['storeId', 'storeName', 'storeType', 'onboardingCompleted'],
+      }
+    )
 
     const completedStores = allUserStores || []
 

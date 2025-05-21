@@ -50,28 +50,22 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
 
   try {
     // Verificar que el usuario tenga acceso a la tienda
-    const storeResult = await cookiesClient.models.UserStore.get(
-      {
-        id: currentStoreId,
-      },
-      {
-        authMode: 'userPool',
-      }
-    )
+    const storeResult = await cookiesClient.models.UserStore.get({
+      id: currentStoreId,
+    })
 
     // Si la tienda no existe o no pertenece al usuario, verificar si es colaborador
     if (!storeResult.data || storeResult.data.userId !== userId) {
-      const userStoreResult = await cookiesClient.models.UserStore.list({
-        filter: {
-          storeId: {
-            eq: currentStoreId,
-          },
-          userId: {
-            eq: userId,
-          },
+      const userStoreResult = await cookiesClient.models.UserStore.listUserStoreByUserId(
+        {
+          userId: userId,
         },
-        authMode: 'userPool',
-      })
+        {
+          filter: {
+            storeId: { eq: currentStoreId },
+          },
+        }
+      )
 
       if (!userStoreResult.data || userStoreResult.data.length === 0) {
         const redirectUrl = new URL('/my-store', request.url)
@@ -99,14 +93,9 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
     }
 
     // Para productos existentes, verificar que pertenezcan a la tienda actual
-    const { data: product } = await cookiesClient.models.Product.get(
-      {
-        id: productId,
-      },
-      {
-        authMode: 'userPool',
-      }
-    )
+    const { data: product } = await cookiesClient.models.Product.get({
+      id: productId,
+    })
 
     if (!product) {
       const redirectUrl = new URL(`/store/${currentStoreId}/products`, request.url)

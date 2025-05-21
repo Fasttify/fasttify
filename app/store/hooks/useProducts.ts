@@ -3,7 +3,9 @@ import { generateClient } from 'aws-amplify/api'
 import { getCurrentUser } from 'aws-amplify/auth'
 import type { Schema } from '@/amplify/data/resource'
 
-const client = generateClient<Schema>()
+const client = generateClient<Schema>({
+  authMode: 'userPool',
+})
 
 /**
  * Interfaz para representar un producto
@@ -126,7 +128,7 @@ export function useProducts(
   const queryClient = useQueryClient()
 
   // Valores por defecto para paginación
-  const limit = options?.limit || 60
+  const limit = options?.limit || 10
   const sortDirection = options?.sortDirection || 'DESC'
   const sortField = options?.sortField || 'creationDate'
   const enabled = options?.enabled !== false && !!storeId
@@ -135,12 +137,15 @@ export function useProducts(
   const fetchProductsPage = async ({ pageParam = null }: { pageParam: string | null }) => {
     if (!storeId) throw new Error('Store ID is required')
 
-    const { data, nextToken } = await client.models.Product.list({
-      filter: { storeId: { eq: storeId } },
-      authMode: 'userPool',
-      limit,
-      nextToken: pageParam,
-    })
+    const { data, nextToken } = await client.models.Product.listProductByStoreId(
+      {
+        storeId: storeId,
+      },
+      {
+        limit,
+        nextToken: pageParam,
+      }
+    )
 
     // Ordenamos manualmente los resultados
     const sortedData = [...(data || [])].sort((a, b) => {
@@ -187,16 +192,13 @@ export function useProducts(
     mutationFn: async (productData: ProductCreateInput) => {
       const { username } = await getCurrentUser()
 
-      const { data } = await client.models.Product.create(
-        {
-          ...productData,
-          storeId: storeId || '',
-          owner: username,
-          status: productData.status || 'DRAFT',
-          quantity: productData.quantity || 0,
-        },
-        { authMode: 'userPool' }
-      )
+      const { data } = await client.models.Product.create({
+        ...productData,
+        storeId: storeId || '',
+        owner: username,
+        status: productData.status || 'DRAFT',
+        quantity: productData.quantity || 0,
+      })
 
       return data as IProduct
     },
@@ -229,7 +231,7 @@ export function useProducts(
   // Mutación para actualizar un producto
   const updateProductMutation = useMutation({
     mutationFn: async (productData: ProductUpdateInput) => {
-      const { data } = await client.models.Product.update(productData, { authMode: 'userPool' })
+      const { data } = await client.models.Product.update(productData)
       return data as IProduct
     },
     onSuccess: updatedProduct => {
@@ -259,7 +261,7 @@ export function useProducts(
   // Mutación para eliminar un producto
   const deleteProductMutation = useMutation({
     mutationFn: async (id: string) => {
-      await client.models.Product.delete({ id }, { authMode: 'userPool' })
+      await client.models.Product.delete({ id })
       return id
     },
     onSuccess: deletedId => {
@@ -287,9 +289,7 @@ export function useProducts(
   // Mutación para eliminar múltiples productos
   const deleteMultipleProductsMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      await Promise.all(
-        ids.map(id => client.models.Product.delete({ id }, { authMode: 'userPool' }))
-      )
+      await Promise.all(ids.map(id => client.models.Product.delete({ id })))
       return ids
     },
     onSuccess: deletedIds => {
@@ -352,7 +352,6 @@ export function useProducts(
       // Primero obtenemos todos los productos de la tienda actual
       const { data: storeProducts } = await client.models.Product.list({
         filter: { storeId: { eq: storeId } },
-        authMode: 'userPool',
       })
 
       // Buscamos el producto en los productos de la tienda

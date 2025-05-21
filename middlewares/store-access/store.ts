@@ -16,9 +16,8 @@ async function hasValidPlan(session: any) {
 
 async function checkStoreLimit(userId: string, plan: string) {
   try {
-    const { data: stores } = await cookiesClient.models.UserStore.list({
-      authMode: 'userPool',
-      filter: { userId: { eq: userId } },
+    const { data: stores } = await cookiesClient.models.UserStore.listUserStoreByUserId({
+      userId: userId,
     })
 
     const storeCount = stores?.length || 0

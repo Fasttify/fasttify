@@ -2,8 +2,14 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Icons } from '@/app/store/icons/index'
+import { getStoreId } from '@/utils/store-utils'
+import { useParams, usePathname } from 'next/navigation'
+import { routes } from '@/utils/routes'
 
 export function InventoryPage() {
+  const pathname = usePathname()
+  const params = useParams()
+  const storeId = getStoreId(params, pathname)
   return (
     <div className="bg-gray-100 p-3 w-full md:w-5xl mx-auto mt-8">
       <h1 className="text-xl md:text-xl font-medium text-gray-800 mb-6">Inventario</h1>
@@ -24,7 +30,7 @@ export function InventoryPage() {
         </p>
 
         {/* Botón */}
-        <Link href="/productos">
+        <Link href={routes.store.products.main(storeId)}>
           <Button className="bg-gray-800 hover:bg-gray-700 text-white">Ir a productos</Button>
         </Link>
       </Card>
