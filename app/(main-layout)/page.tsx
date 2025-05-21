@@ -25,14 +25,11 @@ export default function Home() {
         case 'signInWithRedirect':
           const user = await getCurrentUser()
           const userAttributes = await fetchUserAttributes()
-          console.log({ user, userAttributes })
           break
         case 'signInWithRedirect_failure':
-          console.log('error during sign in', Error)
           break
         case 'customOAuthState':
-          const state = payload.data // this will be customState provided on signInWithRedirect function
-          console.log(state)
+          const state = payload.data
           break
       }
     })
