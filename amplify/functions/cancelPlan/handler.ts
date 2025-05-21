@@ -3,7 +3,7 @@ import { Amplify } from 'aws-amplify'
 import { generateClient } from 'aws-amplify/data'
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime'
 import { env } from '$amplify/env/hookPlan'
-import { type Schema } from '../../../data/resource'
+import { type Schema } from '../../data/resource'
 
 // Configurar Amplify para acceso a datos
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
