@@ -2,7 +2,7 @@ import { defineFunction, secret } from '@aws-amplify/backend'
 
 export const webHookPlan = defineFunction({
   name: 'hookPlan',
-  entry: 'src/handler.ts',
+  entry: 'handler.ts',
   resourceGroupName: 'auth',
   environment: {
     MERCADOPAGO_ACCESS_TOKEN: secret('MERCADOPAGO_ACCESS_TOKEN'),
