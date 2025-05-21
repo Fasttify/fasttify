@@ -13,21 +13,21 @@ import { getStoreCollections } from '../functions/getStoreCollections/resource'
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
 
 export const generateHaikuFunction = defineFunction({
-  entry: './generateHaiku.ts',
+  entry: './chat-generate/generateHaiku.ts',
   environment: {
     MODEL_ID,
   },
 })
 
 export const generateProductDescriptionFunction = defineFunction({
-  entry: './generateProductDescription.ts',
+  entry: './description-generate/generateProductDescription.ts',
   environment: {
     MODEL_ID,
   },
 })
 
 export const generatePriceSuggestionFunction = defineFunction({
-  entry: './generatePriceSuggestion.ts',
+  entry: './price-suggestion/generatePriceSuggestion.ts',
   environment: {
     MODEL_ID,
   },
