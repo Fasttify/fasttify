@@ -3,7 +3,9 @@ import { generateClient } from 'aws-amplify/data'
 import type { Schema } from '@/amplify/data/resource'
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 
-const client = generateClient<Schema>()
+const client = generateClient<Schema>({
+  authMode: 'userPool',
+})
 
 // Clave base para las consultas de colecciones
 const COLLECTIONS_KEY = 'collections'
@@ -65,17 +67,14 @@ export const useCollections = () => {
       queryKey: [COLLECTIONS_KEY, id],
       queryFn: async () => {
         // Obtener la colección
-        const collection = await performOperation(() =>
-          client.models.Collection.get({ id }, { authMode: 'userPool' })
-        )
+        const collection = await performOperation(() => client.models.Collection.get({ id }))
 
         // Si la colección existe, obtener sus productos
         if (collection) {
           // Obtener productos de la colección
           const productsData = await performOperation(() =>
-            client.models.Product.list({
-              filter: { collectionId: { eq: id } },
-              authMode: 'userPool',
+            client.models.Product.listProductByCollectionId({
+              collectionId: id,
             })
           )
 
@@ -102,20 +101,23 @@ export const useCollections = () => {
     return useQuery({
       queryKey: [COLLECTIONS_KEY, 'list', storeId],
       queryFn: () => {
-        const filter = storeId ? { storeId: { eq: storeId } } : undefined
+        if (!storeId) {
+          throw new Error('Store ID is required to list collections by store.')
+        }
+
         return performOperation(() =>
-          client.models.Collection.list({
-            filter,
-            authMode: 'userPool',
+          client.models.Collection.listCollectionByStoreId({
+            storeId: storeId,
           })
         )
       },
       staleTime: 5 * 60 * 1000, // 5 minutos en caché
+      enabled: !!storeId,
     })
   }
 
   /**
-   * Obtiene los productos de una colección específica
+   * Obtiene los productos de una colección específica usando el GSI en collectionId
    * @param collectionId - ID de la colección
    * @returns Resultado de la consulta con los productos de la colección
    */
@@ -124,9 +126,8 @@ export const useCollections = () => {
       queryKey: [COLLECTIONS_KEY, collectionId, 'products'],
       queryFn: () => {
         return performOperation(() =>
-          client.models.Product.list({
-            filter: { collectionId: { eq: collectionId } },
-            authMode: 'userPool',
+          client.models.Product.listProductByCollectionId({
+            collectionId: collectionId,
           })
         )
       },
@@ -141,11 +142,7 @@ export const useCollections = () => {
   const useCreateCollection = () => {
     return useMutation({
       mutationFn: (collectionInput: CollectionInput) =>
-        performOperation(() =>
-          client.models.Collection.create(collectionInput, {
-            authMode: 'userPool',
-          })
-        ),
+        performOperation(() => client.models.Collection.create(collectionInput)),
       onSuccess: () => {
         // Invalidar consultas para actualizar la lista
         queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, 'list'] })
@@ -160,15 +157,10 @@ export const useCollections = () => {
     return useMutation({
       mutationFn: ({ id, data }: { id: string; data: Partial<CollectionInput> }) =>
         performOperation(() =>
-          client.models.Collection.update(
-            {
-              id,
-              ...data,
-            },
-            {
-              authMode: 'userPool',
-            }
-          )
+          client.models.Collection.update({
+            id,
+            ...data,
+          })
         ),
       onSuccess: data => {
         // Actualizar la colección en caché
@@ -183,8 +175,7 @@ export const useCollections = () => {
    */
   const useDeleteCollection = () => {
     return useMutation({
-      mutationFn: (id: string) =>
-        performOperation(() => client.models.Collection.delete({ id }, { authMode: 'userPool' })),
+      mutationFn: (id: string) => performOperation(() => client.models.Collection.delete({ id })),
       onSuccess: (_, id) => {
         // Eliminar la colección de la caché
         queryClient.removeQueries({ queryKey: [COLLECTIONS_KEY, id] })
@@ -202,13 +193,10 @@ export const useCollections = () => {
   const addProductToCollection = async (collectionId: string, productId: string) => {
     // Actualizar el producto para asignarle la colección
     return performOperation(() =>
-      client.models.Product.update(
-        {
-          id: productId,
-          collectionId: collectionId,
-        },
-        { authMode: 'userPool' }
-      )
+      client.models.Product.update({
+        id: productId,
+        collectionId: collectionId,
+      })
     )
   }
 
@@ -220,13 +208,10 @@ export const useCollections = () => {
   const removeProductFromCollection = async (productId: string) => {
     // Actualizar el producto para eliminar la referencia a la colección
     return performOperation(() =>
-      client.models.Product.update(
-        {
-          id: productId,
-          collectionId: null, // Eliminar la referencia a la colección
-        },
-        { authMode: 'userPool' }
-      )
+      client.models.Product.update({
+        id: productId,
+        collectionId: null, // Eliminar la referencia a la colección
+      })
     )
   }
 

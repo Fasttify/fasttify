@@ -114,7 +114,7 @@ const schema = a
         onboardingCompleted: a.boolean().required(),
         onboardingData: a.json(),
       })
-      .secondaryIndexes(index => [index('storeId')])
+      .secondaryIndexes(index => [index('userId')])
       .authorization(allow => [allow.authenticated().to(['read', 'update', 'delete', 'create'])]),
 
     Product: a
@@ -142,6 +142,7 @@ const schema = a
         collection: a.belongsTo('Collection', 'collectionId'),
         owner: a.string().required(),
       })
+      .secondaryIndexes(index => [index('storeId'), index('collectionId')])
       .authorization(allow => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.guest().to(['read']),
