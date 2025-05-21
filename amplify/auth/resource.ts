@@ -1,6 +1,5 @@
 import { defineAuth, secret } from '@aws-amplify/backend'
 import { customMessage } from './custom-message/resource'
-import { postAuthentication } from './post-authentication/resource'
 import { webHookPlan } from '../functions/webHookPlan/resource'
 import { postConfirmation } from './post-confirmation/resource'
 import { planScheduler } from '../functions/planScheduler/resource'
@@ -13,7 +12,6 @@ export const auth = defineAuth({
   triggers: {
     customMessage,
     postConfirmation,
-    preTokenGeneration: postAuthentication,
   },
 
   loginWith: {
@@ -89,7 +87,6 @@ export const auth = defineAuth({
   },
 
   access: allow => [
-    allow.resource(postAuthentication).to(['updateUserAttributes']),
     allow.resource(webHookPlan).to(['updateUserAttributes', 'getUser']),
     allow.resource(planScheduler).to(['updateUserAttributes', 'getUser']),
     allow.resource(postConfirmation).to(['updateUserAttributes', 'getUser']),

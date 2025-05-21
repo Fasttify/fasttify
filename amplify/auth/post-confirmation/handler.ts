@@ -36,6 +36,10 @@ export const handler: PostConfirmationTriggerHandler = async event => {
       Username: event.userName,
       UserAttributes: [
         {
+          Name: 'email_verified',
+          Value: 'true',
+        },
+        {
           Name: 'custom:plan',
           Value: 'Royal',
         },
@@ -66,10 +70,10 @@ export const handler: PostConfirmationTriggerHandler = async event => {
         await sendWelcomeEmail(userEmail, trialEndDate)
       }
     } catch (dbError) {
-      console.error('Error creando registro de suscripción en DynamoDB:', dbError)
+      console.error('Error creating subscription record in DynamoDB:', dbError)
     }
   } catch (error) {
-    console.error('Error asignando prueba gratuita al usuario:', error)
+    console.error('Error assigning trial plan to user:', error)
   }
 
   return event

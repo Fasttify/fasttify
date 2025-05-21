@@ -128,7 +128,7 @@ export function useProducts(
   const queryClient = useQueryClient()
 
   // Valores por defecto para paginación
-  const limit = options?.limit || 10
+  const limit = options?.limit || 60
   const sortDirection = options?.sortDirection || 'DESC'
   const sortField = options?.sortField || 'creationDate'
   const enabled = options?.enabled !== false && !!storeId
