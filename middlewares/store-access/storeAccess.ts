@@ -33,14 +33,17 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
 
   try {
     // Verificar si la tienda pertenece al usuario
-    const { data: stores } = await cookiesClient.models.UserStore.list({
-      filter: {
-        userId: { eq: userId as string },
-        storeId: { eq: requestedStoreId },
+    const { data: stores } = await cookiesClient.models.UserStore.listUserStoreByUserId(
+      {
+        userId: userId as string,
       },
-      selectionSet: ['storeId'],
-      authMode: 'userPool',
-    })
+      {
+        filter: {
+          storeId: { eq: requestedStoreId },
+        },
+        selectionSet: ['storeId'],
+      }
+    )
 
     // Si la tienda no pertenece al usuario, redirigir a my-store
     if (!stores || stores.length === 0) {

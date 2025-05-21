@@ -125,8 +125,7 @@ export function ProductList({
         <div className="rounded-md border">
           {loading && (
             <div className="py-8 text-center">
-              <Loader color="white" />
-              <p className="mt-2 text-sm text-muted-foreground">Cargando productos...</p>
+              <Loader color="black" size="large" centered text="Cargando nuevos productos..." />
             </div>
           )}
 
