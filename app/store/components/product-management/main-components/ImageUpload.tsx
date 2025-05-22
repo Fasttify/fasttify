@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import { X, Upload, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { useProductImageUpload } from '@/app/store/hooks/useProductImageUpload'
+import ImageSelectorModal from '@/app/store/components/images-selector/image-selector-modal'
 
 interface ImageFile {
   url: string
@@ -19,74 +19,11 @@ interface ImageUploadProps {
   storeId: string
 }
 
-export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
+export function ImageUpload({ value, onChange }: ImageUploadProps) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [enlargedImage, setEnlargedImage] = useState<ImageFile | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [uploadingFiles, setUploadingFiles] = useState<{ file: File; preview: string }[]>([])
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const { uploadMultipleProductImages, isLoading } = useProductImageUpload()
-
-  useEffect(() => {
-    setIsUploading(isLoading)
-  }, [isLoading])
-
-  const handleFileSelect = async (files: FileList | null) => {
-    if (!files || files.length === 0) return
-
-    setIsUploading(true)
-
-    try {
-      const validFiles = Array.from(files).filter(
-        file => file.type.startsWith('image/') && file.size <= 5242880
-      )
-
-      if (validFiles.length === 0) {
-        return
-      }
-
-      // Crear previsualizaciones inmediatamente y mostrarlas
-      const uploading = validFiles.map(file => ({
-        file,
-        preview: URL.createObjectURL(file),
-      }))
-
-      setUploadingFiles(uploading)
-
-      // Mostrar temporalmente las imágenes en la interfaz mientras se suben
-      const tempImages = uploading.map(item => ({
-        url: item.preview,
-        alt: '',
-        isTemp: true,
-      }))
-
-      // Añadir temporalmente las imágenes a la vista
-      onChange([...value, ...tempImages])
-
-      // Subir las imágenes en segundo plano
-      const uploadedImages = await uploadMultipleProductImages(validFiles, storeId)
-
-      if (uploadedImages.length > 0) {
-        // Reemplazar las imágenes temporales con las reales
-        const newImages = [...value]
-        // Eliminar las imágenes temporales
-        const finalImages = newImages.filter(img => !(img as any).isTemp)
-        // Añadir las imágenes subidas
-        onChange([...finalImages, ...uploadedImages])
-      }
-    } catch (error) {
-      console.error('Error uploading images:', error)
-      // En caso de error, eliminar las imágenes temporales
-      const newImages = [...value]
-      onChange(newImages.filter(img => !(img as any).isTemp))
-    } finally {
-      // Clean up object URLs to avoid memory leaks
-      uploadingFiles.forEach(item => URL.revokeObjectURL(item.preview))
-      setUploadingFiles([])
-      setIsUploading(false)
-    }
-  }
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault()
@@ -112,11 +49,11 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
     setIsDragging(false)
 
     const files = e.dataTransfer.files
-    handleFileSelect(files)
+    setIsModalOpen(true)
   }
 
   const handleButtonClick = () => {
-    fileInputRef.current?.click()
+    setIsModalOpen(true)
   }
 
   const removeImage = (index: number) => {
@@ -131,7 +68,6 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
     onChange(newImages)
   }
 
-  // Funcionalidad para reordenar imágenes
   const handleImageDragStart = (index: number) => {
     setDraggedIndex(index)
   }
@@ -157,13 +93,6 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
     setEnlargedImage(image)
   }
 
-  useEffect(() => {
-    // Clean up object URLs when component unmounts
-    return () => {
-      uploadingFiles.forEach(item => URL.revokeObjectURL(item.preview))
-    }
-  }, [uploadingFiles])
-
   return (
     <div className="space-y-4">
       <div
@@ -177,51 +106,17 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
         onDrop={handleDrop}
         onClick={handleButtonClick}
       >
-        <input
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          accept="image/jpeg,image/png,image/webp,image/jpg"
-          multiple
-          onChange={e => handleFileSelect(e.target.files)}
-          disabled={isUploading}
-        />
         <div className="flex flex-col items-center justify-center gap-2">
           <Upload className="h-10 w-10 text-muted-foreground" />
           <h3 className="font-medium text-lg">Arrastre y suelte imágenes aquí</h3>
           <p className="text-sm text-muted-foreground">
             o haga clic para buscar (máximo 5MB por imagen)
           </p>
-          <Button type="button" variant="secondary" className="mt-2" disabled={isUploading}>
-            {isUploading ? 'Subiendo...' : 'Seleccionar Archivos'}
+          <Button type="button" variant="secondary" className="mt-2" onClick={handleButtonClick}>
+            Seleccionar Archivos
           </Button>
         </div>
       </div>
-
-      {uploadingFiles.length > 0 && (
-        <div className="space-y-4 mt-4">
-          <h3 className="font-medium">Subiendo imágenes ({uploadingFiles.length})</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {uploadingFiles.map((item, index) => (
-              <div key={`uploading-${index}`} className="border rounded-lg p-2 space-y-2">
-                <div className="relative aspect-square rounded-md overflow-hidden bg-muted">
-                  <Image
-                    src={item.preview || '/placeholder.svg'}
-                    alt="Imagen cargando"
-                    fill
-                    className="object-cover opacity-60"
-                  />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 text-white">
-                    <Loader2 className="h-8 w-8 animate-spin mb-2" />
-                    <span className="text-sm font-medium">Subiendo...</span>
-                  </div>
-                </div>
-                <div className="text-xs text-muted-foreground truncate">{item.file.name}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {value.length > 0 && (
         <div className="space-y-4">
@@ -301,6 +196,31 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
           )}
         </DialogContent>
       </Dialog>
+
+      <ImageSelectorModal
+        allowMultipleSelection={true}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSelect={selectedImage => {
+          if (selectedImage) {
+            let imagesToAdd: ImageFile[] = []
+            if (Array.isArray(selectedImage)) {
+              imagesToAdd = selectedImage.map(img => ({
+                url: img.url,
+                alt: '',
+              }))
+            } else {
+              imagesToAdd.push({
+                url: selectedImage.url,
+                alt: '',
+              })
+            }
+            onChange([...value, ...imagesToAdd])
+          }
+          setIsModalOpen(false)
+        }}
+        initialSelectedImage={value.length > 0 ? value[0].url : null}
+      />
     </div>
   )
 }

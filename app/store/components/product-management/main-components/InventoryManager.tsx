@@ -1,8 +1,8 @@
 import { useProducts } from '@/app/store/hooks/useProducts'
-import { InventoryTracking } from './InventoryTracking'
-import { InventoryPage } from './InventoryPage'
+import { InventoryTracking } from '@/app/store/components/product-management/main-components/InventoryTracking'
+import { InventoryPage } from '@/app/store/components/product-management/main-components/InventoryPage'
 import { Loader } from '@/components/ui/loader'
-import { useProductPagination } from './hooks/useProductPagination'
+import { useProductPagination } from '@/app/store/components/product-management/hooks/useProductPagination'
 
 interface InventoryManagerProps {
   storeId: string

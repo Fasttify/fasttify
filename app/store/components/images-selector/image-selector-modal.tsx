@@ -16,8 +16,9 @@ import Image from 'next/image'
 interface ImageSelectorModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSelect?: (image: S3Image | null) => void
+  onSelect?: (images: S3Image | S3Image[] | null) => void
   initialSelectedImage?: string | null
+  allowMultipleSelection?: boolean
 }
 
 export default function ImageSelectorModal({
@@ -25,33 +26,57 @@ export default function ImageSelectorModal({
   onOpenChange,
   onSelect,
   initialSelectedImage = null,
+  allowMultipleSelection = false,
 }: ImageSelectorModalProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [selectedImage, setSelectedImage] = useState<string | null>(initialSelectedImage)
+  const [selectedImage, setSelectedImage] = useState<string | string[] | null>(
+    allowMultipleSelection
+      ? initialSelectedImage
+        ? [initialSelectedImage]
+        : []
+      : initialSelectedImage
+  )
   const [searchTerm, setSearchTerm] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadPreview, setUploadPreview] = useState<string | null>(null)
-  // Usar el hook useS3Images para obtener, cargar y eliminar imágenes
+
   const { images, loading, error, uploadImage, deleteImage } = useS3Images({
     limit: 100,
   })
-  // Filtrar imágenes según el término de búsqueda
   const filteredImages = images.filter(img =>
     img.filename.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   // Manejar la selección de imágenes
   const handleImageSelect = (image: S3Image) => {
-    const newSelectedKey = selectedImage === image.key ? null : image.key
-    setSelectedImage(newSelectedKey)
+    if (allowMultipleSelection) {
+      const selectedKeys = Array.isArray(selectedImage) ? selectedImage : []
+      const isSelected = selectedKeys.includes(image.key)
+      if (isSelected) {
+        setSelectedImage(selectedKeys.filter(key => key !== image.key))
+      } else {
+        setSelectedImage([...selectedKeys, image.key])
+      }
+    } else {
+      const newSelectedKey = selectedImage === image.key ? null : image.key
+      setSelectedImage(newSelectedKey)
+    }
   }
 
   // Manejar la confirmación de selección
   const handleConfirm = () => {
-    const selected = images.find(img => img.key === selectedImage) || null
-    if (onSelect) {
-      onSelect(selected)
+    if (allowMultipleSelection) {
+      const selectedKeys = Array.isArray(selectedImage) ? selectedImage : []
+      const selectedImages = images.filter(img => selectedKeys.includes(img.key))
+      if (onSelect) {
+        onSelect(selectedImages.length > 0 ? selectedImages : null)
+      }
+    } else {
+      const selected = images.find(img => img.key === selectedImage) || null
+      if (onSelect) {
+        onSelect(selected)
+      }
     }
     onOpenChange(false)
   }
@@ -109,6 +134,11 @@ export default function ImageSelectorModal({
 
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         const file = e.dataTransfer.files[0]
+
+        if (!file.type.startsWith('image/')) {
+          console.warn('Dropped file is not an image:', file.type)
+          return
+        }
 
         try {
           const uploadedImage = await uploadImage(file)
@@ -241,16 +271,18 @@ export default function ImageSelectorModal({
               {filteredImages.map((image, index) => (
                 <div
                   key={image.key}
-                  className={`relative border rounded-md overflow-hidden ${
-                    selectedImage === image.key ? 'ring-2 ring-blue-500' : ''
-                  }`}
+                  className={`relative border rounded-md overflow-hidden ${allowMultipleSelection ? (Array.isArray(selectedImage) && selectedImage.includes(image.key) ? 'ring-2 ring-blue-500' : '') : selectedImage === image.key ? 'ring-2 ring-blue-500' : ''}`}
                   onClick={() => handleImageSelect(image)}
                 >
                   <div className="absolute top-2 left-2 z-10">
                     <input
                       type="checkbox"
                       className="h-4 w-4"
-                      checked={selectedImage === image.key}
+                      checked={
+                        allowMultipleSelection
+                          ? Array.isArray(selectedImage) && selectedImage.includes(image.key)
+                          : selectedImage === image.key
+                      }
                       onChange={() => handleImageSelect(image)}
                       onClick={e => e.stopPropagation()}
                     />
@@ -275,10 +307,22 @@ export default function ImageSelectorModal({
                       width={300}
                       height={300}
                       quality={75}
-                      priority={selectedImage === image.key || index < 12}
+                      priority={
+                        allowMultipleSelection
+                          ? Array.isArray(selectedImage) && selectedImage.includes(image.key)
+                          : selectedImage === image.key || index < 12
+                      }
                       className="object-cover w-full h-full hover:scale-105 transition-transform duration-200"
                       style={{ objectFit: 'cover' }}
-                      loading={selectedImage === image.key || index < 12 ? undefined : 'lazy'}
+                      loading={
+                        (
+                          allowMultipleSelection
+                            ? Array.isArray(selectedImage) && selectedImage.includes(image.key)
+                            : selectedImage === image.key || index < 12
+                        )
+                          ? undefined
+                          : 'lazy'
+                      }
                       placeholder="blur"
                       blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PC9zdmc+"
                     />
@@ -301,16 +345,18 @@ export default function ImageSelectorModal({
               {filteredImages.map((image, index) => (
                 <div
                   key={image.key}
-                  className={`flex items-center border rounded-md p-2 ${
-                    selectedImage === image.key ? 'ring-2 ring-blue-500' : ''
-                  }`}
+                  className={`flex items-center border rounded-md p-2 ${allowMultipleSelection ? (Array.isArray(selectedImage) && selectedImage.includes(image.key) ? 'ring-2 ring-blue-500' : '') : selectedImage === image.key ? 'ring-2 ring-blue-500' : ''}`}
                   onClick={() => handleImageSelect(image)}
                 >
                   <div className="mr-2">
                     <input
                       type="checkbox"
                       className="h-4 w-4"
-                      checked={selectedImage === image.key}
+                      checked={
+                        allowMultipleSelection
+                          ? Array.isArray(selectedImage) && selectedImage.includes(image.key)
+                          : selectedImage === image.key
+                      }
                       onChange={() => handleImageSelect(image)}
                       onClick={e => e.stopPropagation()}
                     />
@@ -322,10 +368,22 @@ export default function ImageSelectorModal({
                       width={96}
                       height={96}
                       quality={75}
-                      priority={selectedImage === image.key || index < 20}
+                      priority={
+                        allowMultipleSelection
+                          ? Array.isArray(selectedImage) && selectedImage.includes(image.key)
+                          : selectedImage === image.key || index < 20
+                      }
                       className="object-cover w-full h-full rounded"
                       style={{ objectFit: 'cover' }}
-                      loading={selectedImage === image.key || index < 20 ? undefined : 'lazy'}
+                      loading={
+                        (
+                          allowMultipleSelection
+                            ? Array.isArray(selectedImage) && selectedImage.includes(image.key)
+                            : selectedImage === image.key || index < 20
+                        )
+                          ? undefined
+                          : 'lazy'
+                      }
                       placeholder="blur"
                       blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2YwZjBmMCIvPjwvc3ZnPg=="
                     />

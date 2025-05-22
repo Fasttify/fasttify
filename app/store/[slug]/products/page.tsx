@@ -1,6 +1,6 @@
 'use client'
 
-import { ProductManager } from '@/app/store/components/product-management/ProductManager'
+import { ProductManager } from '@/app/store/components/product-management/main-components/ProductManager'
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname } from 'next/navigation'
 import { Amplify } from 'aws-amplify'
