@@ -20,7 +20,6 @@ Amplify.configure({
   },
 })
 
-// Client component that uses search params
 function AccountSettingsContent() {
   const searchParams = useSearchParams()
   const sectionParam = searchParams.get('section')
@@ -32,7 +31,6 @@ function AccountSettingsContent() {
   )
 
   useEffect(() => {
-    // Update view when URL parameter changes
     if (sectionParam && ['cuenta', 'pagos', 'sesiones'].includes(sectionParam)) {
       if (isGoogleUser && sectionParam === 'sesiones') {
         setCurrentView('cuenta')
@@ -43,7 +41,7 @@ function AccountSettingsContent() {
   }, [sectionParam, isGoogleUser])
 
   useEffect(() => {
-    document.title = 'Mi Perfil • Fasttify'
+    document.title = 'Mi Perfil | Fasttify'
   }, [])
 
   return (

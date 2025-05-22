@@ -107,7 +107,6 @@ export function PricingCard({ plan }: PricingCardProps) {
     }
   }, [isSubmitting])
 
-  // Render a skeleton or placeholder during SSR or when loading
   if (!isClient || loading) {
     return <LoadingIndicator text="Cargando..." />
   }

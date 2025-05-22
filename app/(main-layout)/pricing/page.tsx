@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { PricingCard } from '@/app/(main-layout)/pricing/components/PricingCard'
 import { Footer } from '@/app/(main-layout)/landing/components/Footer'
@@ -22,10 +21,6 @@ Amplify.configure({
 })
 
 export default function PricingPage() {
-  useEffect(() => {
-    document.title = 'Planes y Pagos • Fasttify'
-  }, [])
-
   return (
     <>
       <div className="min-h-screen p-8">

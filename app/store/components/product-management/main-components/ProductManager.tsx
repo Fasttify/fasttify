@@ -1,7 +1,7 @@
 import { useProducts } from '@/app/store/hooks/useProducts'
-import { ProductForm } from '@/app/store/components/product-management/ProductForm'
-import { ProductList } from '@/app/store/components/product-management/ProductList'
-import { ProductsPage } from '@/app/store/components/product-management/ProductPage'
+import { ProductForm } from '@/app/store/components/product-management/main-components/ProductForm'
+import { ProductList } from '@/app/store/components/product-management/main-components/ProductList'
+import { ProductsPage } from '@/app/store/components/product-management/main-components/ProductPage'
 import { Loader } from '@/components/ui/loader'
 
 interface ProductManagerProps {

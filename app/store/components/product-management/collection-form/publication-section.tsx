@@ -2,10 +2,7 @@ import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 
 // Añadir props para isActive y onActiveChange
-export function PublicationSection({
-  isActive = true,
-  onActiveChange,
-}: {
+export function PublicationSection({}: {
   isActive?: boolean
   onActiveChange: (isActive: boolean) => void
 }) {
