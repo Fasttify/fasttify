@@ -17,7 +17,6 @@ Amplify.configure({
   },
 })
 
-// Añadir props para imageUrl y onImageChange
 export function ImageSection({
   imageUrl = '',
   onImageChange,
@@ -37,7 +36,7 @@ export function ImageSection({
         key: imageUrl,
         url: imageUrl,
         filename: imageUrl.split('/').pop() || 'imagen',
-        type: 'image/jpeg',
+        type: 'image/',
         size: 0,
         lastModified: new Date(),
       })
@@ -123,8 +122,9 @@ export function ImageSection({
       <ImageSelectorModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        onSelect={handleImageSelect}
+        onSelect={handleImageSelect as (images: S3Image | S3Image[] | null) => void}
         initialSelectedImage={selectedImage?.key}
+        allowMultipleSelection={false}
       />
     </div>
   )

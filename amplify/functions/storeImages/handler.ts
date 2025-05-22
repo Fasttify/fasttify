@@ -64,7 +64,7 @@ export const handler = async (event: any) => {
     // Manejar diferentes acciones
     switch (action) {
       case 'list':
-        return await listImages(storeId, body.limit, body.prefix)
+        return await listImages(storeId, body.limit, body.prefix, body.continuationToken)
       case 'upload':
         return await uploadImage(storeId, body.filename, body.contentType, body.fileContent)
       case 'delete':
@@ -93,7 +93,12 @@ export const handler = async (event: any) => {
 }
 
 // Función para listar imágenes
-async function listImages(storeId: string, limit: number = 1000, prefix: string = '') {
+async function listImages(
+  storeId: string,
+  limit: number = 18,
+  prefix: string = '',
+  continuationToken?: string
+) {
   try {
     // Configurar el prefijo para las imágenes de la tienda
     const storePrefix = prefix ? `products/${storeId}/${prefix}` : `products/${storeId}/`
@@ -103,6 +108,7 @@ async function listImages(storeId: string, limit: number = 1000, prefix: string 
       Bucket: bucketName,
       Prefix: storePrefix,
       MaxKeys: limit,
+      ContinuationToken: continuationToken,
     })
 
     const listResponse = await s3Client.send(listCommand)
@@ -163,7 +169,10 @@ async function listImages(storeId: string, limit: number = 1000, prefix: string 
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ images: validImages }),
+      body: JSON.stringify({
+        images: validImages,
+        nextContinuationToken: listResponse.NextContinuationToken,
+      }),
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',

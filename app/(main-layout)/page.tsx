@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth'
-import { ConsoleLogger, Hub } from 'aws-amplify/utils'
+import { Hub } from 'aws-amplify/utils'
 import { Amplify } from 'aws-amplify'
 import 'aws-amplify/auth/enable-oauth-listener'
 import DocsLanding from '@/app/(main-layout)/landing/components/DocsLanding'

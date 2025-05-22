@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { uploadData } from 'aws-amplify/storage'
 import { Amplify } from 'aws-amplify'
 import { v4 as uuidv4 } from 'uuid'
-import { getCurrentUser } from 'aws-amplify/auth'
 import outputs from '@/amplify_outputs.json'
 
 Amplify.configure(outputs)
@@ -38,13 +37,10 @@ export function useProductImageUpload() {
     try {
       // Generar un UUID único para el archivo
       const uniqueFileName = `${uuidv4()}-${file.name.replace(/\s+/g, '-')}`
-      // Obtener el usuario actual para usar su ID en la ruta
-      const user = await getCurrentUser()
-      const userId = user.userId
 
       // Subir la imagen al bucket correcto
       const result = await uploadData({
-        path: `products/${userId}/${uniqueFileName}`,
+        path: `products/${storeId}/${uniqueFileName}`,
         options: {
           bucket: 'fasttifyAssets',
           contentType: file.type,

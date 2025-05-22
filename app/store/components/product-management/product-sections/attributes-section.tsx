@@ -1,5 +1,5 @@
 import type { UseFormReturn } from 'react-hook-form'
-import { AttributesForm } from '@/app/store/components/product-management/AttributesForm'
+import { AttributesForm } from '@/app/store/components/product-management/main-components/AttributesForm'
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 
 interface AttributesSectionProps {

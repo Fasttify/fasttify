@@ -1,5 +1,5 @@
-import { AuthForm } from '@/app/(setup-layout)/login/AuthForm'
-import ImageSlider from '@/app/(setup-layout)/login/components/ImageSlider'
+import { AuthForm } from '@/app/(setup-layout)/login/components/main-components/AuthForm'
+import ImageSlider from '@/app/(setup-layout)/login/components/main-components/ImageSlider'
 
 const LoginPage = () => {
   return (

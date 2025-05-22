@@ -1,5 +1,5 @@
 import type { UseFormReturn } from 'react-hook-form'
-import { ImageUpload } from '@/app/store/components/product-management/ImageUpload'
+import { ImageUpload } from '@/app/store/components/product-management/main-components/ImageUpload'
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 
 interface ImagesSectionProps {
