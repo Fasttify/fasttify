@@ -1,3 +1,5 @@
+'use client'
+
 import { AuthForm } from '@/app/(setup-layout)/login/components/main-components/AuthForm'
 import ImageSlider from '@/app/(setup-layout)/login/components/main-components/ImageSlider'
 
