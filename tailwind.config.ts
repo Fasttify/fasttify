@@ -9,9 +9,8 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
     './app/**/*.{js,ts,jsx,tsx}',
-    './node_modules/@medusajs/ui/dist/**/*.{js,jsx,ts,tsx}',
   ],
-  presets: [require('@medusajs/ui-preset')],
+
   theme: {
     container: {
       center: true,
