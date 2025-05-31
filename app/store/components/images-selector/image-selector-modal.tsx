@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
-import { Search, Grid, List, Upload, Trash2 } from 'lucide-react'
+import { Search, Grid, List, Upload } from 'lucide-react'
 import { Loader } from '@/components/ui/loader'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -206,11 +206,10 @@ export default function ImageSelectorModal({
     e.preventDefault()
   }, [])
 
-  // Handle scroll to fetch more images
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.target as HTMLDivElement
-    // Check if scrolled to the bottom (within a threshold)
-    const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100 // 100px threshold
+
+    const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100
 
     if (isAtBottom && nextContinuationToken && !loadingMore && !loading) {
       fetchMoreImages()

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { plusJakartaSans } from '@/config/fonts'
+import { inter } from '@/config/fonts'
 import { ReactQueryProvider } from '@/utils/ReactQueryProvider'
 import { Toaster } from '@/components/ui/sonner'
 import { Amplify } from 'aws-amplify'
@@ -55,16 +55,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={plusJakartaSans.className}>
+      <body className={inter.className}>
         <ConfigureAmplifyClientSide />
         <ReactQueryProvider>{children}</ReactQueryProvider>
-        <Toaster
-          toastOptions={{
-            classNames: {
-              description: '!important',
-            },
-          }}
-        />
+        <Toaster position="top-center" />
       </body>
     </html>
   )

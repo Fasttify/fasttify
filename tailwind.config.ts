@@ -9,9 +9,8 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
     './app/**/*.{js,ts,jsx,tsx}',
-    './node_modules/@medusajs/ui/dist/**/*.{js,jsx,ts,tsx}',
   ],
-  presets: [require('@medusajs/ui-preset')],
+
   theme: {
     container: {
       center: true,
@@ -79,8 +78,14 @@ module.exports = {
       },
       keyframes: {
         pulse: {
-          '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
-          '50%': { opacity: '0.8', transform: 'scale(1.05)' },
+          '0%, 100%': {
+            opacity: '0.5',
+            transform: 'scale(1)',
+          },
+          '50%': {
+            opacity: '0.8',
+            transform: 'scale(1.05)',
+          },
         },
         moveHorizontal: {
           '0%': {
