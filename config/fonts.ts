@@ -1,6 +1,6 @@
-import { Plus_Jakarta_Sans } from 'next/font/google'
+import { Inter } from 'next/font/google'
 
-export const plusJakartaSans = Plus_Jakarta_Sans({
+export const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '700'],
   display: 'swap',
