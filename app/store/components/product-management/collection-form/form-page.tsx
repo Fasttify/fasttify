@@ -199,7 +199,7 @@ export function FormPage() {
               onClick={handleDeleteCollection}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Eliminando...' : 'Eliminar colección'}
+              {isSubmitting ? 'Eliminar colección' : 'Eliminar colección'}
             </Button>
           )}
           <Button

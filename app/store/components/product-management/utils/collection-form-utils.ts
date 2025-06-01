@@ -113,7 +113,6 @@ export const useCollectionForm = ({
         setInitialSelectedProducts(collectionData.products)
       }
 
-      // Mark data as loaded
       setIsDataLoaded(true)
     } else if (!isEditing) {
       // Para nueva colección, establecer valores por defecto
@@ -126,14 +125,12 @@ export const useCollectionForm = ({
         imageUrl: '',
       })
 
-      // Mark data as loaded for new collections too
       setIsDataLoaded(true)
     }
   }, [isEditing, collectionData])
 
   // Detectar cambios en el formulario
   useEffect(() => {
-    // Only check for changes if data is loaded and not submitting
     if (isDataLoaded && !isSubmitting) {
       const currentState = {
         title,
@@ -166,7 +163,7 @@ export const useCollectionForm = ({
     initialFormState,
     initialSelectedProducts,
     isSubmitting,
-    isDataLoaded, // Add this dependency
+    isDataLoaded,
   ])
 
   // Función para añadir un producto a la selección
@@ -191,7 +188,7 @@ export const useCollectionForm = ({
 
   // Función para guardar la colección
   const handleSaveCollection = async () => {
-    if (!currentStore?.id || !user?.userId) {
+    if (!currentStore?.storeId || !user?.userId) {
       toast.error('No se pudo identificar la tienda o el usuario')
       return
     }
@@ -282,7 +279,7 @@ export const useCollectionForm = ({
       try {
         await deleteCollection.mutateAsync(collectionId)
         toast.success('Colección eliminada correctamente')
-        router.push(routes.store.collections(storeId))
+        router.push(routes.store.products.collections(storeId))
         // No desactivamos isSubmitting para mantener el botón deshabilitado hasta la redirección
       } catch (error) {
         console.error('Error deleting collection:', error)
