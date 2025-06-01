@@ -76,7 +76,7 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
         return
       }
 
-      if (currentStore?.id) {
+      if (currentStore?.storeId) {
         try {
           const encryptedKey = await encryptApiKey(
             apiKey,
@@ -94,7 +94,7 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
 
           // Actualizamos la tienda con la API Key encriptada de Master Shop
           const result = await updateUserStore({
-            id: currentStore.id,
+            storeId: currentStore.storeId,
             mastershopApiKey: encryptedKey,
           })
 
@@ -102,7 +102,7 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
             setStatus('success')
             setStep(3)
 
-            checkMasterShopApiKey(currentStore.id)
+            checkMasterShopApiKey(currentStore.storeId)
           } else {
             setStatus('error')
             setErrorMessage('No se pudo guardar la configuración. Por favor intenta nuevamente.')
