@@ -3,11 +3,10 @@ name: Formateo con Prettier
 on:
   push:
     branches:
-      - '*' # Cualquier rama
+      - 'main' # Cualquier rama
   pull_request:
     branches:
-      - main
-      - dev
+      - 'main'
 
 permissions:
   contents: write # Permite que la acción haga push de los cambios
