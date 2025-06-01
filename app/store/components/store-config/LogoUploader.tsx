@@ -72,7 +72,7 @@ export function LogoUploader() {
       return
     }
 
-    if (!currentStore || !currentStore.id) {
+    if (!currentStore || !currentStore.storeId) {
       toast.error('No se pudo identificar la tienda', {
         description: 'Intenta recargar la página',
       })
@@ -84,7 +84,7 @@ export function LogoUploader() {
       if (result) {
         // Actualizar la URL del logo en la base de datos
         const updateResult = await updateUserStore({
-          id: currentStore.id,
+          storeId: currentStore.storeId,
           storeLogo: result.url,
         })
 
@@ -119,7 +119,7 @@ export function LogoUploader() {
       return
     }
 
-    if (!currentStore || !currentStore.id) {
+    if (!currentStore || !currentStore.storeId) {
       toast.error('No se pudo identificar la tienda', {
         description: 'Intenta recargar la página',
       })
@@ -131,7 +131,7 @@ export function LogoUploader() {
       if (result) {
         // Actualizar la URL del favicon en la base de datos
         const updateResult = await updateUserStore({
-          id: currentStore.id,
+          storeId: currentStore.storeId,
           storeFavicon: result.url,
         })
 

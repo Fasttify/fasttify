@@ -67,7 +67,7 @@ export function ChangeDomainDialog({
       const fullDomain = `${domainName.trim()}.fasttify.com`
 
       const result = await updateUserStore({
-        id: storeId,
+        storeId: storeId,
         customDomain: fullDomain,
       })
 

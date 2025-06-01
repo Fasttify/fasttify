@@ -82,6 +82,7 @@ const schema = a
         lastFourDigits: a.integer(),
       })
       .identifier(['id'])
+      .secondaryIndexes(index => [index('userId')])
       .authorization(allow => [
         allow.ownerDefinedIn('userId').to(['read', 'update', 'delete']),
         allow.authenticated().to(['create']),
@@ -114,7 +115,8 @@ const schema = a
         onboardingCompleted: a.boolean().required(),
         onboardingData: a.json(),
       })
-      .secondaryIndexes(index => [index('userId')])
+      .identifier(['storeId'])
+      .secondaryIndexes(index => [index('userId'), index('customDomain'), index('storeName')])
       .authorization(allow => [allow.authenticated().to(['read', 'update', 'delete', 'create'])]),
 
     Product: a

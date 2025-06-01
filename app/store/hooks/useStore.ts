@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import useStoreDataStore from '@/context/core/storeDataStore'
+import useUserStore from '@/context/core/userStore'
 
 interface UseStoreReturn {
   store: any
@@ -10,8 +11,9 @@ interface UseStoreReturn {
 /**
  * Hook para obtener y gestionar los datos de una tienda
  */
-export function useStore(storeId: string | null): UseStoreReturn {
+export function useStore(storeId: string): UseStoreReturn {
   const { currentStore, isLoading, error, fetchStoreData } = useStoreDataStore()
+  const { user } = useUserStore()
   const [isClient, setIsClient] = useState(false)
 
   // Efecto para manejar la hidratación del cliente
@@ -21,10 +23,10 @@ export function useStore(storeId: string | null): UseStoreReturn {
 
   // Efecto para cargar los datos de la tienda
   useEffect(() => {
-    if (storeId && isClient) {
-      fetchStoreData(storeId)
+    if (storeId && user?.userId && isClient) {
+      fetchStoreData(storeId, user.userId)
     }
-  }, [storeId, isClient, fetchStoreData])
+  }, [storeId, user?.userId, isClient, fetchStoreData])
 
   return {
     store: currentStore,

@@ -107,7 +107,7 @@ export const handleStoreProfileSubmit = async (
 
   try {
     const result = await updateUserStore({
-      id: storeId,
+      storeId: storeId,
       storeName: data.storeName.trim(),
       contactEmail: data.storeEmail?.trim() || '',
       contactPhone: Number(data.storePhone?.trim()) || 0,

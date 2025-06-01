@@ -1,42 +1,14 @@
 import { useState } from 'react'
 import { generateClient } from 'aws-amplify/data'
 import type { Schema } from '@/amplify/data/resource'
+import useUserStore from '@/context/core/userStore'
 
-// Generamos el cliente a partir del schema definido en el backend
-const client = generateClient<Schema>()
+const client = generateClient<Schema>({
+  authMode: 'userPool',
+})
 
 // Definición del input para UserStore
-export interface UserStoreInput {
-  userId: string // ID del usuario (dueño de la tienda)
-  storeId: string // ID único de la tienda
-  storeName: string // Nombre de la tienda
-  storeDescription?: string // Descripción opcional
-  storeCurrency?: string // Moneda de la tienda
-  storeLogo?: string // URL de la imagen del logo
-  storeFavicon?: string // URL de la imagen del favicon
-  storeTheme?: string // Tema de la tienda (opcional)
-  storeBanner?: string // URL de la imagen del banner
-  storeType?: string // Tipo de tienda
-  storeStatus?: string // Estado de la tienda
-  storePolicy?: string // Política de la tienda
-  storeAdress?: string // Dirección de la tienda
-  contactEmail?: string
-  contactPhone?: number
-  contactName?: string
-  contactIdentification?: string
-  contactIdentificationType?: string
-  wompiConfig?: any // Configuración de wonpi en formato JSON
-  mercadoPagoConfig?: any // Configuración de mercado pago en formato JSON
-  mastershopApiKey?: string // Clave API de Mastershop
-  customDomain?: string // Dominio propio a asignar (opcional)
-  onboardingCompleted: boolean
-  onboardingData?: any
-}
-
-// Definimos el tipo de autorización a usar
-export interface AuthMode {
-  authMode: 'userPool'
-}
+export type UserStore = Schema['UserStore']['type']
 
 // Tipo para pasarelas de pago
 export type PaymentGatewayType = 'mercadoPago' | 'wompi'
@@ -49,12 +21,10 @@ export interface PaymentGatewayConfig {
   createdAt: string
 }
 
-// Valor por defecto de autorización
-const defaultAuth: AuthMode = { authMode: 'userPool' }
-
 export const useUserStoreData = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<any>(null)
+  const { user } = useUserStore()
 
   /**
    * Función auxiliar que ejecuta una operación y gestiona loading y error.
@@ -80,78 +50,70 @@ export const useUserStoreData = () => {
   }
 
   /**
-   * Obtiene el ID del registro y la información de pasarelas de pago configuradas
+   * Obtiene la información de pasarelas de pago configuradas
    * para una tienda específica sin traer datos sensibles.
    * @param storeId - ID único de la tienda
-   * @param auth - Modo de autenticación
-   * @returns Objeto con el ID del registro y un array de pasarelas configuradas
+   * @returns Array de pasarelas configuradas
    */
   const getStorePaymentInfo = async (
-    storeId: string,
-    auth: AuthMode = defaultAuth
+    storeId: string
   ): Promise<{
-    id: string | null
     configuredGateways: PaymentGatewayType[]
   }> => {
     try {
       setLoading(true)
       setError(null)
 
-      // Primero obtenemos el ID del registro
-      const idResult = await client.models.UserStore.list({
-        filter: { storeId: { eq: storeId } },
-        selectionSet: ['id'],
-        authMode: auth.authMode,
-      })
-
-      if (idResult.errors && idResult.errors.length > 0) {
-        setError(idResult.errors)
-        return { id: null, configuredGateways: [] }
+      if (!user?.userId) {
+        setError('User not authenticated')
+        return { configuredGateways: [] }
       }
 
-      if (idResult.data && idResult.data.length > 0) {
-        const storeId = idResult.data[0].id
-        const configuredGateways: PaymentGatewayType[] = []
+      const configuredGateways: PaymentGatewayType[] = []
 
-        // Verificamos si existe configuración de Wompi
-        const wompiResult = await client.models.UserStore.list({
+      // Verificamos si existe configuración de Wompi
+      const wompiResult = await client.models.UserStore.listUserStoreByUserId(
+        {
+          userId: user.userId,
+        },
+        {
           filter: {
-            id: { eq: storeId },
+            storeId: { eq: storeId },
             wompiConfig: { attributeExists: true },
           },
-          selectionSet: ['id'],
-          authMode: auth.authMode,
-        })
+          selectionSet: ['storeId'],
+        }
+      )
 
-        // Verificamos si existe configuración de MercadoPago
-        const mercadoPagoResult = await client.models.UserStore.list({
+      // Verificamos si existe configuración de MercadoPago
+      const mercadoPagoResult = await client.models.UserStore.listUserStoreByUserId(
+        {
+          userId: user.userId,
+        },
+        {
           filter: {
-            id: { eq: storeId },
+            storeId: { eq: storeId },
             mercadoPagoConfig: { attributeExists: true },
           },
-          selectionSet: ['id'],
-          authMode: auth.authMode,
-        })
-
-        // Agregamos las pasarelas configuradas al array
-        if (wompiResult.data && wompiResult.data.length > 0) {
-          configuredGateways.push('wompi')
+          selectionSet: ['storeId'],
         }
+      )
 
-        if (mercadoPagoResult.data && mercadoPagoResult.data.length > 0) {
-          configuredGateways.push('mercadoPago')
-        }
-
-        return {
-          id: storeId,
-          configuredGateways,
-        }
+      // Agregamos las pasarelas configuradas al array
+      if (wompiResult.data && wompiResult.data.length > 0) {
+        configuredGateways.push('wompi')
       }
 
-      return { id: null, configuredGateways: [] }
+      if (mercadoPagoResult.data && mercadoPagoResult.data.length > 0) {
+        configuredGateways.push('mercadoPago')
+      }
+
+      return {
+        configuredGateways,
+      }
     } catch (err) {
       setError(err)
-      return { id: null, configuredGateways: [] }
+      return { configuredGateways: [] }
     } finally {
       setLoading(false)
     }
@@ -161,54 +123,84 @@ export const useUserStoreData = () => {
    * Configura una pasarela de pago para una tienda específica.
    */
   const configurePaymentGateway = async (
-    storeRecordId: string,
+    storeId: string,
     gateway: PaymentGatewayType,
     config: any,
-    convertToJson: boolean = false,
-    auth: AuthMode = defaultAuth
+    convertToJson: boolean = false
   ): Promise<boolean> => {
-    if (!storeRecordId) {
-      setError('ID de registro no proporcionado')
+    if (!storeId || !user?.userId) {
+      setError('Store ID or User ID not provided')
       return false
     }
 
-    // Convertir a JSON si es necesario
-    const configValue = convertToJson ? JSON.stringify(config) : config
+    try {
+      // Primero obtenemos el registro existente
+      const existingStoreResult = await client.models.UserStore.listUserStoreByUserId(
+        {
+          userId: user.userId,
+        },
+        {
+          filter: {
+            storeId: { eq: storeId },
+          },
+          selectionSet: ['storeId'],
+        }
+      )
 
-    const updatePayload = {
-      id: storeRecordId,
-      ...(gateway === 'mercadoPago'
-        ? { mercadoPagoConfig: configValue }
-        : { wompiConfig: configValue }),
+      if (!existingStoreResult.data || existingStoreResult.data.length === 0) {
+        setError('Store not found')
+        return false
+      }
+
+      // Convertir a JSON si es necesario
+      const configValue = convertToJson ? JSON.stringify(config) : config
+
+      // El payload de update NO debe incluir el identificador (storeId)
+      // Solo los campos que queremos actualizar
+      const updatePayload = {
+        ...(gateway === 'mercadoPago'
+          ? { mercadoPagoConfig: configValue }
+          : { wompiConfig: configValue }),
+      }
+
+      // Para el update, necesitamos pasar el identificador por separado
+      const result = await performOperation(() =>
+        client.models.UserStore.update({
+          storeId: storeId, // Este es el identificador
+          ...updatePayload, // Estos son los campos a actualizar
+        })
+      )
+
+      return result !== null
+    } catch (err) {
+      setError(err)
+      return false
     }
-
-    const result = await performOperation(() => client.models.UserStore.update(updatePayload, auth))
-
-    return result !== null
   }
 
   /**
    * Crea una tienda (UserStore) en la base de datos.
    */
-  const createUserStore = async (storeInput: UserStoreInput, auth: AuthMode = defaultAuth) => {
-    return performOperation(() => client.models.UserStore.create(storeInput, auth))
+  const createUserStore = async (
+    storeInput: Omit<Schema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>
+  ) => {
+    return performOperation(() => client.models.UserStore.create(storeInput))
   }
 
   /**
    * Actualiza los datos de una tienda.
    */
   const updateUserStore = async (
-    storeInput: Partial<UserStoreInput> & { id: string },
-    auth: AuthMode = defaultAuth
+    storeInput: Omit<Partial<UserStore>, 'id' | 'createdAt' | 'updatedAt'> & { storeId: string }
   ) => {
-    return performOperation(() => client.models.UserStore.update(storeInput, auth))
+    return performOperation(() => client.models.UserStore.update(storeInput))
   }
 
   /**
-   * Elimina una tienda a partir de su 'id'.
+   * Elimina una tienda a partir de su 'storeId'.
    */
-  const deleteUserStore = async (id: string, auth: AuthMode = defaultAuth) => {
-    return performOperation(() => client.models.UserStore.delete({ id }, auth))
+  const deleteUserStore = async (storeId: string) => {
+    return performOperation(() => client.models.UserStore.delete({ storeId }))
   }
 
   return {

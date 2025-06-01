@@ -61,7 +61,6 @@ export function NavMain({ items }: NavMainProps) {
       </SidebarGroupLabel>
       <SidebarMenu>
         {items.map(item => {
-          // Check if this item is active based on the current path
           const isItemActive = item.url && pathname.startsWith(item.url)
           const hasActiveChild = item.items?.some(subItem => pathname === subItem.url)
 

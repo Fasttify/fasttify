@@ -4,7 +4,6 @@ import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtim
 import { env } from '$amplify/env/getStoreData'
 import { type Schema } from '../../data/resource'
 
-// Lazy-load del cliente para evitar reconfiguración en cada invocación
 let clientSchema: ReturnType<typeof generateClient<Schema>> | null = null
 
 const initializeClient = async () => {
@@ -16,9 +15,9 @@ const initializeClient = async () => {
   return clientSchema
 }
 export const handler = async (event: any) => {
-  const storeId = event.queryStringParameters?.storeId
+  const storeName = event.queryStringParameters?.storeName
 
-  if (!storeId) {
+  if (!storeName) {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: 'Store ID is required' }),
@@ -31,12 +30,8 @@ export const handler = async (event: any) => {
 
   try {
     const client = await initializeClient()
-    const { data: store } = await client.models.UserStore.list({
-      filter: {
-        storeId: {
-          eq: storeId,
-        },
-      },
+    const { data: store } = await client.models.UserStore.listUserStoreByStoreName({
+      storeName: storeName,
     })
 
     if (!store) {

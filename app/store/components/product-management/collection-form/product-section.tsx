@@ -173,7 +173,9 @@ export function ProductSection({
                       src={
                         typeof product.images === 'string'
                           ? JSON.parse(product.images)[0]?.url
-                          : product.images[0]?.url
+                          : Array.isArray(product.images)
+                            ? product.images[0]?.url
+                            : undefined
                       }
                       alt={product.name}
                       className="w-8 h-8 object-cover rounded"
@@ -254,7 +256,9 @@ export function ProductSection({
                         src={
                           typeof product.images === 'string'
                             ? JSON.parse(product.images)[0]?.url
-                            : product.images[0]?.url
+                            : Array.isArray(product.images)
+                              ? product.images[0]?.url
+                              : undefined
                         }
                         alt={product.name}
                         className="w-8 h-8 object-cover rounded"

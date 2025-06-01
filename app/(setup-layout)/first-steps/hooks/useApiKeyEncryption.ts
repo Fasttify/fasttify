@@ -59,7 +59,7 @@ export function useApiKeyEncryption() {
 
       return null
     } catch (error) {
-      console.error('Error encriptando clave API:', error)
+      console.error('Error encrypting API key:', error)
       return null
     } finally {
       setIsEncrypting(false)

@@ -2,17 +2,12 @@ import { create } from 'zustand'
 import { generateClient } from 'aws-amplify/data'
 import { type Schema } from '@/amplify/data/resource'
 
-const client = generateClient<Schema>()
+const client = generateClient<Schema>({
+  authMode: 'userPool',
+})
 
 // tipo con solo los campos necesarios
-interface MinimalSubscription {
-  subscriptionId: Schema['UserSubscription']['type']['subscriptionId']
-  planName: Schema['UserSubscription']['type']['planName']
-  nextPaymentDate: Schema['UserSubscription']['type']['nextPaymentDate']
-  lastFourDigits: Schema['UserSubscription']['type']['lastFourDigits']
-  pendingPlan: Schema['UserSubscription']['type']['pendingPlan']
-  createdAt: string
-}
+export type MinimalSubscription = Schema['UserSubscription']['type']
 
 interface SubscriptionState {
   cognitoUsername: string | null
@@ -70,17 +65,8 @@ function createResource() {
 // Función auxiliar para obtener los datos de suscripción
 async function fetchSubscriptionData(username: string): Promise<MinimalSubscription | null> {
   try {
-    const { data, errors } = await client.models.UserSubscription.list({
-      filter: { userId: { eq: username } },
-      selectionSet: [
-        'subscriptionId',
-        'planName',
-        'pendingPlan',
-        'nextPaymentDate',
-        'lastFourDigits',
-        'createdAt',
-      ],
-      authMode: 'userPool',
+    const { data, errors } = await client.models.UserSubscription.listUserSubscriptionByUserId({
+      userId: username,
     })
 
     if (errors && errors.length > 0) {
@@ -95,14 +81,7 @@ async function fetchSubscriptionData(username: string): Promise<MinimalSubscript
       return null
     }
 
-    return {
-      subscriptionId: sortedData[0].subscriptionId,
-      planName: sortedData[0].planName,
-      pendingPlan: sortedData[0].pendingPlan,
-      nextPaymentDate: sortedData[0].nextPaymentDate,
-      lastFourDigits: sortedData[0].lastFourDigits,
-      createdAt: sortedData[0].createdAt,
-    }
+    return sortedData[0]
   } catch (error) {
     console.error('Error fetching subscription:', error)
     throw error

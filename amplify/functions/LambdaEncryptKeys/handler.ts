@@ -105,11 +105,11 @@ export const handler = async (event: any) => {
     }
 
     // Si hay storeId, cifrar y guardar en la tienda
-    const { data: stores } = await client.models.UserStore.list({
-      filter: { storeId: { eq: storeId } },
+    const { data: stores } = await client.models.UserStore.get({
+      storeId: storeId,
     })
 
-    if (!stores || stores.length === 0) {
+    if (!stores) {
       return {
         statusCode: 404,
         body: JSON.stringify({ success: false, message: 'Tienda no encontrada' }),
@@ -120,7 +120,7 @@ export const handler = async (event: any) => {
       }
     }
 
-    const store = stores[0]
+    const store = stores
 
     // Cifrar la API Key
     const encryptedKey = encrypt(apiKey)
@@ -205,7 +205,7 @@ export const handler = async (event: any) => {
 
     // Actualizar la tienda
     await client.models.UserStore.update({
-      id: store.id,
+      storeId: store.storeId,
       ...updateData,
     })
 

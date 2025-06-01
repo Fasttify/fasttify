@@ -31,12 +31,16 @@ export const handler = async (event: any) => {
 
   try {
     const client = await initializeClient()
-    const { data: products } = await client.models.Product.list({
-      filter: {
-        storeId: { eq: storeId },
-        status: { eq: 'active' }, // Opcional: filtrar solo productos activos
+    const { data: products } = await client.models.Product.listProductByStoreId(
+      {
+        storeId: storeId,
       },
-    })
+      {
+        filter: {
+          status: { eq: 'active' }, // Opcional: filtrar solo productos activos
+        },
+      }
+    )
 
     return {
       statusCode: 200,

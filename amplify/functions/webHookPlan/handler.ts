@@ -1,294 +1,128 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
-import {
-  CognitoIdentityProviderClient,
-  AdminUpdateUserAttributesCommand,
-  AdminGetUserCommand,
-} from '@aws-sdk/client-cognito-identity-provider'
-import { createHmac } from 'crypto'
-import axios from 'axios'
-import { Amplify } from 'aws-amplify'
-import { generateClient } from 'aws-amplify/data'
-import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime'
 import { env } from '$amplify/env/hookPlan'
-import { type Schema } from '../../data/resource'
+import { WebhookBody, LambdaHandler, WebhookResponse } from './types'
+import { MercadoPagoWebhookValidator } from './services/webhook-validator'
+import { MercadoPagoApiService } from './services/mercadopago-api'
+import { CognitoUserService } from './services/user-service'
+import { MercadoPagoPaymentProcessor } from './services/payment-processor'
 
-const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
-Amplify.configure(resourceConfig, libraryOptions)
+/**
+ * Enhanced MercadoPago Webhook Handler with TypeScript support
+ * Handles subscription updates and payment notifications
+ *
+ * Follows MercadoPago best practices:
+ * - Webhook signature validation
+ * - Proper error handling
+ * - Modular service architecture
+ */
+export const handler: LambdaHandler = async event => {
+  // Initialize services
+  const webhookValidator = new MercadoPagoWebhookValidator(env.MERCADO_PAGO_WEBHOOK_SECRET)
+  const mpApiService = new MercadoPagoApiService(env.MERCADOPAGO_ACCESS_TOKEN)
+  const userService = new CognitoUserService(env.USER_POOL_ID)
+  const paymentProcessor = new MercadoPagoPaymentProcessor(mpApiService, userService)
 
-const client = new CognitoIdentityProviderClient()
-const clientSchema = generateClient<Schema>()
-
-const MP_AUTH_PAYMENTS_SEARCH_URL = 'https://api.mercadopago.com/v1/payments/'
-const MP_AUTHORIZED_PAYMENTS_URL = 'https://api.mercadopago.com/authorized_payments/'
-
-export const handler: APIGatewayProxyHandler = async event => {
   try {
-    // 1. Validar la firma del webhook
-    const body = JSON.parse(event.body || '{}')
+    console.log('🚀 Starting webhook processing')
+
+    // 1. Parse and validate request
+    const body: WebhookBody = JSON.parse(event.body || '{}')
     const signature = event.headers['x-signature'] || event.headers['X-Signature']
-
-    if (!signature) throw new Error('Firma no proporcionada en el webhook.')
-
-    const match = signature.match(/ts=([^,]+),v1=([^,]+)/)
-    if (!match) throw new Error('Formato de firma no válido.')
-    const [, ts, v1] = match
-
     const dataId = event.queryStringParameters?.['data.id']
     const requestId = event.headers['x-request-id'] || event.headers['X-Request-Id']
 
-    if (!dataId || !requestId) {
-      throw new Error('Faltan parámetros requeridos en la notificación.')
+    if (!signature || !dataId || !requestId) {
+      console.error('❌ Missing required webhook parameters')
+      return createResponse(400, { error: 'Missing required parameters' })
     }
 
-    const signatureTemplate = `id:${dataId};request-id:${requestId};ts:${ts};`
-    const expectedSignature = createHmac('sha256', env.MERCADO_PAGO_WEBHOOK_SECRET)
-      .update(signatureTemplate)
-      .digest('hex')
+    // 2. Validate webhook signature
+    const timestamp = webhookValidator.extractTimestamp(signature) || ''
+    const isValidSignature = webhookValidator.validateSignature(
+      signature,
+      dataId,
+      requestId,
+      timestamp
+    )
 
-    if (v1 !== expectedSignature) throw new Error('Firma del webhook no válida.')
-    console.log('✅ Firma validada correctamente')
+    if (!isValidSignature) {
+      console.error('❌ Invalid webhook signature')
+      return createResponse(401, { error: 'Invalid signature' })
+    }
 
-    // 2. Determinar tipo de evento
+    // 3. Determine event type and validate if supported
     const eventType = body.type
     const eventAction = body.action
-    console.log('🔍 Tipo de evento recibido:', eventType, eventAction)
 
-    // Manejar eventos de cancelación de suscripción
-    if (eventType === 'subscription_preapproval' && eventAction === 'updated') {
-      console.log('🛑 Procesando actualización de suscripción')
+    console.log(`🔍 Processing event: ${eventType}.${eventAction}`)
 
-      const subscriptionId = body.data.id
-
-      // Obtener detalles de la suscripción
-      const subscriptionResponse = await axios.get(
-        `https://api.mercadopago.com/preapproval/${subscriptionId}`,
-        { headers: { Authorization: `Bearer ${env.MERCADOPAGO_ACCESS_TOKEN}` } }
-      )
-
-      const subscriptionData = subscriptionResponse.data
-
-      // Verificar si es una cancelación
-      if (subscriptionData.status === 'cancelled') {
-        const userId = subscriptionData.external_reference
-        console.log(`⚠️ Detectada cancelación para usuario: ${userId}`)
-
-        // Obtener usuario de Cognito
-        const cognitoUser = await client.send(
-          new AdminGetUserCommand({
-            UserPoolId: env.USER_POOL_ID,
-            Username: userId,
-          })
-        )
-
-        // Verificar plan actual
-        const currentPlan =
-          cognitoUser.UserAttributes?.find(attr => attr.Name === 'custom:plan')?.Value || 'free'
-
-        if (currentPlan === 'free') {
-          console.log('🔍 Usuario ya tiene plan free, no se realizan cambios')
-          return {
-            statusCode: 200,
-            body: JSON.stringify({ message: 'OK' }),
-          }
-        }
-
-        // Calcular tiempo restante de suscripción
-        const nextPaymentDate = new Date(subscriptionData.next_payment_date)
-        const now = new Date()
-        const timeLeft = nextPaymentDate.getTime() - now.getTime()
-
-        // Obtener suscripción existente
-        const existingSubscription = await clientSchema.models.UserSubscription.get({
-          id: userId,
-        }).catch(() => ({ data: null }))
-
-        // Preparar datos de actualización
-        const updateData: any = {
-          id: userId,
-          subscriptionId: subscriptionId,
-          pendingPlan: null,
-          pendingStartDate: null,
-          lastFourDigts: null,
-          planPrice: null,
-          nextPaymentDate: subscriptionData.next_payment_date
-            ? new Date(subscriptionData.next_payment_date).toISOString()
-            : null,
-        }
-
-        if (timeLeft > 0) {
-          console.log(`⏳ Usuario mantiene acceso hasta ${nextPaymentDate}`)
-          updateData.pendingPlan = 'free'
-          updateData.pendingStartDate = nextPaymentDate.toISOString()
-          updateData.planName = currentPlan
-        } else {
-          console.log('🔒 Acceso revocado inmediatamente')
-          updateData.planName = 'free'
-          updateData.nextPaymentDate = null
-          ;(updateData.planPrice = null),
-            (updateData.pendingStartDate = null),
-            (updateData.lastFourDigits = null),
-            (updateData.pendingPlan = null),
-            // Actualizar Cognito inmediatamente
-            await client.send(
-              new AdminUpdateUserAttributesCommand({
-                UserPoolId: env.USER_POOL_ID,
-                Username: userId,
-                UserAttributes: [{ Name: 'custom:plan', Value: 'free' }],
-              })
-            )
-        }
-
-        // Actualizar DynamoDB
-        if (existingSubscription.data) {
-          await clientSchema.models.UserSubscription.update(updateData)
-        } else {
-          await clientSchema.models.UserSubscription.create({
-            ...updateData,
-            userId: userId,
-          })
-        }
-
-        return {
-          statusCode: 200,
-          body: JSON.stringify({ message: 'OK' }),
-        }
-      }
+    if (!paymentProcessor.shouldProcessEvent(eventType, eventAction)) {
+      console.log('ℹ️ Event type not supported, returning OK')
+      return createResponse(200, { message: 'Event type not supported but acknowledged' })
     }
 
-    // 3. Procesar diferentes tipos de pagos
-    let paymentId, paymentUrl
-    if (eventType === 'subscription_authorized_payment') {
-      paymentId = body.data?.id
-      paymentUrl = `${MP_AUTHORIZED_PAYMENTS_URL}${paymentId}`
-      console.log('🔍 Procesando pago recurrente autorizado')
-    } else if (eventType === 'payment') {
-      paymentId = body.data?.id
-      paymentUrl = `${MP_AUTH_PAYMENTS_SEARCH_URL}${paymentId}`
-      console.log('🔍 Procesando pago estándar')
-    } else {
-      console.warn('⚠️ Tipo de evento no soportado:', eventType)
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: 'OK' }),
-      }
-    }
+    // 4. Route to appropriate processor
+    await routeEvent(eventType, eventAction, body.data.id, paymentProcessor)
 
-    // 4. Consultar detalles del pago
-    const paymentResponse = await axios.get(paymentUrl, {
-      headers: {
-        Authorization: `Bearer ${env.MERCADOPAGO_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
+    console.log('✅ Webhook processed successfully')
+    return createResponse(200, { message: 'Webhook processed successfully' })
+  } catch (error) {
+    console.error('🔥 Webhook processing error:', error)
+
+    // Return 500 to trigger MercadoPago retry mechanism
+    return createResponse(500, {
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error',
     })
+  }
+}
 
-    const paymentData = paymentResponse.data
-    console.log('💡 Datos del pago:', JSON.stringify(paymentData, null, 2))
-
-    // 5. Validar estado del pago
-    if (!(paymentData.status === 'approved' && paymentData.status_detail === 'accredited')) {
-      console.warn('⚠️ Pago no completado exitosamente')
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: 'OK' }),
+/**
+ * Routes events to the appropriate processor based on type
+ */
+async function routeEvent(
+  eventType: string,
+  eventAction: string,
+  dataId: string,
+  processor: MercadoPagoPaymentProcessor
+): Promise<void> {
+  switch (eventType) {
+    case 'subscription_preapproval':
+      if (eventAction === 'updated') {
+        await processor.processSubscriptionUpdate(dataId)
       }
-    }
+      break
 
-    // 6. Obtener información de la suscripción
-    const subscriptionId = paymentData.metadata?.preapproval_id || paymentData.external_reference
-    const subscriptionResponse = await axios.get(
-      `https://api.mercadopago.com/preapproval/${subscriptionId}`,
-      { headers: { Authorization: `Bearer ${env.MERCADOPAGO_ACCESS_TOKEN}` } }
-    )
+    case 'subscription_authorized_payment':
+    case 'payment':
+      await processor.processPayment(dataId, eventType)
+      break
 
-    const subscriptionData = subscriptionResponse.data
-    const userId = subscriptionData.external_reference
-    const newPlanName = subscriptionData.reason
-    const newAmountFromMP = subscriptionData.auto_recurring.transaction_amount
-    const nextPaymentDate = subscriptionData.next_payment_date
+    default:
+      console.warn(`⚠️ Unhandled event type: ${eventType}.${eventAction}`)
+  }
+}
 
-    // 7. Obtener usuario de Cognito
-    const cognitoUser = await client.send(
-      new AdminGetUserCommand({
-        UserPoolId: env.USER_POOL_ID,
-        Username: userId,
-      })
-    )
+/**
+ * Creates standardized API Gateway response
+ */
+function createResponse(statusCode: number, body: any): WebhookResponse {
+  return {
+    statusCode,
+    body: JSON.stringify(body),
+  }
+}
 
-    const currentPlan =
-      cognitoUser.UserAttributes?.find(attr => attr.Name === 'custom:plan')?.Value || 'free'
-
-    // 8. Lógica de actualización de plan
-    const existingSubscription = await clientSchema.models.UserSubscription.get({
-      id: userId,
-    }).catch(() => ({ data: null }))
-
-    const currentPlanPrice = existingSubscription.data?.planPrice || 0
-    const isUpgrade = currentPlan === 'free' || newAmountFromMP > currentPlanPrice
-
-    // Determinar fechas clave
-    const nextPaymentDateISO = new Date(nextPaymentDate).toISOString()
-    const now = new Date()
-    const existingPaymentDate = existingSubscription.data?.nextPaymentDate
-      ? new Date(existingSubscription.data.nextPaymentDate)
-      : null
-
-    // Configurar datos para DynamoDB
-    const updateData = {
-      id: userId,
-      subscriptionId: subscriptionId,
-      planPrice: newAmountFromMP,
-      nextPaymentDate: nextPaymentDateISO,
-      lastFourDigits: paymentData.card.last_four_digits,
-
-      planName: isUpgrade ? newPlanName : existingSubscription.data?.planName || currentPlan,
-      pendingPlan:
-        !isUpgrade && existingPaymentDate && existingPaymentDate > now ? newPlanName : null,
-      pendingStartDate:
-        !isUpgrade && existingPaymentDate && existingPaymentDate > now
-          ? existingPaymentDate.toISOString()
-          : null,
-    }
-
-    // Actualizar DynamoDB
-    if (existingSubscription.data) {
-      await clientSchema.models.UserSubscription.update(updateData)
-    } else {
-      await clientSchema.models.UserSubscription.create({
-        ...updateData,
-        userId: userId,
-      })
-    }
-
-    // Actualizar Cognito SOLO si es upgrade o no hay tiempo restante
-    if (newPlanName !== currentPlan) {
-      const shouldUpdateCognito = isUpgrade || !existingPaymentDate || existingPaymentDate <= now
-
-      if (shouldUpdateCognito) {
-        await client.send(
-          new AdminUpdateUserAttributesCommand({
-            UserPoolId: env.USER_POOL_ID,
-            Username: userId,
-            UserAttributes: [{ Name: 'custom:plan', Value: newPlanName }],
-          })
-        )
-        console.log(`✅ Plan actualizado en Cognito a ${newPlanName}`)
-      } else {
-        console.log(`⏳ Cambio a ${newPlanName} programado para ${existingPaymentDate}`)
-      }
-    }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'OK' }),
-    }
-  } catch (error: any) {
-    console.error('❌ Error en la función Lambda:', error)
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: 'Error procesando el webhook',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    }
+/**
+ * Health check endpoint for webhook monitoring
+ */
+export const healthCheck: APIGatewayProxyHandler = async () => {
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      service: 'mercadopago-webhook',
+    }),
   }
 }

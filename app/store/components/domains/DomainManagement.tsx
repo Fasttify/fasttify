@@ -198,13 +198,13 @@ export function DomainManagement() {
       <ChangeDomainDialog
         open={openChangeDomainDialog}
         onOpenChange={setOpenChangeDomainDialog}
-        storeId={currentStore?.id || ''}
+        storeId={currentStore?.storeId || ''}
       />
 
       <EditStoreProfileDialog
         open={openEditProfileDialog}
         onOpenChange={setOpenEditProfileDialog}
-        storeId={currentStore?.id || ''}
+        storeId={currentStore?.storeId || ''}
         initialData={{
           storeName: currentStore?.storeName,
           contactEmail: currentStore?.contactEmail || '',

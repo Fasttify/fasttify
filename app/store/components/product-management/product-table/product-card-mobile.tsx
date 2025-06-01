@@ -39,7 +39,9 @@ export function ProductCardMobile({
                   src={
                     typeof product.images === 'string'
                       ? JSON.parse(product.images)[0]?.url
-                      : product.images[0]?.url
+                      : Array.isArray(product.images)
+                        ? product.images[0]?.url
+                        : undefined
                   }
                   alt={product.name}
                   className="w-10 h-10 object-cover rounded"
@@ -98,7 +100,7 @@ export function ProductCardMobile({
             {visibleColumns.inventory && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Inventario</p>
-                <p>{formatInventory(product.quantity)}</p>
+                <p>{formatInventory(product.quantity ?? 0)}</p>
               </div>
             )}
           </div>
