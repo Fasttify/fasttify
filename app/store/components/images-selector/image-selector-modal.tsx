@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useS3Images, type S3Image } from '@/app/store/hooks/useS3Images'
 import Image from 'next/image'
-import ImageGallery from './ImageGallery'
+import ImageGallery from '@/app/store/components/images-selector/ImageGallery'
 
 interface ImageSelectorModalProps {
   open: boolean

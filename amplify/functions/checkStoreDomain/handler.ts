@@ -24,10 +24,8 @@ export const handler = async (event: any) => {
   }
 
   try {
-    const { data: stores } = await clientSchema.models.UserStore.list({
-      filter: {
-        customDomain: { eq: domainName },
-      },
+    const { data: stores } = await clientSchema.models.UserStore.listUserStoreByCustomDomain({
+      customDomain: domainName,
     })
 
     return {

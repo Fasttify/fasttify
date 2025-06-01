@@ -26,10 +26,8 @@ export const handler = async (event: any) => {
   }
 
   try {
-    const { data: stores } = await clientSchema.models.UserStore.list({
-      filter: {
-        storeName: { eq: storeName },
-      },
+    const { data: stores } = await clientSchema.models.UserStore.listUserStoreByStoreName({
+      storeName: storeName,
     })
 
     return {

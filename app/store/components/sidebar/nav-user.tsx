@@ -57,7 +57,6 @@ export function NavUser({ user, loading }: NavUserProps) {
     return (firstInitial + secondInitial).toUpperCase() || 'U'
   }
 
-  // Set isClient to true after component mounts
   useEffect(() => {
     setIsClient(true)
   }, [])

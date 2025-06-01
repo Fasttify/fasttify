@@ -51,7 +51,7 @@ export async function handleCollectionOwnershipMiddleware(request: NextRequest) 
   try {
     // Verificar que el usuario tenga acceso a la tienda
     const storeResult = await cookiesClient.models.UserStore.get({
-      id: currentStoreId,
+      storeId: currentStoreId,
     })
 
     // Si la tienda no existe o no pertenece al usuario, verificar si es colaborador

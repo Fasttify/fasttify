@@ -10,50 +10,7 @@ const client = generateClient<Schema>({
 /**
  * Interfaz para representar un producto
  */
-export interface IProduct {
-  id: string
-  storeId: string
-  name: string
-  description?: string
-  price: number
-  compareAtPrice?: number
-  costPerItem?: number
-  sku?: string
-  barcode?: string
-  quantity: number
-  category?: string
-  images?: Array<{
-    url: string
-    alt?: string
-    position?: number
-  }>
-  attributes?: Array<{
-    name: string
-    values: string[]
-  }>
-  status: 'active' | 'inactive' | 'pending' | 'draft'
-  slug?: string
-  featured?: boolean
-  tags?: string[]
-  variants?: Array<{
-    id: string
-    name: string
-    price?: number
-    sku?: string
-    quantity?: number
-    attributes?: Array<{
-      name: string
-      value: string
-    }>
-    images?: Array<{
-      url: string
-      alt?: string
-    }>
-  }>
-  owner: string
-  createdAt?: string
-  updatedAt?: string
-}
+export type IProduct = Schema['Product']['type']
 
 /**
  * Tipo para los datos necesarios al crear un producto

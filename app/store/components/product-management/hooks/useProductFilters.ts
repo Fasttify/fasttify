@@ -61,6 +61,11 @@ export function useProductFilters(products: IProduct[]) {
         return 0
     }
 
+    // Handle null/undefined values
+    if (valueA == null && valueB == null) return 0
+    if (valueA == null) return sortDirection === 'asc' ? -1 : 1
+    if (valueB == null) return sortDirection === 'asc' ? 1 : -1
+
     if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1
     if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1
     return 0

@@ -4,7 +4,6 @@ import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtim
 import { env } from '$amplify/env/getStoreCollections'
 import { type Schema } from '../../data/resource'
 
-// Lazy-load del cliente para evitar reconfiguración en cada invocación
 let clientSchema: ReturnType<typeof generateClient<Schema>> | null = null
 
 const initializeClient = async () => {
@@ -53,12 +52,16 @@ export const handler = async (event: any) => {
       }
 
       // Obtener productos asociados a esta colección
-      const { data: products } = await client.models.Product.list({
-        filter: {
-          collectionId: { eq: collectionId },
-          status: { eq: 'active' },
+      const { data: products } = await client.models.Product.listProductByCollectionId(
+        {
+          collectionId: collectionId,
         },
-      })
+        {
+          filter: {
+            status: { eq: 'active' },
+          },
+        }
+      )
 
       return {
         statusCode: 200,

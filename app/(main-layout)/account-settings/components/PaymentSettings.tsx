@@ -15,7 +15,7 @@ function SubscriptionLoader() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { user } = useUserStore()
-  const cognitoUsername = user?.cognitoUsername
+  const cognitoUsername = user?.userId
 
   const handleCancel = async () => {
     if (!cognitoUsername) {
@@ -142,8 +142,8 @@ export function PaymentSettings() {
 
   // Usar useEffect para inicializar el recurso de suscripción
   useEffect(() => {
-    if (user?.cognitoUsername) {
-      setCognitoUsername(user.cognitoUsername)
+    if (user?.userId) {
+      setCognitoUsername(user.userId)
     }
   }, [user])
 

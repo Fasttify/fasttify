@@ -47,7 +47,7 @@ export function PricingCard({ plan }: PricingCardProps) {
     setIsClient(true)
   }, [])
 
-  const cognitoUsername = user?.cognitoUsername
+  const cognitoUsername = user?.userId
   const hasActivePlan = user && user.plan ? user.plan === plan.name : false
 
   const formatPrice = (price: string) => {

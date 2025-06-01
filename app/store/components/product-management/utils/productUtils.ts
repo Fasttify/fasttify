@@ -10,21 +10,26 @@ import { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 export function mapProductToFormValues(product: IProduct): Partial<ProductFormValues> {
   return {
     name: product.name,
-    description: product.description,
+    description: product.description ?? undefined,
     price: product.price,
     compareAtPrice: product.compareAtPrice,
     costPerItem: product.costPerItem,
-    sku: product.sku,
-    barcode: product.barcode,
-    quantity: product.quantity,
-    category: product.category,
+    sku: product.sku ?? undefined,
+    barcode: product.barcode ?? undefined,
+    quantity: product.quantity ?? undefined,
+    category: product.category ?? undefined,
     images: typeof product.images === 'string' ? JSON.parse(product.images) : product.images,
     attributes:
       typeof product.attributes === 'string' ? JSON.parse(product.attributes) : product.attributes,
     variants:
       typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants,
     tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
-    status: product.status,
+    status: (product.status ?? undefined) as
+      | 'active'
+      | 'draft'
+      | 'inactive'
+      | 'pending'
+      | undefined,
   }
 }
 

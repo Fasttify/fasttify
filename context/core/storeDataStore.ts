@@ -4,7 +4,9 @@ import type { Schema } from '@/amplify/data/resource'
 import { CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/data'
 import { Hub } from 'aws-amplify/utils'
 
-const client = generateClient<Schema>()
+const client = generateClient<Schema>({
+  authMode: 'userPool',
+})
 
 type StoreType = Schema['UserStore']['type']
 
@@ -16,7 +18,7 @@ interface StoreDataState {
   connectionState: ConnectionState | null
   hasMasterShopApiKey: boolean
   setStoreId: (id: string | null) => void
-  fetchStoreData: (id: string) => Promise<void>
+  fetchStoreData: (storeId: string, userId: string) => Promise<void>
   clearStore: () => void
   setupSubscription: (id: string) => () => void
   setConnectionState: (state: ConnectionState) => void
@@ -35,6 +37,7 @@ Hub.listen('api', (data: any) => {
 const useStoreDataStore = create<StoreDataState>((set, get) => ({
   currentStore: null,
   storeId: null,
+  userId: null,
   isLoading: true,
   error: null,
   connectionState: null,
@@ -44,9 +47,9 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
 
   setConnectionState: (state: ConnectionState) => set({ connectionState: state }),
 
-  fetchStoreData: async id => {
+  fetchStoreData: async (storeId, userId) => {
     // No hacer fetch si ya tenemos los datos de esta tienda
-    if (get().currentStore && get().storeId === id) {
+    if (get().currentStore && get().storeId === storeId) {
       set({ isLoading: false })
       return
     }
@@ -54,45 +57,45 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     set({ isLoading: true, error: null })
 
     try {
-      const { data: stores } = await client.models.UserStore.list({
-        authMode: 'userPool',
-        filter: { storeId: { eq: id } },
-        selectionSet: [
-          'id',
-          'storeId',
-          'storeName',
-          'storeLogo',
-          'customDomain',
-          'contactPhone',
-          'contactEmail',
-          'storeFavicon',
-          'storeTheme',
-          'onboardingData',
-        ],
-      })
+      const { data: store } = await client.models.UserStore.get(
+        { storeId: storeId },
+        {
+          selectionSet: [
+            'storeId',
+            'storeName',
+            'storeLogo',
+            'customDomain',
+            'contactPhone',
+            'contactEmail',
+            'storeFavicon',
+            'storeTheme',
+            'onboardingData',
+          ],
+        }
+      )
 
-      if (stores && stores.length > 0) {
+      if (store) {
         set({
-          currentStore: stores[0] as StoreType,
-          storeId: id,
+          currentStore: store as StoreType,
+          storeId: storeId,
           isLoading: false,
         })
 
         // Verificar si existe la API key de Master Shop
-        const hasMasterShopApiKey = await get().checkMasterShopApiKey(stores[0].id)
+        const hasMasterShopApiKey = await get().checkMasterShopApiKey(store.storeId)
         set({ hasMasterShopApiKey })
 
         // Configurar suscripción automáticamente después de obtener los datos
-        get().setupSubscription(id)
+        get().setupSubscription(storeId)
       } else {
         set({
-          error: new Error('Tienda no encontrada'),
+          error: new Error('Store not found'),
           isLoading: false,
         })
       }
     } catch (err) {
       set({
-        error: err instanceof Error ? err : new Error('Error al obtener la tienda'),
+        error: err instanceof Error ? err : new Error('Error fetching store data'),
         isLoading: false,
       })
     }
@@ -101,14 +104,16 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
   // Verificar si existe la API key de Master Shop sin traer su valor
   checkMasterShopApiKey: async (id: string) => {
     try {
-      const { data } = await client.models.UserStore.list({
-        filter: {
-          id: { eq: id },
-          mastershopApiKey: { attributeExists: true },
+      const { data } = await client.models.UserStore.listUserStoreByUserId(
+        {
+          userId: id,
         },
-        selectionSet: ['id'],
-        authMode: 'userPool',
-      })
+        {
+          filter: {
+            mastershopApiKey: { attributeExists: true },
+          },
+        }
+      )
 
       const hasApiKey = data && data.length > 0
       set({ hasMasterShopApiKey: hasApiKey })
@@ -133,9 +138,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     // Usar observeQuery para mantener los datos actualizados automáticamente
     const subscription = client.models.UserStore.observeQuery({
       filter: { storeId: { eq: id } },
-      authMode: 'userPool',
       selectionSet: [
-        'id',
         'storeId',
         'storeName',
         'storeLogo',
@@ -157,22 +160,22 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
 
           // Verificar si existe la API key cuando hay cambios
           if (isSynced) {
-            get().checkMasterShopApiKey(items[0].id)
+            get().checkMasterShopApiKey(items[0].storeId)
           }
         } else if (isSynced) {
           // Si no hay elementos después de sincronizar, la tienda podría haber sido eliminada
           set({
             currentStore: null,
-            error: new Error('Tienda no encontrada o eliminada'),
+            error: new Error('Store not found or deleted'),
             isLoading: false,
             hasMasterShopApiKey: false,
           })
         }
       },
       error: error => {
-        console.error('Error en la suscripción:', error)
+        console.error('Error in data subscription:', error)
         set({
-          error: new Error('Error en la suscripción de datos'),
+          error: new Error('Error in data subscription'),
           isLoading: false,
         })
       },
