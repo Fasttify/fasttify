@@ -93,7 +93,7 @@ export function EcommerceSetup() {
 
       // Update in database
       await updateUserStore({
-        id: currentStore.id,
+        storeId: currentStore.storeId,
         onboardingData: onboardingDataString,
         onboardingCompleted: allCompleted,
       })
