@@ -4,7 +4,7 @@ import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtim
 import { env } from '$amplify/env/apiKeyManager'
 import { type Schema } from '../../data/resource'
 import crypto from 'crypto'
-
+import { getCorsHeaders } from '../shared/cors'
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 Amplify.configure(resourceConfig, libraryOptions)
 
@@ -44,6 +44,16 @@ function decrypt(encryptedText: string): string {
 }
 
 export const handler = async (event: any) => {
+  const origin = event.headers?.origin || event.headers?.Origin
+
+  // Manejar peticiones OPTIONS (preflight CORS)
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: getCorsHeaders(origin),
+      body: '',
+    }
+  }
   try {
     const {
       storeId,
@@ -61,20 +71,14 @@ export const handler = async (event: any) => {
         return {
           statusCode: 200,
           body: JSON.stringify({ success: true, decryptedKey }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: getCorsHeaders(origin),
         }
       } catch (error) {
         console.error('Error al descifrar la clave:', error)
         return {
           statusCode: 400,
           body: JSON.stringify({ success: false, message: 'Error al descifrar la clave' }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: getCorsHeaders(origin),
         }
       }
     }
@@ -84,10 +88,7 @@ export const handler = async (event: any) => {
       return {
         statusCode: 400,
         body: JSON.stringify({ success: false, message: 'Faltan parámetros requeridos' }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: getCorsHeaders(origin),
       }
     }
 
@@ -97,10 +98,7 @@ export const handler = async (event: any) => {
       return {
         statusCode: 200,
         body: JSON.stringify({ success: true, encryptedKey }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: getCorsHeaders(origin),
       }
     }
 
@@ -113,10 +111,7 @@ export const handler = async (event: any) => {
       return {
         statusCode: 404,
         body: JSON.stringify({ success: false, message: 'Tienda no encontrada' }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: getCorsHeaders(origin),
       }
     }
 
@@ -196,10 +191,7 @@ export const handler = async (event: any) => {
         return {
           statusCode: 400,
           body: JSON.stringify({ success: false, message: 'Tipo de clave API no soportado' }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: getCorsHeaders(origin),
         }
     }
 
@@ -212,20 +204,14 @@ export const handler = async (event: any) => {
     return {
       statusCode: 200,
       body: JSON.stringify({ success: true, encryptedKey }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   } catch (error) {
     console.error('Error en apiKeyManager:', error)
     return {
       statusCode: 500,
       body: JSON.stringify({ success: false, message: 'Error interno del servidor' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   }
 }

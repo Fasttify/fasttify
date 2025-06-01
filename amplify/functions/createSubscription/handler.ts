@@ -1,9 +1,21 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
+import { getCorsHeaders } from '../shared/cors'
 import { env } from '$amplify/env/createSubscription'
 
 const MERCADOPAGO_API_URL = 'https://api.mercadopago.com/preapproval'
 
 export const handler: APIGatewayProxyHandler = async event => {
+  const origin = event.headers?.origin || event.headers?.Origin
+
+  // Manejar peticiones OPTIONS (preflight CORS)
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: getCorsHeaders(origin),
+      body: '',
+    }
+  }
+
   try {
     const body = JSON.parse(event.body || '{}')
     const { userId, plan } = body
@@ -38,10 +50,7 @@ export const handler: APIGatewayProxyHandler = async event => {
 
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': '*',
-      },
+      headers: getCorsHeaders(origin),
       body: JSON.stringify({
         checkoutUrl: subscription.init_point,
       }),
@@ -51,10 +60,7 @@ export const handler: APIGatewayProxyHandler = async event => {
 
     return {
       statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': '*',
-      },
+      headers: getCorsHeaders(origin),
       body: JSON.stringify({
         error: 'Error creando suscripción',
         details: error instanceof Error ? error.message : 'Error desconocido',

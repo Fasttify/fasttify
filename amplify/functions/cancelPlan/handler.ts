@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { Amplify } from 'aws-amplify'
 import { generateClient } from 'aws-amplify/data'
+import { getCorsHeaders } from '../shared/cors'
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime'
 import { env } from '$amplify/env/hookPlan'
 import { type Schema } from '../../data/resource'
@@ -12,20 +13,24 @@ Amplify.configure(resourceConfig, libraryOptions)
 // Inicializar el cliente para DynamoDB (Amplify Data)
 const clientSchema = generateClient<Schema>()
 
-// Definir cabeceras CORS para testing
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': '*',
-}
-
 export const handler = async (event: any) => {
+  const origin = event.headers?.origin || event.headers?.Origin
+
+  // Manejar peticiones OPTIONS (preflight CORS)
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: getCorsHeaders(origin),
+      body: '',
+    }
+  }
   try {
     // 1. Extraer parámetros necesarios
     const { preapproval_id, user_id } = JSON.parse(event.body)
     if (!preapproval_id || !user_id) {
       return {
         statusCode: 400,
-        headers: corsHeaders,
+        headers: getCorsHeaders(origin),
         body: JSON.stringify({ message: 'Faltan parámetros' }),
       }
     }
@@ -65,9 +70,9 @@ export const handler = async (event: any) => {
     if (response.status !== 200 && response.status !== 400) {
       return {
         statusCode: response.status,
-        headers: corsHeaders,
+        headers: getCorsHeaders(origin),
         body: JSON.stringify({
-          message: data.message || 'Error al cancelar la suscripción',
+          message: data.message || 'Error at cancel plan',
         }),
       }
     }
@@ -77,9 +82,9 @@ export const handler = async (event: any) => {
     if (!endDate) {
       return {
         statusCode: 500,
-        headers: corsHeaders,
+        headers: getCorsHeaders(origin),
         body: JSON.stringify({
-          message: 'No se pudo obtener la fecha de finalización',
+          message: 'Error at get end date',
         }),
       }
     }
@@ -101,19 +106,19 @@ export const handler = async (event: any) => {
 
     return {
       statusCode: 200,
-      headers: corsHeaders,
+      headers: getCorsHeaders(origin),
       body: JSON.stringify({
-        message: 'Suscripción cancelada, cambio pendiente',
+        message: 'Plan cancelled, pending change',
         endDate,
       }),
     }
   } catch (error: any) {
-    console.error('❌ Error en la función Lambda:', error)
+    console.error('❌ Error at cancel plan:', error)
     return {
       statusCode: 500,
-      headers: corsHeaders,
+      headers: getCorsHeaders(origin),
       body: JSON.stringify({
-        message: 'Error interno',
+        message: 'Internal error',
         error: error instanceof Error ? error.message : 'Unknown error',
       }),
     }

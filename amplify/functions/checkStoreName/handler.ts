@@ -2,6 +2,7 @@ import { Amplify } from 'aws-amplify'
 import { generateClient } from 'aws-amplify/data'
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime'
 import { env } from '$amplify/env/checkStoreName'
+import { getCorsHeaders } from '../shared/cors'
 import { type Schema } from '../../data/resource'
 
 // Configurar Amplify para acceso a datos
@@ -12,16 +13,14 @@ Amplify.configure(resourceConfig, libraryOptions)
 const clientSchema = generateClient<Schema>()
 
 export const handler = async (event: any) => {
+  const origin = event.headers?.origin || event.headers?.Origin
   const storeName = event.queryStringParameters?.storeName
 
   if (!storeName) {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: 'Store name is required' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   }
 
@@ -33,20 +32,14 @@ export const handler = async (event: any) => {
     return {
       statusCode: 200,
       body: JSON.stringify({ exists: stores && stores.length > 0 }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   } catch (error) {
     console.error('Error checking store name:', error)
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Error checking store name' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   }
 }

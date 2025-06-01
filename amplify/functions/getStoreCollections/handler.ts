@@ -2,6 +2,7 @@ import { Amplify } from 'aws-amplify'
 import { generateClient } from 'aws-amplify/data'
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime'
 import { env } from '$amplify/env/getStoreCollections'
+import { getCorsHeaders } from '../shared/cors'
 import { type Schema } from '../../data/resource'
 
 let clientSchema: ReturnType<typeof generateClient<Schema>> | null = null
@@ -16,7 +17,16 @@ const initializeClient = async () => {
 }
 
 export const handler = async (event: any) => {
-  // Obtener parámetros de la consulta
+  const origin = event.headers?.origin || event.headers?.Origin
+
+  // Manejar peticiones OPTIONS (preflight CORS)
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: getCorsHeaders(origin),
+      body: '',
+    }
+  }
   const storeId = event.queryStringParameters?.storeId
   const collectionId = event.queryStringParameters?.collectionId
   const slug = event.queryStringParameters?.slug
@@ -26,10 +36,7 @@ export const handler = async (event: any) => {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: 'Store ID is required' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   }
 
@@ -44,10 +51,7 @@ export const handler = async (event: any) => {
         return {
           statusCode: 404,
           body: JSON.stringify({ message: 'Collection not found' }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: getCorsHeaders(origin),
         }
       }
 
@@ -71,10 +75,7 @@ export const handler = async (event: any) => {
             products: products || [],
           },
         }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: getCorsHeaders(origin),
       }
     }
 
@@ -92,10 +93,7 @@ export const handler = async (event: any) => {
         return {
           statusCode: 404,
           body: JSON.stringify({ message: 'Collection not found' }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: getCorsHeaders(origin),
         }
       }
 
@@ -117,10 +115,7 @@ export const handler = async (event: any) => {
             products: products || [],
           },
         }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: getCorsHeaders(origin),
       }
     }
 
@@ -137,20 +132,14 @@ export const handler = async (event: any) => {
       body: JSON.stringify({
         collections: collections || [],
       }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   } catch (error) {
     console.error('Error fetching collections data:', error)
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Error fetching collections data' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   }
 }

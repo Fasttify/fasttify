@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { APIGatewayProxyHandler } from 'aws-lambda'
 import { env } from '$amplify/env/planManagement'
+import { getCorsHeaders } from '../shared/cors'
 
 /**
  * Función auxiliar que calcula la fecha de finalización exactamente un mes después de la fecha de inicio.
@@ -13,13 +14,16 @@ function calcularEndDate(startDate: Date): Date {
   return endDate
 }
 
-// Objeto de cabeceras CORS para permitir todos los orígenes
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': '*',
-}
-
 export const handler: APIGatewayProxyHandler = async event => {
+  const origin = event.headers?.origin || event.headers?.Origin
+
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: getCorsHeaders(origin),
+      body: '',
+    }
+  }
   try {
     // 1. Extraer parámetros del body de la solicitud.
     // Se espera recibir:
@@ -34,7 +38,7 @@ export const handler: APIGatewayProxyHandler = async event => {
     if (!subscriptionId || !newAmount || !currencyId || !newPlanName) {
       return {
         statusCode: 400,
-        headers: corsHeaders,
+        headers: getCorsHeaders(origin),
         body: JSON.stringify({
           message:
             'Faltan parámetros requeridos: subscriptionId, newAmount, currencyId y newPlanName.',
@@ -89,7 +93,7 @@ export const handler: APIGatewayProxyHandler = async event => {
     // 6. Retornar respuesta exitosa con la URL de confirmación para que el cliente pueda redirigir al usuario.
     return {
       statusCode: 200,
-      headers: corsHeaders,
+      headers: getCorsHeaders(origin),
       body: JSON.stringify({
         message:
           'La suscripción se actualizó exitosamente. Confirme el pago en la URL proporcionada.',
@@ -101,7 +105,7 @@ export const handler: APIGatewayProxyHandler = async event => {
     console.error('❌ Error actualizando la suscripción:', error)
     return {
       statusCode: 500,
-      headers: corsHeaders,
+      headers: getCorsHeaders(origin),
       body: JSON.stringify({
         message: 'Error actualizando la suscripción.',
         error: error instanceof Error ? error.message : 'Unknown error',

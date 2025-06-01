@@ -5,6 +5,7 @@ import {
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3'
 import { env } from '$amplify/env/storeImages'
+import { getCorsHeaders } from '../shared/cors'
 
 const s3Client = new S3Client()
 
@@ -46,6 +47,15 @@ if (
 }
 
 export const handler = async (event: any) => {
+  const origin = event.headers?.origin || event.headers?.Origin
+
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: getCorsHeaders(origin),
+      body: '',
+    }
+  }
   try {
     const body = event.body ? JSON.parse(event.body) : {}
     const { action, storeId } = body
@@ -54,29 +64,23 @@ export const handler = async (event: any) => {
       return {
         statusCode: 400,
         body: JSON.stringify({ message: 'Store ID is required' }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: getCorsHeaders(origin),
       }
     }
 
     // Manejar diferentes acciones
     switch (action) {
       case 'list':
-        return await listImages(storeId, body.limit, body.prefix, body.continuationToken)
+        return await listImages(storeId, origin, body.limit, body.prefix, body.continuationToken)
       case 'upload':
-        return await uploadImage(storeId, body.filename, body.contentType, body.fileContent)
+        return await uploadImage(storeId, origin, body.filename, body.contentType, body.fileContent)
       case 'delete':
-        return await deleteImage(body.key)
+        return await deleteImage(body.key, origin)
       default:
         return {
           statusCode: 400,
           body: JSON.stringify({ message: 'Invalid action' }),
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: getCorsHeaders(origin),
         }
     }
   } catch (error) {
@@ -84,10 +88,7 @@ export const handler = async (event: any) => {
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Error processing request' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   }
 }
@@ -95,6 +96,7 @@ export const handler = async (event: any) => {
 // Función para listar imágenes
 async function listImages(
   storeId: string,
+  origin: string | undefined,
   limit: number = 18,
   prefix: string = '',
   continuationToken?: string
@@ -117,10 +119,7 @@ async function listImages(
       return {
         statusCode: 200,
         body: JSON.stringify({ images: [] }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: getCorsHeaders(origin),
       }
     }
 
@@ -173,20 +172,14 @@ async function listImages(
         images: validImages,
         nextContinuationToken: listResponse.NextContinuationToken,
       }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   } catch (error) {
     console.error('Error listing images:', error)
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Error listing images' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   }
 }
@@ -194,6 +187,7 @@ async function listImages(
 // Función para subir una imagen
 async function uploadImage(
   storeId: string,
+  origin: string | undefined,
   filename: string,
   contentType: string,
   fileContent: string
@@ -238,26 +232,20 @@ async function uploadImage(
     return {
       statusCode: 200,
       body: JSON.stringify({ image }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   } catch (error) {
     console.error('Error uploading image:', error)
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Error uploading image' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   }
 }
 
 // Función para eliminar una imagen
-async function deleteImage(key: string) {
+async function deleteImage(key: string, origin: string | undefined) {
   try {
     // Eliminar el objeto de S3
     const deleteCommand = new DeleteObjectCommand({
@@ -270,20 +258,14 @@ async function deleteImage(key: string) {
     return {
       statusCode: 200,
       body: JSON.stringify({ success: true }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   } catch (error) {
     console.error('Error deleting image:', error)
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Error deleting image' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: getCorsHeaders(origin),
     }
   }
 }
