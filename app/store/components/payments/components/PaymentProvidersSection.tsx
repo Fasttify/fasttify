@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { WompiGuide } from '@/app/store/components/payments/WompiGuide'
-import { MercadoPagoGuide } from '@/app/store/components/payments/MercadoPagoGuide'
+import { WompiGuide } from '@/app/store/components/payments/components/WompiGuide'
+import { MercadoPagoGuide } from '@/app/store/components/payments/components/MercadoPagoGuide'
 
 export function PaymentProvidersSection() {
   return (

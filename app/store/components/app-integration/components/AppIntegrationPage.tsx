@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import Image from 'next/image'
-import { ConnectModal } from '@/app/store/components/app-integration/ConnectModal'
+import { ConnectModal } from '@/app/store/components/app-integration/components/ConnectModal'
 import useStoreDataStore from '@/context/core/storeDataStore'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'

@@ -1,0 +1,148 @@
+import {
+  APIGatewayEvent,
+  APIGatewayResponse,
+  RequestBody,
+  ListImagesResponse,
+  UploadImageResponse,
+  DeleteImageResponse,
+  ErrorResponse,
+} from '../types/types'
+import { S3Service } from './s3-service'
+import { ValidationUtils } from './utils'
+import { getCorsHeaders } from '../../shared/cors'
+
+export class ImageController {
+  private readonly s3Service: S3Service
+
+  constructor() {
+    this.s3Service = S3Service.getInstance()
+  }
+
+  /**
+   * Maneja las solicitudes OPTIONS para CORS
+   */
+  public handleOptions(origin?: string): APIGatewayResponse {
+    return {
+      statusCode: 200,
+      headers: getCorsHeaders(origin),
+      body: '',
+    }
+  }
+
+  /**
+   * Procesa la solicitud principal y delega a la acción correspondiente
+   */
+  public async processRequest(event: APIGatewayEvent): Promise<APIGatewayResponse> {
+    const origin = event.headers?.origin || event.headers?.Origin
+
+    try {
+      const body: RequestBody = event.body ? JSON.parse(event.body) : {}
+
+      // Validaciones tempranas
+      ValidationUtils.validateStoreId(body.storeId)
+      ValidationUtils.validateAction(body.action)
+
+      // Delegar a la acción correspondiente
+      switch (body.action) {
+        case 'list':
+          return await this.handleListImages(body, origin)
+        case 'upload':
+          return await this.handleUploadImage(body, origin)
+        case 'delete':
+          return await this.handleDeleteImage(body, origin)
+        default:
+          return this.createErrorResponse(400, 'Invalid action', origin)
+      }
+    } catch (error) {
+      console.error('Error processing request:', error)
+      const message = error instanceof Error ? error.message : 'Error processing request'
+      return this.createErrorResponse(500, message, origin)
+    }
+  }
+
+  /**
+   * Maneja la operación de listar imágenes
+   */
+  private async handleListImages(body: RequestBody, origin?: string): Promise<APIGatewayResponse> {
+    try {
+      const result: ListImagesResponse = await this.s3Service.listImages(
+        body.storeId,
+        body.limit || 18,
+        body.prefix || '',
+        body.continuationToken
+      )
+
+      return this.createSuccessResponse(result, origin)
+    } catch (error) {
+      console.error('Error listing images:', error)
+      return this.createErrorResponse(500, 'Error listing images', origin)
+    }
+  }
+
+  /**
+   * Maneja la operación de subir imagen
+   */
+  private async handleUploadImage(body: RequestBody, origin?: string): Promise<APIGatewayResponse> {
+    try {
+      ValidationUtils.validateUploadParams(body.filename, body.contentType, body.fileContent)
+
+      const result: UploadImageResponse = await this.s3Service.uploadImage(
+        body.storeId,
+        body.filename!,
+        body.contentType!,
+        body.fileContent!
+      )
+
+      return this.createSuccessResponse(result, origin)
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      const message = error instanceof Error ? error.message : 'Error uploading image'
+      return this.createErrorResponse(500, message, origin)
+    }
+  }
+
+  /**
+   * Maneja la operación de eliminar imagen
+   */
+  private async handleDeleteImage(body: RequestBody, origin?: string): Promise<APIGatewayResponse> {
+    try {
+      ValidationUtils.validateDeleteParams(body.key)
+
+      const result: DeleteImageResponse = await this.s3Service.deleteImage(body.key!)
+
+      return this.createSuccessResponse(result, origin)
+    } catch (error) {
+      console.error('Error deleting image:', error)
+      const message = error instanceof Error ? error.message : 'Error deleting image'
+      return this.createErrorResponse(500, message, origin)
+    }
+  }
+
+  /**
+   * Crea una respuesta de éxito estandarizada
+   */
+  private createSuccessResponse(data: any, origin?: string): APIGatewayResponse {
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+      headers: getCorsHeaders(origin),
+    }
+  }
+
+  /**
+   * Crea una respuesta de error estandarizada
+   */
+  private createErrorResponse(
+    statusCode: number,
+    message: string,
+    origin?: string
+  ): APIGatewayResponse {
+    const errorResponse: ErrorResponse = { message }
+
+    return {
+      statusCode,
+      body: JSON.stringify(errorResponse),
+      headers: getCorsHeaders(origin),
+    }
+  }
+}

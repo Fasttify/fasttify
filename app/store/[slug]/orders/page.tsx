@@ -1,4 +1,4 @@
-import { Orders } from '@/app/store/components/orders/Orders'
+import { Orders } from '@/app/store/components/orders/components/Orders'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

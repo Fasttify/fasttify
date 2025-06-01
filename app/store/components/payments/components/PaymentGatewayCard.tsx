@@ -5,7 +5,7 @@ import { PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUs
 import {
   WompiPaymentIcons,
   MercadoPagoIcons,
-} from '@/app/store/components/payments/PaymentMethodIcons'
+} from '@/app/store/components/payments/components/PaymentMethodIcons'
 
 interface PaymentGatewayCardProps {
   gateway: PaymentGatewayType

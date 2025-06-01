@@ -1,5 +1,5 @@
 import { PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
-import { PaymentGatewayCard } from '@/app/store/components/payments/PaymentGatewayCard'
+import { PaymentGatewayCard } from '@/app/store/components/payments/components/PaymentGatewayCard'
 
 interface PaymentMethodsSectionProps {
   configuredGateways: PaymentGatewayType[]

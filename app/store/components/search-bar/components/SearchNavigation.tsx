@@ -11,11 +11,10 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getStoreId } from '@/utils/store-utils'
-import { generateSearchRoutes } from '@/app/store/components/search-bar/SearchRoutes'
+import { generateSearchRoutes } from '@/app/store/components/search-bar/components/SearchRoutes'
 
 export function SearchNavigation({ className }: { className?: string }) {
   const [open, setOpen] = React.useState(false)

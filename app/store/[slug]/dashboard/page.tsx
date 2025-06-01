@@ -1,6 +1,6 @@
 'use client'
 
-import { EcommerceSetup } from '@/app/store/components/store-setup/EcommerceSetup'
+import { EcommerceSetup } from '@/app/store/components/store-setup/components/EcommerceSetup'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

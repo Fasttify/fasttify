@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { MoreHorizontal } from 'lucide-react'
-import { LogoUploader } from '@/app/store/components/store-config/LogoUploader'
+import { LogoUploader } from '@/app/store/components/store-config/components/LogoUploader'
 import useStoreDataStore from '@/context/core/storeDataStore'
 import Link from 'next/link'
 import Image from 'next/image'

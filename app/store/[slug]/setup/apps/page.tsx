@@ -1,6 +1,6 @@
 'use client'
 
-import { AppIntegrationPage } from '@/app/store/components/app-integration/AppIntegrationPage'
+import { AppIntegrationPage } from '@/app/store/components/app-integration/components/AppIntegrationPage'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

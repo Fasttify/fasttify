@@ -20,7 +20,7 @@ import { routes } from '@/utils/routes'
 import { useState, useEffect } from 'react'
 import useStoreDataStore from '@/context/core/storeDataStore'
 import Link from 'next/link'
-import { PricingDrawer } from '@/app/store/components/store-setup/PricingDrawer'
+import { PricingDrawer } from '@/app/store/components/store-setup/components/PricingDrawer'
 
 interface User {
   picture?: string

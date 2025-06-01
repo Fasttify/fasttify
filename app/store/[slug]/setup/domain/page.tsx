@@ -1,6 +1,6 @@
 'use client'
 
-import { DomainManagement } from '@/app/store/components/domains/DomainManagement'
+import { DomainManagement } from '@/app/store/components/domains/components/DomainManagement'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

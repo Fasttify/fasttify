@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { RefinedAIAssistantSheet } from '@/app/store/components/ai-chat/RefinedAiAssistant'
-import { GradientSparkles } from '@/app/store/components/ai-chat/GradientSparkles'
+import { RefinedAIAssistantSheet } from '@/app/store/components/ai-chat/components/RefinedAiAssistant'
+import { GradientSparkles } from '@/app/store/components/ai-chat/components/GradientSparkles'
 
 export function ChatTrigger() {
   const [isOpen, setIsOpen] = useState(false)

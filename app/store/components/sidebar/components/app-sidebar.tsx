@@ -8,14 +8,14 @@ import {
   PuzzleIcon as PuzzlePiece,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { NavMain } from '@/app/store/components/sidebar/nav-main'
-import { NavUser } from '@/app/store/components/sidebar/nav-user'
+import { NavMain } from '@/app/store/components/sidebar/components/nav-main'
+import { NavUser } from '@/app/store/components/sidebar/components/nav-user'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from '@/components/ui/sidebar'
 import { useAuth } from '@/context/hooks/useAuth'
 import { routes } from '@/utils/routes'
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname } from 'next/navigation'
-import { NavApps } from '@/app/store/components/sidebar/nav-apps'
+import { NavApps } from '@/app/store/components/sidebar/components/nav-apps'
 import useUserStore from '@/context/core/userStore'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

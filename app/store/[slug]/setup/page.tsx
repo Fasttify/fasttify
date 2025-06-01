@@ -1,6 +1,6 @@
 'use client'
 
-import { ThemePreview } from '@/app/store/components/store-config/ThemePreview'
+import { ThemePreview } from '@/app/store/components/store-config/components/ThemePreview'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

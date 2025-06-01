@@ -1,7 +1,11 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { MetricLineChart, DistributionPieChart, ConversionFunnel } from './ChartComponents'
+import {
+  MetricLineChart,
+  DistributionPieChart,
+  ConversionFunnel,
+} from '@/app/store/components/statistics/components/ChartComponents'
 
 interface MetricCardProps {
   title: string

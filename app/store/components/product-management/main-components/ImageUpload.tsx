@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import ImageSelectorModal from '@/app/store/components/images-selector/image-selector-modal'
+import ImageSelectorModal from '@/app/store/components/images-selector/components/image-selector-modal'
 
 interface ImageFile {
   url: string

@@ -1,6 +1,6 @@
 'use client'
 
-import { SalesDashboard } from '@/app/store/components/statistics/SalesDashboard'
+import { SalesDashboard } from '@/app/store/components/statistics/components/SalesDashboard'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

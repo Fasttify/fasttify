@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { TypingEffect } from './TypingEffect'
+import { TypingEffect } from '@/app/store/components/ai-chat/components/TypingEffect'
 import { cn } from '@/lib/utils'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 

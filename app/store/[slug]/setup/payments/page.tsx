@@ -1,4 +1,4 @@
-import { PaymentSettings } from '@/app/store/components/payments/PaymentSettings'
+import { PaymentSettings } from '@/app/store/components/payments/components/PaymentSettings'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

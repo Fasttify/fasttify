@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Progress } from '@/components/ui/progress'
-import { Task, defaultStoreTasks } from '@/app/store/components/store-setup/StoreSetup-tasks'
+import { Task, defaultStoreTasks } from '@/app/store/components/store-setup/utils/StoreSetup-tasks'
 import {
   Accordion,
   AccordionContent,
@@ -14,7 +14,7 @@ import {
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
-import { PricingDrawer } from '@/app/store/components/store-setup/PricingDrawer'
+import { PricingDrawer } from '@/app/store/components/store-setup/components/PricingDrawer'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 import useStoreDataStore from '@/context/core/storeDataStore'
