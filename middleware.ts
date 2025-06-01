@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleAuthenticationMiddleware } from './middlewares/auth/auth'
-import { handleSubscriptionMiddleware } from './middlewares/subscription/subscription'
 import { handleStoreMiddleware } from './middlewares/store-access/store'
 import { handleStoreAccessMiddleware } from './middlewares/store-access/storeAccess'
 import { handleProductOwnershipMiddleware } from './middlewares/ownership/productOwnership'
@@ -29,10 +28,6 @@ export async function middleware(request: NextRequest) {
   if (path.match(/^\/store\/[^\/]+/)) {
     // Proteger todas las rutas de tienda
     return handleStoreAccessMiddleware(request)
-  }
-
-  if (path === '/subscription-success') {
-    return handleSubscriptionMiddleware(request, NextResponse.next())
   }
 
   if (path === '/account-settings') {
