@@ -5,20 +5,11 @@ import { PricingCard } from '@/app/(main-layout)/pricing/components/PricingCard'
 import { Footer } from '@/app/(main-layout)/landing/components/Footer'
 import { FAQSection } from '@/app/(main-layout)/pricing/components/FAQSection'
 import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem'
-import { Amplify } from 'aws-amplify'
 import { FeatureComparison } from '@/app/(main-layout)/pricing/components/FeatureComparison'
-import outputs from '@/amplify_outputs.json'
 import { plans } from '@/app/(main-layout)/pricing/components/plans'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 export default function PricingPage() {
   return (

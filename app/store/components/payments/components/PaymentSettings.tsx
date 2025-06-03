@@ -6,18 +6,9 @@ import { PaymentProvidersSection } from '@/app/store/components/payments/compone
 import { PaymentMethodsSection } from '@/app/store/components/payments/components/PaymentMethodsSection'
 import { PaymentCaptureSection } from '@/app/store/components/payments/components/PaymentCaptureSection'
 import { usePaymentSettings } from '@/app/store/components/payments/hooks/usePaymentSettings'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 export function PaymentSettings() {
   const {

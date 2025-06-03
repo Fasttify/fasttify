@@ -32,6 +32,7 @@ export interface ImageItem {
   lastModified: Date
   size: number
   type: string
+  id: string
 }
 
 export interface ListImagesResponse {

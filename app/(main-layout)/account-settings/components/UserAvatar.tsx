@@ -3,10 +3,9 @@ import { ImagePlus } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { useUpdateProfilePicture } from '@/app/(main-layout)/account-settings/hooks/useUpdateProfilePicture'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
+configureAmplify()
 
 interface UserAvatarProps {
   imageUrl?: string

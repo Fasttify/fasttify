@@ -12,7 +12,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Amplify } from 'aws-amplify'
 import { deleteUser } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
 import { LoadingIndicator } from '@/components/ui/loading-indicator'
@@ -20,10 +19,10 @@ import { UserAvatar } from '@/app/(main-layout)/account-settings/components/User
 import { ChangePasswordDialog } from '@/app/(main-layout)/account-settings/components/ChangePasswordDialog'
 import { ChangeEmailDialog } from '@/app/(main-layout)/account-settings/components/ChangeEmailDialog'
 import useUserStore from '@/context/core/userStore'
-import outputs from '@/amplify_outputs.json'
 import CustomToolTip from '@/components/ui/custom-tooltip'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
+configureAmplify()
 
 export function AccountSettings() {
   const [isProfileOpen, setIsProfileOpen] = useState(false)

@@ -3,8 +3,6 @@ import { TypingEffect } from '@/app/store/components/ai-chat/components/TypingEf
 import { cn } from '@/lib/utils'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 
-// Create a Map to store which messages have completed typing
-// This will persist across component remounts
 const completedTypingMessages = new Map<string, boolean>()
 
 interface TypingMessageProps {

@@ -19,7 +19,7 @@ import {
   MetricCard,
   DistributionCard,
   ConversionCard,
-} from '@/app/store/components/statistics/MetricCards'
+} from '@/app/store/components/statistics/components/MetricCards'
 
 // Data generation utilities
 const generateDailyData = (days = 30, baseValue = 1000, variance = 200) => {

@@ -5,7 +5,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Amplify } from 'aws-amplify'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import {
   NavigationMenu,
@@ -22,17 +21,9 @@ import { UserMenu } from '@/app/(main-layout)/landing/components/UserMenu'
 import { Skeleton } from '@/components/ui/skeleton'
 import { navItems } from '@/app/(main-layout)/landing/components/navigation'
 import useUserStore from '@/context/core/userStore'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 export function Navbar() {
   const { user, loading, clearUser } = useUserStore()

@@ -9,6 +9,7 @@ export interface S3Image {
   lastModified?: Date
   size?: number
   type?: string
+  id?: string
 }
 
 interface UseS3ImagesOptions {
@@ -87,6 +88,7 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
         const processedImages = response.images.map(img => ({
           ...img,
           lastModified: img.lastModified ? new Date(img.lastModified) : undefined,
+          id: img.id || generateFallbackId(img.key, img.filename),
         }))
 
         setImages(prev => (token ? [...prev, ...processedImages] : processedImages))
@@ -154,6 +156,9 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
             lastModified: response.image.lastModified
               ? new Date(response.image.lastModified)
               : new Date(),
+            // Generar ID único si no existe (compatibilidad hacia atrás)
+            id:
+              response.image.id || generateFallbackId(response.image.key, response.image.filename),
           }
 
           uploadedImages.push(newImage)
@@ -233,4 +238,24 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
     loadingMore,
     nextContinuationToken,
   }
+}
+
+/**
+ * Genera un ID único para compatibilidad hacia atrás cuando las imágenes
+ * existentes no tienen el campo id
+ */
+function generateFallbackId(key: string, filename: string): string {
+  // Crear hash simple del key
+  let hash = 0
+  for (let i = 0; i < key.length; i++) {
+    const char = key.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+
+  // Extraer timestamp del key si está disponible
+  const timestampMatch = key.match(/\/(\d+)-/)
+  const timestamp = timestampMatch ? timestampMatch[1] : Date.now().toString()
+
+  return `fallback_${Math.abs(hash)}_${timestamp}`
 }

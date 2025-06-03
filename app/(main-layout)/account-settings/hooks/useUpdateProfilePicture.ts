@@ -2,11 +2,10 @@ import { useState } from 'react'
 import { uploadData } from 'aws-amplify/storage'
 import { updateUserAttributes } from 'aws-amplify/auth'
 import { useAuthUser } from '@/hooks/auth/useAuthUser'
-import { Amplify } from 'aws-amplify'
 import { v4 as uuidv4 } from 'uuid'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
+configureAmplify()
 
 export function useUpdateProfilePicture() {
   const [isLoading, setIsLoading] = useState(false)

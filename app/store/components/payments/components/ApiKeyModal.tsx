@@ -29,19 +29,9 @@ import {
   PaymentGatewayType,
   PAYMENT_GATEWAYS,
 } from '@/lib/zod-schemas/api-keys'
+import { configureAmplify } from '@/lib/amplify-config'
 
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
-
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 type ApiKeyFormValues = {
   publicKey: string

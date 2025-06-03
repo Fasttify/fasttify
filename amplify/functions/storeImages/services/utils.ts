@@ -8,6 +8,24 @@ export class FileUtils {
   }
 
   /**
+   * Genera un UUID v4 simple sin dependencias externas
+   */
+  public static generateUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0
+      const v = c === 'x' ? r : (r & 0x3) | 0x8
+      return v.toString(16)
+    })
+  }
+
+  /**
+   * Genera un ID único corto para evitar nombres muy largos
+   */
+  public static generateShortId(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+  }
+
+  /**
    * Determina el tipo MIME basado en la extensión del archivo
    */
   public static getFileType(filename: string): string {
@@ -24,11 +42,13 @@ export class FileUtils {
   }
 
   /**
-   * Genera una clave S3 única con timestamp
+   * Genera una clave S3 única con timestamp y UUID para garantizar unicidad
    */
   public static generateS3Key(storeId: string, filename: string): string {
     const timestamp = new Date().getTime()
-    return `products/${storeId}/${timestamp}-${filename}`
+    const uniqueId = this.generateShortId()
+    // Formato: products/storeId/timestamp-uniqueId-filename
+    return `products/${storeId}/${timestamp}-${uniqueId}-${filename}`
   }
 
   /**

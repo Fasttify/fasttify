@@ -27,6 +27,15 @@ export default function ImageGallery({
   onImageSelect,
   onDeleteImage,
 }: ImageGalleryProps) {
+  // Función para generar un ID único si no existe
+  const getImageKey = (image: S3Image, index: number): string => {
+    if (image.id) {
+      return image.id
+    }
+    // Fallback: generar clave única combinando key, index y filename
+    return `${image.key}-${index}-${image.filename || 'unknown'}`
+  }
+
   if (!loading && images.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -59,7 +68,7 @@ export default function ImageGallery({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
           {images.map((image, index) => (
             <div
-              key={image.key}
+              key={getImageKey(image, index)}
               className={`relative border rounded-md overflow-hidden ${allowMultipleSelection ? (Array.isArray(selectedImage) && selectedImage.includes(image.key) ? 'ring-2 ring-blue-500' : '') : selectedImage === image.key ? 'ring-2 ring-blue-500' : ''}`}
               onClick={() => onImageSelect(image)}
             >
@@ -119,7 +128,7 @@ export default function ImageGallery({
         <div className="space-y-2 mt-4">
           {images.map((image, index) => (
             <div
-              key={image.key}
+              key={getImageKey(image, index)}
               className={`flex items-center border rounded-md p-2 ${allowMultipleSelection ? (Array.isArray(selectedImage) && selectedImage.includes(image.key) ? 'ring-2 ring-blue-500' : '') : selectedImage === image.key ? 'ring-2 ring-blue-500' : ''}`}
               onClick={() => onImageSelect(image)}
             >

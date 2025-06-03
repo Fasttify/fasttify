@@ -5,18 +5,9 @@ import { ChangeDomainDialog } from '@/app/store/components/domains/components/Ch
 import { EditStoreProfileDialog } from '@/app/store/components/domains/components/EditStoreProfileDialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import useStoreDataStore from '@/context/core/storeDataStore'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 export function DomainManagement() {
   const { currentStore, isLoading } = useStoreDataStore()

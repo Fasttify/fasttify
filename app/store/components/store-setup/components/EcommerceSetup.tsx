@@ -15,19 +15,10 @@ import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import { PricingDrawer } from '@/app/store/components/store-setup/components/PricingDrawer'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 import useStoreDataStore from '@/context/core/storeDataStore'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 export function EcommerceSetup() {
   const [tasks, setTasks] = useState<Task[]>(defaultStoreTasks)

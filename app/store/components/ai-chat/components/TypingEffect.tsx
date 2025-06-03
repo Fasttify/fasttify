@@ -11,7 +11,7 @@ interface TypingEffectProps {
 
 export function TypingEffect({
   text,
-  typingSpeed = 10, // Reduced from 10 to 5ms
+  typingSpeed = 10,
   delay = 0,
   className = '',
   onComplete,
@@ -22,7 +22,6 @@ export function TypingEffect({
   const [startTyping, setStartTyping] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Clear timeout on unmount to prevent memory leaks
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -31,7 +30,6 @@ export function TypingEffect({
     }
   }, [])
 
-  // Handle initial delay before typing starts
   useEffect(() => {
     if (delay > 0) {
       const delayTimeout = setTimeout(() => {
@@ -44,17 +42,14 @@ export function TypingEffect({
     }
   }, [delay])
 
-  // Handle the typing animation with batch processing
   useEffect(() => {
     if (!startTyping || isComplete) return
 
     if (displayedText.length < text.length) {
       timeoutRef.current = setTimeout(() => {
-        // Add multiple characters at once (3-5 characters per update)
         const charsToAdd = Math.min(4, text.length - displayedText.length)
         setDisplayedText(text.substring(0, displayedText.length + charsToAdd))
 
-        // Call the callback after characters are typed
         if (onCharacterTyped) onCharacterTyped()
       }, typingSpeed)
     } else if (!isComplete) {

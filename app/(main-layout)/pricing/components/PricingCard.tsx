@@ -8,19 +8,10 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/hooks/ui/use-toasts'
 import { Toast } from '@/components/ui/toasts'
 import { useAuth } from '@/context/hooks/useAuth'
-import { Amplify } from 'aws-amplify'
 import useUserStore from '@/context/core/userStore'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 interface PricingCardProps {
   plan: {
