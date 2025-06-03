@@ -5,13 +5,13 @@ import { useCollections } from '@/app/store/hooks/useCollections'
 import { getStoreId } from '@/utils/store-utils'
 import { UnsavedChangesAlert } from '@/components/ui/unsaved-changes-alert'
 import { useCollectionForm } from '@/app/store/components/product-management/utils/collection-form-utils'
-import { configureAmplify } from '@/app/store/components/product-management/collection-form/config/amplifyConfig'
+
 import { CollectionHeader } from '@/app/store/components/product-management/collection-form/components/CollectionHeader'
 import { CollectionContent } from '@/app/store/components/product-management/collection-form/components/CollectionContent'
 import { CollectionSidebar } from '@/app/store/components/product-management/collection-form/components/CollectionSidebar'
 import { CollectionFooter } from '@/app/store/components/product-management/collection-form/components/CollectionFooter'
+import { configureAmplify } from '@/lib/amplify-config'
 
-// Configure Amplify
 configureAmplify()
 
 export function FormPage() {
