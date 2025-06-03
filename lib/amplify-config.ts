@@ -56,14 +56,5 @@ export function reconfigureAmplify() {
   configureAmplify()
 }
 
-// Auto-configuración al importar
-if (typeof window !== 'undefined') {
-  // Cliente - configuración completa
-  configureAmplify()
-} else {
-  // Servidor - configuración SSR
-  configureAmplifySSR()
-}
-
 // Re-exportar Amplify configurado
 export { Amplify }
