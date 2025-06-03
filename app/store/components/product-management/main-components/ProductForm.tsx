@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -12,7 +14,7 @@ import {
   type ProductFormValues,
   defaultValues,
 } from '@/lib/zod-schemas/product-schema'
-import { useProducts, type IProduct } from '@/app/store/hooks/useProducts'
+import { useProducts } from '@/app/store/hooks/useProducts'
 import {
   mapProductToFormValues,
   prepareProductData,
@@ -32,34 +34,65 @@ interface ProductFormProps {
   productId?: string
 }
 
+// Función helper para validar el status
+const normalizeStatus = (status: any): 'draft' | 'pending' | 'active' | 'inactive' => {
+  const validStatuses = ['draft', 'pending', 'active', 'inactive'] as const
+
+  // Si el status es undefined, null o string vacío, retornar 'draft'
+  if (!status || status === '') {
+    return 'draft'
+  }
+
+  // Si el status es válido, retornarlo; sino, retornar 'draft'
+  return validStatuses.includes(status) ? status : 'draft'
+}
+
+// Componente de Loading reutilizable
+function ProductLoadingState() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Loader color="black" text="Cargando producto..." size="large" />
+    </div>
+  )
+}
+
+// Componente del botón de volver
+function BackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      onClick={onClick}
+      className="text-gray-800 text-lg"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="mr-1"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+      Añadir producto
+    </Button>
+  )
+}
+
 export function ProductForm({ storeId, productId }: ProductFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isRedirecting, setIsRedirecting] = useState(false)
-  const { createProduct, updateProduct, products, fetchProduct } = useProducts(storeId, {
+  const [isLoadingProduct, setIsLoadingProduct] = useState(!!productId)
+
+  const { createProduct, updateProduct, fetchProduct } = useProducts(storeId, {
     skipInitialFetch: true,
   })
-
-  const [productToEdit, setProductToEdit] = useState<IProduct | null>(null)
-
-  useEffect(() => {
-    const loadProduct = async () => {
-      if (!productId) return
-
-      const existingProduct = products.find(p => p.id === productId && p.storeId === storeId)
-
-      if (existingProduct) {
-        setProductToEdit(existingProduct)
-      } else {
-        const product = await fetchProduct(productId)
-        if (product && product.storeId === storeId) {
-          setProductToEdit(product)
-        }
-      }
-    }
-
-    loadProduct()
-  }, [productId, storeId, fetchProduct])
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -78,163 +111,143 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     isSubmitting,
   })
 
+  // Cargar producto para edición
   useEffect(() => {
-    if (productToEdit) {
-      form.reset(defaultValues)
-
-      const formValues = mapProductToFormValues(productToEdit)
-
-      if (formValues.status) {
-        const validStatuses = ['draft', 'pending', 'active', 'inactive']
-        formValues.status = validStatuses.includes(formValues.status) ? formValues.status : 'draft'
-      } else {
-        formValues.status = 'draft'
-      }
-
-      formValues.category = formValues.category || ''
-
-      setTimeout(() => {
-        form.reset(formValues)
-      }, 100)
+    if (!productId) {
+      setIsLoadingProduct(false)
+      return
     }
-  }, [productToEdit, form])
 
-  async function onSubmit(data: ProductFormValues) {
+    const loadProduct = async () => {
+      try {
+        const product = await fetchProduct(productId)
+        if (product) {
+          const formValues = mapProductToFormValues(product)
+
+          // Normalizar valores antes de establecerlos en el formulario
+          formValues.status = normalizeStatus(formValues.status)
+          formValues.category = formValues.category || ''
+
+          // Establecer los valores en el formulario
+          form.reset(formValues)
+        }
+      } catch (error) {
+        console.error('Error loading product:', error)
+        toast.error('Error', {
+          description: 'No se pudo cargar el producto. Por favor, inténtelo de nuevo.',
+        })
+      } finally {
+        setIsLoadingProduct(false)
+      }
+    }
+
+    loadProduct()
+  }, [productId, fetchProduct, form])
+
+  // Función optimizada para manejar el guardado
+  const handleSave = useCallback(
+    async (isNavigating = false) => {
+      try {
+        const isValid = await form.trigger()
+        if (!isValid) {
+          throw new Error('Validation failed')
+        }
+
+        const data = form.getValues()
+        const basicProductData = prepareProductData(data, storeId)
+
+        const result = productId
+          ? await handleProductUpdate(basicProductData, productId, storeId, updateProduct)
+          : await handleProductCreate(basicProductData, createProduct)
+
+        if (result) {
+          resetUnsavedChanges()
+          // Mantener isSubmitting true durante la redirección
+          if (isNavigating && pendingNavigation) {
+            pendingNavigation()
+          } else {
+            router.push(`/store/${storeId}/products`)
+          }
+          // No resetear isSubmitting aquí, se hará cuando se complete la navegación
+        } else {
+          throw new Error(
+            productId ? 'Error al actualizar el producto' : 'Error al crear el producto'
+          )
+        }
+      } catch (error) {
+        console.error('Error al guardar producto:', error)
+
+        if (!(error instanceof Error && error.message === 'Validation failed')) {
+          toast.error('Error', {
+            description:
+              'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
+          })
+        }
+        throw error
+      }
+    },
+    [
+      form,
+      storeId,
+      productId,
+      updateProduct,
+      createProduct,
+      resetUnsavedChanges,
+      pendingNavigation,
+      router,
+    ]
+  )
+
+  // Función para manejar el submit del formulario
+  const onSubmit = async (data: ProductFormValues) => {
     if (isSubmitting) return
     setIsSubmitting(true)
 
     try {
-      const basicProductData = prepareProductData(data, storeId)
-      let result: IProduct | null
-
-      if (productId) {
-        result = await handleProductUpdate(basicProductData, productId, storeId, updateProduct)
-      } else {
-        result = await handleProductCreate(basicProductData, createProduct)
-      }
-
-      if (result) {
-        resetUnsavedChanges()
-        router.push(`/store/${storeId}/products`)
-        return
-      } else {
-        throw new Error('The product could not be saved')
-      }
+      await handleSave()
     } catch (error) {
-      console.error('The product could not be saved', error)
-      toast.error('Error', {
-        description: 'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
-      })
       setIsSubmitting(false)
     }
+  }
+
+  // Función para manejar el guardado desde UnsavedChangesAlert
+  const handleUnsavedSave = useCallback(async () => {
+    setIsSubmitting(true)
+    try {
+      await handleSave(true)
+      // Mantener isSubmitting true hasta la redirección
+    } catch (error) {
+      setIsSubmitting(false)
+      throw error
+    }
+  }, [handleSave])
+
+  // Función para manejar la navegación con confirmación
+  const handleNavigation = useCallback(
+    (destination: () => void) => {
+      confirmNavigation(destination)
+    },
+    [confirmNavigation]
+  )
+
+  // Si está cargando, mostrar el loader
+  if (isLoadingProduct) {
+    return <ProductLoadingState />
   }
 
   return (
     <>
       {hasUnsavedChanges && (
         <UnsavedChangesAlert
-          onSave={async () => {
-            if (productId) {
-              try {
-                const isValid = await form.trigger()
-                if (!isValid) {
-                  return Promise.reject(new Error('Validation failed'))
-                }
-
-                const data = form.getValues()
-                const basicProductData = prepareProductData(data, storeId)
-                const result = await handleProductUpdate(
-                  basicProductData,
-                  productId,
-                  storeId,
-                  updateProduct
-                )
-
-                if (result) {
-                  resetUnsavedChanges()
-                  setIsRedirecting(true)
-                  if (pendingNavigation) {
-                    pendingNavigation()
-                  } else {
-                    router.push(`/store/${storeId}/products`)
-                  }
-                }
-              } catch (error) {
-                console.error('The product could not be saved', error)
-
-                if (!(error instanceof Error && error.message === 'Validation failed')) {
-                  toast.error('Error', {
-                    description:
-                      'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
-                  })
-                }
-                throw error
-              }
-            } else {
-              try {
-                const isValid = await form.trigger()
-                if (!isValid) {
-                  return Promise.reject(new Error('Validation failed'))
-                }
-
-                const data = form.getValues()
-                const basicProductData = prepareProductData(data, storeId)
-                const result = await handleProductCreate(basicProductData, createProduct)
-
-                if (result) {
-                  resetUnsavedChanges()
-                  setIsRedirecting(true)
-                  if (pendingNavigation) {
-                    pendingNavigation()
-                  } else {
-                    router.push(`/store/${storeId}/products`)
-                  }
-                } else {
-                  throw new Error('The product could not be created')
-                }
-              } catch (error) {
-                console.error('Error al guardar producto:', error)
-                if (!(error instanceof Error && error.message === 'Validation failed')) {
-                  toast.error('Error', {
-                    description:
-                      'Ha ocurrido un error al guardar el producto. Por favor, inténtelo de nuevo.',
-                  })
-                }
-                throw error
-              }
-            }
-          }}
+          onSave={handleUnsavedSave}
           onDiscard={discardChanges}
           setIsSubmitting={setIsSubmitting}
         />
       )}
+
       <div className="max-w-7xl mx-auto px-4 mt-8">
         <div className="flex items-center mb-6">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              confirmNavigation(() => router.back())
-            }}
-            className="text-gray-800 text-lg"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-1"
-            >
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-            Añadir producto
-          </Button>
+          <BackButton onClick={() => handleNavigation(() => router.back())} />
         </div>
 
         <Form {...form}>
@@ -269,69 +282,27 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    confirmNavigation(() => router.back())
-                  }}
+                  onClick={() => handleNavigation(() => router.back())}
                 >
                   Cancelar
                 </Button>
 
-                {productId ? (
-                  <Button
-                    type="button"
-                    className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
-                    disabled={isSubmitting}
-                    onClick={async () => {
-                      if (isSubmitting) return
-                      setIsSubmitting(true)
-
-                      try {
-                        const data = form.getValues()
-                        const basicProductData = prepareProductData(data, storeId)
-                        const result = await handleProductUpdate(
-                          basicProductData,
-                          productId,
-                          storeId,
-                          updateProduct
-                        )
-
-                        if (result) {
-                          resetUnsavedChanges()
-                          router.push(`/store/${storeId}/products`)
-                        } else {
-                          setIsSubmitting(false)
-                        }
-                      } catch (error) {
-                        console.error('Error al actualizar producto:', error)
-                        setIsSubmitting(false)
-                      }
-                    }}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader color="white" />
-                        Actualizando...
-                      </>
-                    ) : (
-                      'Actualizar Producto'
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader color="white" />
-                        Creando...
-                      </>
-                    ) : (
-                      'Crear Producto'
-                    )}
-                  </Button>
-                )}
+                <Button
+                  type="submit"
+                  className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader color="white" />
+                      {productId ? 'Actualizando...' : 'Creando...'}
+                    </>
+                  ) : productId ? (
+                    'Actualizar Producto'
+                  ) : (
+                    'Crear Producto'
+                  )}
+                </Button>
               </div>
             </div>
 

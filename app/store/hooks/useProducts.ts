@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
+import { useCallback } from 'react'
 import { generateClient } from 'aws-amplify/api'
 import { getCurrentUser } from 'aws-amplify/auth'
 import type { Schema } from '@/amplify/data/resource'
@@ -272,64 +273,49 @@ export function useProducts(
   })
 
   // Consulta para obtener un producto específico
-  const fetchProductById = async (id: string): Promise<IProduct | null> => {
-    if (!storeId) {
-      console.error('Cannot get product: storeId not defined')
-      return null
-    }
+  const fetchProductById = useCallback(
+    async (id: string): Promise<IProduct | null> => {
+      if (!storeId) {
+        console.error('Cannot get product: storeId not defined')
+        return null
+      }
 
-    // Primero verificamos si ya tenemos el producto en la caché
-    const cachedProducts = queryClient.getQueryData([
-      'products',
-      storeId,
-      limit,
-      sortDirection,
-      sortField,
-    ]) as any
+      // Primero verificamos si ya tenemos el producto en la caché
+      const cachedProducts = queryClient.getQueryData([
+        'products',
+        storeId,
+        limit,
+        sortDirection,
+        sortField,
+      ]) as any
 
-    if (cachedProducts && cachedProducts.pages) {
-      for (const page of cachedProducts.pages) {
-        const existingProduct = page.products.find((p: IProduct) => p.id === id)
-        if (existingProduct) {
-          // Verificar que el producto pertenezca a la tienda actual
-          if (existingProduct.storeId === storeId) {
+      if (cachedProducts && cachedProducts.pages) {
+        for (const page of cachedProducts.pages) {
+          const existingProduct = page.products.find((p: IProduct) => p.id === id)
+          if (existingProduct) {
             return existingProduct
-          } else {
-            console.error(
-              `Access denied: Product ${id} does not belong to the current store ${storeId}`
-            )
-            return null
           }
         }
       }
-    }
 
-    // Verificar si el producto pertenece a la tienda actual antes de hacer la petición
-    try {
-      // Primero obtenemos todos los productos de la tienda actual
-      const { data: storeProducts } = await client.models.Product.list({
-        filter: { storeId: { eq: storeId } },
-      })
+      // Si no está en caché, obtenemos el producto por ID
+      try {
+        const { data: product } = await client.models.Product.get({ id })
 
-      // Buscamos el producto en los productos de la tienda
-      const productInStore = storeProducts?.find(p => p.id === id)
+        if (product) {
+          // Añadimos el producto a la caché
+          queryClient.setQueryData(['product', id], product)
+          return product as IProduct
+        }
 
-      if (productInStore) {
-        // El producto pertenece a la tienda actual, lo añadimos a la caché
-        queryClient.setQueryData(['product', id], productInStore)
-        return productInStore as IProduct
-      } else {
-        // El producto no pertenece a la tienda actual o no existe
-        console.error(
-          `Access denied: Product ${id} does not belong to the current store ${storeId}`
-        )
+        return null
+      } catch (error) {
+        console.error(`Error fetching product ${id}:`, error)
         return null
       }
-    } catch (error) {
-      console.error(`Error verifying product ${id}:`, error)
-      return null
-    }
-  }
+    },
+    [storeId, limit, sortDirection, sortField, queryClient]
+  )
 
   // Extraer productos de todas las páginas
   const products = data?.pages.flatMap(page => page.products) || []

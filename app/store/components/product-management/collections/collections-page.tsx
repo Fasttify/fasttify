@@ -5,8 +5,7 @@ import CollectionsHeader from '@/app/store/components/product-management/collect
 import CollectionsTabs from '@/app/store/components/product-management/collections/collections-tabs'
 import CollectionsTable from '@/app/store/components/product-management/collections/collections-table'
 import CollectionsFooter from '@/app/store/components/product-management/collections/collections-footer'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 import { useCollections } from '@/app/store/hooks/useCollections'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -18,15 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 type FilterType = 'all' | 'active' | 'inactive'
 
