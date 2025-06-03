@@ -28,4 +28,4 @@ export type {
 export { filterProducts, sortProducts, getProductImageUrl, formatPrice } from './utils/productUtils'
 
 // Config
-export { configureAmplify } from './config/amplifyConfig'
+export { configureAmplify } from '@/lib/amplify-config'
