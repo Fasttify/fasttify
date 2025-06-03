@@ -1,18 +1,9 @@
 'use client'
 
-import { AppIntegrationPage } from '@/app/store/components/app-integration/AppIntegrationPage'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
+import { AppIntegrationPage } from '@/app/store/components/app-integration/components/AppIntegrationPage'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 export default function AppIntegration() {
   return <AppIntegrationPage />

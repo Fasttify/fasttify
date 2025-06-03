@@ -1,271 +1,48 @@
-import {
-  S3Client,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} from '@aws-sdk/client-s3'
-import { env } from '$amplify/env/storeImages'
-import { getCorsHeaders } from '../shared/cors'
+import { APIGatewayEvent, APIGatewayResponse } from './types/types'
+import { ImageController } from './services/image-controller'
 
-const s3Client = new S3Client()
+// Instancia única del controlador para reutilización
+const imageController = new ImageController()
 
-const bucketName = env.BUCKET_NAME
-const awsRegion = env.AWS_REGION_BUCKET
+/**
+ * Handler principal de la Lambda function para manejo de imágenes
+ * Arquitectura refactorizada con separación de responsabilidades:
+ * - handler.ts: Punto de entrada y manejo de eventos
+ * - imageController.ts: Lógica de negocio y orquestación
+ * - s3Service.ts: Operaciones específicas de S3
+ * - config.ts: Manejo de configuración y variables de entorno
+ * - utils.ts: Funciones auxiliares y validaciones
+ * - types.ts: Definiciones de tipos TypeScript
+ */
+export const handler = async (event: APIGatewayEvent): Promise<APIGatewayResponse> => {
+  console.log('Processing request:', {
+    httpMethod: event.httpMethod,
+    hasBody: !!event.body,
+    timestamp: new Date().toISOString(),
+  })
 
-// Determinar el dominio de CloudFront a usar, si aplica.
-// cloudFrontDomainBase contendrá solo el nombre de host (ej: d123.cloudfront.net) si está en producción y configurado.
-// De lo contrario, permanecerá vacío, y se usará la URL directa de S3.
-let cloudFrontDomainBase = ''
-if (
-  env.APP_ENV === 'production' &&
-  env.CLOUDFRONT_DOMAIN_NAME &&
-  env.CLOUDFRONT_DOMAIN_NAME.trim() !== ''
-) {
-  cloudFrontDomainBase = env.CLOUDFRONT_DOMAIN_NAME
-}
-
-if (!bucketName) {
-  console.error(
-    'Error: BUCKET_NAME is not defined in the environment variables of the storeImages function.'
-  )
-}
-// AWS_REGION_BUCKET es necesario si no se usa CloudFront (no producción o CloudFront no configurado)
-if (!awsRegion && (!cloudFrontDomainBase || cloudFrontDomainBase.trim() === '')) {
-  console.warn(
-    "Warning: AWS_REGION_BUCKET is not defined. S3 URLs may default to 'us-east-2' if CloudFront is not used or not configured."
-  )
-}
-
-// Advertencia específica si es producción pero CLOUDFRONT_DOMAIN_NAME no está configurado
-if (
-  env.APP_ENV === 'production' &&
-  (!env.CLOUDFRONT_DOMAIN_NAME || env.CLOUDFRONT_DOMAIN_NAME.trim() === '')
-) {
-  console.warn(
-    'Warning: APP_ENV is "production" but CLOUDFRONT_DOMAIN_NAME is not set. Image URLs will use S3 direct links.'
-  )
-}
-
-export const handler = async (event: any) => {
-  const origin = event.headers?.origin || event.headers?.Origin
-
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: getCorsHeaders(origin),
-      body: '',
-    }
-  }
   try {
-    const body = event.body ? JSON.parse(event.body) : {}
-    const { action, storeId } = body
-
-    if (!storeId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'Store ID is required' }),
-        headers: getCorsHeaders(origin),
-      }
+    // Manejar solicitudes OPTIONS para CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+      const origin = event.headers?.origin || event.headers?.Origin
+      return imageController.handleOptions(origin)
     }
 
-    // Manejar diferentes acciones
-    switch (action) {
-      case 'list':
-        return await listImages(storeId, origin, body.limit, body.prefix, body.continuationToken)
-      case 'upload':
-        return await uploadImage(storeId, origin, body.filename, body.contentType, body.fileContent)
-      case 'delete':
-        return await deleteImage(body.key, origin)
-      default:
-        return {
-          statusCode: 400,
-          body: JSON.stringify({ message: 'Invalid action' }),
-          headers: getCorsHeaders(origin),
-        }
-    }
+    // Procesar la solicitud principal
+    return await imageController.processRequest(event)
   } catch (error) {
-    console.error('Error processing request:', error)
+    console.error('Unhandled error in handler:', error)
+
+    // Respuesta de emergencia en caso de fallo catastrófico
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Error processing request' }),
-      headers: getCorsHeaders(origin),
-    }
-  }
-}
-
-// Función para listar imágenes
-async function listImages(
-  storeId: string,
-  origin: string | undefined,
-  limit: number = 18,
-  prefix: string = '',
-  continuationToken?: string
-) {
-  try {
-    // Configurar el prefijo para las imágenes de la tienda
-    const storePrefix = prefix ? `products/${storeId}/${prefix}` : `products/${storeId}/`
-
-    // Listar objetos en el bucket con el prefijo de la tienda
-    const listCommand = new ListObjectsV2Command({
-      Bucket: bucketName,
-      Prefix: storePrefix,
-      MaxKeys: limit,
-      ContinuationToken: continuationToken,
-    })
-
-    const listResponse = await s3Client.send(listCommand)
-
-    if (!listResponse.Contents) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ images: [] }),
-        headers: getCorsHeaders(origin),
-      }
-    }
-
-    // Generar URLs para cada objeto usando CloudFront
-    const imagePromises = listResponse.Contents.map(async item => {
-      if (!item.Key) return null
-      if (item.Key.endsWith('/')) return null
-
-      let imageUrl: string
-      const s3Key = item.Key
-
-      if (cloudFrontDomainBase && cloudFrontDomainBase.trim() !== '') {
-        // Usar CloudFront para producción
-        imageUrl = `https://${cloudFrontDomainBase}/${s3Key}`
-      } else {
-        // Fallback a la URL de S3 para otros entornos o si CloudFront no está configurado
-        const regionForS3Url = awsRegion || 'us-east-2'
-        imageUrl = `https://${bucketName}.s3.${regionForS3Url}.amazonaws.com/${s3Key}`
-      }
-
-      // Extraer el nombre del archivo de la clave
-      const keyParts = item.Key.split('/')
-      const filename = keyParts[keyParts.length - 1]
-
-      // Determinar el tipo de archivo a partir de la extensión
-      const fileExtension = filename.split('.').pop()?.toLowerCase() || ''
-      let fileType = 'application/octet-stream'
-
-      if (fileExtension === 'jpg' || fileExtension === 'jpeg') fileType = 'image/jpeg'
-      else if (fileExtension === 'png') fileType = 'image/png'
-      else if (fileExtension === 'gif') fileType = 'image/gif'
-      else if (fileExtension === 'webp') fileType = 'image/webp'
-
-      return {
-        key: item.Key,
-        url: imageUrl, // Usar la URL construida dinámicamente
-        filename,
-        lastModified: item.LastModified,
-        size: item.Size,
-        type: fileType,
-      }
-    })
-
-    const imageResults = await Promise.all(imagePromises)
-    const validImages = imageResults.filter((img): img is NonNullable<typeof img> => img !== null)
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        images: validImages,
-        nextContinuationToken: listResponse.NextContinuationToken,
-      }),
-      headers: getCorsHeaders(origin),
-    }
-  } catch (error) {
-    console.error('Error listing images:', error)
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Error listing images' }),
-      headers: getCorsHeaders(origin),
-    }
-  }
-}
-
-// Función para subir una imagen
-async function uploadImage(
-  storeId: string,
-  origin: string | undefined,
-  filename: string,
-  contentType: string,
-  fileContent: string
-) {
-  try {
-    // Decodificar el contenido del archivo de base64
-    const buffer = Buffer.from(fileContent, 'base64')
-    const timestamp = new Date().getTime()
-    const key = `products/${storeId}/${timestamp}-${filename}`
-
-    // Subir el archivo a S3
-    const putCommand = new PutObjectCommand({
-      Bucket: bucketName,
-      Key: key,
-      Body: buffer,
-      ContentType: contentType,
-    })
-
-    await s3Client.send(putCommand)
-
-    let imageUrl: string
-    const s3Key = key
-
-    if (cloudFrontDomainBase && cloudFrontDomainBase.trim() !== '') {
-      // Usar CloudFront para producción
-      imageUrl = `https://${cloudFrontDomainBase}/${s3Key}`
-    } else {
-      // Fallback a la URL de S3 para otros entornos o si CloudFront no está configurado
-      const regionForS3Url = awsRegion || 'us-east-2'
-      imageUrl = `https://${bucketName}.s3.${regionForS3Url}.amazonaws.com/${s3Key}`
-    }
-
-    const image = {
-      key,
-      url: imageUrl, // Usar la URL construida dinámicamente
-      filename,
-      lastModified: new Date(),
-      size: buffer.length,
-      type: contentType,
-    }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ image }),
-      headers: getCorsHeaders(origin),
-    }
-  } catch (error) {
-    console.error('Error uploading image:', error)
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Error uploading image' }),
-      headers: getCorsHeaders(origin),
-    }
-  }
-}
-
-// Función para eliminar una imagen
-async function deleteImage(key: string, origin: string | undefined) {
-  try {
-    // Eliminar el objeto de S3
-    const deleteCommand = new DeleteObjectCommand({
-      Bucket: bucketName,
-      Key: key,
-    })
-
-    await s3Client.send(deleteCommand)
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true }),
-      headers: getCorsHeaders(origin),
-    }
-  } catch (error) {
-    console.error('Error deleting image:', error)
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Error deleting image' }),
-      headers: getCorsHeaders(origin),
+      body: JSON.stringify({ message: 'Internal server error' }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      },
     }
   }
 }

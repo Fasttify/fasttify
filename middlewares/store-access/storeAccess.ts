@@ -4,7 +4,7 @@ import { cookiesClient } from '@/utils/AmplifyUtils'
 
 /**
  * Middleware para proteger las rutas de tienda
- * Verifica que el usuario tenga acceso a la tienda solicitada
+ * Verifica que el usuario tenga acceso a la tienda solicitada y un plan de suscripción válido
  */
 export async function handleStoreAccessMiddleware(request: NextRequest) {
   // Obtener la sesión del usuario
@@ -12,6 +12,16 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
   // Verificar autenticación
   if (!session || !session.tokens) {
     return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // Verificar plan de suscripción válido ANTES de verificar acceso a tienda
+  const userPlan: string | undefined = session.tokens?.idToken?.payload?.['custom:plan'] as
+    | string
+    | undefined
+  const allowedPlans = ['Royal', 'Majestic', 'Imperial']
+
+  if (!userPlan || !allowedPlans.includes(userPlan)) {
+    return NextResponse.redirect(new URL('/pricing', request.url))
   }
 
   // Obtener el ID del usuario desde la sesión
@@ -50,8 +60,7 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/my-store', request.url))
     }
 
-    // Si todo está bien, permitir el acceso
-
+    // Si todo está bien (plan válido y tienda pertenece al usuario), permitir el acceso
     return NextResponse.next()
   } catch (error) {
     console.error('Error verificando acceso a tienda:', error)

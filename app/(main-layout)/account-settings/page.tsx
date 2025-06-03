@@ -5,20 +5,11 @@ import { AccountSettings } from '@/app/(main-layout)/account-settings/components
 import { PaymentSettings } from '@/app/(main-layout)/account-settings/components/PaymentSettings'
 import { ActiveSessions } from '@/app/(main-layout)/account-settings/components/ActiveSessions'
 import { useState, useEffect, Suspense } from 'react'
-import { Amplify } from 'aws-amplify'
 import { useSearchParams } from 'next/navigation'
 import useUserStore from '@/context/core/userStore'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 function AccountSettingsContent() {
   const searchParams = useSearchParams()

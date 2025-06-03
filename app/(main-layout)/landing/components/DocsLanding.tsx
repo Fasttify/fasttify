@@ -9,18 +9,9 @@ import { Feature } from '@/app/(main-layout)/landing/components/Feature'
 import { Testimonials } from '@/app/(main-layout)/landing/components/Testimonials'
 import { MarqueeLogos } from '@/app/(main-layout)/landing/components/MarqueeLogos'
 import { LogoCarousell } from '@/app/(main-layout)/landing/components/LogoCarousell'
-import outputs from '@/amplify_outputs.json'
-import { Amplify } from 'aws-amplify'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 export default function LandingPage() {
   return (

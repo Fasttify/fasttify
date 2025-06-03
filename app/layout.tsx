@@ -2,20 +2,12 @@ import type { Metadata } from 'next'
 import { inter } from '@/config/fonts'
 import { ReactQueryProvider } from '@/utils/ReactQueryProvider'
 import { Toaster } from '@/components/ui/sonner'
-import { Amplify } from 'aws-amplify'
 import ConfigureAmplifyClientSide from '@/utils/ConfigureAmplify'
-import outputs from '@/amplify_outputs.json'
-import './global.css'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
+
+import './global.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.fasttify.com'),

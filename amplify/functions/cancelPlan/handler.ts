@@ -6,11 +6,9 @@ import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtim
 import { env } from '$amplify/env/hookPlan'
 import { type Schema } from '../../data/resource'
 
-// Configurar Amplify para acceso a datos
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 Amplify.configure(resourceConfig, libraryOptions)
 
-// Inicializar el cliente para DynamoDB (Amplify Data)
 const clientSchema = generateClient<Schema>()
 
 export const handler = async (event: any) => {
@@ -50,22 +48,18 @@ export const handler = async (event: any) => {
         }
       )
     } catch (error: any) {
-      // Si se recibe error, verificamos si es por intentar modificar una preaprobación ya cancelada.
       if (
         error.response &&
         error.response.data &&
         typeof error.response.data.message === 'string' &&
         error.response.data.message.toLowerCase().includes('cancelled preapproval')
       ) {
-        // Tratamos el error como si fuera exitoso.
-        response = error.response // Usamos el objeto de error.response para continuar.
+        response = error.response
       } else {
-        throw error // Para otros errores, relanzamos.
+        throw error
       }
     }
 
-    // Si la respuesta no tiene status 200, pero ya fue capturado el error específico,
-    // podemos continuar.
     const data = response.data
     if (response.status !== 200 && response.status !== 400) {
       return {

@@ -11,18 +11,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
+import { configureAmplify } from '@/lib/amplify-config'
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-})
+configureAmplify()
 
 interface StoreData {
   storeName: string

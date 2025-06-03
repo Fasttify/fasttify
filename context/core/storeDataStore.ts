@@ -22,7 +22,7 @@ interface StoreDataState {
   clearStore: () => void
   setupSubscription: (id: string) => () => void
   setConnectionState: (state: ConnectionState) => void
-  checkMasterShopApiKey: (id: string) => Promise<boolean>
+  checkMasterShopApiKey: (storeId: string, userId: string) => Promise<boolean>
 }
 
 // Configurar el listener de estado de conexión
@@ -37,7 +37,6 @@ Hub.listen('api', (data: any) => {
 const useStoreDataStore = create<StoreDataState>((set, get) => ({
   currentStore: null,
   storeId: null,
-  userId: null,
   isLoading: true,
   error: null,
   connectionState: null,
@@ -81,8 +80,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
           isLoading: false,
         })
 
-        // Verificar si existe la API key de Master Shop
-        const hasMasterShopApiKey = await get().checkMasterShopApiKey(store.storeId)
+        const hasMasterShopApiKey = await get().checkMasterShopApiKey(storeId, userId)
         set({ hasMasterShopApiKey })
 
         // Configurar suscripción automáticamente después de obtener los datos
@@ -101,25 +99,29 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     }
   },
 
-  // Verificar si existe la API key de Master Shop sin traer su valor
-  checkMasterShopApiKey: async (id: string) => {
+  checkMasterShopApiKey: async (storeId: string, userId: string) => {
     try {
-      const { data } = await client.models.UserStore.listUserStoreByUserId(
+      const result = await client.models.UserStore.listUserStoreByUserId(
         {
-          userId: id,
+          userId: userId,
         },
         {
           filter: {
+            storeId: { eq: storeId },
             mastershopApiKey: { attributeExists: true },
           },
+          selectionSet: ['storeId'],
         }
       )
 
-      const hasApiKey = data && data.length > 0
+      const hasApiKey = !!(result.data && result.data.length > 0)
+
       set({ hasMasterShopApiKey: hasApiKey })
+
       return hasApiKey
     } catch (error) {
-      console.error('Error al verificar API key:', error)
+      console.error('Error checking master shop api key:', error)
+      set({ hasMasterShopApiKey: false })
       return false
     }
   },
@@ -152,18 +154,18 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     }).subscribe({
       next: ({ items, isSynced }) => {
         if (items.length > 0) {
-          // Actualizar el estado con los datos más recientes
           set({
             currentStore: items[0] as StoreType,
             isLoading: false,
           })
 
-          // Verificar si existe la API key cuando hay cambios
           if (isSynced) {
-            get().checkMasterShopApiKey(items[0].storeId)
+            const currentState = get()
+            if (currentState.currentStore?.userId) {
+              get().checkMasterShopApiKey(id, currentState.currentStore.userId)
+            }
           }
         } else if (isSynced) {
-          // Si no hay elementos después de sincronizar, la tienda podría haber sido eliminada
           set({
             currentStore: null,
             error: new Error('Store not found or deleted'),
