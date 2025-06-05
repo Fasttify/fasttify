@@ -15,8 +15,7 @@ frontend:
     preBuild:
       commands:
         - nvm use 22
-        - npm ci --include=dev
-        - echo "Skipping husky setup in production"
+        - npm ci 
     build:
       commands:
         - npm run build
