@@ -17,9 +17,11 @@ export async function middleware(request: NextRequest) {
   let subdomain = ''
   if (isProduction) {
     // En producción: verificar si hay un subdominio (ej: tienda.fasttify.com)
-    const parts = hostname.split('.')
-    if (parts.length > 2 && hostname.endsWith('fasttify.com')) {
-      subdomain = parts[0]
+    const allowedDomains = ['fasttify.com', 'www.fasttify.com'];
+    const parts = hostname.split('.');
+    const domain = parts.slice(-2).join('.');
+    if (parts.length > 2 && allowedDomains.includes(domain)) {
+      subdomain = parts[0];
     }
   } else {
     // En desarrollo: usar el formato subdominio.localhost:3000 o localhost:3000
