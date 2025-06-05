@@ -8,6 +8,40 @@ import { handleCollectionOwnershipMiddleware } from './middlewares/ownership/col
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
+  const hostname = request.headers.get('host') || ''
+
+  // Configuración de dominios
+  const isProduction = process.env.NODE_ENV === 'production'
+
+  // Detectar subdominios
+  let subdomain = ''
+  if (isProduction) {
+    // En producción: verificar si hay un subdominio (ej: tienda.fasttify.com)
+    const parts = hostname.split('.')
+    if (parts.length > 2 && hostname.endsWith('fasttify.com')) {
+      subdomain = parts[0]
+    }
+  } else {
+    // En desarrollo: usar el formato subdominio.localhost:3000 o localhost:3000
+    if (hostname.includes('.localhost')) {
+      subdomain = hostname.split('.')[0]
+    }
+  }
+
+  // Si hay un subdominio y estamos en la raíz, reescribir a la ruta de la tienda
+  if (subdomain && subdomain !== 'www' && path === '/') {
+    // Reescribir la URL para mostrar la página de la tienda
+    const url = request.nextUrl.clone()
+    url.pathname = `/${subdomain}`
+    return NextResponse.rewrite(url)
+  }
+
+  // Si hay un subdominio y la ruta no empieza con el subdominio, agregar el prefijo
+  if (subdomain && subdomain !== 'www' && !path.startsWith(`/${subdomain}`)) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/${subdomain}${path}`
+    return NextResponse.rewrite(url)
+  }
 
   // Verificar propiedad de productos específicos
   if (
@@ -45,12 +79,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/subscription-success',
-    '/account-settings',
-    '/first-steps',
-    '/my-store',
-    '/login',
-    '/store/:path*',
-  ],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
