@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
 
   // Configuración de dominios
-  const isProduction = process.env.NODE_ENV === 'production'
+  const isProduction = process.env.APP_ENV === 'production'
 
   const allowedDomains = isProduction ? ['fasttify.com'] : ['localhost']
 

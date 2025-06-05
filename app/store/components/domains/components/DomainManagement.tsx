@@ -5,9 +5,6 @@ import { ChangeDomainDialog } from '@/app/store/components/domains/components/Ch
 import { EditStoreProfileDialog } from '@/app/store/components/domains/components/EditStoreProfileDialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import useStoreDataStore from '@/context/core/storeDataStore'
-import { configureAmplify } from '@/lib/amplify-config'
-
-configureAmplify()
 
 export function DomainManagement() {
   const { currentStore, isLoading } = useStoreDataStore()
