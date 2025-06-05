@@ -34,10 +34,10 @@ export default function FirstStepsPage() {
       <div className="min-h-screen flex items-center justify-center">
         <MultiStepLoader
           loadingStates={[
-            { text: 'Configurando tu tienda' },
             { text: 'Creando tu tienda' },
-            { text: 'Configurando tu tienda' },
-            { text: 'Listo' },
+            { text: 'Configurando template engine' },
+            { text: 'Preparando tu tienda online' },
+            { text: '¡Listo para usar!' },
           ]}
           loading={true}
         />
