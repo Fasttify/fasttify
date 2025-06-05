@@ -7,8 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "if command -v husky >/dev/null 2>&1; then husky; fi",
-    "postinstall": "if [ \"$NODE_ENV\" != \"production\" ] && command -v husky >/dev/null 2>&1; then husky; fi",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
