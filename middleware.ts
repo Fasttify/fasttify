@@ -25,14 +25,23 @@ export async function middleware(request: NextRequest) {
     const extractSubdomain = (hostname: string, isProduction: boolean): string => {
       const cleanHostname = hostname.split(':')[0]
       const parts = cleanHostname.split('.')
+
       if (isProduction) {
-        // En producción: verificar si hay un subdominio (ej: tienda.fasttify.com)
-        if (parts.length > 2 && cleanHostname.endsWith('fasttify.com')) {
+        // Lista blanca de dominios permitidos en producción
+        const allowedDomains = ['fasttify.com']
+        const domain = parts.slice(-2).join('.') // Obtener los últimos 2 segmentos (ej: fasttify.com)
+
+        // Verificar si hay exactamente un subdominio y el dominio está en la lista blanca
+        if (parts.length === 3 && allowedDomains.includes(domain)) {
           return parts[0]
         }
       } else {
-        // En desarrollo: usar el formato subdominio.localhost:3000
-        if (parts.length > 1 && cleanHostname.endsWith('localhost')) {
+        // Lista blanca de dominios permitidos en desarrollo
+        const allowedDomains = ['localhost']
+        const domain = parts[parts.length - 1] // Último segmento (ej: localhost)
+
+        // Verificar si hay exactamente un subdominio y el dominio está en la lista blanca
+        if (parts.length === 2 && allowedDomains.includes(domain)) {
           return parts[0]
         }
       }
