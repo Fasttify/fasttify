@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
 
   // Configuración de dominios
-  const isProduction = process.env.NODE_ENV === 'production'
+  const isProduction = process.env.APP_ENV === 'production'
 
   const allowedDomains = isProduction ? ['fasttify.com'] : ['localhost']
 
@@ -20,44 +20,50 @@ export async function middleware(request: NextRequest) {
     return cleanHostname === domain || cleanHostname === `www.${domain}`
   })
 
-  // Si estamos accediendo al dominio principal, continuar con la ruta normal
-  if (isMainDomain) {
-    return NextResponse.next()
-  }
+  // Detectar subdominios solo si NO es el dominio principal
+  if (!isMainDomain) {
+    const extractSubdomain = (hostname: string, isProduction: boolean): string => {
+      const cleanHostname = hostname.split(':')[0]
+      const parts = cleanHostname.split('.')
 
-  // Detectar subdominios
-  const extractSubdomain = (hostname: string, isProduction: boolean): string => {
-    const cleanHostname = hostname.split(':')[0]
-    const parts = cleanHostname.split('.')
-    if (isProduction) {
-      // En producción: verificar si hay un subdominio (ej: tienda.fasttify.com)
-      if (parts.length > 2 && cleanHostname.endsWith('fasttify.com')) {
-        return parts[0]
-      }
-    } else {
-      // En desarrollo: usar el formato subdominio.localhost:3000
-      if (parts.length > 1 && cleanHostname.endsWith('localhost')) {
-        return parts[0]
-      }
-    }
-    return ''
-  }
-  const subdomain = extractSubdomain(hostname, isProduction)
+      if (isProduction) {
+        // Lista blanca de dominios permitidos en producción
+        const allowedDomains = ['fasttify.com']
+        const domain = parts.slice(-2).join('.') // Obtener los últimos 2 segmentos (ej: fasttify.com)
 
-  // Reescribir URLs basadas en subdominios
-  if (subdomain && subdomain !== 'www') {
-    const url = request.nextUrl.clone()
-    if (path === '/') {
-      // Si estamos en la raíz, reescribir a la ruta de la tienda
-      url.pathname = `/${subdomain}`
-    } else if (!path.startsWith(`/${subdomain}`)) {
-      // Si la ruta no empieza con el subdominio, agregar el prefijo
-      url.pathname = `/${subdomain}${path}`
-    } else {
-      // La ruta ya tiene el prefijo correcto
-      return NextResponse.next()
+        // Verificar si hay exactamente un subdominio y el dominio está en la lista blanca
+        if (parts.length === 3 && allowedDomains.includes(domain)) {
+          return parts[0]
+        }
+      } else {
+        // Lista blanca de dominios permitidos en desarrollo
+        const allowedDomains = ['localhost']
+        const domain = parts[parts.length - 1] // Último segmento (ej: localhost)
+
+        // Verificar si hay exactamente un subdominio y el dominio está en la lista blanca
+        if (parts.length === 2 && allowedDomains.includes(domain)) {
+          return parts[0]
+        }
+      }
+      return ''
     }
-    return NextResponse.rewrite(url)
+    const subdomain = extractSubdomain(hostname, isProduction)
+
+    // Reescribir URLs basadas en subdominios
+    if (subdomain && subdomain !== 'www') {
+      const url = request.nextUrl.clone()
+      if (path === '/') {
+        // Si estamos en la raíz, reescribir a la ruta de la tienda
+        url.pathname = `/${subdomain}`
+      } else if (!path.startsWith(`/${subdomain}`)) {
+        // Si la ruta no empieza con el subdominio, agregar el prefijo
+        url.pathname = `/${subdomain}${path}`
+      } else {
+        // La ruta ya tiene el prefijo correcto
+        return NextResponse.next()
+      }
+      return NextResponse.rewrite(url)
+    }
   }
 
   // Verificar propiedad de productos específicos

@@ -1,9 +1,18 @@
 'use client'
 
 import { DomainManagement } from '@/app/store/components/domains/components/DomainManagement'
-import { configureAmplify } from '@/lib/amplify-config'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
 
-configureAmplify()
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 export default function DomainManagementPage() {
   return <DomainManagement />

@@ -3,9 +3,18 @@
 import { ProductForm } from '@/app/store/components/product-management/main-components/ProductForm'
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
-import { configureAmplify } from '@/lib/amplify-config'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
 
-configureAmplify()
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 export default function EditProductPage() {
   const params = useParams()

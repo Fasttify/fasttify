@@ -7,9 +7,18 @@ import { FAQSection } from '@/app/(main-layout)/pricing/components/FAQSection'
 import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem'
 import { FeatureComparison } from '@/app/(main-layout)/pricing/components/FeatureComparison'
 import { plans } from '@/app/(main-layout)/pricing/components/plans'
-import { configureAmplify } from '@/lib/amplify-config'
+import { Amplify } from 'aws-amplify'
+import outputs from '@/amplify_outputs.json'
 
-configureAmplify()
+Amplify.configure(outputs)
+const existingConfig = Amplify.getConfig()
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+})
 
 export default function PricingPage() {
   return (
