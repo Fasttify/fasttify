@@ -17,6 +17,7 @@
     ]
   },
   "dependencies": {
+    "@aws-amplify/backend-cli": "^1.7.2",
     "@aws-amplify/adapter-nextjs": "^1.4.1",
     "@aws-amplify/data-schema-types": "^1.2.0",
     "@aws-sdk/client-bedrock-runtime": "^3.758.0",
