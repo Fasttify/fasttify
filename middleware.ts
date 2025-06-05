@@ -13,7 +13,14 @@ export async function middleware(request: NextRequest) {
   // Configuración de dominios
   const isProduction = process.env.APP_ENV === 'production'
 
-  const allowedDomains = isProduction ? ['fasttify.com'] : ['localhost']
+  // Detectar automáticamente el tipo de dominio basándose en la estructura
+  const isFasttifyDomain = hostname.includes('fasttify.com')
+
+  const allowedDomains = isFasttifyDomain
+    ? ['fasttify.com']
+    : isProduction
+      ? ['fasttify.com']
+      : ['localhost']
 
   const isMainDomain = allowedDomains.some(domain => {
     const cleanHostname = hostname.split(':')[0]
@@ -26,7 +33,10 @@ export async function middleware(request: NextRequest) {
       const cleanHostname = hostname.split(':')[0]
       const parts = cleanHostname.split('.')
 
-      if (isProduction) {
+      // Detectar automáticamente si es un dominio de fasttify.com
+      const isFasttifyDomain = cleanHostname.includes('fasttify.com')
+
+      if (isFasttifyDomain || isProduction) {
         // Lista blanca de dominios permitidos en producción
         const allowedDomains = ['fasttify.com']
         const domain = parts.slice(-2).join('.') // Obtener los últimos 2 segmentos (ej: fasttify.com)
