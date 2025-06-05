@@ -9,6 +9,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
+    "prepare": "husky",
     "test:coverage": "jest --coverage"
   },
   "lint-staged": {
