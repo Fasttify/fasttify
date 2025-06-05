@@ -167,6 +167,23 @@ const schema = a
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.guest().to(['read']),
       ]),
+
+    StoreTemplate: a
+      .model({
+        storeId: a.string().required(),
+        domain: a.string().required(),
+        templateKey: a.string().required(),
+        templateData: a.json().required(),
+        isActive: a.boolean().required(),
+        lastUpdated: a.datetime(),
+        owner: a.string().required(),
+      })
+      .identifier(['storeId'])
+      .secondaryIndexes(index => [index('domain')])
+      .authorization(allow => [
+        allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
+        allow.guest().to(['read']),
+      ]),
   })
   .authorization(allow => [
     allow.resource(postConfirmation),
