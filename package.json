@@ -13,7 +13,7 @@
     "test:coverage": "jest --coverage"
   },
   "engines": {
-    "node": "22.12.0"
+    "node": ">=22"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
@@ -83,8 +83,8 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@aws-amplify/backend": "^1.13.0",
-    "@aws-amplify/backend-cli": "^1.4.6",
+    "@aws-amplify/backend": "^1.16.1",
+    "@aws-amplify/backend-cli": "^1.7.2",
     "@aws-lambda-powertools/logger": "^2.13.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.732.0",
     "@tanstack/react-query-devtools": "^5.67.2",

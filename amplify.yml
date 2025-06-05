@@ -1,12 +1,22 @@
 version: 1
 backend:
   phases:
+    preBuild:
+      commands:
+        - nvm install 22
+        - nvm use 22
     build:
       commands:
         - npm ci --cache .npm --prefer-offline
-        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID 
+
 frontend:
   phases:
+    preBuild:
+      commands:
+        - nvm use 22
+        - npm ci
+
     build:
       commands:
         - npm run build
@@ -19,3 +29,4 @@ frontend:
       - .next/cache/**/*
       - .npm/**/*
       - node_modules/**/*
+
