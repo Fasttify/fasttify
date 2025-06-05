@@ -14,19 +14,20 @@ export async function middleware(request: NextRequest) {
   const isProduction = process.env.NODE_ENV === 'production'
 
   const allowedDomains = isProduction ? ['fasttify.com'] : ['localhost']
-  const isValidHostname = allowedDomains.some(
-    domain => hostname === domain || hostname.endsWith(`.${domain}`)
-  )
 
-  // Si el hostname es válido, redirigir a la landing
+  const isMainDomain = allowedDomains.some(domain => {
+    const cleanHostname = hostname.split(':')[0]
+    return cleanHostname === domain || cleanHostname === `www.${domain}`
+  })
 
-  if (isValidHostname) {
-    return NextResponse.redirect(new URL('/', request.url))
+  // Si estamos accediendo al dominio principal, continuar con la ruta normal
+  if (isMainDomain) {
+    return NextResponse.next()
   }
 
   // Detectar subdominios
   const extractSubdomain = (hostname: string, isProduction: boolean): string => {
-    const cleanHostname = hostname.split(':')[0] // Remove port if present
+    const cleanHostname = hostname.split(':')[0]
     const parts = cleanHostname.split('.')
     if (isProduction) {
       // En producción: verificar si hay un subdominio (ej: tienda.fasttify.com)
