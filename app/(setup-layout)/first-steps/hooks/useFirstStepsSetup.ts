@@ -38,7 +38,7 @@ export const useFirstStepsSetup = () => {
   const [validationErrors, setValidationErrors] = useState<Record<string, any>>({})
   const [saving, setSaving] = useState(false)
   const { userData } = useAuthUser()
-  const { loading, createUserStore } = useUserStoreData()
+  const { loading, createUserStore, createStoreWithTemplate } = useUserStoreData()
   const { encryptApiKey } = useApiKeyEncryption()
 
   const cognitoUsername =
@@ -129,10 +129,10 @@ export const useFirstStepsSetup = () => {
           onboardingCompleted: true,
         }
 
-        const result = await createUserStore(storeInput)
+        const result = await createStoreWithTemplate(storeInput)
         if (result) {
           setTimeout(() => {
-            window.location.href = routes.store.dashboard.main(result.storeId)
+            window.location.href = routes.store.dashboard.main(result.store.storeId)
           }, 3000)
         } else {
           setSaving(false)
@@ -162,11 +162,11 @@ export const useFirstStepsSetup = () => {
       onboardingCompleted: true,
     }
 
-    const result = await createUserStore(quickStoreInput)
+    const result = await createStoreWithTemplate(quickStoreInput)
 
     if (result) {
       setTimeout(() => {
-        window.location.href = routes.store.dashboard.main(result.storeId)
+        window.location.href = routes.store.dashboard.main(result.store.storeId)
       }, 3000)
     } else {
       setSaving(false)

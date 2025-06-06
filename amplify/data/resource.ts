@@ -9,6 +9,7 @@ import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource'
 import { getStoreProducts } from '../functions/getStoreProducts/resource'
 import { getStoreData } from '../functions/getStoreData/resource'
 import { getStoreCollections } from '../functions/getStoreCollections/resource'
+import { createStoreTemplate } from '../functions/createStoreTemplate/resource'
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
 
@@ -61,6 +62,16 @@ const schema = a
       .returns(a.json())
       .authorization(allow => [allow.publicApiKey()])
       .handler(a.handler.function(generatePriceSuggestionFunction)),
+
+    initializeStoreTemplate: a
+      .mutation()
+      .arguments({
+        storeId: a.string().required(),
+        domain: a.string().required(),
+      })
+      .returns(a.json())
+      .authorization(allow => [allow.authenticated()])
+      .handler(a.handler.function(createStoreTemplate)),
 
     UserProfile: a
       .model({
@@ -196,6 +207,7 @@ const schema = a
     allow.resource(getStoreProducts),
     allow.resource(getStoreData),
     allow.resource(getStoreCollections),
+    allow.resource(createStoreTemplate),
   ])
 
 export type Schema = ClientSchema<typeof schema>
