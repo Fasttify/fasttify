@@ -203,6 +203,61 @@ export const useUserStoreData = () => {
     return performOperation(() => client.models.UserStore.delete({ storeId }))
   }
 
+  /**
+   * Inicializa el template y datos por defecto para una nueva tienda.
+   * Crea las secciones por defecto, colecciones base y configuración inicial.
+   */
+  const initializeStoreTemplate = async (storeId: string, domain: string) => {
+    if (!storeId || !domain) {
+      setError('Store ID and domain are required')
+      return null
+    }
+
+    return performOperation(() =>
+      client.mutations.initializeStoreTemplate({
+        storeId,
+        domain,
+      })
+    )
+  }
+
+  /**
+   * Función completa para crear una tienda con todos sus datos iniciales.
+   * Crea la tienda y luego inicializa su template automáticamente.
+   */
+  const createStoreWithTemplate = async (
+    storeInput: Omit<Schema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>
+  ) => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Primero crear la tienda
+      const storeResult = await performOperation(() => client.models.UserStore.create(storeInput))
+
+      if (!storeResult) {
+        throw new Error('Failed to create store')
+      }
+
+      // Luego inicializar el template con los datos por defecto
+      const templateResult = await initializeStoreTemplate(
+        storeInput.storeId,
+        storeInput.customDomain || storeInput.storeName
+      )
+
+      return {
+        store: storeResult,
+        template: templateResult,
+        success: true,
+      }
+    } catch (err) {
+      setError(err)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     loading,
     error,
@@ -211,5 +266,7 @@ export const useUserStoreData = () => {
     deleteUserStore,
     getStorePaymentInfo,
     configurePaymentGateway,
+    initializeStoreTemplate,
+    createStoreWithTemplate,
   }
 }
