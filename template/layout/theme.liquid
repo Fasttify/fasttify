@@ -13,25 +13,13 @@
     <!-- Tailwind CSS -->
     <script src='https://cdn.tailwindcss.com' defer></script>
 
-    <!-- Custom CSS -->
-    <style>
+    <!-- 🧪 TEST: Using style tag -->
+    {% style %}
         /* Variables CSS personalizadas */
         :root {
-            --primary-color: {
-                    {
-                    store.primaryColor | default: '#3B82F6'
-                }
-            }
-
-            ;
-
-            --secondary-color: {
-                    {
-                    store.secondaryColor | default: '#1F2937'
-                }
-            }
-
-            ;
+            --primary-color: {{ store.primaryColor | default: '#3B82F6' }};
+            --secondary-color: {{ store.secondaryColor | default: '#1F2937' }};
+            --test-color: #007bff;
         }
 
         .btn-primary {
@@ -47,7 +35,25 @@
             opacity: 0.9;
             transform: translateY(-2px);
         }
-    </style>
+
+        /* 🧪 TEST: Styles added via style tag */
+        .test-highlight {
+            border: 2px dashed var(--test-color);
+            background: rgba(0, 123, 255, 0.1);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .test-badge {
+            background: var(--test-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    {% endstyle %}
 
     {{ content_for_header }}
 </head>
@@ -58,20 +64,29 @@
         {{ content_for_layout }}
     </main>
 
-    <!-- Scripts -->
-    <script>
+ 
+    {% javascript %}
+        console.log('🧪 Theme loaded with script tag!');
+        console.log('Store data:', {
+            name: '{{ store.name }}',
+            currency: '{{ store.currency }}',
+            storeId: '{{ storeId }}'
+        });
+
         // Funcionalidad del carrito
         window.cart = {
             items: [],
             total: 0,
 
             add: function (product) {
+                console.log('🛒 Adding to cart:', product);
                 this.items.push(product)
                 this.updateTotal()
                 this.updateUI()
             },
 
             remove: function (productId) {
+                console.log('🗑️ Removing from cart:', productId);
                 this.items = this.items.filter(item => item.id !== productId)
                 this.updateTotal()
                 this.updateUI()
@@ -79,6 +94,7 @@
 
             updateTotal: function () {
                 this.total = this.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+                console.log('💰 Cart total updated:', this.total);
             },
 
             updateUI: function () {
@@ -94,7 +110,7 @@
             },
         }
 
-        // Funcionalidad de búsqueda
+        // 🧪 TEST: Enhanced search functionality
         window.search = {
             init: function () {
                 const searchInput = document.getElementById('search-input')
@@ -102,6 +118,7 @@
 
                 if (searchInput) {
                     searchInput.addEventListener('input', this.handleSearch.bind(this))
+                    console.log('🔍 Search functionality initialized');
                 }
             },
 
@@ -109,7 +126,9 @@
                 const query = e.target.value.toLowerCase()
                 if (query.length < 2) return
 
-                // Simular búsqueda (en producción sería una llamada a la API)
+                console.log('🔍 Searching for:', query);
+
+                // Simular búsqueda con productos disponibles
                 const results = window.products
                     ? window.products.filter(
                         product =>
@@ -118,6 +137,7 @@
                     )
                     : []
 
+                console.log('📋 Search results:', results.length);
                 this.displayResults(results)
             },
 
@@ -136,6 +156,7 @@
           <div class="p-4 border-b hover:bg-gray-50 cursor-pointer">
             <h3 class="font-semibold">${product.title}</h3>
             <p class="text-sm text-gray-600">${product.price}</p>
+            <span class="test-badge">🧪 TEST</span>
           </div>
         `
                     )
@@ -145,11 +166,30 @@
             },
         }
 
+        // 🧪 TEST: Add test highlighting
+        function addTestHighlights() {
+            const sections = document.querySelectorAll('section, .section');
+            sections.forEach((section, index) => {
+                if (!section.classList.contains('test-highlight')) {
+                    section.classList.add('test-highlight');
+                    
+                    // Add test badge
+                    const badge = document.createElement('span');
+                    badge.className = 'test-badge';
+                    badge.textContent = `🧪 Section ${index + 1}`;
+                    section.insertBefore(badge, section.firstChild);
+                }
+            });
+        }
+
         // Inicializar funcionalidades
         document.addEventListener('DOMContentLoaded', function () {
-            window.search.init()
+            console.log('✅ DOM loaded, initializing...');
+            window.search.init();
+            addTestHighlights();
+            console.log('🚀 All test functionality ready!');
         })
-    </script>
+    {% endjavascript %}
 </body>
 
 </html>

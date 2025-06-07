@@ -7,9 +7,10 @@
         </div>
         {% endif %}
 
-        <div
-            class='grid grid-cols-{{ section.settings.columns_mobile }} md:grid-cols-{{ section.settings.columns_desktop }} gap-6'>
-            {% for product in products limit: section.settings.products_to_show %}
+        <!-- 🧪 TEST: Using paginate tag -->
+        {% paginate products by section.settings.products_to_show %}
+            <div class='grid grid-cols-{{ section.settings.columns_mobile }} md:grid-cols-{{ section.settings.columns_desktop }} gap-6'>
+            {% for product in paginate.collection %}
             <div
                 class='bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 group'>
                 <!-- Imagen del producto -->
@@ -82,20 +83,67 @@
                 </div>
             </div>
             {% endfor %}
-        </div>
+            </div>
+
+            <!-- 🧪 TEST: Pagination controls -->
+            {% if paginate.pages > 1 %}
+                <div class='flex justify-center items-center space-x-2 mt-8'>
+                    {% if paginate.previous %}
+                        <a href="{{ paginate.previous.url }}" class='px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors'>
+                            « Anterior
+                        </a>
+                    {% endif %}
+
+                    {% for part in paginate.parts %}
+                        {% if part.is_link %}
+                            <a href="{{ part.url }}" class='px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-blue-500 hover:text-white transition-colors'>
+                                {{ part.title }}
+                            </a>
+                        {% else %}
+                            <span class='px-3 py-2 bg-blue-500 text-white rounded font-semibold'>
+                                {{ part.title }}
+                            </span>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if paginate.next %}
+                        <a href="{{ paginate.next.url }}" class='px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors'>
+                            Siguiente »
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <div class='text-center mt-4 text-sm text-gray-600'>
+                    <span class='test-badge'>🧪 TEST</span>
+                    Mostrando {{ paginate.current_offset | plus: 1 }}-{{ paginate.current_offset | plus: paginate.collection.size }} de {{ paginate.collection.total_entries }} productos
+                </div>
+            {% endif %}
+        {% endpaginate %}
 
         <!-- Botón ver todos -->
         <div class='text-center mt-12'>
             <a href='/productos'
                 class='btn-primary inline-block px-8 py-3 rounded-lg font-semibold text-lg transition-all hover:transform hover:scale-105'>
                 Ver todos los productos
+                <span class='test-badge ml-2'>🧪 TEST</span>
             </a>
         </div>
     </div>
 </section>
 
-<script>
+
+{% javascript %}
+    console.log('🧪 Featured products section loaded!');
+    console.log('Section settings:', {
+        heading: '{{ section.settings.heading }}',
+        productsToShow: {{ section.settings.products_to_show }},
+        showPrice: {{ section.settings.show_price }},
+        showDescription: {{ section.settings.show_description }}
+    });
+
     function addToCart(productId, productName, productPrice) {
+        console.log('🛒 Adding product to cart:', { productId, productName, productPrice });
+        
         // Agregar producto al carrito
         const product = {
             id: productId,
@@ -109,15 +157,24 @@
 
             // Mostrar notificación
             showNotification(`${productName} agregado al carrito`)
+        } else {
+            console.warn('⚠️ Cart functionality not available');
         }
     }
 
     function showNotification(message) {
+        console.log('📢 Showing notification:', message);
+        
         // Crear y mostrar notificación toast
         const notification = document.createElement('div')
         notification.className =
             'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300'
-        notification.textContent = message
+        
+        // Add test badge to notification
+        notification.innerHTML = `
+            ${message} 
+            <span class="test-badge ml-2" style="background: rgba(255,255,255,0.3);">🧪</span>
+        `;
 
         document.body.appendChild(notification)
 
@@ -130,11 +187,25 @@
         setTimeout(() => {
             notification.classList.add('translate-x-full')
             setTimeout(() => {
-                document.body.removeChild(notification)
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification)
+                }
             }, 300)
         }, 3000)
     }
-</script>
+
+    // 🧪 TEST: Add product hover effects
+    document.addEventListener('DOMContentLoaded', function() {
+        const productCards = document.querySelectorAll('.group');
+        console.log(`🎯 Found ${productCards.length} product cards`);
+        
+        productCards.forEach((card, index) => {
+            card.addEventListener('mouseenter', function() {
+                console.log(`👆 Hovering over product card ${index + 1}`);
+            });
+        });
+    });
+{% endjavascript %}
 
 {% schema %}
 {

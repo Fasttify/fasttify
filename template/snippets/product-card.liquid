@@ -1,0 +1,167 @@
+<!-- 🧪 TEST: Product Card Snippet using style and javascript tags -->
+
+<div class='product-card-snippet test-highlight' data-product-id='{{ product.id }}'>
+    <span class='test-badge'>🧪 SNIPPET</span>
+    
+    <!-- Product Image -->
+    <div class='product-image'>
+        {% if product.images and product.images.size > 0 %}
+            <img src='{{ product.images[0].url }}' alt='{{ product.name }}' 
+                 class='snippet-image'
+                 width='200' height='200'>
+        {% else %}
+            <div class='snippet-placeholder'>📦 No Image</div>
+        {% endif %}
+    </div>
+    
+    <!-- Product Info -->
+    <div class='product-info'>
+        <h4 class='snippet-title'>{{ product.name | truncate: 40 }}</h4>
+        <p class='snippet-price'>{{ product.price | money }}</p>
+        
+        {% if product.description %}
+            <p class='snippet-description'>{{ product.description | strip_html | truncate: 60 }}</p>
+        {% endif %}
+        
+        <button class='snippet-button' onclick='addToCartFromSnippet("{{ product.id }}", "{{ product.name }}", {{ product.price }})'>
+            🛒 Add to Cart
+        </button>
+    </div>
+</div>
+
+<!-- 🧪 TEST: Snippet-specific styles -->
+{% style %}
+    .product-card-snippet {
+        border: 2px solid var(--test-color);
+        border-radius: 12px;
+        padding: 15px;
+        background: white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        max-width: 250px;
+        margin: 10px;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .product-card-snippet:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    
+    .snippet-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .snippet-placeholder {
+        width: 100%;
+        height: 150px;
+        background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #999;
+        margin-bottom: 10px;
+    }
+    
+    .snippet-title {
+        font-weight: bold;
+        color: var(--test-color);
+        margin: 8px 0;
+        font-size: 16px;
+    }
+    
+    .snippet-price {
+        font-size: 18px;
+        font-weight: bold;
+        color: #28a745;
+        margin: 5px 0;
+    }
+    
+    .snippet-description {
+        font-size: 12px;
+        color: #666;
+        margin: 8px 0;
+        line-height: 1.4;
+    }
+    
+    .snippet-button {
+        background: var(--test-color);
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .snippet-button:hover {
+        background: #0056b3;
+        transform: scale(1.05);
+    }
+{% endstyle %}
+
+
+{% javascript %}
+    function addToCartFromSnippet(productId, productName, productPrice) {
+        console.log('🧪 SNIPPET: Adding to cart from snippet:', { productId, productName, productPrice });
+        
+        // Use the global cart function if available
+        if (typeof addToCart === 'function') {
+            addToCart(productId, productName, productPrice);
+        } else if (window.cart) {
+            window.cart.add({
+                id: productId,
+                name: productName,
+                price: productPrice,
+                quantity: 1
+            });
+            
+            showNotification(`${productName} agregado desde snippet 🧪`);
+        } else {
+            console.log('📝 Cart functionality not available, simulating...');
+            
+            // Create a simple notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--test-color);
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-weight: bold;
+            `;
+            notification.innerHTML = `🧪 SNIPPET: ${productName} added to cart!`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        }
+    }
+    
+    // 🧪 TEST: Snippet initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        const snippets = document.querySelectorAll('.product-card-snippet');
+        console.log(`🧪 SNIPPET: Found ${snippets.length} product card snippets`);
+        
+        snippets.forEach((snippet, index) => {
+            snippet.addEventListener('mouseenter', function() {
+                console.log(`🧪 SNIPPET: Hovering over snippet ${index + 1}`);
+            });
+        });
+    });
+{% endjavascript %} 

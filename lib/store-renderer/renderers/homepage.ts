@@ -42,11 +42,19 @@ export class HomepageRenderer {
       // 4. Crear contexto para las plantillas Liquid
       const context = this.createRenderContext(store, featuredProducts, collections.collections)
 
-      // 5. Generar contenido de homepage usando nuestras secciones reales
-      const homepageContent = await this.generateHomepageContent(store.storeId, context)
+      // 5. 🧪 TEST: Usar template index.liquid
+      const homepageContent = await templateLoader.loadTemplate(
+        store.storeId,
+        'templates/index.liquid'
+      )
+      const renderedContent = await liquidEngine.render(
+        homepageContent,
+        context,
+        `test-index_${store.storeId}`
+      )
 
       // 6. Insertar contenido en el layout
-      context.content_for_layout = homepageContent
+      context.content_for_layout = renderedContent
       context.content_for_header = this.generateHeadContent(store)
 
       // 7. Renderizar el layout completo

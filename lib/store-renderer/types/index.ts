@@ -50,12 +50,3 @@ export type {
   StyleTag,
   JavaScriptTag,
 } from './liquid'
-
-// Navigation types
-export type {
-  NavigationLink,
-  LinkList,
-  NavigationContext,
-  DefaultMenuConfig,
-  MenuData,
-} from './navigation'

@@ -25,8 +25,22 @@
             <a href='{{ section.settings.button_link }}'
                 class='btn-primary inline-block text-lg px-8 py-4 rounded-lg font-semibold transition-all duration-300 hover:transform hover:scale-105'>
                 {{ section.settings.button_text }}
+                <span class='test-badge ml-2'>🧪 TEST</span>
             </a>
             {% endif %}
+
+            <!-- 🧪 TEST: Using render tag with snippet -->
+            <div class='mt-12'>
+                <div class='test-highlight inline-block'>
+                    <span class='test-badge'>🧪 RENDER TEST</span>
+                    <p class='text-sm mb-4'>Testing render tag with first product:</p>
+                    {% if products.first %}
+                        {% render 'product-card', product: products.first %}
+                    {% else %}
+                        <p class='text-red-300'>No product available for render test</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 
