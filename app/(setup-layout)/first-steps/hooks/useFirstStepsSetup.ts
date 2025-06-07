@@ -9,6 +9,7 @@ import {
   storeInfoSchema,
   additionalSettingsSchema,
 } from '@/lib/zod-schemas/first-step'
+import { useTemplateUpload } from '@/app/(setup-layout)/first-steps/hooks/useTemplateUpload'
 import sellingOptionsData from '@/app/(setup-layout)/first-steps/data/selling-options.json'
 
 export const useFirstStepsSetup = () => {
@@ -37,9 +38,11 @@ export const useFirstStepsSetup = () => {
 
   const [validationErrors, setValidationErrors] = useState<Record<string, any>>({})
   const [saving, setSaving] = useState(false)
+  const [uploadingTemplate, setUploadingTemplate] = useState(false)
   const { userData } = useAuthUser()
   const { loading, createUserStore, createStoreWithTemplate } = useUserStoreData()
   const { encryptApiKey } = useApiKeyEncryption()
+  const { uploadTemplate } = useTemplateUpload()
 
   const cognitoUsername =
     userData && userData['cognito:username'] ? userData['cognito:username'] : null
@@ -131,6 +134,34 @@ export const useFirstStepsSetup = () => {
 
         const result = await createStoreWithTemplate(storeInput)
         if (result) {
+          // Subir plantillas a S3 después de crear la tienda
+          try {
+            setUploadingTemplate(true)
+            const templateResult = await uploadTemplate({
+              storeId: result.store.storeId,
+              storeName: formData.storeName,
+              domain: storeInput.customDomain,
+              storeData: {
+                theme: 'modern',
+                currency: 'COP',
+                description: formData.description,
+                contactEmail: formData.email,
+                contactPhone: formData.phone,
+                storeAddress: formData.location,
+              },
+            })
+
+            if (templateResult) {
+              console.log('templateResult:', templateResult)
+            } else {
+              console.warn('Error uploading template')
+            }
+          } catch (templateError) {
+            console.error('Error uploading template:', templateError)
+          } finally {
+            setUploadingTemplate(false)
+          }
+
           setTimeout(() => {
             window.location.href = routes.store.dashboard.main(result.store.storeId)
           }, 3000)
@@ -165,6 +196,31 @@ export const useFirstStepsSetup = () => {
     const result = await createStoreWithTemplate(quickStoreInput)
 
     if (result) {
+      // Subir plantillas por defecto para quick setup
+      try {
+        setUploadingTemplate(true)
+        const templateResult = await uploadTemplate({
+          storeId: result.store.storeId,
+          storeName: storeName,
+          domain: quickStoreInput.customDomain,
+          storeData: {
+            theme: 'modern',
+            currency: 'COP',
+            description: 'Tienda creada con configuración rápida',
+          },
+        })
+
+        if (templateResult) {
+          console.log('templateResult:', templateResult)
+        } else {
+          console.warn('Error uploading template')
+        }
+      } catch (templateError) {
+        console.error('Error uploading template:', templateError)
+      } finally {
+        setUploadingTemplate(false)
+      }
+
       setTimeout(() => {
         window.location.href = routes.store.dashboard.main(result.store.storeId)
       }, 3000)
@@ -194,6 +250,7 @@ export const useFirstStepsSetup = () => {
     setValidationErrors,
     saving,
     setSaving,
+    uploadingTemplate,
     userData,
     loading,
     createUserStore,

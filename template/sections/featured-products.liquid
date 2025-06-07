@@ -57,12 +57,12 @@
               <div class='flex items-center justify-between mb-4'>
                 <div class='flex items-center space-x-2'>
                   {% if product.compareAtPrice and product.compareAtPrice > product.price %}
-                    <span class='text-lg font-bold text-red-600'>${{ product.price }}</span>
+                    <span class='text-lg font-bold text-red-600'>{{ product.price }}</span>
                     <span class='text-sm text-gray-500 line-through'
-                      >${{ product.compareAtPrice -}}
+                      >{{ product.compareAtPrice -}}
                     </span>
                   {% else %}
-                    <span class='text-lg font-bold text-gray-900'>${{ product.price }}</span>
+                    <span class='text-lg font-bold text-gray-900'>{{ product.price }}</span>
                   {% endif %}
                 </div>
 
