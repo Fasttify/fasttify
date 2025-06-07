@@ -32,10 +32,6 @@ const s3Client = new S3Client({
   region: process.env.REGION_BUCKET || 'us-east-2',
 })
 
-const BUCKET_NAME = process.env.BUCKET_NAME || ''
-const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN_NAME || ''
-const APP_ENV = process.env.APP_ENV || 'development'
-
 export async function POST(request: NextRequest) {
   try {
     // 1. Validar autenticación
@@ -182,7 +178,7 @@ async function uploadTemplatesToS3(
     const key = `templates/${storeId}/${file.path}`
 
     const command = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: process.env.BUCKET_NAME,
       Key: key,
       Body: file.content,
       ContentType: file.contentType,
@@ -214,9 +210,9 @@ function generateTemplateUrls(
 
   uploadResults.forEach(({ key, path }) => {
     const baseUrl =
-      CLOUDFRONT_DOMAIN && APP_ENV === 'production'
-        ? `https://${CLOUDFRONT_DOMAIN}`
-        : `https://${BUCKET_NAME}.s3.${process.env.REGION_BUCKET || 'us-east-2'}.amazonaws.com`
+      process.env.CLOUDFRONT_DOMAIN_NAME && process.env.APP_ENV === 'production'
+        ? `https://${process.env.CLOUDFRONT_DOMAIN_NAME}`
+        : `https://${process.env.BUCKET_NAME}.s3.${process.env.REGION_BUCKET || 'us-east-2'}.amazonaws.com`
 
     urls[path] = `${baseUrl}/${key}`
   })
