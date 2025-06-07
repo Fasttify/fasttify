@@ -3,7 +3,6 @@ import { AuthGetCurrentUserServer } from '@/utils/AmplifyUtils'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { readFile, readdir } from 'fs/promises'
 import { join } from 'path'
-import outputs from '@/amplify_outputs.json'
 
 interface TemplateRequest {
   storeId: string
@@ -26,7 +25,7 @@ interface TemplateFile {
 
 // Configuración de S3
 const s3Client = new S3Client({
-  region: outputs.auth.aws_region,
+  region: process.env.REGION_BUCKET || 'us-east-2',
 })
 
 export async function POST(request: NextRequest) {
@@ -175,7 +174,7 @@ async function uploadTemplatesToS3(
     const key = `templates/${storeId}/${file.path}`
 
     const command = new PutObjectCommand({
-      Bucket: outputs.storage.bucket_name,
+      Bucket: process.env.BUCKET_NAME,
       Key: key,
       Body: file.content,
       ContentType: file.contentType,
@@ -209,7 +208,7 @@ function generateTemplateUrls(
     const baseUrl =
       process.env.CLOUDFRONT_DOMAIN_NAME && process.env.APP_ENV === 'production'
         ? `https://${process.env.CLOUDFRONT_DOMAIN_NAME}`
-        : `https://${outputs.storage.bucket_name}.s3.${outputs.auth.aws_region}.amazonaws.com`
+        : `https://${process.env.BUCKET_NAME}.s3.${process.env.REGION_BUCKET || 'us-east-2'}.amazonaws.com`
 
     urls[path] = `${baseUrl}/${key}`
   })
