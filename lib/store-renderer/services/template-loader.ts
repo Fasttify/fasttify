@@ -36,7 +36,7 @@ class TemplateLoader {
   }
 
   /**
-   * Carga una plantilla específica desde S3
+   * Carga una plantilla específica desde S3 o CloudFront
    * @param storeId - ID de la tienda
    * @param templatePath - Ruta de la plantilla (ej: "layout/theme.liquid")
    * @returns Contenido de la plantilla
@@ -49,27 +49,14 @@ class TemplateLoader {
         return cached.content
       }
 
-      if (!this.s3Client || !this.bucketName) {
-        throw new Error('S3 client or bucket not configured')
+      let content: string
+
+      // En producción usar CloudFront, en desarrollo usar S3 directo
+      if (this.appEnv === 'production' && this.cloudFrontDomain) {
+        content = await this.loadTemplateFromCloudFront(storeId, templatePath)
+      } else {
+        content = await this.loadTemplateFromS3(storeId, templatePath)
       }
-
-      // Construir la key de S3
-      const s3Key = `templates/${storeId}/${templatePath}`
-
-      // Cargar desde S3
-      const command = new GetObjectCommand({
-        Bucket: this.bucketName,
-        Key: s3Key,
-      })
-
-      const response = await this.s3Client.send(command)
-
-      if (!response.Body) {
-        throw new Error(`Template not found: ${templatePath}`)
-      }
-
-      // Convertir stream a string usando AWS SDK v3
-      const content = await response.Body!.transformToString()
 
       // Guardar en caché
       this.setCachedTemplate(storeId, templatePath, content)
@@ -262,6 +249,50 @@ class TemplateLoader {
         delete this.cache[storeId]
       }
     })
+  }
+
+  /**
+   * Carga una plantilla desde CloudFront (producción)
+   */
+  private async loadTemplateFromCloudFront(storeId: string, templatePath: string): Promise<string> {
+    const templateUrl = `https://${this.cloudFrontDomain}/templates/${storeId}/${templatePath}`
+
+    const response = await fetch(templateUrl)
+
+    if (!response.ok) {
+      throw new Error(
+        `Template not found: ${templatePath} (CloudFront returned ${response.status})`
+      )
+    }
+
+    return await response.text()
+  }
+
+  /**
+   * Carga una plantilla desde S3 directamente (desarrollo)
+   */
+  private async loadTemplateFromS3(storeId: string, templatePath: string): Promise<string> {
+    if (!this.s3Client || !this.bucketName) {
+      throw new Error('S3 client or bucket not configured')
+    }
+
+    // Construir la key de S3
+    const s3Key = `templates/${storeId}/${templatePath}`
+
+    // Cargar desde S3
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: s3Key,
+    })
+
+    const response = await this.s3Client.send(command)
+
+    if (!response.Body) {
+      throw new Error(`Template not found: ${templatePath}`)
+    }
+
+    // Convertir stream a string usando AWS SDK v3
+    return await response.Body!.transformToString()
   }
 
   /**
