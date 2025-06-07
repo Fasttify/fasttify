@@ -2,6 +2,9 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { storeRenderer } from '@/lib/store-renderer'
 
+// Forzar renderizado dinámico para acceder a variables de entorno en runtime
+export const dynamic = 'force-dynamic'
+
 interface StorePageProps {
   params: Promise<{
     store: string
@@ -93,7 +96,7 @@ export async function generateMetadata({
         : undefined,
     }
   } catch (error) {
-    console.error(`Error generating metadata for ${store}${path}:`, error)
+    console.error(`[Metadata] ERROR generating metadata for ${store}${path}:`, error)
 
     // Metadata por defecto para errores
     return {
@@ -104,17 +107,12 @@ export async function generateMetadata({
 }
 
 /**
- * Configurar revalidación de páginas para ISR
- * Esto permite que las páginas se regeneren automáticamente
+ * COMENTADO: Estas configuraciones estáticas conflictan con force-dynamic
+ * No se pueden usar juntas en Next.js 15
  */
-export const revalidate = 1800 // 30 minutos
 
-/**
- * Configurar generación estática para tiendas populares
- * (esto se ejecutaría en build time)
- */
-export async function generateStaticParams() {
-  // TODO: Obtener lista de tiendas activas desde la base de datos
-  // Por ahora retornamos array vacío para generar páginas bajo demanda
-  return []
-}
+// export const revalidate = 1800 // 30 minutos
+
+// export async function generateStaticParams() {
+//   return []
+// }
