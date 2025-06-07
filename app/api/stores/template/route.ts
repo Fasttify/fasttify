@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookiesClient, AuthGetCurrentUserServer } from '@/utils/AmplifyUtils'
+import { AuthGetCurrentUserServer } from '@/utils/AmplifyUtils'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { readFile, readdir } from 'fs/promises'
 import { join } from 'path'

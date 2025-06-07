@@ -128,7 +128,12 @@ const schema = a
       })
       .identifier(['storeId'])
       .secondaryIndexes(index => [index('userId'), index('customDomain'), index('storeName')])
-      .authorization(allow => [allow.authenticated().to(['read', 'update', 'delete', 'create'])]),
+      .authorization(allow => [
+        allow.authenticated().to(['read', 'update', 'delete', 'create']),
+        allow.publicApiKey().to(['read']),
+        allow.guest().to(['read']),
+        allow.ownerDefinedIn('userId').to(['read', 'update', 'delete', 'create']),
+      ]),
 
     Product: a
       .model({
@@ -159,6 +164,7 @@ const schema = a
       .authorization(allow => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.guest().to(['read']),
+        allow.publicApiKey().to(['read']),
       ]),
 
     Collection: a
@@ -177,6 +183,7 @@ const schema = a
       .authorization(allow => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.guest().to(['read']),
+        allow.publicApiKey().to(['read']),
       ]),
 
     StoreTemplate: a
@@ -194,6 +201,7 @@ const schema = a
       .authorization(allow => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.guest().to(['read']),
+        allow.publicApiKey().to(['read']),
       ]),
   })
   .authorization(allow => [
