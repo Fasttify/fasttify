@@ -5,9 +5,6 @@ import { readFile, readdir } from 'fs/promises'
 import { join } from 'path'
 import outputs from '@/amplify_outputs.json'
 
-// Forzar renderizado dinámico para acceder a variables de entorno en runtime
-export const dynamic = 'force-dynamic'
-
 interface TemplateRequest {
   storeId: string
   storeName: string
@@ -29,13 +26,6 @@ interface TemplateFile {
 
 // Configuración de S3
 const s3Client = new S3Client({
-  ...(process.env.ACCESS_KEY_ID &&
-    process.env.SECRET_ACCESS_KEY && {
-      credentials: {
-        accessKeyId: process.env.ACCESS_KEY_ID,
-        secretAccessKey: process.env.SECRET_ACCESS_KEY,
-      },
-    }),
   region: outputs.auth.aws_region,
 })
 

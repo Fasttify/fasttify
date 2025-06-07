@@ -19,20 +19,13 @@ class TemplateLoader {
   private readonly appEnv: string
 
   private constructor() {
-    this.bucketName = outputs.storage.bucket_name || ''
+    this.bucketName = outputs.storage.bucket_name
     this.cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN_NAME || ''
     this.appEnv = process.env.APP_ENV || 'development'
 
     // Solo inicializar S3 si tenemos bucket configurado
     if (this.bucketName) {
       this.s3Client = new S3Client({
-        ...(process.env.ACCESS_KEY_ID &&
-          process.env.SECRET_ACCESS_KEY && {
-            credentials: {
-              accessKeyId: process.env.ACCESS_KEY_ID,
-              secretAccessKey: process.env.SECRET_ACCESS_KEY,
-            },
-          }),
         region: outputs.auth.aws_region,
       })
     }
