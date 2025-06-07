@@ -45,9 +45,15 @@ class TemplateLoader {
    */
   public async loadTemplate(storeId: string, templatePath: string): Promise<string> {
     try {
+      console.log(`[TemplateLoader] Loading template: ${templatePath} for store: ${storeId}`)
+      console.log(`[TemplateLoader] Environment: ${this.appEnv}`)
+      console.log(`[TemplateLoader] CloudFront domain: ${this.cloudFrontDomain}`)
+      console.log(`[TemplateLoader] Bucket name: ${this.bucketName}`)
+
       // Verificar caché primero
       const cached = this.getCachedTemplate(storeId, templatePath)
       if (cached) {
+        console.log(`[TemplateLoader] Using cached template: ${templatePath}`)
         return cached.content
       }
 
@@ -55,17 +61,24 @@ class TemplateLoader {
 
       // En producción usar CloudFront, en desarrollo usar S3 directo
       if (this.appEnv === 'production' && this.cloudFrontDomain) {
+        console.log(`[TemplateLoader] Loading from CloudFront...`)
         content = await this.loadTemplateFromCloudFront(storeId, templatePath)
       } else {
+        console.log(`[TemplateLoader] Loading from S3...`)
         content = await this.loadTemplateFromS3(storeId, templatePath)
       }
+
+      console.log(`[TemplateLoader] Template loaded successfully: ${templatePath}`)
 
       // Guardar en caché
       this.setCachedTemplate(storeId, templatePath, content)
 
       return content
     } catch (error) {
-      console.error(`Error loading template ${templatePath} for store ${storeId}:`, error)
+      console.error(
+        `[TemplateLoader] Error loading template ${templatePath} for store ${storeId}:`,
+        error
+      )
 
       const templateError: TemplateError = {
         type: 'TEMPLATE_NOT_FOUND',
