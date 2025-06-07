@@ -227,6 +227,105 @@ export const escapeFilter: LiquidFilter = {
 }
 
 /**
+ * FILTROS ESPECÍFICOS DE SHOPIFY
+ */
+
+/**
+ * Filtro asset_url - Para archivos estáticos (CSS, JS, imágenes de tema)
+ */
+export const assetUrlFilter: LiquidFilter = {
+  name: 'asset_url',
+  filter: (filename: string): string => {
+    if (!filename) {
+      return ''
+    }
+
+    // En desarrollo, usar archivos locales o CDN
+    // TODO: Configurar según el entorno (local/S3/CDN)
+
+    // Por ahora, generar URLs básicas para assets
+    // En producción esto debería apuntar al CDN de assets
+    const baseAssetUrl = '/assets'
+
+    // Limpiar el filename
+    const cleanFilename = filename.replace(/^\/+/, '')
+
+    return `${baseAssetUrl}/${cleanFilename}`
+  },
+}
+
+/**
+ * Filtro image_url - Para imágenes de productos con transformaciones
+ */
+export const imageUrlFilter: LiquidFilter = {
+  name: 'image_url',
+  filter: (imageUrl: string, size?: string): string => {
+    if (!imageUrl) {
+      return ''
+    }
+
+    // Si ya es una URL completa, devolverla como está
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      // TODO: Aplicar transformaciones de tamaño si es necesario
+      return imageUrl
+    }
+
+    // Si es una imagen de producto, construir URL
+    // Por ahora devolvemos la URL original
+    // TODO: Implementar transformaciones de imagen (resize, crop, etc.)
+
+    const baseImageUrl = '/images'
+    const cleanImageUrl = imageUrl.replace(/^\/+/, '')
+
+    let finalUrl = `${baseImageUrl}/${cleanImageUrl}`
+
+    // Aplicar parámetros de tamaño si se especifican
+    if (size) {
+      // Ejemplos de size: '300x300', 'master', 'large', 'medium', 'small'
+      finalUrl += `?size=${size}`
+    }
+
+    return finalUrl
+  },
+}
+
+/**
+ * Filtro link_to - Para crear enlaces HTML
+ */
+export const linkToFilter: LiquidFilter = {
+  name: 'link_to',
+  filter: (text: string, url: string, attributes?: string): string => {
+    if (!text || !url) {
+      return text || ''
+    }
+
+    // Construir los atributos del enlace
+    let linkAttributes = ''
+    if (attributes) {
+      // Los atributos pueden venir como string 'class="my-class" target="_blank"'
+      linkAttributes = ` ${attributes}`
+    }
+
+    // Generar el enlace HTML
+    return `<a href="${url}"${linkAttributes}>${text}</a>`
+  },
+}
+
+/**
+ * Filtro default - Para valores por defecto (si no existe en LiquidJS)
+ */
+export const defaultFilter: LiquidFilter = {
+  name: 'default',
+  filter: (value: any, defaultValue: any): any => {
+    // Retornar el valor por defecto si el valor original es nulo, undefined, o string vacío
+    if (value === null || value === undefined || value === '') {
+      return defaultValue
+    }
+    return value
+  },
+}
+
+/**
  * Array con todos los filtros para registrar
  */
 export const ecommerceFilters: LiquidFilter[] = [
@@ -241,4 +340,8 @@ export const ecommerceFilters: LiquidFilter[] = [
   pluralizeFilter,
   truncateFilter,
   escapeFilter,
+  assetUrlFilter,
+  imageUrlFilter,
+  linkToFilter,
+  defaultFilter,
 ]

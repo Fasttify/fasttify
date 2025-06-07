@@ -100,23 +100,30 @@ export class HomepageRenderer {
       banner: store.storeBanner,
       theme: store.storeTheme || 'modern',
       favicon: store.storeFavicon,
+      storeId: store.storeId,
     }
 
-    // Crear contexto de la página
+    // Crear contexto de la página con metafields para PageFly
     const page: PageContext = {
       title: store.storeName,
       url: '/',
       template: 'index',
       handle: 'homepage',
+      metafields: {
+        pagefly: {
+          html_meta: '',
+        },
+      },
     }
 
     // Crear contexto que incluye tanto 'shop' como 'store' para compatibilidad
     // y variables de página al nivel raíz como espera el template
     return {
+      storeId: store.storeId,
       shop,
-      store: shop, // Alias para compatibilidad con templates que usan {{ store.name }}
+      store: shop,
       page,
-      page_title: store.storeName, // Variable al nivel raíz para {{ page_title }}
+      page_title: store.storeName,
       page_description: store.storeDescription || `Tienda online de ${store.storeName}`,
       products: featuredProducts,
       collections,

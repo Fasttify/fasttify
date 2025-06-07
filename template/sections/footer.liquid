@@ -1,216 +1,226 @@
 <footer class="bg-gray-900 text-white">
-  <div class="container mx-auto px-4 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-      <!-- Información de la tienda -->
-      <div class="space-y-4">
-        <h3 class="text-xl font-bold mb-4">{{ store.name }}</h3>
-        {% if store.description %}
-          <p class="text-gray-300">{{ store.description | truncate: 120 }}</p>
-        {% endif %}
-        
-        {% if store.contactEmail or store.contactPhone %}
-          <div class="space-y-2">
-            {% if store.contactEmail %}
-              <p class="text-gray-300">
-                <span class="font-semibold">Email:</span> 
-                <a href="mailto:{{ store.contactEmail }}" class="hover:text-blue-400 transition-colors">
-                  {{ store.contactEmail }}
-                </a>
-              </p>
-            {% endif %}
-            {% if store.contactPhone %}
-              <p class="text-gray-300">
-                <span class="font-semibold">Teléfono:</span> 
-                <a href="tel:{{ store.contactPhone }}" class="hover:text-blue-400 transition-colors">
-                  {{ store.contactPhone }}
-                </a>
-              </p>
-            {% endif %}
-          </div>
-        {% endif %}
-      </div>
-      
-      <!-- Enlaces rápidos -->
-      <div>
-        <h3 class="text-lg font-semibold mb-4">Enlaces rápidos</h3>
-        <ul class="space-y-2">
-          <li><a href="/" class="text-gray-300 hover:text-white transition-colors">Inicio</a></li>
-          <li><a href="/productos" class="text-gray-300 hover:text-white transition-colors">Productos</a></li>
-          <li><a href="/colecciones" class="text-gray-300 hover:text-white transition-colors">Colecciones</a></li>
-          <li><a href="/contacto" class="text-gray-300 hover:text-white transition-colors">Contacto</a></li>
-          <li><a href="/sobre-nosotros" class="text-gray-300 hover:text-white transition-colors">Sobre nosotros</a></li>
-        </ul>
-      </div>
-      
-      <!-- Políticas -->
-      <div>
-        <h3 class="text-lg font-semibold mb-4">Información</h3>
-        <ul class="space-y-2">
-          <li><a href="/politicas/privacidad" class="text-gray-300 hover:text-white transition-colors">Política de privacidad</a></li>
-          <li><a href="/politicas/terminos" class="text-gray-300 hover:text-white transition-colors">Términos y condiciones</a></li>
-          <li><a href="/politicas/envios" class="text-gray-300 hover:text-white transition-colors">Política de envíos</a></li>
-          <li><a href="/politicas/devoluciones" class="text-gray-300 hover:text-white transition-colors">Devoluciones</a></li>
-          <li><a href="/faq" class="text-gray-300 hover:text-white transition-colors">Preguntas frecuentes</a></li>
-        </ul>
-      </div>
-      
-      <!-- Newsletter y redes sociales -->
-      <div>
-        {% if section.settings.show_newsletter %}
-          <h3 class="text-lg font-semibold mb-4">{{ section.settings.newsletter_heading }}</h3>
-          <form id="newsletter-form" class="mb-6">
-            <div class="flex">
-              <input 
-                type="email" 
-                id="newsletter-email"
-                placeholder="Tu email" 
-                class="flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-              <button 
-                type="submit"
-                class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-lg font-semibold transition-colors"
-              >
-                Suscribirse
-              </button>
+    <div class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Información de la tienda -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold mb-4">{{ store.name }}</h3>
+                {% if store.description %}
+                <p class="text-gray-300">{{ store.description | truncate: 120 }}</p>
+                {% endif %}
+
+                {% if store.contactEmail or store.contactPhone %}
+                <div class="space-y-2">
+                    {% if store.contactEmail %}
+                    <p class="text-gray-300">
+                        <span class="font-semibold">Email:</span>
+                        <a href="mailto:{{ store.contactEmail }}" class="hover:text-blue-400 transition-colors">
+                            {{ store.contactEmail }}
+                        </a>
+                    </p>
+                    {% endif %}
+                    {% if store.contactPhone %}
+                    <p class="text-gray-300">
+                        <span class="font-semibold">Teléfono:</span>
+                        <a href="tel:{{ store.contactPhone }}" class="hover:text-blue-400 transition-colors">
+                            {{ store.contactPhone }}
+                        </a>
+                    </p>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
-          </form>
-        {% endif %}
-        
-        {% if section.settings.show_social_links %}
-          <h4 class="text-lg font-semibold mb-4">Síguenos</h4>
-          <div class="flex space-x-4">
-            <a href="#" class="text-gray-300 hover:text-blue-500 transition-colors">
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-            </a>
-            <a href="#" class="text-gray-300 hover:text-pink-500 transition-colors">
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988s11.987-5.367 11.987-11.988C24.004 5.367 18.637.001 12.017.001zm5.524 15.31c-.292 1.447-1.717 2.55-3.19 2.55-1.417 0-2.573-.95-2.982-2.235l-2.233-7.016c-.41-1.285.565-2.235 1.982-2.235 1.473 0 2.898 1.103 3.19 2.55l2.233 7.386z"/>
-              </svg>
-            </a>
-            <a href="#" class="text-gray-300 hover:text-blue-400 transition-colors">
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-              </svg>
-            </a>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-    
-    <!-- Línea divisoria -->
-    <div class="border-t border-gray-700 mt-8 pt-8">
-      <div class="flex flex-col md:flex-row justify-between items-center">
-        <!-- Copyright -->
-        <p class="text-gray-400 text-sm mb-4 md:mb-0">
-          {{ section.settings.copyright_text }}
-        </p>
-        
-        <!-- Métodos de pago -->
-        {% if section.settings.payment_icons %}
-          <div class="flex space-x-4">
-            <span class="text-gray-400 text-sm">Aceptamos:</span>
-            <div class="flex space-x-2">
-              <div class="w-8 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">VISA</div>
-              <div class="w-8 h-5 bg-red-500 rounded text-white text-xs flex items-center justify-center font-bold">MC</div>
-              <div class="w-8 h-5 bg-blue-500 rounded text-white text-xs flex items-center justify-center font-bold">PP</div>
+
+            <!-- Enlaces rápidos -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Enlaces rápidos</h3>
+                <ul class="space-y-2">
+                    <li><a href="/" class="text-gray-300 hover:text-white transition-colors">Inicio</a></li>
+                    <li><a href="/productos" class="text-gray-300 hover:text-white transition-colors">Productos</a></li>
+                    <li><a href="/colecciones" class="text-gray-300 hover:text-white transition-colors">Colecciones</a>
+                    </li>
+                    <li><a href="/contacto" class="text-gray-300 hover:text-white transition-colors">Contacto</a></li>
+                    <li><a href="/sobre-nosotros" class="text-gray-300 hover:text-white transition-colors">Sobre
+                            nosotros</a></li>
+                </ul>
             </div>
-          </div>
-        {% endif %}
-      </div>
+
+            <!-- Políticas -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Información</h3>
+                <ul class="space-y-2">
+                    <li><a href="/politicas/privacidad"
+                            class="text-gray-300 hover:text-white transition-colors">Política de privacidad</a></li>
+                    <li><a href="/politicas/terminos" class="text-gray-300 hover:text-white transition-colors">Términos
+                            y condiciones</a></li>
+                    <li><a href="/politicas/envios" class="text-gray-300 hover:text-white transition-colors">Política de
+                            envíos</a></li>
+                    <li><a href="/politicas/devoluciones"
+                            class="text-gray-300 hover:text-white transition-colors">Devoluciones</a></li>
+                    <li><a href="/faq" class="text-gray-300 hover:text-white transition-colors">Preguntas frecuentes</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Newsletter y redes sociales -->
+            <div>
+                {% if section.settings.show_newsletter %}
+                <h3 class="text-lg font-semibold mb-4">{{ section.settings.newsletter_heading }}</h3>
+                <form id="newsletter-form" class="mb-6">
+                    <div class="flex">
+                        <input type="email" id="newsletter-email" placeholder="Tu email"
+                            class="flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
+                        <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-lg font-semibold transition-colors">
+                            Suscribirse
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+
+                {% if section.settings.show_social_links %}
+                <h4 class="text-lg font-semibold mb-4">Síguenos</h4>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-300 hover:text-blue-500 transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-pink-500 transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988s11.987-5.367 11.987-11.988C24.004 5.367 18.637.001 12.017.001zm5.524 15.31c-.292 1.447-1.717 2.55-3.19 2.55-1.417 0-2.573-.95-2.982-2.235l-2.233-7.016c-.41-1.285.565-2.235 1.982-2.235 1.473 0 2.898 1.103 3.19 2.55l2.233 7.386z" />
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-blue-400 transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                        </svg>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Línea divisoria -->
+        <div class="border-t border-gray-700 mt-8 pt-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <!-- Copyright -->
+                <p class="text-gray-400 text-sm mb-4 md:mb-0">
+                    {{ section.settings.copyright_text }}
+                </p>
+
+                <!-- Métodos de pago -->
+                {% if section.settings.payment_icons %}
+                <div class="flex space-x-4">
+                    <span class="text-gray-400 text-sm">Aceptamos:</span>
+                    <div class="flex space-x-2">
+                        <div
+                            class="w-8 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
+                            VISA</div>
+                        <div
+                            class="w-8 h-5 bg-red-500 rounded text-white text-xs flex items-center justify-center font-bold">
+                            MC</div>
+                        <div
+                            class="w-8 h-5 bg-blue-500 rounded text-white text-xs flex items-center justify-center font-bold">
+                            PP</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
 </footer>
 
 <script>
-  // Funcionalidad del newsletter
-  document.getElementById('newsletter-form')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const email = document.getElementById('newsletter-email').value;
-    if (!email) return;
-    
-    // Aquí se haría la llamada a la API para suscribir al newsletter
-    fetch('/api/newsletter/subscribe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        showNotification('¡Te has suscrito exitosamente al newsletter!');
-        document.getElementById('newsletter-email').value = '';
-      } else {
-        showNotification('Error al suscribirse. Inténtalo de nuevo.', 'error');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      showNotification('Error al suscribirse. Inténtalo de nuevo.', 'error');
+    // Funcionalidad del newsletter
+    document.getElementById('newsletter-form')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById('newsletter-email').value;
+        if (!email) return;
+
+        // Aquí se haría la llamada a la API para suscribir al newsletter
+        fetch('/api/newsletter/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('¡Te has suscrito exitosamente al newsletter!');
+                    document.getElementById('newsletter-email').value = '';
+                } else {
+                    showNotification('Error al suscribirse. Inténtalo de nuevo.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al suscribirse. Inténtalo de nuevo.', 'error');
+            });
     });
-  });
-  
-  function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-    
-    notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      notification.classList.remove('translate-x-full');
-    }, 100);
-    
-    setTimeout(() => {
-      notification.classList.add('translate-x-full');
-      setTimeout(() => {
-        document.body.removeChild(notification);
-      }, 300);
-    }, 3000);
-  }
+
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+
+        notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
 </script>
 
 {% schema %}
 {
-  "name": "Pie de página",
-  "settings": [
-    {
-      "type": "checkbox",
-      "id": "show_social_links",
-      "label": "Mostrar enlaces sociales",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_newsletter",
-      "label": "Mostrar newsletter",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "newsletter_heading",
-      "label": "Título del newsletter",
-      "default": "Suscríbete a nuestro newsletter"
-    },
-    {
-      "type": "text",
-      "id": "copyright_text",
-      "label": "Texto de copyright",
-      "default": "© 2024 Tu tienda. Todos los derechos reservados."
-    },
-    {
-      "type": "checkbox",
-      "id": "payment_icons",
-      "label": "Mostrar iconos de pago",
-      "default": true
-    }
-  ]
+"name": "Pie de página",
+"settings": [
+{
+"type": "checkbox",
+"id": "show_social_links",
+"label": "Mostrar enlaces sociales",
+"default": true
+},
+{
+"type": "checkbox",
+"id": "show_newsletter",
+"label": "Mostrar newsletter",
+"default": true
+},
+{
+"type": "text",
+"id": "newsletter_heading",
+"label": "Título del newsletter",
+"default": "Suscríbete a nuestro newsletter"
+},
+{
+"type": "text",
+"id": "copyright_text",
+"label": "Texto de copyright",
+"default": "© 2024 Tu tienda. Todos los derechos reservados."
+},
+{
+"type": "checkbox",
+"id": "payment_icons",
+"label": "Mostrar iconos de pago",
+"default": true
 }
-{% endschema %} 
+]
+}
+{% endschema %}

@@ -102,8 +102,24 @@ async function readTemplateFiles(): Promise<TemplateFile[]> {
       if (entry.isDirectory()) {
         await readDirectory(fullPath, relativePath)
       } else if (entry.isFile()) {
-        const content = await readFile(fullPath, 'utf-8')
         const contentType = getContentType(entry.name)
+
+        // Determinar si es un archivo binario o de texto
+        const isBinaryFile =
+          contentType.startsWith('image/') ||
+          contentType.startsWith('font/') ||
+          contentType === 'application/octet-stream'
+
+        let content: string
+
+        if (isBinaryFile) {
+          // Leer archivo binario como Buffer y convertir a base64
+          const buffer = await readFile(fullPath)
+          content = buffer.toString('base64')
+        } else {
+          // Leer archivo de texto como utf-8
+          content = await readFile(fullPath, 'utf-8')
+        }
 
         files.push({
           path: relativePath.replace(/\\/g, '/'), // Normalizar path para web
@@ -173,10 +189,21 @@ async function uploadTemplatesToS3(
   const uploadPromises = files.map(async file => {
     const key = `templates/${storeId}/${file.path}`
 
+    // Determinar si es un archivo binario
+    const isBinaryFile =
+      file.contentType.startsWith('image/') ||
+      file.contentType.startsWith('font/') ||
+      file.contentType === 'application/octet-stream'
+
+    // Preparar el body según el tipo de archivo
+    const body = isBinaryFile
+      ? Buffer.from(file.content, 'base64') // Convertir de base64 a Buffer
+      : file.content // Mantener como string
+
     const command = new PutObjectCommand({
       Bucket: process.env.BUCKET_NAME,
       Key: key,
-      Body: file.content,
+      Body: body,
       ContentType: file.contentType,
       Metadata: {
         'store-id': storeId,
@@ -190,7 +217,9 @@ async function uploadTemplatesToS3(
     return {
       key,
       path: file.path,
-      size: Buffer.byteLength(file.content, 'utf-8'),
+      size: isBinaryFile
+        ? Buffer.from(file.content, 'base64').length
+        : Buffer.byteLength(file.content, 'utf-8'),
     }
   })
 
@@ -231,7 +260,20 @@ function getContentType(filename: string): string {
     scss: 'text/scss',
     sass: 'text/sass',
     xml: 'application/xml',
+    // Tipos de imagen
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    gif: 'image/gif',
+    svg: 'image/svg+xml',
+    webp: 'image/webp',
+    ico: 'image/x-icon',
+    // Tipos de font
+    woff: 'font/woff',
+    woff2: 'font/woff2',
+    ttf: 'font/ttf',
+    eot: 'application/vnd.ms-fontobject',
   }
 
-  return contentTypes[ext || ''] || 'text/plain'
+  return contentTypes[ext || ''] || 'application/octet-stream'
 }

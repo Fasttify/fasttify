@@ -13,6 +13,7 @@ export interface TemplateCache {
 }
 
 export interface RenderContext {
+  storeId?: string // Para snippets que necesitan el storeId
   shop: ShopContext
   store: ShopContext // Alias para compatibilidad
   page: PageContext
@@ -41,6 +42,7 @@ export interface ShopContext {
   favicon?: string
   banner?: string
   theme: string
+  storeId?: string // Para snippets que necesitan el storeId
 }
 
 export interface PageContext {
@@ -48,6 +50,12 @@ export interface PageContext {
   url: string
   template: string // 'index', 'product', 'collection'
   handle?: string // Slug/handle for SEO friendly URLs
+  metafields?: {
+    pagefly?: {
+      html_meta?: string
+    }
+    [key: string]: any
+  }
 }
 
 export interface ProductContext {

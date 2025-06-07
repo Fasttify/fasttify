@@ -61,6 +61,11 @@ export async function middleware(request: NextRequest) {
 
     // Reescribir URLs basadas en subdominios
     if (subdomain && subdomain !== 'www') {
+      // NO reescribir rutas de assets - dejar que la API las maneje
+      if (path.startsWith('/assets/')) {
+        return NextResponse.next()
+      }
+
       const url = request.nextUrl.clone()
       if (path === '/') {
         // Si estamos en la raíz, reescribir a la ruta de la tienda

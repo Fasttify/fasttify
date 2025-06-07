@@ -45,15 +45,9 @@ class TemplateLoader {
    */
   public async loadTemplate(storeId: string, templatePath: string): Promise<string> {
     try {
-      console.log(`[TemplateLoader] Loading template: ${templatePath} for store: ${storeId}`)
-      console.log(`[TemplateLoader] Environment: ${this.appEnv}`)
-      console.log(`[TemplateLoader] CloudFront domain: ${this.cloudFrontDomain}`)
-      console.log(`[TemplateLoader] Bucket name: ${this.bucketName}`)
-
       // Verificar caché primero
       const cached = this.getCachedTemplate(storeId, templatePath)
       if (cached) {
-        console.log(`[TemplateLoader] Using cached template: ${templatePath}`)
         return cached.content
       }
 
@@ -61,14 +55,10 @@ class TemplateLoader {
 
       // En producción usar CloudFront, en desarrollo usar S3 directo
       if (this.appEnv === 'production' && this.cloudFrontDomain) {
-        console.log(`[TemplateLoader] Loading from CloudFront...`)
         content = await this.loadTemplateFromCloudFront(storeId, templatePath)
       } else {
-        console.log(`[TemplateLoader] Loading from S3...`)
         content = await this.loadTemplateFromS3(storeId, templatePath)
       }
-
-      console.log(`[TemplateLoader] Template loaded successfully: ${templatePath}`)
 
       // Guardar en caché
       this.setCachedTemplate(storeId, templatePath, content)
@@ -200,6 +190,52 @@ class TemplateLoader {
   }
 
   /**
+   * Carga un asset estático (imagen, CSS, JS) desde el directorio assets
+   * @param storeId - ID de la tienda
+   * @param assetPath - Ruta del asset (ej: "nike.png", "theme.css")
+   * @returns Contenido del asset como Buffer
+   */
+  public async loadAsset(storeId: string, assetPath: string): Promise<Buffer> {
+    try {
+      // Verificar caché primero (para assets también)
+      const cacheKey = `assets/${assetPath}`
+      const cached = this.getCachedTemplate(storeId, cacheKey)
+      if (cached) {
+        // Para assets, el contenido en caché es base64, convertir de vuelta a Buffer
+        return Buffer.from(cached.content, 'base64')
+      }
+
+      let assetBuffer: Buffer
+
+      // En producción usar CloudFront, en desarrollo usar S3 directo
+      if (this.appEnv === 'production' && this.cloudFrontDomain) {
+        assetBuffer = await this.loadAssetFromCloudFront(storeId, assetPath)
+      } else {
+        assetBuffer = await this.loadAssetFromS3(storeId, assetPath)
+      }
+
+      // Guardar en caché (convertir Buffer a base64 para almacenamiento)
+      this.setCachedTemplate(storeId, cacheKey, assetBuffer.toString('base64'))
+
+      return assetBuffer
+    } catch (error) {
+      console.error(
+        `[TemplateLoader] Error loading asset ${assetPath} for store ${storeId}:`,
+        error
+      )
+
+      const templateError: TemplateError = {
+        type: 'TEMPLATE_NOT_FOUND',
+        message: `Asset not found: ${assetPath}`,
+        details: error,
+        statusCode: 404,
+      }
+
+      throw templateError
+    }
+  }
+
+  /**
    * Verifica si una tienda tiene plantillas disponibles
    * @param storeId - ID de la tienda
    * @returns true si tiene plantillas activas
@@ -308,6 +344,50 @@ class TemplateLoader {
 
     // Convertir stream a string usando AWS SDK v3
     return await response.Body!.transformToString()
+  }
+
+  /**
+   * Carga un asset desde CloudFront (producción)
+   */
+  private async loadAssetFromCloudFront(storeId: string, assetPath: string): Promise<Buffer> {
+    const assetUrl = `https://${this.cloudFrontDomain}/templates/${storeId}/assets/${assetPath}`
+
+    const response = await fetch(assetUrl)
+
+    if (!response.ok) {
+      throw new Error(`Asset not found: ${assetPath} (CloudFront returned ${response.status})`)
+    }
+
+    const arrayBuffer = await response.arrayBuffer()
+    return Buffer.from(arrayBuffer)
+  }
+
+  /**
+   * Carga un asset desde S3 directamente (desarrollo)
+   */
+  private async loadAssetFromS3(storeId: string, assetPath: string): Promise<Buffer> {
+    if (!this.s3Client || !this.bucketName) {
+      throw new Error('S3 client or bucket not configured')
+    }
+
+    // Construir la key de S3 para assets
+    const s3Key = `templates/${storeId}/assets/${assetPath}`
+
+    // Cargar desde S3
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: s3Key,
+    })
+
+    const response = await this.s3Client.send(command)
+
+    if (!response.Body) {
+      throw new Error(`Asset not found: ${assetPath}`)
+    }
+
+    // Convertir stream a Buffer usando AWS SDK v3
+    const bytes = await response.Body!.transformToByteArray()
+    return Buffer.from(bytes)
   }
 
   /**

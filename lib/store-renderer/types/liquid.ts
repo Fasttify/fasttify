@@ -67,3 +67,36 @@ export interface PaginateTag {
 export interface CommentTag {
   content: string
 }
+
+export interface ScriptTag {
+  content: string
+  attributes?: Record<string, string>
+}
+
+export interface SectionTag {
+  name: string
+  content: string
+  id?: string
+}
+
+export interface PaginateTag {
+  array: unknown[]
+  limit: number
+  windowSize?: number
+  currentPage: number
+  totalPages: number
+}
+
+export interface RenderTag {
+  snippetName: string
+  parameters?: Record<string, unknown>
+}
+
+export interface StyleTag {
+  cssContent: string
+}
+
+export interface JavaScriptTag {
+  jsContent: string
+  sectionId?: string
+}
