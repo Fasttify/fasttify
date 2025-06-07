@@ -2,6 +2,9 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { storeRenderer } from '@/lib/store-renderer'
 
+// Forzar renderizado dinámico para acceder a variables de entorno en runtime
+export const dynamic = 'force-dynamic'
+
 interface ProductPageProps {
   params: Promise<{
     store: string
@@ -113,16 +116,12 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 /**
- * Configurar ISR para productos
- * Los productos cambian con más frecuencia que las páginas principales
+ * COMENTADO: Estas configuraciones estáticas conflictan con force-dynamic
+ * No se pueden usar juntas en Next.js 15
  */
-export const revalidate = 900 // 15 minutos
 
-/**
- * Generar parámetros estáticos para productos populares
- */
-export async function generateStaticParams() {
-  // TODO: Implementar generación de productos populares
-  // Por ahora generar bajo demanda
-  return []
-}
+// export const revalidate = 900 // 15 minutos
+
+// export async function generateStaticParams() {
+//   return []
+// }
