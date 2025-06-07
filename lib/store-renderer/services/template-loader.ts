@@ -13,10 +13,17 @@ class TemplateLoader {
   private s3Client?: S3Client
   private cache: S3TemplateCache = {}
   private readonly TEMPLATE_CACHE_TTL = 60 * 60 * 1000 // 1 hora en ms
+  private readonly bucketName: string
+  private readonly cloudFrontDomain: string
+  private readonly appEnv: string
 
   private constructor() {
+    this.bucketName = process.env.BUCKET_NAME || ''
+    this.cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN_NAME || ''
+    this.appEnv = process.env.APP_ENV || 'development'
+
     // Solo inicializar S3 si tenemos bucket configurado
-    if (process.env.BUCKET_NAME) {
+    if (this.bucketName) {
       this.s3Client = new S3Client({
         region: process.env.REGION_BUCKET || 'us-east-2',
       })
@@ -39,9 +46,9 @@ class TemplateLoader {
   public async loadTemplate(storeId: string, templatePath: string): Promise<string> {
     try {
       console.log(`[TemplateLoader] Loading template: ${templatePath} for store: ${storeId}`)
-      console.log(`[TemplateLoader] Environment: ${process.env.APP_ENV}`)
-      console.log(`[TemplateLoader] CloudFront domain: ${process.env.CLOUDFRONT_DOMAIN_NAME}`)
-      console.log(`[TemplateLoader] Bucket name: ${process.env.BUCKET_NAME}`)
+      console.log(`[TemplateLoader] Environment: ${this.appEnv}`)
+      console.log(`[TemplateLoader] CloudFront domain: ${this.cloudFrontDomain}`)
+      console.log(`[TemplateLoader] Bucket name: ${this.bucketName}`)
 
       // Verificar caché primero
       const cached = this.getCachedTemplate(storeId, templatePath)
@@ -53,7 +60,7 @@ class TemplateLoader {
       let content: string
 
       // En producción usar CloudFront, en desarrollo usar S3 directo
-      if (process.env.APP_ENV === 'production' && process.env.CLOUDFRONT_DOMAIN_NAME) {
+      if (this.appEnv === 'production' && this.cloudFrontDomain) {
         console.log(`[TemplateLoader] Loading from CloudFront...`)
         content = await this.loadTemplateFromCloudFront(storeId, templatePath)
       } else {
@@ -103,7 +110,7 @@ class TemplateLoader {
       // Listar todos los archivos de plantilla en S3
       const prefix = `templates/${storeId}/`
       const command = new ListObjectsV2Command({
-        Bucket: process.env.BUCKET_NAME,
+        Bucket: this.bucketName,
         Prefix: prefix,
       })
 
@@ -263,7 +270,7 @@ class TemplateLoader {
    * Carga una plantilla desde CloudFront (producción)
    */
   private async loadTemplateFromCloudFront(storeId: string, templatePath: string): Promise<string> {
-    const templateUrl = `https://${process.env.CLOUDFRONT_DOMAIN_NAME}/templates/${storeId}/${templatePath}`
+    const templateUrl = `https://${this.cloudFrontDomain}/templates/${storeId}/${templatePath}`
 
     const response = await fetch(templateUrl)
 
@@ -280,7 +287,7 @@ class TemplateLoader {
    * Carga una plantilla desde S3 directamente (desarrollo)
    */
   private async loadTemplateFromS3(storeId: string, templatePath: string): Promise<string> {
-    if (!this.s3Client || !process.env.BUCKET_NAME) {
+    if (!this.s3Client || !this.bucketName) {
       throw new Error('S3 client or bucket not configured')
     }
 
@@ -289,7 +296,7 @@ class TemplateLoader {
 
     // Cargar desde S3
     const command = new GetObjectCommand({
-      Bucket: process.env.BUCKET_NAME,
+      Bucket: this.bucketName,
       Key: s3Key,
     })
 
