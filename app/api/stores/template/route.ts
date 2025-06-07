@@ -25,14 +25,11 @@ interface TemplateFile {
 
 // Configuración de S3
 const s3Client = new S3Client({
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.SECRET_ACCESS_KEY || '',
+  },
   region: process.env.REGION_BUCKET || 'us-east-2',
-  credentials:
-    process.env.ACCESS_KEY_ID && process.env.SECRET_ACCESS_KEY
-      ? {
-          accessKeyId: process.env.ACCESS_KEY_ID,
-          secretAccessKey: process.env.SECRET_ACCESS_KEY,
-        }
-      : undefined,
 })
 
 const BUCKET_NAME = process.env.BUCKET_NAME || ''
