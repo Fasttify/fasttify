@@ -5,6 +5,9 @@ import { readFile, readdir } from 'fs/promises'
 import { join } from 'path'
 import outputs from '@/amplify_outputs.json'
 
+// Forzar renderizado dinámico para acceder a variables de entorno en runtime
+export const dynamic = 'force-dynamic'
+
 interface TemplateRequest {
   storeId: string
   storeName: string
