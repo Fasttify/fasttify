@@ -1,6 +1,7 @@
 import { S3Client, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 import type { TemplateFile, TemplateCache, TemplateError } from '../types'
 import { cookiesClient } from '@/utils/AmplifyServer'
+import outputs from '@/amplify_outputs.json'
 
 interface S3TemplateCache {
   [storeId: string]: {
@@ -18,7 +19,7 @@ class TemplateLoader {
   private readonly appEnv: string
 
   private constructor() {
-    this.bucketName = process.env.BUCKET_NAME || ''
+    this.bucketName = outputs.storage.bucket_name || ''
     this.cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN_NAME || ''
     this.appEnv = process.env.APP_ENV || 'development'
 
@@ -29,7 +30,7 @@ class TemplateLoader {
           accessKeyId: process.env.ACCESS_KEY_ID || '',
           secretAccessKey: process.env.SECRET_ACCESS_KEY || '',
         },
-        region: process.env.AWS_REGION_BUCKET || 'us-east-2',
+        region: outputs.auth.aws_region,
       })
     }
   }
