@@ -24,7 +24,16 @@ class TemplateLoader {
 
     // Solo inicializar S3 si tenemos bucket configurado
     if (this.bucketName) {
-      this.s3Client = new S3Client()
+      this.s3Client = new S3Client({
+        region: process.env.REGION_BUCKET || 'us-east-2',
+        credentials:
+          process.env.ACCESS_KEY_ID && process.env.SECRET_ACCESS_KEY
+            ? {
+                accessKeyId: process.env.ACCESS_KEY_ID,
+                secretAccessKey: process.env.SECRET_ACCESS_KEY,
+              }
+            : undefined,
+      })
     }
   }
 

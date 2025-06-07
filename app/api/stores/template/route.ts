@@ -24,7 +24,16 @@ interface TemplateFile {
 }
 
 // Configuración de S3
-const s3Client = new S3Client()
+const s3Client = new S3Client({
+  region: process.env.REGION_BUCKET || 'us-east-2',
+  credentials:
+    process.env.ACCESS_KEY_ID && process.env.SECRET_ACCESS_KEY
+      ? {
+          accessKeyId: process.env.ACCESS_KEY_ID,
+          secretAccessKey: process.env.SECRET_ACCESS_KEY,
+        }
+      : undefined,
+})
 
 const BUCKET_NAME = process.env.BUCKET_NAME || ''
 const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN_NAME || ''
@@ -210,7 +219,7 @@ function generateTemplateUrls(
     const baseUrl =
       CLOUDFRONT_DOMAIN && APP_ENV === 'production'
         ? `https://${CLOUDFRONT_DOMAIN}`
-        : `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION_BUCKET || 'us-east-2'}.amazonaws.com`
+        : `https://${BUCKET_NAME}.s3.${process.env.REGION_BUCKET || 'us-east-2'}.amazonaws.com`
 
     urls[path] = `${baseUrl}/${key}`
   })
