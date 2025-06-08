@@ -1,6 +1,6 @@
-import { domainResolver } from '../services/domain-resolver'
-import { templateLoader } from '../services/template-loader'
-import { dataFetcher } from '../services/data-fetcher'
+import { domainResolver } from '../services/core/domain-resolver'
+import { templateLoader } from '../services/templates/template-loader'
+import { dataFetcher } from '../services/fetchers/data-fetcher'
 import { liquidEngine } from '../liquid/engine'
 import type {
   RenderResult,

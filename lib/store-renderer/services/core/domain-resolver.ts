@@ -1,5 +1,5 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
-import type { DomainResolution, Store, TemplateError } from '../types'
+import type { DomainResolution, Store, TemplateError } from '../../types'
 
 interface DomainCache {
   [domain: string]: {

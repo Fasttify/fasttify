@@ -4,7 +4,7 @@ import { RenderTag } from '../../../lib/store-renderer/liquid/tags/render-tag'
 import { createTestContext, createTestLiquid, mockTemplateLoader } from './setup'
 
 // Mock del TemplateLoader
-jest.mock('../../../lib/store-renderer/services/template-loader', () => ({
+jest.mock('../../../lib/store-renderer/services/templates/template-loader', () => ({
   TemplateLoader: {
     getInstance: () => mockTemplateLoader,
   },

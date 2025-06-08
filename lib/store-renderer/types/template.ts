@@ -21,6 +21,7 @@ export interface RenderContext {
   page_description: string
   products: any[]
   collections: any[]
+  linklists?: any // Navegación compatible con Shopify
   content_for_layout?: string // Contenido principal de la página
   content_for_header?: string // Contenido adicional para el <head>
   product?: any // Para páginas de producto

@@ -6,31 +6,32 @@ const s3Client = new S3Client({
   region: process.env.REGION_BUCKET || 'us-east-2',
 })
 
+// Configuración de entorno
+const bucketName = process.env.BUCKET_NAME || ''
+const cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN_NAME || ''
+const appEnv = process.env.APP_ENV || 'development'
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { storeId: string; path: string[] } }
+  { params }: { params: Promise<{ storeId: string; path: string[] }> }
 ) {
   try {
-    const { storeId, path } = params
+    const { storeId, path } = await params
     const assetPath = path.join('/')
 
-    // Construir la key de S3
-    const s3Key = `templates/${storeId}/assets/${assetPath}`
+    let buffer: Buffer
+    let etag: string | undefined
 
-    // Obtener el archivo desde S3
-    const command = new GetObjectCommand({
-      Bucket: process.env.BUCKET_NAME,
-      Key: s3Key,
-    })
-
-    const response = await s3Client.send(command)
-
-    if (!response.Body) {
-      return NextResponse.json({ error: 'Asset not found' }, { status: 404 })
+    // En producción usar CloudFront, en desarrollo usar S3 directo
+    if (appEnv === 'production' && cloudFrontDomain) {
+      const result = await loadAssetFromCloudFront(storeId, assetPath)
+      buffer = result.buffer
+      etag = result.etag
+    } else {
+      const result = await loadAssetFromS3(storeId, assetPath)
+      buffer = result.buffer
+      etag = result.etag
     }
-
-    // Convertir stream a buffer
-    const buffer = await streamToBuffer(response.Body)
 
     // Determinar content type
     const contentType = getContentTypeFromFilename(assetPath)
@@ -44,7 +45,7 @@ export async function GET(
         'Content-Type': contentType,
         'Content-Length': buffer.length.toString(),
         'Cache-Control': 'public, max-age=31536000', // Cache por 1 año
-        ETag: response.ETag || '',
+        ETag: etag || '',
       },
     })
   } catch (error) {
@@ -62,6 +63,57 @@ export async function GET(
       { status: 500 }
     )
   }
+}
+
+// Helper function para cargar asset desde CloudFront (producción)
+async function loadAssetFromCloudFront(
+  storeId: string,
+  assetPath: string
+): Promise<{ buffer: Buffer; etag?: string }> {
+  const assetUrl = `https://${cloudFrontDomain}/templates/${storeId}/assets/${assetPath}`
+
+  const response = await fetch(assetUrl)
+
+  if (!response.ok) {
+    throw new Error(`Asset not found: ${assetPath} (CloudFront returned ${response.status})`)
+  }
+
+  const arrayBuffer = await response.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+  const etag = response.headers.get('etag') || undefined
+
+  return { buffer, etag }
+}
+
+// Helper function para cargar asset desde S3 (desarrollo)
+async function loadAssetFromS3(
+  storeId: string,
+  assetPath: string
+): Promise<{ buffer: Buffer; etag?: string }> {
+  if (!bucketName) {
+    throw new Error('S3 bucket not configured')
+  }
+
+  // Construir la key de S3
+  const s3Key = `templates/${storeId}/assets/${assetPath}`
+
+  // Obtener el archivo desde S3
+  const command = new GetObjectCommand({
+    Bucket: bucketName,
+    Key: s3Key,
+  })
+
+  const response = await s3Client.send(command)
+
+  if (!response.Body) {
+    throw new Error(`Asset not found: ${assetPath}`)
+  }
+
+  // Convertir stream a buffer
+  const buffer = await streamToBuffer(response.Body)
+  const etag = response.ETag
+
+  return { buffer, etag }
 }
 
 // Helper function para convertir stream a buffer

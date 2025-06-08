@@ -136,7 +136,7 @@ export { HomepageRenderer } from './renderers/homepage'
 export { ProductRenderer } from './renderers/product'
 
 // Exportar servicios para uso avanzado
-export { domainResolver } from './services/domain-resolver'
-export { templateLoader } from './services/template-loader'
-export { dataFetcher } from './services/data-fetcher'
+export { domainResolver } from './services/core/domain-resolver'
+export { templateLoader } from './services/templates/template-loader'
+export { dataFetcher } from './services/fetchers/data-fetcher'
 export { liquidEngine } from './liquid/engine'

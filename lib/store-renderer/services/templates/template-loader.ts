@@ -1,5 +1,5 @@
 import { S3Client, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
-import type { TemplateFile, TemplateCache, TemplateError } from '../types'
+import type { TemplateFile, TemplateCache, TemplateError } from '../../types'
 import { cookiesClient } from '@/utils/AmplifyServer'
 
 interface S3TemplateCache {

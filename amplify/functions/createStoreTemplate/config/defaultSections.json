@@ -110,47 +110,90 @@
   "footer": {
     "type": "footer",
     "settings": {
-      "background_color": "#1f2937",
-      "text_color": "#f9fafb",
-      "heading_color": "#ffffff",
-      "link_color": "#d1d5db",
-      "link_hover_color": "#ffffff",
-      "show_social_links": true,
-      "show_newsletter": true,
-      "show_payment_icons": true,
-      "show_store_info": true,
-      "newsletter_heading": "Suscríbete a nuestro newsletter",
-      "newsletter_description": "Recibe las últimas noticias, ofertas y actualizaciones",
-      "copyright_text": "© 2024 Tu tienda. Todos los derechos reservados.",
-
-      "quick_links": [
-        { "title": "Inicio", "url": "/" },
-        { "title": "Productos", "url": "/productos" },
-        { "title": "Colecciones", "url": "/colecciones" },
-        { "title": "Sobre nosotros", "url": "/sobre-nosotros" },
-        { "title": "Contacto", "url": "/contacto" }
-      ],
-
-      "info_links": [
-        { "title": "Política de privacidad", "url": "/politicas/privacidad" },
-        { "title": "Términos y condiciones", "url": "/politicas/terminos" },
-        { "title": "Política de envíos", "url": "/politicas/envios" },
-        { "title": "Devoluciones", "url": "/politicas/devoluciones" },
-        { "title": "Preguntas frecuentes", "url": "/faq" }
-      ],
-
-      "social_links": [
-        { "platform": "facebook", "url": "", "active": false },
-        { "platform": "instagram", "url": "", "active": false },
-        { "platform": "twitter", "url": "", "active": false },
-        { "platform": "youtube", "url": "", "active": false },
-        { "platform": "tiktok", "url": "", "active": false }
-      ],
-
-      "payment_icons": ["visa", "mastercard", "paypal", "amex"],
-
-      "layout": "four-columns",
-      "show_divider": true
-    }
+      "background": "#000000",
+      "text_color": "#F4F4F4"
+    },
+    "blocks": [
+      {
+        "id": "block-links-0",
+        "type": "links",
+        "settings": {
+          "text": "Inicio",
+          "link": "/"
+        }
+      },
+      {
+        "id": "block-links-1",
+        "type": "links",
+        "settings": {
+          "text": "Productos",
+          "link": "/productos"
+        }
+      },
+      {
+        "id": "block-links-2",
+        "type": "links",
+        "settings": {
+          "text": "Colecciones",
+          "link": "/colecciones"
+        }
+      },
+      {
+        "id": "block-links-3",
+        "type": "links",
+        "settings": {
+          "text": "Sobre nosotros",
+          "link": "/sobre-nosotros"
+        }
+      },
+      {
+        "id": "block-links-4",
+        "type": "links",
+        "settings": {
+          "text": "Contacto",
+          "link": "/contacto"
+        }
+      },
+      {
+        "id": "block-links-5",
+        "type": "links",
+        "settings": {
+          "text": "Política de privacidad",
+          "link": "/politicas/privacidad"
+        }
+      },
+      {
+        "id": "block-links-6",
+        "type": "links",
+        "settings": {
+          "text": "Términos y condiciones",
+          "link": "/politicas/terminos"
+        }
+      },
+      {
+        "id": "block-links-7",
+        "type": "links",
+        "settings": {
+          "text": "Política de envíos",
+          "link": "/politicas/envios"
+        }
+      },
+      {
+        "id": "block-links-8",
+        "type": "links",
+        "settings": {
+          "text": "Devoluciones",
+          "link": "/politicas/devoluciones"
+        }
+      },
+      {
+        "id": "block-links-9",
+        "type": "links",
+        "settings": {
+          "text": "Preguntas frecuentes",
+          "link": "/faq"
+        }
+      }
+    ]
   }
 }
