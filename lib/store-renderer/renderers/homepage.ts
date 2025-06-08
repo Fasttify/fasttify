@@ -42,22 +42,52 @@ export class HomepageRenderer {
       // 4. Crear contexto para las plantillas Liquid
       const context = this.createRenderContext(store, featuredProducts, collections.collections)
 
-      // 5. 🧪 TEST: Usar template index.liquid
-      const homepageContent = await templateLoader.loadTemplate(
-        store.storeId,
-        'templates/index.liquid'
-      )
-      const renderedContent = await liquidEngine.render(
-        homepageContent,
-        context,
-        `test-index_${store.storeId}`
-      )
+      // 5. Cargar template index.json y renderizar secciones
+      const indexTemplate = await templateLoader.loadTemplate(store.storeId, 'templates/index.json')
+      const templateConfig = JSON.parse(indexTemplate)
 
-      // 6. Insertar contenido en el layout
+      // Renderizar cada sección definida en el template
+      const sectionPromises = templateConfig.order.map(async (sectionId: string) => {
+        const sectionConfig = templateConfig.sections[sectionId]
+        if (!sectionConfig) return ''
+
+        try {
+          const sectionContent = await templateLoader.loadTemplate(
+            store.storeId,
+            `sections/${sectionConfig.type}.liquid`
+          )
+          return await this.renderSectionWithSchema(sectionConfig.type, sectionContent, context)
+        } catch (error) {
+          console.warn(`Section ${sectionConfig.type} not found:`, error)
+          return `<!-- Section '${sectionConfig.type}' not found -->`
+        }
+      })
+
+      const renderedSections = await Promise.all(sectionPromises)
+      const renderedContent = renderedSections.join('\n')
+
+      // 6. Detectar y pre-cargar todas las secciones usadas en el layout
+      const layoutSections = this.extractSectionNamesFromLayout(layout)
+      const preloadedSections: Record<string, string> = {}
+
+      if (layoutSections.length > 0) {
+        const sectionPromises = layoutSections.map(async (sectionName: string) => {
+          const sectionContent = await this.loadSectionSafely(store.storeId, sectionName, context)
+          return { name: sectionName, content: sectionContent }
+        })
+
+        const sectionResults = await Promise.all(sectionPromises)
+        sectionResults.forEach(({ name, content }: { name: string; content: string }) => {
+          preloadedSections[name] = content
+        })
+      }
+
+      // 7. Insertar contenido y secciones en el contexto
       context.content_for_layout = renderedContent
       context.content_for_header = this.generateHeadContent(store)
+      context.preloaded_sections = preloadedSections
 
-      // 7. Renderizar el layout completo
+      // 8. Renderizar el layout completo
       const html = await liquidEngine.render(layout, context, `homepage_${store.storeId}`)
 
       // 8. Generar metadata SEO
@@ -187,37 +217,6 @@ export class HomepageRenderer {
   }
 
   /**
-   * Genera el contenido de la homepage renderizando las secciones reales
-   */
-  private async generateHomepageContent(storeId: string, context: RenderContext): Promise<string> {
-    try {
-      // Cargar secciones reales desde nuestros templates
-      const [header, heroBanner, featuredProducts, collectionList, footer] = await Promise.all([
-        templateLoader.loadTemplate(storeId, 'sections/header.liquid'),
-        templateLoader.loadTemplate(storeId, 'sections/hero-banner.liquid'),
-        templateLoader.loadTemplate(storeId, 'sections/featured-products.liquid'),
-        templateLoader.loadTemplate(storeId, 'sections/collection-list.liquid'),
-        templateLoader.loadTemplate(storeId, 'sections/footer.liquid'),
-      ])
-
-      // Renderizar cada sección con su contexto específico y extraer settings del schema
-      const renderedSections = await Promise.all([
-        this.renderSectionWithSchema('header', header, context),
-        this.renderSectionWithSchema('hero-banner', heroBanner, context),
-        this.renderSectionWithSchema('featured-products', featuredProducts, context),
-        this.renderSectionWithSchema('collection-list', collectionList, context),
-        this.renderSectionWithSchema('footer', footer, context),
-      ])
-
-      // Combinar todas las secciones
-      return renderedSections.join('\n')
-    } catch (error) {
-      console.error('Error generating homepage content for store', storeId, ':', error)
-      return ''
-    }
-  }
-
-  /**
    * Renderiza una sección extrayendo primero los settings del schema
    */
   private async renderSectionWithSchema(
@@ -338,6 +337,45 @@ export class HomepageRenderer {
       type,
       message,
       statusCode: type === 'TEMPLATE_NOT_FOUND' ? 404 : 500,
+    }
+  }
+
+  /**
+   * Extrae automáticamente los nombres de las secciones del layout
+   * Busca todos los {% section 'nombre' %} en el contenido
+   */
+  private extractSectionNamesFromLayout(layoutContent: string): string[] {
+    const sectionRegex = /{%\s*section\s+['"]([^'"]+)['"]\s*%}/g
+    const sectionNames: string[] = []
+    let match
+
+    while ((match = sectionRegex.exec(layoutContent)) !== null) {
+      const sectionName = match[1]
+      if (!sectionNames.includes(sectionName)) {
+        sectionNames.push(sectionName)
+      }
+    }
+
+    return sectionNames
+  }
+
+  /**
+   * Carga una sección de forma segura sin fallar si no existe
+   */
+  private async loadSectionSafely(
+    storeId: string,
+    sectionName: string,
+    context: RenderContext
+  ): Promise<string> {
+    try {
+      const sectionContent = await templateLoader.loadTemplate(
+        storeId,
+        `sections/${sectionName}.liquid`
+      )
+      return await this.renderSectionWithSchema(sectionName, sectionContent, context)
+    } catch (error) {
+      console.warn(`Section ${sectionName} not found or failed to render:`, error)
+      return `<!-- Section '${sectionName}' not found -->`
     }
   }
 

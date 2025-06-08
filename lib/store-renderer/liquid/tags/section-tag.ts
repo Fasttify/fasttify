@@ -38,7 +38,7 @@ export class SectionTag extends Tag {
   }
 
   /**
-   * Renderiza la sección cargando su contenido y ejecutándolo
+   * Renderiza la sección usando las secciones pre-cargadas o fallback
    */
   *render(ctx: Context, emitter: any): Generator<any, void, unknown> {
     try {
@@ -47,41 +47,22 @@ export class SectionTag extends Tag {
         return
       }
 
-      // Intentar cargar el contenido de la sección
-      const sectionContent = this.loadSectionContent(this.sectionName, ctx)
+      // Intentar obtener sección pre-cargada del contexto
+      const contextData = ctx.getAll() as any
+      const preloadedSections = contextData.preloaded_sections || {}
 
-      if (!sectionContent) {
-        emitter.write(`<!-- Section '${this.sectionName}' not found -->`)
+      if (preloadedSections[this.sectionName]) {
+        emitter.write(preloadedSections[this.sectionName])
         return
       }
 
-      // SIMPLIFICADO: Por ahora solo mostrar que la sección fue encontrada
-      // TODO: Implementar renderizado sin bucles infinitos
-      emitter.write(`<!-- Section '${this.sectionName}' rendered -->`)
+      // Fallback: mostrar mensaje de sección no encontrada
+      emitter.write(`<!-- Section '${this.sectionName}' not preloaded -->`)
     } catch (error) {
       console.error(`Error rendering section '${this.sectionName}':`, error)
       emitter.write(
         `<!-- Error loading section '${this.sectionName}': ${error instanceof Error ? error.message : 'Unknown error'} -->`
       )
-    }
-  }
-
-  /**
-   * Carga el contenido de una sección
-   * SIMPLIFICADO: Por ahora solo simular que encontró la sección
-   */
-  private loadSectionContent(sectionName: string, ctx: Context): string | null {
-    try {
-      // Obtener storeId del contexto
-      const contextData = ctx.getAll() as any
-      const storeId = contextData.storeId || 'default'
-
-      // SIMPLIFICADO: Solo retornar que se encontró la sección
-      // TODO: Implementar carga real de secciones
-      return `<div class="section-${sectionName}">Section ${sectionName} content</div>`
-    } catch (error) {
-      console.warn(`Could not load section '${sectionName}':`, error)
-      return null
     }
   }
 

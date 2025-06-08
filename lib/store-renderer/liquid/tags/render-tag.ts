@@ -36,10 +36,7 @@ export class RenderTag extends Tag {
       }
 
       const key = param.substring(0, colonIndex).trim()
-      const value = param
-        .substring(colonIndex + 1)
-        .trim()
-        .replace(/^['"]|['"]$/g, '')
+      const value = param.substring(colonIndex + 1).trim()
 
       this.parameters.set(key, value)
     }
@@ -61,10 +58,24 @@ export class RenderTag extends Tag {
         return
       }
 
-      // Los parámetros ya están evaluados como strings simples
+      // Evaluar parámetros usando LiquidJS
       const evaluatedParams: Record<string, unknown> = {}
       for (const [key, value] of this.parameters) {
-        evaluatedParams[key] = value
+        try {
+          if (
+            (value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))
+          ) {
+            evaluatedParams[key] = value.slice(1, -1)
+          } else {
+            const template = this.liquid.parse(`{{ ${value} }}`)
+            const result = yield this.liquid.render(template, ctx.getAll())
+            evaluatedParams[key] = String(result).trim()
+          }
+        } catch (error) {
+          console.warn(`Error evaluating parameter '${key}': '${value}'`, error)
+          evaluatedParams[key] = value
+        }
       }
 
       // Crear contexto combinado
@@ -133,8 +144,5 @@ export class RenderTag extends Tag {
 export class IncludeTag extends RenderTag {
   constructor(tagToken: TagToken, remainTokens: TopLevelToken[], liquid: Liquid) {
     super(tagToken, remainTokens, liquid)
-
-    // Mostrar advertencia de deprecación
-    console.warn(`{% include %} is deprecated. Use {% render %} instead.`)
   }
 }

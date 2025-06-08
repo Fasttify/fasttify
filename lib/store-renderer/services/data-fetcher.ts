@@ -328,11 +328,8 @@ class DataFetcher {
 
     const images = Array.isArray(imagesArray)
       ? imagesArray.map((img: any, index: number) => ({
-          id: img.id || `img-${index}`,
           url: img.url || img.src || '',
           alt: img.altText || img.alt || product.name || '',
-          width: img.width,
-          height: img.height,
         }))
       : []
 
@@ -361,46 +358,30 @@ class DataFetcher {
         }))
       : []
 
+    const attributes = Array.isArray(product.attributes)
+      ? product.attributes.map((attribute: any) => ({
+          name: attribute.name,
+          values: attribute.values,
+        }))
+      : []
+
     return {
       id: product.id,
-      title: product.name || product.title || '',
-      description: product.description || '',
-      handle,
-      price,
+      storeId: product.storeId,
+      name: product.name,
+      slug: product.slug,
+      attributes: attributes,
+      quantity: product.quantity,
+      description: product.description,
+      price: price,
       compare_at_price: compareAtPrice,
       url: `/products/${handle}`,
-      images,
-      variants:
-        variants.length > 0
-          ? variants
-          : [
-              {
-                id: `${product.id}-default`,
-                title: 'Default',
-                price,
-                available: (product.quantity || product.stock || 0) > 0,
-                sku: product.sku || '',
-              },
-            ],
-      tags: (() => {
-        if (product.tags) {
-          if (typeof product.tags === 'string') {
-            try {
-              const parsed = JSON.parse(product.tags)
-              return Array.isArray(parsed) ? parsed : []
-            } catch (error) {
-              console.warn('Error parsing product tags JSON:', error)
-              return []
-            }
-          } else if (Array.isArray(product.tags)) {
-            return product.tags
-          }
-        }
-        return []
-      })(),
-      available: (product.quantity || product.stock || 0) > 0 && product.isActive !== false,
-      vendor: product.vendor || product.brand || '',
-      type: product.category || product.type || 'Product',
+      images: images,
+      variants: variants,
+      status: product.status,
+      category: product.category,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
     }
   }
 
@@ -417,23 +398,22 @@ class DataFetcher {
     // TODO: Implementar obtención de productos de colección si existe la relación
 
     // Transformar imagen de colección
-    const image = collection.image
-      ? {
-          id: collection.image.id || 'collection-img',
-          url: collection.image.url || collection.image.src || collection.image,
-          alt: collection.image.alt || collection.name || '',
-        }
-      : undefined
+    const image = collection.image || 'collection-img'
 
     return {
       id: collection.id,
+      storeId: collection.storeId,
       title: collection.name || collection.title || '',
       description: collection.description || '',
-      handle,
+      slug: handle,
       url: `/collections/${handle}`,
       image,
+      isActive: collection.isActive,
+      createdAt: collection.createdAt,
+      updatedAt: collection.updatedAt,
+      owner: collection.owner,
+      sortOrder: collection.sortOrder,
       products,
-      products_count: products.length,
     }
   }
 

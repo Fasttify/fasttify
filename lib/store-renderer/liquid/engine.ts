@@ -75,6 +75,24 @@ class LiquidEngine {
   }
 
   /**
+   * Registra filtros específicos del contexto de una tienda
+   */
+  private registerStoreFilters(storeId: string): void {
+    // Registrar asset_url con storeId específico
+    this.liquid.registerFilter('asset_url', (filename: string) => {
+      if (!filename) {
+        return ''
+      }
+
+      // Limpiar el filename
+      const cleanFilename = filename.replace(/^\/+/, '')
+
+      // URL para assets específicos de la tienda via API
+      return `/api/stores/${storeId}/assets/${cleanFilename}`
+    })
+  }
+
+  /**
    * Registra tags personalizados para compatibilidad con Shopify
    */
   private registerCustomTags(): void {
@@ -109,6 +127,12 @@ class LiquidEngine {
     templatePath?: string
   ): Promise<string> {
     try {
+      // Registrar filtros específicos de la tienda si hay storeId en el contexto
+      const storeId = context?.storeId || context?.store?.storeId || context?.shop?.storeId
+      if (storeId) {
+        this.registerStoreFilters(storeId)
+      }
+
       // Renderizar directamente usando parseAndRender
       // LiquidJS maneja internamente el parsing y rendering
       const result = await this.liquid.parseAndRender(templateContent, context)

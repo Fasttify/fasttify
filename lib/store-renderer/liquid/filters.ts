@@ -232,6 +232,7 @@ export const escapeFilter: LiquidFilter = {
 
 /**
  * Filtro asset_url - Para archivos estáticos (CSS, JS, imágenes de tema)
+ * NOTA: Este filtro base será sobrescrito dinámicamente en el engine para cada tienda
  */
 export const assetUrlFilter: LiquidFilter = {
   name: 'asset_url',
@@ -240,17 +241,11 @@ export const assetUrlFilter: LiquidFilter = {
       return ''
     }
 
-    // En desarrollo, usar archivos locales o CDN
-    // TODO: Configurar según el entorno (local/S3/CDN)
-
-    // Por ahora, generar URLs básicas para assets
-    // En producción esto debería apuntar al CDN de assets
-    const baseAssetUrl = '/assets'
-
     // Limpiar el filename
     const cleanFilename = filename.replace(/^\/+/, '')
 
-    return `${baseAssetUrl}/${cleanFilename}`
+    // Fallback básico (será sobrescrito por el engine)
+    return `/assets/${cleanFilename}`
   },
 }
 
@@ -326,6 +321,46 @@ export const defaultFilter: LiquidFilter = {
 }
 
 /**
+ * Filtro stylesheet_tag - Convierte una URL de CSS en un elemento <link>
+ */
+export const stylesheetTagFilter: LiquidFilter = {
+  name: 'stylesheet_tag',
+  filter: (url: string, media?: string): string => {
+    if (!url) {
+      return ''
+    }
+
+    // Construir atributos del link
+    let attributes = `rel="stylesheet" href="${url}"`
+    if (media) {
+      attributes += ` media="${media}"`
+    }
+
+    return `<link ${attributes}>`
+  },
+}
+
+/**
+ * Filtro script_tag - Convierte una URL de JS en un elemento <script>
+ */
+export const scriptTagFilter: LiquidFilter = {
+  name: 'script_tag',
+  filter: (url: string, attributes?: string): string => {
+    if (!url) {
+      return ''
+    }
+
+    // Construir atributos del script
+    let scriptAttributes = `src="${url}"`
+    if (attributes) {
+      scriptAttributes += ` ${attributes}`
+    }
+
+    return `<script ${scriptAttributes}></script>`
+  },
+}
+
+/**
  * Array con todos los filtros para registrar
  */
 export const ecommerceFilters: LiquidFilter[] = [
@@ -344,4 +379,6 @@ export const ecommerceFilters: LiquidFilter[] = [
   imageUrlFilter,
   linkToFilter,
   defaultFilter,
+  stylesheetTagFilter,
+  scriptTagFilter,
 ]

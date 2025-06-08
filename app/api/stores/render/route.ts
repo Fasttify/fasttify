@@ -108,34 +108,10 @@ function generateFullHTML(body: string, metadata: any): string {
   
   <!-- Favicon -->
   <link rel="icon" href="/favicon.ico">
-  
-  <!-- Estilos básicos para tiendas -->
-  <style>
-    * { box-sizing: border-box; }
-    body { 
-      margin: 0; 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      line-height: 1.6;
-      color: #333;
-    }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-    img { max-width: 100%; height: auto; }
-    .price { font-weight: bold; color: #2563eb; }
-    .btn { 
-      display: inline-block; 
-      padding: 12px 24px; 
-      background: #2563eb; 
-      color: white; 
-      text-decoration: none; 
-      border-radius: 6px;
-      transition: background 0.2s;
-    }
-    .btn:hover { background: #1d4ed8; }
-  </style>
+
 </head>
 <body>
-  ${body}
-  
+    ${body}
   <!-- Analytics y tracking scripts irían aquí -->
 </body>
 </html>`

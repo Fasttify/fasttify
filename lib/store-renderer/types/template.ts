@@ -26,6 +26,7 @@ export interface RenderContext {
   product?: any // Para páginas de producto
   collection?: any // Para páginas de colección
   pagination?: any // Para páginas con paginación
+  preloaded_sections?: Record<string, string> // Secciones pre-cargadas
 }
 
 export interface ShopContext {
@@ -59,46 +60,73 @@ export interface PageContext {
 }
 
 export interface ProductContext {
+  // Propiedades principales
   id: string
-  title: string
-  description: string
-  handle: string // SEO friendly URL slug
+  storeId: string
+  name: string
+  description: string | null
+  handle?: string // SEO friendly URL slug
+
+  // Precios
   price: string
-  compare_at_price?: string
+  compareAtPrice?: string | null
+  compare_at_price?: string | null
+  costPerItem?: number | null
+
+  // URLs y navegación
   url: string
+  slug: string | null
+
+  // Imágenes y media
   images: Array<{
-    id: string
     url: string
     alt?: string
-    width?: number
-    height?: number
   }>
-  variants: Array<{
-    id: string
-    title: string
-    price: string
-    available: boolean
-    sku?: string
-  }>
-  tags: string[]
-  available: boolean
-  vendor?: string
+
+  // Variantes y opciones
+  variants: any[]
+
+  attributes: any[]
+
+  // Categorización
+  category?: string | null
   type?: string
+  collectionId?: string | null
+
+  // Inventario y estado
+  quantity: number
+
+  status: string
+
+  // Identificación y metadatos
+  sku?: string | null
+  barcode?: string | null
+  vendor?: string | null
+  supplier?: string | null
+  owner?: string | null
+
+  // Timestamps
+  createdAt: string
+  updatedAt: string
+
+  // Permitir propiedades dinámicas para diferentes templates
+  [key: string]: any
 }
 
 export interface CollectionContext {
   id: string
+  storeId: string
   title: string
   description: string
-  handle: string
+  isActive: boolean
+  slug: string
   url: string
-  image?: {
-    id: string
-    url: string
-    alt?: string
-  }
+  image: string
+  createdAt: string
+  updatedAt: string
+  owner: string
+  sortOrder: number
   products: ProductContext[]
-  products_count: number
 }
 
 export interface PaginationContext {
@@ -149,4 +177,27 @@ export interface TemplateError {
   message: string
   details?: any
   statusCode: number
+}
+
+// ==================== TIPOS PARA TEMPLATES JSON ====================
+
+export interface SectionSettings {
+  [key: string]: any
+}
+
+export interface TemplateSection {
+  type: string
+  settings: SectionSettings
+  blocks?: any[]
+}
+
+export interface TemplateConfig {
+  sections: Record<string, TemplateSection>
+  order: string[]
+}
+
+export interface TemplateData {
+  layout: string
+  sections: Record<string, TemplateSection>
+  order: string[]
 }

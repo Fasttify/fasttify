@@ -1,195 +1,22 @@
-<!doctype html>
-<html lang='es'>
-
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>
-        {% if page_title %}{{ page_title }} - {% endif %}
-        {{ store.name }}
-    </title>
-    <meta name='description' content='{{ page_description | default: store.description }}'>
-
-    <!-- Tailwind CSS -->
-    <script src='https://cdn.tailwindcss.com' defer></script>
-
-    <!-- 🧪 TEST: Using style tag -->
-    {% style %}
-        /* Variables CSS personalizadas */
-        :root {
-            --primary-color: {{ store.primaryColor | default: '#3B82F6' }};
-            --secondary-color: {{ store.secondaryColor | default: '#1F2937' }};
-            --test-color: #007bff;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        /* 🧪 TEST: Styles added via style tag */
-        .test-highlight {
-            border: 2px dashed var(--test-color);
-            background: rgba(0, 123, 255, 0.1);
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-
-        .test-badge {
-            background: var(--test-color);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-    {% endstyle %}
-
+<html>
+  <head>{% render 'pagefly-head' %}
     {{ content_for_header }}
-</head>
 
-<body class='min-h-screen bg-gray-50'>
-    <!-- Contenido principal -->
-    <main id='main-content'>
-        {{ content_for_layout }}
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+  </head>
+  <body>
+    {% section 'announcement-bar' %}
+    {% section 'header' %}
+
+    <main id="main" role="main">
+      {{ content_for_layout }}
     </main>
 
- 
-    {% javascript %}
-        console.log('🧪 Theme loaded with script tag!');
-        console.log('Store data:', {
-            name: '{{ store.name }}',
-            currency: '{{ store.currency }}',
-            storeId: '{{ storeId }}'
-        });
+    {% section 'footer' %}
 
-        // Funcionalidad del carrito
-        window.cart = {
-            items: [],
-            total: 0,
+    {% comment %} {{ 'theme.js' | asset_url | script_tag }} {% endcomment %}
 
-            add: function (product) {
-                console.log('🛒 Adding to cart:', product);
-                this.items.push(product)
-                this.updateTotal()
-                this.updateUI()
-            },
 
-            remove: function (productId) {
-                console.log('🗑️ Removing from cart:', productId);
-                this.items = this.items.filter(item => item.id !== productId)
-                this.updateTotal()
-                this.updateUI()
-            },
-
-            updateTotal: function () {
-                this.total = this.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-                console.log('💰 Cart total updated:', this.total);
-            },
-
-            updateUI: function () {
-                const cartCount = document.getElementById('cart-count')
-                if (cartCount) {
-                    cartCount.textContent = this.items.length
-                }
-
-                const cartTotal = document.getElementById('cart-total')
-                if (cartTotal) {
-                    cartTotal.textContent = `$${this.total.toFixed(2)}`
-                }
-            },
-        }
-
-        // 🧪 TEST: Enhanced search functionality
-        window.search = {
-            init: function () {
-                const searchInput = document.getElementById('search-input')
-                const searchResults = document.getElementById('search-results')
-
-                if (searchInput) {
-                    searchInput.addEventListener('input', this.handleSearch.bind(this))
-                    console.log('🔍 Search functionality initialized');
-                }
-            },
-
-            handleSearch: function (e) {
-                const query = e.target.value.toLowerCase()
-                if (query.length < 2) return
-
-                console.log('🔍 Searching for:', query);
-
-                // Simular búsqueda con productos disponibles
-                const results = window.products
-                    ? window.products.filter(
-                        product =>
-                            product.title.toLowerCase().includes(query) ||
-                            product.description.toLowerCase().includes(query)
-                    )
-                    : []
-
-                console.log('📋 Search results:', results.length);
-                this.displayResults(results)
-            },
-
-            displayResults: function (results) {
-                const searchResults = document.getElementById('search-results')
-                if (!searchResults) return
-
-                if (results.length === 0) {
-                    searchResults.innerHTML = '<p class="p-4 text-gray-500">No se encontraron productos</p>'
-                    return
-                }
-
-                const resultsHtml = results
-                    .map(
-                        product => `
-          <div class="p-4 border-b hover:bg-gray-50 cursor-pointer">
-            <h3 class="font-semibold">${product.title}</h3>
-            <p class="text-sm text-gray-600">${product.price}</p>
-            <span class="test-badge">🧪 TEST</span>
-          </div>
-        `
-                    )
-                    .join('')
-
-                searchResults.innerHTML = resultsHtml
-            },
-        }
-
-        // 🧪 TEST: Add test highlighting
-        function addTestHighlights() {
-            const sections = document.querySelectorAll('section, .section');
-            sections.forEach((section, index) => {
-                if (!section.classList.contains('test-highlight')) {
-                    section.classList.add('test-highlight');
-                    
-                    // Add test badge
-                    const badge = document.createElement('span');
-                    badge.className = 'test-badge';
-                    badge.textContent = `🧪 Section ${index + 1}`;
-                    section.insertBefore(badge, section.firstChild);
-                }
-            });
-        }
-
-        // Inicializar funcionalidades
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log('✅ DOM loaded, initializing...');
-            window.search.init();
-            addTestHighlights();
-            console.log('🚀 All test functionality ready!');
-        })
-    {% endjavascript %}
-</body>
-
+  </body>
 </html>
