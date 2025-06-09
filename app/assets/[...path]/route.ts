@@ -6,9 +6,12 @@ const s3Client = new S3Client({
   region: process.env.REGION_BUCKET || 'us-east-2',
 })
 
-export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
   try {
-    const { path } = params
+    const { path } = await params
     const assetPath = path.join('/')
 
     // Extraer storeId del host/subdominio
