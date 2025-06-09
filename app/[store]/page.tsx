@@ -1,9 +1,45 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 import { storeRenderer } from '@/lib/store-renderer'
 
 // Forzar renderizado dinámico para acceder a variables de entorno en runtime
 export const dynamic = 'force-dynamic'
+
+/**
+ * Verifica si el path corresponde a un asset estático
+ */
+function isAssetPath(path: string): boolean {
+  const assetExtensions = [
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.svg',
+    '.webp',
+    '.ico',
+    '.css',
+    '.js',
+    '.woff',
+    '.woff2',
+    '.ttf',
+    '.eot',
+  ]
+  return (
+    assetExtensions.some(ext => path.toLowerCase().endsWith(ext)) ||
+    path.startsWith('/assets/') ||
+    path.startsWith('/_next/') ||
+    path.includes('/icons/')
+  )
+}
+
+/**
+ * Función cacheada usando React.cache() que persiste entre generateMetadata y StorePage
+ * Esta es la forma oficial de Next.js para compartir datos entre estas funciones
+ */
+const getCachedRenderResult = cache(async (domain: string, path: string) => {
+  return await storeRenderer.renderPage(domain, path)
+})
 
 interface StorePageProps {
   params: Promise<{
@@ -24,12 +60,18 @@ export default async function StorePage({ params, searchParams }: StorePageProps
   const { store } = resolvedParams
   const path = resolvedSearchParams.path || '/'
 
+  // Validar que no sea una ruta de asset
+  if (isAssetPath(path)) {
+    console.warn(`[StorePage] Asset path ${path} should not be handled by page renderer`)
+    notFound()
+  }
+
   try {
     // Resolver dominio completo (el middleware ya reescribió la URL)
     const domain = `${store}.fasttify.com`
 
-    // Renderizar página usando el sistema
-    const result = await storeRenderer.renderPage(domain, path)
+    // Renderizar página usando el sistema con caché temporal
+    const result = await getCachedRenderResult(domain, path)
 
     // Retornar HTML renderizado como componente dangerouslySetInnerHTML
     // Esto permite SSR completo con SEO optimizado
@@ -59,10 +101,19 @@ export async function generateMetadata({
   const { store } = resolvedParams
   const path = resolvedSearchParams.path || '/'
 
+  // No generar metadata para assets
+  if (isAssetPath(path)) {
+    return {
+      title: 'Asset',
+      description: 'Static asset',
+    }
+  }
+
   try {
     const domain = `${store}.fasttify.com`
-    const result = await storeRenderer.renderPage(domain, path)
 
+    // Usar el cache global para obtener el resultado completo
+    const result = await getCachedRenderResult(domain, path)
     const { metadata } = result
 
     return {
