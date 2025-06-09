@@ -1,18 +1,11 @@
 import { S3Client, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
-import type { TemplateFile, TemplateCache, TemplateError } from '../../types'
+import type { TemplateFile, TemplateCache, TemplateError } from '@/lib/store-renderer/types'
 import { cookiesClient } from '@/utils/AmplifyServer'
-
-interface S3TemplateCache {
-  [storeId: string]: {
-    [templatePath: string]: TemplateCache
-  }
-}
+import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
 
 class TemplateLoader {
   private static instance: TemplateLoader
   private s3Client?: S3Client
-  private cache: S3TemplateCache = {}
-  private readonly TEMPLATE_CACHE_TTL = 60 * 60 * 1000 // 1 hora en ms
   private readonly bucketName: string
   private readonly cloudFrontDomain: string
   private readonly appEnv: string
@@ -198,8 +191,8 @@ class TemplateLoader {
   public async loadAsset(storeId: string, assetPath: string): Promise<Buffer> {
     try {
       // Verificar caché primero (para assets también)
-      const cacheKey = `assets/${assetPath}`
-      const cached = this.getCachedTemplate(storeId, cacheKey)
+      const cacheKey = `asset_${storeId}_${assetPath}`
+      const cached = cacheManager.getCached(cacheKey) as TemplateCache | null
       if (cached) {
         // Para assets, el contenido en caché es base64, convertir de vuelta a Buffer
         return Buffer.from(cached.content, 'base64')
@@ -215,7 +208,12 @@ class TemplateLoader {
       }
 
       // Guardar en caché (convertir Buffer a base64 para almacenamiento)
-      this.setCachedTemplate(storeId, cacheKey, assetBuffer.toString('base64'))
+      const assetCache: TemplateCache = {
+        content: assetBuffer.toString('base64'),
+        lastUpdated: new Date(),
+        ttl: cacheManager.TEMPLATE_CACHE_TTL,
+      }
+      cacheManager.setCached(cacheKey, assetCache, cacheManager.TEMPLATE_CACHE_TTL)
 
       return assetBuffer
     } catch (error) {
@@ -258,7 +256,7 @@ class TemplateLoader {
    * @param storeId - ID de la tienda
    */
   public invalidateStoreCache(storeId: string): void {
-    delete this.cache[storeId]
+    cacheManager.invalidateStoreCache(storeId)
   }
 
   /**
@@ -267,39 +265,22 @@ class TemplateLoader {
    * @param templatePath - Ruta de la plantilla
    */
   public invalidateTemplateCache(storeId: string, templatePath: string): void {
-    if (this.cache[storeId]) {
-      delete this.cache[storeId][templatePath]
-    }
+    const cacheKey = `template_${storeId}_${templatePath}`
+    cacheManager.setCached(cacheKey, null, 0) // Invalidar estableciendo a null
   }
 
   /**
    * Limpia todo el caché
    */
   public clearCache(): void {
-    this.cache = {}
+    cacheManager.clearCache()
   }
 
   /**
    * Limpia plantillas expiradas del caché
    */
   public cleanExpiredCache(): void {
-    const now = Date.now()
-
-    Object.keys(this.cache).forEach(storeId => {
-      const storeCache = this.cache[storeId]
-
-      Object.keys(storeCache).forEach(templatePath => {
-        const cached = storeCache[templatePath]
-        if (now > cached.lastUpdated.getTime() + cached.ttl) {
-          delete storeCache[templatePath]
-        }
-      })
-
-      // Si no quedan plantillas en caché para esta tienda, eliminar la entrada
-      if (Object.keys(storeCache).length === 0) {
-        delete this.cache[storeId]
-      }
-    })
+    cacheManager.cleanExpiredCache()
   }
 
   /**
@@ -394,22 +375,8 @@ class TemplateLoader {
    * Obtiene una plantilla del caché si existe y es válida
    */
   private getCachedTemplate(storeId: string, templatePath: string): TemplateCache | null {
-    const storeCache = this.cache[storeId]
-    if (!storeCache) {
-      return null
-    }
-
-    const cached = storeCache[templatePath]
-    if (!cached) {
-      return null
-    }
-
-    const now = Date.now()
-    if (now > cached.lastUpdated.getTime() + cached.ttl) {
-      delete storeCache[templatePath]
-      return null
-    }
-
+    const cacheKey = `template_${storeId}_${templatePath}`
+    const cached = cacheManager.getCached(cacheKey) as TemplateCache | null
     return cached
   }
 
@@ -417,15 +384,14 @@ class TemplateLoader {
    * Guarda una plantilla en caché
    */
   private setCachedTemplate(storeId: string, templatePath: string, content: string): void {
-    if (!this.cache[storeId]) {
-      this.cache[storeId] = {}
-    }
-
-    this.cache[storeId][templatePath] = {
+    const cacheKey = `template_${storeId}_${templatePath}`
+    const templateCache: TemplateCache = {
       content,
       lastUpdated: new Date(),
-      ttl: this.TEMPLATE_CACHE_TTL,
+      ttl: cacheManager.TEMPLATE_CACHE_TTL,
     }
+
+    cacheManager.setCached(cacheKey, templateCache, cacheManager.TEMPLATE_CACHE_TTL)
   }
 
   /**
@@ -456,26 +422,15 @@ class TemplateLoader {
     expiredTemplates: number
     activeTemplates: number
   } {
-    const now = Date.now()
-    let stores = 0
-    let totalTemplates = 0
-    let expiredTemplates = 0
-    let activeTemplates = 0
+    const globalStats = cacheManager.getCacheStats()
 
-    Object.values(this.cache).forEach(storeCache => {
-      stores++
-
-      Object.values(storeCache).forEach(cached => {
-        totalTemplates++
-        if (now > cached.lastUpdated.getTime() + cached.ttl) {
-          expiredTemplates++
-        } else {
-          activeTemplates++
-        }
-      })
-    })
-
-    return { stores, totalTemplates, expiredTemplates, activeTemplates }
+    // Para mantener compatibilidad, mapeamos las estadísticas globales
+    return {
+      stores: 0, // No podemos determinar esto fácilmente con el cache global
+      totalTemplates: globalStats.total,
+      expiredTemplates: globalStats.expired,
+      activeTemplates: globalStats.active,
+    }
   }
 }
 

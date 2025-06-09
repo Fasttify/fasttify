@@ -1,6 +1,6 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
-import { cacheManager } from '../core/cache-manager'
-import type { TemplateError } from '../../types'
+import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
+import type { TemplateError } from '@/lib/store-renderer/types'
 
 export class TemplateFetcher {
   /**

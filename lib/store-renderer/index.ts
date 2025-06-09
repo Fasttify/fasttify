@@ -1,5 +1,8 @@
-import { DynamicPageRenderer, type PageRenderOptions } from './renderers/homepage'
-import type { RenderResult } from './types'
+import {
+  DynamicPageRenderer,
+  type PageRenderOptions,
+} from '@/lib/store-renderer/renderers/homepage'
+import type { RenderResult } from '@/lib/store-renderer/types'
 
 /**
  * Factory principal del sistema de renderizado de tiendas
@@ -134,11 +137,11 @@ export class StoreRendererFactory {
 export const storeRenderer = new StoreRendererFactory()
 
 // Exportar tipos para uso externo
-export type { RenderResult } from './types'
-export { DynamicPageRenderer } from './renderers/homepage'
+export type { RenderResult } from '@/lib/store-renderer/types'
+export { DynamicPageRenderer } from '@/lib/store-renderer/renderers/homepage'
 
 // Exportar servicios para uso avanzado
-export { domainResolver } from './services/core/domain-resolver'
-export { templateLoader } from './services/templates/template-loader'
-export { dataFetcher } from './services/fetchers/data-fetcher'
-export { liquidEngine } from './liquid/engine'
+export { domainResolver } from '@/lib/store-renderer/services/core/domain-resolver'
+export { templateLoader } from '@/lib/store-renderer/services/templates/template-loader'
+export { dataFetcher } from '@/lib/store-renderer/services/fetchers/data-fetcher'
+export { liquidEngine } from '@/lib/store-renderer/liquid/engine'

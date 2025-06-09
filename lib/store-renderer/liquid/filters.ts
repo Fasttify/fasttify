@@ -1,4 +1,4 @@
-import type { LiquidFilter } from '../types'
+import type { LiquidFilter } from '@/lib/store-renderer/types'
 
 /**
  * Filtro para formatear precios con moneda

@@ -1,7 +1,7 @@
-import { liquidEngine } from '../../liquid/engine'
-import { templateLoader } from '../templates/template-loader'
-import { schemaParser } from '../templates/schema-parser'
-import type { RenderContext } from '../../types'
+import { liquidEngine } from '@/lib/store-renderer/liquid/engine'
+import { templateLoader } from '@/lib/store-renderer/services/templates/template-loader'
+import { schemaParser } from '@/lib/store-renderer/services/templates/schema-parser'
+import type { RenderContext } from '@/lib/store-renderer/types'
 
 export class SectionRenderer {
   /**
@@ -13,10 +13,9 @@ export class SectionRenderer {
     baseContext: RenderContext,
     storeTemplate?: any
   ): Promise<string> {
-    try {
-      // Extraer settings del schema como fallback
-      const schemaSettings = schemaParser.extractSchemaSettings(templateContent)
+    const schemaSettings = schemaParser.extractSchemaSettings(templateContent)
 
+    try {
       // Obtener settings y blocks reales del storeTemplate si existe
       const storeSection = storeTemplate?.sections?.[sectionName]
       const actualSettings = storeSection?.settings || {}
@@ -39,7 +38,33 @@ export class SectionRenderer {
       return await liquidEngine.render(templateContent, sectionContext, `section_${sectionName}`)
     } catch (error) {
       console.error(`Error rendering section ${sectionName}:`, error)
-      return `<!-- Error rendering ${sectionName} section -->`
+
+      // Intentar render con contexto más simple como fallback
+      if (error instanceof Error && error.message.includes('unexpected')) {
+        console.warn(`Attempting simplified render for section ${sectionName}...`)
+        try {
+          // Contexto más básico sin blocks complejos
+          const simpleContext = {
+            ...baseContext,
+            section: {
+              id: sectionName,
+              settings: schemaSettings, // Solo usar defaults del schema
+            },
+          }
+
+          return await liquidEngine.render(
+            templateContent,
+            simpleContext,
+            `section_${sectionName}_simple`
+          )
+        } catch (fallbackError) {
+          console.error(`Simplified render also failed for ${sectionName}:`, fallbackError)
+        }
+      }
+
+      // Si todo falla, mostrar placeholder informativo
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      return `<!-- Error rendering section '${sectionName}': ${errorMessage.substring(0, 100)}... -->`
     }
   }
 

@@ -5,25 +5,21 @@ import type {
   TemplateCache,
   LiquidContext,
   TemplateError,
-} from '../types'
-import { ecommerceFilters } from './filters'
-import { SchemaTag } from './tags/schema-tag'
-import { ScriptTag } from './tags/script-tag'
-import { SectionTag } from './tags/section-tag'
-import { PaginateTag } from './tags/paginate-tag'
-import { RenderTag, IncludeTag } from './tags/render-tag'
-import { StyleTag, StylesheetTag } from './tags/style-tag'
-import { JavaScriptTag } from './tags/javascript-tag'
-
-interface EngineCache {
-  [templatePath: string]: TemplateCache
-}
+} from '@/lib/store-renderer/types'
+import { ecommerceFilters } from '@/lib/store-renderer/liquid/filters'
+import { SchemaTag } from '@/lib/store-renderer/liquid/tags/schema-tag'
+import { ScriptTag } from '@/lib/store-renderer/liquid/tags/script-tag'
+import { SectionTag } from '@/lib/store-renderer/liquid/tags/section-tag'
+import { PaginateTag } from '@/lib/store-renderer/liquid/tags/paginate-tag'
+import { RenderTag, IncludeTag } from '@/lib/store-renderer/liquid/tags/render-tag'
+import { StyleTag, StylesheetTag } from '@/lib/store-renderer/liquid/tags/style-tag'
+import { JavaScriptTag } from '@/lib/store-renderer/liquid/tags/javascript-tag'
+import { FormTag } from '@/lib/store-renderer/liquid/tags/form-tag'
+import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
 
 class LiquidEngine {
   private static instance: LiquidEngine
   private liquid: Liquid
-  private cache: EngineCache = {}
-  private readonly TEMPLATE_CACHE_TTL = 60 * 60 * 1000 // 1 hora en ms
 
   private constructor() {
     this.liquid = this.createEngine()
@@ -112,6 +108,7 @@ class LiquidEngine {
     this.liquid.registerTag('stylesheet', StylesheetTag)
     this.liquid.registerTag('script', ScriptTag)
     this.liquid.registerTag('javascript', JavaScriptTag)
+    this.liquid.registerTag('form', FormTag)
   }
 
   /**
@@ -215,21 +212,16 @@ class LiquidEngine {
    * Obtiene una plantilla del caché si existe y es válida
    */
   private getCachedTemplate(templatePath: string, content: string): any | null {
-    const cached = this.cache[templatePath]
-    if (!cached) {
-      return null
-    }
+    const cacheKey = `template_${templatePath}`
+    const cached = cacheManager.getCached(cacheKey) as TemplateCache | null
 
-    const now = Date.now()
-    if (now > cached.lastUpdated.getTime() + cached.ttl) {
-      // Caché expirado
-      delete this.cache[templatePath]
+    if (!cached) {
       return null
     }
 
     // Verificar que el contenido no haya cambiado
     if (cached.content !== content) {
-      delete this.cache[templatePath]
+      cacheManager.invalidateTemplateCache(templatePath)
       return null
     }
 
@@ -240,12 +232,15 @@ class LiquidEngine {
    * Guarda una plantilla compilada en caché
    */
   private setCachedTemplate(templatePath: string, content: string, compiled: any): void {
-    this.cache[templatePath] = {
+    const cacheKey = `template_${templatePath}`
+    const templateCache: TemplateCache = {
       content,
       compiledTemplate: compiled,
       lastUpdated: new Date(),
-      ttl: this.TEMPLATE_CACHE_TTL,
+      ttl: cacheManager.TEMPLATE_CACHE_TTL,
     }
+
+    cacheManager.setCached(cacheKey, templateCache, cacheManager.TEMPLATE_CACHE_TTL)
   }
 
   /**
@@ -253,14 +248,14 @@ class LiquidEngine {
    * @param templatePath - Path de la plantilla a invalidar
    */
   public invalidateCache(templatePath: string): void {
-    delete this.cache[templatePath]
+    cacheManager.invalidateTemplateCache(templatePath)
   }
 
   /**
    * Limpia todo el caché de plantillas
    */
   public clearCache(): void {
-    this.cache = {}
+    cacheManager.clearCache()
     // Recrear la instancia de Liquid para limpiar su caché interno
     this.liquid = this.createEngine()
     this.registerFilters()
@@ -270,34 +265,14 @@ class LiquidEngine {
    * Limpia plantillas expiradas del caché
    */
   public cleanExpiredCache(): void {
-    const now = Date.now()
-    Object.keys(this.cache).forEach(templatePath => {
-      const cached = this.cache[templatePath]
-      if (now > cached.lastUpdated.getTime() + cached.ttl) {
-        delete this.cache[templatePath]
-      }
-    })
+    cacheManager.cleanExpiredCache()
   }
 
   /**
    * Obtiene estadísticas del caché para debugging
    */
   public getCacheStats(): { total: number; expired: number; active: number } {
-    const now = Date.now()
-    let total = 0
-    let expired = 0
-    let active = 0
-
-    Object.values(this.cache).forEach(cached => {
-      total++
-      if (now > cached.lastUpdated.getTime() + cached.ttl) {
-        expired++
-      } else {
-        active++
-      }
-    })
-
-    return { total, expired, active }
+    return cacheManager.getCacheStats()
   }
 
   /**

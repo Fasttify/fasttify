@@ -179,7 +179,7 @@ const schema = a
         owner: a.string().required(),
         products: a.hasMany('Product', 'collectionId'),
       })
-      .secondaryIndexes(index => [index('storeId')])
+      .secondaryIndexes(index => [index('storeId'), index('title')])
       .authorization(allow => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.guest().to(['read']),

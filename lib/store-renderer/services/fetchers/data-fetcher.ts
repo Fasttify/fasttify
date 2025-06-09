@@ -1,8 +1,8 @@
-import { cacheManager } from '../core/cache-manager'
-import { productFetcher } from '../fetchers/product-fetcher'
-import { collectionFetcher } from '../fetchers/collection-fetcher'
-import { templateFetcher } from '../fetchers/template-fetcher'
-import type { ProductContext, CollectionContext } from '../../types'
+import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
+import { productFetcher } from '@/lib/store-renderer/services/fetchers/product-fetcher'
+import { collectionFetcher } from '@/lib/store-renderer/services/fetchers/collection-fetcher'
+import { templateFetcher } from '@/lib/store-renderer/services/fetchers/template-fetcher'
+import type { ProductContext, CollectionContext } from '@/lib/store-renderer/types'
 
 interface PaginationOptions {
   limit?: number

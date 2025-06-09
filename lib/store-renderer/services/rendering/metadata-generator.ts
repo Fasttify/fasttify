@@ -1,4 +1,4 @@
-import type { RenderResult, OpenGraphData, SchemaData } from '../../types'
+import type { RenderResult, OpenGraphData, SchemaData } from '@/lib/store-renderer/types'
 
 export class MetadataGenerator {
   /**

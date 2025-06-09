@@ -1,7 +1,7 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
-import { cacheManager } from '../core/cache-manager'
-import { dataTransformer } from '../core/data-transformer'
-import type { CollectionContext, ProductContext, TemplateError } from '../../types'
+import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
+import { dataTransformer } from '@/lib/store-renderer/services/core/data-transformer'
+import type { CollectionContext, ProductContext, TemplateError } from '@/lib/store-renderer/types'
 
 interface PaginationOptions {
   limit?: number
@@ -127,7 +127,9 @@ export class CollectionFetcher {
    * Transforma una colección de Amplify al formato Liquid
    */
   private async transformCollection(collection: any, storeId: string): Promise<CollectionContext> {
-    const handle = dataTransformer.createHandle(`collection-${collection.id}`)
+    const handle = dataTransformer.createHandle(
+      collection.name || collection.title || `collection-${collection.id}`
+    )
 
     // Obtener productos de la colección si existe relación
     const products: ProductContext[] = []
