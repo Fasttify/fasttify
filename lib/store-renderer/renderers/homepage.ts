@@ -291,9 +291,9 @@ export class DynamicPageRenderer {
       product: 'templates/product.json',
       collection: 'templates/collection.json',
       page: 'templates/page.json',
-      blog: 'templates/blog.liquid',
-      article: 'templates/article.liquid',
-      search: 'templates/search.liquid',
+      blog: 'templates/blog.json',
+      article: 'templates/article.json',
+      search: 'templates/search.json',
       cart: 'templates/cart.json',
       '404': 'templates/404.json',
     }
