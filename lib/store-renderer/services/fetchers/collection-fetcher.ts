@@ -127,7 +127,9 @@ export class CollectionFetcher {
    * Transforma una colección de Amplify al formato Liquid
    */
   private async transformCollection(collection: any, storeId: string): Promise<CollectionContext> {
-    const handle = dataTransformer.createHandle(`collection-${collection.id}`)
+    const handle = dataTransformer.createHandle(
+      collection.name || collection.title || `collection-${collection.id}`
+    )
 
     // Obtener productos de la colección si existe relación
     const products: ProductContext[] = []

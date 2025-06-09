@@ -14,6 +14,7 @@ import { PaginateTag } from './tags/paginate-tag'
 import { RenderTag, IncludeTag } from './tags/render-tag'
 import { StyleTag, StylesheetTag } from './tags/style-tag'
 import { JavaScriptTag } from './tags/javascript-tag'
+import { FormTag } from './tags/form-tag'
 
 interface EngineCache {
   [templatePath: string]: TemplateCache
@@ -112,6 +113,7 @@ class LiquidEngine {
     this.liquid.registerTag('stylesheet', StylesheetTag)
     this.liquid.registerTag('script', ScriptTag)
     this.liquid.registerTag('javascript', JavaScriptTag)
+    this.liquid.registerTag('form', FormTag)
   }
 
   /**
