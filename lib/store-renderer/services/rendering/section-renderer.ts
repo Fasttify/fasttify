@@ -10,16 +10,28 @@ export class SectionRenderer {
   public async renderSectionWithSchema(
     sectionName: string,
     templateContent: string,
-    baseContext: RenderContext
+    baseContext: RenderContext,
+    storeTemplate?: any
   ): Promise<string> {
     try {
+      // Extraer settings del schema como fallback
+      const schemaSettings = schemaParser.extractSchemaSettings(templateContent)
+
+      // Obtener settings y blocks reales del storeTemplate si existe
+      const storeSection = storeTemplate?.sections?.[sectionName]
+      const actualSettings = storeSection?.settings || {}
+      const actualBlocks = storeSection?.blocks || []
+
+      // Combinar settings: schema defaults + store actual
+      const finalSettings = { ...schemaSettings, ...actualSettings }
+
       // Crear contexto específico para esta sección
       const sectionContext = {
         ...baseContext,
         section: {
           id: sectionName,
-          settings: schemaParser.extractSchemaSettings(templateContent),
-          blocks: schemaParser.extractSchemaBlocks(templateContent),
+          settings: finalSettings,
+          blocks: actualBlocks,
         },
       }
 
@@ -37,14 +49,15 @@ export class SectionRenderer {
   public async loadSectionSafely(
     storeId: string,
     sectionName: string,
-    context: RenderContext
+    context: RenderContext,
+    storeTemplate?: any
   ): Promise<string> {
     try {
       const sectionContent = await templateLoader.loadTemplate(
         storeId,
         `sections/${sectionName}.liquid`
       )
-      return await this.renderSectionWithSchema(sectionName, sectionContent, context)
+      return await this.renderSectionWithSchema(sectionName, sectionContent, context, storeTemplate)
     } catch (error) {
       console.warn(`Section ${sectionName} not found or failed to render:`, error)
       return `<!-- Section '${sectionName}' not found -->`

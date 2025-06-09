@@ -36,29 +36,25 @@
       </div>
 
     {% else %}
-      {% comment %}
+      <!-- Dividir los enlaces en columnas -->
+      {% assign blocks_per_column = section.blocks.size | divided_by: 4 | ceil %}
+      
+      {% for i in (0..3) %}
         <div>
-          {% for block in section.blocks %}
-            <li>
-              <a href="{{ block.settings.link }}">{{ block.settings.text | escape }}</a>
-            </li>
-          {% endfor %}
-        </div>
-      {% endcomment %}
-      {% for block in section.blocks %}
-        <div>
-          <li>
-            <a href="{{ block.settings.link }}">{{ block.settings.text | escape }}</a>
-          </li>
-          <li>
-            <a href="{{ block.settings.link }}">{{ block.settings.text | escape }}</a>
-          </li>
-          <li>
-            <a href="{{ block.settings.link }}">{{ block.settings.text | escape }}</a>
-          </li>
-          <li>
-            <a href="{{ block.settings.link }}">{{ block.settings.text | escape }}</a>
-          </li>
+          <ul>
+            {% assign start_index = i | times: blocks_per_column %}
+            {% assign end_index = start_index | plus: blocks_per_column | minus: 1 %}
+            
+            {% for j in (start_index..end_index) %}
+              {% if section.blocks[j] %}
+                <li>
+                  <a href="{{ section.blocks[j].settings.link }}">
+                    {{ section.blocks[j].settings.text | escape }}
+                  </a>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
         </div>
       {% endfor %}
     {% endif %}
@@ -83,6 +79,25 @@
     margin-top: 20px;
     display: flex;
     justify-content: space-around;
+  }
+
+  .footer-sec-1 ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-sec-1 li {
+    margin-bottom: 8px;
+  }
+
+  .footer-sec-1 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .footer-sec-1 a:hover {
+    text-decoration: underline;
   }
 
   .footer-sec-2 {

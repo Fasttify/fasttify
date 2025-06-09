@@ -8,19 +8,19 @@
             width="300"
             height="300"
             loading="lazy"
-            src="{{ collection.featured_image | image_url}}"
+            src="{{ collection.image}}"
           >
-          <h3>{{- collection.title | link_to: collection.url }}</h3>
+            <h3>{{- collection.title | link_to: collection.id }}</h3>
         </div>
       {% endfor %}
     </div>
 
-    {% comment %}
+ 
       <div class="scroll-buttons">
         <button class="scroll-left">&lt;</button>
         <button class="scroll-right">&gt;</button>
       </div>
-    {% endcomment %}
+ 
   </div>
 </section>
 
