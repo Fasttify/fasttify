@@ -1,5 +1,5 @@
-import type { RenderContext, ShopContext, PageContext } from '../../types'
-import { linkListService } from '../core/linkList-service'
+import type { RenderContext, ShopContext, PageContext } from '@/lib/store-renderer/types'
+import { linkListService } from '@/lib/store-renderer/services/core/linkList-service'
 
 export class ContextBuilder {
   /**

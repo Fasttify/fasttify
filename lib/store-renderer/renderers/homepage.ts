@@ -1,11 +1,11 @@
-import { domainResolver } from '../services/core/domain-resolver'
-import { templateLoader } from '../services/templates/template-loader'
-import { dataFetcher } from '../services/fetchers/data-fetcher'
-import { liquidEngine } from '../liquid/engine'
-import { contextBuilder } from '../services/rendering/context-builder'
-import { metadataGenerator } from '../services/rendering/metadata-generator'
-import { sectionRenderer } from '../services/rendering/section-renderer'
-import type { RenderResult, TemplateError } from '../types'
+import { domainResolver } from '@/lib/store-renderer/services/core/domain-resolver'
+import { templateLoader } from '@/lib/store-renderer/services/templates/template-loader'
+import { dataFetcher } from '@/lib/store-renderer/services/fetchers/data-fetcher'
+import { liquidEngine } from '@/lib/store-renderer/liquid/engine'
+import { contextBuilder } from '@/lib/store-renderer/services/rendering/context-builder'
+import { metadataGenerator } from '@/lib/store-renderer/services/rendering/metadata-generator'
+import { sectionRenderer } from '@/lib/store-renderer/services/rendering/section-renderer'
+import type { RenderResult, TemplateError } from '@/lib/store-renderer/types'
 
 export interface PageRenderOptions {
   pageType:

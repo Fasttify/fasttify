@@ -1,7 +1,7 @@
-import { liquidEngine } from '../../liquid/engine'
-import { templateLoader } from '../templates/template-loader'
-import { schemaParser } from '../templates/schema-parser'
-import type { RenderContext } from '../../types'
+import { liquidEngine } from '@/lib/store-renderer/liquid/engine'
+import { templateLoader } from '@/lib/store-renderer/services/templates/template-loader'
+import { schemaParser } from '@/lib/store-renderer/services/templates/schema-parser'
+import type { RenderContext } from '@/lib/store-renderer/types'
 
 export class SectionRenderer {
   /**

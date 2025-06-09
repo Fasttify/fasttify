@@ -14,6 +14,8 @@ export class CacheManager {
   public readonly PRODUCT_CACHE_TTL = 15 * 60 * 1000 // 15 minutos
   public readonly COLLECTION_CACHE_TTL = 30 * 60 * 1000 // 30 minutos
   public readonly STORE_CACHE_TTL = 30 * 60 * 1000 // 30 minutos
+  public readonly DOMAIN_CACHE_TTL = 30 * 60 * 1000 // 30 minutos
+  public readonly TEMPLATE_CACHE_TTL = 60 * 60 * 1000 // 1 hora
 
   private constructor() {}
 
@@ -81,6 +83,22 @@ export class CacheManager {
         }
       })
     })
+  }
+
+  /**
+   * Invalida el caché para un dominio específico
+   */
+  public invalidateDomainCache(domain: string): void {
+    const key = `domain_${domain}`
+    delete this.cache[key]
+  }
+
+  /**
+   * Invalida el caché para un template específico
+   */
+  public invalidateTemplateCache(templatePath: string): void {
+    const key = `template_${templatePath}`
+    delete this.cache[key]
   }
 
   /**

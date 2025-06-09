@@ -1,7 +1,7 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
-import { cacheManager } from '../core/cache-manager'
-import { dataTransformer } from '../core/data-transformer'
-import type { CollectionContext, ProductContext, TemplateError } from '../../types'
+import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
+import { dataTransformer } from '@/lib/store-renderer/services/core/data-transformer'
+import type { CollectionContext, ProductContext, TemplateError } from '@/lib/store-renderer/types'
 
 interface PaginationOptions {
   limit?: number
