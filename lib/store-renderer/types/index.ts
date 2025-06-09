@@ -44,4 +44,9 @@ export type {
   ProductFormTag,
   PaginateTag,
   CommentTag,
+  ScriptTag,
+  SectionTag,
+  RenderTag,
+  StyleTag,
+  JavaScriptTag,
 } from './liquid'

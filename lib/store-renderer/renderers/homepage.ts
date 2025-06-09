@@ -1,24 +1,41 @@
-import { domainResolver } from '../services/domain-resolver'
-import { templateLoader } from '../services/template-loader'
-import { dataFetcher } from '../services/data-fetcher'
+import { domainResolver } from '../services/core/domain-resolver'
+import { templateLoader } from '../services/templates/template-loader'
+import { dataFetcher } from '../services/fetchers/data-fetcher'
 import { liquidEngine } from '../liquid/engine'
-import type {
-  RenderResult,
-  RenderContext,
-  ShopContext,
-  PageContext,
-  OpenGraphData,
-  SchemaData,
-  TemplateError,
-} from '../types'
+import { contextBuilder } from '../services/rendering/context-builder'
+import { metadataGenerator } from '../services/rendering/metadata-generator'
+import { sectionRenderer } from '../services/rendering/section-renderer'
+import type { RenderResult, TemplateError } from '../types'
 
-export class HomepageRenderer {
+export interface PageRenderOptions {
+  pageType:
+    | 'index'
+    | 'product'
+    | 'collection'
+    | 'page'
+    | 'blog'
+    | 'article'
+    | 'search'
+    | 'cart'
+    | '404'
+  handle?: string // Para productos, colecciones, páginas específicas, etc.
+  productId?: string // ID específico del producto
+  collectionId?: string // ID específico de la colección
+  searchQuery?: string // Para páginas de búsqueda
+  pageNumber?: number // Para paginación
+}
+
+export class DynamicPageRenderer {
   /**
-   * Renderiza la homepage de una tienda
+   * Renderiza cualquier página de una tienda dinámicamente
    * @param domain - Dominio completo de la tienda
+   * @param options - Opciones de renderizado específicas para el tipo de página (opcional, por defecto homepage)
    * @returns Resultado completo del renderizado con metadata SEO
    */
-  public async render(domain: string): Promise<RenderResult> {
+  public async render(
+    domain: string,
+    options: PageRenderOptions = { pageType: 'index' }
+  ): Promise<RenderResult> {
     try {
       // 1. Resolver dominio a tienda
       const store = await domainResolver.resolveStoreByDomain(domain)
@@ -32,40 +49,95 @@ export class HomepageRenderer {
         )
       }
 
-      // 3. Cargar layout principal y secciones necesarias
-      const [layout, featuredProducts, collections] = await Promise.all([
+      // 3. Cargar layout principal y datos específicos según el tipo de página
+      const [layout, pageData, storeTemplate] = await Promise.all([
         templateLoader.loadMainLayout(store.storeId),
-        dataFetcher.getFeaturedProducts(store.storeId, 8),
-        dataFetcher.getStoreCollections(store.storeId, { limit: 6 }),
+        this.loadPageData(store.storeId, options),
+        dataFetcher.getStoreTemplateData(store.storeId),
       ])
 
       // 4. Crear contexto para las plantillas Liquid
-      const context = this.createRenderContext(store, featuredProducts, collections.collections)
+      const context = contextBuilder.createRenderContext(
+        store,
+        pageData.featuredProducts || [],
+        pageData.collections || [],
+        storeTemplate
+      )
 
-      // 5. Generar contenido de homepage usando nuestras secciones reales
-      const homepageContent = await this.generateHomepageContent(store.storeId, context)
+      // Agregar datos específicos de la página al contexto
+      Object.assign(context, pageData.contextData)
 
-      // 6. Insertar contenido en el layout
-      context.content_for_layout = homepageContent
-      context.content_for_header = this.generateHeadContent(store)
+      // 5. Cargar template específico y renderizar contenido
+      const templatePath = this.getTemplatePath(options.pageType)
+      const pageTemplate = await templateLoader.loadTemplate(store.storeId, templatePath)
 
-      // 7. Renderizar el layout completo
-      const html = await liquidEngine.render(layout, context, `homepage_${store.storeId}`)
+      let renderedContent: string
 
-      // 8. Generar metadata SEO
-      const metadata = this.generateMetadata(store, domain)
+      if (templatePath.endsWith('.json')) {
+        // Template con configuración JSON (como index.json)
+        const templateConfig = JSON.parse(pageTemplate)
+        renderedContent = await this.renderSectionsFromConfig(
+          templateConfig,
+          store.storeId,
+          context,
+          storeTemplate
+        )
+      } else {
+        // Template Liquid directo
+        renderedContent = await liquidEngine.render(
+          pageTemplate,
+          context,
+          `${options.pageType}_${store.storeId}`
+        )
+      }
 
-      // 9. Crear clave de caché
-      const cacheKey = `homepage_${store.storeId}_${Date.now()}`
+      // 6. Detectar y pre-cargar todas las secciones usadas en el layout
+      const layoutSections = sectionRenderer.extractSectionNamesFromLayout(layout)
+      const preloadedSections: Record<string, string> = {}
+
+      if (layoutSections.length > 0) {
+        const sectionPromises = layoutSections.map(async (sectionName: string) => {
+          const sectionContent = await sectionRenderer.loadSectionSafely(
+            store.storeId,
+            sectionName,
+            context,
+            storeTemplate
+          )
+          return { name: sectionName, content: sectionContent }
+        })
+
+        const sectionResults = await Promise.all(sectionPromises)
+        sectionResults.forEach(({ name, content }: { name: string; content: string }) => {
+          preloadedSections[name] = content
+        })
+      }
+
+      // 7. Insertar contenido y secciones en el contexto
+      context.content_for_layout = renderedContent
+      context.content_for_header = metadataGenerator.generateHeadContent(store)
+      context.preloaded_sections = preloadedSections
+
+      // 8. Renderizar el layout completo
+      const html = await liquidEngine.render(
+        layout,
+        context,
+        `${options.pageType}_${store.storeId}`
+      )
+
+      // 9. Generar metadata SEO
+      const metadata = metadataGenerator.generateMetadata(store, domain)
+
+      // 10. Crear clave de caché
+      const cacheKey = `${options.pageType}_${store.storeId}_${options.handle || options.productId || options.collectionId || 'default'}_${Date.now()}`
 
       return {
         html,
         metadata,
         cacheKey,
-        cacheTTL: 30 * 60 * 1000, // 30 minutos
+        cacheTTL: this.getCacheTTL(options.pageType),
       }
     } catch (error) {
-      console.error(`Error rendering homepage for domain ${domain}:`, error)
+      console.error(`Error rendering ${options.pageType} page for domain ${domain}:`, error)
       console.error('Error stack:', error instanceof Error ? error.stack : 'No stack')
 
       if (error instanceof Error && 'type' in error) {
@@ -73,246 +145,213 @@ export class HomepageRenderer {
       }
 
       const errorMessage = error instanceof Error ? error.message : String(error)
-      throw this.createTemplateError('RENDER_ERROR', `Failed to render homepage: ${errorMessage}`)
+      throw this.createTemplateError(
+        'RENDER_ERROR',
+        `Failed to render ${options.pageType} page: ${errorMessage}`
+      )
     }
   }
 
   /**
-   * Crea el contexto completo para el renderizado de Liquid
+   * Carga los datos específicos según el tipo de página usando solo métodos disponibles
    */
-  private createRenderContext(
-    store: any,
-    featuredProducts: any[],
-    collections: any[]
-  ): RenderContext {
-    // Crear contexto de la tienda (como 'shop' para compatibilidad)
-    const shop: ShopContext = {
-      name: store.storeName,
-      description: store.storeDescription || `Tienda online de ${store.storeName}`,
-      domain: store.customDomain,
-      url: `https://${store.customDomain}`,
-      currency: store.storeCurrency || 'COP',
-      money_format: store.storeCurrency === 'USD' ? '${{amount}}' : '${{amount}}',
-      email: store.contactEmail,
-      phone: store.contactPhone?.toString(),
-      address: store.storeAdress,
-      logo: store.storeLogo,
-      banner: store.storeBanner,
-      theme: store.storeTheme || 'modern',
-      favicon: store.storeFavicon,
+  private async loadPageData(storeId: string, options: PageRenderOptions) {
+    const baseData = {
+      featuredProducts: [],
+      collections: [],
+      contextData: {},
+      metaData: {},
     }
 
-    // Crear contexto de la página
-    const page: PageContext = {
-      title: store.storeName,
-      url: '/',
-      template: 'index',
-      handle: 'homepage',
-    }
-
-    // Crear contexto que incluye tanto 'shop' como 'store' para compatibilidad
-    // y variables de página al nivel raíz como espera el template
-    return {
-      shop,
-      store: shop, // Alias para compatibilidad con templates que usan {{ store.name }}
-      page,
-      page_title: store.storeName, // Variable al nivel raíz para {{ page_title }}
-      page_description: store.storeDescription || `Tienda online de ${store.storeName}`,
-      products: featuredProducts,
-      collections,
-    }
-  }
-
-  /**
-   * Genera metadata SEO para la homepage
-   */
-  private generateMetadata(store: any, domain: string): RenderResult['metadata'] {
-    const title = `${store.storeName} - Tienda Online`
-    const description =
-      store.storeDescription ||
-      `Descubre los mejores productos en ${store.storeName}. Compra online con envío seguro.`
-    const url = `https://${domain}`
-
-    const openGraph: OpenGraphData = {
-      title,
-      description,
-      url,
-      type: 'website',
-      image: store.storeLogo || store.storeBanner,
-      site_name: store.storeName,
-    }
-
-    const schema: SchemaData = {
-      '@context': 'https://schema.org',
-      '@type': 'Store',
-      name: store.storeName,
-      description,
-      url,
-      logo: store.storeLogo,
-      image: store.storeBanner,
-      email: store.contactEmail,
-      telephone: store.contactPhone,
-      address: store.storeAdress
-        ? {
-            '@type': 'PostalAddress',
-            addressLocality: store.storeAdress,
-          }
-        : undefined,
-      currenciesAccepted: store.storeCurrency || 'COP',
-      paymentAccepted: ['Credit Card', 'Debit Card'],
-    }
-
-    return {
-      title,
-      description,
-      canonical: url,
-      openGraph,
-      schema,
-    }
-  }
-
-  /**
-   * Genera el contenido de la homepage renderizando las secciones reales
-   */
-  private async generateHomepageContent(storeId: string, context: RenderContext): Promise<string> {
-    try {
-      // Cargar secciones reales desde nuestros templates
-      const [header, heroBanner, featuredProducts, collectionList, footer] = await Promise.all([
-        templateLoader.loadTemplate(storeId, 'sections/header.liquid'),
-        templateLoader.loadTemplate(storeId, 'sections/hero-banner.liquid'),
-        templateLoader.loadTemplate(storeId, 'sections/featured-products.liquid'),
-        templateLoader.loadTemplate(storeId, 'sections/collection-list.liquid'),
-        templateLoader.loadTemplate(storeId, 'sections/footer.liquid'),
-      ])
-
-      // Renderizar cada sección con su contexto específico y extraer settings del schema
-      const renderedSections = await Promise.all([
-        this.renderSectionWithSchema('header', header, context),
-        this.renderSectionWithSchema('hero-banner', heroBanner, context),
-        this.renderSectionWithSchema('featured-products', featuredProducts, context),
-        this.renderSectionWithSchema('collection-list', collectionList, context),
-        this.renderSectionWithSchema('footer', footer, context),
-      ])
-
-      // Combinar todas las secciones
-      return renderedSections.join('\n')
-    } catch (error) {
-      console.error('Error generating homepage content for store', storeId, ':', error)
-      return ''
-    }
-  }
-
-  /**
-   * Renderiza una sección extrayendo primero los settings del schema
-   */
-  private async renderSectionWithSchema(
-    sectionName: string,
-    templateContent: string,
-    baseContext: RenderContext
-  ): Promise<string> {
-    try {
-      // Crear contexto específico para esta sección
-      const sectionContext = {
-        ...baseContext,
-        section: {
-          id: sectionName,
-          settings: this.extractSchemaSettings(templateContent),
-          blocks: this.extractSchemaBlocks(templateContent),
-        },
-      }
-
-      // Renderizar la sección con el contexto enriquecido
-      return await liquidEngine.render(templateContent, sectionContext, `section_${sectionName}`)
-    } catch (error) {
-      console.error(`Error rendering section ${sectionName}:`, error)
-      return `<!-- Error rendering ${sectionName} section -->`
-    }
-  }
-
-  /**
-   * Extrae los settings del schema de un template usando expresiones regulares
-   */
-  private extractSchemaSettings(templateContent: string): Record<string, any> {
-    try {
-      // Buscar el bloque {% schema %}...{% endschema %}
-      const schemaRegex = /{%\s*schema\s*%}([\s\S]*?){%\s*endschema\s*%}/i
-      const match = templateContent.match(schemaRegex)
-
-      if (!match || !match[1]) {
-        return {}
-      }
-
-      // Parsear el JSON del schema
-      const schemaJSON = JSON.parse(match[1].trim())
-
-      if (!schemaJSON.settings) {
-        return {}
-      }
-
-      // Convertir settings a valores por defecto
-      const settings: Record<string, any> = {}
-
-      for (const setting of schemaJSON.settings) {
-        if (setting.id) {
-          settings[setting.id] = setting.default || this.getDefaultValueForType(setting.type)
+    switch (options.pageType) {
+      case 'index':
+        const [featuredProducts, collections] = await Promise.all([
+          dataFetcher.getFeaturedProducts(storeId, 8),
+          dataFetcher.getStoreCollections(storeId, { limit: 6 }),
+        ])
+        return {
+          ...baseData,
+          featuredProducts,
+          collections: collections.collections,
+          contextData: {
+            template: 'index',
+            page_title: 'Home',
+          },
         }
-      }
 
-      return settings
-    } catch (error) {
-      console.warn('Error extracting schema settings:', error)
-      return {}
-    }
-  }
+      case 'product':
+        if (options.productId || options.handle) {
+          // Si tenemos handle, primero necesitaríamos resolverlo a productId
+          // Por ahora usamos el productId directamente si existe
+          const productId = options.productId || options.handle!
+          const product = await dataFetcher.getProduct(storeId, productId)
+          if (product) {
+            return {
+              ...baseData,
+              contextData: {
+                template: 'product',
+                product,
+                page_title: product.name,
+              },
+            }
+          }
+        }
+        return {
+          ...baseData,
+          contextData: {
+            template: 'product',
+            page_title: 'Product',
+          },
+        }
 
-  /**
-   * Extrae los blocks del schema
-   */
-  private extractSchemaBlocks(templateContent: string): any[] {
-    try {
-      const schemaRegex = /{%\s*schema\s*%}([\s\S]*?){%\s*endschema\s*%}/i
-      const match = templateContent.match(schemaRegex)
+      case 'collection':
+        // Caso 1: Tenemos collectionId directo
+        if (options.collectionId) {
+          const collection = await dataFetcher.getCollection(storeId, options.collectionId)
+          if (collection) {
+            return {
+              ...baseData,
+              contextData: {
+                template: 'collection',
+                collection,
+                page_title: collection.title,
+              },
+            }
+          }
+        }
 
-      if (!match || !match[1]) {
-        return []
-      }
+        // Caso 2: Tenemos handle, buscar colección por handle/slug
+        if (options.handle) {
+          // Buscar por todas las colecciones y encontrar por slug/handle
+          const collectionsResponse = await dataFetcher.getStoreCollections(storeId, { limit: 100 })
+          const collection = collectionsResponse.collections.find(
+            c =>
+              c.slug === options.handle ||
+              c.title.toLowerCase().replace(/\s+/g, '-') === options.handle
+          )
 
-      const schemaJSON = JSON.parse(match[1].trim())
-      return schemaJSON.blocks || []
-    } catch (error) {
-      console.warn('Error extracting schema blocks:', error)
-      return []
-    }
-  }
+          if (collection) {
+            return {
+              ...baseData,
+              contextData: {
+                template: 'collection',
+                collection,
+                page_title: collection.title,
+              },
+            }
+          }
+        }
 
-  /**
-   * Obtiene valores por defecto basados en el tipo de setting
-   */
-  private getDefaultValueForType(type: string): any {
-    switch (type) {
-      case 'text':
-      case 'textarea':
-      case 'richtext':
-      case 'html':
-      case 'url':
-        return ''
-      case 'number':
-      case 'range':
-        return 0
-      case 'checkbox':
-        return false
-      case 'color':
-        return '#000000'
-      case 'select':
-      case 'radio':
-        return ''
-      case 'image_picker':
-      case 'video':
-      case 'file':
-        return null
+        // Caso 3: Sin parámetros específicos, mostrar página genérica
+        return {
+          ...baseData,
+          contextData: {
+            template: 'collection',
+            page_title: 'Collection',
+          },
+        }
+
+      case 'cart':
+        return {
+          ...baseData,
+          contextData: {
+            template: 'cart',
+            page_title: 'Carrito de Compras',
+            cart_items: [], // Se cargarían desde localStorage o sesión
+          },
+        }
+
+      case '404':
+        return {
+          ...baseData,
+          contextData: {
+            template: '404',
+            page_title: 'Página No Encontrada',
+            error_message: 'La página que buscas no existe',
+          },
+        }
+
       default:
-        return ''
+        return {
+          ...baseData,
+          contextData: {
+            template: options.pageType,
+            page_title: options.pageType.charAt(0).toUpperCase() + options.pageType.slice(1),
+          },
+        }
     }
+  }
+
+  /**
+   * Obtiene la ruta del template según el tipo de página
+   */
+  private getTemplatePath(pageType: string): string {
+    const templatePaths: Record<string, string> = {
+      index: 'templates/index.json',
+      product: 'templates/product.json',
+      collection: 'templates/collection.json',
+      page: 'templates/page.json',
+      blog: 'templates/blog.liquid',
+      article: 'templates/article.liquid',
+      search: 'templates/search.liquid',
+      cart: 'templates/cart.json',
+      '404': 'templates/404.json',
+    }
+
+    return templatePaths[pageType] || `templates/${pageType}.liquid`
+  }
+
+  /**
+   * Renderiza secciones desde una configuración JSON (reutilizada del código original)
+   */
+  private async renderSectionsFromConfig(
+    templateConfig: any,
+    storeId: string,
+    context: any,
+    storeTemplate: any
+  ): Promise<string> {
+    const sectionPromises = templateConfig.order.map(async (sectionId: string) => {
+      const sectionConfig = templateConfig.sections[sectionId]
+      if (!sectionConfig) return ''
+
+      try {
+        const sectionContent = await templateLoader.loadTemplate(
+          storeId,
+          `sections/${sectionConfig.type}.liquid`
+        )
+        return await sectionRenderer.renderSectionWithSchema(
+          sectionConfig.type,
+          sectionContent,
+          context,
+          storeTemplate
+        )
+      } catch (error) {
+        console.warn(`Section ${sectionConfig.type} not found:`, error)
+        return `<!-- Section '${sectionConfig.type}' not found -->`
+      }
+    })
+
+    const renderedSections = await Promise.all(sectionPromises)
+    return renderedSections.join('\n')
+  }
+
+  /**
+   * Obtiene el TTL de caché según el tipo de página
+   */
+  private getCacheTTL(pageType: string): number {
+    const cacheTTLs: Record<string, number> = {
+      index: 30 * 60 * 1000, // 30 minutos
+      product: 60 * 60 * 1000, // 1 hora
+      collection: 45 * 60 * 1000, // 45 minutos
+      page: 24 * 60 * 60 * 1000, // 24 horas
+      blog: 2 * 60 * 60 * 1000, // 2 horas
+      article: 4 * 60 * 60 * 1000, // 4 horas
+      search: 10 * 60 * 1000, // 10 minutos
+      cart: 0, // Sin caché para cart (siempre fresco)
+      '404': 24 * 60 * 60 * 1000, // 24 horas
+    }
+
+    return cacheTTLs[pageType] || 30 * 60 * 1000
   }
 
   /**
@@ -325,52 +364,7 @@ export class HomepageRenderer {
       statusCode: type === 'TEMPLATE_NOT_FOUND' ? 404 : 500,
     }
   }
-
-  /**
-   * Genera el contenido para el <head> incluyendo favicon y meta tags
-   */
-  private generateHeadContent(store: any): string {
-    const headContent = []
-
-    // Favicon con soporte para diferentes tipos
-    if (store.storeFavicon) {
-      const faviconUrl = store.storeFavicon
-      let mimeType = 'image/x-icon'
-
-      // Detectar tipo de archivo por extensión
-      if (faviconUrl.includes('.png')) {
-        mimeType = 'image/png'
-      } else if (faviconUrl.includes('.svg')) {
-        mimeType = 'image/svg+xml'
-      } else if (faviconUrl.includes('.jpg') || faviconUrl.includes('.jpeg')) {
-        mimeType = 'image/jpeg'
-      }
-
-      headContent.push(`<link rel="icon" type="${mimeType}" href="${faviconUrl}">`)
-      headContent.push(`<link rel="shortcut icon" type="${mimeType}" href="${faviconUrl}">`)
-
-      // Para PNG, agregar también tamaños comunes
-      if (mimeType === 'image/png') {
-        headContent.push(`<link rel="apple-touch-icon" sizes="180x180" href="${faviconUrl}">`)
-        headContent.push(`<link rel="icon" type="image/png" sizes="32x32" href="${faviconUrl}">`)
-        headContent.push(`<link rel="icon" type="image/png" sizes="16x16" href="${faviconUrl}">`)
-      }
-    }
-
-    // Open Graph meta tags adicionales
-    if (store.storeBanner) {
-      headContent.push(`<meta property="og:image" content="${store.storeBanner}">`)
-    }
-
-    // Meta tags adicionales para SEO
-    headContent.push(`<meta name="author" content="${store.storeName}">`)
-    headContent.push(`<meta name="robots" content="index, follow">`)
-
-    // Canonical URL
-    if (store.customDomain) {
-      headContent.push(`<link rel="canonical" href="https://${store.customDomain}">`)
-    }
-
-    return headContent.join('\n    ')
-  }
 }
+
+// Exportar una instancia para compatibilidad
+export const dynamicPageRenderer = new DynamicPageRenderer()

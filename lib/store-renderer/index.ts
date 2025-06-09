@@ -1,18 +1,15 @@
-import { HomepageRenderer } from './renderers/homepage'
-import { ProductRenderer } from './renderers/product'
+import { DynamicPageRenderer, type PageRenderOptions } from './renderers/homepage'
 import type { RenderResult } from './types'
 
 /**
  * Factory principal del sistema de renderizado de tiendas
- * Combina todos los renderizadores específicos y expone una API unificada
+ * Usa el nuevo sistema dinámico unificado
  */
 export class StoreRendererFactory {
-  private homepageRenderer: HomepageRenderer
-  private productRenderer: ProductRenderer
+  private dynamicRenderer: DynamicPageRenderer
 
   constructor() {
-    this.homepageRenderer = new HomepageRenderer()
-    this.productRenderer = new ProductRenderer()
+    this.dynamicRenderer = new DynamicPageRenderer()
   }
 
   /**
@@ -26,30 +23,11 @@ export class StoreRendererFactory {
     const cleanPath = path.startsWith('/') ? path : `/${path}`
 
     try {
-      // Determinar tipo de página basado en el path
-      const pageType = this.determinePageType(cleanPath)
+      // Convertir path a opciones del renderizador dinámico
+      const options = this.pathToRenderOptions(cleanPath)
 
-      switch (pageType.type) {
-        case 'homepage':
-          return await this.homepageRenderer.render(domain)
-
-        case 'product':
-          if (!pageType.handle) {
-            throw new Error('Product handle is required for product pages')
-          }
-          return await this.productRenderer.render(domain, pageType.handle)
-
-        case 'collection':
-          // TODO: Implementar CollectionRenderer
-          throw new Error('Collection pages not yet implemented')
-
-        case 'page':
-          // TODO: Implementar PageRenderer (páginas estáticas)
-          throw new Error('Static pages not yet implemented')
-
-        default:
-          throw new Error(`Unknown page type: ${pageType.type}`)
-      }
+      // Usar el renderizador dinámico unificado
+      return await this.dynamicRenderer.render(domain, options)
     } catch (error) {
       console.error(`Error rendering page ${cleanPath} for domain ${domain}:`, error)
 
@@ -68,22 +46,19 @@ export class StoreRendererFactory {
   }
 
   /**
-   * Determina el tipo de página basado en el path
+   * Convierte un path a opciones del renderizador dinámico
    */
-  private determinePageType(path: string): {
-    type: 'homepage' | 'product' | 'collection' | 'page'
-    handle?: string
-  } {
+  private pathToRenderOptions(path: string): PageRenderOptions {
     // Homepage
     if (path === '/') {
-      return { type: 'homepage' }
+      return { pageType: 'index' }
     }
 
     // Producto: /products/mi-producto
     const productMatch = path.match(/^\/products\/([^\/]+)$/)
     if (productMatch) {
       return {
-        type: 'product',
+        pageType: 'product',
         handle: productMatch[1],
       }
     }
@@ -92,7 +67,7 @@ export class StoreRendererFactory {
     const collectionMatch = path.match(/^\/collections\/([^\/]+)$/)
     if (collectionMatch) {
       return {
-        type: 'collection',
+        pageType: 'collection',
         handle: collectionMatch[1],
       }
     }
@@ -101,13 +76,41 @@ export class StoreRendererFactory {
     const pageMatch = path.match(/^\/pages\/([^\/]+)$/)
     if (pageMatch) {
       return {
-        type: 'page',
+        pageType: 'page',
         handle: pageMatch[1],
       }
     }
 
+    // Blog: /blogs/mi-blog
+    const blogMatch = path.match(/^\/blogs\/([^\/]+)$/)
+    if (blogMatch) {
+      return {
+        pageType: 'blog',
+        handle: blogMatch[1],
+      }
+    }
+
+    // Búsqueda: /search
+    if (path === '/search') {
+      return { pageType: 'search' }
+    }
+
+    // Cart: /cart
+    if (path === '/cart') {
+      return { pageType: 'cart' }
+    }
+
+    // 404: /404 (para pruebas)
+    if (path === '/404') {
+      return { pageType: '404' }
+    }
+
+    if (path === '/collection') {
+      return { pageType: 'collection' }
+    }
+
     // Fallback a homepage para paths no reconocidos
-    return { type: 'homepage' }
+    return { pageType: '404' }
   }
 
   /**
@@ -118,7 +121,7 @@ export class StoreRendererFactory {
   public async canRenderStore(domain: string): Promise<boolean> {
     try {
       // Intentar renderizar homepage para verificar configuración
-      await this.homepageRenderer.render(domain)
+      await this.dynamicRenderer.render(domain, { pageType: 'index' })
       return true
     } catch (error) {
       console.warn(`Store ${domain} cannot be rendered:`, error)
@@ -132,11 +135,10 @@ export const storeRenderer = new StoreRendererFactory()
 
 // Exportar tipos para uso externo
 export type { RenderResult } from './types'
-export { HomepageRenderer } from './renderers/homepage'
-export { ProductRenderer } from './renderers/product'
+export { DynamicPageRenderer } from './renderers/homepage'
 
 // Exportar servicios para uso avanzado
-export { domainResolver } from './services/domain-resolver'
-export { templateLoader } from './services/template-loader'
-export { dataFetcher } from './services/data-fetcher'
+export { domainResolver } from './services/core/domain-resolver'
+export { templateLoader } from './services/templates/template-loader'
+export { dataFetcher } from './services/fetchers/data-fetcher'
 export { liquidEngine } from './liquid/engine'

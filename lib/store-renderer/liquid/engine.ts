@@ -8,6 +8,12 @@ import type {
 } from '../types'
 import { ecommerceFilters } from './filters'
 import { SchemaTag } from './tags/schema-tag'
+import { ScriptTag } from './tags/script-tag'
+import { SectionTag } from './tags/section-tag'
+import { PaginateTag } from './tags/paginate-tag'
+import { RenderTag, IncludeTag } from './tags/render-tag'
+import { StyleTag, StylesheetTag } from './tags/style-tag'
+import { JavaScriptTag } from './tags/javascript-tag'
 
 interface EngineCache {
   [templatePath: string]: TemplateCache
@@ -69,11 +75,43 @@ class LiquidEngine {
   }
 
   /**
+   * Registra filtros específicos del contexto de una tienda
+   */
+  private registerStoreFilters(storeId: string): void {
+    // Registrar asset_url con storeId específico
+    this.liquid.registerFilter('asset_url', (filename: string) => {
+      if (!filename) {
+        return ''
+      }
+
+      // Limpiar el filename
+      const cleanFilename = filename.replace(/^\/+/, '')
+
+      // URL para assets específicos de la tienda via API
+      return `/api/stores/${storeId}/assets/${cleanFilename}`
+    })
+  }
+
+  /**
    * Registra tags personalizados para compatibilidad con Shopify
    */
   private registerCustomTags(): void {
-    // Registrar el tag schema
+    // ETIQUETAS BÁSICAS DE SHOPIFY
     this.liquid.registerTag('schema', SchemaTag)
+    this.liquid.registerTag('section', SectionTag)
+
+    // ETIQUETAS DE PAGINACIÓN
+    this.liquid.registerTag('paginate', PaginateTag)
+
+    // ETIQUETAS DE COMPONENTES/SNIPPETS
+    this.liquid.registerTag('render', RenderTag)
+    this.liquid.registerTag('include', IncludeTag) // Deprecated pero compatible
+
+    // ETIQUETAS DE ESTILO Y SCRIPT
+    this.liquid.registerTag('style', StyleTag)
+    this.liquid.registerTag('stylesheet', StylesheetTag)
+    this.liquid.registerTag('script', ScriptTag)
+    this.liquid.registerTag('javascript', JavaScriptTag)
   }
 
   /**
@@ -89,6 +127,12 @@ class LiquidEngine {
     templatePath?: string
   ): Promise<string> {
     try {
+      // Registrar filtros específicos de la tienda si hay storeId en el contexto
+      const storeId = context?.storeId || context?.store?.storeId || context?.shop?.storeId
+      if (storeId) {
+        this.registerStoreFilters(storeId)
+      }
+
       // Renderizar directamente usando parseAndRender
       // LiquidJS maneja internamente el parsing y rendering
       const result = await this.liquid.parseAndRender(templateContent, context)

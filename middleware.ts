@@ -61,13 +61,19 @@ export async function middleware(request: NextRequest) {
 
     // Reescribir URLs basadas en subdominios
     if (subdomain && subdomain !== 'www') {
+      // NO reescribir rutas de assets - dejar que la API las maneje
+      if (path.startsWith('/assets/')) {
+        return NextResponse.next()
+      }
+
       const url = request.nextUrl.clone()
       if (path === '/') {
         // Si estamos en la raíz, reescribir a la ruta de la tienda
         url.pathname = `/${subdomain}`
       } else if (!path.startsWith(`/${subdomain}`)) {
-        // Si la ruta no empieza con el subdominio, agregar el prefijo
-        url.pathname = `/${subdomain}${path}`
+        // Si la ruta no empieza con el subdominio, agregar el prefijo y pasar el path original
+        url.pathname = `/${subdomain}`
+        url.searchParams.set('path', path)
       } else {
         // La ruta ya tiene el prefijo correcto
         return NextResponse.next()
