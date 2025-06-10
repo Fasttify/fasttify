@@ -1,26 +1,25 @@
-import { ChevronLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { ArrowLeftIcon } from '@shopify/polaris-icons'
+import { Box, Text, Button, InlineStack } from '@shopify/polaris'
 import { GradientSparkles } from '@/app/store/components/ai-chat/components/GradientSparkles'
 import { ChatHeaderProps } from '@/app/store/components/ai-chat/types/chat-types'
 
 export function ChatHeader({ isMobile, onClose }: ChatHeaderProps) {
   return (
-    <SheetHeader className="flex items-center bg-white/50 backdrop-blur-sm border-b border-gray-200 shrink-0">
+    <InlineStack align="center" blockAlign="center" gap="200" wrap={false}>
       {isMobile && (
         <Button
-          variant="ghost"
           onClick={onClose}
-          className="h-2 w-2 rounded-full -ml-96"
-          aria-label="Regresar"
-        >
-          <ChevronLeft className="h-6 w-6 scale-150 text-gray-900" />
-        </Button>
+          accessibilityLabel="Regresar"
+          icon={ArrowLeftIcon}
+          variant="plain"
+        />
       )}
-      <div className="flex flex-1 justify-center items-center gap-2">
+      <InlineStack gap="200" blockAlign="center" wrap={false}>
         <GradientSparkles />
-        <SheetTitle className="font-medium text-gray-800">FastBot</SheetTitle>
-      </div>
-    </SheetHeader>
+        <Text variant="headingMd" as="h2">
+          FastBot
+        </Text>
+      </InlineStack>
+    </InlineStack>
   )
 }

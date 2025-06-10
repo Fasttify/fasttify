@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { inter } from '@/config/fonts'
 import { ReactQueryProvider } from '@/utils/ReactQueryProvider'
-import { Toaster } from '@/components/ui/sonner'
 import ConfigureAmplifyClientSide from '@/utils/ConfigureAmplify'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
@@ -59,7 +58,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className}>
         <ConfigureAmplifyClientSide />
         <ReactQueryProvider>{children}</ReactQueryProvider>
-        <Toaster position="top-center" />
       </body>
     </html>
   )

@@ -10,15 +10,16 @@ export function ProductsPage() {
 
   return (
     <div className="bg-gray-100 mt-8">
-      <div className="flex items-center gap-2 mb-4">
-        <ProductIcon className="w-5 h-5" />
-        <Text as="h1" variant="headingLg" fontWeight="regular">
-          Productos
-        </Text>
-
-        <Text as="p" variant="bodySm" tone="subdued">
-          Administra y gestiona tus productos en tu tienda Fasttify.
-        </Text>
+      <div className="flex items-start gap-3 mb-4">
+        <ProductIcon className="w-5 h-5 mt-1" />
+        <div>
+          <Text as="h1" variant="headingLg" fontWeight="regular">
+            Productos
+          </Text>
+          <Text as="p" variant="bodySm" tone="subdued">
+            Administra y gestiona tus productos en tu tienda Fasttify.
+          </Text>
+        </div>
       </div>
 
       <LegacyCard sectioned>
