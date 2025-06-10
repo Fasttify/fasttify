@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+import { useCallback, useState, useEffect } from 'react'
 import { generateClient } from 'aws-amplify/api'
 import { getCurrentUser } from 'aws-amplify/auth'
 import type { Schema } from '@/amplify/data/resource'
@@ -50,11 +50,12 @@ export interface PaginationOptions {
 export interface UseProductsResult {
   products: IProduct[]
   loading: boolean
-  paginationLoading: boolean
   error: Error | null
   currentPage: number
   hasNextPage: boolean
-  loadNextPage: () => void
+  hasPreviousPage: boolean
+  nextPage: () => void
+  previousPage: () => void
   resetPagination: () => void
   createProduct: (productData: ProductCreateInput) => Promise<IProduct | null>
   updateProduct: (productData: ProductUpdateInput) => Promise<IProduct | null>
@@ -62,7 +63,6 @@ export interface UseProductsResult {
   deleteMultipleProducts: (ids: string[]) => Promise<boolean>
   refreshProducts: () => void
   fetchProduct: (id: string) => Promise<IProduct | null>
-  isFetchingNextPage: boolean
 }
 
 /**
@@ -85,15 +85,27 @@ export function useProducts(
 ): UseProductsResult {
   const queryClient = useQueryClient()
 
+  // Estado para la paginación
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageTokens, setPageTokens] = useState<(string | null)[]>([null]) // Token para cada página
+
   // Valores por defecto para paginación
-  const limit = options?.limit || 60
+  const limit = options?.limit || 50
   const sortDirection = options?.sortDirection || 'DESC'
   const sortField = options?.sortField || 'creationDate'
   const enabled = options?.enabled !== false && !!storeId
 
-  // Función para obtener productos con paginación
-  const fetchProductsPage = async ({ pageParam = null }: { pageParam: string | null }) => {
+  // Resetear paginación si cambian los parámetros clave
+  useEffect(() => {
+    setCurrentPage(1)
+    setPageTokens([null])
+  }, [storeId, limit, sortDirection, sortField])
+
+  // Función para obtener productos de una página específica
+  const fetchProductsPage = async () => {
     if (!storeId) throw new Error('Store ID is required')
+
+    const token = pageTokens[currentPage - 1]
 
     const { data, nextToken } = await client.models.Product.listProductByStoreId(
       {
@@ -101,7 +113,7 @@ export function useProducts(
       },
       {
         limit,
-        nextToken: pageParam,
+        nextToken: token,
       }
     )
 
@@ -110,11 +122,9 @@ export function useProducts(
       const fieldA = a[sortField as keyof typeof a]
       const fieldB = b[sortField as keyof typeof b]
 
-      // Manejar valores undefined o null
       if (fieldA === undefined || fieldA === null) return sortDirection === 'ASC' ? -1 : 1
       if (fieldB === undefined || fieldB === null) return sortDirection === 'ASC' ? 1 : -1
 
-      // Comparación estándar
       if (fieldA < fieldB) return sortDirection === 'ASC' ? -1 : 1
       if (fieldA > fieldB) return sortDirection === 'ASC' ? 1 : -1
       return 0
@@ -123,27 +133,29 @@ export function useProducts(
     return {
       products: sortedData as IProduct[],
       nextToken: nextToken as string | null,
-      page: pageParam ? 'next' : 'first',
     }
   }
-  // Consulta infinita para productos con paginación
+
+  // Consulta para la página actual de productos
   const {
     data,
-    fetchNextPage,
-    hasNextPage,
     isFetching,
-    isFetchingNextPage,
     error: queryError,
     refetch,
-  } = useInfiniteQuery({
-    queryKey: ['products', storeId, limit, sortDirection, sortField],
+  } = useQuery({
+    queryKey: ['products', storeId, limit, sortDirection, sortField, currentPage],
     queryFn: fetchProductsPage,
-    initialPageParam: null as string | null,
-    getNextPageParam: lastPage => lastPage.nextToken as string | null,
     enabled,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
+
+  // Almacenar el token para la página siguiente
+  useEffect(() => {
+    if (data?.nextToken && pageTokens.length === currentPage) {
+      setPageTokens(tokens => [...tokens, data.nextToken])
+    }
+  }, [data?.nextToken, pageTokens.length, currentPage])
 
   // Mutación para crear un producto
   const createProductMutation = useMutation({
@@ -160,29 +172,8 @@ export function useProducts(
 
       return data as IProduct
     },
-    onSuccess: newProduct => {
-      // Invalidar la caché para que se actualice
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products', storeId] })
-
-      // Opcionalmente, actualizar la caché directamente
-      queryClient.setQueryData(
-        ['products', storeId, limit, sortDirection, sortField],
-        (oldData: any) => {
-          if (!oldData || !oldData.pages || oldData.pages.length === 0) return oldData
-
-          // Añadir el nuevo producto a la primera página
-          const newPages = [...oldData.pages]
-          newPages[0] = {
-            ...newPages[0],
-            products: [newProduct, ...newPages[0].products].slice(0, limit),
-          }
-
-          return {
-            ...oldData,
-            pages: newPages,
-          }
-        }
-      )
     },
   })
 
@@ -193,26 +184,22 @@ export function useProducts(
       return data as IProduct
     },
     onSuccess: updatedProduct => {
-      // Actualizar la caché directamente
-      queryClient.setQueryData(
-        ['products', storeId, limit, sortDirection, sortField],
-        (oldData: any) => {
-          if (!oldData || !oldData.pages) return oldData
-
-          // Actualizar el producto en todas las páginas
-          const newPages = oldData.pages.map((page: any) => ({
-            ...page,
-            products: page.products.map((p: IProduct) =>
-              p.id === updatedProduct.id ? updatedProduct : p
-            ),
-          }))
-
-          return {
-            ...oldData,
-            pages: newPages,
+      queryClient
+        .getQueryCache()
+        .findAll({ queryKey: ['products', storeId] })
+        .forEach(query => {
+          const oldData = query.state.data as
+            | { products: IProduct[]; nextToken: string | null }
+            | undefined
+          if (oldData?.products.some(p => p.id === updatedProduct.id)) {
+            queryClient.setQueryData(query.queryKey, {
+              ...oldData,
+              products: oldData.products.map(p =>
+                p.id === updatedProduct.id ? updatedProduct : p
+              ),
+            })
           }
-        }
-      )
+        })
     },
   })
 
@@ -223,24 +210,20 @@ export function useProducts(
       return id
     },
     onSuccess: deletedId => {
-      // Actualizar la caché directamente
-      queryClient.setQueryData(
-        ['products', storeId, limit, sortDirection, sortField],
-        (oldData: any) => {
-          if (!oldData || !oldData.pages) return oldData
-
-          // Eliminar el producto de todas las páginas
-          const newPages = oldData.pages.map((page: any) => ({
-            ...page,
-            products: page.products.filter((p: IProduct) => p.id !== deletedId),
-          }))
-
-          return {
-            ...oldData,
-            pages: newPages,
+      queryClient
+        .getQueryCache()
+        .findAll({ queryKey: ['products', storeId] })
+        .forEach(query => {
+          const oldData = query.state.data as
+            | { products: IProduct[]; nextToken: string | null }
+            | undefined
+          if (oldData?.products.some(p => p.id === deletedId)) {
+            queryClient.setQueryData(query.queryKey, {
+              ...oldData,
+              products: oldData.products.filter(p => p.id !== deletedId),
+            })
           }
-        }
-      )
+        })
     },
   })
 
@@ -251,24 +234,20 @@ export function useProducts(
       return ids
     },
     onSuccess: deletedIds => {
-      // Actualizar la caché directamente
-      queryClient.setQueryData(
-        ['products', storeId, limit, sortDirection, sortField],
-        (oldData: any) => {
-          if (!oldData || !oldData.pages) return oldData
-
-          // Eliminar los productos de todas las páginas
-          const newPages = oldData.pages.map((page: any) => ({
-            ...page,
-            products: page.products.filter((p: IProduct) => !deletedIds.includes(p.id)),
-          }))
-
-          return {
-            ...oldData,
-            pages: newPages,
+      queryClient
+        .getQueryCache()
+        .findAll({ queryKey: ['products', storeId] })
+        .forEach(query => {
+          const oldData = query.state.data as
+            | { products: IProduct[]; nextToken: string | null }
+            | undefined
+          if (oldData?.products.some(p => deletedIds.includes(p.id))) {
+            queryClient.setQueryData(query.queryKey, {
+              ...oldData,
+              products: oldData.products.filter(p => !deletedIds.includes(p.id)),
+            })
           }
-        }
-      )
+        })
     },
   })
 
@@ -280,18 +259,14 @@ export function useProducts(
         return null
       }
 
-      // Primero verificamos si ya tenemos el producto en la caché
-      const cachedProducts = queryClient.getQueryData([
-        'products',
-        storeId,
-        limit,
-        sortDirection,
-        sortField,
-      ]) as any
+      // Buscar en todas las páginas cacheadas
+      const queryCache = queryClient.getQueryCache()
+      const productQueries = queryCache.findAll({ queryKey: ['products', storeId] })
 
-      if (cachedProducts && cachedProducts.pages) {
-        for (const page of cachedProducts.pages) {
-          const existingProduct = page.products.find((p: IProduct) => p.id === id)
+      for (const query of productQueries) {
+        const pageData = query.state.data as { products: IProduct[] } | undefined
+        if (pageData?.products) {
+          const existingProduct = pageData.products.find(p => p.id === id)
           if (existingProduct) {
             return existingProduct
           }
@@ -314,30 +289,46 @@ export function useProducts(
         return null
       }
     },
-    [storeId, limit, sortDirection, sortField, queryClient]
+    [storeId, queryClient]
   )
 
-  // Extraer productos de todas las páginas
-  const products = data?.pages.flatMap(page => page.products) || []
+  const products = data?.products || []
+  const hasNextPage = !!data?.nextToken
+  const hasPreviousPage = currentPage > 1
 
-  // Calcular el número de página actual
-  const currentPage = data?.pages.length || 1
+  const nextPage = () => {
+    if (hasNextPage) {
+      setCurrentPage(prev => prev + 1)
+    }
+  }
+
+  const previousPage = () => {
+    if (hasPreviousPage) {
+      setCurrentPage(prev => prev - 1)
+    }
+  }
+
+  const resetPaginationAndRefetch = () => {
+    setCurrentPage(1)
+    setPageTokens([null])
+    refetch()
+  }
 
   return {
     // Datos y estado
     products,
-    loading: isFetching && !isFetchingNextPage,
-    paginationLoading: isFetchingNextPage,
+    loading: isFetching,
     error: queryError ? new Error(queryError.message) : null,
 
     // Información de paginación
     currentPage,
-    hasNextPage: !!hasNextPage,
-    isFetchingNextPage,
+    hasNextPage,
+    hasPreviousPage,
 
     // Funciones de paginación
-    loadNextPage: fetchNextPage,
-    resetPagination: () => refetch(),
+    nextPage,
+    previousPage,
+    resetPagination: resetPaginationAndRefetch,
 
     // Funciones CRUD
     createProduct: async productData => {
@@ -375,6 +366,6 @@ export function useProducts(
       }
     },
     fetchProduct: fetchProductById,
-    refreshProducts: () => refetch(),
+    refreshProducts: refetch,
   }
 }

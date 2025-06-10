@@ -1,10 +1,11 @@
+import { Text, Link } from '@shopify/polaris'
+
 export default function InventoryFooter() {
   return (
-    <div className="text-center text-sm text-muted-foreground mt-4">
-      Más información sobre{' '}
-      <a href="#" className="text-blue-600 underline">
-        gestionar el inventario
-      </a>
+    <div style={{ textAlign: 'center', marginTop: '24px' }}>
+      <Text variant="bodyMd" as="p" tone="subdued">
+        Más información sobre <Link url="#">gestionar el inventario</Link>
+      </Text>
     </div>
   )
 }

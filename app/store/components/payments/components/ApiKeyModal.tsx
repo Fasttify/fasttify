@@ -1,37 +1,23 @@
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff, Info } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { useForm, useField } from '@shopify/react-form'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
+  Modal,
   Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
+  FormLayout,
+  TextField,
+  Banner,
+  Text,
+  LegacyStack,
+  Badge,
+  Box,
+} from '@shopify/polaris'
 import {
-  createApiKeySchema,
   PaymentGatewayType,
   PAYMENT_GATEWAYS,
+  createApiKeySchema,
 } from '@/lib/zod-schemas/api-keys'
-import { configureAmplify } from '@/lib/amplify-config'
-
-configureAmplify()
 
 type ApiKeyFormValues = {
   publicKey: string
@@ -46,233 +32,148 @@ interface ApiKeyModalProps {
 }
 
 export function ApiKeyModal({ open, onOpenChange, onSubmit, gateway }: ApiKeyModalProps) {
-  const [showPrivateKey, setShowPrivateKey] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const gatewayConfig = PAYMENT_GATEWAYS[gateway]
 
-  const getFieldLabels = () => {
-    if (gateway === 'wompi') {
-      return {
-        publicKeyLabel: 'Llave Pública',
-        publicKeyDescription: 'Ingresa la llave pública desde tu panel de Wompi.',
-        publicKeyTooltip:
-          'Tu llave pública comienza con "pub_" y se utiliza para identificar tu cuenta de Wompi.',
-        privateKeyLabel: 'Firma (Signature)',
-        privateKeyDescription: 'Ingresa la firma (signature) desde tu panel de Wompi.',
-        privateKeyTooltip:
-          'La firma se utiliza para verificar la autenticidad de las transacciones.',
+  const { fields, submit, dirty, reset, submitErrors } = useForm({
+    fields: {
+      publicKey: useField(''),
+      privateKey: useField(''),
+    },
+    onSubmit: async values => {
+      const schema = createApiKeySchema(gateway)
+      const validation = schema.safeParse(values)
+
+      if (!validation.success) {
+        const errors = validation.error.errors.map(err => ({
+          message: err.message,
+          field: [err.path[0].toString()],
+        }))
+        return { status: 'fail', errors }
       }
-    }
-    return {
-      publicKeyLabel: 'Access Token',
-      publicKeyDescription: `Ingresa el Access Token desde tu panel de ${gatewayConfig.name}.`,
-      publicKeyTooltip: `Tu Access Token comienza con "${gatewayConfig.publicKeyPrefix}" y se utiliza para identificar tu cuenta.`,
-      privateKeyLabel: 'Clave Secreta',
-      privateKeyDescription: `Ingresa la Clave Secreta desde tu panel de ${gatewayConfig.name}.`,
-      privateKeyTooltip: `Tu Clave Secreta comienza con "${gatewayConfig.privateKeyPrefix}" y debe mantenerse en secreto. Se utiliza para autenticar las transacciones.`,
-    }
-  }
 
-  const fieldLabels = getFieldLabels()
-
-  const form = useForm<ApiKeyFormValues>({
-    resolver: zodResolver(createApiKeySchema(gateway)),
-    defaultValues: {
-      publicKey: '',
-      privateKey: '',
+      setIsSubmitting(true)
+      try {
+        if (onSubmit) {
+          await onSubmit({ ...validation.data, gateway })
+        }
+        onOpenChange(false)
+        return { status: 'success' }
+      } catch (error) {
+        console.error('Error al guardar las claves:', error)
+        return {
+          status: 'fail',
+          errors: [{ message: 'Hubo un error al guardar las claves. Inténtalo de nuevo.' }],
+        }
+      } finally {
+        setIsSubmitting(false)
+      }
     },
   })
 
   useEffect(() => {
-    if (open) {
-      form.reset(
-        {
-          publicKey: '',
-          privateKey: '',
-        },
-        {
-          keepErrors: false,
-        }
-      )
+    if (!open) {
+      reset()
     }
-  }, [open, gateway, form])
+  }, [open, reset])
 
-  const handleModalChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      form.reset(
-        {
-          publicKey: '',
-          privateKey: '',
-        },
-        {
-          keepErrors: false,
-        }
-      )
-      setShowPrivateKey(false)
-    }
-    onOpenChange(newOpen)
-  }
-
-  const handleSubmit = async (data: ApiKeyFormValues) => {
-    try {
-      setIsSubmitting(true)
-
-      if (onSubmit) {
-        const result = await onSubmit({
-          ...data,
-          gateway,
-        })
-
-        if (result !== false) {
-          handleModalChange(false)
-        }
-      } else {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        handleModalChange(false)
+  const getFieldLabels = useCallback(() => {
+    if (gateway === 'wompi') {
+      return {
+        publicKeyLabel: 'Llave Pública',
+        publicKeyHelpText: 'Tu llave pública comienza con "pub_".',
+        privateKeyLabel: 'Llave de Eventos',
+        privateKeyHelpText: 'La llave para firmar eventos/webhooks.',
       }
-    } catch (error) {
-      console.error('Error al guardar las claves:', error)
-    } finally {
-      setIsSubmitting(false)
     }
-  }
+    return {
+      publicKeyLabel: 'Public Key',
+      publicKeyHelpText: `Tu Public Key comienza con "APP_USR-".`,
+      privateKeyLabel: 'Access Token',
+      privateKeyHelpText: `Tu Access Token comienza con "APP_USR-".`,
+    }
+  }, [gateway])
+
+  const fieldLabels = getFieldLabels()
 
   return (
-    <Dialog open={open} onOpenChange={handleModalChange}>
-      <DialogContent className="sm:max-w-md md:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Configuración de {gatewayConfig.name}</DialogTitle>
-          <DialogDescription>
-            Ingresa tus claves API de {gatewayConfig.name} para habilitar el procesamiento de pagos.
-          </DialogDescription>
-        </DialogHeader>
+    <Modal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title={`Configuración de ${gatewayConfig.name}`}
+      primaryAction={{
+        content: 'Guardar claves',
+        onAction: submit,
+        loading: isSubmitting,
+        disabled: !dirty,
+      }}
+      secondaryActions={[
+        {
+          content: 'Cancelar',
+          onAction: () => onOpenChange(false),
+          disabled: isSubmitting,
+        },
+      ]}
+    >
+      <Modal.Section>
+        <Form onSubmit={submit}>
+          <LegacyStack vertical spacing="loose">
+            {submitErrors.length > 0 && (
+              <Banner title="Error al guardar" tone="critical">
+                {submitErrors.map(({ message }, index) => (
+                  <p key={index}>{message}</p>
+                ))}
+              </Banner>
+            )}
+            <Banner title="Almacenamiento seguro de claves" tone="info">
+              <p>
+                Tus claves API se utilizan para autenticar solicitudes a la pasarela de pago y se
+                almacenan de forma segura y encriptada.
+              </p>
+            </Banner>
 
-        <div className="bg-muted/50 p-4 rounded-lg mb-4">
-          <div className="flex items-start gap-2">
-            <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-            <p className="text-sm text-muted-foreground">
-              Tus claves API se utilizan para autenticar solicitudes a la pasarela de pago. Estas
-              claves se almacenan de forma segura y encriptada. Nunca compartimos tu clave privada
-              con terceros.
-            </p>
-          </div>
-        </div>
+            <Box
+              borderWidth="025"
+              borderColor="border"
+              borderRadius="200"
+              padding="400"
+              background="bg-surface-secondary"
+            >
+              <LegacyStack vertical spacing="baseTight">
+                <LegacyStack distribution="equalSpacing" alignment="center">
+                  <Text variant="headingMd" as="h3">
+                    {gatewayConfig.name}
+                  </Text>
+                  <Badge tone="info">{`${gatewayConfig.transactionFee}% por transacción`}</Badge>
+                </LegacyStack>
+                <Text as="p" tone="subdued">
+                  {gatewayConfig.description}
+                </Text>
+              </LegacyStack>
+            </Box>
 
-        <Card className={`border ${gatewayConfig.color}`}>
-          <CardContent className="pt-4">
-            <div className="flex justify-between items-center mb-2">
-              <div className="font-medium">{gatewayConfig.name}</div>
-              <Badge variant="outline" className={gatewayConfig.color}>
-                {gatewayConfig.transactionFee}% por transacción
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground">{gatewayConfig.description}</p>
-          </CardContent>
-        </Card>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="publicKey"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {fieldLabels.publicKeyLabel}
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 ml-1 inline-block text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">{fieldLabels.publicKeyTooltip}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={gatewayConfig.publicKeyPlaceholder}
-                      {...field}
-                      autoComplete="off"
-                    />
-                  </FormControl>
-                  <FormDescription>{fieldLabels.publicKeyDescription}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="privateKey"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {fieldLabels.privateKeyLabel}
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 ml-1 inline-block text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">{fieldLabels.privateKeyTooltip}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        type={showPrivateKey ? 'text' : 'password'}
-                        placeholder={gatewayConfig.privateKeyPlaceholder}
-                        {...field}
-                        autoComplete="off"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowPrivateKey(!showPrivateKey)}
-                      >
-                        {showPrivateKey ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                        <span className="sr-only">
-                          {showPrivateKey ? 'Ocultar' : 'Mostrar'} {fieldLabels.privateKeyLabel}
-                        </span>
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormDescription>{fieldLabels.privateKeyDescription}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter className="pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
-              <Button
-                className="bg-gray-800 h-9 px-4 text-sm font-medium text-white py-2 rounded-md hover:bg-gray-700 transition-colors"
-                type="submit"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Guardando...' : `Guardar Claves de ${gatewayConfig.name}`}
-              </Button>
-            </DialogFooter>
-          </form>
+            <FormLayout>
+              <TextField
+                label={fieldLabels.publicKeyLabel}
+                value={fields.publicKey.value}
+                onChange={fields.publicKey.onChange}
+                error={fields.publicKey.error}
+                helpText={fieldLabels.publicKeyHelpText}
+                autoComplete="off"
+              />
+              <TextField
+                type="password"
+                label={fieldLabels.privateKeyLabel}
+                value={fields.privateKey.value}
+                onChange={fields.privateKey.onChange}
+                error={fields.privateKey.error}
+                helpText={fieldLabels.privateKeyHelpText}
+                autoComplete="off"
+              />
+            </FormLayout>
+          </LegacyStack>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </Modal.Section>
+    </Modal>
   )
 }

@@ -1,13 +1,18 @@
-import { InventoryRowProps } from './inventory-table-row'
-import { Image } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import {
+  LegacyCard,
+  Text,
+  Thumbnail,
+  TextField,
+  Button,
+  ButtonGroup,
+  Toast,
+} from '@shopify/polaris'
+import { ImageIcon } from '@shopify/polaris-icons'
 import { useState } from 'react'
-import { toast } from 'sonner'
 import { useProducts } from '@/app/store/hooks/useProducts'
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname } from 'next/navigation'
-import { UnsavedChangesAlert } from '@/components/ui/unsaved-changes-alert'
+import { InventoryRowProps } from '@/app/store/components/product-management/inventory/inventory-table'
 
 interface InventoryCardMobileProps {
   data: InventoryRowProps[]
@@ -23,7 +28,8 @@ export function InventoryCardMobile({ data }: InventoryCardMobileProps) {
   const [inStockValues, setInStockValues] = useState<Record<string, number>>(
     data.reduce((acc, item) => ({ ...acc, [item.id]: item.inStock }), {})
   )
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<Record<string, boolean>>({})
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
 
   const handleUpdateQuantity = async (id: string, name: string) => {
     try {
@@ -31,16 +37,12 @@ export function InventoryCardMobile({ data }: InventoryCardMobileProps) {
         id,
         quantity: inStockValues[id],
       })
-      toast.success('Inventario actualizado', {
-        description: `El inventario de "${name}" ha sido actualizado correctamente.`,
-      })
+      setToastMessage(`Inventario de "${name}" actualizado correctamente`)
+      setShowToast(true)
       setEditingId(null)
-      setHasUnsavedChanges(prev => ({ ...prev, [id]: false }))
     } catch (error) {
-      toast.error('Error', {
-        description:
-          'Ha ocurrido un error al actualizar el inventario. Por favor, inténtelo de nuevo.',
-      })
+      setToastMessage('Error al actualizar el inventario')
+      setShowToast(true)
       // Revertir el valor en caso de error
       setInStockValues(prev => ({ ...prev, [id]: data.find(item => item.id === id)?.inStock || 0 }))
     }
@@ -52,88 +54,147 @@ export function InventoryCardMobile({ data }: InventoryCardMobileProps) {
       [id]: data.find(item => item.id === id)?.inStock || 0,
     }))
     setEditingId(null)
-    setHasUnsavedChanges(prev => ({ ...prev, [id]: false }))
   }
 
-  return (
-    <div className="flex flex-col gap-3 sm:hidden">
-      {data.map(item => (
-        <div key={item.id} className="border rounded-md p-3 bg-white shadow">
-          <div className="flex items-center gap-2">
-            {item.images &&
-            (Array.isArray(item.images)
-              ? item.images.length > 0
-              : typeof item.images === 'string' && item.images !== '[]' && item.images !== '') ? (
-              <img
-                src={
-                  typeof item.images === 'string'
-                    ? JSON.parse(item.images)[0]?.url
-                    : item.images[0]?.url
-                }
-                alt={item.name}
-                className="w-12 h-12 object-cover rounded"
-              />
-            ) : (
-              <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                <Image className="h-6 w-6 text-gray-500" />
-              </div>
-            )}
-            <div>
-              <div className="font-medium text-black">{item.name}</div>
-              <div className="text-sm text-gray-600">SKU: {item.sku}</div>
-            </div>
-          </div>
+  const getImageUrl = (images: InventoryRowProps['images']) => {
+    if (!images) return null
+    if (typeof images === 'string') {
+      try {
+        const parsed = JSON.parse(images)
+        return parsed[0]?.url || null
+      } catch {
+        return null
+      }
+    }
+    return Array.isArray(images) && images.length > 0 ? images[0].url : null
+  }
 
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div className="flex flex-col">
-              <span className="text-gray-500">No disponible</span>
-              <span className="font-medium">{item.unavailable}</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-gray-500">Comprometido</span>
-              <span className="font-medium">{item.committed}</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-gray-500">Disponible</span>
-              <span className="font-medium">{item.available}</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-gray-500">En stock</span>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  className="border rounded px-2 py-1 w-16"
-                  value={inStockValues[item.id]}
-                  onChange={e => {
-                    setEditingId(item.id)
-                    setHasUnsavedChanges(prev => ({ ...prev, [item.id]: true }))
-                    setInStockValues(prev => ({
-                      ...prev,
-                      [item.id]: Number(e.target.value),
-                    }))
+  const toastMarkup = showToast ? (
+    <Toast content={toastMessage} onDismiss={() => setShowToast(false)} />
+  ) : null
+
+  return (
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {data.map(item => {
+          const imageUrl = getImageUrl(item.images)
+          const isEditing = editingId === item.id
+
+          return (
+            <LegacyCard key={item.id}>
+              <LegacyCard.Section>
+                {/* Header with image and product info */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    marginBottom: '16px',
                   }}
-                  onBlur={() => {
-                    if (editingId === item.id && !hasUnsavedChanges[item.id]) {
-                      handleUpdateQuantity(item.id, item.name)
-                    }
+                >
+                  {imageUrl ? (
+                    <Thumbnail source={imageUrl} alt={item.name} size="medium" />
+                  ) : (
+                    <div
+                      style={{
+                        width: '48px',
+                        height: '48px',
+                        backgroundColor: '#f3f3f3',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <ImageIcon />
+                    </div>
+                  )}
+                  <div>
+                    <Text variant="bodyMd" fontWeight="semibold" as="p">
+                      {item.name}
+                    </Text>
+                    <Text variant="bodySm" tone="subdued" as="p">
+                      SKU: {item.sku || '-'}
+                    </Text>
+                  </div>
+                </div>
+
+                {/* Inventory data grid */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '16px',
+                    marginBottom: '16px',
                   }}
-                />
-                {editingId === item.id && (
-                  <Button variant="ghost" size="sm" onClick={() => handleDiscardChanges(item.id)}>
-                    Cancelar
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-          {hasUnsavedChanges[item.id] && (
-            <UnsavedChangesAlert
-              onSave={() => handleUpdateQuantity(item.id, item.name)}
-              onDiscard={() => handleDiscardChanges(item.id)}
-            />
-          )}
-        </div>
-      ))}
-    </div>
+                >
+                  <div>
+                    <Text variant="bodySm" tone="subdued" as="p">
+                      No disponible
+                    </Text>
+                    <Text variant="bodyMd" fontWeight="semibold" as="p">
+                      {item.unavailable}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text variant="bodySm" tone="subdued" as="p">
+                      Comprometido
+                    </Text>
+                    <Text variant="bodyMd" fontWeight="semibold" as="p">
+                      {item.committed}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text variant="bodySm" tone="subdued" as="p">
+                      Disponible
+                    </Text>
+                    <Text variant="bodyMd" fontWeight="semibold" as="p">
+                      {item.available}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text variant="bodySm" tone="subdued" as="p">
+                      En stock
+                    </Text>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '80px' }}>
+                        <TextField
+                          value={inStockValues[item.id]?.toString() || '0'}
+                          onChange={value => {
+                            setEditingId(item.id)
+                            setInStockValues(prev => ({
+                              ...prev,
+                              [item.id]: parseInt(value) || 0,
+                            }))
+                          }}
+                          type="number"
+                          autoComplete="off"
+                          label=""
+                          labelHidden
+                        />
+                      </div>
+                      {isEditing && (
+                        <ButtonGroup>
+                          <Button
+                            size="micro"
+                            onClick={() => handleUpdateQuantity(item.id, item.name)}
+                          >
+                            Guardar
+                          </Button>
+                          <Button size="micro" onClick={() => handleDiscardChanges(item.id)}>
+                            Cancelar
+                          </Button>
+                        </ButtonGroup>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </LegacyCard.Section>
+            </LegacyCard>
+          )
+        })}
+      </div>
+      {toastMarkup}
+    </>
   )
 }

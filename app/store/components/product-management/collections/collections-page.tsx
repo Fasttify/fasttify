@@ -1,96 +1,82 @@
 import { useState } from 'react'
 import { getStoreId } from '@/utils/store-utils'
-import { useParams, usePathname } from 'next/navigation'
-import CollectionsHeader from '@/app/store/components/product-management/collections/collections-header'
-import CollectionsTabs from '@/app/store/components/product-management/collections/collections-tabs'
-import CollectionsTable from '@/app/store/components/product-management/collections/collections-table'
-import CollectionsFooter from '@/app/store/components/product-management/collections/collections-footer'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { configureAmplify } from '@/lib/amplify-config'
 import { useCollections } from '@/app/store/hooks/useCollections'
-import { Skeleton } from '@/components/ui/skeleton'
+import { routes } from '@/utils/routes'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  LegacyCard,
+  IndexTable,
+  Text,
+  Badge,
+  EmptyState,
+  SkeletonBodyText,
+  SkeletonDisplayText,
+  Tabs,
+  Filters,
+  Button,
+  ResourceList,
+  ResourceItem,
+  Spinner,
+  Link,
+} from '@shopify/polaris'
+import { FileIcon, ProductIcon } from '@shopify/polaris-icons'
 
 configureAmplify()
 
 type FilterType = 'all' | 'active' | 'inactive'
 
-// Skeleton component for the collections table
+// Skeleton component for the collections table using Polaris
 function CollectionsTableSkeleton() {
+  const resourceName = {
+    singular: 'colección',
+    plural: 'colecciones',
+  }
+
   return (
-    <div className="w-full">
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="w-12">
-              <Skeleton className="h-4 w-4" />
-            </TableHead>
-            <TableHead className="font-medium text-gray-600">
-              <Skeleton className="h-4 w-24" />
-            </TableHead>
-            <TableHead className="font-medium text-gray-600">
-              <Skeleton className="h-4 w-20" />
-            </TableHead>
-            <TableHead className="font-medium text-gray-600">
-              <Skeleton className="h-4 w-32" />
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array(5)
-            .fill(0)
-            .map((_, index) => (
-              <TableRow key={index}>
-                <TableCell className="p-4">
-                  <Skeleton className="h-4 w-4" />
-                </TableCell>
-                <TableCell className="p-4">
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="h-5 w-5" />
-                    <Skeleton className="h-4 w-32" />
-                  </div>
-                </TableCell>
-                <TableCell className="p-4">
-                  <Skeleton className="h-4 w-6" />
-                </TableCell>
-                <TableCell className="p-4">
-                  <Skeleton className="h-5 w-16 rounded-full" />
-                </TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
-    </div>
+    <LegacyCard>
+      <ResourceList
+        resourceName={resourceName}
+        items={Array(5)
+          .fill(0)
+          .map((_, index) => ({ id: `skeleton-${index}` }))}
+        renderItem={() => (
+          <ResourceItem id="skeleton" url="">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '40px', height: '40px' }}>
+                <SkeletonDisplayText size="small" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <SkeletonDisplayText size="small" />
+                <SkeletonBodyText lines={1} />
+              </div>
+              <div style={{ width: '60px' }}>
+                <SkeletonBodyText lines={1} />
+              </div>
+            </div>
+          </ResourceItem>
+        )}
+      />
+    </LegacyCard>
   )
 }
 
 export function CollectionsPage() {
   const pathname = usePathname()
   const params = useParams()
+  const router = useRouter()
   const storeId = getStoreId(params, pathname)
 
-  // Estado para el filtro activo
   const [activeFilter, setActiveFilter] = useState<FilterType>('all')
-  // Estado para el término de búsqueda
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedResources, setSelectedResources] = useState<string[]>([])
 
-  // Usar el hook de colecciones
   const { useListCollections } = useCollections()
-
-  // Obtener las colecciones de la tienda
   const { data: collections, isLoading, error } = useListCollections(storeId)
 
   // Filtrar colecciones según el tab activo y el término de búsqueda
   const filteredCollections = collections?.filter(collection => {
-    // Filtrar por estado activo/inactivo
     if (activeFilter === 'all') {
-      // No filtrar por estado
     } else if (activeFilter === 'active' && !collection.isActive) {
       return false
     } else if (activeFilter === 'inactive' && collection.isActive) {
@@ -113,23 +99,189 @@ export function CollectionsPage() {
     }
   }
 
+  // Tabs configuration
+  const tabs = [
+    {
+      id: 'all',
+      content: 'Todas',
+      panelID: 'all-collections',
+    },
+    {
+      id: 'active',
+      content: 'Activas',
+      panelID: 'active-collections',
+    },
+    {
+      id: 'inactive',
+      content: 'Inactivas',
+      panelID: 'inactive-collections',
+    },
+  ]
+
+  const resourceName = {
+    singular: 'colección',
+    plural: 'colecciones',
+  }
+
+  const rowMarkup = filteredCollections?.map((collection, index) => (
+    <IndexTable.Row
+      id={collection.id}
+      key={collection.id}
+      position={index}
+      selected={selectedResources.includes(collection.id)}
+      onClick={() => {
+        router.push(routes.store.products.collectionsEdit(storeId, collection.id))
+      }}
+    >
+      <IndexTable.Cell>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <FileIcon className="w-5 h-5" />
+          <div>
+            <Text variant="bodyMd" fontWeight="semibold" as="span">
+              {collection.title || 'Sin título'}
+            </Text>
+            {collection.description && (
+              <>
+                <br />
+                <Text variant="bodySm" tone="subdued" as="span">
+                  {collection.description}
+                </Text>
+              </>
+            )}
+          </div>
+        </div>
+      </IndexTable.Cell>
+      <IndexTable.Cell>
+        <Text variant="bodyMd" as="span">
+          {collection.products?.length || 0}
+        </Text>
+      </IndexTable.Cell>
+      <IndexTable.Cell>
+        <Badge tone={collection.isActive ? 'success' : 'critical'}>
+          {collection.isActive ? 'Activa' : 'Borrador'}
+        </Badge>
+      </IndexTable.Cell>
+    </IndexTable.Row>
+  ))
+
   return (
-    <div className="mt-8">
-      <CollectionsHeader storeId={storeId} />
-      <div className="rounded-lg shadow-sm border mt-4">
-        <CollectionsTabs activeFilter={activeFilter} onFilterChange={handleFilterChange} />
+    <div className="bg-gray-100 mt-8">
+      {/* Header similar a ProductsPage */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <ProductIcon className="w-5 h-5" />
+            <Text as="h1" variant="headingLg" fontWeight="regular">
+              Colecciones
+            </Text>
+          </div>
+          <Text variant="bodySm" tone="subdued" as="p">
+            Organiza tus productos en colecciones para facilitar la navegación de tus clientes.
+          </Text>
+        </div>
+
+        <Button
+          variant="primary"
+          onClick={() => router.push(routes.store.products.collectionsNew(storeId))}
+        >
+          Crear colección
+        </Button>
+      </div>
+
+      {/* Contenido principal */}
+      <LegacyCard>
+        <Tabs
+          tabs={tabs}
+          selected={tabs.findIndex(tab => tab.id === activeFilter)}
+          onSelect={selectedTabIndex => {
+            const selectedTab = tabs[selectedTabIndex]
+            handleFilterChange(selectedTab.id as FilterType)
+          }}
+        />
+
+        <div style={{ padding: '16px' }}>
+          <Filters
+            queryValue={searchTerm}
+            filters={[]}
+            onQueryChange={setSearchTerm}
+            onQueryClear={() => setSearchTerm('')}
+            queryPlaceholder="Buscar colecciones..."
+            onClearAll={() => {}}
+          />
+        </div>
 
         {isLoading ? (
-          <CollectionsTableSkeleton />
-        ) : error ? (
-          <div className="flex justify-center items-center py-20 text-red-500">
-            Error al cargar las colecciones. Por favor, intenta de nuevo.
+          <div style={{ padding: '20px', display: 'flex', justifyContent: 'center' }}>
+            <Spinner accessibilityLabel="Cargando colecciones" size="large" />
           </div>
+        ) : error ? (
+          <div style={{ padding: '40px' }}>
+            <EmptyState
+              fullWidth
+              heading="Error al cargar colecciones"
+              image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+            >
+              <p>No se pudieron cargar las colecciones. Por favor, intenta de nuevo.</p>
+            </EmptyState>
+          </div>
+        ) : filteredCollections && filteredCollections.length > 0 ? (
+          <IndexTable
+            resourceName={resourceName}
+            itemCount={filteredCollections.length}
+            headings={[
+              { title: 'Título' },
+              { title: 'Productos' },
+              { title: 'Condiciones del producto' },
+            ]}
+            selectedItemsCount={selectedResources.length}
+            onSelectionChange={(selectionType, toggleType, selection) => {
+              if (selectionType === 'all') {
+                if (toggleType) {
+                  setSelectedResources(filteredCollections?.map(c => c.id) || [])
+                } else {
+                  setSelectedResources([])
+                }
+              } else if (selectionType === 'page') {
+                if (toggleType) {
+                  setSelectedResources(filteredCollections?.map(c => c.id) || [])
+                } else {
+                  setSelectedResources([])
+                }
+              } else if (typeof selection === 'string') {
+                if (toggleType) {
+                  setSelectedResources(prev => [...prev, selection])
+                } else {
+                  setSelectedResources(prev => prev.filter(id => id !== selection))
+                }
+              }
+            }}
+            selectable
+          >
+            {rowMarkup}
+          </IndexTable>
         ) : (
-          <CollectionsTable collections={filteredCollections || []} storeId={storeId} />
+          <div style={{ padding: '40px' }}>
+            <EmptyState
+              fullWidth
+              heading="No hay colecciones"
+              action={{
+                content: 'Crear colección',
+                onAction: () => router.push(routes.store.products.collectionsNew(storeId)),
+              }}
+              image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+            >
+              <p>Crea tu primera colección para organizar tus productos.</p>
+            </EmptyState>
+          </div>
         )}
+      </LegacyCard>
+
+      {/* Footer con información adicional */}
+      <div style={{ textAlign: 'center', marginTop: '16px' }}>
+        <Text variant="bodySm" tone="subdued" as="p">
+          Más información sobre <Link url="#">colecciones</Link>
+        </Text>
       </div>
-      <CollectionsFooter />
     </div>
   )
 }

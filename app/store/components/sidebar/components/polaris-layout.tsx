@@ -5,11 +5,40 @@ import { Frame, AppProvider } from '@shopify/polaris'
 import { TopBarPolaris } from '@/app/store/components/sidebar/components/top-bar-polaris'
 import { NavigationPolaris } from '@/app/store/components/sidebar/components/navigation-polaris'
 import { PageTransition } from '@/components/ui/page-transition'
+import translations from '@shopify/polaris/locales/es.json'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface PolarisLayoutProps {
   children: React.ReactNode
   storeId: string
   prefersReducedMotion?: boolean
+}
+
+// Custom Link component for Polaris integration with Next.js
+function PolarisLinkComponent({ children, url = '', external = false, ...rest }: any) {
+  const router = useRouter()
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!external && url) {
+      e.preventDefault()
+      router.push(url)
+    }
+  }
+
+  if (external) {
+    return (
+      <a href={url} {...rest} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    )
+  }
+
+  return (
+    <Link href={url} {...rest} onClick={handleClick}>
+      {children}
+    </Link>
+  )
 }
 
 export function PolarisLayout({
@@ -33,7 +62,7 @@ export function PolarisLayout({
   }
 
   return (
-    <AppProvider i18n={{}} theme="light">
+    <AppProvider i18n={translations} theme="light" linkComponent={PolarisLinkComponent}>
       <div style={{ height: '100vh' }}>
         <Frame
           topBar={<TopBarPolaris storeId={storeId} onNavigationToggle={handleNavigationToggle} />}
@@ -42,7 +71,7 @@ export function PolarisLayout({
           onNavigationDismiss={() => setMobileNavigationActive(false)}
           logo={logo}
         >
-          <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6] overflow-auto min-h-screen">
+          <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6]">
             <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
           </main>
         </Frame>

@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { LegacyCard, EmptyState } from '@shopify/polaris'
 
 interface ProductEmptyStateProps {
   handleAddProduct: () => void
@@ -8,18 +8,17 @@ interface ProductEmptyStateProps {
 export function ProductEmptyState({ handleAddProduct, error }: ProductEmptyStateProps) {
   if (error) {
     return (
-      <div className="py-8 text-center text-red-500">
-        Error al cargar productos: {error.message}
+      <div className="w-full mt-8">
+        <LegacyCard sectioned>
+          <EmptyState
+            heading="Error al cargar productos"
+            action={{ content: 'Añadir producto', onAction: handleAddProduct }}
+            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+          >
+            <p>Error al cargar productos: {error.message}</p>
+          </EmptyState>
+        </LegacyCard>
       </div>
     )
   }
-
-  return (
-    <div className="py-8 text-center text-gray-500">
-      No se encontraron productos.{' '}
-      <Button variant="link" onClick={handleAddProduct} className="p-0 h-auto text-black">
-        Añadir un producto
-      </Button>
-    </div>
-  )
 }

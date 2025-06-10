@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/utils/routes'
+import { ProductIcon } from '@shopify/polaris-icons'
+import { Text } from '@shopify/polaris'
 
 interface CollectionsHeaderProps {
   storeId: string
@@ -10,11 +12,16 @@ export default function CollectionsHeader({ storeId }: CollectionsHeaderProps) {
   const router = useRouter()
   return (
     <div className="flex justify-between items-center">
-      <div>
-        <h1 className="text-xl font-medium text-gray-800">Colecciones</h1>
-        <p className="text-gray-600 mt-1">
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <ProductIcon className="w-5 h-5" />
+          <Text as="h1" variant="headingLg" fontWeight="regular">
+            Colecciones
+          </Text>
+        </div>
+        <Text variant="bodySm" tone="subdued" as="p">
           Organiza tus productos en colecciones para facilitar la navegación de tus clientes.
-        </p>
+        </Text>
       </div>
       <Button
         size="sm"

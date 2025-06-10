@@ -1,174 +1,124 @@
+'use client'
+
 import { useState, ReactNode } from 'react'
-import { ExternalLink } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Modal, Button, Text, LegacyStack, Link, Divider, Box, Icon } from '@shopify/polaris'
+import { ExternalIcon } from '@shopify/polaris-icons'
 
 interface MercadoPagoGuideProps {
   trigger?: ReactNode
 }
 
+const GuideSection = ({ title, items }: { title: string; items: ReactNode[] }) => (
+  <LegacyStack vertical spacing="baseTight">
+    <Text variant="headingMd" as="h3">
+      {title}
+    </Text>
+    <Box paddingInlineStart="400">
+      <ul style={{ listStyleType: 'disc', margin: 0, paddingLeft: '20px' }}>
+        {items.map((item, index) => (
+          <li key={index}>
+            <Text as="p">{item}</Text>
+          </li>
+        ))}
+      </ul>
+    </Box>
+  </LegacyStack>
+)
+
 export function MercadoPagoGuide({ trigger }: MercadoPagoGuideProps) {
   const [open, setOpen] = useState(false)
+  const toggleModal = () => setOpen(prev => !prev)
+
+  const activator = trigger ? (
+    <div onClick={toggleModal}>{trigger}</div>
+  ) : (
+    <Button onClick={toggleModal}>Guía de Activación Mercado Pago</Button>
+  )
+
+  const sections = [
+    {
+      title: '1. Obtener credenciales',
+      items: [
+        'Accede a tu cuenta de Mercado Pago y ve a la sección de Credenciales.',
+        <>
+          Obtén el <strong>Access Token</strong> y la <strong>Public Key</strong>.
+        </>,
+        'Guarda estas credenciales de forma segura.',
+      ],
+    },
+    {
+      title: '2. Configurar Checkout Pro',
+      items: [
+        'En tu plataforma, selecciona Mercado Pago como método de pago.',
+        'Ingresa el Access Token y la Public Key.',
+        'Personaliza las opciones del Checkout (logos, colores, etc.).',
+      ],
+    },
+    {
+      title: '3. Realizar pruebas en Sandbox',
+      items: [
+        'Activa el modo Sandbox en tu cuenta de Mercado Pago.',
+        'Usa las tarjetas de prueba para simular transacciones.',
+        'Verifica la integración de notificaciones para confirmar pagos.',
+      ],
+    },
+    {
+      title: '4. Activar modo producción',
+      items: [
+        'Cambia del modo Sandbox a Producción.',
+        'Asegúrate de actualizar las credenciales y configuraciones.',
+        'Realiza una transacción de prueba con una tarjeta real de bajo valor.',
+      ],
+    },
+  ]
+
+  const resources = [
+    {
+      text: 'Documentación oficial de Checkout Pro',
+      url: 'https://www.mercadopago.com.ar/developers/es/guides/online-payments/checkout-pro/introduction',
+    },
+    {
+      text: 'Portal para desarrolladores',
+      url: 'https://www.mercadopago.com.ar/developers/es',
+    },
+    { text: 'Centro de ayuda y soporte', url: 'https://www.mercadopago.com.ar/ayuda' },
+  ]
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            variant="outline"
-            className="h-9 px-4 text-sm font-medium text-gray-700 border-gray-300 hover:bg-gray-50"
-          >
-            Guía de Activación Mercado Pago
-          </Button>
-        )}
-      </DialogTrigger>
-
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] p-0">
-        <DialogHeader className="px-6 pt-6">
-          <DialogTitle className="text-xl font-semibold">
-            Guía de Activación - Mercado Pago
-          </DialogTitle>
-          <DialogDescription className="text-gray-600">
-            Sigue estos pasos para implementar Checkout Pro de Mercado Pago en tu plataforma.
-          </DialogDescription>
-        </DialogHeader>
-
-        <ScrollArea className="h-[60vh] px-6">
-          <div className="space-y-6 py-4">
-            {/* 1. Obtener credenciales de acceso */}
-            <section>
-              <h3 className="text-lg font-medium">1. Obtener credenciales de acceso</h3>
-              <ul className="mt-2 space-y-2 text-sm list-disc list-inside">
-                <li>Accede a tu cuenta de Mercado Pago.</li>
-                <li>
-                  Navega a la sección <strong>Credenciales</strong> en el panel de configuración.
-                </li>
-                <li>
-                  Obtén las credenciales necesarias, como el <strong>Access Token</strong> y la{' '}
-                  <strong>Public Key</strong>.
-                </li>
-                <li>Guarda estas credenciales de forma segura.</li>
-              </ul>
-            </section>
-
-            <Separator />
-
-            {/* 2. Configurar Checkout Pro */}
-            <section>
-              <h3 className="text-lg font-medium">
-                2. Configurar el Checkout Pro en tu plataforma
-              </h3>
-              <ul className="mt-2 space-y-2 text-sm list-disc list-inside">
-                <li>Accede a la sección de integración de pagos en tu plataforma.</li>
-                <li>Selecciona Mercado Pago como método de pago.</li>
-                <li>
-                  Ingresa el <strong>Access Token</strong> y la <strong>Public Key</strong>{' '}
-                  obtenidos.
-                </li>
-                <li>
-                  Configura las opciones de personalización del Checkout, como logos, colores y
-                  textos.
-                </li>
-              </ul>
-            </section>
-
-            <Separator />
-
-            {/* 3. Realizar pruebas en el entorno Sandbox */}
-            <section>
-              <h3 className="text-lg font-medium">3. Realizar pruebas en el entorno Sandbox</h3>
-              <ul className="mt-2 space-y-2 text-sm list-disc list-inside">
-                <li>Activa el modo Sandbox en tu cuenta de Mercado Pago.</li>
-                <li>
-                  Utiliza las tarjetas de prueba proporcionadas para simular transacciones y
-                  verificar el flujo de pago.
-                </li>
-                <li>
-                  Verifica la integración de notificaciones y callbacks para confirmar el estado del
-                  pago.
-                </li>
-              </ul>
-            </section>
-
-            <Separator />
-
-            {/* 4. Activar el modo producción */}
-            <section>
-              <h3 className="text-lg font-medium">4. Activar el modo producción</h3>
-              <ul className="mt-2 space-y-2 text-sm list-disc list-inside">
-                <li>Cambia del modo Sandbox al modo Producción.</li>
-                <li>Asegúrate de actualizar las credenciales y configuraciones necesarias.</li>
-                <li>
-                  Realiza una transacción de prueba en producción con una tarjeta real de bajo
-                  valor.
-                </li>
-                <li>Confirma que el pago se procese correctamente y se refleje en tu cuenta.</li>
-              </ul>
-            </section>
-
-            <Separator />
-
-            {/* Recursos adicionales */}
-            <section>
-              <h3 className="text-lg font-medium">Recursos adicionales</h3>
-              <ul className="mt-2 space-y-2 text-sm list-disc list-inside">
-                <li>
-                  <a
-                    href="https://www.mercadopago.com.ar/developers/es/guides/online-payments/checkout-pro/introduction"
-                    className="text-blue-600 hover:underline inline-flex items-center"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Documentación oficial de Checkout Pro
-                    <ExternalLink className="h-3 w-3 ml-1" />
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.mercadopago.com.ar/developers/es"
-                    className="text-blue-600 hover:underline inline-flex items-center"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Portal para desarrolladores de Mercado Pago
-                    <ExternalLink className="h-3 w-3 ml-1" />
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.mercadopago.com.ar/ayuda"
-                    className="text-blue-600 hover:underline inline-flex items-center"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Centro de ayuda y soporte
-                    <ExternalLink className="h-3 w-3 ml-1" />
-                  </a>
-                </li>
-              </ul>
-            </section>
-          </div>
-        </ScrollArea>
-
-        {/* Botón de cierre (oculto en dispositivos móviles) */}
-        <div className="p-4  justify-end border-t hidden sm:flex">
-          <Button
-            className="bg-gray-800 h-9 px-4 text-sm font-medium text-white py-2 rounded-md hover:bg-gray-700 transition-colors"
-            onClick={() => setOpen(false)}
-          >
-            Cerrar
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <>
+      {activator}
+      <Modal
+        open={open}
+        onClose={toggleModal}
+        title="Guía de Activación - Mercado Pago"
+        secondaryActions={[{ content: 'Cerrar', onAction: toggleModal }]}
+      >
+        <Modal.Section>
+          <LegacyStack vertical spacing="loose">
+            <Text as="p" tone="subdued">
+              Sigue estos pasos para implementar Checkout Pro de Mercado Pago en tu plataforma.
+            </Text>
+            {sections.map((section, index) => (
+              <LegacyStack vertical spacing="loose" key={section.title}>
+                {index > 0 && <Divider />}
+                <GuideSection title={section.title} items={section.items} />
+              </LegacyStack>
+            ))}
+            <Divider />
+            <GuideSection
+              title="Recursos adicionales"
+              items={resources.map(resource => (
+                <Link url={resource.url} target="_blank">
+                  <LegacyStack alignment="center" spacing="extraTight">
+                    <Text as="span">{resource.text}</Text>
+                    <Icon source={ExternalIcon} />
+                  </LegacyStack>
+                </Link>
+              ))}
+            />
+          </LegacyStack>
+        </Modal.Section>
+      </Modal>
+    </>
   )
 }

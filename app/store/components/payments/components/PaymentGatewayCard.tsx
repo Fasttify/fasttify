@@ -1,6 +1,5 @@
 import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { Check } from 'lucide-react'
+import { LegacyStack, Text, Button, Badge } from '@shopify/polaris'
 import { PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import {
   WompiPaymentIcons,
@@ -30,41 +29,43 @@ export function PaymentGatewayCard({ gateway, isConfigured, onActivate }: Paymen
   const config = gatewayConfig[gateway]
 
   return (
-    <div className="border border-gray-200 rounded-lg mt-4">
-      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-        <div className="flex flex-col">
-          <div className="flex items-center">
-            <span className="font-medium text-gray-800">{config.name}</span>
-            {isConfigured && (
-              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                <Check className="w-3 h-3 mr-1" />
-                Activo
-              </span>
-            )}
-          </div>
-          <span className="text-sm text-gray-600">Sin cargos adicionales en Fasttify</span>
-          <div className="mt-2">
+    <div className="border border-gray-200 rounded-lg">
+      <div className="p-4">
+        <LegacyStack distribution="equalSpacing" alignment="center">
+          <LegacyStack alignment="center" spacing="loose">
             <Image
               src={config.logo}
               alt={`${config.name} logo`}
-              width={60}
+              width={40}
               height={40}
               className="object-contain"
             />
-          </div>
-        </div>
-        <Button
-          variant="outline"
-          className="h-9 px-4 text-sm font-medium text-gray-700 border-gray-300 hover:bg-gray-50"
-          onClick={() => onActivate(gateway)}
-        >
-          {isConfigured ? `Reconfigurar` : `Activar ${config.name}`}
-        </Button>
+            <LegacyStack vertical spacing="extraTight">
+              <LegacyStack alignment="center">
+                <Text variant="headingSm" as="h3">
+                  {config.name}
+                </Text>
+                {isConfigured && <Badge tone="success">Activo</Badge>}
+              </LegacyStack>
+              <Text as="p" tone="subdued">
+                Sin cargos adicionales en Fasttify
+              </Text>
+            </LegacyStack>
+          </LegacyStack>
+
+          <Button onClick={() => onActivate(gateway)}>
+            {isConfigured ? 'Reconfigurar' : `Activar ${config.name}`}
+          </Button>
+        </LegacyStack>
       </div>
 
-      <div className="w-full p-4 flex flex-col text-gray-600 hover:bg-gray-50 transition-colors">
-        <span className="text-sm mb-2">Métodos de pago</span>
-        <config.PaymentIcons />
+      <div className="w-full p-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+        <LegacyStack vertical spacing="tight">
+          <Text as="p" tone="subdued" variant="bodySm">
+            Métodos de pago
+          </Text>
+          <config.PaymentIcons />
+        </LegacyStack>
       </div>
     </div>
   )

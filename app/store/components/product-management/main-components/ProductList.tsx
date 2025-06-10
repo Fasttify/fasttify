@@ -1,21 +1,21 @@
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { routes } from '@/utils/routes'
-import { Loader } from '@/components/ui/loader'
+import { useState } from 'react'
+import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris'
+import { handleExportProducts } from '@/app/store/components/product-management/utils/product-utils'
 
 // Hooks
 import { useProductFilters } from '@/app/store/components/product-management/hooks/useProductFilters'
-import { useProductPagination } from '@/app/store/components/product-management/hooks/useProductPagination'
 import { useProductSelection } from '@/app/store/components/product-management/hooks/useProductSelection'
-import { useResponsiveColumns } from '@/app/store/components/product-management/hooks/useResponsiveColumns'
 
 // Components
-import { ProductActions } from '@/app/store/components/product-management/product-table/product-actions'
 import { ProductFilters } from '@/app/store/components/product-management/product-table/product-filters'
 import { ProductPagination } from '@/app/store/components/product-management/product-table/product-pagination'
 import { ProductTableDesktop } from '@/app/store/components/product-management/product-table/product-table-desktop'
 import { ProductCardMobile } from '@/app/store/components/product-management/product-table/product-card-mobile'
 import { ProductEmptyState } from '@/app/store/components/product-management/product-table/product-empty-state'
+import { ProductIcon } from '@shopify/polaris-icons'
 
 // Types
 import type { ProductListProps } from '@/app/store/components/product-management/types/product-types'
@@ -26,17 +26,20 @@ export function ProductList({
   loading,
   error,
   hasNextPage,
-  loadNextPage,
+  hasPreviousPage,
+  nextPage,
+  previousPage,
+  currentPage,
   deleteMultipleProducts,
   refreshProducts,
   deleteProduct,
+  itemsPerPage,
+  setItemsPerPage,
 }: ProductListProps) {
   const router = useRouter()
 
   // Hooks para manejar diferentes aspectos de la tabla
-  const { visibleColumns, setVisibleColumns } = useResponsiveColumns()
-  const { selectedProducts, handleSelectAll, handleSelectProduct, setSelectedProducts } =
-    useProductSelection()
+  const { setSelectedProducts } = useProductSelection()
   const {
     activeTab,
     setActiveTab,
@@ -45,20 +48,9 @@ export function ProductList({
     sortedProducts,
     toggleSort,
     renderSortIndicator,
+    sortDirection,
+    sortField,
   } = useProductFilters(products)
-  const {
-    currentPage,
-    itemsPerPage,
-    setItemsPerPage,
-    totalPages,
-    paginatedProducts,
-    loadingMoreProducts,
-    handlePageChange,
-  } = useProductPagination({
-    sortedProducts,
-    hasNextPage,
-    loadNextPage,
-  })
 
   // Funciones de navegación y acciones
   const handleAddProduct = () => {
@@ -81,13 +73,13 @@ export function ProductList({
     }
   }
 
-  const handleDeleteSelected = async () => {
-    if (selectedProducts.length === 0) return
+  const handleDeleteSelected = async (selectedIds: string[]) => {
+    if (selectedIds.length === 0) return
 
-    if (confirm(`¿Estás seguro de que deseas eliminar ${selectedProducts.length} productos?`)) {
-      const success = await deleteMultipleProducts(selectedProducts)
+    if (confirm(`¿Estás seguro de que deseas eliminar ${selectedIds.length} productos?`)) {
+      const success = await deleteMultipleProducts(selectedIds)
       if (success) {
-        toast.success(`${selectedProducts.length} productos eliminados correctamente`)
+        toast.success(`${selectedIds.length} productos eliminados correctamente`)
         setSelectedProducts([])
       } else {
         toast.error(`Error al eliminar algunos productos`)
@@ -95,86 +87,99 @@ export function ProductList({
     }
   }
 
-  return (
-    <div className="w-full bg-white rounded-lg shadow-sm border mt-4 sm:mt-8">
-      <div className="p-3 sm:p-4 md:p-6 flex flex-col gap-4 sm:gap-6">
-        {/* Header con título y acciones */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
-          <h1 className="text-xl font-medium text-gray-800">Productos</h1>
-          <ProductActions
-            storeId={storeId}
-            products={sortedProducts}
-            selectedProducts={selectedProducts}
-            handleAddProduct={handleAddProduct}
-            handleDeleteSelected={handleDeleteSelected}
-          />
-        </div>
+  if (error) {
+    return <ProductEmptyState handleAddProduct={handleAddProduct} error={error} />
+  }
 
-        {/* Filtros y búsqueda */}
+  return (
+    <div className="w-full mt-8">
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: '20px',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}
+      >
+        <div className=" flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <ProductIcon width={20} height={20} />
+            <Text as="h1" variant="headingLg" fontWeight="regular">
+              Productos
+            </Text>
+          </div>
+          <Text as="p" variant="bodyMd" tone="subdued">
+            Administra y controla tus productos en tiempo real.
+          </Text>
+        </div>
+        <ButtonGroup>
+          <Button onClick={() => console.log('Importar productos')}>Importar</Button>
+          <Button onClick={() => handleExportProducts(products, [])}>Exportar</Button>
+          <Button variant="primary" onClick={handleAddProduct}>
+            Añadir producto
+          </Button>
+        </ButtonGroup>
+      </div>
+      <LegacyCard>
         <ProductFilters
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          visibleColumns={visibleColumns}
-          setVisibleColumns={setVisibleColumns}
-          refreshProducts={refreshProducts}
         />
 
-        {/* Tabla de productos */}
-        <div className="rounded-md border">
-          {loading && (
-            <div className="py-8 text-center">
-              <Loader color="black" size="large" centered text="Cargando nuevos productos..." />
-            </div>
-          )}
+        <ProductTableDesktop
+          products={sortedProducts}
+          handleEditProduct={handleEditProduct}
+          handleDeleteProduct={handleDeleteProduct}
+          handleDeleteSelected={handleDeleteSelected}
+          visibleColumns={{
+            product: true,
+            status: true,
+            inventory: true,
+            price: true,
+            category: true,
+            actions: true,
+          }}
+          toggleSort={toggleSort}
+          sortDirection={sortDirection === 'asc' ? 'ascending' : 'descending'}
+          sortField={sortField}
+        />
 
-          {!loading && !error && sortedProducts.length === 0 && (
-            <ProductEmptyState handleAddProduct={handleAddProduct} error={error} />
-          )}
-
-          {!loading && !error && sortedProducts.length > 0 && (
-            <>
-              {/* Vista de escritorio */}
-              <ProductTableDesktop
-                products={paginatedProducts}
-                selectedProducts={selectedProducts}
-                handleSelectAll={() => handleSelectAll(paginatedProducts)}
-                handleSelectProduct={handleSelectProduct}
-                handleEditProduct={handleEditProduct}
-                handleDeleteProduct={handleDeleteProduct}
-                visibleColumns={visibleColumns}
-                toggleSort={toggleSort}
-                renderSortIndicator={renderSortIndicator}
-              />
-
-              {/* Vista móvil */}
-              <ProductCardMobile
-                products={paginatedProducts}
-                selectedProducts={selectedProducts}
-                handleSelectProduct={handleSelectProduct}
-                handleEditProduct={handleEditProduct}
-                handleDeleteProduct={handleDeleteProduct}
-                visibleColumns={visibleColumns}
-              />
-            </>
-          )}
+        {/* Vista móvil */}
+        <div className="sm:hidden">
+          <ProductCardMobile
+            products={sortedProducts}
+            selectedProducts={[]}
+            handleSelectProduct={() => {}}
+            handleEditProduct={handleEditProduct}
+            handleDeleteProduct={handleDeleteProduct}
+            visibleColumns={{
+              product: true,
+              status: true,
+              inventory: true,
+              price: true,
+              category: true,
+              actions: true,
+            }}
+          />
         </div>
 
-        {/* Paginación */}
-        {!loading && !error && sortedProducts.length > 0 && (
+        <Box padding="400" background="bg-surface">
           <ProductPagination
             currentPage={currentPage}
-            totalPages={totalPages}
             itemsPerPage={itemsPerPage}
             setItemsPerPage={setItemsPerPage}
-            handlePageChange={handlePageChange}
-            totalItems={sortedProducts.length}
-            loadingMoreProducts={loadingMoreProducts}
+            onNext={nextPage}
+            onPrevious={previousPage}
             hasNextPage={hasNextPage}
+            hasPreviousPage={hasPreviousPage}
+            currentItemsCount={products.length}
           />
-        )}
-      </div>
+        </Box>
+      </LegacyCard>
     </div>
   )
 }

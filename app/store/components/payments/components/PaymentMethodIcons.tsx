@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { LegacyStack } from '@shopify/polaris'
 
 interface PaymentMethodIconProps {
   src: string
@@ -12,7 +13,7 @@ const PaymentMethodIcon = ({ src, alt, width = 40, height = 25 }: PaymentMethodI
 )
 
 export const WompiPaymentIcons = () => (
-  <div className="flex flex-wrap gap-2 mt-1">
+  <LegacyStack spacing="tight" wrap>
     <PaymentMethodIcon src="/svgs/visa.svg" alt="Visa" />
     <PaymentMethodIcon src="/svgs/masterdcard.svg" alt="Mastercard" width={45} />
     <PaymentMethodIcon src="/svgs/amexp.svg" alt="american express" width={45} />
@@ -24,16 +25,16 @@ export const WompiPaymentIcons = () => (
     <PaymentMethodIcon src="/svgs/efectivo.svg" alt="efectivo" width={45} />
     <PaymentMethodIcon src="/svgs/paga-despues.svg" alt="paga después" />
     <PaymentMethodIcon src="/svgs/su-pay.svg" alt="su pay" width={45} />
-  </div>
+  </LegacyStack>
 )
 
 export const MercadoPagoIcons = () => (
-  <div className="flex flex-wrap gap-2 mt-1">
+  <LegacyStack spacing="tight" wrap>
     <PaymentMethodIcon src="/svgs/visa.svg" alt="Visa" />
     <PaymentMethodIcon src="/svgs/masterdcard.svg" alt="Mastercard" width={45} />
     <PaymentMethodIcon src="/svgs/amexp.svg" alt="american express" width={45} />
     <PaymentMethodIcon src="/icons/nequi.png" alt="Nequi" width={35} />
     <PaymentMethodIcon src="/icons/pse.png" alt="PSE" width={35} />
     <PaymentMethodIcon src="/icons/mercadopago-logo.webp" alt="mercado pago" width={45} />
-  </div>
+  </LegacyStack>
 )

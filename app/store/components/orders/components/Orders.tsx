@@ -1,33 +1,58 @@
+'use client'
+
+import { LegacyCard, Text, LegacyStack, Button, Box } from '@shopify/polaris'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Icons } from '@/app/store/icons/index'
+import { useParams, usePathname } from 'next/navigation'
+import { getStoreId } from '@/utils/store-utils'
+import { PackageIcon } from '@shopify/polaris-icons'
+import { Icons } from '@/app/store/icons'
+import { routes } from '@/utils/routes'
 
 export function Orders() {
+  const pathname = usePathname()
+  const params = useParams()
+  const storeId = getStoreId(params, pathname)
   return (
-    <div className="bg-gray-100 p-3 w-full md:w-5xl mx-auto">
-      <h1 className="text-xl md:text-xl font-medium text-gray-800 mb-6">Órdenes de Compra</h1>
-      <Card className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8 flex flex-col items-center justify-center text-center">
-        <div className="flex justify-center">
-          <div className="rounded-lg p-4 flex items-center justify-center h-40 w-40 md:h-48 md:w-48">
-            <Icons.Inventory />
-          </div>
+    <div className="w-full mt-8">
+      <div className="flex flex-col gap-1 mb-4">
+        <div className="flex items-center gap-2">
+          <PackageIcon width={20} height={20} />
+          <Text as="h1" variant="headingLg" fontWeight="regular">
+            Pedidos en Proceso
+          </Text>
         </div>
-
-        {/* Título y descripción */}
-        <h2 className="text-lg md:text-xl font-medium text-gray-800 mb-2">
-          Gestiona tus órdenes de compra
-        </h2>
-        <p className="text-gray-600 text-sm md:text-base mb-4">
-          Aquí puedes ver el estado de tus órdenes de compra, hacer seguimiento a cada una y
-          gestionar su procesamiento.
-        </p>
-
-        {/* Botón */}
-        <Link href="/ordenes">
-          <Button className="bg-gray-800 hover:bg-gray-700 text-white">Ver órdenes</Button>
-        </Link>
-      </Card>
+        <Text as="p" variant="bodyMd" tone="subdued">
+          Aquí puedes hacer seguimiento a los pedidos en proceso.
+        </Text>
+      </div>
+      <LegacyCard sectioned>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1.5rem',
+            textAlign: 'center',
+            padding: '2rem 0',
+          }}
+        >
+          <Box background="bg-surface-secondary" padding="600" borderRadius="full">
+            <Icons.Products2 width={200} height={200} />
+          </Box>
+          <LegacyStack vertical alignment="center" spacing="baseTight">
+            <Text variant="headingMd" as="h2">
+              Gestiona tus pedidos en proceso
+            </Text>
+            <Text as="p" variant="bodyMd" tone="subdued">
+              Aquí puedes hacer seguimiento a los pedidos en proceso, verificar su estado y
+              asegurarte de que se completen correctamente.
+            </Text>
+          </LegacyStack>
+          <Link href={routes.store.orders(storeId)}>
+            <Button variant="primary">Ver pedidos</Button>
+          </Link>
+        </div>
+      </LegacyCard>
     </div>
   )
 }

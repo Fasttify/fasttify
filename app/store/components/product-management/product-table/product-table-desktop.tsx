@@ -1,15 +1,15 @@
-import { SortAsc, SortDesc, Edit, Trash, Image } from 'lucide-react'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+  IndexTable,
+  LegacyCard,
+  useIndexResourceState,
+  Text,
+  Badge,
+  Button,
+  ButtonGroup,
+  Thumbnail,
+  Link as PolarisLink,
+} from '@shopify/polaris'
+import { EditIcon, DeleteIcon, ImageIcon } from '@shopify/polaris-icons'
 import { formatInventory } from '@/app/store/components/product-management/utils/product-utils'
 import type { IProduct } from '@/app/store/hooks/useProducts'
 import type {
@@ -19,197 +19,162 @@ import type {
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname } from 'next/navigation'
 import { routes } from '@/utils/routes'
-import Link from 'next/link'
+import {
+  formatPrice,
+  getStatusText,
+  getStatusTone,
+} from '@/app/store/components/product-management/utils/common-utils'
 
 interface ProductTableDesktopProps {
   products: IProduct[]
-  selectedProducts: string[]
-  handleSelectAll: () => void
-  handleSelectProduct: (id: string) => void
   handleEditProduct: (id: string) => void
   handleDeleteProduct: (id: string) => void
+  handleDeleteSelected: (selectedIds: string[]) => void
   visibleColumns: VisibleColumns
   toggleSort: (field: SortField) => void
-  renderSortIndicator: (field: SortField) => 'asc' | 'desc' | null
+  sortDirection: 'ascending' | 'descending'
+  sortField: SortField
 }
 
 export function ProductTableDesktop({
   products,
-  selectedProducts,
-  handleSelectAll,
-  handleSelectProduct,
   handleEditProduct,
   handleDeleteProduct,
+  handleDeleteSelected,
   visibleColumns,
   toggleSort,
-  renderSortIndicator,
+  sortDirection,
+  sortField,
 }: ProductTableDesktopProps) {
   const pathname = usePathname()
   const params = useParams()
   const storeId = getStoreId(params, pathname)
 
+  const resourceName = {
+    singular: 'producto',
+    plural: 'productos',
+  }
+
+  const { selectedResources, allResourcesSelected, handleSelectionChange } =
+    useIndexResourceState(products)
+
+  const promotedBulkActions = [
+    {
+      content: 'Eliminar productos',
+      onAction: () => handleDeleteSelected(selectedResources),
+    },
+  ]
+
+  const rowMarkup = products.map(
+    ({ id, name, images, status, quantity, price, category }, index) => {
+      let imageUrl: string | undefined
+
+      if (typeof images === 'string') {
+        try {
+          const parsedImages = JSON.parse(images)
+          imageUrl = parsedImages[0]?.url
+        } catch (e) {
+          imageUrl = undefined
+        }
+      } else if (Array.isArray(images) && images.length > 0) {
+        imageUrl = images[0]?.url
+      }
+
+      return (
+        <IndexTable.Row id={id} key={id} selected={selectedResources.includes(id)} position={index}>
+          <IndexTable.Cell>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Thumbnail source={imageUrl || ImageIcon} alt={name} size="small" />
+              <PolarisLink url={routes.store.products.edit(storeId, id)}>
+                <Text variant="bodyMd" fontWeight="bold" as="span">
+                  {name}
+                </Text>
+              </PolarisLink>
+            </div>
+          </IndexTable.Cell>
+          {visibleColumns.status && (
+            <IndexTable.Cell>
+              <Badge tone={getStatusTone(status)}>{getStatusText(status)}</Badge>
+            </IndexTable.Cell>
+          )}
+          {visibleColumns.inventory && (
+            <IndexTable.Cell>{formatInventory(quantity ?? 0)}</IndexTable.Cell>
+          )}
+          {visibleColumns.price && <IndexTable.Cell>{formatPrice(price)}</IndexTable.Cell>}
+          {visibleColumns.category && (
+            <IndexTable.Cell>{category || 'Sin categoría'}</IndexTable.Cell>
+          )}
+          {visibleColumns.actions && (
+            <IndexTable.Cell>
+              <ButtonGroup>
+                <Button
+                  icon={EditIcon}
+                  onClick={() => handleEditProduct(id)}
+                  accessibilityLabel="Edit product"
+                />
+                <Button
+                  icon={DeleteIcon}
+                  onClick={() => handleDeleteProduct(id)}
+                  accessibilityLabel="Delete product"
+                  tone="critical"
+                />
+              </ButtonGroup>
+            </IndexTable.Cell>
+          )}
+        </IndexTable.Row>
+      )
+    }
+  )
+
+  const headings: { title: string }[] = [{ title: 'Producto' }]
+  const sortableColumns: SortField[] = ['name']
+
+  if (visibleColumns.status) {
+    headings.push({ title: 'Estado' })
+    sortableColumns.push('status')
+  }
+  if (visibleColumns.inventory) {
+    headings.push({ title: 'Inventario' })
+    sortableColumns.push('quantity')
+  }
+  if (visibleColumns.price) {
+    headings.push({ title: 'Precio' })
+    sortableColumns.push('price')
+  }
+  if (visibleColumns.category) {
+    headings.push({ title: 'Categoría' })
+    sortableColumns.push('category')
+  }
+  if (visibleColumns.actions) {
+    headings.push({ title: 'Acciones' })
+    sortableColumns.push('creationDate')
+  }
+
+  const sortColumnIndex = sortableColumns.indexOf(sortField)
+
   return (
     <div className="hidden sm:block">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[50px]">
-              <Checkbox
-                checked={selectedProducts.length === products.length && products.length > 0}
-                onCheckedChange={handleSelectAll}
-                aria-label="Select all products"
-              />
-            </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => toggleSort('name')}>
-              Producto{' '}
-              {renderSortIndicator('name') === 'asc' ? (
-                <SortAsc className="ml-1 h-4 w-4 inline" />
-              ) : renderSortIndicator('name') === 'desc' ? (
-                <SortDesc className="ml-1 h-4 w-4 inline" />
-              ) : null}
-            </TableHead>
-            {visibleColumns.status && (
-              <TableHead className="cursor-pointer" onClick={() => toggleSort('status')}>
-                Estado{' '}
-                {renderSortIndicator('status') === 'asc' ? (
-                  <SortAsc className="ml-1 h-4 w-4 inline" />
-                ) : renderSortIndicator('status') === 'desc' ? (
-                  <SortDesc className="ml-1 h-4 w-4 inline" />
-                ) : null}
-              </TableHead>
-            )}
-            {visibleColumns.inventory && (
-              <TableHead className="cursor-pointer" onClick={() => toggleSort('quantity')}>
-                Inventario{' '}
-                {renderSortIndicator('quantity') === 'asc' ? (
-                  <SortAsc className="ml-1 h-4 w-4 inline" />
-                ) : renderSortIndicator('quantity') === 'desc' ? (
-                  <SortDesc className="ml-1 h-4 w-4 inline" />
-                ) : null}
-              </TableHead>
-            )}
-            {visibleColumns.price && (
-              <TableHead className="cursor-pointer" onClick={() => toggleSort('price')}>
-                Precio{' '}
-                {renderSortIndicator('price') === 'asc' ? (
-                  <SortAsc className="ml-1 h-4 w-4 inline" />
-                ) : renderSortIndicator('price') === 'desc' ? (
-                  <SortDesc className="ml-1 h-4 w-4 inline" />
-                ) : null}
-              </TableHead>
-            )}
-            {visibleColumns.category && (
-              <TableHead className="cursor-pointer" onClick={() => toggleSort('category')}>
-                Categoría{' '}
-                {renderSortIndicator('category') === 'asc' ? (
-                  <SortAsc className="ml-1 h-4 w-4 inline" />
-                ) : renderSortIndicator('category') === 'desc' ? (
-                  <SortDesc className="ml-1 h-4 w-4 inline" />
-                ) : null}
-              </TableHead>
-            )}
-            {visibleColumns.actions && <TableHead className="text-right">Acciones</TableHead>}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {products.map(product => (
-            <TableRow key={product.id}>
-              <TableCell>
-                <Checkbox
-                  checked={selectedProducts.includes(product.id)}
-                  onCheckedChange={() => handleSelectProduct(product.id)}
-                  aria-label={`Select ${product.name}`}
-                />
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  {product.images &&
-                  (Array.isArray(product.images)
-                    ? product.images.length > 0
-                    : typeof product.images === 'string' &&
-                      product.images !== '[]' &&
-                      product.images !== '') ? (
-                    <img
-                      src={
-                        typeof product.images === 'string'
-                          ? JSON.parse(product.images)[0]?.url
-                          : Array.isArray(product.images)
-                            ? product.images[0]?.url
-                            : undefined
-                      }
-                      alt={product.name}
-                      className="w-8 h-8 object-cover rounded"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                      <Image className="h-4 w-4 text-gray-500" />
-                    </div>
-                  )}
-                  <Link href={routes.store.products.edit(storeId, product.id)}>
-                    <Button variant="link" className="font-medium text-black">
-                      {product.name}
-                    </Button>
-                  </Link>
-                </div>
-              </TableCell>
-              {visibleColumns.status && (
-                <TableCell>
-                  {product.status === 'active' && (
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-800">
-                      Activo
-                    </Badge>
-                  )}
-                  {product.status === 'draft' && <Badge variant="outline">Borrador</Badge>}
-                  {product.status === 'inactive' && <Badge variant="secondary">Archivado</Badge>}
-                  {product.status === 'pending' && (
-                    <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 ">
-                      Pendiente
-                    </Badge>
-                  )}
-                </TableCell>
-              )}
-              {visibleColumns.inventory && (
-                <TableCell>{formatInventory(product.quantity ?? 0)}</TableCell>
-              )}
-              {visibleColumns.price && (
-                <TableCell>
-                  {product.price !== null && product.price !== undefined
-                    ? `$${Number(product.price).toLocaleString('es-CO', {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      })}`
-                    : '$0'}
-                </TableCell>
-              )}
-              {visibleColumns.category && (
-                <TableCell>{product.category || 'Sin categoría'}</TableCell>
-              )}
-              {visibleColumns.actions && (
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleEditProduct(product.id)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleDeleteProduct(product.id)}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <LegacyCard>
+        <IndexTable
+          resourceName={resourceName}
+          itemCount={products.length}
+          selectedItemsCount={allResourcesSelected ? 'All' : selectedResources.length}
+          onSelectionChange={handleSelectionChange}
+          promotedBulkActions={promotedBulkActions}
+          headings={headings as [{ title: string }]}
+          sortable={[true, true, true, true, true, false]}
+          sortDirection={sortDirection}
+          sortColumnIndex={sortColumnIndex}
+          onSort={index => {
+            const field = sortableColumns[index]
+            if (field) {
+              toggleSort(field)
+            }
+          }}
+        >
+          {rowMarkup}
+        </IndexTable>
+      </LegacyCard>
     </div>
   )
 }

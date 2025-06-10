@@ -2,7 +2,8 @@ import { useProducts } from '@/app/store/hooks/useProducts'
 import { ProductForm } from '@/app/store/components/product-management/main-components/ProductForm'
 import { ProductList } from '@/app/store/components/product-management/main-components/ProductList'
 import { ProductsPage } from '@/app/store/components/product-management/main-components/ProductPage'
-import { Loader } from '@/components/ui/loader'
+import { useState } from 'react'
+import { ProductPageSkeleton } from '@/app/store/components/product-management/main-components/ProductPageSkeleton'
 
 interface ProductManagerProps {
   storeId: string
@@ -10,43 +11,48 @@ interface ProductManagerProps {
 }
 
 export function ProductManager({ storeId, productId }: ProductManagerProps) {
+  const [itemsPerPage, setItemsPerPage] = useState(50)
+
   const {
     products,
     loading,
-    paginationLoading,
     error,
     hasNextPage,
-    loadNextPage,
+    hasPreviousPage,
+    nextPage,
+    previousPage,
+    currentPage,
     deleteMultipleProducts,
     refreshProducts,
     deleteProduct,
-  } = useProducts(storeId)
+  } = useProducts(storeId, { limit: itemsPerPage })
 
   if (productId) {
     return <ProductForm storeId={storeId} productId={productId} />
   }
 
   if (loading) {
-    return (
-      <div className="py-20">
-        <Loader color="black" size="large" centered text="Cargando nuevos productos..." />
-      </div>
-    )
+    return <ProductPageSkeleton />
   }
 
-  return products.length === 0 ? (
+  return products.length === 0 && !loading ? (
     <ProductsPage />
   ) : (
     <ProductList
+      hasPreviousPage={hasPreviousPage}
       storeId={storeId}
       products={products}
-      loading={paginationLoading}
+      loading={loading}
       error={error}
       hasNextPage={hasNextPage}
-      loadNextPage={loadNextPage}
+      nextPage={nextPage}
+      previousPage={previousPage}
+      currentPage={currentPage}
       deleteMultipleProducts={deleteMultipleProducts}
       refreshProducts={refreshProducts}
       deleteProduct={deleteProduct}
+      itemsPerPage={itemsPerPage}
+      setItemsPerPage={setItemsPerPage}
     />
   )
 }

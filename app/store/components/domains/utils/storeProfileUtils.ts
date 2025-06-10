@@ -89,19 +89,17 @@ export const handleStoreProfileSubmit = async (
   data: StoreProfileFormValues,
   storeId: string,
   validationState: StoreNameValidationState,
-  updateUserStore: (data: any) => Promise<any>,
-  onSuccess?: () => void,
-  onClose?: () => void
+  updateUserStore: (data: any) => Promise<any>
 ) => {
   const { nameChanged, isStoreNameValid } = validationState
 
   if (nameChanged && !isStoreNameValid) {
-    toast.error('El nombre de la tienda ya está en uso o no es válido')
+    console.error('Store name is already in use or invalid')
     return false
   }
 
   if (!storeId) {
-    toast.error('ID de tienda no disponible')
+    console.error('Store ID not available')
     return false
   }
 
@@ -113,22 +111,9 @@ export const handleStoreProfileSubmit = async (
       contactPhone: Number(data.storePhone?.trim()) || 0,
     })
 
-    if (result) {
-      toast.success('Información de la tienda actualizada correctamente')
-      if (onSuccess) {
-        onSuccess()
-      }
-      if (onClose) {
-        onClose()
-      }
-      return true
-    } else {
-      toast.error('No se pudo actualizar la información de la tienda')
-      return false
-    }
+    return !!result
   } catch (error) {
     console.error('Error updating store information:', error)
-    toast.error('Ocurrió un error al actualizar la información')
     return false
   }
 }

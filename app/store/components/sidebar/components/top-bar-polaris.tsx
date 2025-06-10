@@ -1,12 +1,18 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
-import { TopBar, ActionList, Icon, Text } from '@shopify/polaris'
+import {
+  TopBar,
+  ActionList,
+  Icon,
+  Text,
+  SkeletonThumbnail,
+  SkeletonBodyText,
+} from '@shopify/polaris'
 import { QuestionCircleIcon, ExitIcon } from '@shopify/polaris-icons'
 import { useRouter } from 'next/navigation'
 import { generateSearchRoutes } from '@/app/store/components/search-bar/components/SearchRoutes'
 import { useAuth } from '@/context/hooks/useAuth'
-import { Spinner } from '@shopify/polaris'
 import useStoreDataStore from '@/context/core/storeDataStore'
 import useUserStore from '@/context/core/userStore'
 import { ChatTrigger } from '@/app/store/components/ai-chat/components/ChatTrigger'
@@ -87,9 +93,19 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
   // User Menu - Con estado de carga y hidratación
   const userMenuMarkup =
     !isClient || loading ? (
-      // Estado de carga o hidratación: mostrar un botón con spinner
-      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
-        <Spinner size="small" />
+      // Esqueleto de carga más representativo para evitar saltos de layout y que se posicione correctamente.
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--p-space-200)',
+          padding: 'var(--p-space-200)',
+        }}
+      >
+        <SkeletonThumbnail size="small" />
+        <div style={{ width: '120px' }}>
+          <SkeletonBodyText lines={2} />
+        </div>
       </div>
     ) : (
       <TopBar.UserMenu
@@ -98,7 +114,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
             items: [
               {
                 content: 'Configuración de Tienda',
-                onAction: () => router.push(`/store/${storeId}/settings`),
+                onAction: () => router.push(`/store/${storeId}/setup`),
               },
               {
                 content: 'Mi Perfil',
@@ -139,7 +155,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
           {
             content: 'Cargando rutas...',
             disabled: true,
-            prefix: <Spinner size="small" />,
+            prefix: <SkeletonThumbnail size="small" />,
           },
         ]}
       />
