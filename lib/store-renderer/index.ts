@@ -34,16 +34,30 @@ export class StoreRendererFactory {
     } catch (error) {
       console.error(`Error rendering page ${cleanPath} for domain ${domain}:`, error)
 
-      // Re-lanzar errores de plantilla con su metadata
-      if (error instanceof Error && 'type' in error) {
-        throw error
+      // Si es un error tipado de plantilla, renderizar página de error amigable
+      if (error && typeof error === 'object' && 'type' in error) {
+        const templateError = error as any
+        try {
+          return await this.dynamicRenderer.renderError(templateError, domain, cleanPath)
+        } catch (renderError) {
+          console.error('Failed to render error page, falling back to throwing error:', renderError)
+          throw error // Si falla el renderizado de error, lanzar el error original
+        }
       }
 
-      // Crear error genérico para otros casos
-      throw {
-        type: 'RENDER_ERROR',
-        message: `Failed to render page: ${error}`,
+      // Crear error genérico para otros casos y renderizar página de error
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      const genericError = {
+        type: 'RENDER_ERROR' as const,
+        message: `Failed to render page: ${errorMessage}`,
         statusCode: 500,
+      }
+
+      try {
+        return await this.dynamicRenderer.renderError(genericError, domain, cleanPath)
+      } catch (renderError) {
+        console.error('Failed to render error page for generic error:', renderError)
+        throw genericError
       }
     }
   }
@@ -145,3 +159,4 @@ export { domainResolver } from '@/lib/store-renderer/services/core/domain-resolv
 export { templateLoader } from '@/lib/store-renderer/services/templates/template-loader'
 export { dataFetcher } from '@/lib/store-renderer/services/fetchers/data-fetcher'
 export { liquidEngine } from '@/lib/store-renderer/liquid/engine'
+export { errorRenderer } from '@/lib/store-renderer/services/errors/error-renderer'
