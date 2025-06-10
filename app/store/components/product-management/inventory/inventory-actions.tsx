@@ -1,14 +1,11 @@
-import { Button } from '@/components/ui/button'
+import { Button, ButtonGroup } from '@shopify/polaris'
+import { ExportIcon, ImportIcon } from '@shopify/polaris-icons'
 
 export default function InventoryActions() {
   return (
-    <div className="flex gap-2">
-      <Button variant="outline" size="sm">
-        Exportar
-      </Button>
-      <Button variant="outline" size="sm">
-        Importar
-      </Button>
-    </div>
+    <ButtonGroup>
+      <Button icon={ExportIcon}>Exportar</Button>
+      <Button icon={ImportIcon}>Importar</Button>
+    </ButtonGroup>
   )
 }

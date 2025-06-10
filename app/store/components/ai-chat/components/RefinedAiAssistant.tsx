@@ -1,124 +1,108 @@
 'use client'
 
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Sheet, Scrollable, Box, Button } from '@shopify/polaris'
+import { XIcon } from '@shopify/polaris-icons'
+
 import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll'
 import { AIInputWithSearch } from '@/app/store/components/ai-chat/components/AiInput'
-import { useChat } from '@/app/store/components/ai-chat/hooks/useChat'
 import { useMediaQuery } from '@/hooks/ui/use-media-query'
-import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { ChatHeader } from '@/app/store/components/ai-chat/components/ChatHeader'
 import { EmptyState } from '@/app/store/components/ai-chat/components/EmptyState'
 import { MessageList } from '@/app/store/components/ai-chat/components/MessageList'
 import { RefinedAIAssistantSheetProps } from '@/app/store/components/ai-chat/types/chat-types'
 
-export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssistantSheetProps) {
-  const { messages: chatMessages, loading, chat } = useChat()
+export function RefinedAIAssistantSheet({
+  open,
+  onOpenChange,
+  messages,
+  loading,
+  onSubmit,
+  onSuggestionClick,
+}: RefinedAIAssistantSheetProps) {
   const [expandedMessages, setExpandedMessages] = useState<Record<string, boolean>>({})
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const isMobile = useMediaQuery('(max-width: 640px)')
 
-  const { scrollRef, scrollToBottom } = useAutoScroll({
-    smooth: true,
-    content: chatMessages.length,
-  })
+  const { scrollableRef, contentRef, scrollToBottom } = useAutoScroll(messages.length)
 
-  const transformedMessages = useMemo(
-    () =>
-      chatMessages.map((msg, index) => ({
-        id: index.toString(),
-        content: msg.content,
-        type: msg.role === 'user' ? ('user' as const) : ('ai' as const),
-        timestamp: new Date(),
-      })),
-    [chatMessages]
-  )
+  // Efecto para hacer scroll al fondo cuando se abre el Sheet
+  useEffect(() => {
+    if (open && messages.length > 0) {
+      scrollToBottom()
+    }
+  }, [open, messages.length, scrollToBottom])
 
   const handleToggleMessageExpansion = useCallback(
     (messageId: string) => {
-      setExpandedMessages(prev => ({
-        ...prev,
-        [messageId]: !prev[messageId],
-      }))
-
+      setExpandedMessages(prev => ({ ...prev, [messageId]: !prev[messageId] }))
+      // Scroll to expanded message
       requestAnimationFrame(() => {
-        if (scrollRef.current) {
-          const messageElement = scrollRef.current.querySelector(`[data-message-id="${messageId}"]`)
+        if (contentRef.current) {
+          const messageElement = contentRef.current.querySelector(
+            `[data-message-id="${messageId}"]`
+          )
           messageElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
         }
       })
     },
-    [scrollRef]
-  )
-
-  const handleSuggestionClick = useCallback(
-    async (suggestion: string) => {
-      await chat(suggestion)
-      requestAnimationFrame(() => scrollToBottom())
-    },
-    [chat, scrollToBottom]
-  )
-
-  const handleSubmit = useCallback(
-    async (value: string, withSearch?: boolean) => {
-      if (!value.trim()) return
-      await chat(value)
-      requestAnimationFrame(() => scrollToBottom())
-    },
-    [chat, scrollToBottom]
+    [contentRef]
   )
 
   const handleClose = useCallback(() => {
     onOpenChange(false)
   }, [onOpenChange])
 
-  useEffect(() => {
-    if (!open) return
-
-    const shouldScroll = (!loading && chatMessages.length > 0) || chatMessages.length > 0
-    if (shouldScroll) {
-      const timeout = setTimeout(scrollToBottom, loading ? 200 : 100)
-      return () => clearTimeout(timeout)
-    }
-  }, [loading, chatMessages.length, scrollToBottom, open])
-
-  const hasMessages = chatMessages.length > 0
+  const hasMessages = messages.length > 0
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="p-0 sm:max-w-md w-full flex flex-col h-full rounded-t-2xl"
-      >
-        <ChatHeader isMobile={isMobile} onClose={handleClose} />
-
-        <ScrollArea className="flex-1 overflow-y-auto">
-          <div ref={scrollRef} className="px-4">
-            {!hasMessages ? (
-              <EmptyState onSuggestionClick={handleSuggestionClick} />
-            ) : (
-              <MessageList
-                messages={transformedMessages}
-                loading={loading}
-                expandedMessages={expandedMessages}
-                onToggleExpansion={handleToggleMessageExpansion}
-                scrollRef={scrollRef}
-                messagesEndRef={messagesEndRef}
-              />
-            )}
+    <Sheet open={open} onClose={handleClose} accessibilityLabel="AI Assistant Chat">
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Header */}
+        <Box padding="400" borderBlockEndWidth="025" borderColor="border">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <ChatHeader isMobile={isMobile} onClose={handleClose} />
+            <Button
+              accessibilityLabel="Close chat"
+              icon={XIcon}
+              onClick={handleClose}
+              variant="plain"
+            />
           </div>
-        </ScrollArea>
+        </Box>
 
-        <div className="border-gray-200 shrink-0 bg-white">
+        {/* Message List */}
+        <div style={{ flex: '1 1 0', overflowY: 'hidden' }}>
+          <Scrollable style={{ height: '100%' }} ref={scrollableRef}>
+            <div ref={contentRef}>
+              <Box padding="400">
+                {!hasMessages ? (
+                  <EmptyState onSuggestionClick={onSuggestionClick} />
+                ) : (
+                  <MessageList
+                    messages={messages}
+                    loading={loading}
+                    expandedMessages={expandedMessages}
+                    onToggleExpansion={handleToggleMessageExpansion}
+                    messagesEndRef={messagesEndRef}
+                  />
+                )}
+              </Box>
+            </div>
+          </Scrollable>
+        </div>
+
+        {/* Input Area */}
+        <Box padding="400" borderBlockStartWidth="025" borderColor="border">
           <AIInputWithSearch
             placeholder="Pregúntame cualquier cosa..."
             minHeight={48}
             maxHeight={96}
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
             className="py-2"
           />
-        </div>
-      </SheetContent>
+        </Box>
+      </div>
     </Sheet>
   )
 }

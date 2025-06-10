@@ -1,23 +1,28 @@
-import Link from 'next/link'
+import { Card, Text, LegacyStack, Link, Box, BlockStack } from '@shopify/polaris'
 import { WompiGuide } from '@/app/store/components/payments/components/WompiGuide'
 import { MercadoPagoGuide } from '@/app/store/components/payments/components/MercadoPagoGuide'
 
 export function PaymentProvidersSection() {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      <h2 className="text-base font-medium text-gray-800 mb-1">Pasarelas de Pago</h2>
-      <p className="text-gray-600 text-sm mb-4">
-        Configura las pasarelas de pago para aceptar transacciones en tu tienda Fasttify. Se pueden
-        aplicar tarifas según el proveedor seleccionado.{' '}
-        <Link href="#" className="text-blue-600 hover:underline">
-          Selecciona un plan
-        </Link>
-        .
-      </p>
-      <div className="flex flex-wrap gap-2">
-        <MercadoPagoGuide />
-        <WompiGuide />
-      </div>
-    </div>
+    <Card>
+      <Box padding="400">
+        <BlockStack gap="200">
+          <Text variant="headingMd" as="h2">
+            Pasarelas de Pago
+          </Text>
+          <Text as="p" tone="subdued">
+            Configura las pasarelas de pago para aceptar transacciones en tu tienda. Se pueden
+            aplicar tarifas según el proveedor seleccionado. <Link url="#">Selecciona un plan</Link>
+            .
+          </Text>
+        </BlockStack>
+      </Box>
+      <Box padding="400" borderBlockStartWidth="025" borderColor="border">
+        <LegacyStack spacing="tight">
+          <MercadoPagoGuide />
+          <WompiGuide />
+        </LegacyStack>
+      </Box>
+    </Card>
   )
 }

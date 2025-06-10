@@ -5,7 +5,8 @@ import { liquidEngine } from '@/lib/store-renderer/liquid/engine'
 import { contextBuilder } from '@/lib/store-renderer/services/rendering/context-builder'
 import { metadataGenerator } from '@/lib/store-renderer/services/rendering/metadata-generator'
 import { sectionRenderer } from '@/lib/store-renderer/services/rendering/section-renderer'
-import type { RenderResult, TemplateError } from '@/lib/store-renderer/types'
+import { errorRenderer } from '@/lib/store-renderer/services/errors/error-renderer'
+import type { RenderResult, ShopContext, TemplateError } from '@/lib/store-renderer/types'
 
 export interface PageRenderOptions {
   pageType:
@@ -140,7 +141,7 @@ export class DynamicPageRenderer {
       console.error(`Error rendering ${options.pageType} page for domain ${domain}:`, error)
       console.error('Error stack:', error instanceof Error ? error.stack : 'No stack')
 
-      if (error instanceof Error && 'type' in error) {
+      if (error && typeof error === 'object' && 'type' in error) {
         throw error // Re-lanzar errores tipados
       }
 
@@ -362,6 +363,36 @@ export class DynamicPageRenderer {
       type,
       message,
       statusCode: type === 'TEMPLATE_NOT_FOUND' ? 404 : 500,
+    }
+  }
+
+  /**
+   * Renderiza una página de error amigable
+   */
+  public async renderError(
+    error: TemplateError,
+    domain: string,
+    path?: string
+  ): Promise<RenderResult> {
+    try {
+      // Intentar obtener información de la tienda si es posible
+      let store = undefined
+      try {
+        if (error.type !== 'STORE_NOT_FOUND') {
+          store = await domainResolver.resolveStoreByDomain(domain)
+        }
+      } catch {
+        // Si no se puede obtener la tienda, continuar sin ella
+      }
+
+      return await errorRenderer.renderError(error, {
+        domain,
+        path,
+        store: store as unknown as ShopContext,
+      })
+    } catch (renderError) {
+      console.error('Error rendering error page:', renderError)
+      throw error
     }
   }
 }

@@ -1,87 +1,83 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Pagination, Select, Text } from '@shopify/polaris'
 
 interface ProductPaginationProps {
   currentPage: number
-  totalPages: number
   itemsPerPage: number
   setItemsPerPage: (value: number) => void
-  handlePageChange: (page: number) => void
-  totalItems: number
-  loadingMoreProducts: boolean
+  onNext: () => void
+  onPrevious: () => void
   hasNextPage: boolean
+  hasPreviousPage: boolean
+  currentItemsCount: number
 }
 
 export function ProductPagination({
   currentPage,
-  totalPages,
   itemsPerPage,
   setItemsPerPage,
-  handlePageChange,
-  totalItems,
-  loadingMoreProducts,
+  onNext,
+  onPrevious,
   hasNextPage,
+  hasPreviousPage,
+  currentItemsCount,
 }: ProductPaginationProps) {
+  const itemsPerPageOptions = [
+    { label: '50', value: '50' },
+    { label: '100', value: '100' },
+  ]
+
+  const startItem = (currentPage - 1) * itemsPerPage + 1
+  const endItem = startItem + currentItemsCount - 1
+
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div className="flex items-center gap-2">
-        <p className="text-sm text-muted-foreground">
-          Mostrando {(currentPage - 1) * itemsPerPage + 1} a{' '}
-          {Math.min(currentPage * itemsPerPage, totalItems)} de {totalItems} productos
-        </p>
-        <Select
-          value={itemsPerPage.toString()}
-          onValueChange={value => setItemsPerPage(Number.parseInt(value))}
-        >
-          <SelectTrigger className="h-8 w-[70px]">
-            <SelectValue placeholder="10" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="5">5</SelectItem>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="20">20</SelectItem>
-            <SelectItem value="50">50</SelectItem>
-            <SelectItem value="100">100</SelectItem>
-          </SelectContent>
-        </Select>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        alignItems: 'center',
+      }}
+    >
+      {/* Items info and per-page selector */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: '16px',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+        }}
+      >
+        {currentItemsCount > 0 && (
+          <Text variant="bodySm" as="p" tone="subdued">
+            Mostrando productos del {startItem} al {endItem}
+          </Text>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Text variant="bodySm" as="span">
+            Mostrar:
+          </Text>
+          <div style={{ minWidth: '80px' }}>
+            <Select
+              label=""
+              labelHidden
+              options={itemsPerPageOptions}
+              value={itemsPerPage.toString()}
+              onChange={value => setItemsPerPage(Number.parseInt(value))}
+            />
+          </div>
+        </div>
       </div>
-      <div className="flex items-center gap-1">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          <ChevronLeft className="h-4 w-4" />
-          <span className="sr-only">Página anterior</span>
-        </Button>
-        <span className="text-sm mx-2">
-          Página {currentPage} de {totalPages || 1}
-          {hasNextPage && currentPage === totalPages ? '+' : ''}
-        </span>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={(!hasNextPage && currentPage === totalPages) || loadingMoreProducts}
-        >
-          {loadingMoreProducts ? (
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
-          <span className="sr-only">Página siguiente</span>
-        </Button>
-      </div>
+
+      {/* Pagination controls */}
+      <Pagination
+        hasPrevious={hasPreviousPage}
+        onPrevious={onPrevious}
+        hasNext={hasNextPage}
+        onNext={onNext}
+        label={`Página ${currentPage}`}
+      />
     </div>
   )
 }

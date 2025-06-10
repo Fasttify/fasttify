@@ -40,13 +40,6 @@ export function AIInputWithSearch({
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      onFileSelect?.(file)
-    }
-  }
-
   return (
     <div className={cn('w-full py-4', className)}>
       <div className="relative max-w-xl w-full mx-auto">

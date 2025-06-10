@@ -62,7 +62,6 @@ export default async function StorePage({ params, searchParams }: StorePageProps
 
   // Validar que no sea una ruta de asset
   if (isAssetPath(path)) {
-    console.warn(`[StorePage] Asset path ${path} should not be handled by page renderer`)
     notFound()
   }
 
@@ -79,12 +78,19 @@ export default async function StorePage({ params, searchParams }: StorePageProps
   } catch (error: any) {
     console.error(`Error rendering store page ${store}${path}:`, error)
 
-    // Mostrar 404 para tiendas no encontradas
-    if (error.type === 'STORE_NOT_FOUND' || error.statusCode === 404) {
+    // Si el error ya tiene HTML renderizado (páginas de error amigables),
+    // mostrar esa página en lugar de lanzar el error
+    if (error.html) {
+      return <div dangerouslySetInnerHTML={{ __html: error.html }} />
+    }
+
+    // Mostrar 404 solo para casos muy específicos
+    if (error.type === 'STORE_NOT_FOUND' && error.statusCode === 404) {
       notFound()
     }
 
-    // Para otros errores, mostrar página de error
+    // Para otros errores, intentar renderizar una página de error básica
+    // Si llegamos aquí, significa que falló el renderizado de error también
     throw error
   }
 }
@@ -147,7 +153,7 @@ export async function generateMetadata({
         : undefined,
     }
   } catch (error) {
-    console.error(`[Metadata] ERROR generating metadata for ${store}${path}:`, error)
+    console.error(`ERROR generating metadata for ${store}${path}:`, error)
 
     // Metadata por defecto para errores
     return {

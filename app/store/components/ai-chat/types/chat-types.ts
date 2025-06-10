@@ -3,9 +3,20 @@ export interface Suggestion {
   text: string
 }
 
+export interface Message {
+  id: string
+  content: string
+  type: 'user' | 'ai'
+  timestamp: Date
+}
+
 export interface RefinedAIAssistantSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  messages: Message[]
+  loading: boolean
+  onSubmit: (value: string) => Promise<void>
+  onSuggestionClick: (suggestion: string) => void
 }
 
 export interface ChatHeaderProps {
@@ -18,15 +29,10 @@ export interface EmptyStateProps {
 }
 
 export interface MessageListProps {
-  messages: Array<{
-    id: string
-    content: string
-    type: 'user' | 'ai'
-    timestamp: Date
-  }>
+  messages: Message[]
   loading: boolean
   expandedMessages: Record<string, boolean>
   onToggleExpansion: (messageId: string) => void
-  scrollRef: React.RefObject<HTMLDivElement>
   messagesEndRef: React.RefObject<HTMLDivElement>
+  scrollRef?: React.RefObject<HTMLDivElement>
 }

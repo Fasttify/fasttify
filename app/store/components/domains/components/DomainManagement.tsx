@@ -1,187 +1,168 @@
-import { Search, Globe, Store, MapPin } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import {
+  Page,
+  Layout,
+  LegacyCard,
+  Text,
+  ButtonGroup,
+  Button,
+  Box,
+  Icon,
+  LegacyStack,
+  TextField,
+  SkeletonPage,
+  SkeletonBodyText,
+  SkeletonDisplayText,
+} from '@shopify/polaris'
+import {
+  SearchIcon,
+  GlobeIcon,
+  StoreIcon,
+  MarketsIcon,
+  DomainLandingPageIcon,
+} from '@shopify/polaris-icons'
+
 import { ChangeDomainDialog } from '@/app/store/components/domains/components/ChangeDomainDialog'
 import { EditStoreProfileDialog } from '@/app/store/components/domains/components/EditStoreProfileDialog'
-import { Skeleton } from '@/components/ui/skeleton'
 import useStoreDataStore from '@/context/core/storeDataStore'
 
 export function DomainManagement() {
   const { currentStore, isLoading } = useStoreDataStore()
   const [openChangeDomainDialog, setOpenChangeDomainDialog] = useState(false)
   const [openEditProfileDialog, setOpenEditProfileDialog] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   if (isLoading) {
     return (
-      <div className="bg-gray-100 p-4 md:p-6">
-        <Skeleton className="h-8 w-48 mb-6" />
-
-        {/* Skeleton for domain configuration section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="flex-1">
-              <Skeleton className="h-6 w-64 mb-2" />
-              <Skeleton className="h-4 w-full mb-1" />
-              <Skeleton className="h-4 w-full mb-1" />
-              <Skeleton className="h-4 w-3/4 mb-4" />
-              <div className="flex flex-wrap gap-3">
-                <Skeleton className="h-9 w-32" />
-                <Skeleton className="h-9 w-48" />
-              </div>
-            </div>
-            <Skeleton className="w-24 h-24 rounded-full" />
-          </div>
-        </div>
-
-        {/* Skeleton for store details section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <Skeleton className="h-6 w-40 mb-4" />
-          <div className="space-y-4">
-            <div className="flex items-center py-2 border-t border-gray-100">
-              <Skeleton className="h-5 w-5 rounded-full mr-3" />
-              <Skeleton className="h-5 w-40" />
-            </div>
-            <div className="flex items-start py-2 border-t border-gray-100">
-              <Skeleton className="h-5 w-5 rounded-full mr-3 mt-0.5" />
-              <div className="w-full">
-                <Skeleton className="h-5 w-40 mb-1" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </div>
-            <div className="mt-4 pt-2 pl-9">
-              <Skeleton className="h-4 w-48" />
-            </div>
-          </div>
-        </div>
-
-        {/* Skeleton for domain search and list */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 border-b border-gray-200">
-            <Skeleton className="h-10 w-full rounded-md" />
-          </div>
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Skeleton className="w-8 h-8 rounded-full" />
-                <div>
-                  <Skeleton className="h-5 w-40 mb-1" />
-                  <Skeleton className="h-4 w-32" />
-                </div>
-              </div>
-              <Skeleton className="h-5 w-16" />
-            </div>
-            <div className="mt-3 pl-11">
-              <Skeleton className="h-4 w-56" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <SkeletonPage title="Gestión de Dominios" primaryAction>
+        <Layout>
+          <Layout.Section>
+            <LegacyCard sectioned>
+              <SkeletonBodyText lines={3} />
+            </LegacyCard>
+            <LegacyCard sectioned>
+              <SkeletonBodyText lines={2} />
+            </LegacyCard>
+            <LegacyCard sectioned>
+              <SkeletonDisplayText size="small" />
+              <SkeletonBodyText lines={1} />
+            </LegacyCard>
+          </Layout.Section>
+        </Layout>
+      </SkeletonPage>
     )
   }
 
   return (
-    <div className="bg-gray-100 p-4 md:p-6">
-      <h1 className="text-xl md:text-xl font-medium text-gray-800 mb-6">Gestión de Dominios</h1>
+    <Page title="Gestión de Dominios" fullWidth>
+      <Layout>
+        <Layout.Section>
+          <LegacyCard>
+            <LegacyCard.Section>
+              <LegacyStack distribution="equalSpacing" alignment="center">
+                <LegacyStack.Item fill>
+                  <Text variant="headingMd" as="h2">
+                    Configura tu dominio personalizado
+                  </Text>
+                  <Text as="p" tone="subdued">
+                    Vincula un dominio propio o adquiere uno nuevo para darle mayor identidad y
+                    profesionalismo a tu tienda.
+                  </Text>
+                </LegacyStack.Item>
+                <Box>
+                  <div
+                    style={{
+                      width: '96px',
+                      height: '96px',
+                      backgroundColor: 'var(--p-color-bg-surface-secondary)',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative',
+                    }}
+                  >
+                    <Icon source={DomainLandingPageIcon} tone="base" />
+                    <div style={{ position: 'absolute' }}>
+                      <Text variant="bodyMd" as="span" fontWeight="semibold">
+                        www
+                      </Text>
+                    </div>
+                  </div>
+                </Box>
+              </LegacyStack>
+            </LegacyCard.Section>
+            <LegacyCard.Section>
+              <ButtonGroup>
+                <Button variant="primary">Comprar dominio</Button>
+                <Button>Conectar dominio existente</Button>
+              </ButtonGroup>
+            </LegacyCard.Section>
+          </LegacyCard>
+        </Layout.Section>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="flex-1">
-            <h2 className="text-base font-medium text-gray-800 mb-1">
-              Configura tu dominio personalizado
-            </h2>
-            <p className="text-gray-600 text-sm mb-4">
-              Vincula un dominio propio o adquiere uno nuevo para darle mayor identidad y
-              profesionalismo a tu tienda en Fasttify. Un dominio personalizado aumenta la confianza
-              de tus clientes y mejora la visibilidad de tu marca.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button className="bg-[#2a2a2a] h-9 px-4 text-sm font-medium text-white py-2 rounded-md hover:bg-[#3a3a3a] transition-colors">
-                Comprar dominio
+        <Layout.Section>
+          <LegacyCard title="Detalles de la tienda">
+            <LegacyCard.Section>
+              <LegacyStack vertical spacing="tight">
+                <LegacyStack alignment="center">
+                  <Icon source={StoreIcon} tone="base" />
+                  <Text as="p">{currentStore?.storeName}</Text>
+                </LegacyStack>
+                <LegacyStack alignment="center">
+                  <Icon source={MarketsIcon} tone="base" />
+                  <LegacyStack vertical spacing="none">
+                    <Text as="p">Dirección de facturación</Text>
+                    <Text as="p" tone="subdued">
+                      Colombia
+                    </Text>
+                  </LegacyStack>
+                </LegacyStack>
+              </LegacyStack>
+            </LegacyCard.Section>
+            <LegacyCard.Section>
+              <Button variant="plain" onClick={() => setOpenEditProfileDialog(true)}>
+                Editar detalles de la tienda
               </Button>
-              <Button
-                variant="outline"
-                className="h-9 px-4 text-sm font-medium text-gray-700 border-gray-300 hover:bg-gray-50"
-              >
-                Conectar dominio existente
-              </Button>
-            </div>
-          </div>
-          <div className="w-24 h-24 relative flex-shrink-0">
-            <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center">
-              <Globe className="text-blue-600 w-12 h-12" />
-              <span className="absolute text-black font-medium text-sm">www</span>
-            </div>
-          </div>
-        </div>
-      </div>
+            </LegacyCard.Section>
+          </LegacyCard>
+        </Layout.Section>
 
-      {/* Detalles de la tienda */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-        <h2 className="text-base font-medium text-gray-800 mb-4">Detalles de la tienda</h2>
-
-        <div className="space-y-4">
-          <div className="flex items-center py-2 border-t border-gray-100">
-            <Store className="h-5 w-5 text-gray-500 mr-3" />
-            <span className="font-medium text-gray-800">{currentStore?.storeName}</span>
-          </div>
-
-          <div className="flex items-start py-2 border-t border-gray-100">
-            <MapPin className="h-5 w-5 text-gray-500 mr-3 mt-0.5" />
-            <div>
-              <div className="font-medium text-gray-800">Dirección de facturación</div>
-              <div className="text-sm text-gray-500">Colombia</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 pt-2 pl-9">
-          <button
-            onClick={() => setOpenEditProfileDialog(true)}
-            className="text-blue-600 hover:underline text-sm text-left"
-          >
-            Editar detalles de la tienda
-          </button>
-        </div>
-      </div>
-
-      {/* Buscador y lista de dominios */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Buscar dominios"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                <Globe className="h-5 w-5 text-gray-500" />
-              </div>
-              <div>
-                <div className="font-medium text-gray-800">{currentStore?.customDomain}</div>
-                <div className="text-sm text-gray-500">Dominio predeterminado</div>
-              </div>
-            </div>
-            <div className="text-gray-700">Activo</div>
-          </div>
-          <div className="mt-3 pl-11">
-            <button
-              onClick={() => setOpenChangeDomainDialog(true)}
-              className="text-blue-600 hover:underline text-sm text-left"
-            >
-              Cambiar a un nuevo subdominio Fasttify
-            </button>
-          </div>
-        </div>
-      </div>
+        <Layout.Section>
+          <LegacyCard>
+            <LegacyCard.Section>
+              <TextField
+                label="Buscar dominios"
+                labelHidden
+                value={searchQuery}
+                onChange={setSearchQuery}
+                prefix={<Icon source={SearchIcon} tone="base" />}
+                placeholder="Buscar dominios"
+                autoComplete="off"
+              />
+            </LegacyCard.Section>
+            <LegacyCard.Section>
+              <LegacyStack distribution="equalSpacing" alignment="center">
+                <LegacyStack alignment="center">
+                  <Icon source={GlobeIcon} tone="base" />
+                  <LegacyStack vertical spacing="none">
+                    <Text as="p">{currentStore?.customDomain}</Text>
+                    <Text as="p" tone="subdued">
+                      Dominio predeterminado
+                    </Text>
+                  </LegacyStack>
+                </LegacyStack>
+                <Text as="p">Activo</Text>
+              </LegacyStack>
+              <Box paddingBlockStart="200" paddingInlineStart="400">
+                <Button variant="plain" onClick={() => setOpenChangeDomainDialog(true)}>
+                  Cambiar a un nuevo subdominio
+                </Button>
+              </Box>
+            </LegacyCard.Section>
+          </LegacyCard>
+        </Layout.Section>
+      </Layout>
 
       <ChangeDomainDialog
         open={openChangeDomainDialog}
@@ -199,6 +180,6 @@ export function DomainManagement() {
           contactPhone: currentStore?.contactPhone?.toString() || '',
         }}
       />
-    </div>
+    </Page>
   )
 }

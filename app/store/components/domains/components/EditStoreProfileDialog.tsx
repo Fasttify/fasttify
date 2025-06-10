@@ -1,28 +1,28 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Loader } from '@/components/ui/loader'
-import Link from 'next/link'
+import {
+  Modal,
+  Form,
+  FormLayout,
+  TextField,
+  LegacyStack,
+  Text,
+  Spinner,
+  Link,
+} from '@shopify/polaris'
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import {
   storeProfileSchema,
   type StoreProfileFormValues,
 } from '@/lib/zod-schemas/store-profile-schema'
 import {
   createStoreNameValidator,
-  handleStoreNameChange,
-  isSubmitButtonDisabled,
   handleStoreProfileSubmit,
-  initializeStoreProfileForm,
   type StoreNameValidationState,
 } from '@/app/store/components/domains/utils/storeProfileUtils'
-import { configureAmplify } from '@/lib/amplify-config'
-
-configureAmplify()
+import { useToast } from '@/app/store/context/ToastContext'
 
 interface EditStoreProfileDialogProps {
   open: boolean
@@ -45,20 +45,26 @@ export function EditStoreProfileDialog({
 }: EditStoreProfileDialogProps) {
   const { updateUserStore, loading: isUpdating } = useUserStoreData()
   const { checkStoreName, isChecking, exists } = useStoreNameValidator()
+  const { showToast } = useToast()
   const [originalStoreName, setOriginalStoreName] = useState('')
   const [nameChanged, setNameChanged] = useState(false)
   const [isStoreNameValid, setIsStoreNameValid] = useState(true)
 
-  const form = useForm<StoreProfileFormValues>({
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<StoreProfileFormValues>({
     resolver: zodResolver(storeProfileSchema),
     defaultValues: {
-      storeName: initialData.storeName || '',
-      storePhone: initialData.contactPhone || '',
-      storeEmail: initialData.contactEmail || '',
+      storeName: '',
+      storePhone: '',
+      storeEmail: '',
     },
   })
 
-  // Create validation state object for utility functions
   const validationState: StoreNameValidationState = {
     originalStoreName,
     nameChanged,
@@ -67,33 +73,32 @@ export function EditStoreProfileDialog({
     setIsStoreNameValid,
   }
 
-  // Initialize form when dialog opens
   useEffect(() => {
-    initializeStoreProfileForm(
-      open,
-      initialData,
-      form,
-      setOriginalStoreName,
-      setNameChanged,
-      setIsStoreNameValid
-    )
-  }, [open, initialData, form])
+    if (open) {
+      const defaultValues = {
+        storeName: initialData.storeName || '',
+        storePhone: initialData.contactPhone || '',
+        storeEmail: initialData.contactEmail || '',
+      }
+      reset(defaultValues)
+      setOriginalStoreName(defaultValues.storeName)
+      setNameChanged(false)
+      setIsStoreNameValid(true)
+    }
+  }, [open, initialData, reset])
 
-  // Create debounced validator
   const debouncedCheckStoreName = useCallback(
     createStoreNameValidator(validationState, { checkStoreName, exists }),
     [validationState, checkStoreName, exists]
   )
 
-  // Watch for store name changes
   useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
+    const subscription = watch((value, { name }) => {
       if (name === 'storeName' && value.storeName !== undefined) {
-        const currentName = value.storeName
-        if (currentName !== originalStoreName) {
+        if (value.storeName !== originalStoreName) {
           setNameChanged(true)
           setIsStoreNameValid(false)
-          debouncedCheckStoreName(currentName)
+          debouncedCheckStoreName(value.storeName)
         } else {
           setNameChanged(false)
           setIsStoreNameValid(true)
@@ -101,134 +106,115 @@ export function EditStoreProfileDialog({
       }
     })
     return () => subscription.unsubscribe()
-  }, [form, originalStoreName, debouncedCheckStoreName])
+  }, [watch, originalStoreName, debouncedCheckStoreName])
 
-  // Update validation state when exists changes
   useEffect(() => {
-    if (nameChanged) {
-      setIsStoreNameValid(!exists)
-    }
+    if (nameChanged) setIsStoreNameValid(!exists)
   }, [exists, nameChanged])
 
-  // Handle store name input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleStoreNameChange(e, validationState, debouncedCheckStoreName)
+  const handleSuccess = () => {
+    onOpenChange(false)
+    showToast('Perfil de la tienda actualizado con éxito')
+    if (onProfileUpdated) {
+      onProfileUpdated()
+    }
   }
 
-  // Handle form submission
   const onSubmit = async (data: StoreProfileFormValues) => {
-    await handleStoreProfileSubmit(
-      data,
-      storeId,
-      validationState,
-      updateUserStore,
-      onProfileUpdated,
-      () => onOpenChange(false)
-    )
+    const success = await handleStoreProfileSubmit(data, storeId, validationState, updateUserStore)
+
+    if (success) {
+      handleSuccess()
+    } else {
+      showToast('Error al actualizar el perfil. Inténtalo de nuevo.', true)
+    }
   }
 
-  // Determine if submit button should be disabled
-  const isSubmitDisabled = isSubmitButtonDisabled(
-    isUpdating,
-    form.formState.isSubmitting,
-    nameChanged,
-    isChecking,
-    isStoreNameValid
-  )
+  const isSubmitDisabled =
+    isUpdating || isSubmitting || (nameChanged && (isChecking || !isStoreNameValid))
+
+  const renderStoreNameHelpText = () => {
+    if (isChecking && nameChanged) {
+      return (
+        <LegacyStack spacing="tight" alignment="center">
+          <Spinner size="small" />
+          <Text as="span">Verificando disponibilidad...</Text>
+        </LegacyStack>
+      )
+    }
+    if (exists && nameChanged) {
+      return 'Este nombre de tienda ya está en uso'
+    }
+    return 'Aparece en tu sitio web'
+  }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-2 flex flex-row items-center justify-between">
-          <DialogTitle className="text-xl font-medium">Editar perfil</DialogTitle>
-        </DialogHeader>
-
-        <form onSubmit={form.handleSubmit(onSubmit)} className="px-6 pb-6">
-          <p className="text-sm text-muted-foreground mb-6">
+    <Modal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Editar perfil"
+      primaryAction={{
+        content: 'Guardar cambios',
+        onAction: handleSubmit(onSubmit),
+        loading: isUpdating || isSubmitting,
+        disabled: isSubmitDisabled,
+      }}
+      secondaryActions={[{ content: 'Cancelar', onAction: () => onOpenChange(false) }]}
+    >
+      <Modal.Section>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <Text as="p" tone="subdued">
             Estos detalles podrían estar disponibles públicamente. No uses tu información personal.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="space-y-2">
-              <label htmlFor="storeName" className="text-sm font-medium">
-                Nombre de la tienda
-              </label>
-              <Input
-                id="storeName"
-                {...form.register('storeName', { onChange: handleInputChange })}
-                aria-invalid={form.formState.errors.storeName ? 'true' : 'false'}
-              />
-              {form.formState.errors.storeName && (
-                <p className="text-xs text-red-500">{form.formState.errors.storeName.message}</p>
+          </Text>
+          <FormLayout>
+            <Controller
+              name="storeName"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Nombre de la tienda"
+                  {...field}
+                  error={errors.storeName?.message || (exists && nameChanged)}
+                  helpText={renderStoreNameHelpText()}
+                  autoComplete="off"
+                />
               )}
-              {isChecking && nameChanged && (
-                <p className="text-xs text-blue-500">Verificando disponibilidad...</p>
-              )}
-              {exists && nameChanged && (
-                <p className="text-xs text-red-500">Este nombre de tienda ya está en uso</p>
-              )}
-              <p className="text-xs text-muted-foreground">Aparece en tu sitio web</p>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="storePhone" className="text-sm font-medium">
-                Teléfono de la tienda
-              </label>
-              <Input
-                type="tel"
-                id="storePhone"
-                {...form.register('storePhone')}
-                aria-invalid={form.formState.errors.storePhone ? 'true' : 'false'}
-              />
-              {form.formState.errors.storePhone && (
-                <p className="text-xs text-red-500">{form.formState.errors.storePhone.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2 mb-6">
-            <label htmlFor="storeEmail" className="text-sm font-medium">
-              Correo electrónico de la tienda
-            </label>
-            <Input
-              type="email"
-              id="storeEmail"
-              {...form.register('storeEmail')}
-              aria-invalid={form.formState.errors.storeEmail ? 'true' : 'false'}
             />
-            {form.formState.errors.storeEmail && (
-              <p className="text-xs text-red-500">{form.formState.errors.storeEmail.message}</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Recibe mensajes sobre tu tienda. Para el correo electrónico del remitente, ve a{' '}
-              <Link href="#" className="text-blue-600 hover:underline">
-                configuración de notificaciones
-              </Link>
-              .
-            </p>
-          </div>
-
-          <div className="flex justify-end gap-2 mt-6">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              className="bg-[#2a2a2a] h-9 px-4 text-sm font-medium text-white py-2 rounded-md hover:bg-[#3a3a3a] transition-colors"
-              disabled={isSubmitDisabled}
-            >
-              {isUpdating || form.formState.isSubmitting ? (
-                <>
-                  <Loader color="white" />
-                  Guardando...
-                </>
-              ) : (
-                'Guardar cambios'
+            <Controller
+              name="storePhone"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Teléfono de la tienda"
+                  type="tel"
+                  {...field}
+                  error={errors.storePhone?.message}
+                  autoComplete="tel"
+                />
               )}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+            />
+            <Controller
+              name="storeEmail"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Correo electrónico de la tienda"
+                  type="email"
+                  {...field}
+                  error={errors.storeEmail?.message}
+                  helpText={
+                    <span>
+                      Recibe mensajes sobre tu tienda. Para el correo electrónico del remitente, ve
+                      a <Link url="#">configuración de notificaciones</Link>.
+                    </span>
+                  }
+                  autoComplete="email"
+                />
+              )}
+            />
+          </FormLayout>
+        </Form>
+      </Modal.Section>
+    </Modal>
   )
 }

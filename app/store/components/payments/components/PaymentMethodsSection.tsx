@@ -1,3 +1,4 @@
+import { Card, Text, LegacyStack, Box, BlockStack } from '@shopify/polaris'
 import { PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import { PaymentGatewayCard } from '@/app/store/components/payments/components/PaymentGatewayCard'
 
@@ -15,25 +16,32 @@ export function PaymentMethodsSection({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      <h2 className="text-base font-medium text-gray-800 mb-1">Métodos de Pago Admitidos</h2>
-      <p className="text-gray-600 text-sm mb-4">
-        Métodos de pago disponibles en Fasttify a través de nuestras pasarelas integradas.
-      </p>
+    <Card>
+      <Box padding="400">
+        <BlockStack gap="200">
+          <Text variant="headingMd" as="h2">
+            Métodos de Pago Admitidos
+          </Text>
+          <Text as="p" tone="subdued">
+            Métodos de pago disponibles en Fasttify a través de nuestras pasarelas integradas.
+          </Text>
+        </BlockStack>
+      </Box>
 
-      <div className="space-y-4">
-        <PaymentGatewayCard
-          gateway="wompi"
-          isConfigured={isGatewayConfigured('wompi')}
-          onActivate={onOpenModal}
-        />
-
-        <PaymentGatewayCard
-          gateway="mercadoPago"
-          isConfigured={isGatewayConfigured('mercadoPago')}
-          onActivate={onOpenModal}
-        />
-      </div>
-    </div>
+      <Box padding="400">
+        <LegacyStack vertical spacing="loose">
+          <PaymentGatewayCard
+            gateway="wompi"
+            isConfigured={isGatewayConfigured('wompi')}
+            onActivate={onOpenModal}
+          />
+          <PaymentGatewayCard
+            gateway="mercadoPago"
+            isConfigured={isGatewayConfigured('mercadoPago')}
+            onActivate={onOpenModal}
+          />
+        </LegacyStack>
+      </Box>
+    </Card>
   )
 }

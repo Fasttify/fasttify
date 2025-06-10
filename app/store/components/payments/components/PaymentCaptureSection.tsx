@@ -1,56 +1,47 @@
-import Link from 'next/link'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
+'use client'
+
+import { useState, useCallback } from 'react'
+import { Card, ChoiceList, Text, Link, BlockStack, Box } from '@shopify/polaris'
 
 export function PaymentCaptureSection() {
+  const [selected, setSelected] = useState(['automatic'])
+
+  const handleChange = useCallback((value: string[]) => setSelected(value), [])
+
+  const choices = [
+    {
+      label: 'Captura automática al momento del pago',
+      value: 'automatic',
+      helpText: 'El pago se procesa de inmediato al realizar el pedido.',
+    },
+    {
+      label: 'Captura automática cuando el pedido esté listo',
+      value: 'when-ready',
+      helpText: 'Se autoriza el pago al finalizar la compra y se captura al completar el pedido.',
+    },
+    {
+      label: 'Captura manual',
+      value: 'manual',
+      helpText: 'Se autoriza el pago al finalizar la compra y debe capturarse manualmente.',
+    },
+  ]
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-base font-medium text-gray-800 mb-1">Método de Captura de Pago</h2>
-      <p className="text-gray-600 text-sm mb-2">
-        Decide cómo quieres procesar los pagos cuando un cliente realice una compra:{' '}
-        <Link href="#" className="text-blue-600 hover:underline">
-          Más información
-        </Link>
-        .
-      </p>
-
-      <RadioGroup defaultValue="automatic" className="mt-4 space-y-4">
-        <div className="flex items-start space-x-2">
-          <RadioGroupItem value="automatic" id="automatic" className="mt-1" />
-          <div className="grid gap-1.5">
-            <Label htmlFor="automatic" className="font-medium text-gray-800">
-              Captura automática al momento del pago
-            </Label>
-            <p className="text-sm text-gray-600">
-              El pago se procesa de inmediato al realizar el pedido.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start space-x-2">
-          <RadioGroupItem value="when-ready" id="when-ready" className="mt-1" />
-          <div className="grid gap-1.5">
-            <Label htmlFor="when-ready" className="font-medium text-gray-800">
-              Captura automática cuando el pedido esté listo
-            </Label>
-            <p className="text-sm text-gray-600">
-              Se autoriza el pago al finalizar la compra y se captura al completar el pedido.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start space-x-2">
-          <RadioGroupItem value="manual" id="manual" className="mt-1" />
-          <div className="grid gap-1.5">
-            <Label htmlFor="manual" className="font-medium text-gray-800">
-              Captura manual
-            </Label>
-            <p className="text-sm text-gray-600">
-              Se autoriza el pago al finalizar la compra y debe capturarse manualmente.
-            </p>
-          </div>
-        </div>
-      </RadioGroup>
-    </div>
+    <Card>
+      <Box padding="400">
+        <BlockStack gap="400">
+          <BlockStack gap="200">
+            <Text variant="headingMd" as="h2">
+              Método de Captura de Pago
+            </Text>
+            <Text as="p" tone="subdued">
+              Decide cómo quieres procesar los pagos cuando un cliente realice una compra:{' '}
+              <Link url="#">Más información</Link>.
+            </Text>
+          </BlockStack>
+          <ChoiceList title="" choices={choices} selected={selected} onChange={handleChange} />
+        </BlockStack>
+      </Box>
+    </Card>
   )
 }
