@@ -1,0 +1,201 @@
+'use client'
+
+import { useState, useCallback, useMemo, useEffect } from 'react'
+import { TopBar, ActionList, Icon, Text } from '@shopify/polaris'
+import { QuestionCircleIcon, ExitIcon } from '@shopify/polaris-icons'
+import { useRouter } from 'next/navigation'
+import { generateSearchRoutes } from '@/app/store/components/search-bar/components/SearchRoutes'
+import { useAuth } from '@/context/hooks/useAuth'
+import { Spinner } from '@shopify/polaris'
+import useStoreDataStore from '@/context/core/storeDataStore'
+import useUserStore from '@/context/core/userStore'
+import { ChatTrigger } from '@/app/store/components/ai-chat/components/ChatTrigger'
+import { NotificationPopover } from '@/app/store/components/notifications/components/NotificationPopover'
+
+interface TopBarPolarisProps {
+  storeId: string
+  onNavigationToggle?: () => void
+}
+
+export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProps) {
+  const router = useRouter()
+  const { user, loading } = useUserStore()
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isSecondaryMenuOpen, setIsSecondaryMenuOpen] = useState(false)
+  const [isSearchActive, setIsSearchActive] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
+  const [isClient, setIsClient] = useState(false)
+  const { clearStore } = useStoreDataStore()
+  useAuth()
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  const handleChangeStore = async () => {
+    await clearStore()
+    router.push('/my-store')
+  }
+
+  // Generar rutas de búsqueda usando la función existente
+  const searchRoutes = useMemo(() => {
+    return storeId ? generateSearchRoutes(storeId) : []
+  }, [storeId])
+
+  // Filtrar rutas basado en el texto de búsqueda
+  const filteredRoutes = useMemo(() => {
+    if (!searchValue) return searchRoutes.slice(0, 8) // Mostrar las primeras 8 rutas por defecto
+
+    return searchRoutes
+      .filter(route => {
+        return (
+          route.label.toLowerCase().includes(searchValue.toLowerCase()) ||
+          route.path.toLowerCase().includes(searchValue.toLowerCase()) ||
+          route.keywords?.some(keyword => keyword.toLowerCase().includes(searchValue.toLowerCase()))
+        )
+      })
+      .slice(0, 8) // Limitar a 8 resultados
+  }, [searchValue, searchRoutes])
+
+  // Callbacks para TopBar
+  const toggleIsUserMenuOpen = useCallback(() => setIsUserMenuOpen(prev => !prev), [])
+  const toggleIsSecondaryMenuOpen = useCallback(() => setIsSecondaryMenuOpen(prev => !prev), [])
+
+  const handleSearchResultsDismiss = useCallback(() => {
+    setIsSearchActive(false)
+    setSearchValue('')
+  }, [])
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchValue(value)
+    setIsSearchActive(value.length > 0)
+  }, [])
+
+  const handleNavigationToggle = useCallback(() => {
+    onNavigationToggle?.()
+  }, [onNavigationToggle])
+
+  // Manejar selección de resultado de búsqueda
+  const handleSearchResultSelect = useCallback(
+    (path: string) => {
+      router.push(path)
+      handleSearchResultsDismiss()
+    },
+    [router, handleSearchResultsDismiss]
+  )
+
+  // User Menu - Con estado de carga y hidratación
+  const userMenuMarkup =
+    !isClient || loading ? (
+      // Estado de carga o hidratación: mostrar un botón con spinner
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+        <Spinner size="small" />
+      </div>
+    ) : (
+      <TopBar.UserMenu
+        actions={[
+          {
+            items: [
+              {
+                content: 'Configuración de Tienda',
+                onAction: () => router.push(`/store/${storeId}/settings`),
+              },
+              {
+                content: 'Mi Perfil',
+                onAction: () => router.push('/account-settings?section=cuenta'),
+              },
+            ],
+          },
+          {
+            items: [
+              { content: 'Centro de Ayuda' },
+              { content: 'Cambiar de Tienda', icon: ExitIcon, onAction: () => handleChangeStore() },
+            ],
+          },
+        ]}
+        name={user?.nickName || 'Usuario'}
+        detail={`Store: ${storeId}`}
+        initials={user?.nickName?.charAt(0) || 'U'}
+        open={isUserMenuOpen}
+        onToggle={toggleIsUserMenuOpen}
+      />
+    )
+
+  // Search Field - Con estado de carga y hidratación
+  const searchFieldMarkup = (
+    <TopBar.SearchField
+      onChange={!isClient || loading ? () => {} : handleSearchChange}
+      value={searchValue}
+      placeholder={!isClient || loading ? 'Cargando...' : 'Buscar rutas y páginas... '}
+      showFocusBorder
+    />
+  )
+
+  // Search Results - Con estado de carga y hidratación
+  const searchResultsMarkup =
+    !isClient || loading ? (
+      <ActionList
+        items={[
+          {
+            content: 'Cargando rutas...',
+            disabled: true,
+            prefix: <Spinner size="small" />,
+          },
+        ]}
+      />
+    ) : (
+      <ActionList
+        items={filteredRoutes.map(route => ({
+          content: route.label,
+          onAction: () => handleSearchResultSelect(route.path),
+          suffix: route.section,
+        }))}
+      />
+    )
+
+  // Secondary Menu con acciones personalizadas integradas
+  const secondaryMenuMarkup = (
+    <div className="flex items-center gap-3">
+      {/* Acciones personalizadas integradas */}
+      <ChatTrigger />
+      <NotificationPopover />
+
+      {/* Menú de ayuda */}
+      <TopBar.Menu
+        activatorContent={
+          <span>
+            <Icon source={QuestionCircleIcon} />
+            <Text as="span" visuallyHidden>
+              Ayuda
+            </Text>
+          </span>
+        }
+        open={isSecondaryMenuOpen}
+        onOpen={toggleIsSecondaryMenuOpen}
+        onClose={toggleIsSecondaryMenuOpen}
+        actions={[
+          {
+            items: [
+              { content: 'Help Center' },
+              { content: 'Contact Support' },
+              { content: 'Keyboard Shortcuts' },
+            ],
+          },
+        ]}
+      />
+    </div>
+  )
+
+  return (
+    <TopBar
+      showNavigationToggle
+      userMenu={userMenuMarkup}
+      secondaryMenu={secondaryMenuMarkup}
+      searchResultsVisible={isSearchActive}
+      searchField={searchFieldMarkup}
+      searchResults={searchResultsMarkup}
+      onSearchResultsDismiss={handleSearchResultsDismiss}
+      onNavigationToggle={handleNavigationToggle}
+    />
+  )
+}
