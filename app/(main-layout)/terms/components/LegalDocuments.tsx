@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import legalContent from '@/app/(main-layout)/terms/components/legal-content.json'
 
 export function LegalDocuments() {
@@ -67,22 +66,20 @@ export function LegalDocuments() {
                 <h1 className="text-3xl font-medium mt-2">{currentDocument.title}</h1>
               </div>
 
-              <ScrollArea className="h-[60vh]">
-                <div className="space-y-8">
-                  {currentDocument.sections.map(section => (
-                    <section key={section.id} id={section.id}>
-                      <h2 className="text-xl font-medium mb-4">{section.title}</h2>
-                      <div className="prose prose-sm max-w-none">
-                        {section.content.split('\n\n').map((paragraph, index) => (
-                          <p key={index} className="mb-4">
-                            {paragraph}
-                          </p>
-                        ))}
-                      </div>
-                    </section>
-                  ))}
-                </div>
-              </ScrollArea>
+              <div className="space-y-8">
+                {currentDocument.sections.map(section => (
+                  <section key={section.id} id={section.id}>
+                    <h2 className="text-xl font-medium mb-4">{section.title}</h2>
+                    <div className="prose prose-sm max-w-none">
+                      {section.content.split('\n\n').map((paragraph, index) => (
+                        <p key={index} className="mb-4">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
             </div>
           </div>
         </div>

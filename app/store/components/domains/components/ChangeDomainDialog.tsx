@@ -3,6 +3,7 @@ import { Modal, TextField, Text, Spinner, LegacyStack, Icon, Toast } from '@shop
 import { CheckCircleIcon, AlertTriangleIcon } from '@shopify/polaris-icons'
 import { useDomainValidator } from '@/app/store/hooks/useDomainValidator'
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
+import { useToast } from '@/app/store/context/ToastContext'
 
 interface ChangeDomainDialogProps {
   open: boolean
@@ -21,16 +22,7 @@ export function ChangeDomainDialog({
   const { checkDomain, isChecking, exists } = useDomainValidator()
   const [hasBeenValidated, setHasBeenValidated] = useState(false)
   const { updateUserStore, loading: isUpdating } = useUserStoreData()
-
-  const [toastActive, setToastActive] = useState(false)
-  const [toastContent, setToastContent] = useState('')
-  const [toastError, setToastError] = useState(false)
-
-  const showToast = (content: string, isError = false) => {
-    setToastContent(content)
-    setToastError(isError)
-    setToastActive(true)
-  }
+  const { showToast } = useToast()
 
   useEffect(() => {
     if (!open) {
@@ -112,10 +104,6 @@ export function ChangeDomainDialog({
     return null
   }
 
-  const toastMarkup = toastActive ? (
-    <Toast content={toastContent} error={toastError} onDismiss={() => setToastActive(false)} />
-  ) : null
-
   return (
     <>
       <Modal
@@ -148,7 +136,6 @@ export function ChangeDomainDialog({
           </LegacyStack>
         </Modal.Section>
       </Modal>
-      {toastMarkup}
     </>
   )
 }

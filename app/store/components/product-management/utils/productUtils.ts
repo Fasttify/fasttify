@@ -1,4 +1,3 @@
-import { toast } from 'sonner'
 import { IProduct } from '@/app/store/hooks/useProducts'
 import { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 
@@ -94,16 +93,10 @@ export async function handleProductUpdate(
       throw new Error('No se recibió respuesta al actualizar el producto')
     }
 
-    toast.success('Producto actualizado', {
-      description: `El producto "${result.name}" ha sido actualizado correctamente.`,
-    })
-
     return result
   } catch (error) {
     console.error('Error in handleProductUpdate:', error)
-    toast.error('Error', {
-      description: 'Ha ocurrido un error al actualizar el producto. Por favor, inténtelo de nuevo.',
-    })
+
     throw error
   }
 }
@@ -122,18 +115,13 @@ export async function handleProductCreate(
     const result = await createProductFn(productData)
 
     if (result) {
-      toast.success('Producto creado', {
-        description: `El producto "${result.name}" ha sido creado correctamente.`,
-      })
       return result
     }
 
     throw new Error('The product could not be created')
   } catch (error) {
     console.error('Error in handleProductCreate:', error)
-    toast.error('Error', {
-      description: 'Ha ocurrido un error al crear el producto. Por favor, inténtelo de nuevo.',
-    })
+
     throw error
   }
 }
