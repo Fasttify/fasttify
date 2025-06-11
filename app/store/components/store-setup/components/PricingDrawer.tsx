@@ -10,7 +10,6 @@ import {
 import { plans } from '@/app/(main-layout)/pricing/components/plans'
 import { FAQSection } from '@/app/(main-layout)/pricing/components/FAQSection'
 import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Amplify } from 'aws-amplify'
 import { post } from 'aws-amplify/api'
 import useUserStore from '@/context/core/userStore'
@@ -70,35 +69,32 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
               </Button>
             </DrawerClose>
           </DrawerHeader>
-
-          <ScrollArea className="h-[calc(95vh-64px)]">
-            <div className="p-6">
-              <div className="grid gap-6 md:grid-cols-3">
-                {plans.map(plan => (
-                  <PlanCard
-                    key={plan.name}
-                    title={plan.name}
-                    description={plan.description}
-                    price={plan.price}
-                    features={plan.features}
-                    buttonText={plan.buttonText}
-                    isPopular={plan.popular}
-                    user={user}
-                    setIsSubmitting={setIsSubmitting}
-                    addToast={addToast as (message: string, type: string) => void}
-                    isClient={isClient}
-                  />
-                ))}
-              </div>
+          <div className="p-6">
+            <div className="grid gap-6 md:grid-cols-3">
+              {plans.map(plan => (
+                <PlanCard
+                  key={plan.name}
+                  title={plan.name}
+                  description={plan.description}
+                  price={plan.price}
+                  features={plan.features}
+                  buttonText={plan.buttonText}
+                  isPopular={plan.popular}
+                  user={user}
+                  setIsSubmitting={setIsSubmitting}
+                  addToast={addToast as (message: string, type: string) => void}
+                  isClient={isClient}
+                />
+              ))}
             </div>
-            {/* FAQ Section */}
-            <FAQSection
-              items={faqItems}
-              title="Preguntas frecuentes"
-              subtitle="¿Tienes dudas sobre nuestros planes? Aquí encontrarás respuestas."
-            />
-            <div className="h-4"></div> {/* Add some bottom padding */}
-          </ScrollArea>
+          </div>
+          {/* FAQ Section */}
+          <FAQSection
+            items={faqItems}
+            title="Preguntas frecuentes"
+            subtitle="¿Tienes dudas sobre nuestros planes? Aquí encontrarás respuestas."
+          />
+          <div className="h-4"></div> {/* Add some bottom padding */}
         </DrawerContent>
       </Drawer>
 
