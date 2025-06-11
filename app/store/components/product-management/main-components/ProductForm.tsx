@@ -35,7 +35,7 @@ import { PricingInventorySection } from '@/app/store/components/product-manageme
 import { ImageUpload } from '@/app/store/components/product-management/main-components/ImageUpload'
 import { AttributesForm } from '@/app/store/components/product-management/main-components/AttributesForm'
 import { PublicationSection } from '@/app/store/components/product-management/product-sections/publication-section'
-
+import { Loading } from '@shopify/polaris'
 interface ProductFormProps {
   storeId: string
   productId?: string
@@ -57,7 +57,7 @@ function ProductLoadingState() {
         minHeight: '400px',
       }}
     >
-      <Spinner accessibilityLabel="Cargando producto" />
+      <Loading />
     </div>
   )
 }
