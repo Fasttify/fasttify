@@ -10,7 +10,11 @@ export function AttributesSection({ form }: AttributesSectionProps) {
   return (
     <AttributesForm
       value={form.watch('attributes') || []}
-      onChange={attributes => form.setValue('attributes', attributes, { shouldValidate: true })}
+      onChange={attributes =>
+        form.setValue('attributes', attributes as ProductFormValues['attributes'], {
+          shouldValidate: true,
+        })
+      }
     />
   )
 }
