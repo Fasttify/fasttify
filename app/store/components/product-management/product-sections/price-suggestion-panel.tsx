@@ -10,9 +10,8 @@ import {
   Card,
 } from '@shopify/polaris'
 import { QuestionCircleIcon } from '@shopify/polaris-icons'
-
-import { AIGenerateButton } from './ai-generate-button'
-import type { PriceSuggestionResult } from '../hooks/usePriceSuggestion'
+import { AIGenerateButton } from '@/app/store/components/product-management/product-sections/ai-generate-button'
+import type { PriceSuggestionResult } from '@/app/store/components/product-management/hooks/usePriceSuggestion'
 import type { UseFormReturn } from 'react-hook-form'
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 

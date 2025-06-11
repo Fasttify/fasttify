@@ -2,7 +2,6 @@ import type { UseFormReturn } from 'react-hook-form'
 import {
   FormLayout,
   TextField,
-  Select,
   BlockStack,
   ButtonGroup,
   Button,
@@ -58,14 +57,6 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
     setPreviewDescription(null)
     showToast('La descripción generada ha sido descartada.')
   }
-
-  const categoryOptions = [
-    { label: 'Ropa', value: 'Ropa' },
-    { label: 'Electrónica', value: 'Electronicos' },
-    { label: 'Hogar y Cocina', value: 'Hogar' },
-    { label: 'Belleza y Cuidado Personal', value: 'Belleza' },
-    { label: 'Deportes y Aire Libre', value: 'Deporte' },
-  ]
 
   return (
     <BlockStack gap="400">
@@ -129,22 +120,6 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
             )}
           />
         </BlockStack>
-
-        <Controller
-          name="category"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Select
-              label="Categoría"
-              options={categoryOptions}
-              onBlur={field.onBlur}
-              onChange={value => field.onChange(value)}
-              value={field.value || ''}
-              error={fieldState.error?.message}
-              helpText="Seleccione la categoría que mejor se adapte a su producto."
-            />
-          )}
-        />
 
         <FormLayout.Group>
           <Controller

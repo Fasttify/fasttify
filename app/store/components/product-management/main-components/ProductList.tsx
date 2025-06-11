@@ -1,7 +1,5 @@
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 import { routes } from '@/utils/routes'
-import { useState } from 'react'
 import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris'
 import { handleExportProducts } from '@/app/store/components/product-management/utils/product-utils'
 
@@ -16,6 +14,7 @@ import { ProductTableDesktop } from '@/app/store/components/product-management/p
 import { ProductCardMobile } from '@/app/store/components/product-management/product-table/product-card-mobile'
 import { ProductEmptyState } from '@/app/store/components/product-management/product-table/product-empty-state'
 import { ProductIcon } from '@shopify/polaris-icons'
+import { useToast } from '@/app/store/context/ToastContext'
 
 // Types
 import type { ProductListProps } from '@/app/store/components/product-management/types/product-types'
@@ -37,7 +36,7 @@ export function ProductList({
   setItemsPerPage,
 }: ProductListProps) {
   const router = useRouter()
-
+  const { showToast } = useToast()
   // Hooks para manejar diferentes aspectos de la tabla
   const { setSelectedProducts } = useProductSelection()
   const {
@@ -65,10 +64,10 @@ export function ProductList({
     if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
       const success = await deleteProduct(id)
       if (success) {
-        toast.success('Producto eliminado correctamente')
+        showToast('Producto eliminado correctamente')
         setSelectedProducts(prev => prev.filter(productId => productId !== id))
       } else {
-        toast.error('Error al eliminar el producto')
+        showToast('Error al eliminar el producto')
       }
     }
   }
@@ -79,10 +78,10 @@ export function ProductList({
     if (confirm(`¿Estás seguro de que deseas eliminar ${selectedIds.length} productos?`)) {
       const success = await deleteMultipleProducts(selectedIds)
       if (success) {
-        toast.success(`${selectedIds.length} productos eliminados correctamente`)
+        showToast(`${selectedIds.length} productos eliminados correctamente`)
         setSelectedProducts([])
       } else {
-        toast.error(`Error al eliminar algunos productos`)
+        showToast(`Error al eliminar algunos productos`)
       }
     }
   }
@@ -116,7 +115,7 @@ export function ProductList({
         </div>
         <ButtonGroup>
           <Button onClick={() => console.log('Importar productos')}>Importar</Button>
-          <Button onClick={() => handleExportProducts(products, [])}>Exportar</Button>
+          <Button onClick={() => handleExportProducts(products, [], showToast)}>Exportar</Button>
           <Button variant="primary" onClick={handleAddProduct}>
             Añadir producto
           </Button>
