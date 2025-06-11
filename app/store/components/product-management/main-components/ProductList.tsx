@@ -145,7 +145,7 @@ export function ProductList({
           }}
           toggleSort={toggleSort}
           sortDirection={sortDirection === 'asc' ? 'ascending' : 'descending'}
-          sortField={sortField}
+          sortField={sortField ?? 'name'}
         />
 
         {/* Vista móvil */}
