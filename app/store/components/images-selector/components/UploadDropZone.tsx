@@ -1,42 +1,56 @@
-import { Upload } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { DropZone, LegacyStack, Thumbnail, Text, BlockStack } from '@shopify/polaris'
+import { NoteIcon } from '@shopify/polaris-icons'
+import { useCallback, useState } from 'react'
 
 interface UploadDropZoneProps {
-  onDrop: (e: React.DragEvent<HTMLDivElement>) => void
-  onDragOver: (e: React.DragEvent<HTMLDivElement>) => void
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void
-  triggerFileSelect: () => void
-  fileInputRef: React.RefObject<HTMLInputElement>
+  onDrop: (files: File[]) => void
   allowMultipleSelection: boolean
 }
 
-export default function UploadDropZone({
-  onDrop,
-  onDragOver,
-  onFileUpload,
-  triggerFileSelect,
-  fileInputRef,
-  allowMultipleSelection,
-}: UploadDropZoneProps) {
+export default function UploadDropZone({ onDrop, allowMultipleSelection }: UploadDropZoneProps) {
+  const [files, setFiles] = useState<File[]>([])
+
+  const handleDropZoneDrop = useCallback(
+    (_dropFiles: File[], acceptedFiles: File[], _rejectedFiles: File[]) => {
+      setFiles(prevFiles => [...prevFiles, ...acceptedFiles])
+      onDrop(acceptedFiles)
+    },
+    [onDrop]
+  )
+
+  const validImageTypes = ['image/gif', 'image/jpeg', 'image/png']
+
+  const uploadedFiles =
+    files.length > 0 ? (
+      <div style={{ padding: '1rem 0' }}>
+        <LegacyStack vertical>
+          {files.map((file, index) => (
+            <LegacyStack alignment="center" key={index}>
+              <Thumbnail
+                size="small"
+                alt={file.name}
+                source={
+                  validImageTypes.includes(file.type) ? window.URL.createObjectURL(file) : NoteIcon
+                }
+              />
+              <div>
+                {file.name}{' '}
+                <Text variant="bodySm" as="p">
+                  {file.size} bytes
+                </Text>
+              </div>
+            </LegacyStack>
+          ))}
+        </LegacyStack>
+      </div>
+    ) : null
+
   return (
-    <div
-      className="border border-dashed rounded-md p-8 flex flex-col items-center justify-center hover:border-gray-400 transition-colors"
-      onDrop={onDrop}
-      onDragOver={onDragOver}
-    >
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={onFileUpload}
-        accept="image/*"
-        className="hidden"
-        multiple={allowMultipleSelection}
-      />
-      <Button variant="outline" className="mb-4" onClick={triggerFileSelect}>
-        <Upload className="h-4 w-4 mr-2" />
-        Agregar imágenes
-      </Button>
-      <p className="text-sm text-muted-foreground">Arrastrar y soltar imágenes aquí</p>
-    </div>
+    <BlockStack gap="400">
+      <DropZone allowMultiple={allowMultipleSelection} onDrop={handleDropZoneDrop} accept="image/*">
+        <DropZone.FileUpload actionHint="o arrástralos y suéltalos" />
+      </DropZone>
+      {uploadedFiles}
+    </BlockStack>
   )
 }

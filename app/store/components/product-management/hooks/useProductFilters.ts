@@ -8,8 +8,8 @@ import type {
 export function useProductFilters(products: IProduct[]) {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortField, setSortField] = useState<SortField>(null)
-  const [sortDirection, setSortDirection] = useState<SortDirection>(null)
+  const [sortField, setSortField] = useState<SortField | null>(null)
+  const [sortDirection, setSortDirection] = useState<SortDirection | null>(null)
 
   // Filtrar productos según la pestaña activa y búsqueda
   const filteredProducts = products

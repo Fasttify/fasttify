@@ -1,12 +1,9 @@
-import { Trash2 } from 'lucide-react'
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { Loader } from '@/components/ui/loader'
+import { Grid, Card, Thumbnail, Text, Spinner, EmptyState, Button, Box } from '@shopify/polaris'
+import { DeleteIcon } from '@shopify/polaris-icons'
 import { S3Image } from '@/app/store/hooks/useS3Images'
 
 interface ImageGalleryProps {
   images: S3Image[]
-  viewMode: 'grid' | 'list'
   selectedImage: string | string[] | null
   allowMultipleSelection: boolean
   loading: boolean
@@ -18,7 +15,6 @@ interface ImageGalleryProps {
 
 export default function ImageGallery({
   images,
-  viewMode,
   selectedImage,
   allowMultipleSelection,
   loading,
@@ -27,159 +23,90 @@ export default function ImageGallery({
   onImageSelect,
   onDeleteImage,
 }: ImageGalleryProps) {
-  // Función para generar un ID único si no existe
-  const getImageKey = (image: S3Image, index: number): string => {
-    if (image.id) {
-      return image.id
-    }
-    // Fallback: generar clave única combinando key, index y filename
-    return `${image.key}-${index}-${image.filename || 'unknown'}`
-  }
-
-  if (!loading && images.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        {searchTerm
-          ? 'No hay imágenes que coincidan con la búsqueda.'
-          : 'No hay imágenes disponibles. Sube algunas imágenes para comenzar.'}
-      </div>
-    )
-  }
-
   if (loading) {
     return (
-      <div className="flex justify-center py-8">
-        <Loader color="black" text="Cargando imágenes..." />
-      </div>
+      <Box padding="400" minHeight="200px">
+        <Spinner accessibilityLabel="Cargando imágenes" size="large" />
+      </Box>
     )
   }
 
   if (error) {
     return (
-      <div className="text-center py-8 text-red-500">
-        Error al cargar las imágenes. Por favor, intenta de nuevo.
-      </div>
+      <EmptyState
+        heading="Error al cargar las imágenes"
+        image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+      >
+        <p>Hubo un problema al recuperar tus imágenes. Por favor, intenta de nuevo.</p>
+      </EmptyState>
     )
   }
 
+  if (images.length === 0) {
+    return (
+      <EmptyState
+        heading={searchTerm ? 'No se encontraron imágenes' : 'No tienes imágenes'}
+        action={{
+          content: 'Subir imágenes',
+          onAction: () => {}, // Se podría conectar a un trigger de subida
+        }}
+        image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+      >
+        <p>
+          {searchTerm
+            ? 'Prueba con un término de búsqueda diferente.'
+            : 'Arrastra y suelta archivos para subirlos.'}
+        </p>
+      </EmptyState>
+    )
+  }
+
+  const isSelected = (image: S3Image) => {
+    if (allowMultipleSelection && Array.isArray(selectedImage)) {
+      return selectedImage.includes(image.key)
+    }
+    return selectedImage === image.key
+  }
+
   return (
-    <>
-      {viewMode === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
-          {images.map((image, index) => (
-            <div
-              key={getImageKey(image, index)}
-              className={`relative border rounded-md overflow-hidden ${allowMultipleSelection ? (Array.isArray(selectedImage) && selectedImage.includes(image.key) ? 'ring-2 ring-blue-500' : '') : selectedImage === image.key ? 'ring-2 ring-blue-500' : ''}`}
-              onClick={() => onImageSelect(image)}
-            >
-              <div className="absolute top-2 left-2 z-10">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4"
-                  checked={
-                    allowMultipleSelection
-                      ? Array.isArray(selectedImage) && selectedImage.includes(image.key)
-                      : selectedImage === image.key
-                  }
-                  onChange={() => onImageSelect(image)}
-                  onClick={e => e.stopPropagation()}
-                />
-              </div>
-              <div className="absolute top-2 right-2 z-10">
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={e => {
-                    e.stopPropagation()
-                    onDeleteImage(image.key)
-                  }}
+    <Grid>
+      {images.map(image => (
+        <Grid.Cell key={image.key} columnSpan={{ xs: 2, sm: 2, md: 2, lg: 4, xl: 4 }}>
+          <div
+            onClick={() => onImageSelect(image)}
+            style={{
+              cursor: 'pointer',
+              outline: isSelected(image) ? '2px solid #2962ff' : 'none',
+              outlineOffset: '2px',
+              borderRadius: 'var(--p-border-radius-200)',
+            }}
+          >
+            <Card padding="0">
+              <Box position="relative" borderRadius="200">
+                <div
+                  style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1 }}
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
                 >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="aspect-square">
-                <Image
-                  src={image.url || '/placeholder.svg'}
-                  alt={image.filename}
-                  width={300}
-                  height={300}
-                  quality={75}
-                  className="object-cover w-full h-full hover:scale-105 transition-transform duration-200"
-                  style={{ objectFit: 'cover' }}
-                  placeholder="blur"
-                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
-                />
-              </div>
-
-              <div className="p-2 text-xs">
-                <div className="truncate">{image.filename}</div>
-                <div className="text-muted-foreground">
-                  {image.type?.split('/')[1]?.toUpperCase() || 'IMG'}
+                  <Button
+                    icon={DeleteIcon}
+                    size="slim"
+                    variant="primary"
+                    tone="critical"
+                    onClick={() => onDeleteImage(image.key)}
+                    accessibilityLabel="Eliminar imagen"
+                  />
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Image gallery - List view */}
-      {viewMode === 'list' && (
-        <div className="space-y-2 mt-4">
-          {images.map((image, index) => (
-            <div
-              key={getImageKey(image, index)}
-              className={`flex items-center border rounded-md p-2 ${allowMultipleSelection ? (Array.isArray(selectedImage) && selectedImage.includes(image.key) ? 'ring-2 ring-blue-500' : '') : selectedImage === image.key ? 'ring-2 ring-blue-500' : ''}`}
-              onClick={() => onImageSelect(image)}
-            >
-              <div className="mr-2">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4"
-                  checked={
-                    allowMultipleSelection
-                      ? Array.isArray(selectedImage) && selectedImage.includes(image.key)
-                      : selectedImage === image.key
-                  }
-                  onChange={() => onImageSelect(image)}
-                  onClick={e => e.stopPropagation()}
-                />
-              </div>
-              <div className="h-12 w-12 mr-4 flex-shrink-0">
-                <Image
-                  src={image.url || '/placeholder.svg'}
-                  alt={image.filename}
-                  width={96}
-                  height={96}
-                  quality={75}
-                  className="object-cover w-full h-full rounded"
-                  style={{ objectFit: 'cover' }}
-                  placeholder="blur"
-                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="truncate">{image.filename}</div>
-                <div className="text-xs text-muted-foreground">
-                  {image.type?.split('/')[1]?.toUpperCase() || 'IMG'} •
-                  {image.size ? ` ${Math.round(image.size / 1024)} KB` : ''}
-                </div>
-              </div>
-              <Button
-                variant="destructive"
-                size="icon"
-                className="ml-2"
-                onClick={e => {
-                  e.stopPropagation()
-                  onDeleteImage(image.key)
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
-    </>
+                <Thumbnail source={image.url || ''} alt={image.filename} size="large" />
+              </Box>
+              <Box padding="200">
+                <Text as="p" variant="bodySm" truncate>
+                  {image.filename}
+                </Text>
+              </Box>
+            </Card>
+          </div>
+        </Grid.Cell>
+      ))}
+    </Grid>
   )
 }

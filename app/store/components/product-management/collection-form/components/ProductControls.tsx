@@ -1,13 +1,7 @@
-import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { SearchInput } from '@/app/store/components/product-management/collection-form/search-input'
+import { Button, TextField, Select, InlineStack } from '@shopify/polaris'
+import { SearchIcon } from '@shopify/polaris-icons'
 import type { SortOption } from '@/app/store/components/product-management/collection-form/types/productTypes'
+import { useCallback } from 'react'
 
 interface ProductControlsProps {
   searchTerm: string
@@ -24,34 +18,41 @@ export function ProductControls({
   onSortChange,
   onOpenDialog,
 }: ProductControlsProps) {
+  const handleSortChange = useCallback(
+    (value: string) => onSortChange(value as SortOption),
+    [onSortChange]
+  )
+
+  const sortOptions = [
+    { label: 'Más recientes', value: 'mas-recientes' },
+    { label: 'Más antiguos', value: 'mas-antiguos' },
+    { label: 'Mayor precio', value: 'precio-mayor' },
+    { label: 'Menor precio', value: 'precio-menor' },
+  ]
+
   return (
-    <div className="flex flex-col sm:flex-row gap-2 mb-4">
-      <SearchInput
-        placeholder="Buscar productos"
-        className="flex-grow"
-        value={searchTerm}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
-      />
-      <Button
-        variant="outline"
-        className="border-gray-300 whitespace-nowrap"
-        onClick={onOpenDialog}
-      >
-        Explorar
-      </Button>
-      <div className="relative">
-        <Select value={sortOption} onValueChange={onSortChange}>
-          <SelectTrigger className="border-gray-300 w-full sm:w-[180px]">
-            <SelectValue placeholder="Ordenar" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="mas-recientes">Más recientes</SelectItem>
-            <SelectItem value="mas-antiguos">Más antiguos</SelectItem>
-            <SelectItem value="precio-mayor">Mayor precio</SelectItem>
-            <SelectItem value="precio-menor">Menor precio</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+    <div style={{ padding: '12px' }}>
+      <InlineStack gap="300" align="center" blockAlign="center" wrap={false}>
+        <div style={{ flex: '1 1 auto' }}>
+          <TextField
+            label="Buscar productos"
+            labelHidden
+            placeholder="Buscar productos"
+            value={searchTerm}
+            onChange={onSearchChange}
+            prefix={<SearchIcon />}
+            autoComplete="off"
+          />
+        </div>
+        <Select
+          label="Ordenar por"
+          labelInline
+          options={sortOptions}
+          value={sortOption}
+          onChange={handleSortChange}
+        />
+        <Button onClick={onOpenDialog}>Explorar</Button>
+      </InlineStack>
     </div>
   )
 }

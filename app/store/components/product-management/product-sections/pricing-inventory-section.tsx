@@ -1,24 +1,14 @@
 import type { UseFormReturn } from 'react-hook-form'
-import { Separator } from '@/components/ui/separator'
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { FormLayout, TextField, BlockStack, Divider, Grid, Text } from '@shopify/polaris'
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 import { useState } from 'react'
-import { toast } from 'sonner'
+import { useToast } from '@/app/store/context/ToastContext'
 import {
   usePriceSuggestion,
   type PriceSuggestionResult,
 } from '@/app/store/components/product-management/hooks/usePriceSuggestion'
 import { PriceSuggestionPanel } from '@/app/store/components/product-management/product-sections/price-suggestion-panel'
-import { cn } from '@/lib/utils'
-import CurrencyInput from 'react-currency-input-field'
+import { Controller } from 'react-hook-form'
 
 interface PricingInventorySectionProps {
   form: UseFormReturn<ProductFormValues>
@@ -33,6 +23,7 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
   } = usePriceSuggestion()
 
   const [localPriceResult, setLocalPriceResult] = useState<PriceSuggestionResult | null>(null)
+  const { showToast } = useToast()
 
   const displayResult = localPriceResult || priceResult
 
@@ -41,9 +32,7 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
     const category = form.getValues('category')
 
     if (!productName) {
-      toast.error('Error', {
-        description: 'Por favor, ingrese un nombre de producto primero.',
-      })
+      showToast('Por favor, ingrese un nombre de producto primero.', true)
       return
     }
 
@@ -72,9 +61,7 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
       }
 
       if (parsedResult) {
-        toast.success('Sugerencia generada', {
-          description: 'Se ha generado una sugerencia de precio basada en el mercado.',
-        })
+        showToast('Se ha generado una sugerencia de precio basada en el mercado.')
 
         // Si tenemos un costo por artículo, podemos calcular el margen
         const costPerItem = form.getValues('costPerItem')
@@ -82,9 +69,9 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
           const margin =
             ((parsedResult.suggestedPrice - costPerItem) / parsedResult.suggestedPrice) * 100
           if (margin < 10) {
-            toast.warning('Margen bajo', {
-              description: `El margen calculado es de ${margin.toFixed(1)}%, que es menor al 10% recomendado.`,
-            })
+            showToast(
+              `El margen calculado es de ${margin.toFixed(1)}%, que es menor al 10% recomendado.`
+            )
           }
         }
       } else {
@@ -92,9 +79,7 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
       }
     } catch (error) {
       console.error('Error generating price suggestion:', error)
-      toast.error('Error', {
-        description: 'No se pudo generar la sugerencia de precio. Inténtelo de nuevo más tarde.',
-      })
+      showToast('No se pudo generar la sugerencia de precio. Inténtelo de nuevo más tarde.', true)
     }
   }
 
@@ -118,9 +103,7 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
         })
       }
 
-      toast.success('Precio aplicado', {
-        description: 'El precio sugerido ha sido aplicado al producto.',
-      })
+      showToast('El precio sugerido ha sido aplicado al producto.')
       resetPriceSuggestion()
       setLocalPriceResult(null)
     }
@@ -129,176 +112,142 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
   const rejectPrice = () => {
     resetPriceSuggestion()
     setLocalPriceResult(null)
-    toast.info('Sugerencia descartada', {
-      description: 'La sugerencia de precio ha sido descartada.',
-    })
+    showToast('La sugerencia de precio ha sido descartada.')
+  }
+
+  const currencyTransformer = {
+    format: (value: string | number | undefined) => {
+      if (value === undefined || value === null || value === '') return ''
+      return String(value).replace('.', ',')
+    },
+    parse: (value: string) => {
+      return value.replace(',', '.')
+    },
   }
 
   return (
-    <div className="grid gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <PriceSuggestionPanel
-                form={form}
-                isGeneratingPrice={isGeneratingPrice}
-                displayResult={displayResult}
-                onGeneratePrice={handleGeneratePrice}
-                onAcceptPrice={acceptPrice}
-                onRejectPrice={rejectPrice}
-              />
-
-              <FormControl>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                  <CurrencyInput
-                    id="price-input"
-                    className={cn(
-                      'w-full h-10 rounded-md border border-input bg-transparent px-3 py-2 text-base ring-offset-background',
-                      'pl-7 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
-                      'disabled:cursor-not-allowed disabled:opacity-50 md:text-sm'
-                    )}
-                    placeholder="0.00"
-                    decimalsLimit={2}
-                    decimalSeparator=","
-                    groupSeparator="."
-                    allowNegativeValue={false}
-                    value={field.value ?? ''}
-                    onValueChange={value => field.onChange(value ? Number(value) : '')}
-                  />
-                </div>
-              </FormControl>
-              <FormDescription>El precio que pagarán los clientes.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="compareAtPrice"
-          render={({ field }) => (
-            <FormItem className="space-y-5">
-              <FormLabel>Precio de Comparación</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                  <CurrencyInput
-                    id="price-input"
-                    className={cn(
-                      'w-full h-10 rounded-md border border-input bg-transparent px-3 py-2 text-base ring-offset-background',
-                      'pl-7 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
-                      'disabled:cursor-not-allowed disabled:opacity-50 md:text-sm'
-                    )}
-                    placeholder="0.00"
-                    decimalsLimit={2}
-                    decimalSeparator=","
-                    groupSeparator="."
-                    allowNegativeValue={false}
-                    value={field.value ?? ''}
-                    onValueChange={value => field.onChange(value ? Number(value) : '')}
-                  />
-                </div>
-              </FormControl>
-              <FormDescription>Precio original antes del descuento (opcional).</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <FormField
-        control={form.control}
-        name="costPerItem"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Costo por Artículo</FormLabel>
-            <FormControl>
-              <div className="relative">
-                <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                <CurrencyInput
-                  id="price-input"
-                  className={cn(
-                    'w-full h-10 rounded-md border border-input bg-transparent px-3 py-2 text-base ring-offset-background',
-                    'pl-7 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
-                    'disabled:cursor-not-allowed disabled:opacity-50 md:text-sm'
-                  )}
-                  placeholder="0.00"
-                  decimalsLimit={2}
-                  decimalSeparator=","
-                  groupSeparator="."
-                  allowNegativeValue={false}
-                  value={field.value ?? ''}
-                  onValueChange={value => field.onChange(value ? Number(value) : '')}
+    <BlockStack gap="400">
+      <Text as="h2" variant="headingMd">
+        Precios
+      </Text>
+      <FormLayout>
+        <FormLayout.Group>
+          <Controller
+            name="price"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <BlockStack gap="150">
+                <PriceSuggestionPanel
+                  form={form}
+                  isGeneratingPrice={isGeneratingPrice}
+                  displayResult={displayResult}
+                  onGeneratePrice={handleGeneratePrice}
+                  onAcceptPrice={acceptPrice}
+                  onRejectPrice={rejectPrice}
                 />
-              </div>
-            </FormControl>
-            <FormDescription>
-              Su costo para comprar o producir este artículo (opcional).
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <Separator className="my-2" />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          control={form.control}
-          name="sku"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>SKU (Código de Artículo)</FormLabel>
-              <FormControl>
-                <Input placeholder="SKU-123456" {...field} />
-              </FormControl>
-              <FormDescription>Un identificador único para su producto.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="barcode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Código de Barras (ISBN, UPC, GTIN, etc.)</FormLabel>
-              <FormControl>
-                <Input placeholder="123456789012" {...field} />
-              </FormControl>
-              <FormDescription>Ingrese un código de barras para su producto.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <FormField
-        control={form.control}
-        name="quantity"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Cantidad</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                min="0"
-                step="1"
-                placeholder="0"
+                <TextField
+                  {...field}
+                  label="Precio"
+                  type="number"
+                  prefix="$"
+                  value={currencyTransformer.format(field.value || '')}
+                  onChange={value => field.onChange(currencyTransformer.parse(value))}
+                  error={fieldState.error?.message}
+                  autoComplete="off"
+                  helpText="El precio que pagarán los clientes."
+                />
+              </BlockStack>
+            )}
+          />
+          <Controller
+            name="compareAtPrice"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <TextField
                 {...field}
-                className="max-w-xs"
+                label="Precio de Comparación"
+                type="number"
+                prefix="$"
+                value={currencyTransformer.format(field.value || '')}
+                onChange={value => field.onChange(currencyTransformer.parse(value))}
+                error={fieldState.error?.message}
+                autoComplete="off"
+                helpText="Precio original antes del descuento (opcional)."
               />
-            </FormControl>
-            <FormDescription>El número de artículos en stock.</FormDescription>
-            <FormMessage />
-          </FormItem>
+            )}
+          />
+        </FormLayout.Group>
+      </FormLayout>
+      <Controller
+        name="costPerItem"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <TextField
+            {...field}
+            label="Costo por Artículo"
+            type="number"
+            prefix="$"
+            value={currencyTransformer.format(field.value || '')}
+            onChange={value => field.onChange(currencyTransformer.parse(value))}
+            error={fieldState.error?.message}
+            autoComplete="off"
+            helpText="Su costo para comprar o producir este artículo (opcional)."
+          />
         )}
       />
-    </div>
+      <Divider />
+      <Text as="h2" variant="headingMd">
+        Inventario
+      </Text>
+      <Grid>
+        <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
+          <Controller
+            name="sku"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                label="SKU (Código de Artículo)"
+                error={fieldState.error?.message}
+                autoComplete="off"
+                helpText="Un identificador único para su producto."
+              />
+            )}
+          />
+        </Grid.Cell>
+        <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
+          <Controller
+            name="barcode"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                label="Código de Barras (ISBN, UPC, GTIN, etc.)"
+                error={fieldState.error?.message}
+                autoComplete="off"
+                helpText="Ingrese un código de barras para su producto."
+              />
+            )}
+          />
+        </Grid.Cell>
+      </Grid>
+      <Controller
+        name="quantity"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <TextField
+            {...field}
+            label="Cantidad"
+            type="number"
+            min={0}
+            step={1}
+            value={String(field.value ?? '')}
+            error={fieldState.error?.message}
+            autoComplete="off"
+            helpText="El número de artículos en stock."
+          />
+        )}
+      />
+    </BlockStack>
   )
 }

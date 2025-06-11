@@ -1,15 +1,13 @@
 import { useRouter, useParams, usePathname } from 'next/navigation'
+import { Page, Layout, PageActions, ContextualSaveBar } from '@shopify/polaris'
 import useStoreDataStore from '@/context/core/storeDataStore'
 import useUserStore from '@/context/core/userStore'
 import { useCollections } from '@/app/store/hooks/useCollections'
 import { getStoreId } from '@/utils/store-utils'
-import { UnsavedChangesAlert } from '@/components/ui/unsaved-changes-alert'
 import { useCollectionForm } from '@/app/store/components/product-management/utils/collection-form-utils'
 
-import { CollectionHeader } from '@/app/store/components/product-management/collection-form/components/CollectionHeader'
 import { CollectionContent } from '@/app/store/components/product-management/collection-form/components/CollectionContent'
 import { CollectionSidebar } from '@/app/store/components/product-management/collection-form/components/CollectionSidebar'
-import { CollectionFooter } from '@/app/store/components/product-management/collection-form/components/CollectionFooter'
 import { configureAmplify } from '@/lib/amplify-config'
 
 configureAmplify()
@@ -22,11 +20,9 @@ export function FormPage() {
   const { currentStore } = useStoreDataStore()
   const { user } = useUserStore()
 
-  // Obtener el ID de la colección de los parámetros
   const collectionId = (params?.collectionId as string) || (params?.id as string)
   const isEditing = !!collectionId
 
-  // Usar el hook de colecciones
   const {
     useGetCollection,
     useCreateCollection,
@@ -36,10 +32,8 @@ export function FormPage() {
     removeProductFromCollection,
   } = useCollections()
 
-  // Consultar datos de la colección si estamos editando
   const { data: collectionData, isLoading, error } = useGetCollection(collectionId || '')
 
-  // Usar el hook personalizado para la lógica del formulario
   const {
     title,
     description,
@@ -74,12 +68,40 @@ export function FormPage() {
     removeProductFromCollection,
   })
 
-  return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans mt-8">
-      <div className="max-w-7xl mx-auto p-4">
-        <CollectionHeader isEditing={isEditing} onBack={router.back} />
+  const pageTitle = isEditing ? 'Editar colección' : 'Nueva colección'
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  const secondaryActions = isEditing
+    ? [
+        {
+          content: 'Eliminar colección',
+          destructive: true,
+          onAction: handleDeleteCollection,
+        },
+      ]
+    : []
+
+  const saveBarMarkup = hasUnsavedChanges ? (
+    <ContextualSaveBar
+      message="Cambios sin guardar"
+      saveAction={{
+        onAction: handleSaveCollection,
+        loading: isSubmitting,
+      }}
+      discardAction={{
+        onAction: handleDiscardChanges,
+      }}
+    />
+  ) : null
+
+  return (
+    <Page
+      title={pageTitle}
+      backAction={{ content: 'Colecciones', onAction: router.back }}
+      fullWidth
+    >
+      {saveBarMarkup}
+      <Layout>
+        <Layout.Section>
           <CollectionContent
             title={title}
             description={description}
@@ -91,31 +113,26 @@ export function FormPage() {
             onAddProduct={handleAddProduct}
             onRemoveProduct={handleRemoveProduct}
           />
-
+        </Layout.Section>
+        <Layout.Section variant="oneThird">
           <CollectionSidebar
             isActive={isActive}
             imageUrl={imageUrl}
             onActiveChange={setIsActive}
             onImageChange={handleImageChange}
           />
-        </div>
+        </Layout.Section>
+      </Layout>
 
-        <CollectionFooter
-          isEditing={isEditing}
-          isSubmitting={isSubmitting}
-          onSave={handleSaveCollection}
-          onDelete={isEditing ? handleDeleteCollection : undefined}
-        />
-      </div>
-
-      {/* Alerta de cambios sin guardar - only show if data is loaded */}
-      {hasUnsavedChanges && !isSubmitting && isDataLoaded && (
-        <UnsavedChangesAlert
-          onSave={handleSaveCollection}
-          onDiscard={handleDiscardChanges}
-          setIsSubmitting={setIsSubmitting}
-        />
-      )}
-    </div>
+      <PageActions
+        primaryAction={{
+          content: 'Guardar',
+          loading: isSubmitting,
+          onAction: handleSaveCollection,
+          disabled: !hasUnsavedChanges,
+        }}
+        secondaryActions={secondaryActions}
+      />
+    </Page>
   )
 }

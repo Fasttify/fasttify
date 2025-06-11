@@ -1,7 +1,6 @@
 import { useProducts } from '@/app/store/hooks/useProducts'
 import { InventoryTracking } from '@/app/store/components/product-management/main-components/InventoryTracking'
 import { InventoryPage } from '@/app/store/components/product-management/main-components/InventoryPage'
-import { Loader } from '@/components/ui/loader'
 import { ProductPageSkeleton } from '@/app/store/components/product-management/main-components/ProductPageSkeleton'
 
 interface InventoryManagerProps {
