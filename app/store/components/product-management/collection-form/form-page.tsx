@@ -32,7 +32,7 @@ export function FormPage() {
     removeProductFromCollection,
   } = useCollections()
 
-  const { data: collectionData, isLoading, error } = useGetCollection(collectionId || '')
+  const { data: collectionData } = useGetCollection(collectionId)
 
   const {
     title,
@@ -43,10 +43,9 @@ export function FormPage() {
     isSubmitting,
     hasUnsavedChanges,
     selectedProducts,
-    isDataLoaded,
+
     setTitle,
     setIsActive,
-    setIsSubmitting,
     handleAddProduct,
     handleRemoveProduct,
     handleDescriptionChange,
