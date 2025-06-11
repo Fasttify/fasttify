@@ -59,7 +59,7 @@
     "ogl": "^1.0.11",
     "react": "^18",
     "react-currency-input-field": "^3.10.0",
-    "react-day-picker": "^8.10.1",
+    "react-day-picker": "^9.7.0",
     "react-dom": "^18",
     "react-hook-form": "^7.54.2",
     "recharts": "^2.15.1",
