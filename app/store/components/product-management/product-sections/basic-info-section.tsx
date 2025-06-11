@@ -67,13 +67,6 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
     { label: 'Deportes y Aire Libre', value: 'Deporte' },
   ]
 
-  const statusOptions = [
-    { label: 'Borrador', value: 'draft' },
-    { label: 'Pendiente', value: 'pending' },
-    { label: 'Activo', value: 'active' },
-    { label: 'Inactivo', value: 'inactive' },
-  ]
-
   return (
     <BlockStack gap="400">
       <Text as="h2" variant="headingMd">
@@ -149,22 +142,6 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
               value={field.value || ''}
               error={fieldState.error?.message}
               helpText="Seleccione la categoría que mejor se adapte a su producto."
-            />
-          )}
-        />
-
-        <Controller
-          name="status"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Select
-              label="Estado"
-              options={statusOptions}
-              onBlur={field.onBlur}
-              onChange={value => field.onChange(value)}
-              value={field.value || ''}
-              error={fieldState.error?.message}
-              helpText="Establezca el estado actual de este producto."
             />
           )}
         />
