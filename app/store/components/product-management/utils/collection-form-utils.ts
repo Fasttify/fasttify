@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { useToast } from '@/app/store/context/ToastContext'
 import { IProduct } from '@/app/store/hooks/useProducts'
 import { CollectionInput } from '@/app/store/hooks/useCollections'
 import { routes } from '@/utils/routes'
@@ -52,6 +52,7 @@ export const useCollectionForm = ({
   removeProductFromCollection,
 }: UseCollectionFormProps) => {
   const router = useRouter()
+  const { showToast } = useToast()
 
   const [isDataLoaded, setIsDataLoaded] = useState(false)
 
@@ -189,7 +190,7 @@ export const useCollectionForm = ({
   // Función para guardar la colección
   const handleSaveCollection = async () => {
     if (!currentStore?.storeId || !user?.userId) {
-      toast.error('No se pudo identificar la tienda o el usuario')
+      showToast('No se pudo identificar la tienda o el usuario.', true)
       return
     }
 
@@ -256,17 +257,15 @@ export const useCollectionForm = ({
       setInitialSelectedProducts([...selectedProducts])
       setHasUnsavedChanges(false)
 
-      toast.success(
-        isEditing ? 'Colección actualizada correctamente' : 'Colección creada correctamente'
-      )
+      showToast('Colección guardada exitosamente.')
 
       // Redirigir a la lista de colecciones
       router.push(routes.store.products.collections(storeId))
-      // No desactivamos isSubmitting para mantener el botón deshabilitado hasta la redirección
     } catch (error) {
-      console.error('Error al guardar la colección:', error)
-      toast.error('Ocurrió un error al guardar la colección')
-      setIsSubmitting(false) // Solo desactivamos en caso de error
+      console.error('Error saving collection:', error)
+      showToast('Error al guardar la colección.', true)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -278,13 +277,13 @@ export const useCollectionForm = ({
       setIsSubmitting(true)
       try {
         await deleteCollection.mutateAsync(collectionId)
-        toast.success('Colección eliminada correctamente')
+        showToast('Colección eliminada.')
         router.push(routes.store.products.collections(storeId))
-        // No desactivamos isSubmitting para mantener el botón deshabilitado hasta la redirección
       } catch (error) {
         console.error('Error deleting collection:', error)
-        toast.error('Ocurrió un error al eliminar la colección')
-        setIsSubmitting(false) // Solo desactivamos en caso de error
+        showToast('Error al eliminar la colección.', true)
+      } finally {
+        setIsSubmitting(false)
       }
     }
   }

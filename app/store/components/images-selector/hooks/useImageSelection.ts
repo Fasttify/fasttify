@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import type { S3Image } from '@/app/store/hooks/useS3Images'
 
 interface UseImageSelectionProps {
-  initialSelectedImage?: string | null
+  initialSelectedImage?: string | string[] | null
   allowMultipleSelection?: boolean
   images: S3Image[]
 }
@@ -12,13 +12,18 @@ export function useImageSelection({
   allowMultipleSelection = false,
   images,
 }: UseImageSelectionProps) {
-  const [selectedImage, setSelectedImage] = useState<string | string[] | null>(
-    allowMultipleSelection
-      ? initialSelectedImage
-        ? [initialSelectedImage]
-        : []
-      : initialSelectedImage
-  )
+  const [selectedImage, setSelectedImage] = useState<string | string[] | null>(() => {
+    if (allowMultipleSelection) {
+      if (Array.isArray(initialSelectedImage)) {
+        return initialSelectedImage
+      }
+      if (typeof initialSelectedImage === 'string') {
+        return [initialSelectedImage]
+      }
+      return []
+    }
+    return initialSelectedImage
+  })
 
   const handleImageSelect = useCallback(
     (image: S3Image) => {

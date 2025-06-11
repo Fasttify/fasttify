@@ -38,14 +38,8 @@ export const useProductSelection = ({
   }, [products, searchTerm, sortOption])
 
   // Manejar selección de productos en el diálogo
-  const handleProductSelect = (productId: string) => {
-    setDialogSelectedProducts(prev => {
-      if (prev.includes(productId)) {
-        return prev.filter(id => id !== productId)
-      } else {
-        return [...prev, productId]
-      }
-    })
+  const handleProductSelect = (selectedIds: string[]) => {
+    setDialogSelectedProducts(selectedIds)
   }
 
   // Confirmar selección de productos

@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Card, Select, BlockStack } from '@shopify/polaris'
 import { PublicationSection } from '@/app/store/components/product-management/collection-form/publication-section'
 import { ImageSection } from '@/app/store/components/product-management/collection-form/image-section'
 
@@ -21,26 +15,24 @@ export function CollectionSidebar({
   onActiveChange,
   onImageChange,
 }: CollectionSidebarProps) {
+  const templateOptions = [{ label: 'Colección predeterminada', value: 'default' }]
+
   return (
-    <div className="space-y-6">
-      {/* Publication Section */}
+    <BlockStack gap="200">
       <PublicationSection isActive={isActive} onActiveChange={onActiveChange} />
 
-      {/* Image Section */}
       <ImageSection imageUrl={imageUrl} onImageChange={onImageChange} />
 
-      {/* Theme Template Section */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-sm font-medium mb-4">Plantilla de tema</h2>
-        <Select defaultValue="coleccion">
-          <SelectTrigger className="border-gray-300">
-            <SelectValue placeholder="Seleccionar plantilla" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="coleccion">Colección predeterminada</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
+      <Card>
+        <Select
+          label="Plantilla de tema"
+          options={templateOptions}
+          value="default"
+          onChange={() => {
+            // Lógica para cambiar la plantilla si es necesario
+          }}
+        />
+      </Card>
+    </BlockStack>
   )
 }

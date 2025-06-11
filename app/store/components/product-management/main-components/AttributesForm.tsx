@@ -1,14 +1,21 @@
-import { useState } from 'react'
-import { Plus, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { useState, useCallback } from 'react'
+import {
+  Card,
+  Text,
+  BlockStack,
+  TextField,
+  Button,
+  ResourceList,
+  ResourceItem,
+  LegacyStack,
+  Tag,
+  EmptyState,
+  Banner,
+} from '@shopify/polaris'
 
 interface Attribute {
-  name: string
-  values: string[]
+  name?: string
+  values?: string[]
 }
 
 interface AttributesFormProps {
@@ -16,205 +23,168 @@ interface AttributesFormProps {
   onChange: (value: Attribute[]) => void
 }
 
-export function AttributesForm({ value, onChange }: AttributesFormProps) {
+export function AttributesForm({ value: attributes, onChange }: AttributesFormProps) {
   const [newAttributeName, setNewAttributeName] = useState('')
   const [newAttributeValue, setNewAttributeValue] = useState('')
-  const [selectedAttributeIndex, setSelectedAttributeIndex] = useState<number | null>(null)
+  const [selectedAttributeIndex, setSelectedAttributeIndex] = useState<string | undefined>(
+    attributes.length > 0 ? '0' : undefined
+  )
 
-  const addAttribute = () => {
+  const handleAddAttribute = useCallback(() => {
     if (!newAttributeName.trim()) return
-
-    onChange([...value, { name: newAttributeName, values: [] }])
-    setNewAttributeName('')
-    setSelectedAttributeIndex(value.length)
-  }
-
-  const removeAttribute = (index: number) => {
-    const newAttributes = [...value]
-    newAttributes.splice(index, 1)
+    const newAttributes = [...attributes, { name: newAttributeName.trim(), values: [] }]
     onChange(newAttributes)
+    setNewAttributeName('')
+    setSelectedAttributeIndex(String(newAttributes.length - 1))
+  }, [newAttributeName, attributes, onChange])
 
-    if (selectedAttributeIndex === index) {
-      setSelectedAttributeIndex(null)
-    } else if (selectedAttributeIndex !== null && selectedAttributeIndex > index) {
-      setSelectedAttributeIndex(selectedAttributeIndex - 1)
-    }
-  }
+  const handleRemoveAttribute = useCallback(
+    (indexToRemove: number) => {
+      const newAttributes = attributes.filter((_, i) => i !== indexToRemove)
+      onChange(newAttributes)
 
-  const addAttributeValue = () => {
-    if (selectedAttributeIndex === null || !newAttributeValue.trim()) return
+      const currentSelected = selectedAttributeIndex ? parseInt(selectedAttributeIndex, 10) : -1
 
-    const newAttributes = [...value]
-    if (!newAttributes[selectedAttributeIndex].values.includes(newAttributeValue)) {
-      newAttributes[selectedAttributeIndex].values.push(newAttributeValue)
+      if (currentSelected === indexToRemove) {
+        setSelectedAttributeIndex(newAttributes.length > 0 ? '0' : undefined)
+      } else if (currentSelected > indexToRemove) {
+        setSelectedAttributeIndex(String(currentSelected - 1))
+      }
+    },
+    [attributes, onChange, selectedAttributeIndex]
+  )
+
+  const handleAddAttributeValue = useCallback(() => {
+    const index = selectedAttributeIndex ? parseInt(selectedAttributeIndex, 10) : -1
+    if (index === -1 || !newAttributeValue.trim()) return
+
+    const newAttributes = [...attributes]
+    const currentAttribute = newAttributes[index]
+    if (!currentAttribute.values?.includes(newAttributeValue.trim())) {
+      currentAttribute.values = [...(currentAttribute.values || []), newAttributeValue.trim()]
       onChange(newAttributes)
     }
     setNewAttributeValue('')
-  }
+  }, [newAttributeValue, selectedAttributeIndex, attributes, onChange])
 
-  const removeAttributeValue = (attrIndex: number, valueIndex: number) => {
-    const newAttributes = [...value]
-    newAttributes[attrIndex].values.splice(valueIndex, 1)
-    onChange(newAttributes)
-  }
+  const handleRemoveAttributeValue = useCallback(
+    (valueIndex: number) => {
+      const index = selectedAttributeIndex ? parseInt(selectedAttributeIndex, 10) : -1
+      if (index === -1) return
+      const newAttributes = [...attributes]
+      newAttributes[index].values?.splice(valueIndex, 1)
+      onChange(newAttributes)
+    },
+    [selectedAttributeIndex, attributes, onChange]
+  )
 
-  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      action()
+  const selectedIndex =
+    selectedAttributeIndex !== undefined ? parseInt(selectedAttributeIndex, 10) : -1
+  const selectedAttribute = selectedIndex !== -1 ? attributes[selectedIndex] : null
+
+  const resourceListItems = attributes.map((attr, index) => {
+    return {
+      id: String(index),
+      name: attr.name || '',
+      actions: [{ content: 'Eliminar', onAction: () => handleRemoveAttribute(index) }],
     }
-  }
+  })
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label>Atributos del Producto</Label>
-        <p className="text-sm text-muted-foreground">
-          Agregue atributos como talla, color, material, etc. para crear variantes del producto.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="space-y-4">
-          <div className="flex items-end gap-2">
-            <div className="flex-1">
-              <Label htmlFor="new-attribute">Nuevo Atributo</Label>
-              <Input
-                id="new-attribute"
-                value={newAttributeName}
-                onChange={e => setNewAttributeName(e.target.value)}
-                placeholder="ej. Talla, Color, Material"
-                onKeyDown={e => handleKeyDown(e, addAttribute)}
-              />
-            </div>
-            <Button
-              className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
-              type="button"
-              onClick={addAttribute}
-              disabled={!newAttributeName.trim()}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Agregar
+    <Card>
+      <BlockStack gap="400">
+        <Text as="h2" variant="headingMd">
+          Atributos
+        </Text>
+        <Text as="p" tone="subdued">
+          Agregue atributos como talla, color, etc. para crear variantes del producto.
+        </Text>
+        <TextField
+          label="Nuevo Atributo"
+          labelHidden
+          value={newAttributeName}
+          onChange={setNewAttributeName}
+          placeholder="ej. Talla, Color"
+          autoComplete="off"
+          connectedRight={
+            <Button onClick={handleAddAttribute} disabled={!newAttributeName.trim()}>
+              Agregar Atributo
             </Button>
-          </div>
+          }
+        />
 
-          <div className="space-y-2">
-            {value.length > 0 ? (
-              <div className="space-y-2">
-                {value.map((attr, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-center justify-between text-white p-2 rounded-md bg-[#2a2a2a] hover:bg-[#3a3a3a] cursor-pointer ${
-                      selectedAttributeIndex === index
-                        ? 'bg-[#2a2a2a] text-white'
-                        : 'hover:bg-muted'
-                    }`}
-                    onClick={() => setSelectedAttributeIndex(index)}
+        {attributes.length > 0 ? (
+          <BlockStack gap="400">
+            <ResourceList
+              resourceName={{ singular: 'atributo', plural: 'atributos' }}
+              items={resourceListItems}
+              selectedItems={selectedAttributeIndex ? [selectedAttributeIndex] : []}
+              onSelectionChange={selected => {
+                setSelectedAttributeIndex(selected[0])
+              }}
+              renderItem={item => {
+                const { id, name, actions } = item
+                return (
+                  <ResourceItem
+                    id={id}
+                    onClick={() => setSelectedAttributeIndex(id)}
+                    shortcutActions={actions}
+                    persistActions
                   >
-                    <div className="font-medium">{attr.name}</div>
-                    <div className="flex items-center gap-2 ">
-                      <Badge variant="outline" className="bg-background">
-                        {attr.values.length} valores
-                      </Badge>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={e => {
-                          e.stopPropagation()
-                          removeAttribute(index)
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                        <span className="sr-only">Eliminar</span>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-muted-foreground italic">
-                No se han agregado atributos aún
-              </div>
-            )}
-          </div>
-        </div>
+                    <Text variant="bodyMd" fontWeight="bold" as="h3">
+                      {name}
+                    </Text>
+                  </ResourceItem>
+                )
+              }}
+            />
 
-        <div className="md:col-span-2">
-          {selectedAttributeIndex !== null && value[selectedAttributeIndex] ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium text-lg">
-                  Valores de {value[selectedAttributeIndex].name}
-                </h3>
-              </div>
-
-              <Separator />
-
-              <div className="flex items-end gap-2">
-                <div className="flex-1">
-                  <Label htmlFor="new-value">Nuevo Valor</Label>
-                  <Input
-                    id="new-value"
+            {selectedAttribute ? (
+              <Card background="bg-surface-secondary" roundedAbove="sm">
+                <BlockStack gap="400">
+                  <Text variant="headingMd" as="h3">
+                    Valores de {selectedAttribute.name}
+                  </Text>
+                  <TextField
+                    label={`Nuevo valor para ${selectedAttribute.name}`}
+                    labelHidden
                     value={newAttributeValue}
-                    onChange={e => setNewAttributeValue(e.target.value)}
-                    placeholder={`Agregar valor de ${value[selectedAttributeIndex].name.toLowerCase()}`}
-                    onKeyDown={e => handleKeyDown(e, addAttributeValue)}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  className="bg-[#2a2a2a] hover:bg-[#3a3a3a]"
-                  onClick={addAttributeValue}
-                  disabled={!newAttributeValue.trim()}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Agregar
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mt-4">
-                {value[selectedAttributeIndex].values.length > 0 ? (
-                  value[selectedAttributeIndex].values.map((val, valueIndex) => (
-                    <Badge
-                      key={valueIndex}
-                      variant="secondary"
-                      className="flex items-center gap-1 px-3 py-1.5"
-                    >
-                      {val}
+                    onChange={setNewAttributeValue}
+                    placeholder={`Agregar valor a ${selectedAttribute.name?.toLowerCase()}`}
+                    autoComplete="off"
+                    connectedRight={
                       <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-4 w-4 ml-1 hover:bg-destructive hover:text-destructive-foreground rounded-full"
-                        onClick={() => removeAttributeValue(selectedAttributeIndex, valueIndex)}
+                        onClick={handleAddAttributeValue}
+                        disabled={!newAttributeValue.trim()}
                       >
-                        <X className="h-3 w-3" />
-                        <span className="sr-only">Eliminar</span>
+                        Añadir
                       </Button>
-                    </Badge>
-                  ))
-                ) : (
-                  <div className="text-sm text-muted-foreground italic">
-                    No se han agregado valores aún
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full p-6 border rounded-lg border-dashed text-center">
-              <div className="space-y-2">
-                <h3 className="font-medium">Seleccione un atributo</h3>
-                <p className="text-sm text-muted-foreground">
-                  Seleccione un atributo de la izquierda o agregue uno nuevo para gestionar sus
-                  valores
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+                    }
+                  />
+                  <LegacyStack spacing="tight" wrap>
+                    {(selectedAttribute.values || []).map((val, index) => (
+                      <Tag key={index} onRemove={() => handleRemoveAttributeValue(index)}>
+                        {val}
+                      </Tag>
+                    ))}
+                  </LegacyStack>
+                </BlockStack>
+              </Card>
+            ) : (
+              <Banner title="Seleccione un atributo" tone="info">
+                <p>Seleccione un atributo de la lista para agregarle valores.</p>
+              </Banner>
+            )}
+          </BlockStack>
+        ) : (
+          <EmptyState
+            heading="Aún no hay atributos"
+            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+          >
+            <p>Agregue un atributo para empezar a crear variantes de producto.</p>
+          </EmptyState>
+        )}
+      </BlockStack>
+    </Card>
   )
 }

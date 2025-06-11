@@ -1,10 +1,11 @@
+import { Card } from '@shopify/polaris'
 import { useProducts } from '@/app/store/hooks/useProducts'
 import useStoreDataStore from '@/context/core/storeDataStore'
-import { ProductSectionProps } from './types/productTypes'
-import { useProductSelection } from './hooks/useProductSelection'
-import { ProductControls } from './components/ProductControls'
-import { SelectedProductsList } from './components/SelectedProductsList'
-import { ProductSelectionDialog } from './components/ProductSelectionDialog'
+import { ProductSectionProps } from '@/app/store/components/product-management/collection-form/types/productTypes'
+import { useProductSelection } from '@/app/store/components/product-management/collection-form/hooks/useProductSelection'
+import { ProductControls } from '@/app/store/components/product-management/collection-form/components/ProductControls'
+import { SelectedProductsList } from '@/app/store/components/product-management/collection-form/components/SelectedProductsList'
+import { ProductSelectionDialog } from '@/app/store/components/product-management/collection-form/components/ProductSelectionDialog'
 
 export function ProductSection({
   selectedProducts = [],
@@ -40,9 +41,7 @@ export function ProductSection({
 
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-sm font-medium mb-4">Productos</h2>
-
+      <Card>
         <ProductControls
           searchTerm={searchTerm}
           sortOption={sortOption}
@@ -56,7 +55,7 @@ export function ProductSection({
           onRemoveProduct={onRemoveProduct}
           onOpenDialog={openDialog}
         />
-      </div>
+      </Card>
 
       <ProductSelectionDialog
         isOpen={isDialogOpen}

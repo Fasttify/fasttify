@@ -1,35 +1,20 @@
 import type { UseFormReturn } from 'react-hook-form'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-import { CalendarIcon, Check, HelpCircle, RefreshCw, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import {
+  FormLayout,
+  TextField,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
+  BlockStack,
+  ButtonGroup,
+  Button,
+  Banner,
+  Text,
+} from '@shopify/polaris'
 import { useState } from 'react'
-import { toast } from 'sonner'
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 import { useProductDescription } from '@/app/store/components/product-management/hooks/useProductDescription'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { AIGenerateButton } from '@/app/store/components/product-management/product-sections/ai-generate-button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Controller } from 'react-hook-form'
+import { useToast } from '@/app/store/context/ToastContext'
 
 interface BasicInfoSectionProps {
   form: UseFormReturn<ProductFormValues>
@@ -38,15 +23,14 @@ interface BasicInfoSectionProps {
 export function BasicInfoSection({ form }: BasicInfoSectionProps) {
   const { generateDescription, loading: isGeneratingDescription } = useProductDescription()
   const [previewDescription, setPreviewDescription] = useState<string | null>(null)
+  const { showToast } = useToast()
 
   const handleGenerateDescription = async () => {
     const productName = form.getValues('name')
     const category = form.getValues('category')
 
     if (!productName) {
-      toast.error('Error', {
-        description: 'Por favor, ingrese un nombre de producto primero.',
-      })
+      showToast('Por favor, ingrese un nombre de producto primero.', true)
       return
     }
 
@@ -55,298 +39,184 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
         productName,
         category: category || undefined,
       })
-
       setPreviewDescription(description)
     } catch (error) {
       console.error('Error al generar descripción:', error)
-      toast.error('Error', {
-        description: 'No se pudo generar la descripción. Inténtelo de nuevo más tarde.',
-      })
+      showToast('No se pudo generar la descripción. Inténtelo de nuevo más tarde.', true)
     }
   }
 
   const acceptDescription = () => {
     if (previewDescription) {
       form.setValue('description', previewDescription, { shouldDirty: true, shouldTouch: true })
-      toast.success('Descripción aplicada', {
-        description: 'La descripción generada ha sido aplicada al producto.',
-      })
+      showToast('La descripción generada ha sido aplicada al producto.')
       setPreviewDescription(null)
     }
   }
 
   const rejectDescription = () => {
     setPreviewDescription(null)
-    toast.info('Descripción descartada', {
-      description: 'La descripción generada ha sido descartada.',
-    })
+    showToast('La descripción generada ha sido descartada.')
   }
 
+  const categoryOptions = [
+    { label: 'Ropa', value: 'Ropa' },
+    { label: 'Electrónica', value: 'Electronicos' },
+    { label: 'Hogar y Cocina', value: 'Hogar' },
+    { label: 'Belleza y Cuidado Personal', value: 'Belleza' },
+    { label: 'Deportes y Aire Libre', value: 'Deporte' },
+  ]
+
+  const statusOptions = [
+    { label: 'Borrador', value: 'draft' },
+    { label: 'Pendiente', value: 'pending' },
+    { label: 'Activo', value: 'active' },
+    { label: 'Inactivo', value: 'inactive' },
+  ]
+
   return (
-    <div className="grid gap-6">
-      <FormField
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <div className="flex items-center gap-2">
-              <FormLabel>Nombre del Producto</FormLabel>
-              <TooltipProvider>
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p>
-                      Un nombre descriptivo y específico mejorará la calidad de las descripciones
-                      generadas con IA.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <FormControl>
-              <Input placeholder="Ingrese el nombre del producto" {...field} />
-            </FormControl>
-            <FormDescription>
-              El nombre de su producto como aparecerá a los clientes.
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <div className="flex justify-between items-center rounded-md p-2 bg-gradient-to-r from-background to-muted/30">
-              <div className="flex items-center gap-2">
-                <FormLabel className="text-sm font-medium">Descripción</FormLabel>
-                <TooltipProvider>
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="w-72 p-3">
-                      <p className="font-medium mb-1">Para obtener mejores resultados:</p>
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>Use un nombre de producto descriptivo</li>
-                        <li>Seleccione una categoría adecuada</li>
-                        <li>Incluya características clave y beneficios</li>
-                      </ul>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <AIGenerateButton
-                onClick={handleGenerateDescription}
-                isLoading={isGeneratingDescription}
-                isDisabled={!!previewDescription}
-              />
-            </div>
-
-            {previewDescription ? (
-              <Card className="mt-2 mb-4 border-dashed border-blue-200 bg-blue-50 max-w-full overflow-hidden">
-                <CardHeader className="py-3">
-                  <CardTitle className="text-sm font-medium text-blue-700">
-                    Vista previa de descripción generada
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="py-2 text-sm overflow-x-auto">
-                  {previewDescription}
-                </CardContent>
-                <CardFooter className="flex flex-wrap justify-end gap-2 py-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleGenerateDescription}
-                    disabled={isGeneratingDescription}
-                    className="h-8 gap-1 text-xs"
-                  >
-                    <RefreshCw className="h-3.5 w-3.5" />
-                    <span className="whitespace-nowrap">Regenerar</span>
+    <BlockStack gap="400">
+      <Text as="h2" variant="headingMd">
+        Información Básica
+      </Text>
+      <FormLayout>
+        <Controller
+          name="name"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <TextField
+              {...field}
+              label="Nombre del Producto"
+              error={fieldState.error?.message}
+              autoComplete="off"
+              helpText="El nombre de su producto como aparecerá a los clientes."
+            />
+          )}
+        />
+        <BlockStack gap="200">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text as="h3" variant="headingSm">
+              Descripción
+            </Text>
+            <AIGenerateButton
+              onClick={handleGenerateDescription}
+              isLoading={isGeneratingDescription}
+              isDisabled={!!previewDescription}
+            />
+          </div>
+          {previewDescription && (
+            <Banner title="Vista previa de descripción generada" tone="info">
+              <BlockStack gap="200">
+                <Text as="p">{previewDescription}</Text>
+                <ButtonGroup>
+                  <Button onClick={handleGenerateDescription} loading={isGeneratingDescription}>
+                    Regenerar
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={rejectDescription}
-                    className="h-8 gap-1 text-xs"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                    <span className="whitespace-nowrap">Descartar</span>
+                  <Button onClick={rejectDescription}>Descartar</Button>
+                  <Button onClick={acceptDescription} variant="primary">
+                    Aplicar
                   </Button>
-                  <Button
-                    type="button"
-                    variant="default"
-                    size="sm"
-                    onClick={acceptDescription}
-                    className="h-8 gap-1 text-xs bg-[#2a2a2a] hover:bg-[#3a3a3a]"
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                    <span className="whitespace-nowrap">Aplicar</span>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ) : null}
-
-            <FormControl>
-              <Textarea
-                placeholder="Ingrese la descripción del producto"
-                className="min-h-32 resize-y"
+                </ButtonGroup>
+              </BlockStack>
+            </Banner>
+          )}
+          <Controller
+            name="description"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <TextField
                 {...field}
+                label="Descripción"
+                labelHidden
+                multiline={4}
+                error={fieldState.error?.message}
+                autoComplete="off"
+                helpText="Proporcione una descripción detallada de su producto."
               />
-            </FormControl>
-            <FormDescription>Proporcione una descripción detallada de su producto.</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+            )}
+          />
+        </BlockStack>
 
-      <FormField
-        control={form.control}
-        name="category"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Categoría</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccione una categoría" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="Ropa">Ropa</SelectItem>
-                <SelectItem value="Electronicos">Electrónica</SelectItem>
-                <SelectItem value="Hogar">Hogar y Cocina</SelectItem>
-                <SelectItem value="Belleza">Belleza y Cuidado Personal</SelectItem>
-                <SelectItem value="Deporte">Deportes y Aire Libre</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormDescription>
-              Seleccione la categoría que mejor se adapte a su producto.
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="status"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Estado</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccione un estado" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="draft">Borrador</SelectItem>
-                <SelectItem value="pending">Pendiente</SelectItem>
-                <SelectItem value="active">Activo</SelectItem>
-                <SelectItem value="inactive">Inactivo</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormDescription>Establezca el estado actual de este producto.</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
+        <Controller
+          name="category"
           control={form.control}
-          name="creationDate"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Fecha de Creación</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'pl-3 text-left font-normal',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, 'PPP', { locale: es })
-                      ) : (
-                        <span>Seleccione una fecha</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={date => date > new Date()}
-                    initialFocus
-                    locale={es}
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormDescription>Cuando se creó este producto.</FormDescription>
-              <FormMessage />
-            </FormItem>
+          render={({ field, fieldState }) => (
+            <Select
+              label="Categoría"
+              options={categoryOptions}
+              onBlur={field.onBlur}
+              onChange={value => field.onChange(value)}
+              value={field.value || ''}
+              error={fieldState.error?.message}
+              helpText="Seleccione la categoría que mejor se adapte a su producto."
+            />
           )}
         />
 
-        <FormField
+        <Controller
+          name="status"
           control={form.control}
-          name="lastModifiedDate"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Fecha de Última Modificación</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'pl-3 text-left font-normal',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                      disabled
-                    >
-                      {field.value ? (
-                        format(field.value, 'PPP', { locale: es })
-                      ) : (
-                        <span>Se actualiza automáticamente</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={date => date > new Date()}
-                    initialFocus
-                    locale={es}
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                Se actualiza automáticamente cuando se guarda el producto.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
+          render={({ field, fieldState }) => (
+            <Select
+              label="Estado"
+              options={statusOptions}
+              onBlur={field.onBlur}
+              onChange={value => field.onChange(value)}
+              value={field.value || ''}
+              error={fieldState.error?.message}
+              helpText="Establezca el estado actual de este producto."
+            />
           )}
         />
-      </div>
-    </div>
+
+        <FormLayout.Group>
+          <Controller
+            name="creationDate"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <TextField
+                label="Fecha de Creación"
+                type="date"
+                value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                onChange={dateString => {
+                  if (!dateString) {
+                    field.onChange(null)
+                    return
+                  }
+                  // Adjust for timezone to prevent off-by-one-day errors
+                  const date = new Date(dateString)
+                  const userTimezoneOffset = date.getTimezoneOffset() * 60000
+                  field.onChange(new Date(date.getTime() + userTimezoneOffset))
+                }}
+                onBlur={field.onBlur}
+                name={field.name}
+                error={fieldState.error?.message}
+                autoComplete="off"
+                helpText="Cuando se creó este producto."
+              />
+            )}
+          />
+
+          <Controller
+            name="lastModifiedDate"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <TextField
+                label="Fecha de Última Modificación"
+                type="date"
+                value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                name={field.name}
+                disabled
+                error={fieldState.error?.message}
+                autoComplete="off"
+                helpText="Se actualiza automáticamente cuando se guarda el producto."
+              />
+            )}
+          />
+        </FormLayout.Group>
+      </FormLayout>
+    </BlockStack>
   )
 }

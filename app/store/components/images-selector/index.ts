@@ -8,8 +8,6 @@ export { useImageUpload } from '@/app/store/components/images-selector/hooks/use
 // Componentes modulares
 export { default as SearchAndFilters } from '@/app/store/components/images-selector/components/SearchAndFilters'
 export { default as UploadDropZone } from '@/app/store/components/images-selector/components/UploadDropZone'
-export { default as UploadPreview } from '@/app/store/components/images-selector/components/UploadPreview'
-export { default as ModalFooter } from '@/app/store/components/images-selector/components/ModalFooter'
 export { default as ImageGallery } from '@/app/store/components/images-selector/components/ImageGallery'
 
 // Re-exportar tipos del hook principal
