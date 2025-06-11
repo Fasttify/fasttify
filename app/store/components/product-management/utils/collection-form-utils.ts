@@ -212,9 +212,10 @@ export const useCollectionForm = ({
 
       if (isEditing) {
         // Actualizar colección existente
+        const { owner, ...dataWithoutOwner } = collectionData
         savedCollection = await updateCollection.mutateAsync({
           id: collectionId,
-          data: collectionData,
+          data: dataWithoutOwner,
         })
 
         // Obtener los productos actuales de la colección

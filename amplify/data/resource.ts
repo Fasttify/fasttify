@@ -75,17 +75,51 @@ const schema = a
 
     UserProfile: a
       .model({
-        email: a.string(),
-        profileOwner: a.string(),
+        email: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('profileOwner').to(['create']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        profileOwner: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('profileOwner').to(['create']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
       })
       .authorization(allow => [allow.ownerDefinedIn('profileOwner')]),
 
     UserSubscription: a
       .model({
-        id: a.id().required(),
-        userId: a.string().required(),
-        subscriptionId: a.string().required(),
-        planName: a.string().required(),
+        id: a
+          .id()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
+          ]),
+        userId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read', 'delete']),
+          ]),
+        subscriptionId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
+          ]),
+        planName: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
+          ]),
         nextPaymentDate: a.datetime(),
         pendingPlan: a.string(),
         pendingStartDate: a.datetime(),
@@ -95,15 +129,39 @@ const schema = a
       .identifier(['id'])
       .secondaryIndexes(index => [index('userId')])
       .authorization(allow => [
-        allow.ownerDefinedIn('userId').to(['read', 'update', 'delete']),
+        allow.ownerDefinedIn('userId').to(['read', 'update', 'delete', 'create']),
         allow.authenticated().to(['create']),
       ]),
 
     UserStore: a
       .model({
-        userId: a.string().required(),
-        storeId: a.string().required(),
-        storeName: a.string().required(),
+        userId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read', 'delete']),
+            allow.authenticated().to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+            allow.guest().to(['read']),
+          ]),
+        storeId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
+            allow.authenticated().to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+            allow.guest().to(['read']),
+          ]),
+        storeName: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
+            allow.authenticated().to(['create', 'read', 'update']),
+            allow.publicApiKey().to(['read']),
+            allow.guest().to(['read']),
+          ]),
         storeDescription: a.string(),
         storeLogo: a.string(),
         storeFavicon: a.string(),
@@ -123,7 +181,15 @@ const schema = a
         mercadoPagoConfig: a.json(),
         mastershopApiKey: a.string(),
         customDomain: a.string(),
-        onboardingCompleted: a.boolean().required(),
+        onboardingCompleted: a
+          .boolean()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
+            allow.authenticated().to(['create', 'read', 'update']),
+            allow.publicApiKey().to(['read']),
+            allow.guest().to(['read']),
+          ]),
         onboardingData: a.json(),
       })
       .identifier(['storeId'])
@@ -137,9 +203,30 @@ const schema = a
 
     Product: a
       .model({
-        id: a.id().required(),
-        storeId: a.string().required(),
-        name: a.string().required(),
+        id: a
+          .id()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        storeId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        name: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
         description: a.string(),
         price: a.float(),
         compareAtPrice: a.float(),
@@ -158,7 +245,14 @@ const schema = a
         collectionId: a.string(),
         supplier: a.string(),
         collection: a.belongsTo('Collection', 'collectionId'),
-        owner: a.string().required(),
+        owner: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
       })
       .secondaryIndexes(index => [index('storeId'), index('collectionId')])
       .authorization(allow => [
@@ -169,14 +263,42 @@ const schema = a
 
     Collection: a
       .model({
-        storeId: a.string().required(),
-        title: a.string().required(),
+        storeId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        title: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
         description: a.string(),
         image: a.string(),
         slug: a.string(),
-        isActive: a.boolean().required(),
+        isActive: a
+          .boolean()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
         sortOrder: a.integer(),
-        owner: a.string().required(),
+        owner: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
         products: a.hasMany('Product', 'collectionId'),
       })
       .secondaryIndexes(index => [index('storeId'), index('title')])
@@ -188,13 +310,55 @@ const schema = a
 
     StoreTemplate: a
       .model({
-        storeId: a.string().required(),
-        domain: a.string().required(),
-        templateKey: a.string().required(),
-        templateData: a.json().required(),
-        isActive: a.boolean().required(),
+        storeId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        domain: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        templateKey: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        templateData: a
+          .json()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        isActive: a
+          .boolean()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
         lastUpdated: a.datetime(),
-        owner: a.string().required(),
+        owner: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
       })
       .identifier(['storeId'])
       .secondaryIndexes(index => [index('domain')])
