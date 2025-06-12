@@ -28,6 +28,7 @@ export type {
   OpenGraphData,
   SchemaData,
   TemplateError,
+  TemplateData,
 } from './template'
 
 // Liquid types

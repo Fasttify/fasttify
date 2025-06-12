@@ -65,27 +65,28 @@ export const useCollections = () => {
   const useGetCollection = (id: string): UseQueryResult<any, Error> => {
     return useQuery({
       queryKey: [COLLECTIONS_KEY, id],
-      queryFn: async () => {
-        // Obtener la colección
-        const collection = await performOperation(() => client.models.Collection.get({ id }))
-
-        // Si la colección existe, obtener sus productos
-        if (collection) {
-          // Obtener productos de la colección
-          const productsData = await performOperation(() =>
-            client.models.Product.listProductByCollectionId({
-              collectionId: id,
-            })
-          )
-
-          // Añadir productos a la colección
-          return {
-            ...collection,
-            products: productsData,
-          }
+      queryFn: () => {
+        if (!id) {
+          return null
         }
-
-        return collection
+        // Carga la colección y sus productos asociados en una sola consulta
+        // utilizando 'selectionSet' para realizar Eager Loading.
+        return performOperation(() =>
+          client.models.Collection.get(
+            { id },
+            {
+              selectionSet: [
+                'id',
+                'title',
+                'description',
+                'image',
+                'slug',
+                'isActive',
+                'products.*',
+              ],
+            }
+          )
+        )
       },
       staleTime: 5 * 60 * 1000, // 5 minutos en caché
       enabled: !!id,
@@ -113,26 +114,6 @@ export const useCollections = () => {
       },
       staleTime: 5 * 60 * 1000, // 5 minutos en caché
       enabled: !!storeId,
-    })
-  }
-
-  /**
-   * Obtiene los productos de una colección específica usando el GSI en collectionId
-   * @param collectionId - ID de la colección
-   * @returns Resultado de la consulta con los productos de la colección
-   */
-  const useGetCollectionProducts = (collectionId: string): UseQueryResult<any[], Error> => {
-    return useQuery({
-      queryKey: [COLLECTIONS_KEY, collectionId, 'products'],
-      queryFn: () => {
-        return performOperation(() =>
-          client.models.Product.listProductByCollectionId({
-            collectionId: collectionId,
-          })
-        )
-      },
-      staleTime: 5 * 60 * 1000, // 5 minutos en caché
-      enabled: !!collectionId,
     })
   }
 
@@ -219,7 +200,6 @@ export const useCollections = () => {
     error,
     useGetCollection,
     useListCollections,
-    useGetCollectionProducts,
     useCreateCollection,
     useUpdateCollection,
     useDeleteCollection,

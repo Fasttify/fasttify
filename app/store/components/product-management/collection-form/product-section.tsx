@@ -1,4 +1,5 @@
 import { Card } from '@shopify/polaris'
+import { useRef } from 'react'
 import { useProducts } from '@/app/store/hooks/useProducts'
 import useStoreDataStore from '@/context/core/storeDataStore'
 import { ProductSectionProps } from '@/app/store/components/product-management/collection-form/types/productTypes'
@@ -13,11 +14,13 @@ export function ProductSection({
   onRemoveProduct,
 }: ProductSectionProps) {
   const { storeId } = useStoreDataStore()
+  const fetchTriggered = useRef(false)
 
-  const { products, loading } = useProducts(storeId ?? undefined, {
+  const { products, loading, refreshProducts } = useProducts(storeId ?? undefined, {
     limit: 100,
     sortDirection: 'DESC',
     sortField: 'createdAt',
+    enabled: false,
   })
 
   const {
@@ -39,6 +42,14 @@ export function ProductSection({
     onRemoveProduct,
   })
 
+  const handleOpenDialog = () => {
+    if (!fetchTriggered.current) {
+      refreshProducts()
+      fetchTriggered.current = true
+    }
+    openDialog()
+  }
+
   return (
     <>
       <Card>
@@ -47,13 +58,13 @@ export function ProductSection({
           sortOption={sortOption}
           onSearchChange={setSearchTerm}
           onSortChange={setSortOption}
-          onOpenDialog={openDialog}
+          onOpenDialog={handleOpenDialog}
         />
 
         <SelectedProductsList
           selectedProducts={selectedProducts}
           onRemoveProduct={onRemoveProduct}
-          onOpenDialog={openDialog}
+          onOpenDialog={handleOpenDialog}
         />
       </Card>
 
