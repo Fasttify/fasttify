@@ -46,6 +46,7 @@ export class MetadataGenerator {
       canonical: url,
       openGraph,
       schema,
+      icons: store.storeFavicon,
     }
   }
 

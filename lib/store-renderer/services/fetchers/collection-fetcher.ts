@@ -1,6 +1,7 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
 import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
 import { dataTransformer } from '@/lib/store-renderer/services/core/data-transformer'
+import { productFetcher } from './product-fetcher'
 import type { CollectionContext, ProductContext, TemplateError } from '@/lib/store-renderer/types'
 
 interface PaginationOptions {
@@ -57,7 +58,9 @@ export class CollectionFetcher {
       const collections: CollectionContext[] = []
 
       for (const collection of response.data) {
-        const transformedCollection = await this.transformCollection(collection, storeId)
+        const transformedCollection = await this.transformCollection(collection, storeId, {
+          withProducts: false,
+        })
         collections.push(transformedCollection)
       }
 
@@ -111,7 +114,9 @@ export class CollectionFetcher {
       }
 
       // Transformar colección con productos
-      const transformedCollection = await this.transformCollection(collection, storeId)
+      const transformedCollection = await this.transformCollection(collection, storeId, {
+        withProducts: true,
+      })
 
       // Guardar en caché
       cacheManager.setCached(cacheKey, transformedCollection, cacheManager.COLLECTION_CACHE_TTL)
@@ -126,14 +131,28 @@ export class CollectionFetcher {
   /**
    * Transforma una colección de Amplify al formato Liquid
    */
-  private async transformCollection(collection: any, storeId: string): Promise<CollectionContext> {
+  private async transformCollection(
+    collection: any,
+    storeId: string,
+    options: { withProducts?: boolean } = {}
+  ): Promise<CollectionContext> {
     const handle = dataTransformer.createHandle(
       collection.name || collection.title || `collection-${collection.id}`
     )
 
-    // Obtener productos de la colección si existe relación
-    const products: ProductContext[] = []
-    // TODO: Implementar obtención de productos de colección si existe la relación
+    // Obtener productos de la colección usando la relación hasMany
+    let products: ProductContext[] = []
+    if (options.withProducts) {
+      try {
+        const productData = await collection.products()
+
+        if (productData && productData.data) {
+          products = productData.data.map((p: any) => productFetcher.transformProduct(p))
+        }
+      } catch (error) {
+        console.warn(`Could not fetch products for collection ${collection.id}.`, error)
+      }
+    }
 
     // Transformar imagen de colección
     const image = collection.image || 'collection-img'

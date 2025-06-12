@@ -18,10 +18,10 @@
       "cart_type": "drawer",
       "menu_items": [
         { "title": "Inicio", "url": "/", "active": true },
-        { "title": "Productos", "url": "/productos", "active": true },
-        { "title": "Colecciones", "url": "/colecciones", "active": true },
-        { "title": "Sobre nosotros", "url": "/sobre-nosotros", "active": true },
-        { "title": "Contacto", "url": "/contacto", "active": true }
+        { "title": "Productos", "url": "/products", "active": true },
+        { "title": "Colecciones", "url": "/collections", "active": true },
+        { "title": "Sobre nosotros", "url": "/about-us", "active": true },
+        { "title": "Contacto", "url": "/contact", "active": true }
       ]
     }
   },
@@ -34,7 +34,7 @@
       "subheading": "Descubre nuestros productos increíbles y ofertas especiales",
       "subheading_size": "medium",
       "button_text": "Ver productos",
-      "button_link": "/productos",
+      "button_link": "/products",
       "button_style": "primary",
       "button_size": "large",
       "background_image": "",
@@ -127,7 +127,7 @@
         "type": "links",
         "settings": {
           "text": "Productos",
-          "link": "/productos"
+          "link": "/products"
         }
       },
       {
@@ -135,7 +135,7 @@
         "type": "links",
         "settings": {
           "text": "Colecciones",
-          "link": "/colecciones"
+          "link": "/collections"
         }
       },
       {
@@ -143,7 +143,7 @@
         "type": "links",
         "settings": {
           "text": "Sobre nosotros",
-          "link": "/sobre-nosotros"
+          "link": "/about-us"
         }
       },
       {
@@ -151,7 +151,7 @@
         "type": "links",
         "settings": {
           "text": "Contacto",
-          "link": "/contacto"
+          "link": "/contact"
         }
       },
       {
@@ -159,7 +159,7 @@
         "type": "links",
         "settings": {
           "text": "Política de privacidad",
-          "link": "/politicas/privacidad"
+          "link": "/policies/privacy"
         }
       },
       {
@@ -167,7 +167,7 @@
         "type": "links",
         "settings": {
           "text": "Términos y condiciones",
-          "link": "/politicas/terminos"
+          "link": "/policies/terms"
         }
       },
       {
@@ -175,7 +175,7 @@
         "type": "links",
         "settings": {
           "text": "Política de envíos",
-          "link": "/politicas/envios"
+          "link": "/policies/shipping"
         }
       },
       {
@@ -183,7 +183,7 @@
         "type": "links",
         "settings": {
           "text": "Devoluciones",
-          "link": "/politicas/devoluciones"
+          "link": "/policies/returns"
         }
       },
       {
@@ -191,7 +191,7 @@
         "type": "links",
         "settings": {
           "text": "Preguntas frecuentes",
-          "link": "/faq"
+          "link": "/faqs"
         }
       }
     ]

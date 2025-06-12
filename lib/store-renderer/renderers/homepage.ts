@@ -223,22 +223,30 @@ export class DynamicPageRenderer {
 
         // Caso 2: Tenemos handle, buscar colección por handle/slug
         if (options.handle) {
-          // Buscar por todas las colecciones y encontrar por slug/handle
-          const collectionsResponse = await dataFetcher.getStoreCollections(storeId, { limit: 100 })
-          const collection = collectionsResponse.collections.find(
+          // Paso 1: Obtener colecciones sin productos para una búsqueda eficiente
+          const collectionsResponse = await dataFetcher.getStoreCollections(storeId, { limit: 200 }) // Aumentar límite si hay muchas colecciones
+          const collectionRef = collectionsResponse.collections.find(
             c =>
               c.slug === options.handle ||
               c.title.toLowerCase().replace(/\s+/g, '-') === options.handle
           )
 
-          if (collection) {
-            return {
-              ...baseData,
-              contextData: {
-                template: 'collection',
-                collection,
-                page_title: collection.title,
-              },
+          // Paso 2: Si se encuentra la referencia, obtener la colección completa con productos
+          if (collectionRef) {
+            const collectionWithProducts = await dataFetcher.getCollection(
+              storeId,
+              collectionRef.id
+            )
+
+            if (collectionWithProducts) {
+              return {
+                ...baseData,
+                contextData: {
+                  template: 'collection',
+                  collection: collectionWithProducts,
+                  page_title: collectionWithProducts.title,
+                },
+              }
             }
           }
         }

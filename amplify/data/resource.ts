@@ -301,7 +301,7 @@ const schema = a
           ]),
         products: a.hasMany('Product', 'collectionId'),
       })
-      .secondaryIndexes(index => [index('storeId'), index('title')])
+      .secondaryIndexes(index => [index('storeId'), index('title'), index('slug')])
       .authorization(allow => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.guest().to(['read']),

@@ -152,11 +152,9 @@ export class ProductFetcher {
   /**
    * Transforma un producto de Amplify al formato Liquid
    */
-  private transformProduct(product: any): ProductContext {
+  public transformProduct(product: any): ProductContext {
     // Crear handle SEO-friendly
-    const handle = dataTransformer.createHandle(
-      product.name || product.title || `product-${product.id}`
-    )
+    const handle = dataTransformer.createHandle(product.name)
 
     // Formatear precio
     const price = dataTransformer.formatPrice(product.price || 0)
@@ -173,8 +171,10 @@ export class ProductFetcher {
       id: product.id,
       storeId: product.storeId,
       name: product.name,
-      slug: product.slug,
+      title: product.name,
+      slug: handle,
       attributes: attributes,
+      featured_image: images[0],
       quantity: product.quantity,
       description: product.description,
       price: price,
