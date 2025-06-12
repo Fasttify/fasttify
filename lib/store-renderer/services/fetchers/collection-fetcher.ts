@@ -1,7 +1,7 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
 import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
 import { dataTransformer } from '@/lib/store-renderer/services/core/data-transformer'
-import { productFetcher } from './product-fetcher'
+import { productFetcher } from '@/lib/store-renderer/services/fetchers/product-fetcher'
 import type { CollectionContext, ProductContext, TemplateError } from '@/lib/store-renderer/types'
 
 interface PaginationOptions {

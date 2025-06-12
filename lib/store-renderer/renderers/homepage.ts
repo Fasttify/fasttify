@@ -76,7 +76,8 @@ export class DynamicPageRenderer {
 
       if (templatePath.endsWith('.json')) {
         // Template con configuración JSON (como index.json)
-        const templateConfig = JSON.parse(pageTemplate)
+        const cleanedJson = pageTemplate.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1')
+        const templateConfig = JSON.parse(cleanedJson)
         renderedContent = await this.renderSectionsFromConfig(
           templateConfig,
           store.storeId,
