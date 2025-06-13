@@ -1,115 +1,115 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
 import { env } from '$amplify/env/hookPlan'
-import { WebhookBody, LambdaHandler, WebhookResponse } from './types'
-import { MercadoPagoWebhookValidator } from './services/webhook-validator'
-import { MercadoPagoApiService } from './services/mercadopago-api'
+import { LambdaHandler, WebhookResponse, PolarWebhookEvent } from './types'
+import { PolarApiService } from './services/polar-api'
 import { CognitoUserService } from './services/user-service'
-import { MercadoPagoPaymentProcessor } from './services/payment-processor'
+import { PolarPaymentProcessor } from './services/polar-payment-processor'
+import { validateEvent, WebhookVerificationError } from '@polar-sh/sdk/webhooks'
 
 /**
- * Enhanced MercadoPago Webhook Handler with TypeScript support
+ * Enhanced Polar Webhook Handler with TypeScript support
  * Handles subscription updates and payment notifications
  *
- * Follows MercadoPago best practices:
+ * Follows Polar best practices:
  * - Webhook signature validation
  * - Proper error handling
  * - Modular service architecture
  */
 export const handler: LambdaHandler = async event => {
   // Initialize services
-  const webhookValidator = new MercadoPagoWebhookValidator(env.MERCADO_PAGO_WEBHOOK_SECRET)
-  const mpApiService = new MercadoPagoApiService(env.MERCADOPAGO_ACCESS_TOKEN)
+  const polarApiService = new PolarApiService(env.POLAR_ACCESS_TOKEN)
   const userService = new CognitoUserService(env.USER_POOL_ID)
-  const paymentProcessor = new MercadoPagoPaymentProcessor(mpApiService, userService)
+  const paymentProcessor = new PolarPaymentProcessor(polarApiService, userService)
+
+  // Preparar la respuesta
+  const response: WebhookResponse = {
+    statusCode: 200,
+    body: JSON.stringify({ status: 'ok' }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }
 
   try {
-    console.log('🚀 Starting webhook processing')
-
-    // 1. Parse and validate request
-    const body: WebhookBody = JSON.parse(event.body || '{}')
-    const signature = event.headers['x-signature'] || event.headers['X-Signature']
-    const dataId = event.queryStringParameters?.['data.id']
-    const requestId = event.headers['x-request-id'] || event.headers['X-Request-Id']
-
-    if (!signature || !dataId || !requestId) {
-      console.error('❌ Missing required webhook parameters')
-      return createResponse(400, { error: 'Missing required parameters' })
-    }
-
-    // 2. Validate webhook signature
-    const timestamp = webhookValidator.extractTimestamp(signature) || ''
-    const isValidSignature = webhookValidator.validateSignature(
-      signature,
-      dataId,
-      requestId,
-      timestamp
-    )
-
-    if (!isValidSignature) {
-      console.error('❌ Invalid webhook signature')
-      return createResponse(401, { error: 'Invalid signature' })
-    }
-
-    // 3. Determine event type and validate if supported
-    const eventType = body.type
-    const eventAction = body.action
-
-    console.log(`🔍 Processing event: ${eventType}.${eventAction}`)
-
-    if (!paymentProcessor.shouldProcessEvent(eventType, eventAction)) {
-      console.log('ℹ️ Event type not supported, returning OK')
-      return createResponse(200, { message: 'Event type not supported but acknowledged' })
-    }
-
-    // 4. Route to appropriate processor
-    await routeEvent(eventType, eventAction, body.data.id, paymentProcessor)
-
-    console.log('✅ Webhook processed successfully')
-    return createResponse(200, { message: 'Webhook processed successfully' })
-  } catch (error) {
-    console.error('🔥 Webhook processing error:', error)
-
-    // Return 500 to trigger MercadoPago retry mechanism
-    return createResponse(500, {
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    })
-  }
-}
-
-/**
- * Routes events to the appropriate processor based on type
- */
-async function routeEvent(
-  eventType: string,
-  eventAction: string,
-  dataId: string,
-  processor: MercadoPagoPaymentProcessor
-): Promise<void> {
-  switch (eventType) {
-    case 'subscription_preapproval':
-      if (eventAction === 'updated') {
-        await processor.processSubscriptionUpdate(dataId)
+    // Validar que sea un POST
+    if (event.httpMethod !== 'POST') {
+      console.warn(`Method not allowed: ${event.httpMethod}`)
+      return {
+        ...response,
+        statusCode: 405,
+        body: JSON.stringify({ error: 'Method not allowed' }),
       }
-      break
+    }
 
-    case 'subscription_authorized_payment':
-    case 'payment':
-      await processor.processPayment(dataId, eventType)
-      break
+    // Validar la firma del webhook usando el SDK de Polar
+    try {
+      const payload = event.body || '{}'
 
-    default:
-      console.warn(`⚠️ Unhandled event type: ${eventType}.${eventAction}`)
-  }
-}
+      // Extraer los headers necesarios para la validación
+      const webhookSignature = event.headers['webhook-signature'] || ''
+      const webhookId = event.headers['webhook-id'] || ''
+      const webhookTimestamp = event.headers['webhook-timestamp'] || ''
 
-/**
- * Creates standardized API Gateway response
- */
-function createResponse(statusCode: number, body: any): WebhookResponse {
-  return {
-    statusCode,
-    body: JSON.stringify(body),
+      if (!webhookSignature) {
+        return {
+          ...response,
+          statusCode: 403,
+          body: JSON.stringify({ error: 'Missing webhook-signature header' }),
+        }
+      }
+
+      const webhookEvent = validateEvent(
+        payload,
+        {
+          'webhook-signature': webhookSignature,
+          'webhook-id': webhookId,
+          'webhook-timestamp': webhookTimestamp,
+        },
+        env.POLAR_WEBHOOK_SECRET
+      ) as PolarWebhookEvent
+
+      // Procesar el evento según su tipo
+      const eventType = webhookEvent.type
+      const eventData = webhookEvent.data
+
+      if (eventType && eventType.startsWith('subscription.')) {
+        // Eventos de suscripción
+        if (eventType === 'subscription.created' || eventType === 'subscription.updated') {
+          await paymentProcessor.processSubscriptionUpdate(eventData.id)
+        } else if (eventType === 'subscription.canceled' || eventType === 'subscription.revoked') {
+          await paymentProcessor.processSubscriptionUpdate(eventData.id)
+        }
+      } else if (eventType && eventType.startsWith('order.')) {
+        // Eventos de orden/pago
+        if (eventType === 'order.created') {
+          // Si el pago está asociado a una suscripción, actualizamos la suscripción
+          if (eventData.subscription_id) {
+            await paymentProcessor.processSubscriptionUpdate(eventData.subscription_id)
+          }
+        }
+      }
+
+      return response
+    } catch (error) {
+      if (error instanceof WebhookVerificationError) {
+        console.error('Webhook verification error:', error.message)
+        return {
+          ...response,
+          statusCode: 403,
+          body: JSON.stringify({ error: 'Invalid webhook signature: ' + error.message }),
+        }
+      }
+
+      throw error
+    }
+  } catch (error) {
+    console.error('Error processing webhook:', error)
+
+    return {
+      ...response,
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Internal server error' }),
+    }
   }
 }
 
@@ -122,7 +122,7 @@ export const healthCheck: APIGatewayProxyHandler = async () => {
     body: JSON.stringify({
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      service: 'mercadopago-webhook',
+      service: 'polar-webhook',
     }),
   }
 }

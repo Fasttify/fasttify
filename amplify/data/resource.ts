@@ -1,7 +1,6 @@
 import { type ClientSchema, a, defineData, defineFunction } from '@aws-amplify/backend'
 import { postConfirmation } from '../auth/post-confirmation/resource'
 import { webHookPlan } from '../functions/webHookPlan/resource'
-import { cancelPlan } from '../functions/cancelPlan/resource'
 import { planScheduler } from '../functions/planScheduler/resource'
 import { checkStoreName } from '../functions/checkStoreName/resource'
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource'
@@ -371,7 +370,6 @@ const schema = a
   .authorization(allow => [
     allow.resource(postConfirmation),
     allow.resource(webHookPlan),
-    allow.resource(cancelPlan),
     allow.resource(planScheduler),
     allow.resource(checkStoreName),
     allow.resource(checkStoreDomain),

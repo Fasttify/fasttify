@@ -15,6 +15,7 @@ configureAmplify()
 
 interface PricingCardProps {
   plan: {
+    polarId: string
     name: string
     title: string
     price: string
@@ -24,6 +25,12 @@ interface PricingCardProps {
     className: string
     popular?: boolean
   }
+}
+
+interface SubscriptionResponse {
+  checkoutUrl?: string
+  error?: string
+  details?: string
 }
 
 export function PricingCard({ plan }: PricingCardProps) {
@@ -66,18 +73,23 @@ export function PricingCard({ plan }: PricingCardProps) {
         options: {
           body: {
             userId: cognitoUsername || '',
+            email: user.email,
+            name: user.nickName || '',
             plan: {
-              name: plan.name,
-              price: plan.price,
+              polarId: plan.polarId,
             },
           },
         },
       })
 
       const { body } = await restOperation.response
-      const response: any = await body.json()
+      const response = (await body.json()) as SubscriptionResponse
 
-      window.location.href = response.checkoutUrl
+      if (response && response.checkoutUrl) {
+        window.location.href = response.checkoutUrl
+      } else {
+        throw new Error('No se recibió URL de checkout')
+      }
     } catch (error) {
       console.error('Error al suscribirse:', error)
       addToast('Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.', 'error')
@@ -153,7 +165,7 @@ export function PricingCard({ plan }: PricingCardProps) {
                 : 'bg-primary text-white hover:bg-primary-dark'
             }`}
             onClick={handleSubscribe}
-            disabled={isSubmitting || hasActivePlan || user?.plan !== 'free'}
+            disabled={isSubmitting}
           >
             {hasActivePlan ? 'Plan activo' : isSubmitting ? 'Procesando...' : plan.buttonText}
           </Button>
