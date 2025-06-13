@@ -16,12 +16,15 @@ import { StyleTag, StylesheetTag } from '@/lib/store-renderer/liquid/tags/style-
 import { JavaScriptTag } from '@/lib/store-renderer/liquid/tags/javascript-tag'
 import { FormTag } from '@/lib/store-renderer/liquid/tags/form-tag'
 import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
+import { AssetCollector } from '@/lib/store-renderer/services/rendering/asset-collector'
 
 class LiquidEngine {
   private static instance: LiquidEngine
   private liquid: Liquid
+  public assetCollector: AssetCollector
 
   private constructor() {
+    this.assetCollector = new AssetCollector()
     this.liquid = this.createEngine()
     this.registerFilters()
     this.registerCustomTags()
@@ -55,6 +58,9 @@ class LiquidEngine {
           money_format: '${{amount}}',
           timezone: 'America/Bogota',
         },
+      },
+      context: {
+        _assetCollector: this.assetCollector,
       },
     }
 
@@ -257,6 +263,7 @@ class LiquidEngine {
   public clearCache(): void {
     cacheManager.clearCache()
     // Recrear la instancia de Liquid para limpiar su caché interno
+    this.assetCollector = new AssetCollector()
     this.liquid = this.createEngine()
     this.registerFilters()
   }

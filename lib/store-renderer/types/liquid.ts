@@ -1,4 +1,4 @@
-import { Liquid } from 'liquidjs'
+import { Liquid, FS } from 'liquidjs'
 
 export interface LiquidEngineConfig {
   cache: boolean
@@ -10,6 +10,9 @@ export interface LiquidEngineConfig {
   strictFilters: boolean
   strictVariables: boolean
   globals: Record<string, any>
+  fs?: FS
+  root?: string | string[]
+  context?: Record<string, any>
 }
 
 export interface LiquidFilter {

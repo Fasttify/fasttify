@@ -1,8 +1,12 @@
+import type { AssetCollector } from '../services/rendering/asset-collector'
+
 export interface TemplateFile {
   path: string
   content: string
   contentType: string
   lastModified?: Date
+  preloaded_sections?: Record<string, string> // Secciones pre-cargadas
+  _assetCollector?: AssetCollector
 }
 
 export interface TemplateCache {
@@ -28,6 +32,7 @@ export interface RenderContext {
   collection?: any // Para páginas de colección
   pagination?: any // Para páginas con paginación
   preloaded_sections?: Record<string, string> // Secciones pre-cargadas
+  _assetCollector?: AssetCollector
 }
 
 export interface ShopContext {

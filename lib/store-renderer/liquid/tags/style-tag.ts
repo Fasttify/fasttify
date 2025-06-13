@@ -1,4 +1,5 @@
 import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs'
+import { AssetCollector } from '@/lib/store-renderer/services/rendering/asset-collector'
 
 /**
  * Custom Style Tag para manejar {% style %} en LiquidJS
@@ -61,27 +62,24 @@ export class StyleTag extends Tag {
     this.cssContent = content.trim()
   }
 
-  *render(ctx: Context, emitter: any): Generator<any, void, unknown> {
-    // Si no hay contenido CSS, no renderizar nada
-    if (!this.cssContent.trim()) {
+  *render(ctx: Context): Generator<any, void, unknown> {
+    const assetCollector = (this.liquid.options.globals as any)._assetCollector as
+      | AssetCollector
+      | undefined
+    const sectionId = ctx.get(['section', 'id']) as string | undefined
+
+    if (!assetCollector || !this.cssContent.trim()) {
       return
     }
 
     try {
-      // Procesar el contenido CSS evaluando las expresiones Liquid
       const template = this.liquid.parse(this.cssContent)
       const processedCSS = (yield this.liquid.render(template, ctx.getAll())) as string
-
-      // Limpiar y optimizar el CSS
+      const uniqueId = sectionId || `style-${Math.random().toString(36).substring(2, 9)}`
       const optimizedCSS = this.optimizeCSS(processedCSS)
-
-      // Generar el tag style HTML con atributo data-shopify
-      emitter.write(`<style data-shopify>\n${optimizedCSS}\n</style>`)
+      assetCollector.addCss(optimizedCSS, uniqueId)
     } catch (error) {
       console.error('Error processing CSS in style tag:', error)
-      // Fallback al CSS original optimizado
-      const fallbackCSS = this.optimizeCSS(this.cssContent)
-      emitter.write(`<style data-shopify>\n${fallbackCSS}\n</style>`)
     }
   }
 
@@ -168,31 +166,23 @@ export class StylesheetTag extends Tag {
     this.cssContent = content.trim()
   }
 
-  *render(ctx: Context, emitter: any): Generator<any, void, unknown> {
-    // Si no hay contenido CSS, no renderizar nada
-    if (!this.cssContent.trim()) {
+  *render(ctx: Context): Generator<any, void, unknown> {
+    const assetCollector = (this.liquid.options.globals as any)._assetCollector as
+      | AssetCollector
+      | undefined
+    const sectionId = ctx.get(['section', 'id']) as string | undefined
+
+    if (!assetCollector || !this.cssContent.trim()) {
       return
     }
 
     try {
-      // Procesar el contenido CSS evaluando las expresiones Liquid
       const template = this.liquid.parse(this.cssContent)
       const processedCSS = (yield this.liquid.render(template, ctx.getAll())) as string
-
-      // Generar el tag style HTML con atributo data-shopify
-      // El tag stylesheet normalmente se usa en secciones y puede tener ID único
-      const sectionId = 'stylesheet'
-
-      emitter.write(
-        `<style data-shopify data-section-id="${sectionId}">\n${processedCSS}\n</style>`
-      )
+      const uniqueId = sectionId || `stylesheet-${Math.random().toString(36).substring(2, 9)}`
+      assetCollector.addCss(processedCSS, uniqueId)
     } catch (error) {
       console.error('Error processing CSS in stylesheet tag:', error)
-      // Fallback al CSS original
-      const sectionId = 'stylesheet'
-      emitter.write(
-        `<style data-shopify data-section-id="${sectionId}">\n${this.cssContent}\n</style>`
-      )
     }
   }
 }

@@ -1,4 +1,5 @@
 import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs'
+import { AssetCollector } from '@/lib/store-renderer/services/rendering/asset-collector'
 
 /**
  * Custom JavaScript Tag para manejar {% javascript %} en LiquidJS
@@ -61,39 +62,23 @@ export class JavaScriptTag extends Tag {
     this.jsContent = content.trim()
   }
 
-  *render(ctx: Context, emitter: any): Generator<any, void, unknown> {
-    // Si no hay contenido JS, no renderizar nada
-    if (!this.jsContent.trim()) {
+  *render(ctx: Context): Generator<any, void, unknown> {
+    const assetCollector = (this.liquid.options.globals as any)._assetCollector as
+      | AssetCollector
+      | undefined
+    const sectionId = ctx.get(['section', 'id']) as string | undefined
+
+    if (!assetCollector || !this.jsContent.trim()) {
       return
     }
 
     try {
-      // Procesar el contenido JS evaluando las expresiones Liquid
       const template = this.liquid.parse(this.jsContent)
       const processedJS = (yield this.liquid.render(template, ctx.getAll())) as string
-
-      // Envolver en función anónima para evitar conflictos de scope
-      const wrappedJS = this.wrapJavaScript(processedJS, ctx)
-
-      // Generar el tag script HTML con wrapping de seguridad
-      const sectionId = 'global'
-      const sectionType = 'unknown'
-
-      // Para JavaScriptTag, el código debe ser accesible globalmente
-      // No envolver en función anónima para que las funciones sean accesibles
-      const scriptHTML = `<script type="text/javascript">
-// Section: ${sectionId} (${sectionType})
-// JavaScript generado por JavaScriptTag
-
-${processedJS}
-</script>`
-
-      emitter.write(scriptHTML)
+      const uniqueId = sectionId || `javascript-${Math.random().toString(36).substring(2, 9)}`
+      assetCollector.addJs(processedJS, uniqueId)
     } catch (error) {
       console.error('Error processing JavaScript in javascript tag:', error)
-      // Fallback al JS original envuelto
-      const fallbackJS = this.wrapJavaScript(this.jsContent, ctx)
-      emitter.write(`<script type="text/javascript">\n${fallbackJS}\n</script>`)
     }
   }
 

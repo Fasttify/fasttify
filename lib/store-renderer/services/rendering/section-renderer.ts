@@ -15,6 +15,10 @@ export class SectionRenderer {
   ): Promise<string> {
     const schemaSettings = schemaParser.extractSchemaSettings(templateContent)
 
+    // LIMPIAR EL CONTENIDO: Eliminar el bloque schema antes de renderizar
+    const schemaRegex = /{%-?\s*schema\s*-?%}([\s\S]*?){%-?\s*endschema\s*-?%}/
+    const cleanedContent = templateContent.replace(schemaRegex, '').trim()
+
     try {
       // Obtener settings y blocks reales del storeTemplate si existe
       const storeSection = storeTemplate?.sections?.[sectionName]
@@ -35,7 +39,7 @@ export class SectionRenderer {
       }
 
       // Renderizar la sección con el contexto enriquecido
-      return await liquidEngine.render(templateContent, sectionContext, `section_${sectionName}`)
+      return await liquidEngine.render(cleanedContent, sectionContext, `section_${sectionName}`)
     } catch (error) {
       console.error(`Error rendering section ${sectionName}:`, error)
 
@@ -53,7 +57,7 @@ export class SectionRenderer {
           }
 
           return await liquidEngine.render(
-            templateContent,
+            cleanedContent,
             simpleContext,
             `section_${sectionName}_simple`
           )

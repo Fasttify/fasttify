@@ -40,6 +40,7 @@ export class DynamicPageRenderer {
     try {
       // 1. Resolver dominio a tienda
       const store = await domainResolver.resolveStoreByDomain(domain)
+      liquidEngine.assetCollector.clear() // Limpiar assets de renderizados anteriores
 
       // 2. Verificar que la tienda tenga plantillas
       const hasTemplates = await templateLoader.hasTemplates(store.storeId)
@@ -126,6 +127,8 @@ export class DynamicPageRenderer {
         `${options.pageType}_${store.storeId}`
       )
 
+      const htmlWithAssets = this.injectAssets(html, liquidEngine.assetCollector)
+
       // 9. Generar metadata SEO
       const metadata = metadataGenerator.generateMetadata(store, domain)
 
@@ -133,7 +136,7 @@ export class DynamicPageRenderer {
       const cacheKey = `${options.pageType}_${store.storeId}_${options.handle || options.productId || options.collectionId || 'default'}_${Date.now()}`
 
       return {
-        html,
+        html: htmlWithAssets,
         metadata,
         cacheKey,
         cacheTTL: this.getCacheTTL(options.pageType),
@@ -152,6 +155,35 @@ export class DynamicPageRenderer {
         `Failed to render ${options.pageType} page: ${errorMessage}`
       )
     }
+  }
+
+  /**
+   * Inyecta los assets recolectados (CSS y JS) en el HTML final.
+   */
+  private injectAssets(html: string, assetCollector: any): string {
+    let finalHtml = html
+    const css = assetCollector.getCombinedCss()
+    const js = assetCollector.getCombinedJs()
+
+    if (css) {
+      const styleTag = `<style data-fasttify-assets="true">${css}</style>`
+      if (finalHtml.includes('</head>')) {
+        finalHtml = finalHtml.replace('</head>', `${styleTag}</head>`)
+      } else {
+        finalHtml += styleTag // Fallback si no hay <head>
+      }
+    }
+
+    if (js) {
+      const scriptTag = `<script data-fasttify-assets="true">${js}</script>`
+      if (finalHtml.includes('</body>')) {
+        finalHtml = finalHtml.replace('</body>', `${scriptTag}</body>`)
+      } else {
+        finalHtml += scriptTag // Fallback si no hay <body>
+      }
+    }
+
+    return finalHtml
   }
 
   /**
