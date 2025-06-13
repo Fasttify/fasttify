@@ -361,6 +361,53 @@ export const scriptTagFilter: LiquidFilter = {
 }
 
 /**
+ * Filtro default_pagination - Genera controles de paginación HTML
+ */
+export const defaultPaginationFilter: LiquidFilter = {
+  name: 'default_pagination',
+  filter: (paginate: any): string => {
+    if (!paginate) {
+      return ''
+    }
+
+    const parts = []
+
+    // Botón anterior
+    if (paginate.previous) {
+      parts.push(`<a href="${paginate.previous.url}" class="prev">&laquo; Anterior</a>`)
+    } else {
+      parts.push(`<span class="prev disabled">&laquo; Anterior</span>`)
+    }
+
+    // Páginas numeradas
+    if (paginate.parts && Array.isArray(paginate.parts)) {
+      paginate.parts.forEach((part: any) => {
+        if (!part.is_link) {
+          // Página actual o ellipsis
+          if (part.title === '…') {
+            parts.push(`<span class="ellipsis">…</span>`)
+          } else {
+            parts.push(`<span class="current">${part.title}</span>`)
+          }
+        } else {
+          // Enlace a otra página
+          parts.push(`<a href="${part.url}">${part.title}</a>`)
+        }
+      })
+    }
+
+    // Botón siguiente
+    if (paginate.next) {
+      parts.push(`<a href="${paginate.next.url}" class="next">Siguiente &raquo;</a>`)
+    } else {
+      parts.push(`<span class="next disabled">Siguiente &raquo;</span>`)
+    }
+
+    return `<div class="pagination">${parts.join('')}</div>`
+  },
+}
+
+/**
  * Array con todos los filtros para registrar
  */
 export const ecommerceFilters: LiquidFilter[] = [
@@ -381,4 +428,5 @@ export const ecommerceFilters: LiquidFilter[] = [
   defaultFilter,
   stylesheetTagFilter,
   scriptTagFilter,
+  defaultPaginationFilter,
 ]

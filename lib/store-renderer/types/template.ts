@@ -1,8 +1,12 @@
+import type { AssetCollector } from '../services/rendering/asset-collector'
+
 export interface TemplateFile {
   path: string
   content: string
   contentType: string
   lastModified?: Date
+  preloaded_sections?: Record<string, string> // Secciones pre-cargadas
+  _assetCollector?: AssetCollector
 }
 
 export interface TemplateCache {
@@ -28,6 +32,7 @@ export interface RenderContext {
   collection?: any // Para páginas de colección
   pagination?: any // Para páginas con paginación
   preloaded_sections?: Record<string, string> // Secciones pre-cargadas
+  _assetCollector?: AssetCollector
 }
 
 export interface ShopContext {
@@ -153,6 +158,7 @@ export interface RenderResult {
     canonical?: string
     openGraph: OpenGraphData
     schema: SchemaData
+    icons: string
   }
   cacheKey: string
   cacheTTL: number
@@ -201,4 +207,24 @@ export interface TemplateData {
   layout: string
   sections: Record<string, TemplateSection>
   order: string[]
+}
+
+export type PageType =
+  | 'index'
+  | 'product'
+  | 'collection'
+  | 'page'
+  | 'blog'
+  | 'article'
+  | 'search'
+  | 'cart'
+  | '404'
+
+export interface PageRenderOptions {
+  pageType: PageType
+  handle?: string // Para productos, colecciones, páginas específicas, etc.
+  productId?: string // ID específico del producto
+  collectionId?: string // ID específico de la colección
+  searchQuery?: string // Para páginas de búsqueda
+  pageNumber?: number // Para paginación
 }

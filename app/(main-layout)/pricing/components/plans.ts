@@ -1,5 +1,6 @@
 export const plans = [
   {
+    polarId: 'e02f173f-1ca5-4f7b-a900-2e5c9413d8a6',
     name: 'Royal',
     title: '$20.000 COP/mes',
     price: '20000',
@@ -17,6 +18,7 @@ export const plans = [
     className: 'bg-white',
   },
   {
+    polarId: '149c6595-1611-477d-b0b4-61700d33c069',
     name: 'Majestic',
     title: '$30.000 COP/mes',
     price: '30000',
@@ -35,6 +37,7 @@ export const plans = [
     popular: true,
   },
   {
+    polarId: '3a85e94a-7deb-4f94-8aa4-99a972406f0f',
     name: 'Imperial',
     title: '$45.000 COP/mes',
     price: '45000',

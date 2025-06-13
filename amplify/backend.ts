@@ -3,7 +3,6 @@ import { auth } from './auth/resource'
 import { storage } from './storage/resource'
 import { createSubscription } from './functions/createSubscription/resource'
 import { webHookPlan } from './functions/webHookPlan/resource'
-import { cancelPlan } from './functions/cancelPlan/resource'
 import { planScheduler } from './functions/planScheduler/resource'
 import { planManagement } from './functions/planManagement/resource'
 import { checkStoreName } from './functions/checkStoreName/resource'
@@ -33,7 +32,6 @@ const backend = defineBackend({
   storage,
   createSubscription,
   webHookPlan,
-  cancelPlan,
   planScheduler,
   planManagement,
   checkStoreName,
@@ -172,30 +170,6 @@ const webhookResource = webHookApi.root.addResource('webhook', {
 })
 
 webhookResource.addMethod('POST', webHookPlanIntegration)
-
-/**
- *
- * API para Cancelar Planes
- *
- */
-const cancelPlanApi = new RestApi(apiStack, 'CancelPlanApi', {
-  restApiName: 'CancelPlanApi',
-  deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
-})
-
-const cancelPlanIntegration = new LambdaIntegration(backend.cancelPlan.resources.lambda)
-
-const cancelPlanResource = cancelPlanApi.root.addResource('cancel-plan', {
-  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
-})
-
-cancelPlanResource.addMethod('POST', cancelPlanIntegration)
 
 /**
  *
@@ -387,7 +361,6 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
       resources: [
         `${subscriptionApi.arnForExecuteApi('*', '/subscribe', 'dev')}`,
         `${webHookApi.arnForExecuteApi('*', '/webhook', 'dev')}`,
-        `${cancelPlanApi.arnForExecuteApi('*', '/cancel-plan', 'dev')}`,
         `${planManagementApi.arnForExecuteApi('*', '/plan-management', 'dev')}`,
         `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', 'dev')}`,
         `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', 'dev')}`,
@@ -422,11 +395,6 @@ backend.addOutput({
         endpoint: webHookApi.url,
         region: Stack.of(webHookApi).region,
         apiName: webHookApi.restApiName,
-      },
-      CancelPlanApi: {
-        endpoint: cancelPlanApi.url,
-        region: Stack.of(cancelPlanApi).region,
-        apiName: cancelPlanApi.restApiName,
       },
       PlanManagementApi: {
         endpoint: planManagementApi.url,

@@ -128,6 +128,7 @@ export async function generateMetadata({
       alternates: {
         canonical: metadata.canonical,
       },
+      icons: metadata.icons,
       openGraph: metadata.openGraph
         ? {
             title: metadata.openGraph.title,

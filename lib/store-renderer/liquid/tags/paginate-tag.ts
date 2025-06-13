@@ -6,7 +6,7 @@ import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquid
  */
 export class PaginateTag extends Tag {
   private arrayPath!: string
-  private limit!: number
+  private limitPath!: string
   private templateContent: string = ''
 
   constructor(tagToken: TagToken, remainTokens: TopLevelToken[], liquid: Liquid) {
@@ -17,14 +17,14 @@ export class PaginateTag extends Tag {
 
   private parseArguments(tagToken: TagToken): void {
     const args = tagToken.args?.trim() || ''
-    const match = args.match(/^(.+?)\s+by\s+(\d+)$/)
+    const match = args.match(/^(.+?)\s+by\s+(.+)$/)
 
     if (!match) {
       throw new Error(`Invalid paginate syntax: ${args}. Expected: "array by limit"`)
     }
 
     this.arrayPath = match[1].trim()
-    this.limit = Math.max(1, Math.min(50, parseInt(match[2])))
+    this.limitPath = match[2].trim()
   }
 
   private parseTemplateContent(remainTokens: TopLevelToken[]): void {
@@ -72,37 +72,34 @@ export class PaginateTag extends Tag {
       return
     }
 
-    const currentPage = 1 // Simplificado por ahora
-    const totalPages = Math.ceil(array.length / this.limit)
-    const startIndex = (currentPage - 1) * this.limit
-    const endIndex = Math.min(startIndex + this.limit, array.length)
+    // Obtener y validar el límite
+    const rawLimit = this.getNestedValue(ctx, this.limitPath)
+    const limit = Math.max(1, Math.min(50, parseInt(String(rawLimit)) || 12))
+
+    const currentPage = parseInt((ctx.getRegister('page') as string) || '1')
+    const totalPages = Math.ceil(array.length / limit)
+    const startIndex = (currentPage - 1) * limit
+    const endIndex = Math.min(startIndex + limit, array.length)
 
     // Crear slice paginado del array
     const paginatedArray = array.slice(startIndex, endIndex)
 
     // Crear objeto paginate
-    const paginateObj = {
-      paginate: {
-        current_page: currentPage,
-        pages: totalPages,
-        items: array.length,
-        parts: [{ title: 1, is_link: false }],
-      },
-    }
+    const paginateObj = this.createPaginateObject(currentPage, totalPages, limit, array.length, 5)
 
-    // SIMPLIFICADO: Por ahora solo mostramos el contenido estático sin procesar
-    // TODO: Implementar rendering completo sin bucle infinito
-    emitter.write(`
-    <div class="paginate-wrapper">
-      <p>Paginación: ${paginatedArray.length} de ${array.length} elementos (página ${currentPage} de ${totalPages})</p>
-      <div class="paginated-content">
-        ${this.templateContent}
-      </div>
-      <div class="pagination-info">
-        <span>Página ${currentPage} de ${totalPages}</span>
-      </div>
-    </div>
-    `)
+    // Agregar el objeto paginate al contexto
+    ctx.push(paginateObj)
+
+    // Agregar el array paginado al contexto con el mismo nombre que el original
+    const arrayName = this.arrayPath.split('.').pop() || 'items'
+    ctx.push({ [arrayName]: paginatedArray })
+
+    // Renderizar el contenido
+    yield this.liquid.renderer.renderTemplates(this.liquid.parse(this.templateContent), ctx)
+
+    // Restaurar el contexto original
+    ctx.pop()
+    ctx.pop()
   }
 
   private getNestedValue(ctx: Context, path: string): unknown {
