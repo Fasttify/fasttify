@@ -29,6 +29,7 @@ export class ErrorRenderer {
       return {
         html,
         metadata: {
+          icons: options.store?.favicon || '/favicon.ico',
           title: this.getErrorTitle(error.type),
           description: this.getErrorDescription(error.type),
           openGraph: {
@@ -1170,6 +1171,7 @@ export class ErrorRenderer {
     return {
       html,
       metadata: {
+        icons: '/favicon.ico',
         title: 'Error - Fasttify',
         description: 'Se produjo un error inesperado',
         openGraph: {
