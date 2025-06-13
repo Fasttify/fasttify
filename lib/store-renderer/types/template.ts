@@ -208,3 +208,23 @@ export interface TemplateData {
   sections: Record<string, TemplateSection>
   order: string[]
 }
+
+export type PageType =
+  | 'index'
+  | 'product'
+  | 'collection'
+  | 'page'
+  | 'blog'
+  | 'article'
+  | 'search'
+  | 'cart'
+  | '404'
+
+export interface PageRenderOptions {
+  pageType: PageType
+  handle?: string // Para productos, colecciones, páginas específicas, etc.
+  productId?: string // ID específico del producto
+  collectionId?: string // ID específico de la colección
+  searchQuery?: string // Para páginas de búsqueda
+  pageNumber?: number // Para paginación
+}

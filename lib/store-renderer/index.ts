@@ -1,8 +1,6 @@
-import {
-  DynamicPageRenderer,
-  type PageRenderOptions,
-} from '@/lib/store-renderer/renderers/homepage'
+import { DynamicPageRenderer } from '@/lib/store-renderer/renderers/dynamic-page-renderer'
 import type { RenderResult } from '@/lib/store-renderer/types'
+import type { PageRenderOptions } from '@/lib/store-renderer/types/template'
 
 /**
  * Factory principal del sistema de renderizado de tiendas
@@ -152,7 +150,7 @@ export const storeRenderer = new StoreRendererFactory()
 
 // Exportar tipos para uso externo
 export type { RenderResult } from '@/lib/store-renderer/types'
-export { DynamicPageRenderer } from '@/lib/store-renderer/renderers/homepage'
+export { DynamicPageRenderer } from '@/lib/store-renderer/renderers/dynamic-page-renderer'
 
 // Exportar servicios para uso avanzado
 export { domainResolver } from '@/lib/store-renderer/services/core/domain-resolver'
