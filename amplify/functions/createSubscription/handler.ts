@@ -6,7 +6,6 @@ import { Polar } from '@polar-sh/sdk'
 export const handler: APIGatewayProxyHandler = async event => {
   const origin = event.headers?.origin || event.headers?.Origin
 
-  // Manejar peticiones OPTIONS (preflight CORS)
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
