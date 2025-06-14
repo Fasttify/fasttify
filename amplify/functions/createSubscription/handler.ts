@@ -59,15 +59,14 @@ export const handler: APIGatewayProxyHandler = async event => {
           })
 
           checkoutUrl = customerCheckout.url
+        } else {
+          // Si el cliente existe y tiene una suscripción activa, crear una sesión para gestionar su suscripción
+          const result = await polar.customerSessions.create({
+            customerId: customer.id,
+          })
+          checkoutUrl = result.customerPortalUrl
         }
       }
-
-      // Si el cliente existe, crear una sesión para gestionar su suscripción
-      const result = await polar.customerSessions.create({
-        customerId: customer.id,
-      })
-
-      checkoutUrl = result.customerPortalUrl
     } catch (error) {
       // Si no existe, crear un nuevo cliente
       customer = await polar.customers.create({
