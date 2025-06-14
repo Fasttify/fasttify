@@ -40,7 +40,6 @@ export const handler: APIGatewayProxyHandler = async event => {
           customerId: customer.id,
         })
 
-        // El objeto retornado por polar.subscriptions.list es un PageIterator, no tiene 'data'.
         // Debemos iterar para verificar si hay suscripciones activas.
         let hasActiveSubscription = false
         for await (const sub of subscriptions) {
