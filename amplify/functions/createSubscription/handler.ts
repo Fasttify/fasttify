@@ -35,18 +35,18 @@ export const handler: APIGatewayProxyHandler = async event => {
 
       //si el cliente existe pero no tiene una suscripcion activa, crear una nueva
       if (customer) {
-        const subscriptions = await polar.subscriptions.list({
-          customerId: customer.id,
+        // Obtener el estado completo del cliente que incluye información sobre suscripciones activas
+        const customerState = await polar.customers.getState({
+          id: customer.id,
         })
 
-        // Debemos iterar para verificar si hay suscripciones activas.
-        let hasActiveSubscription = false
-        for await (const sub of subscriptions) {
-          hasActiveSubscription = true
-          break
-        }
+        // Verificar si hay suscripciones activas
+        // activeSubscriptions contendrá un array con las suscripciones activas
+        const hasActiveSubscription =
+          customerState.activeSubscriptions && customerState.activeSubscriptions.length > 0
 
         if (!hasActiveSubscription) {
+          // Si no hay suscripciones activas, crear un nuevo checkout
           const customerCheckout = await polar.checkouts.create({
             customerBillingAddress: {
               country: 'CO',
