@@ -4,7 +4,6 @@ import { storage } from './storage/resource'
 import { createSubscription } from './functions/createSubscription/resource'
 import { webHookPlan } from './functions/webHookPlan/resource'
 import { planScheduler } from './functions/planScheduler/resource'
-import { planManagement } from './functions/planManagement/resource'
 import { checkStoreName } from './functions/checkStoreName/resource'
 import { checkStoreDomain } from './functions/checkStoreDomain/resource'
 import { postConfirmation } from './auth/post-confirmation/resource'
@@ -33,7 +32,6 @@ const backend = defineBackend({
   createSubscription,
   webHookPlan,
   planScheduler,
-  planManagement,
   checkStoreName,
   postConfirmation,
   generateHaikuFunction,
@@ -170,30 +168,6 @@ const webhookResource = webHookApi.root.addResource('webhook', {
 })
 
 webhookResource.addMethod('POST', webHookPlanIntegration)
-
-/**
- *
- * API para Gestión de Planes
- *
- */
-const planManagementApi = new RestApi(apiStack, 'PlanManagementApi', {
-  restApiName: 'PlanManagementApi',
-  deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
-})
-
-const planManagementIntegration = new LambdaIntegration(backend.planManagement.resources.lambda)
-
-const planManagementResource = planManagementApi.root.addResource('plan-management', {
-  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
-})
-
-planManagementResource.addMethod('POST', planManagementIntegration)
 
 /**
  *
@@ -361,7 +335,6 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
       resources: [
         `${subscriptionApi.arnForExecuteApi('*', '/subscribe', 'dev')}`,
         `${webHookApi.arnForExecuteApi('*', '/webhook', 'dev')}`,
-        `${planManagementApi.arnForExecuteApi('*', '/plan-management', 'dev')}`,
         `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', 'dev')}`,
         `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', 'dev')}`,
         `${apiKeyManagerApi.arnForExecuteApi('*', '/api-keys', 'dev')}`,
@@ -395,11 +368,6 @@ backend.addOutput({
         endpoint: webHookApi.url,
         region: Stack.of(webHookApi).region,
         apiName: webHookApi.restApiName,
-      },
-      PlanManagementApi: {
-        endpoint: planManagementApi.url,
-        region: Stack.of(planManagementApi).region,
-        apiName: planManagementApi.restApiName,
       },
       CheckStoreNameApi: {
         endpoint: checkStoreNameApi.url,
