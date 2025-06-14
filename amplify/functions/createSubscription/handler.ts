@@ -6,7 +6,6 @@ import { Polar } from '@polar-sh/sdk'
 export const handler: APIGatewayProxyHandler = async event => {
   const origin = event.headers?.origin || event.headers?.Origin
 
-  // Manejar peticiones OPTIONS (preflight CORS)
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -40,7 +39,6 @@ export const handler: APIGatewayProxyHandler = async event => {
           customerId: customer.id,
         })
 
-        // El objeto retornado por polar.subscriptions.list es un PageIterator, no tiene 'data'.
         // Debemos iterar para verificar si hay suscripciones activas.
         let hasActiveSubscription = false
         for await (const sub of subscriptions) {
@@ -59,15 +57,14 @@ export const handler: APIGatewayProxyHandler = async event => {
           })
 
           checkoutUrl = customerCheckout.url
+        } else {
+          // Si el cliente existe y tiene una suscripción activa, crear una sesión para gestionar su suscripción
+          const result = await polar.customerSessions.create({
+            customerId: customer.id,
+          })
+          checkoutUrl = result.customerPortalUrl
         }
       }
-
-      // Si el cliente existe, crear una sesión para gestionar su suscripción
-      const result = await polar.customerSessions.create({
-        customerId: customer.id,
-      })
-
-      checkoutUrl = result.customerPortalUrl
     } catch (error) {
       // Si no existe, crear un nuevo cliente
       customer = await polar.customers.create({
