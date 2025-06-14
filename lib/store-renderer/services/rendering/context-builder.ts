@@ -55,7 +55,7 @@ export class ContextBuilder {
       store: shop,
       page,
       page_title: store.storeName,
-      page_description: store.storeDescription || `Tienda online de ${store.storeName}`,
+      page_description: store.storeDescription || `Tienda online ${store.storeName}`,
       products: featuredProducts,
       collections,
       linklists,
