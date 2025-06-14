@@ -74,6 +74,7 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
               {plans.map(plan => (
                 <PlanCard
                   key={plan.name}
+                  plan={plan}
                   title={plan.name}
                   description={plan.description}
                   price={plan.price}
@@ -104,6 +105,7 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
 }
 
 interface PlanCardProps {
+  plan: any
   title: string
   description: string
   price: string
@@ -117,6 +119,7 @@ interface PlanCardProps {
 }
 
 function PlanCard({
+  plan,
   title,
   description,
   price,
@@ -134,7 +137,8 @@ function PlanCard({
   const [isButtonDisabled, setIsButtonDisabled] = useState(false)
 
   const cognitoUsername = user?.cognitoUsername
-  const hasActivePlan = user && user.plan ? user.plan === title : false
+  const userEmail = user?.email
+  const userName = user?.nickName
 
   const handleSubscribe = async () => {
     if (!user) {
@@ -150,10 +154,11 @@ function PlanCard({
         path: 'subscribe',
         options: {
           body: {
-            userId: cognitoUsername || '',
+            userId: cognitoUsername,
+            email: userEmail,
+            name: userName,
             plan: {
-              name: title,
-              price: price,
+              polarId: plan.polarId,
             },
           },
         },
@@ -190,14 +195,14 @@ function PlanCard({
         </div>
         <Button
           className={`mt-5 w-full ${
-            hasActivePlan || isButtonDisabled
+            isButtonDisabled
               ? 'bg-gray-200 text-gray-500 hover:bg-gray-200 cursor-not-allowed'
               : 'bg-zinc-800 text-white hover:bg-zinc-700'
           }`}
           onClick={handleSubscribe}
-          disabled={!isClient || hasActivePlan || isButtonDisabled}
+          disabled={!isClient || isButtonDisabled}
         >
-          {hasActivePlan ? 'Plan activo' : isButtonDisabled ? 'Procesando...' : buttonText}
+          {isButtonDisabled ? 'Procesando...' : buttonText}
         </Button>
       </div>
 
