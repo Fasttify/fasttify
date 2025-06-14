@@ -51,7 +51,7 @@ export function PaymentSettings() {
         console.warn('No checkout URL received.')
       }
     } catch (error) {
-      console.error('Error al redirigir a Polarsh:', error)
+      console.error('Error redirecting to Polarsh:', error)
     } finally {
       setIsSubmitting(false)
     }
