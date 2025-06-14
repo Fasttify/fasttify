@@ -136,7 +136,8 @@ function PlanCard({
   const formattedPrice = parseInt(price).toLocaleString('es-CO')
   const [isButtonDisabled, setIsButtonDisabled] = useState(false)
 
-  const cognitoUsername = user?.cognitoUsername
+  // Usar userId en lugar de cognitoUsername para mantener consistencia
+  const userId = user?.userId
   const userEmail = user?.email
   const userName = user?.nickName
   const hasActivePlan = user && user.plan ? user.plan === title : false
@@ -155,7 +156,7 @@ function PlanCard({
         path: 'subscribe',
         options: {
           body: {
-            userId: cognitoUsername,
+            userId: userId,
             email: userEmail,
             name: userName,
             plan: {
@@ -168,7 +169,11 @@ function PlanCard({
       const { body } = await restOperation.response
       const response: any = await body.json()
 
-      window.location.href = response.checkoutUrl
+      if (response.checkoutUrl) {
+        window.location.href = response.checkoutUrl
+      } else {
+        throw new Error('No se recibió URL de checkout')
+      }
     } catch (error) {
       console.error('Error al suscribirse:', error)
       addToast('Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.', 'error')
@@ -201,7 +206,7 @@ function PlanCard({
               : 'bg-zinc-800 text-white hover:bg-zinc-700'
           }`}
           onClick={handleSubscribe}
-          disabled={!isClient || isButtonDisabled}
+          disabled={!isClient || isButtonDisabled || hasActivePlan}
         >
           {hasActivePlan ? 'Plan activo' : isButtonDisabled ? 'Procesando...' : buttonText}
         </Button>
