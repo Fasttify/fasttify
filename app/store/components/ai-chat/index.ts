@@ -4,10 +4,8 @@ export { EmptyState } from '@/app/store/components/ai-chat/components/EmptyState
 export { MessageList } from '@/app/store/components/ai-chat/components/MessageList'
 export { ChatTrigger } from '@/app/store/components/ai-chat/components/ChatTrigger'
 export { AIInputWithSearch } from '@/app/store/components/ai-chat/components/AiInput'
-export { GradientSparkles } from '@/app/store/components/ai-chat/components/GradientSparkles'
 export { MessageLoading } from '@/app/store/components/ai-chat/components/MessageLoading'
 export { TypingMessage } from '@/app/store/components/ai-chat/components/TypingMessage'
-export { TypingEffect } from '@/app/store/components/ai-chat/components/TypingEffect'
 export { default as Orb } from '@/app/store/components/ai-chat/components/Orb'
 
 // Hooks
