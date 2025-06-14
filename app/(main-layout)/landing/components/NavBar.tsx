@@ -146,11 +146,11 @@ export function Navbar() {
                   </NavigationMenuItem>
                 ))}
                 <NavigationMenuItem>
-                  <Link href="/pricing">
-                    <NavigationMenuLink className="text-base font-medium">
+                  <NavigationMenuLink asChild>
+                    <Link href="/pricing" className="text-base font-medium">
                       Precios
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>

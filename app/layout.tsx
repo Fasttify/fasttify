@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { inter } from '@/config/fonts'
 import { ReactQueryProvider } from '@/utils/ReactQueryProvider'
 import ConfigureAmplifyClientSide from '@/utils/ConfigureAmplify'
 import { Amplify } from 'aws-amplify'
@@ -14,8 +13,6 @@ Amplify.configure({
     REST: outputs.custom.APIs,
   },
 })
-
-import './global.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.fasttify.com'),
@@ -54,11 +51,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
-      <body className={inter.className}>
-        <ConfigureAmplifyClientSide />
-        <ReactQueryProvider>{children}</ReactQueryProvider>
-      </body>
-    </html>
+    <ReactQueryProvider>
+      <ConfigureAmplifyClientSide />
+      {children}
+    </ReactQueryProvider>
   )
 }

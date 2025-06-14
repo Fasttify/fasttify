@@ -1,4 +1,6 @@
 import { StoreLayoutClient } from '@/app/store/config/StoreLayoutClient'
+import { inter } from '@/config/fonts'
+import '@/app/global.css'
 
 export const metadata = {
   title: 'Mi tienda',
@@ -6,5 +8,11 @@ export const metadata = {
 }
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
-  return <StoreLayoutClient>{children}</StoreLayoutClient>
+  return (
+    <html lang="es">
+      <body className={inter.className}>
+        <StoreLayoutClient>{children}</StoreLayoutClient>
+      </body>
+    </html>
+  )
 }
