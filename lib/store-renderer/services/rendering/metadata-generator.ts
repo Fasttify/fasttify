@@ -10,13 +10,14 @@ export class MetadataGenerator {
       store.storeDescription ||
       `Descubre los mejores productos en ${store.storeName}. Compra online con envío seguro.`
     const url = `https://${domain}`
+    const image = store.storeLogo || store.storeBanner
 
     const openGraph: OpenGraphData = {
       title,
       description,
       url,
       type: 'website',
-      image: store.storeLogo || store.storeBanner,
+      image,
       site_name: store.storeName,
     }
 
@@ -26,8 +27,8 @@ export class MetadataGenerator {
       name: store.storeName,
       description,
       url,
-      logo: store.storeLogo,
-      image: store.storeBanner,
+      logo: image,
+      image,
       email: store.contactEmail,
       telephone: store.contactPhone,
       address: store.storeAdress
@@ -46,7 +47,7 @@ export class MetadataGenerator {
       canonical: url,
       openGraph,
       schema,
-      icons: store.storeFavicon,
+      icons: image,
     }
   }
 
@@ -70,15 +71,15 @@ export class MetadataGenerator {
         mimeType = 'image/jpeg'
       }
 
-      headContent.push(`<link rel="icon" type="${mimeType}" href="${faviconUrl}">`)
-      headContent.push(`<link rel="shortcut icon" type="${mimeType}" href="${faviconUrl}">`)
-
-      // Para PNG, agregar también tamaños comunes
-      if (mimeType === 'image/png') {
-        headContent.push(`<link rel="apple-touch-icon" sizes="180x180" href="${faviconUrl}">`)
-        headContent.push(`<link rel="icon" type="image/png" sizes="32x32" href="${faviconUrl}">`)
-        headContent.push(`<link rel="icon" type="image/png" sizes="16x16" href="${faviconUrl}">`)
-      }
+      // Generar una sola etiqueta de favicon con múltiples atributos
+      headContent.push(
+        `<link 
+          rel="icon" 
+          type="${mimeType}" 
+          href="${faviconUrl}" 
+          sizes="16x16 32x32 48x48 180x180"
+        >`
+      )
     }
 
     // Open Graph meta tags adicionales

@@ -1,103 +1,67 @@
-import { useState, useEffect } from 'react'
-import { TypingEffect } from '@/app/store/components/ai-chat/components/TypingEffect'
+import { Text, Icon } from '@shopify/polaris'
+import { ChatIcon } from '@shopify/polaris-icons'
 import { cn } from '@/lib/utils'
-import { ChevronDown, ChevronUp } from 'lucide-react'
-
-const completedTypingMessages = new Map<string, boolean>()
 
 interface TypingMessageProps {
   content: string
   type: 'user' | 'ai'
   id: string
-  isLongMessage?: boolean
-  longMessageThreshold?: number
-  onExpand?: (id: string) => void
-  isExpanded?: boolean
 }
 
-export function TypingMessage({
-  content,
-  type,
-  id,
-  isLongMessage: forceLongMessage,
-  longMessageThreshold = 280,
-  onExpand,
-  isExpanded = false,
-}: TypingMessageProps) {
-  // Check if this message has already completed typing before
-  const [isTypingComplete, setIsTypingComplete] = useState(
-    type === 'user' || completedTypingMessages.get(id) === true
-  )
-
-  const isLongMessage =
-    forceLongMessage !== undefined ? forceLongMessage : content.length > longMessageThreshold
-
-  // When typing completes, store it in our persistent Map
-  const handleTypingComplete = () => {
-    setIsTypingComplete(true)
-    completedTypingMessages.set(id, true)
+export function TypingMessage({ content, type, id }: TypingMessageProps) {
+  const messageStyles = {
+    user: {
+      container: 'justify-end',
+      background: 'bg-gradient-to-br from-[#2a2a2a] to-[#3a3a3a]',
+      textColor: 'text-white',
+      borderRadius: 'rounded-2xl rounded-br-none',
+      width: 'max-w-[95%]',
+      icon: null,
+    },
+    ai: {
+      container: 'justify-start',
+      background: 'bg-gradient-to-br from-blue-50 to-blue-100',
+      textColor: 'text-gray-800',
+      borderRadius: 'rounded-2xl rounded-bl-none',
+      width: 'max-w-[95%]',
+      icon: ChatIcon,
+    },
   }
 
-  // Also set as complete on mount if it's an AI message that was previously shown
-  useEffect(() => {
-    if (type === 'ai' && !isTypingComplete) {
-      completedTypingMessages.set(id, true)
-    }
-  }, [id, type, isTypingComplete])
+  const currentStyle = messageStyles[type]
 
   return (
     <div
       data-message-id={id}
-      className={cn('flex group', type === 'user' ? 'justify-end' : 'justify-start')}
+      className={cn('flex w-full py-2 px-4', currentStyle.container, 'animate-fade-in')}
     >
       <div
         className={cn(
-          'max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 shadow-sm',
-          type === 'user'
-            ? 'bg-[#2a2a2a] text-white rounded-br-none'
-            : 'bg-gray-100 text-gray-800 rounded-bl-none'
+          'p-4 transition-all duration-300 ease-in-out',
+          currentStyle.background,
+          currentStyle.borderRadius,
+          currentStyle.width,
+          'w-full'
         )}
-        style={{
-          overflowWrap: 'break-word',
-          wordBreak: 'break-word',
-        }}
       >
-        <div
-          className={cn(
-            'break-words whitespace-pre-wrap overflow-hidden',
-            isLongMessage && !isExpanded && 'line-clamp-4'
+        <div className="flex items-start space-x-3">
+          {currentStyle.icon && (
+            <div className="mt-1">
+              <Icon source={currentStyle.icon} tone={type === 'ai' ? 'info' : 'base'} />
+            </div>
           )}
-        >
-          {type === 'ai' && !isTypingComplete ? (
-            <TypingEffect text={content} typingSpeed={20} onComplete={handleTypingComplete} />
-          ) : (
-            content
-          )}
-        </div>
-
-        {isLongMessage && (
-          <button
-            onClick={() => onExpand && onExpand(id)}
+          <div
             className={cn(
-              'flex items-center gap-1 mt-1 text-xs font-medium',
-              type === 'user'
-                ? 'text-white/80 hover:text-white'
-                : 'text-gray-500 hover:text-gray-700'
+              'flex-grow break-words whitespace-pre-wrap',
+              currentStyle.textColor,
+              type === 'ai' && 'text-base'
             )}
           >
-            {isExpanded ? (
-              <>
-                <ChevronUp className="h-3 w-3" />
-                <span>Mostrar menos</span>
-              </>
-            ) : (
-              <>
-                <ChevronDown className="h-3 w-3" />
-                <span>Mostrar más</span>
-              </>
-            )}
-          </button>
-        )}
+            <Text variant="bodyMd" as="p">
+              {content}
+            </Text>
+          </div>
+        </div>
       </div>
     </div>
   )

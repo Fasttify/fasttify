@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useCallback, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@shopify/polaris'
 import { RefinedAIAssistantSheet } from '@/app/store/components/ai-chat/components/RefinedAiAssistant'
-import { GradientSparkles } from '@/app/store/components/ai-chat/components/GradientSparkles'
 import { useChat } from '@/app/store/components/ai-chat/hooks/useChat'
+import { MagicIcon } from '@shopify/polaris-icons'
 
 export function ChatTrigger() {
   const [isOpen, setIsOpen] = useState(false)
@@ -39,13 +39,11 @@ export function ChatTrigger() {
   return (
     <>
       <Button
-        variant="ghost"
-        size="icon"
+        variant="primary"
+        size="medium"
+        icon={<MagicIcon width={25} height={27} style={{ color: 'white' }} />}
         onClick={() => setIsOpen(true)}
-        className="relative text-gray-700 hover:bg-gray-100"
-      >
-        <GradientSparkles className="w-30 h-30" />
-      </Button>
+      />
 
       <RefinedAIAssistantSheet
         open={isOpen}

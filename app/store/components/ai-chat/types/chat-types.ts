@@ -31,8 +31,6 @@ export interface EmptyStateProps {
 export interface MessageListProps {
   messages: Message[]
   loading: boolean
-  expandedMessages: Record<string, boolean>
-  onToggleExpansion: (messageId: string) => void
   messagesEndRef: React.RefObject<HTMLDivElement>
   scrollRef?: React.RefObject<HTMLDivElement>
 }
