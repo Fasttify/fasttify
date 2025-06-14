@@ -34,6 +34,34 @@ export const handler: APIGatewayProxyHandler = async event => {
         externalId: userId,
       })
 
+      //si el cliente existe pero no tiene una suscripcion activa, crear una nueva
+      if (customer) {
+        const subscriptions = await polar.subscriptions.list({
+          customerId: customer.id,
+        })
+
+        // El objeto retornado por polar.subscriptions.list es un PageIterator, no tiene 'data'.
+        // Debemos iterar para verificar si hay suscripciones activas.
+        let hasActiveSubscription = false
+        for await (const sub of subscriptions) {
+          hasActiveSubscription = true
+          break
+        }
+
+        if (!hasActiveSubscription) {
+          const customerCheckout = await polar.checkouts.create({
+            customerBillingAddress: {
+              country: 'CO',
+            },
+            customerId: customer.id,
+            products: [plan.polarId],
+            successUrl: 'https://fasttify.com/first-steps',
+          })
+
+          checkoutUrl = customerCheckout.url
+        }
+      }
+
       // Si el cliente existe, crear una sesión para gestionar su suscripción
       const result = await polar.customerSessions.create({
         customerId: customer.id,
