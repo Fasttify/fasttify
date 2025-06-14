@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -32,11 +32,6 @@ export function ActiveSessions() {
     useDeviceSessions()
 
   const [sessionToTerminate, setSessionToTerminate] = useState<string | null>(null)
-  // Auto-refresh cada 5 minutos
-  useEffect(() => {
-    const intervalId = setInterval(fetchSessions, 5 * 60 * 1000)
-    return () => clearInterval(intervalId)
-  }, [fetchSessions])
 
   // Funciones de ayuda para formatear la fecha y calcular el tiempo transcurrido
   const formatDate = (dateString: string) => {
