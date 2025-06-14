@@ -74,7 +74,7 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
               {plans.map(plan => (
                 <PlanCard
                   key={plan.name}
-                  plan={plan}
+                  polarId={plan.polarId}
                   title={plan.name}
                   description={plan.description}
                   price={plan.price}
@@ -105,7 +105,7 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
 }
 
 interface PlanCardProps {
-  plan: any
+  polarId: string
   title: string
   description: string
   price: string
@@ -119,7 +119,7 @@ interface PlanCardProps {
 }
 
 function PlanCard({
-  plan,
+  polarId,
   title,
   description,
   price,
@@ -139,6 +139,7 @@ function PlanCard({
   const cognitoUsername = user?.cognitoUsername
   const userEmail = user?.email
   const userName = user?.nickName
+  const hasActivePlan = user && user.plan ? user.plan === title : false
 
   const handleSubscribe = async () => {
     if (!user) {
@@ -158,7 +159,7 @@ function PlanCard({
             email: userEmail,
             name: userName,
             plan: {
-              polarId: plan.polarId,
+              polarId: polarId,
             },
           },
         },
@@ -202,7 +203,7 @@ function PlanCard({
           onClick={handleSubscribe}
           disabled={!isClient || isButtonDisabled}
         >
-          {isButtonDisabled ? 'Procesando...' : buttonText}
+          {hasActivePlan ? 'Plan activo' : isButtonDisabled ? 'Procesando...' : buttonText}
         </Button>
       </div>
 
