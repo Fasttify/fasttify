@@ -32,6 +32,8 @@ export function PaymentSettings() {
 
     setIsSubmitting(true)
     try {
+      const defaultPlanId = '149c6595-1611-477d-b0b4-61700d33c069'
+
       const response = await post({
         apiName: 'SubscriptionApi',
         path: 'subscribe',
@@ -40,6 +42,9 @@ export function PaymentSettings() {
             userId: cognitoUsername,
             email: userEmail,
             name: userName,
+            plan: {
+              polarId: defaultPlanId,
+            },
           },
         },
       })
