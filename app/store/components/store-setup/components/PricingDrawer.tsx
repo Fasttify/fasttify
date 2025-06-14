@@ -89,13 +89,11 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
               ))}
             </div>
           </div>
-          {/* FAQ Section */}
           <FAQSection
             items={faqItems}
             title="Preguntas frecuentes"
             subtitle="¿Tienes dudas sobre nuestros planes? Aquí encontrarás respuestas."
           />
-          <div className="h-4"></div> {/* Add some bottom padding */}
         </DrawerContent>
       </Drawer>
 
@@ -103,7 +101,6 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
     </>
   )
 }
-
 interface PlanCardProps {
   polarId: string
   title: string
