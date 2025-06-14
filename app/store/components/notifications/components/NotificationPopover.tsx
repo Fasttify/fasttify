@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react'
-import { Popover, ActionList, Button, Badge } from '@shopify/polaris'
+import { useState, useCallback } from 'react'
+import { TopBar, Badge, Icon } from '@shopify/polaris'
 import { NotificationIcon } from '@shopify/polaris-icons'
 
 export type Notification = {
@@ -18,22 +18,22 @@ interface NotificationPopoverProps {
 const dummyNotifications: Notification[] = [
   {
     id: '1',
-    title: 'New Message',
-    description: 'You have received a new message from John Doe',
+    title: 'Nuevo mensaje',
+    description: 'Has recibido un nuevo mensaje de John Doe',
     timestamp: new Date(),
     read: false,
   },
   {
     id: '2',
-    title: 'System Update',
-    description: 'System maintenance scheduled for tomorrow',
+    title: 'Actualización del sistema',
+    description: 'Mantenimiento programado para mañana',
     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
     read: false,
   },
   {
     id: '3',
-    title: 'Reminder',
-    description: 'Meeting with team at 2 PM',
+    title: 'Recordatorio',
+    description: 'Reunión con el equipo a las 2 PM',
     timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     read: true,
   },
@@ -66,74 +66,59 @@ export const NotificationPopover = ({
 
   const unreadCount = notifications.filter(n => !n.read).length
 
-  const activator = (
-    <div style={{ position: 'relative' }}>
-      <Button
-        onClick={togglePopoverActive}
-        icon={NotificationIcon}
-        accessibilityLabel="Notifications"
-      />
-      {unreadCount > 0 && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '0px',
-            right: '0px',
-            transform: 'translate(25%, -25%)',
-          }}
-        >
-          <Badge tone="critical">{unreadCount.toString()}</Badge>
-        </div>
-      )}
-    </div>
-  )
-
-  const actionListItems =
-    notifications.length > 0
-      ? notifications.map(notification => ({
-          content: notification.title,
-          helpText: notification.description,
-          prefix: !notification.read ? (
-            <Badge tone="attention"> </Badge>
-          ) : (
-            <div style={{ width: '21px' }} />
-          ),
-          onAction: () => markAsRead(notification.id),
-        }))
-      : [
-          {
-            content: 'You have no notifications',
-            disabled: true,
-          },
-        ]
-
   return (
-    <Popover
-      active={popoverActive}
-      activator={activator}
+    <TopBar.Menu
+      activatorContent={
+        <div style={{ position: 'relative' }}>
+          <Icon source={NotificationIcon} tone="base" />
+          {unreadCount > 0 && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '-9px',
+                right: '0px',
+                transform: 'translate(25%, -25%)',
+              }}
+            >
+              <Badge tone="critical-strong">{unreadCount.toString()}</Badge>
+            </div>
+          )}
+        </div>
+      }
+      open={popoverActive}
+      onOpen={togglePopoverActive}
       onClose={togglePopoverActive}
-      autofocusTarget="first-node"
-    >
-      <Popover.Pane>
-        <ActionList
-          actionRole="menuitem"
-          sections={[
+      actions={[
+        {
+          items:
+            notifications.length > 0
+              ? notifications.map(notification => ({
+                  content: notification.title,
+                  helpText: notification.description,
+                  prefix: !notification.read ? (
+                    <Badge tone="info-strong"> </Badge>
+                  ) : (
+                    <div style={{ width: '21px' }} />
+                  ),
+                  onAction: () => markAsRead(notification.id),
+                }))
+              : [
+                  {
+                    content: 'No tienes notificaciones',
+                    disabled: true,
+                  },
+                ],
+        },
+        {
+          items: [
             {
-              title: 'Notifications',
-              items: actionListItems,
+              content: 'Marcar todas como leídas',
+              onAction: markAllAsRead,
+              disabled: unreadCount === 0,
             },
-            {
-              items: [
-                {
-                  content: 'Mark all as read',
-                  onAction: markAllAsRead,
-                  disabled: unreadCount === 0,
-                },
-              ],
-            },
-          ]}
-        />
-      </Popover.Pane>
-    </Popover>
+          ],
+        },
+      ]}
+    />
   )
 }

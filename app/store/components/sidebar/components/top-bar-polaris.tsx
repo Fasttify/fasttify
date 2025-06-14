@@ -90,10 +90,9 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
     [router, handleSearchResultsDismiss]
   )
 
-  // User Menu - Con estado de carga y hidratación
+  // User Menu - Con estado de carga e hidratación
   const userMenuMarkup =
     !isClient || loading ? (
-      // Esqueleto de carga más representativo para evitar saltos de layout y que se posicione correctamente.
       <div
         style={{
           display: 'flex',
@@ -129,9 +128,8 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
             ],
           },
         ]}
-        name={user?.nickName || 'Usuario'}
-        detail={`Store: ${storeId}`}
-        initials={user?.nickName?.charAt(0) || 'U'}
+        name={`Tienda ${storeId}`}
+        initials={storeId?.charAt(0) || 'T'}
         open={isUserMenuOpen}
         onToggle={toggleIsUserMenuOpen}
         avatar={user?.picture || undefined}
@@ -172,34 +170,12 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
 
   // Secondary Menu con acciones personalizadas integradas
   const secondaryMenuMarkup = (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       {/* Acciones personalizadas integradas */}
       <ChatTrigger />
       <NotificationPopover />
 
       {/* Menú de ayuda */}
-      <TopBar.Menu
-        activatorContent={
-          <span>
-            <Icon source={QuestionCircleIcon} />
-            <Text as="span" visuallyHidden>
-              Ayuda
-            </Text>
-          </span>
-        }
-        open={isSecondaryMenuOpen}
-        onOpen={toggleIsSecondaryMenuOpen}
-        onClose={toggleIsSecondaryMenuOpen}
-        actions={[
-          {
-            items: [
-              { content: 'Help Center' },
-              { content: 'Contact Support' },
-              { content: 'Keyboard Shortcuts' },
-            ],
-          },
-        ]}
-      />
     </div>
   )
 
