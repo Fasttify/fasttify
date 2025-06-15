@@ -261,12 +261,10 @@ export const useCollectionForm = ({
       showToast('Colección guardada exitosamente.')
 
       // Redirigir a la lista de colecciones
-      router.push(routes.store.products.collections(storeId))
+      await router.push(routes.store.products.collections(storeId))
     } catch (error) {
       console.error('Error saving collection:', error)
       showToast('Error al guardar la colección.', true)
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -279,11 +277,11 @@ export const useCollectionForm = ({
       try {
         await deleteCollection.mutateAsync(collectionId)
         showToast('Colección eliminada.')
-        router.push(routes.store.products.collections(storeId))
+        // Esperar a que el redirect termine antes de quitar el loading
+        await router.push(routes.store.products.collections(storeId))
       } catch (error) {
         console.error('Error deleting collection:', error)
         showToast('Error al eliminar la colección.', true)
-      } finally {
         setIsSubmitting(false)
       }
     }

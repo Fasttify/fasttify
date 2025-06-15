@@ -1,24 +1,24 @@
-import { ArrowLeft, Check, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { CheckIcon } from '@shopify/polaris-icons'
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer'
+  Modal,
+  Text,
+  Button,
+  Box,
+  Card,
+  InlineStack,
+  Spinner,
+  Badge,
+  BlockStack,
+} from '@shopify/polaris'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/app/store/context/ToastContext'
 import { plans } from '@/app/(main-layout)/pricing/components/plans'
-import { FAQSection } from '@/app/(main-layout)/pricing/components/FAQSection'
 import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem'
 import { Amplify } from 'aws-amplify'
 import { post } from 'aws-amplify/api'
 import useUserStore from '@/context/core/userStore'
 import outputs from '@/amplify_outputs.json'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { LoadingIndicator } from '@/components/ui/loading-indicator'
-import { useToast } from '@/hooks/ui/use-toasts'
-import { Toast } from '@/components/ui/toasts'
 
 Amplify.configure(outputs)
 const existingConfig = Amplify.getConfig()
@@ -38,38 +38,22 @@ interface PricingDrawerProps {
 export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
   const { user } = useUserStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { toasts, addToast, removeToast } = useToast()
+  const { showToast } = useToast()
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
   }, [])
 
+  const handleClose = () => {
+    onOpenChange(false)
+  }
+
   return (
     <>
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="h-[95vh] max-h-[95vh]">
-          {isClient && isSubmitting && (
-            <div className="fixed inset-0 flex items-center justify-center bg-white/30 backdrop-blur-md z-50">
-              <LoadingIndicator text="Procesando suscripción..." />
-            </div>
-          )}
-          <DrawerHeader className="flex items-center justify-between border-b p-4">
-            <div className="flex items-center gap-2">
-              <DrawerClose asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              </DrawerClose>
-              <DrawerTitle className="text-lg font-medium">Elige tu plan</DrawerTitle>
-            </div>
-            <DrawerClose asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <X className="h-4 w-4" />
-              </Button>
-            </DrawerClose>
-          </DrawerHeader>
-          <div className="p-6">
+      <Modal open={open} onClose={handleClose} title="Elige tu plan" size="large">
+        <Modal.Section>
+          <Box padding="400">
             <div className="grid gap-6 md:grid-cols-3">
               {plans.map(plan => (
                 <PlanCard
@@ -83,24 +67,52 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
                   isPopular={plan.popular}
                   user={user}
                   setIsSubmitting={setIsSubmitting}
-                  addToast={addToast as (message: string, type: string) => void}
+                  addToast={showToast}
                   isClient={isClient}
+                  isSubmitting={isSubmitting}
                 />
               ))}
             </div>
-          </div>
-          <FAQSection
-            items={faqItems}
-            title="Preguntas frecuentes"
-            subtitle="¿Tienes dudas sobre nuestros planes? Aquí encontrarás respuestas."
-          />
-        </DrawerContent>
-      </Drawer>
+          </Box>
+        </Modal.Section>
 
-      {isClient && <Toast toasts={toasts} removeToast={removeToast} />}
+        <Modal.Section>
+          <Box paddingBlock="400" paddingInline="400" maxWidth="100%">
+            <BlockStack gap="400" align="center">
+              <BlockStack gap="200" align="center">
+                <Text variant="bodyMd" tone="subdued" alignment="center" as="p">
+                  FAQs
+                </Text>
+                <Text variant="headingXl" alignment="center" as="h2">
+                  Preguntas frecuentes
+                </Text>
+                <Text variant="bodyLg" tone="subdued" alignment="center" as="p">
+                  ¿Tienes dudas sobre nuestros planes? Aquí encontrarás respuestas.
+                </Text>
+              </BlockStack>
+
+              <BlockStack gap="200">
+                {faqItems.map((item, index) => (
+                  <Card key={index}>
+                    <BlockStack gap="200" align="start">
+                      <Text variant="headingMd" as="h3" alignment="start">
+                        {item.question}
+                      </Text>
+                      <Text variant="bodyMd" as="p" tone="subdued" alignment="start">
+                        {item.answer}
+                      </Text>
+                    </BlockStack>
+                  </Card>
+                ))}
+              </BlockStack>
+            </BlockStack>
+          </Box>
+        </Modal.Section>
+      </Modal>
     </>
   )
 }
+
 interface PlanCardProps {
   polarId: string
   title: string
@@ -111,8 +123,9 @@ interface PlanCardProps {
   isPopular?: boolean
   user: any
   setIsSubmitting: (value: boolean) => void
-  addToast: (message: string, type: string) => void
+  addToast: (message: string, isError?: boolean) => void
   isClient: boolean
+  isSubmitting: boolean
 }
 
 function PlanCard({
@@ -127,6 +140,7 @@ function PlanCard({
   setIsSubmitting,
   addToast,
   isClient,
+  isSubmitting,
 }: PlanCardProps) {
   const router = useRouter()
   // Format price with thousand separator
@@ -173,50 +187,68 @@ function PlanCard({
       }
     } catch (error) {
       console.error('Error al suscribirse:', error)
-      addToast('Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.', 'error')
+      addToast('Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.', true)
       setIsSubmitting(false)
       setIsButtonDisabled(false)
     }
   }
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm relative">
+    <Card>
       {isPopular && (
-        <div className="absolute -top-3 left-0 right-0 mx-auto w-32 rounded-full bg-blue-100 py-1 text-center text-sm text-blue-700 font-medium">
-          Más popular
+        <div className="flex justify-end">
+          <Badge tone="info">Más popular</Badge>
         </div>
       )}
-      <div className="p-6">
-        <h3 className="text-xl font-semibold">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
+      <div>
+        <InlineStack gap="200" blockAlign="center">
+          <Text variant="headingMd" as="h3">
+            {title}
+          </Text>
+          <Text variant="bodyMd" tone="subdued" as="p">
+            {description}
+          </Text>
+        </InlineStack>
+
         <div className="mt-4">
-          <p className="text-sm text-gray-600">Desde</p>
-          <div className="flex items-baseline">
-            <span className="text-3xl font-bold">${formattedPrice}</span>
-            <span className="ml-1 text-sm text-muted-foreground">COP/mes</span>
-          </div>
+          <Text variant="bodyMd" tone="subdued" as="p">
+            Desde
+          </Text>
+          <InlineStack gap="200" blockAlign="baseline">
+            <Text variant="headingXl" as="p">
+              ${formattedPrice}
+            </Text>
+            <Text variant="bodyMd" tone="subdued" as="p">
+              COP/mes
+            </Text>
+          </InlineStack>
         </div>
+
         <Button
-          className={`mt-5 w-full ${
-            isButtonDisabled
-              ? 'bg-gray-200 text-gray-500 hover:bg-gray-200 cursor-not-allowed'
-              : 'bg-zinc-800 text-white hover:bg-zinc-700'
-          }`}
+          fullWidth
+          variant="primary"
+          disabled={!isClient || isButtonDisabled || hasActivePlan || isSubmitting}
           onClick={handleSubscribe}
-          disabled={!isClient || isButtonDisabled || hasActivePlan}
+          loading={isButtonDisabled || isSubmitting}
         >
-          {hasActivePlan ? 'Plan activo' : isButtonDisabled ? 'Procesando...' : buttonText}
+          {hasActivePlan
+            ? 'Plan activo'
+            : isButtonDisabled || isSubmitting
+              ? 'Procesando...'
+              : buttonText}
         </Button>
       </div>
 
-      <div className="border-t px-6 py-4">
+      <div className="border-t mt-4 pt-4">
         {features.map((feature, index) => (
-          <div key={index} className="flex items-start gap-3 py-2">
-            <Check className="h-4 w-4 mt-0.5 text-zinc-900" />
-            <span className="text-sm">{feature}</span>
-          </div>
+          <InlineStack key={index} gap="200" blockAlign="center">
+            <CheckIcon className="h-4 w-4 text-zinc-900" />
+            <Text variant="bodyMd" as="p">
+              {feature}
+            </Text>
+          </InlineStack>
         ))}
       </div>
-    </div>
+    </Card>
   )
 }

@@ -22,7 +22,6 @@ import type { ProductListProps } from '@/app/store/components/product-management
 export function ProductList({
   storeId,
   products,
-  loading,
   error,
   hasNextPage,
   hasPreviousPage,
@@ -30,7 +29,6 @@ export function ProductList({
   previousPage,
   currentPage,
   deleteMultipleProducts,
-  refreshProducts,
   deleteProduct,
   itemsPerPage,
   setItemsPerPage,
@@ -46,14 +44,13 @@ export function ProductList({
     setSearchQuery,
     sortedProducts,
     toggleSort,
-    renderSortIndicator,
     sortDirection,
     sortField,
   } = useProductFilters(products)
 
   // Funciones de navegación y acciones
   const handleAddProduct = () => {
-    router.push(`/store/${storeId}/products/new`)
+    router.push(routes.store.products.add(storeId))
   }
 
   const handleEditProduct = (id: string) => {

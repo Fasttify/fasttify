@@ -1,7 +1,6 @@
 'use client'
 
-import { Page, Layout } from '@shopify/polaris'
-import { PaymentSettingsSkeleton } from '@/app/store/components/payments/components/PaymentSettingsSkeleton'
+import { Page, Layout, Loading } from '@shopify/polaris'
 import { ApiKeyModal } from '@/app/store/components/payments/components/ApiKeyModal'
 import { PaymentProvidersSection } from '@/app/store/components/payments/components/PaymentProvidersSection'
 import { PaymentMethodsSection } from '@/app/store/components/payments/components/PaymentMethodsSection'
@@ -20,7 +19,7 @@ export function PaymentSettings() {
   } = usePaymentSettings()
 
   if (isLoading) {
-    return <PaymentSettingsSkeleton />
+    return <Loading />
   }
 
   return (

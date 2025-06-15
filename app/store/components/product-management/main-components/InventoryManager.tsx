@@ -1,8 +1,7 @@
 import { useProducts } from '@/app/store/hooks/useProducts'
 import { InventoryTracking } from '@/app/store/components/product-management/main-components/InventoryTracking'
 import { InventoryPage } from '@/app/store/components/product-management/main-components/InventoryPage'
-import { ProductPageSkeleton } from '@/app/store/components/product-management/main-components/ProductPageSkeleton'
-
+import { Loading } from '@shopify/polaris'
 interface InventoryManagerProps {
   storeId: string
 }
@@ -50,7 +49,7 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
   })
 
   if (loading) {
-    return <ProductPageSkeleton />
+    return <Loading />
   }
 
   return inventoryData.length === 0 ? (

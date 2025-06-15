@@ -31,7 +31,10 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
   const [isSearchActive, setIsSearchActive] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [isClient, setIsClient] = useState(false)
-  const { clearStore } = useStoreDataStore()
+  const { clearStore, currentStore } = useStoreDataStore()
+  const storeName = currentStore?.storeName
+  const userPicture = user?.picture
+
   useAuth()
 
   useEffect(() => {
@@ -65,7 +68,6 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
 
   // Callbacks para TopBar
   const toggleIsUserMenuOpen = useCallback(() => setIsUserMenuOpen(prev => !prev), [])
-  const toggleIsSecondaryMenuOpen = useCallback(() => setIsSecondaryMenuOpen(prev => !prev), [])
 
   const handleSearchResultsDismiss = useCallback(() => {
     setIsSearchActive(false)
@@ -128,11 +130,11 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
             ],
           },
         ]}
-        name={`Tienda ${storeId}`}
+        name={storeName || ''}
         initials={storeId?.charAt(0) || 'T'}
         open={isUserMenuOpen}
         onToggle={toggleIsUserMenuOpen}
-        avatar={user?.picture || undefined}
+        avatar={userPicture || ''}
       />
     )
 

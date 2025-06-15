@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, usePathname } from 'next/navigation'
-import { Page, LegacyCard, BlockStack } from '@shopify/polaris'
+import { Page, LegacyCard, BlockStack, Box, Loading } from '@shopify/polaris'
 import type { Task } from '@/app/store/components/store-setup/utils/StoreSetup-tasks'
 import { defaultStoreTasks } from '@/app/store/components/store-setup/utils/StoreSetup-tasks'
 
@@ -8,7 +8,6 @@ import { getStoreId } from '@/utils/store-utils'
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import { PricingDrawer } from '@/app/store/components/store-setup/components/PricingDrawer'
 import { configureAmplify } from '@/lib/amplify-config'
-import { Box } from '@shopify/polaris'
 import useStoreDataStore from '@/context/core/storeDataStore'
 
 // Import new components
@@ -28,7 +27,7 @@ export function EcommerceSetup() {
   const pathname = usePathname()
   const { updateUserStore } = useUserStoreData()
 
-  const { currentStore } = useStoreDataStore()
+  const { currentStore, isLoading } = useStoreDataStore()
 
   const storeId = getStoreId(params, pathname) || ''
 
@@ -86,6 +85,10 @@ export function EcommerceSetup() {
   }
 
   const completedTasksCount = tasks.filter(task => task.completed).length
+
+  if (isLoading) {
+    return <Loading />
+  }
 
   return (
     <Page>

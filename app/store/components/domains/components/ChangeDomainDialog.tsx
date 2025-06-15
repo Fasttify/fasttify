@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Modal, TextField, Text, Spinner, LegacyStack, Icon, Toast } from '@shopify/polaris'
+import { Modal, TextField, Text, Spinner, LegacyStack, Icon } from '@shopify/polaris'
 import { CheckCircleIcon, AlertTriangleIcon } from '@shopify/polaris-icons'
 import { useDomainValidator } from '@/app/store/hooks/useDomainValidator'
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
@@ -121,7 +121,8 @@ export function ChangeDomainDialog({
         <Modal.Section>
           <LegacyStack vertical spacing="loose">
             <Text as="p" tone="subdued">
-              Solo puedes cambiar el dominio de tu tienda una vez. Este cambio es gratuito.
+              Puedes cambiar el dominio de tu tienda mas de una vez. Pero ten en cuenta que esta
+              acción puede tener un impacto en el tráfico de tu tienda.
             </Text>
             <TextField
               label="Dominio"
@@ -129,7 +130,7 @@ export function ChangeDomainDialog({
               value={domainName}
               onChange={handleDomainChange}
               suffix=".fasttify.com"
-              placeholder="nombre-de-tu-tienda"
+              placeholder="mi-tienda"
               autoComplete="off"
               helpText={renderHelpText()}
             />

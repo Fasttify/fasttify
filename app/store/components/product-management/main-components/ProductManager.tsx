@@ -2,8 +2,8 @@ import { useProducts } from '@/app/store/hooks/useProducts'
 import { ProductForm } from '@/app/store/components/product-management/main-components/ProductForm'
 import { ProductList } from '@/app/store/components/product-management/main-components/ProductList'
 import { ProductsPage } from '@/app/store/components/product-management/main-components/ProductPage'
+import { Loading } from '@shopify/polaris'
 import { useState } from 'react'
-import { ProductPageSkeleton } from '@/app/store/components/product-management/main-components/ProductPageSkeleton'
 
 interface ProductManagerProps {
   storeId: string
@@ -32,7 +32,7 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
   }
 
   if (loading) {
-    return <ProductPageSkeleton />
+    return <Loading />
   }
 
   return products.length === 0 && !loading ? (

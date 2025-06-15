@@ -1,26 +1,35 @@
 import { Card } from '@shopify/polaris'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useProducts } from '@/app/store/hooks/useProducts'
-import useStoreDataStore from '@/context/core/storeDataStore'
 import { ProductSectionProps } from '@/app/store/components/product-management/collection-form/types/productTypes'
 import { useProductSelection } from '@/app/store/components/product-management/collection-form/hooks/useProductSelection'
 import { ProductControls } from '@/app/store/components/product-management/collection-form/components/ProductControls'
 import { SelectedProductsList } from '@/app/store/components/product-management/collection-form/components/SelectedProductsList'
 import { ProductSelectionDialog } from '@/app/store/components/product-management/collection-form/components/ProductSelectionDialog'
+import useStoreDataStore from '@/context/core/storeDataStore'
 
 export function ProductSection({
   selectedProducts = [],
   onAddProduct,
   onRemoveProduct,
 }: ProductSectionProps) {
+  const [itemsPerPage, setItemsPerPage] = useState(50)
   const { storeId } = useStoreDataStore()
   const fetchTriggered = useRef(false)
 
-  const { products, loading, refreshProducts } = useProducts(storeId ?? undefined, {
-    limit: 100,
+  const {
+    products,
+    loading,
+    refreshProducts,
+    hasNextPage,
+    hasPreviousPage,
+    nextPage,
+    previousPage,
+    currentPage,
+  } = useProducts(storeId ?? undefined, {
+    limit: itemsPerPage,
     sortDirection: 'DESC',
     sortField: 'createdAt',
-    enabled: false,
   })
 
   const {
@@ -78,6 +87,13 @@ export function ProductSection({
         onProductSelect={handleProductSelect}
         onConfirm={handleConfirmSelection}
         loading={loading}
+        currentPage={currentPage}
+        itemsPerPage={itemsPerPage}
+        setItemsPerPage={setItemsPerPage}
+        hasNextPage={hasNextPage}
+        hasPreviousPage={hasPreviousPage}
+        nextPage={nextPage}
+        previousPage={previousPage}
       />
     </>
   )
