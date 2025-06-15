@@ -1,15 +1,5 @@
 import { CheckIcon } from '@shopify/polaris-icons'
-import {
-  Modal,
-  Text,
-  Button,
-  Box,
-  Card,
-  InlineStack,
-  Spinner,
-  Badge,
-  BlockStack,
-} from '@shopify/polaris'
+import { Modal, Text, Button, Box, Card, InlineStack, Badge, BlockStack } from '@shopify/polaris'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/app/store/context/ToastContext'
