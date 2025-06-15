@@ -2,6 +2,7 @@ import { S3Client, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/clien
 import type { TemplateFile, TemplateCache, TemplateError } from '@/lib/store-renderer/types'
 import { cookiesClient } from '@/utils/AmplifyServer'
 import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
+import { dataFetcher } from '@/lib/store-renderer/services/fetchers/data-fetcher'
 
 class TemplateLoader {
   private static instance: TemplateLoader
@@ -82,9 +83,7 @@ class TemplateLoader {
   public async loadAllTemplates(storeId: string): Promise<TemplateFile[]> {
     try {
       // Primero verificar si existe el registro en StoreTemplate
-      const { data: storeTemplate } = await cookiesClient.models.StoreTemplate.get({
-        storeId: storeId,
-      })
+      const storeTemplate = await dataFetcher.getStoreTemplateData(storeId)
 
       if (!storeTemplate || !storeTemplate.isActive) {
         throw new Error(`No active templates found for store: ${storeId}`)
@@ -240,11 +239,8 @@ class TemplateLoader {
    */
   public async hasTemplates(storeId: string): Promise<boolean> {
     try {
-      const { data: storeTemplate } = await cookiesClient.models.StoreTemplate.get({
-        storeId: storeId,
-      })
-
-      return !!(storeTemplate && storeTemplate.isActive)
+      await dataFetcher.getStoreTemplateData(storeId)
+      return true
     } catch (error) {
       console.error(`Error checking templates for store ${storeId}:`, error)
       return false
