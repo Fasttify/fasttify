@@ -255,13 +255,25 @@ class TemplateLoader {
   }
 
   /**
-   * Invalida el caché para una plantilla específica
+   * Invalida la caché de una plantilla específica
    * @param storeId - ID de la tienda
    * @param templatePath - Ruta de la plantilla
    */
   public invalidateTemplateCache(storeId: string, templatePath: string): void {
     const cacheKey = `template_${storeId}_${templatePath}`
-    cacheManager.setCached(cacheKey, null, 0) // Invalidar estableciendo a null
+    // Invalidar estableciendo a null con TTL de 0
+    cacheManager.setCached(cacheKey, null, 0)
+    console.log(`[TemplateLoader] Caché invalidada para ${templatePath} en tienda ${storeId}`)
+  }
+
+  /**
+   * Invalida toda la caché de plantillas para una tienda
+   * @param storeId - ID de la tienda
+   */
+  public invalidateAllTemplateCache(storeId: string): void {
+    // Usar el método existente para invalidar caché por tienda
+    cacheManager.invalidateStoreCache(storeId)
+    console.log(`[TemplateLoader] Caché de todas las plantillas invalidada para tienda ${storeId}`)
   }
 
   /**
@@ -380,13 +392,13 @@ class TemplateLoader {
    */
   private setCachedTemplate(storeId: string, templatePath: string, content: string): void {
     const cacheKey = `template_${storeId}_${templatePath}`
-    const templateCache: TemplateCache = {
+    const cacheItem = {
       content,
       lastUpdated: new Date(),
       ttl: cacheManager.TEMPLATE_CACHE_TTL,
     }
 
-    cacheManager.setCached(cacheKey, templateCache, cacheManager.TEMPLATE_CACHE_TTL)
+    cacheManager.setCached(cacheKey, cacheItem, cacheManager.TEMPLATE_CACHE_TTL)
   }
 
   /**
