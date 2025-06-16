@@ -1,6 +1,6 @@
 'use client'
 
-import { InventoryManager } from '@/app/store/components/product-management/main-components/InventoryManager'
+import { InventoryManager } from '@/app/store/components/product-management/inventory/pages/InventoryManager'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 import { getStoreId } from '@/utils/store-utils'

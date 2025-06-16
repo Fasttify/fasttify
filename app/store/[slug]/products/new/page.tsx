@@ -1,6 +1,6 @@
 'use client'
 
-import { ProductForm } from '@/app/store/components/product-management/main-components/ProductForm'
+import { ProductForm } from '@/app/store/components/product-management/products/components/form/ProductForm'
 import { useParams, usePathname } from 'next/navigation'
 import { getStoreId } from '@/utils/store-utils'
 import { Amplify } from 'aws-amplify'
