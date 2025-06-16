@@ -48,7 +48,6 @@
     "@tailwindcss/postcss": "^4.1.8",
     "@tanstack/react-query": "^5.67.2",
     "aws-amplify": "^6.13.2",
-    "aws-sdk": "^2.1692.0",
     "chokidar": "^3.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
