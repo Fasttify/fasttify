@@ -1,6 +1,6 @@
 'use client'
 
-import { CollectionsPage } from '@/app/store/components/product-management/collections/collections-page'
+import { CollectionsPage } from '@/app/store/components/product-management/collections/pages/CollectionsPage'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

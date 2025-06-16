@@ -37,7 +37,6 @@ export { CollectionSidebar } from './collections/components/form/CollectionSideb
 export { ProductControls } from './collections/components/form/ProductControls'
 export { SelectedProductsList } from './collections/components/form/SelectedProductsList'
 export { ProductSelectionDialog } from './collections/components/form/ProductSelectionDialog'
-export { default as CollectionsHeader } from './collections/collections-header'
 
 // Hooks
 export { useProductSelection as useCollectionProductSelection } from './collections/hooks/useProductSelection'
