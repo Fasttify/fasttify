@@ -1,6 +1,5 @@
 import { S3Client, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 import type { TemplateFile, TemplateCache, TemplateError } from '@/lib/store-renderer/types'
-import { cookiesClient } from '@/utils/AmplifyServer'
 import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
 import { dataFetcher } from '@/lib/store-renderer/services/fetchers/data-fetcher'
 

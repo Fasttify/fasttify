@@ -1,5 +1,5 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
-import type { DomainResolution, Store, TemplateError } from '@/lib/store-renderer/types'
+import type { Store, TemplateError } from '@/lib/store-renderer/types'
 import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
 
 class DomainResolver {
