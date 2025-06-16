@@ -136,7 +136,7 @@ mi-tienda-template/
 
 ## Notas importantes
 
-- La sincronización es unidireccional: cambios locales van a S3, pero los cambios en S3 no se descargan automáticamente
+- La sincronización es unidireccional: cambios locales van a S3, pero los cambios en S3 no se descargan automáticamente, esta en desarrollo la sincronización bidireccional.
 - Debes estar autenticado en la aplicación web para usar el sistema
 - Los cambios se reflejan instantáneamente si se invalida correctamente la caché
 - El sistema utiliza las mismas credenciales que la aplicación principal para acceder a S3
