@@ -72,9 +72,55 @@ export default async function StorePage({ params, searchParams }: StorePageProps
     // Renderizar página usando el sistema con caché temporal
     const result = await getCachedRenderResult(domain, path)
 
+    // Agregar script de recarga automática solo en desarrollo
+    const isDev = process.env.NODE_ENV === 'development' || process.env.APP_ENV === 'development'
+    const autoReloadScript = isDev
+      ? `
+        <script>
+          (function() {
+            // Crear conexión SSE para recargas automáticas
+            function connectSSE() {
+              const eventSource = new EventSource('/api/stores/template-dev/ws');
+              
+              eventSource.onopen = function() {
+                console.log('[Template Dev] Conectado al servidor de desarrollo');
+              };
+              
+              eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'reload') {
+                  console.log('[Template Dev] Cambios detectados, recargando página...');
+                  window.location.reload();
+                }
+                
+                if (data.type === 'connected') {
+                  console.log('[Template Dev] Conexión SSE establecida');
+                }
+              };
+              
+              eventSource.onerror = function() {
+                console.log('[Template Dev] Error en la conexión, reconectando en 3s...');
+                eventSource.close();
+                setTimeout(connectSSE, 3000);
+              };
+            }
+            
+            // Iniciar conexión
+            connectSSE();
+          })();
+        </script>
+      `
+      : ''
+
+    // Inyectar el script de recarga automática al final del HTML
+    const htmlWithAutoReload = isDev
+      ? result.html.replace('</body>', `${autoReloadScript}</body>`)
+      : result.html
+
     // Retornar HTML renderizado como componente dangerouslySetInnerHTML
     // Esto permite SSR completo con SEO optimizado
-    return <div dangerouslySetInnerHTML={{ __html: result.html }} />
+    return <div dangerouslySetInnerHTML={{ __html: htmlWithAutoReload }} />
   } catch (error: any) {
     console.error(`Error rendering store page ${store}${path}:`, error)
 

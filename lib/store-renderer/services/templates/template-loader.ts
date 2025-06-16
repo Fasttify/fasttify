@@ -392,13 +392,17 @@ class TemplateLoader {
    */
   private setCachedTemplate(storeId: string, templatePath: string, content: string): void {
     const cacheKey = `template_${storeId}_${templatePath}`
+
+    // Utilizar el nuevo método para obtener el TTL apropiado según el entorno
+    const cacheTTL = cacheManager.getAppropiateTTL('template')
+
     const cacheItem = {
       content,
       lastUpdated: new Date(),
-      ttl: cacheManager.TEMPLATE_CACHE_TTL,
+      ttl: cacheTTL,
     }
 
-    cacheManager.setCached(cacheKey, cacheItem, cacheManager.TEMPLATE_CACHE_TTL)
+    cacheManager.setCached(cacheKey, cacheItem, cacheTTL)
   }
 
   /**

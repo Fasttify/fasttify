@@ -149,10 +149,20 @@ export class TemplateDevSynchronizer {
         console.log(`[TemplateDevSynchronizer] Eliminación de archivos no implementada aún`)
       }
 
-      // Invalidar caché
+      // Invalidar caché de manera agresiva
       const templatePath = relativePath.replace(/\\/g, '/')
+
+      // Invalidar la caché del template específico
       cacheManager.invalidateTemplateCache(`templates/${this.storeId}/${templatePath}`)
       templateLoader.invalidateTemplateCache(this.storeId, templatePath)
+
+      // Forzar recarga del template - Si es un cambio importante, invalidar toda la caché
+      if (templatePath.includes('template/')) {
+        console.log(
+          `[TemplateDevSynchronizer] Cambio crítico detectado, invalidando toda la caché de la tienda`
+        )
+        templateLoader.invalidateAllTemplateCache(this.storeId)
+      }
 
       // Registrar cambio reciente
       const change: FileChange = {
