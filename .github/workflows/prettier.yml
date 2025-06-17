@@ -1,4 +1,4 @@
-name: Formateo con Prettier
+name: Run Prettier
 
 on:
   push:
