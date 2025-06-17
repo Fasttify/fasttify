@@ -1,6 +1,6 @@
 'use client'
 
-import { FormPage } from '@/app/store/components/product-management/collection-form/form-page'
+import { FormPage } from '@/app/store/components/product-management/collections/pages/CollectionFormPage'
 import { Amplify } from 'aws-amplify'
 import outputs from '@/amplify_outputs.json'
 

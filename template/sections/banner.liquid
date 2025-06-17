@@ -1,88 +1,214 @@
-<section>
-  <div class="banner-wrapper">
-    <div class="slide-text" id="text1"><p>Members: Free Shipping!</p></div>
-    <div class="slide-text" id="text2">Save Up to 40%</div>
-    <div class="slide-text" id="text3">Get Your Gear Faster</div>
+<section class="text-marquee-section">
+  <div class="marquee">
+    <div class="marquee-content">
+      <!-- Primera instancia de textos -->
+      <span class="marquee-item">{{ section.settings.text_1 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_2 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_3 }}</span>
+      
+      <!-- Repetición para el efecto infinito -->
+      <span class="marquee-item">{{ section.settings.text_1 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_2 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_3 }}</span>
+      
+      <!-- Triple repetición para asegurar fluidez -->
+      <span class="marquee-item">{{ section.settings.text_1 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_2 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_3 }}</span>
+    </div>
+    
+    <!-- Segunda instancia para asegurar continuidad -->
+    <div class="marquee-content" aria-hidden="true">
+      <!-- Primera instancia de textos -->
+      <span class="marquee-item">{{ section.settings.text_1 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_2 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_3 }}</span>
+      
+      <!-- Repetición para el efecto infinito -->
+      <span class="marquee-item">{{ section.settings.text_1 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_2 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_3 }}</span>
+      
+      <!-- Triple repetición para asegurar fluidez -->
+      <span class="marquee-item">{{ section.settings.text_1 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_2 }}</span>
+      <span class="marquee-separator">•</span>
+      <span class="marquee-item">{{ section.settings.text_3 }}</span>
+    </div>
   </div>
 </section>
 
 <style>
-  .banner-wrapper {
-    padding: 30px;
-    background: {{ section.settings.background }}
-    ;
-    color: {{ section.settings.text_color }}
-    ;
-
+  .text-marquee-section {
+    width: 100%;
+    overflow: hidden;
+    background: {{ section.settings.background }};
+    padding: {{ section.settings.padding }}px 0;
+    color: white;
+    margin-top: {{ section.settings.margin_top }}px;
+    position: relative;
   }
 
-  .slide-text {
-    position: absolute;
-    top: 155px;
-    left: -150%; /* Initially position the divs outside the left edge of the screen */
-    transform: translate(0, -50%);
-    color: black;
-    padding: 20px;
-    font-size: 20px;
-    transition: left 0.5s ease-in-out; /* Add a smooth transition effect */
+  .marquee {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+  }
+
+  .marquee-content {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: space-around;
+    min-width: 100%;
+    gap: 0;
+    animation: scroll-x {{ section.settings.speed }}s linear infinite;
+  }
+
+  .marquee-item {
+    display: inline-block;
+    color: {{ section.settings.text_color }};
+    font-size: {{ section.settings.font_size }}px;
+    font-weight: {{ section.settings.font_weight }};
+    text-transform: {{ section.settings.text_transform }};
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+
+  .marquee-separator {
+    display: inline-block;
+    color: {{ section.settings.text_color }};
+    font-size: {{ section.settings.font_size }}px;
+    padding: 0 15px;
+  }
+
+  @keyframes scroll-x {
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
   }
 </style>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const text1 = document.getElementById('text1');
-    const text2 = document.getElementById('text2');
-    const text3 = document.getElementById('text3');
-
-    // Array of text elements
-    const texts = [text1, text2, text3];
-    let currentIndex = 0;
-
-    // Function to slide the text to the middle
-    function slideToMiddle(element) {
-      element.style.left = '40%';
-    }
-
-    // Function to reset the position of the text
-    function resetPosition(element) {
-      element.style.left = '-100%';
-    }
-
-    // Function to handle sliding the text elements
-    function slideText() {
-      resetPosition(texts[currentIndex]);
-      currentIndex = (currentIndex + 1) % texts.length;
-      slideToMiddle(texts[currentIndex]);
-    }
-
-    // Initial slide
-    slideToMiddle(texts[currentIndex]);
-
-    // Set interval to slide the text every 3 seconds
-    setInterval(slideText, 3000);
-  });
-</script>
-
 {% schema %}
 {
-  "name": "Banner",
+  "name": "Banner de texto",
   "settings": [
     {
       "type": "color",
       "id": "background",
-      "label": "Background",
-      "default": "#F4F4F4"
+      "label": "Color de fondo",
+      "default": "#ffffff"
     },
     {
       "type": "color",
       "id": "text_color",
-      "label": "Text",
+      "label": "Color de texto",
       "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Tamaño de fuente",
+      "min": 20,
+      "max": 80,
+      "step": 1,
+      "default": 40
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Grosor de fuente",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "700",
+          "label": "Negrita"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Transformación de texto",
+      "options": [
+        {
+          "value": "none",
+          "label": "Normal"
+        },
+        {
+          "value": "uppercase",
+          "label": "MAYÚSCULAS"
+        }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Velocidad (segundos)",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "label": "Espacio vertical (px)",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Distancia desde arriba (px)",
+      "min": 0,
+      "max": 300,
+      "step": 5,
+      "default": 100
+    },
+    {
+      "type": "text",
+      "id": "text_1",
+      "label": "Texto 1",
+      "default": "FOREVER"
+    },
+    {
+      "type": "text",
+      "id": "text_2",
+      "label": "Texto 2",
+      "default": "ELEGANCE"
+    },
+    {
+      "type": "text",
+      "id": "text_3",
+      "label": "Texto 3",
+      "default": "STYLE"
     }
   ],
   "presets": [
     {
-      "name": "banner"
+      "name": "Banner de texto"
     }
   ]
 }

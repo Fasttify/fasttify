@@ -9,10 +9,13 @@ import {
   Thumbnail,
   Banner,
   Toast,
+  Tooltip,
+  InlineStack,
 } from '@shopify/polaris'
 import { useLogoUpload } from '@/app/store/hooks/useLogoUpload'
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import useStoreDataStore from '@/context/core/storeDataStore'
+import { InfoIcon } from '@shopify/polaris-icons'
 
 export function LogoUploader() {
   const [active, setActive] = useState(false)
@@ -26,11 +29,14 @@ export function LogoUploader() {
   const { uploadLogo, status, error, reset } = useLogoUpload()
   const { updateUserStore } = useUserStoreData()
   const { currentStore, isLoading: isStoreLoading } = useStoreDataStore()
+  const storeLogo = currentStore?.storeLogo
+  const storeFavicon = currentStore?.storeFavicon
+  const storeId = currentStore?.storeId
 
   const handleTabChange = useCallback((index: number) => setSelectedTab(index), [])
   const toggleActive = useCallback(() => {
     setActive(prev => !prev)
-    // Reset files when closing
+
     if (active) {
       setLogoFile(null)
       setFaviconFile(null)
@@ -66,7 +72,7 @@ export function LogoUploader() {
       return
     }
 
-    if (!currentStore?.storeId) {
+    if (!storeId) {
       showToast('No se pudo identificar la tienda', true)
       return
     }
@@ -75,7 +81,7 @@ export function LogoUploader() {
       const result = await uploadLogo(file, type)
       if (result) {
         await updateUserStore({
-          storeId: currentStore.storeId,
+          storeId: storeId,
           [field]: result.url,
         })
         showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} subido correctamente`)
@@ -88,10 +94,8 @@ export function LogoUploader() {
     }
   }
 
-  const logoUrl = logoFile ? window.URL.createObjectURL(logoFile) : currentStore?.storeLogo
-  const faviconUrl = faviconFile
-    ? window.URL.createObjectURL(faviconFile)
-    : currentStore?.storeFavicon
+  const logoUrl = logoFile ? window.URL.createObjectURL(logoFile) : storeLogo
+  const faviconUrl = faviconFile ? window.URL.createObjectURL(faviconFile) : storeFavicon
 
   const tabs = [
     { id: 'logo', content: 'Logo' },
@@ -119,7 +123,10 @@ export function LogoUploader() {
           content: `Guardar ${selectedTab === 0 ? 'logo' : 'favicon'}`,
           onAction: () => handleSave(selectedTab === 0 ? 'logo' : 'favicon'),
           loading: status === 'uploading',
-          disabled: (selectedTab === 0 && !logoFile) || (selectedTab === 1 && !faviconFile),
+          disabled:
+            (selectedTab === 0 && !logoFile) ||
+            (selectedTab === 1 && !faviconFile) ||
+            status === 'success',
         }}
         secondaryActions={[
           {
@@ -130,9 +137,25 @@ export function LogoUploader() {
       >
         <Modal.Section>
           <LegacyStack vertical spacing="loose">
-            <Text as="p" tone="subdued">
-              Personaliza la identidad visual de tu tienda con un logo y favicon personalizados.
-            </Text>
+            <InlineStack align="space-between" blockAlign="center">
+              <Text as="p" tone="subdued">
+                Personaliza la identidad visual de tu tienda con un logo y favicon personalizados.
+              </Text>
+              <Tooltip
+                content={
+                  selectedTab === 0
+                    ? 'Formato recomendado: PNG o WebP\nTamaño: 400x400px\nTamaño máximo: 2MB\nFondo transparente preferido'
+                    : 'Formato recomendado: ICO o PNG\nTamaño: 32x32px o 16x16px\nSin fondo o fondo transparente'
+                }
+              >
+                <Button
+                  variant="plain"
+                  icon={InfoIcon}
+                  accessibilityLabel="Información de formato"
+                />
+              </Tooltip>
+            </InlineStack>
+
             <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange} />
 
             {selectedTab === 0 && (

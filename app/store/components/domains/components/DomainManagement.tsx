@@ -7,12 +7,11 @@ import {
   ButtonGroup,
   Button,
   Box,
+  Badge,
   Icon,
   LegacyStack,
   TextField,
-  SkeletonPage,
-  SkeletonBodyText,
-  SkeletonDisplayText,
+  Loading,
 } from '@shopify/polaris'
 import {
   SearchIcon,
@@ -33,26 +32,8 @@ export function DomainManagement() {
   const [searchQuery, setSearchQuery] = useState('')
 
   if (isLoading) {
-    return (
-      <SkeletonPage title="Gestión de Dominios" primaryAction>
-        <Layout>
-          <Layout.Section>
-            <LegacyCard sectioned>
-              <SkeletonBodyText lines={3} />
-            </LegacyCard>
-            <LegacyCard sectioned>
-              <SkeletonBodyText lines={2} />
-            </LegacyCard>
-            <LegacyCard sectioned>
-              <SkeletonDisplayText size="small" />
-              <SkeletonBodyText lines={1} />
-            </LegacyCard>
-          </Layout.Section>
-        </Layout>
-      </SkeletonPage>
-    )
+    return <Loading />
   }
-
   return (
     <Page title="Gestión de Dominios" fullWidth>
       <Layout>
@@ -64,9 +45,11 @@ export function DomainManagement() {
                   <Text variant="headingMd" as="h2">
                     Configura tu dominio personalizado
                   </Text>
-                  <Text as="p" tone="subdued">
+                  <Text as="p" tone="subdued" breakWord>
                     Vincula un dominio propio o adquiere uno nuevo para darle mayor identidad y
                     profesionalismo a tu tienda.
+                    <br />
+                    Puedes adquirir uno en cualquier proveedor, o conectar tu dominio existente.
                   </Text>
                 </LegacyStack.Item>
                 <Box>
@@ -82,9 +65,9 @@ export function DomainManagement() {
                       position: 'relative',
                     }}
                   >
-                    <Icon source={DomainLandingPageIcon} tone="base" />
+                    <DomainLandingPageIcon width={48} height={48} />
                     <div style={{ position: 'absolute' }}>
-                      <Text variant="bodyMd" as="span" fontWeight="semibold">
+                      <Text variant="headingXl" as="span" fontWeight="semibold" tone="base">
                         www
                       </Text>
                     </div>
@@ -152,7 +135,9 @@ export function DomainManagement() {
                     </Text>
                   </LegacyStack>
                 </LegacyStack>
-                <Text as="p">Activo</Text>
+                <Badge tone="success" size="small">
+                  Activo
+                </Badge>
               </LegacyStack>
               <Box paddingBlockStart="200" paddingInlineStart="400">
                 <Button variant="plain" onClick={() => setOpenChangeDomainDialog(true)}>

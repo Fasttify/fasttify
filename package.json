@@ -10,7 +10,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "prepare": "husky",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "template-sync": "node scripts/template-sync.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
@@ -22,6 +23,7 @@
     "@aws-amplify/backend-cli": "^1.7.2",
     "@aws-amplify/data-schema-types": "^1.2.0",
     "@aws-sdk/client-bedrock-runtime": "^3.758.0",
+    "@aws-sdk/client-s3": "^3.775.0",
     "@aws-sdk/client-ses": "^3.741.0",
     "@aws-sdk/s3-request-presigner": "^3.775.0",
     "@hookform/resolvers": "^3.10.0",
@@ -46,7 +48,7 @@
     "@tailwindcss/postcss": "^4.1.8",
     "@tanstack/react-query": "^5.67.2",
     "aws-amplify": "^6.13.2",
-    "aws-sdk": "^2.1692.0",
+    "chokidar": "^3.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
@@ -58,6 +60,7 @@
     "lucide-react": "^0.471.2",
     "motion": "^11.18.2",
     "next": "^15.3.2",
+    "node-fetch": "^3.3.2",
     "ogl": "^1.0.11",
     "react": "^18",
     "react-currency-input-field": "^3.10.0",

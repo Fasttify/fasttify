@@ -21,8 +21,9 @@ export class TemplateFetcher {
         storeId: storeId,
       })
 
-      if (!storeTemplate) {
-        throw new Error(`No template found for store: ${storeId}`)
+      // Verificaciones básicas
+      if (!storeTemplate || !storeTemplate.isActive) {
+        throw new Error(`No active template found for store: ${storeId}`)
       }
 
       // Parsear los datos del template
@@ -35,14 +36,8 @@ export class TemplateFetcher {
     } catch (error) {
       console.error(`Error fetching store template for store ${storeId}:`, error)
 
-      const templateError: TemplateError = {
-        type: 'DATA_ERROR',
-        message: `Failed to fetch store template for store: ${storeId}`,
-        details: error,
-        statusCode: 500,
-      }
-
-      throw templateError
+      // En lugar de lanzar un error complejo, lanzamos un error simple
+      throw new Error(`Failed to fetch store template for store: ${storeId}`)
     }
   }
 }

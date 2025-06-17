@@ -59,7 +59,8 @@ export class DynamicPageRenderer {
       const htmlWithAssets = this.injectAssets(html, liquidEngine.assetCollector)
 
       // 6. Generar metadata y clave de caché
-      const metadata = metadataGenerator.generateMetadata(store, domain)
+      const pageTitle = context.page_title || context.page?.title
+      const metadata = metadataGenerator.generateMetadata(store, domain, pageTitle)
       const cacheKey = this.generateCacheKey(store.storeId, options)
 
       return {

@@ -17,11 +17,10 @@ Amplify.configure({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.fasttify.com'),
   title: {
+    template: '%s',
     default: 'Fasttify',
-    template: '%s | Fasttify',
   },
-  description:
-    'Fasttify es una plataforma ecommerce de dropshipping que te permite gestionar y escalar tu tienda online sin complicaciones, ofreciendo productos de calidad y una experiencia de compra excepcional.',
+  description: 'Crea tu tienda online en minutos con Fasttify',
   keywords: ['ecommerce', 'dropshipping', 'tienda online', 'Fasttify', 'compras online'],
   openGraph: {
     title: 'Fasttify',
@@ -33,7 +32,7 @@ export const metadata: Metadata = {
         url: 'https://www.fasttify.com/icons/fast@4x.webp',
         width: 800,
         height: 600,
-        alt: 'Fasttify Dropshipping',
+        alt: 'Fasttify ',
       },
     ],
     type: 'website',

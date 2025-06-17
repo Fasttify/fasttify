@@ -1,4 +1,4 @@
-import type { AssetCollector } from '../services/rendering/asset-collector'
+import type { AssetCollector } from '@/lib/store-renderer/services/rendering/asset-collector'
 
 export interface TemplateFile {
   path: string
@@ -159,6 +159,7 @@ export interface RenderResult {
     openGraph: OpenGraphData
     schema: SchemaData
     icons: string
+    keywords?: string[]
   }
   cacheKey: string
   cacheTTL: number

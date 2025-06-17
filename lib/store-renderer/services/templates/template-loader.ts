@@ -1,7 +1,7 @@
 import { S3Client, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 import type { TemplateFile, TemplateCache, TemplateError } from '@/lib/store-renderer/types'
-import { cookiesClient } from '@/utils/AmplifyServer'
 import { cacheManager } from '@/lib/store-renderer/services/core/cache-manager'
+import { dataFetcher } from '@/lib/store-renderer/services/fetchers/data-fetcher'
 
 class TemplateLoader {
   private static instance: TemplateLoader
@@ -82,9 +82,7 @@ class TemplateLoader {
   public async loadAllTemplates(storeId: string): Promise<TemplateFile[]> {
     try {
       // Primero verificar si existe el registro en StoreTemplate
-      const { data: storeTemplate } = await cookiesClient.models.StoreTemplate.get({
-        storeId: storeId,
-      })
+      const storeTemplate = await dataFetcher.getStoreTemplateData(storeId)
 
       if (!storeTemplate || !storeTemplate.isActive) {
         throw new Error(`No active templates found for store: ${storeId}`)
@@ -240,11 +238,8 @@ class TemplateLoader {
    */
   public async hasTemplates(storeId: string): Promise<boolean> {
     try {
-      const { data: storeTemplate } = await cookiesClient.models.StoreTemplate.get({
-        storeId: storeId,
-      })
-
-      return !!(storeTemplate && storeTemplate.isActive)
+      await dataFetcher.getStoreTemplateData(storeId)
+      return true
     } catch (error) {
       console.error(`Error checking templates for store ${storeId}:`, error)
       return false
@@ -260,13 +255,25 @@ class TemplateLoader {
   }
 
   /**
-   * Invalida el caché para una plantilla específica
+   * Invalida la caché de una plantilla específica
    * @param storeId - ID de la tienda
    * @param templatePath - Ruta de la plantilla
    */
   public invalidateTemplateCache(storeId: string, templatePath: string): void {
     const cacheKey = `template_${storeId}_${templatePath}`
-    cacheManager.setCached(cacheKey, null, 0) // Invalidar estableciendo a null
+    // Invalidar estableciendo a null con TTL de 0
+    cacheManager.setCached(cacheKey, null, 0)
+    console.log(`[TemplateLoader] Caché invalidada para ${templatePath} en tienda ${storeId}`)
+  }
+
+  /**
+   * Invalida toda la caché de plantillas para una tienda
+   * @param storeId - ID de la tienda
+   */
+  public invalidateAllTemplateCache(storeId: string): void {
+    // Usar el método existente para invalidar caché por tienda
+    cacheManager.invalidateStoreCache(storeId)
+    console.log(`[TemplateLoader] Caché de todas las plantillas invalidada para tienda ${storeId}`)
   }
 
   /**
@@ -385,13 +392,17 @@ class TemplateLoader {
    */
   private setCachedTemplate(storeId: string, templatePath: string, content: string): void {
     const cacheKey = `template_${storeId}_${templatePath}`
-    const templateCache: TemplateCache = {
+
+    // Utilizar el nuevo método para obtener el TTL apropiado según el entorno
+    const cacheTTL = cacheManager.getAppropiateTTL('template')
+
+    const cacheItem = {
       content,
       lastUpdated: new Date(),
-      ttl: cacheManager.TEMPLATE_CACHE_TTL,
+      ttl: cacheTTL,
     }
 
-    cacheManager.setCached(cacheKey, templateCache, cacheManager.TEMPLATE_CACHE_TTL)
+    cacheManager.setCached(cacheKey, cacheItem, cacheTTL)
   }
 
   /**
