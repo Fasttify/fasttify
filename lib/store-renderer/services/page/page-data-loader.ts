@@ -22,7 +22,7 @@ class PageDataLoader {
           collections: collections.collections,
           contextData: {
             template: 'index',
-            page_title: 'Home',
+            page_title: 'Inicio',
           },
         }
 
@@ -45,7 +45,7 @@ class PageDataLoader {
           ...baseData,
           contextData: {
             template: 'product',
-            page_title: 'Product',
+            page_title: 'Producto',
           },
         }
 
@@ -95,7 +95,7 @@ class PageDataLoader {
           ...baseData,
           contextData: {
             template: 'collection',
-            page_title: 'Collection',
+            page_title: 'Colección',
           },
         }
 

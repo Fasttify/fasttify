@@ -4,8 +4,16 @@ export class MetadataGenerator {
   /**
    * Genera metadata SEO para la homepage
    */
-  public generateMetadata(store: any, domain: string): RenderResult['metadata'] {
-    const title = `${store.storeName} - Tienda Online`
+  public generateMetadata(
+    store: any,
+    domain: string,
+    pageTitle?: string
+  ): RenderResult['metadata'] {
+    // Si se proporciona un título de página específico, usarlo con el nombre de la tienda
+    const title = pageTitle
+      ? `${pageTitle} | ${store.storeName}`
+      : `${store.storeName} - Tienda Online`
+
     const description =
       store.storeDescription ||
       `Descubre los mejores productos en ${store.storeName}. Compra online con envío seguro.`
@@ -48,6 +56,7 @@ export class MetadataGenerator {
       openGraph,
       schema,
       icons: image,
+      keywords: ['ecommerce', 'tienda online', store.storeName, 'compras online'],
     }
   }
 

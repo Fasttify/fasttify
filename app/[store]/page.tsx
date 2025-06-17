@@ -168,13 +168,21 @@ export async function generateMetadata({
     const result = await getCachedRenderResult(domain, path)
     const { metadata } = result
 
+    // Asegurar que el título se muestre correctamente sin sufijos
+    // El título ya debería incluir la página específica + nombre de tienda
+    const storeTitle = metadata.title
+
     return {
-      title: metadata.title,
+      title: {
+        absolute: storeTitle,
+        template: '%s', // Evitar que Next.js añada sufijos
+      },
       description: metadata.description,
       alternates: {
         canonical: metadata.canonical,
       },
       icons: metadata.icons,
+      keywords: metadata.keywords,
       openGraph: metadata.openGraph
         ? {
             title: metadata.openGraph.title,
@@ -204,7 +212,10 @@ export async function generateMetadata({
 
     // Metadata por defecto para errores
     return {
-      title: `${store} - Tienda Online`,
+      title: {
+        absolute: `${store} - Tienda Online`,
+        template: '%s', // Evitar que Next.js añada sufijos
+      },
       description: `Descubre productos únicos en ${store}. ¡Compra online!`,
     }
   }

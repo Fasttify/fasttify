@@ -159,6 +159,7 @@ export interface RenderResult {
     openGraph: OpenGraphData
     schema: SchemaData
     icons: string
+    keywords?: string[]
   }
   cacheKey: string
   cacheTTL: number
