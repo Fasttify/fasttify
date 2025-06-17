@@ -37,7 +37,20 @@ jobs:
               "aws_region": "us-east-2",
               "api_key": "dummy_api_key"
             },
-            "version": "1.0"
+            "version": "1.0",
+            "custom": {
+              "APIs": {
+                "SubscriptionApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "SubscriptionApi"},
+                "WebHookApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "WebHookApi"},
+                "CheckStoreNameApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "CheckStoreNameApi"},
+                "CheckStoreDomainApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "CheckStoreDomain"},
+                "ApiKeyManagerApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "ApiKeyManagerApi"},
+                "GetStoreProductsApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "GetStoreProductsApi"},
+                "GetStoreDataApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "GetStoreDataApi"},
+                "StoreImagesApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "StoreImagesApi"},
+                "GetStoreCollectionsApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "GetStoreCollectionsApi"}
+              }
+            }
           }' > amplify_outputs.json
 
       - name: Install dependencies
