@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
-import { storeRenderer } from '@/lib/store-renderer'
+import { storeRenderer } from '@/renderer-engine'
 
 // Forzar renderizado dinámico para acceder a variables de entorno en runtime
 export const dynamic = 'force-dynamic'

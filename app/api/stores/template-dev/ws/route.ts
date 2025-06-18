@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { templateDevSynchronizer } from '@/lib/store-renderer/services/templates/template-dev-synchronizer'
+import { templateDevSynchronizer } from '@/renderer-engine/services/templates/template-dev-synchronizer'
 
 // Almacén de conexiones SSE activas
 const activeConnections = new Set<ReadableStreamDefaultController>()
