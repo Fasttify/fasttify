@@ -1,0 +1,467 @@
+<section class="video-section">
+  <div class="video-container">
+    <!-- Video Background -->
+    <div class="video-wrapper">
+      {% if section.settings.video_url != blank %}
+        <!-- Direct Video URL -->
+        <video 
+          class="background-video"
+          autoplay 
+          muted 
+          loop 
+          playsinline
+          {% if section.settings.poster_image %}poster="{{ section.settings.poster_image | img_url: '1920x1080' }}"{% endif %}>
+          <source src="{{ section.settings.video_url }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      {% else %}
+        <!-- Fallback Image -->
+        <div class="video-fallback">
+          {% if section.settings.fallback_image %}
+            <img 
+              src="{{ section.settings.fallback_image | img_url: '1920x1080' }}" 
+              alt="{{ section.settings.video_title | escape }}"
+              loading="lazy">
+          {% else %}
+            <div class="placeholder-video">
+              <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <polygon points="5,3 19,12 5,21 5,3"/>
+              </svg>
+              <p>Video placeholder</p>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Overlay -->
+      <div class="video-overlay" 
+           style="background: {{ section.settings.overlay_color }}; 
+                  opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"></div>
+    </div>
+
+    <!-- Content Overlay -->
+    <div class="video-content">
+      <div class="video-content-inner">
+        {% if section.settings.video_subtitle != blank %}
+          <p class="video-subtitle">{{ section.settings.video_subtitle }}</p>
+        {% endif %}
+        
+        {% if section.settings.video_title != blank %}
+          <h2 class="video-title">{{ section.settings.video_title }}</h2>
+        {% endif %}
+        
+        {% if section.settings.video_description != blank %}
+          <p class="video-description">{{ section.settings.video_description }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .video-section {
+    position: relative;
+    width: 100%;
+    height: {{ section.settings.section_height }}vh;
+    min-height: {{ section.settings.min_height }}px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+
+  .video-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+  }
+
+  /* Video Wrapper */
+  .video-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .background-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+  }
+
+  .video-fallback {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .video-fallback img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .placeholder-video {
+    text-align: center;
+    color: #fff;
+    opacity: 0.7;
+  }
+
+  .placeholder-video svg {
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  .placeholder-video p {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  /* Video Overlay */
+  .video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw; 
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* Content Overlay */
+  .video-content {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align to left */
+    padding: 0 60px; /* More padding for better positioning */
+    text-align: left; /* Always align text to left */
+  }
+
+  .video-content-inner {
+    max-width: 600px; /* Smaller max-width for better readability */
+    width: 100%;
+  }
+
+  .video-subtitle {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: {{ section.settings.subtitle_color }};
+    margin: 0 0 12px 0;
+    opacity: 0;
+    animation: fadeInUp 1s ease forwards 0.2s;
+  }
+
+  .video-title {
+    font-size: {{ section.settings.title_size }}px;
+    font-weight: {{ section.settings.title_weight }};
+    line-height: 1.1;
+    color: {{ section.settings.title_color }};
+    margin: 0 0 20px 0;
+    letter-spacing: -1px;
+    opacity: 0;
+    animation: fadeInUp 1s ease forwards 0.4s;
+  }
+
+  .video-description {
+    font-size: 16px;
+    line-height: 1.5;
+    color: {{ section.settings.description_color }};
+    margin: 0;
+    opacity: 0.9;
+    animation: fadeInUp 1s ease forwards 0.6s;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .video-section {
+      height: {{ section.settings.mobile_height }}vh;
+      min-height: {{ section.settings.mobile_min_height }}px;
+    }
+
+    .video-content {
+      padding: 0 30px;
+    }
+
+    .video-content-inner {
+      max-width: none;
+    }
+
+    .video-title {
+      font-size: {{ section.settings.title_size | divided_by: 1.3 }}px;
+      line-height: 1.2;
+    }
+
+    .video-description {
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .video-content-inner {
+      max-width: none;
+    }
+  }
+
+  /* Accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .video-subtitle,
+    .video-title,
+    .video-description {
+      animation: none;
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const video = document.querySelector('.background-video');
+  
+  if (video) {
+    // Intersection Observer for performance
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (video.paused) {
+            video.play().catch(e => console.log('Auto-play prevented'));
+          }
+        } else {
+          if (!video.paused) {
+            video.pause();
+          }
+        }
+      });
+    }, { threshold: 0.5 });
+
+    observer.observe(document.querySelector('.video-section'));
+    
+    // Handle video errors
+    video.addEventListener('error', function() {
+      console.log('Video failed to load');
+    });
+  }
+});
+</script>
+
+{% schema %}
+{
+  "name": "Sección de Video",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "url",
+      "id": "video_url",
+      "label": "URL del video",
+      "info": "URL directa al archivo de video (mp4, webm, etc.)",
+      "default": "https://maya-theme-empower.myshopify.com/cdn/shop/videos/c/vp/ccb5f1aa2ff34c53bc208ff136a9df7f/ccb5f1aa2ff34c53bc208ff136a9df7f.HD-1080p-4.8Mbps-43896143.mp4?v=0"
+    },
+    {
+      "type": "image_picker",
+      "id": "poster_image",
+      "label": "Imagen de poster",
+      "info": "Se muestra antes de cargar el video"
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image",
+      "label": "Imagen de respaldo",
+      "info": "Se muestra si no hay video disponible"
+    },
+    {
+      "type": "header",
+      "content": "Dimensiones"
+    },
+    {
+      "type": "range",
+      "id": "section_height",
+      "label": "Altura de sección (vh)",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "label": "Altura móvil (vh)",
+      "min": 30,
+      "max": 80,
+      "step": 5,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Altura mínima (px)",
+      "min": 300,
+      "max": 800,
+      "step": 50,
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "mobile_min_height",
+      "label": "Altura mínima móvil (px)",
+      "min": 250,
+      "max": 600,
+      "step": 25,
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Ancho máximo (px)",
+      "min": 1200,
+      "max": 2000,
+      "step": 100,
+      "default": 1600,
+      "info": "0 = sin límite"
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Color de overlay",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Opacidad de overlay (%)",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Contenido"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Alineación de texto",
+      "options": [
+        { "value": "left", "label": "Izquierda" },
+        { "value": "center", "label": "Centro" },
+        { "value": "right", "label": "Derecha" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "text",
+      "id": "video_subtitle",
+      "label": "Subtítulo",
+      "default": "Descubre"
+    },
+    {
+      "type": "text",
+      "id": "video_title",
+      "label": "Título principal",
+      "default": "Nuestra Historia"
+    },
+    {
+      "type": "textarea",
+      "id": "video_description",
+      "label": "Descripción",
+      "default": "Conoce el proceso artesanal detrás de cada una de nuestras creaciones únicas."
+    },
+    {
+      "type": "header",
+      "content": "Colores - Texto"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Color subtítulo",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Color título",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Tamaño título (px)",
+      "min": 24,
+      "max": 72,
+      "step": 2,
+      "default": 48
+    },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Peso título",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "600", "label": "Semi Bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Color descripción",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sección de Video",
+      "settings": {
+        "video_subtitle": "",
+        "video_title": "TIMELESS FASHION ESSENCE",
+        "video_description": "Discover fashion that transcends trends. Elevate style with classic, elegant, and enduring designs.",
+        "section_height": 70,
+        "title_size": 52
+      }
+    }
+  ]
+}
+{% endschema %}

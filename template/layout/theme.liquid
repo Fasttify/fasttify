@@ -40,7 +40,18 @@
   </main>
 
   {% section 'footer' %}
+  
+  <!-- Side Cart -->
+  {% section 'cart' %}
 
+  <!-- Newsletter Popup -->
+  {% section 'newsletter-popup' %}
+
+  <!-- Newsletter Popup JavaScript -->
+  {{ 'newsletter-popup.js' | asset_url | script_tag }}
+  
+  <!-- Side Cart JavaScript -->
+  {{ 'side-cart.js' | asset_url | script_tag }}
 
 </body>
 

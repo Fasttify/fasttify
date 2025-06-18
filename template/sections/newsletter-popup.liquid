@@ -1,0 +1,519 @@
+{% comment %}
+Newsletter Popup Section
+{% endcomment %}
+
+<div id="newsletter-popup" class="newsletter-popup" data-popup
+    data-delay="{{ section.settings.popup_delay | default: 3 | times: 1000 }}"
+    data-show-again-delay="{{ section.settings.show_again_delay | default: 24 | times: 3600000 }}"
+    data-max-close-count="{{ section.settings.max_close_count | default: 3 }}"
+    data-block-time="{{ section.settings.block_time_days | default: 7 }}">
+    <div class="newsletter-popup__overlay" data-popup-overlay></div>
+    <div class="newsletter-popup__container">
+        <div class="newsletter-popup__content">
+            <!-- Botón de cerrar -->
+            <button type="button" class="newsletter-popup__close" data-popup-close aria-label="Cerrar popup">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+
+            <!-- Sección izquierda con imagen -->
+            <div class="newsletter-popup__image-section">
+                {% if section.settings.popup_image %}
+                <img src="{{ section.settings.popup_image | img_url: '400x500' }}"
+                    alt="{{ section.settings.popup_title | escape }}" class="newsletter-popup__image">
+                {% else %}
+                <!-- Imagen por defecto one.png -->
+                <img src="{{ 'one.png' | asset_url }}"
+                    alt="{{ section.settings.popup_title | escape }}" class="newsletter-popup__image">
+                {% endif %}
+            </div>
+
+            <!-- Sección derecha con contenido -->
+            <div class="newsletter-popup__text-section">
+                <div class="newsletter-popup__header">
+                    <h2 class="newsletter-popup__title">{{ section.settings.popup_title | default: "Get 10% Off" }}</h2>
+                    <p class="newsletter-popup__subtitle">{{ section.settings.popup_subtitle | default: "be in the know"
+                        }}</p>
+                    <p class="newsletter-popup__description">{{ section.settings.popup_description | default: "Sexy and
+                        sustainable goodies? Sign me up" }}</p>
+                </div>
+
+                <!-- Formulario -->
+                <form class="newsletter-popup__form" action="/contact#newsletter" method="post" accept-charset="UTF-8">
+                    <input type="hidden" name="form_type" value="customer">
+                    <input type="hidden" name="utf8" value="✓">
+                    <input type="hidden" name="contact[tags]" value="newsletter">
+
+                    <div class="newsletter-popup__form-group">
+                        <label for="newsletter-email" class="newsletter-popup__label visually-hidden">Correo
+                            electrónico</label>
+                        <input type="email" id="newsletter-email" name="contact[email]" class="newsletter-popup__input"
+                            placeholder="{{ section.settings.email_placeholder | default: 'Email' }}" required
+                            autocomplete="email">
+                    </div>
+
+                    <button type="submit" class="newsletter-popup__submit">
+                        {{ section.settings.button_text | default: "Get 10% Off" }}
+                    </button>
+
+                    <!-- Mensaje de éxito/error -->
+                    <div class="newsletter-popup__message" data-message></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos CSS del popup -->
+<style>
+    .newsletter-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        display: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .newsletter-popup.is-visible {
+        display: flex;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .newsletter-popup__overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .newsletter-popup__container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .newsletter-popup__content {
+        background: #ffffff;
+        border-radius: 20px;
+        max-width: 800px;
+        width: 100%;
+        max-height: 90vh;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+        display: flex;
+    }
+
+    .newsletter-popup.is-visible .newsletter-popup__content {
+        transform: scale(1);
+    }
+
+    .newsletter-popup__close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+        color: #6b7280;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+    }
+
+    .newsletter-popup__close:hover {
+        background: rgba(255, 255, 255, 1);
+        color: #374151;
+        transform: scale(1.1);
+    }
+
+    /* Sección de imagen (lado izquierdo) */
+    .newsletter-popup__image-section {
+        flex: 1;
+        position: relative;
+        min-height: 500px;
+    }
+
+    .newsletter-popup__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 20px 0 0 20px;
+    }
+
+    .newsletter-popup__image--default {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .newsletter-popup__pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.1;
+        background-image: radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
+            radial-gradient(circle at 75% 75%, white 2px, transparent 2px);
+        background-size: 40px 40px;
+        background-position: 0 0, 20px 20px;
+    }
+
+    /* Sección de texto (lado derecho) */
+    .newsletter-popup__text-section {
+        flex: 1;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: #ffffff;
+    }
+
+    .newsletter-popup__header {
+        margin-bottom: 32px;    
+    }
+
+    .newsletter-popup__title {
+        font-size: 36px;
+        font-weight: 700;
+        color: black;
+        margin: 0 0 8px 0;
+        line-height: 1.1;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .newsletter-popup__subtitle {
+        font-size: 36px;
+        font-weight: 300;
+        color: #111827;
+        margin: 0 0 16px 0;
+        line-height: 1.1;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .newsletter-popup__description {
+        font-size: 16px;
+        color: #6b7280;
+        margin: 0 0 24px 0;
+        line-height: 1.5;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .newsletter-popup__form-group {
+        margin-bottom: 16px;
+    }
+
+    .newsletter-popup__input {
+        width: 100%;
+        padding: 16px 20px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 16px;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s ease;
+        background-color: #f9fafb;
+    }
+
+    .newsletter-popup__input:focus {
+        outline: none;
+        border-color: #111827;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background-color: #ffffff;
+    }
+
+    .newsletter-popup__input::placeholder {
+        color: #9ca3af;
+    }
+
+    .newsletter-popup__input.invalid {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .newsletter-popup__submit {
+        width: 100%;
+        background-color: black;
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        padding: 18px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .newsletter-popup__submit:hover {
+        background-color: #1c1d1d;
+        transform: translateY(-1px);
+    }
+
+    .newsletter-popup__submit:active {
+        transform: translateY(0);
+    }
+
+    .newsletter-popup__submit.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .newsletter-popup__submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .newsletter-popup__message {
+        text-align: center;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 12px;
+        display: none;
+    }
+
+    .newsletter-popup__message.success {
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        display: block;
+    }
+
+    .newsletter-popup__message.error {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        display: block;
+    }
+
+    .visually-hidden {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .newsletter-popup__content {
+            flex-direction: column;
+            max-width: 90%;
+            max-height: 85vh;
+        }
+
+        .newsletter-popup__image-section {
+            flex: none;
+            height: 200px;
+            min-height: auto;
+        }
+
+        .newsletter-popup__image {
+            border-radius: 20px 20px 0 0;
+        }
+
+        .newsletter-popup__text-section {
+            padding: 24px;
+        }
+
+        .newsletter-popup__title {
+            font-size: 28px;
+        }
+
+        .newsletter-popup__subtitle {
+            font-size: 28px;
+        }
+
+        .newsletter-popup__description {
+            font-size: 14px;
+        }
+
+        .newsletter-popup__close {
+            top: 12px;
+            right: 12px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .newsletter-popup__content {
+            margin: 10px;
+            max-width: calc(100% - 20px);
+        }
+
+        .newsletter-popup__text-section {
+            padding: 20px;
+        }
+
+        .newsletter-popup__title {
+            font-size: 24px;
+        }
+
+        .newsletter-popup__subtitle {
+            font-size: 24px;
+        }
+    }
+
+    /* Animaciones */
+    @keyframes fadeInBackground {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes scaleInContent {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .newsletter-popup.is-visible .newsletter-popup__overlay {
+        animation: fadeInBackground 0.3s ease-out;
+    }
+
+    .newsletter-popup.is-visible .newsletter-popup__content {
+        animation: scaleInContent 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Reducir movimiento para usuarios que lo prefieran */
+    @media (prefers-reduced-motion: reduce) {
+
+        .newsletter-popup,
+        .newsletter-popup__content {
+            transition: none;
+        }
+
+        .newsletter-popup.is-visible .newsletter-popup__overlay,
+        .newsletter-popup.is-visible .newsletter-popup__content {
+            animation: none;
+        }
+    }
+</style>
+
+{% schema %}
+{
+"name": "Newsletter Popup",
+"settings": [
+{
+"type": "image_picker",
+"id": "popup_image",
+"label": "Imagen del popup",
+"info": "Imagen que se mostrará en el lado izquierdo del popup. Recomendado: 400x500px"
+},
+{
+"type": "text",
+"id": "popup_title",
+"label": "Título principal",
+"default": "Get 10% Off"
+},
+{
+"type": "text",
+"id": "popup_subtitle",
+"label": "Subtítulo",
+"default": "be in the know"
+},
+{
+"type": "textarea",
+"id": "popup_description",
+"label": "Descripción",
+"default": "Sexy and sustainable goodies? Sign me up"
+},
+{
+"type": "text",
+"id": "email_placeholder",
+"label": "Placeholder del email",
+"default": "Email"
+},
+{
+"type": "text",
+"id": "button_text",
+"label": "Texto del botón",
+"default": "Get 10% Off"
+},
+{
+"type": "range",
+"id": "popup_delay",
+"label": "Retraso antes de mostrar (segundos)",
+"min": 1,
+"max": 30,
+"step": 1,
+"default": 3,
+"unit": "s"
+},
+{
+"type": "range",
+"id": "show_again_delay",
+"label": "Horas antes de mostrar nuevamente",
+"min": 1,
+"max": 168,
+"step": 1,
+"default": 24,
+"unit": "h"
+},
+{
+"type": "range",
+"id": "max_close_count",
+"label": "Máximo número de cierres antes de bloquear",
+"min": 1,
+"max": 10,
+"step": 1,
+"default": 3,
+"info": "Después de cerrar el popup este número de veces, se bloqueará por el tiempo configurado"
+},
+{
+"type": "range",
+"id": "block_time_days",
+"label": "Días de bloqueo después de máximo cierres",
+"min": 1,
+"max": 30,
+"step": 1,
+"default": 7,
+"unit": "días",
+"info": "Tiempo que permanecerá bloqueado el popup después de cerrarlo demasiadas veces"
+}
+]
+}
+{% endschema %}
