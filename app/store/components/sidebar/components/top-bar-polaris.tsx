@@ -1,15 +1,8 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
-import {
-  TopBar,
-  ActionList,
-  Icon,
-  Text,
-  SkeletonThumbnail,
-  SkeletonBodyText,
-} from '@shopify/polaris'
-import { QuestionCircleIcon, ExitIcon } from '@shopify/polaris-icons'
+import { TopBar, ActionList, SkeletonThumbnail, SkeletonBodyText } from '@shopify/polaris'
+import { ExitIcon } from '@shopify/polaris-icons'
 import { useRouter } from 'next/navigation'
 import { generateSearchRoutes } from '@/app/store/components/search-bar/components/SearchRoutes'
 import { useAuth } from '@/context/hooks/useAuth'
@@ -27,7 +20,6 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
   const router = useRouter()
   const { user, loading } = useUserStore()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-  const [isSecondaryMenuOpen, setIsSecondaryMenuOpen] = useState(false)
   const [isSearchActive, setIsSearchActive] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [isClient, setIsClient] = useState(false)

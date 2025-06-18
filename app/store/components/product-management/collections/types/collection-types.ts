@@ -1,4 +1,4 @@
-import { IProduct } from '@/app/store/hooks/useProducts'
+import { IProduct } from '@/app/store/hooks/data/useProducts'
 
 export interface ProductSectionProps {
   selectedProducts: IProduct[]
@@ -22,4 +22,4 @@ export interface ProductSelectionDialogProps {
 
 export type SortOption = 'mas-recientes' | 'mas-antiguos' | 'precio-mayor' | 'precio-menor'
 
-export type { IProduct } from '@/app/store/hooks/useProducts'
+export type { IProduct } from '@/app/store/hooks/data/useProducts'

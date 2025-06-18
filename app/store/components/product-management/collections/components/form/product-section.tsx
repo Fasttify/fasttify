@@ -1,6 +1,6 @@
 import { Card } from '@shopify/polaris'
 import { useRef, useState } from 'react'
-import { useProducts } from '@/app/store/hooks/useProducts'
+import { useProducts } from '@/app/store/hooks/data/useProducts'
 import { ProductSectionProps } from '@/app/store/components/product-management/collections/types/collection-types'
 import { useProductSelection } from '@/app/store/components/product-management/collections/hooks/useProductSelection'
 import { ProductControls } from '@/app/store/components/product-management/collections/components/form/ProductControls'

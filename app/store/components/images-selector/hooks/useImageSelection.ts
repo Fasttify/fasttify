@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import type { S3Image } from '@/app/store/hooks/useS3Images'
+import type { S3Image } from '@/app/store/hooks/storage/useS3Images'
 
 interface UseImageSelectionProps {
   initialSelectedImage?: string | string[] | null

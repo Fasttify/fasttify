@@ -1,4 +1,4 @@
-import { IProduct } from '@/app/store/hooks/useProducts'
+import { IProduct } from '@/app/store/hooks/data/useProducts'
 import type { SortOption } from '@/app/store/components/product-management/collections/types/collection-types'
 
 export const filterProducts = (products: IProduct[], searchTerm: string): IProduct[] => {

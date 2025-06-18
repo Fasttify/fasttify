@@ -1,4 +1,4 @@
-import { IProduct } from '@/app/store/hooks/useProducts'
+import { IProduct } from '@/app/store/hooks/data/useProducts'
 
 /**
  * Exporta los datos de productos a un archivo CSV

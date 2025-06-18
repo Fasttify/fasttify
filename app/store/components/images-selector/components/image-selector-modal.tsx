@@ -1,7 +1,9 @@
 import { useState, useCallback, useMemo } from 'react'
-import { Modal, BlockStack, Spinner, Box } from '@shopify/polaris'
-import { useS3Images, type S3Image } from '@/app/store/hooks/useS3Images'
+import { Modal, BlockStack, Spinner, Box, Banner, ProgressBar, Text } from '@shopify/polaris'
+import { useS3ImagesWithOperations } from '@/app/store/hooks/storage/useS3ImagesWithOperations'
+import type { S3Image } from '@/app/store/components/images-selector/types/s3-types'
 import ImageGallery from '@/app/store/components/images-selector/components/ImageGallery'
+import { useToast } from '@/app/store/context/ToastContext'
 
 // Hooks
 import { useImageSelection } from '@/app/store/components/images-selector/hooks/useImageSelection'
@@ -28,17 +30,18 @@ export default function ImageSelectorModal({
 }: ImageSelectorModalProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const s3Options = useMemo(() => ({ limit: 18 }), [])
+  const { showToast } = useToast()
 
   const {
     images,
     loading,
     error,
-    uploadImage,
-    deleteImage,
+    uploadImages,
+    deleteImages,
     fetchMoreImages,
     loadingMore,
     nextContinuationToken,
-  } = useS3Images(s3Options)
+  } = useS3ImagesWithOperations(s3Options)
 
   const {
     selectedImage,
@@ -52,16 +55,20 @@ export default function ImageSelectorModal({
     images,
   })
 
-  const { isUploading, handleDrop } = useImageUpload({
-    uploadImage,
-    onImagesUploaded: uploadedImages => {
-      const keys = uploadedImages.map(img => img.key)
-      if (allowMultipleSelection) {
-        addToSelection(keys)
-      } else {
-        handleImageSelect(uploadedImages[0])
+  const { isUploading, uploadProgress, handleDrop, resetUploadState } = useImageUpload({
+    uploadImages,
+    onImagesUploaded: result => {
+      const { successfulImages } = result
+      if (successfulImages.length > 0) {
+        const keys = successfulImages.map(img => img.key)
+        if (allowMultipleSelection) {
+          addToSelection(keys)
+        } else {
+          handleImageSelect(successfulImages[0])
+        }
       }
     },
+    onUploadError: () => {},
   })
 
   const filteredImages = useMemo(
@@ -84,15 +91,54 @@ export default function ImageSelectorModal({
   const handleDeleteImage = useCallback(
     async (key: string) => {
       try {
-        const success = await deleteImage(key)
-        if (success) {
-          removeFromSelection(key)
+        const result = await deleteImages([key])
+
+        if (result) {
+          if (result.successCount > 0) {
+            removeFromSelection(key)
+            showToast('Imagen eliminada correctamente', false)
+          }
+
+          if (result.failedDeletes.length > 0) {
+            const error = result.failedDeletes[0]
+            showToast(`Error al eliminar imagen: ${error.error}`, true)
+          }
+        } else {
+          showToast('Error al eliminar la imagen', true)
         }
       } catch (error) {
         console.error('Error deleting image:', error)
+        showToast('Error inesperado al eliminar la imagen', true)
       }
     },
-    [deleteImage, removeFromSelection]
+    [deleteImages, removeFromSelection, showToast]
+  )
+
+  const handleDeleteMultiple = useCallback(
+    async (keys: string[]) => {
+      try {
+        const result = await deleteImages(keys)
+
+        if (result) {
+          if (result.successCount > 0) {
+            // Remover las imágenes exitosamente eliminadas de la selección
+            const failedKeys = new Set(result.failedDeletes.map(f => f.key))
+            const successfullyDeletedKeys = keys.filter(key => !failedKeys.has(key))
+            successfullyDeletedKeys.forEach(key => removeFromSelection(key))
+          }
+
+          if (result.failedDeletes.length > 0) {
+            showToast(`Error al eliminar ${result.failedDeletes.length} imagen(es)`, true)
+          }
+        } else {
+          showToast('Error al eliminar las imágenes', true)
+        }
+      } catch (error) {
+        console.error('Error deleting multiple images:', error)
+        showToast('Error inesperado al eliminar las imágenes', true)
+      }
+    },
+    [deleteImages, removeFromSelection, showToast]
   )
 
   const handleScroll = useCallback(
@@ -107,6 +153,12 @@ export default function ImageSelectorModal({
     [nextContinuationToken, loadingMore, loading, fetchMoreImages]
   )
 
+  const handleModalClose = useCallback(() => {
+    // Limpiar estado al cerrar
+    resetUploadState()
+    onOpenChange(false)
+  }, [onOpenChange, resetUploadState])
+
   const hasSelection = useMemo(() => {
     if (allowMultipleSelection) {
       return Array.isArray(selectedImage) && selectedImage.length > 0
@@ -114,11 +166,16 @@ export default function ImageSelectorModal({
     return selectedImage !== null
   }, [selectedImage, allowMultipleSelection])
 
+  // Calcular progreso de carga
+  const uploadProgressPercentage = uploadProgress
+    ? Math.round(((uploadProgress.completed + uploadProgress.failed) / uploadProgress.total) * 100)
+    : 0
+
   return (
     <Modal
       size="large"
       open={open}
-      onClose={() => onOpenChange(false)}
+      onClose={handleModalClose}
       title="Seleccionar imagen"
       primaryAction={{
         content: 'Confirmar',
@@ -128,20 +185,44 @@ export default function ImageSelectorModal({
       secondaryActions={[
         {
           content: 'Cancelar',
-          onAction: () => onOpenChange(false),
+          onAction: handleModalClose,
         },
       ]}
     >
       <div onScroll={handleScroll} style={{ height: '75vh', overflowY: 'auto' }}>
         <Modal.Section>
           <BlockStack gap="400">
+            {/* Solo mostrar banner para errores críticos de carga */}
+            {error && (
+              <Banner title="Error al cargar imágenes" tone="critical">
+                <p>Hubo un problema al recuperar tus imágenes. Por favor, recarga la página.</p>
+              </Banner>
+            )}
+
             <SearchAndFilters searchTerm={searchTerm} onSearchChange={setSearchTerm} />
             <UploadDropZone onDrop={handleDrop} allowMultipleSelection={allowMultipleSelection} />
+
+            {/* Indicador de progreso de carga */}
             {isUploading && (
               <Box paddingBlockStart="400">
-                <Spinner accessibilityLabel="Subiendo imagen" size="small" />
+                <BlockStack gap="200">
+                  <Text as="p" variant="bodySm">
+                    Subiendo imágenes...
+                  </Text>
+                  {uploadProgress && (
+                    <>
+                      <ProgressBar progress={uploadProgressPercentage} size="small" />
+                      <Text as="p" variant="bodySm" tone="subdued">
+                        {uploadProgress.completed} de {uploadProgress.total} completadas
+                        {uploadProgress.failed > 0 && ` (${uploadProgress.failed} fallidas)`}
+                      </Text>
+                    </>
+                  )}
+                  {!uploadProgress && <Spinner accessibilityLabel="Subiendo imagen" size="small" />}
+                </BlockStack>
               </Box>
             )}
+
             <ImageGallery
               images={filteredImages}
               selectedImage={selectedImage}
@@ -151,7 +232,9 @@ export default function ImageSelectorModal({
               searchTerm={searchTerm}
               onImageSelect={handleImageSelect}
               onDeleteImage={handleDeleteImage}
+              onDeleteMultiple={handleDeleteMultiple}
             />
+
             {loadingMore && (
               <Box paddingBlockStart="400">
                 <Spinner accessibilityLabel="Cargando más imágenes" />

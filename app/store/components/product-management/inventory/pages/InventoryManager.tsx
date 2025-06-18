@@ -1,4 +1,4 @@
-import { useProducts } from '@/app/store/hooks/useProducts'
+import { useProducts } from '@/app/store/hooks/data/useProducts'
 import { InventoryTracking } from '@/app/store/components/product-management/inventory/pages/InventoryTracking'
 import { InventoryPage } from '@/app/store/components/product-management/inventory/pages/InventoryPage'
 import { Loading } from '@shopify/polaris'

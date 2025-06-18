@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { IProduct } from '@/app/store/hooks/useProducts'
+import type { IProduct } from '@/app/store/hooks/data/useProducts'
 import type {
   SortDirection,
   SortField,

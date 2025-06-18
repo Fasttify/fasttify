@@ -1,4 +1,4 @@
-import { IProduct } from '@/app/store/hooks/useProducts'
+import { IProduct } from '@/app/store/hooks/data/useProducts'
 
 export function isEmpty(value: string[] | undefined | null): boolean {
   if (!value) {

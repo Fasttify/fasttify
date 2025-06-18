@@ -1,4 +1,4 @@
-import type { IProduct } from '@/app/store/hooks/useProducts'
+import type { IProduct } from '@/app/store/hooks/data/useProducts'
 
 export type SortDirection = 'asc' | 'desc' | null
 export type SortField = 'name' | 'status' | 'quantity' | 'price' | 'category' | 'creationDate'

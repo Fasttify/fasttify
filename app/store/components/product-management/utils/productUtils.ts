@@ -1,4 +1,4 @@
-import { IProduct } from '@/app/store/hooks/useProducts'
+import { IProduct } from '@/app/store/hooks/data/useProducts'
 import { ProductFormValues } from '@/lib/zod-schemas/product-schema'
 
 /**

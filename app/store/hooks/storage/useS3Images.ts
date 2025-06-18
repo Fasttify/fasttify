@@ -2,15 +2,14 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { post } from 'aws-amplify/api'
 import useStoreDataStore from '@/context/core/storeDataStore'
 
-export interface S3Image {
-  key: string
-  url: string
-  filename: string
-  lastModified?: Date
-  size?: number
-  type?: string
-  id?: string
-}
+// Re-exportar tipos y hooks relacionados
+export type { S3Image } from '@/app/store/components/images-selector/types/s3-types'
+export type {
+  BatchUploadResult,
+  BatchDeleteResult,
+} from '@/app/store/components/images-selector/types/s3-types'
+export { useS3ImageUpload } from '@/app/store/hooks/storage/useS3ImageUpload'
+export { useS3ImageDelete } from '@/app/store/hooks/storage/useS3ImageDelete'
 
 interface UseS3ImagesOptions {
   limit?: number
@@ -19,14 +18,16 @@ interface UseS3ImagesOptions {
 
 // Definir el tipo de la respuesta esperada del API
 interface S3ImagesResponse {
-  images?: S3Image[]
+  images?: import('@/app/store/components/images-selector/types/s3-types').S3Image[]
   success?: boolean
-  image?: S3Image
+  image?: import('@/app/store/components/images-selector/types/s3-types').S3Image
   nextContinuationToken?: string
 }
 
 export function useS3Images(options: UseS3ImagesOptions = {}) {
-  const [images, setImages] = useState<S3Image[]>([])
+  const [images, setImages] = useState<
+    import('@/app/store/components/images-selector/types/s3-types').S3Image[]
+  >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   const { storeId } = useStoreDataStore()
@@ -119,124 +120,35 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
     }
   }, [nextContinuationToken, loadingMore, loading, fetchImages])
 
-  const uploadImage = useCallback(
-    async (files: File[]): Promise<S3Image[] | null> => {
-      if (!storeId || files.length === 0) return null
+  // Función para verificar si necesitamos cargar más imágenes automáticamente
+  const checkAndLoadMoreIfNeeded = useCallback(() => {
+    // Si no hay imágenes pero hay nextToken disponible, cargar automáticamente
+    if (images.length === 0 && nextContinuationToken && !loadingMore && !loading) {
+      fetchMoreImages()
+    }
+  }, [images.length, nextContinuationToken, loadingMore, loading, fetchMoreImages])
 
-      const uploadedImages: S3Image[] = []
-
-      for (const file of files) {
-        try {
-          const base64File = await fileToBase64(file)
-
-          const restOperation = post({
-            apiName: 'StoreImagesApi',
-            path: 'store-images',
-            options: {
-              body: {
-                action: 'upload',
-                storeId,
-                filename: file.name,
-                contentType: file.type,
-                fileContent: base64File,
-              } as any,
-            },
-          })
-
-          const { body } = await restOperation.response
-          const response = (await body.json()) as S3ImagesResponse
-
-          if (!response.image) {
-            console.error('Failed to upload image:', file.name)
-            continue
-          }
-
-          const newImage = {
-            ...response.image,
-            lastModified: response.image.lastModified
-              ? new Date(response.image.lastModified)
-              : new Date(),
-            // Generar ID único si no existe (compatibilidad hacia atrás)
-            id:
-              response.image.id || generateFallbackId(response.image.key, response.image.filename),
-          }
-
-          uploadedImages.push(newImage)
-        } catch (err) {
-          console.error('Error uploading image:', file.name, err)
-          continue
-        }
-      }
-
-      if (uploadedImages.length > 0) {
-        setImages(prev => [...uploadedImages, ...prev])
-      }
-
-      return uploadedImages.length > 0 ? uploadedImages : null
+  // Función para actualizar imágenes después de operaciones exitosas
+  const updateImages = useCallback(
+    (
+      updater: (
+        prev: import('@/app/store/components/images-selector/types/s3-types').S3Image[]
+      ) => import('@/app/store/components/images-selector/types/s3-types').S3Image[]
+    ) => {
+      setImages(updater)
     },
-    [storeId]
+    []
   )
-
-  const deleteImage = useCallback(
-    async (key: string): Promise<boolean> => {
-      if (!storeId) return false
-
-      try {
-        const restOperation = post({
-          apiName: 'StoreImagesApi',
-          path: 'store-images',
-          options: {
-            body: {
-              action: 'delete',
-              storeId,
-              key,
-            } as any,
-          },
-        })
-
-        const { body } = await restOperation.response
-        const response = (await body.json()) as S3ImagesResponse
-
-        if (!response.success) {
-          throw new Error('Failed to delete image')
-        }
-
-        setImages(prev => prev.filter(img => img.key !== key))
-
-        return true
-      } catch (err) {
-        console.error('Error deleting image:', err)
-        return false
-      }
-    },
-    [storeId]
-  )
-
-  const fileToBase64 = useCallback((file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          const base64 = reader.result.split(',')[1]
-          resolve(base64)
-        } else {
-          reject(new Error('Failed to convert file to base64'))
-        }
-      }
-      reader.onerror = error => reject(error)
-    })
-  }, [])
 
   return {
     images,
     loading,
     error,
-    uploadImage,
-    deleteImage,
     fetchMoreImages,
     loadingMore,
     nextContinuationToken,
+    checkAndLoadMoreIfNeeded,
+    updateImages,
   }
 }
 

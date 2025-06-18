@@ -1,5 +1,5 @@
 import React from 'react'
-import { IProduct } from '@/app/store/hooks/useProducts'
+import { IProduct } from '@/app/store/hooks/data/useProducts'
 import { exportProductsToCSV } from '@/app/store/components/product-management/utils/exportUtils'
 
 export function formatInventory(quantity: number) {
