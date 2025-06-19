@@ -33,6 +33,11 @@ export const routes = {
       payments: (storeId: string) => `/store/${storeId}/setup/payments`,
       testOrder: (storeId: string) => `/store/${storeId}/setup/test-order`,
     },
+
+    themes: {
+      main: (storeId: string) => `/store/${storeId}/themes`,
+      edit: (storeId: string, themeId: string) => `/store/${storeId}/themes/${themeId}`,
+    },
   },
   account: {
     settings: '/account-settings',

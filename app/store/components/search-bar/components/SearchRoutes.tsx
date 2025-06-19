@@ -71,6 +71,20 @@ export function generateSearchRoutes(storeId: string): SearchRoute[] {
       keywords: ['colecciones', 'grupos', 'organizar'],
     },
     {
+      path: routes.store.products.collectionsNew(storeId),
+      label: 'Nueva Colección',
+      icon: Package,
+      section: 'Productos',
+      keywords: ['colecciones', 'grupos', 'organizar'],
+    },
+    {
+      path: routes.store.themes.main(storeId),
+      label: 'Temas',
+      icon: Palette,
+      section: 'Temas',
+      keywords: ['temas', 'diseño', 'estilo', 'personalización'],
+    },
+    {
       path: routes.store.products.inventory(storeId),
       label: 'Inventario',
       icon: Package,
