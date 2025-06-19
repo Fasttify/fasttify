@@ -12,20 +12,20 @@ on:
 
 jobs:
   tests:
-    name: Ejecutar pruebas unitarias
+    name: unit tests
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del repositorio
+      - name: checkout
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Instalar dependencias
+      - name: install dependencies
         run: npm ci
 
-      - name: Ejecutar pruebas
+      - name: run tests
         run: npm run test -- --coverage
