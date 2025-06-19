@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Modal, TextField, Text, Spinner, LegacyStack, Icon } from '@shopify/polaris'
 import { CheckCircleIcon, AlertTriangleIcon } from '@shopify/polaris-icons'
-import { useDomainValidator } from '@/app/store/hooks/useDomainValidator'
+import { useDomainValidator } from '@/app/store/hooks/api/useDomainValidator'
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import { useToast } from '@/app/store/context/ToastContext'
 

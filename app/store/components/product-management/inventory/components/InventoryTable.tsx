@@ -13,7 +13,7 @@ import { useState } from 'react'
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname } from 'next/navigation'
 import { routes } from '@/utils/routes'
-import { useProducts } from '@/app/store/hooks/useProducts'
+import { useProducts } from '@/app/store/hooks/data/useProducts'
 
 export interface InventoryRowProps {
   id: string

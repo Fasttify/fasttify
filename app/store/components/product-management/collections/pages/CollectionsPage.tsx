@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { configureAmplify } from '@/lib/amplify-config'
-import { useCollections } from '@/app/store/hooks/useCollections'
+import { useCollections } from '@/app/store/hooks/data/useCollections'
 import { routes } from '@/utils/routes'
 import {
   LegacyCard,

@@ -20,7 +20,7 @@ import {
   type ProductFormValues,
   defaultValues,
 } from '@/lib/zod-schemas/product-schema'
-import { useProducts } from '@/app/store/hooks/useProducts'
+import { useProducts } from '@/app/store/hooks/data/useProducts'
 import {
   mapProductToFormValues,
   prepareProductData,

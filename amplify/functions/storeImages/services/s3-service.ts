@@ -11,6 +11,8 @@ import {
   ListImagesResponse,
   UploadImageResponse,
   DeleteImageResponse,
+  BatchUploadResponse,
+  BatchDeleteResponse,
 } from '../types/types'
 import { ConfigService } from '../config/config'
 import { FileUtils } from './utils'
@@ -125,6 +127,89 @@ export class S3Service {
   }
 
   /**
+   * Sube múltiples imágenes en paralelo usando Promise.allSettled
+   */
+  public async batchUploadImages(
+    storeId: string,
+    files: { filename: string; contentType: string; fileContent: string }[]
+  ): Promise<BatchUploadResponse> {
+    const uploadPromises = files.map(file =>
+      this.uploadSingleImageForBatch(storeId, file.filename, file.contentType, file.fileContent)
+    )
+
+    const results = await Promise.allSettled(uploadPromises)
+
+    const successfulUploads: ImageItem[] = []
+    const failedUploads: { filename: string; error: string }[] = []
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        successfulUploads.push(result.value.image)
+      } else {
+        failedUploads.push({
+          filename: files[index].filename,
+          error: result.reason.message || 'Unknown error',
+        })
+      }
+    })
+
+    return {
+      images: successfulUploads,
+      failed: failedUploads.length > 0 ? failedUploads : undefined,
+      success: failedUploads.length === 0,
+    }
+  }
+
+  /**
+   * Método auxiliar para subir una imagen en lote
+   * Versión adaptada de uploadImage para manejo de errores en Promise.allSettled
+   */
+  private async uploadSingleImageForBatch(
+    storeId: string,
+    filename: string,
+    contentType: string,
+    fileContent: string
+  ): Promise<UploadImageResponse> {
+    try {
+      const config = this.configService.getConfig()
+
+      if (!this.isValidBase64(fileContent)) {
+        throw new Error(`Invalid file content format for ${filename}`)
+      }
+
+      const buffer = Buffer.from(fileContent, 'base64')
+      const key = FileUtils.generateS3Key(storeId, filename)
+
+      const putCommand = new PutObjectCommand({
+        Bucket: config.bucketName,
+        Key: key,
+        Body: buffer,
+        ContentType: contentType,
+        CacheControl: 'max-age=31536000',
+        Metadata: {
+          storeId,
+          originalFilename: filename,
+          uploadDate: new Date().toISOString(),
+        },
+      })
+
+      await this.s3Client.send(putCommand)
+
+      const image = this.createImageItem(key, {
+        filename,
+        lastModified: new Date(),
+        size: buffer.length,
+        type: contentType,
+      })
+
+      return { image }
+    } catch (error) {
+      console.error(`Error uploading image ${filename}:`, error)
+      throw error // Re-lanzar para que Promise.allSettled lo maneje
+    }
+  }
+
+  /**
    * Elimina una imagen con validación de seguridad
    */
   public async deleteImage(key: string): Promise<DeleteImageResponse> {
@@ -147,6 +232,58 @@ export class S3Service {
     } catch (error) {
       console.error('Error deleting image:', error)
       throw new Error('Failed to delete image')
+    }
+  }
+
+  /**
+   * Elimina múltiples imágenes en paralelo usando Promise.allSettled
+   */
+  public async batchDeleteImages(keys: string[]): Promise<BatchDeleteResponse> {
+    const deletePromises = keys.map(key => this.deleteSingleImageForBatch(key))
+
+    const results = await Promise.allSettled(deletePromises)
+
+    const successCount = results.filter(result => result.status === 'fulfilled').length
+    const failedDeletes: { key: string; error: string }[] = []
+
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        failedDeletes.push({
+          key: keys[index],
+          error: result.reason.message || 'Unknown error',
+        })
+      }
+    })
+
+    return {
+      success: failedDeletes.length === 0,
+      successCount,
+      failedKeys: failedDeletes.length > 0 ? failedDeletes : undefined,
+    }
+  }
+
+  /**
+   * Método auxiliar para eliminar una imagen en lote
+   */
+  private async deleteSingleImageForBatch(key: string): Promise<DeleteImageResponse> {
+    try {
+      const config = this.configService.getConfig()
+
+      if (!key.startsWith('products/')) {
+        throw new Error(`Invalid key: can only delete product images - ${key}`)
+      }
+
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: config.bucketName,
+        Key: key,
+      })
+
+      await this.s3Client.send(deleteCommand)
+
+      return { success: true }
+    } catch (error) {
+      console.error(`Error deleting image with key ${key}:`, error)
+      throw error // Re-lanzar para que Promise.allSettled lo maneje
     }
   }
 

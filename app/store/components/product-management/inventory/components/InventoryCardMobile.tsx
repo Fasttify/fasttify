@@ -9,7 +9,7 @@ import {
 } from '@shopify/polaris'
 import { ImageIcon } from '@shopify/polaris-icons'
 import { useState } from 'react'
-import { useProducts } from '@/app/store/hooks/useProducts'
+import { useProducts } from '@/app/store/hooks/data/useProducts'
 import { getStoreId } from '@/utils/store-utils'
 import { useParams, usePathname } from 'next/navigation'
 import { InventoryRowProps } from '@/app/store/components/product-management/inventory/components/InventoryTable'

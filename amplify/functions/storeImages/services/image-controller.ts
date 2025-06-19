@@ -5,6 +5,8 @@ import {
   ListImagesResponse,
   UploadImageResponse,
   DeleteImageResponse,
+  BatchUploadResponse,
+  BatchDeleteResponse,
   ErrorResponse,
 } from '../types/types'
 import { S3Service } from './s3-service'
@@ -50,6 +52,10 @@ export class ImageController {
           return await this.handleUploadImage(body, origin)
         case 'delete':
           return await this.handleDeleteImage(body, origin)
+        case 'batchUpload':
+          return await this.handleBatchUploadImages(body, origin)
+        case 'batchDelete':
+          return await this.handleBatchDeleteImages(body, origin)
         default:
           return this.createErrorResponse(400, 'Invalid action', origin)
       }
@@ -102,6 +108,36 @@ export class ImageController {
   }
 
   /**
+   * Maneja la operación de subida de múltiples imágenes en lote
+   */
+  private async handleBatchUploadImages(
+    body: RequestBody,
+    origin?: string
+  ): Promise<APIGatewayResponse> {
+    try {
+      ValidationUtils.validateBatchUploadParams(body.files)
+
+      console.log(`Starting batch upload of ${body.files!.length} images for store ${body.storeId}`)
+
+      const result: BatchUploadResponse = await this.s3Service.batchUploadImages(
+        body.storeId,
+        body.files!
+      )
+
+      // Log de estadísticas para monitoreo de rendimiento
+      console.log(
+        `Batch upload completed: ${result.images.length} successful, ${result.failed?.length || 0} failed`
+      )
+
+      return this.createSuccessResponse(result, origin)
+    } catch (error) {
+      console.error('Error in batch upload:', error)
+      const message = error instanceof Error ? error.message : 'Error processing batch upload'
+      return this.createErrorResponse(500, message, origin)
+    }
+  }
+
+  /**
    * Maneja la operación de eliminar imagen
    */
   private async handleDeleteImage(body: RequestBody, origin?: string): Promise<APIGatewayResponse> {
@@ -114,6 +150,32 @@ export class ImageController {
     } catch (error) {
       console.error('Error deleting image:', error)
       const message = error instanceof Error ? error.message : 'Error deleting image'
+      return this.createErrorResponse(500, message, origin)
+    }
+  }
+
+  /**
+   * Maneja la operación de eliminación de múltiples imágenes en lote
+   */
+  private async handleBatchDeleteImages(
+    body: RequestBody,
+    origin?: string
+  ): Promise<APIGatewayResponse> {
+    try {
+      ValidationUtils.validateBatchDeleteParams(body.keys)
+
+      console.log(`Starting batch delete of ${body.keys!.length} images`)
+
+      const result: BatchDeleteResponse = await this.s3Service.batchDeleteImages(body.keys!)
+
+      console.log(
+        `Batch delete completed: ${result.successCount} successful, ${result.failedKeys?.length || 0} failed`
+      )
+
+      return this.createSuccessResponse(result, origin)
+    } catch (error) {
+      console.error('Error in batch delete:', error)
+      const message = error instanceof Error ? error.message : 'Error processing batch delete'
       return this.createErrorResponse(500, message, origin)
     }
   }

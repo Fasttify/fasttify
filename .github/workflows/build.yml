@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - main
-      - templates-engine
   pull_request:
     branches:
       - main
-      - templates-engine
 
 jobs:
   build:

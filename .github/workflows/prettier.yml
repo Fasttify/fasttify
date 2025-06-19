@@ -1,4 +1,4 @@
-name: Formateo con Prettier
+name: Run Prettier
 
 on:
   push:
@@ -13,21 +13,21 @@ permissions:
 
 jobs:
   prettier:
-    name: Aplicar Prettier
+    name: prettier
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del repositorio
+      - name: checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Configurar Node.js
+      - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Instalar dependencias
+      - name: install dependencies
         run: npm ci
 
       - name: Ejecutar Prettier

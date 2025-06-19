@@ -12,7 +12,7 @@ import {
   Tooltip,
   InlineStack,
 } from '@shopify/polaris'
-import { useLogoUpload } from '@/app/store/hooks/useLogoUpload'
+import { useLogoUpload } from '@/app/store/hooks/storage/useLogoUpload'
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
 import useStoreDataStore from '@/context/core/storeDataStore'
 import { InfoIcon } from '@shopify/polaris-icons'
@@ -163,7 +163,13 @@ export function LogoUploader() {
                 <Text as="p" tone="subdued">
                   Recomendamos una imagen de 400x400px o mayor.
                 </Text>
-                <DropZone onDrop={handleLogoDrop} allowMultiple={false} variableHeight>
+                <DropZone
+                  onDrop={handleLogoDrop}
+                  allowMultiple={false}
+                  variableHeight
+                  accept="image/*"
+                  type="image"
+                >
                   {logoUrl ? (
                     <LegacyStack alignment="center" vertical spacing="extraTight">
                       <Thumbnail source={logoUrl} alt="Logo preview" size="medium" />
@@ -186,7 +192,13 @@ export function LogoUploader() {
                 <Text as="p" tone="subdued">
                   Recomendamos una imagen cuadrada de 32x32px.
                 </Text>
-                <DropZone onDrop={handleFaviconDrop} allowMultiple={false} variableHeight>
+                <DropZone
+                  onDrop={handleFaviconDrop}
+                  allowMultiple={false}
+                  variableHeight
+                  accept="image/*"
+                  type="image"
+                >
                   {faviconUrl ? (
                     <LegacyStack alignment="center" vertical spacing="extraTight">
                       <Thumbnail source={faviconUrl} alt="Favicon preview" size="small" />

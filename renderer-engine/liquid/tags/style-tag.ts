@@ -1,0 +1,188 @@
+import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs'
+import { AssetCollector } from '@/renderer-engine/services/rendering/asset-collector'
+
+/**
+ * Custom Style Tag para manejar {% style %} en LiquidJS
+ * Genera CSS dinámico con variables Liquid
+ */
+export class StyleTag extends Tag {
+  private cssContent: string = ''
+
+  constructor(tagToken: TagToken, remainTokens: TopLevelToken[], liquid: Liquid) {
+    super(tagToken, remainTokens, liquid)
+
+    // Parsear el contenido CSS entre {% style %} y {% endstyle %}
+    this.parseCSSContent(remainTokens)
+  }
+
+  private parseCSSContent(remainTokens: TopLevelToken[]): void {
+    let depth = 1
+    let content = ''
+
+    for (let i = 0; i < remainTokens.length; i++) {
+      const token = remainTokens[i]
+
+      if (token.kind === TokenKind.Tag) {
+        const tagToken = token as any
+        if (tagToken.name === 'style') {
+          depth++
+        } else if (tagToken.name === 'endstyle') {
+          depth--
+          if (depth === 0) {
+            // Remover los tokens procesados
+            remainTokens.splice(0, i + 1)
+            break
+          }
+        }
+      }
+
+      if (depth > 0) {
+        // Capturar todo el contenido, incluyendo texto y expresiones Liquid
+        if (token.kind === TokenKind.HTML) {
+          // Acceder correctamente al contenido HTML usando begin y end
+          const htmlToken = token as any
+          const tokenContent = htmlToken.input
+            ? htmlToken.input.substring(htmlToken.begin, htmlToken.end)
+            : ''
+          content += tokenContent
+        } else if (token.kind === TokenKind.Output) {
+          // Reconstruir la expresión de output
+          const outputToken = token as any
+          const tokenContent = outputToken.content || outputToken.value || ''
+          content += `{{ ${tokenContent} }}`
+        } else if (token.kind === TokenKind.Tag) {
+          // Reconstruir la tag completa
+          const tagToken = token as any
+          const tokenContent = tagToken.content || tagToken.value || ''
+          content += `{% ${tokenContent} %}`
+        }
+      }
+    }
+
+    this.cssContent = content.trim()
+  }
+
+  *render(ctx: Context): Generator<any, void, unknown> {
+    const assetCollector = (this.liquid.options.globals as any)._assetCollector as
+      | AssetCollector
+      | undefined
+    const sectionId = ctx.get(['section', 'id']) as string | undefined
+
+    if (!assetCollector || !this.cssContent.trim()) {
+      return
+    }
+
+    try {
+      const template = this.liquid.parse(this.cssContent)
+      const processedCSS = (yield this.liquid.render(template, ctx.getAll())) as string
+      const uniqueId = sectionId || `style-${Math.random().toString(36).substring(2, 9)}`
+      const optimizedCSS = this.optimizeCSS(processedCSS)
+      assetCollector.addCss(optimizedCSS, uniqueId)
+    } catch (error) {
+      console.error('Error processing CSS in style tag:', error)
+    }
+  }
+
+  /**
+   * Optimiza y limpia el CSS generado
+   */
+  private optimizeCSS(css: string): string {
+    return (
+      css
+        // Remover comentarios CSS
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        // Remover espacios múltiples
+        .replace(/\s+/g, ' ')
+        // Remover espacios antes y después de llaves y dos puntos
+        .replace(/\s*{\s*/g, ' { ')
+        .replace(/\s*}\s*/g, ' } ')
+        .replace(/\s*:\s*/g, ': ')
+        .replace(/\s*;\s*/g, '; ')
+        // Limpiar líneas vacías
+        .replace(/^\s*[\r\n]/gm, '')
+        .trim()
+    )
+  }
+}
+
+/**
+ * Stylesheet Tag - Para CSS en secciones
+ * Similar a Style Tag pero con funcionalidades adicionales
+ */
+export class StylesheetTag extends Tag {
+  private cssContent: string = ''
+
+  constructor(tagToken: TagToken, remainTokens: TopLevelToken[], liquid: Liquid) {
+    super(tagToken, remainTokens, liquid)
+
+    // Parsear el contenido CSS entre {% stylesheet %} y {% endstylesheet %}
+    this.parseCSSContent(remainTokens)
+  }
+
+  private parseCSSContent(remainTokens: TopLevelToken[]): void {
+    let depth = 1
+    let content = ''
+
+    for (let i = 0; i < remainTokens.length; i++) {
+      const token = remainTokens[i]
+
+      if (token.kind === TokenKind.Tag) {
+        const tagToken = token as any
+        if (tagToken.name === 'stylesheet') {
+          depth++
+        } else if (tagToken.name === 'endstylesheet') {
+          depth--
+          if (depth === 0) {
+            // Remover los tokens procesados
+            remainTokens.splice(0, i + 1)
+            break
+          }
+        }
+      }
+
+      if (depth > 0) {
+        // Capturar todo el contenido
+        if (token.kind === TokenKind.HTML) {
+          // Acceder correctamente al contenido HTML usando begin y end
+          const htmlToken = token as any
+          const tokenContent = htmlToken.input
+            ? htmlToken.input.substring(htmlToken.begin, htmlToken.end)
+            : ''
+          content += tokenContent
+        } else if (token.kind === TokenKind.Output) {
+          // Reconstruir la expresión de output
+          const outputToken = token as any
+          const tokenContent = outputToken.content || outputToken.value || ''
+          content += `{{ ${tokenContent} }}`
+        } else if (token.kind === TokenKind.Tag) {
+          // Reconstruir la tag completa
+          const tagToken = token as any
+          const tokenContent = tagToken.content || tagToken.value || ''
+          content += `{% ${tokenContent} %}`
+        }
+      }
+    }
+
+    this.cssContent = content.trim()
+  }
+
+  *render(ctx: Context): Generator<any, void, unknown> {
+    const assetCollector = (this.liquid.options.globals as any)._assetCollector as
+      | AssetCollector
+      | undefined
+    const sectionId = ctx.get(['section', 'id']) as string | undefined
+
+    if (!assetCollector || !this.cssContent.trim()) {
+      return
+    }
+
+    try {
+      const template = this.liquid.parse(this.cssContent)
+      const processedCSS = (yield this.liquid.render(template, ctx.getAll())) as string
+      const uniqueId = sectionId || `stylesheet-${Math.random().toString(36).substring(2, 9)}`
+      assetCollector.addCss(processedCSS, uniqueId)
+    } catch (error) {
+      console.error('Error processing CSS in stylesheet tag:', error)
+    }
+  }
+}

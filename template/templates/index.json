@@ -4,8 +4,8 @@
       "type": "banner",
       "settings": {}
     },
-    "three-images": {
-      "type": "three-images",
+    "video-section": {
+      "type": "video-section",
       "settings": {}
     },
     "more-info": {
@@ -21,5 +21,5 @@
       "settings": {}
     }
   },
-  "order": ["banner", "three-images", "more-info", "all-collections", "all-products"]
+  "order": ["banner", "video-section", "more-info", "all-collections", "all-products"]
 }

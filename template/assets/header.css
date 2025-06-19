@@ -205,6 +205,12 @@
   border-radius: 50%;
   transition: background-color 0.2s;
   position: relative;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
 }
 
 .header-icon:hover {

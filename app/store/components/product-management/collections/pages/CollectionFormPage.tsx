@@ -1,6 +1,6 @@
 import { useRouter, useParams, usePathname } from 'next/navigation'
 import { Page, Layout, ContextualSaveBar, BlockStack, Card, Text, Loading } from '@shopify/polaris'
-import { useCollections } from '@/app/store/hooks/useCollections'
+import { useCollections } from '@/app/store/hooks/data/useCollections'
 import { getStoreId } from '@/utils/store-utils'
 import { useCollectionForm } from '@/app/store/components/product-management/utils/collection-form-utils'
 import { CollectionContent } from '@/app/store/components/product-management/collections/components/form/CollectionContent'

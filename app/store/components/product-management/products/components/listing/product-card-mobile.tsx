@@ -11,7 +11,7 @@ import {
 import { EditIcon, DeleteIcon, ImageIcon } from '@shopify/polaris-icons'
 
 import { formatInventory } from '@/app/store/components/product-management/utils/product-utils'
-import type { IProduct } from '@/app/store/hooks/useProducts'
+import type { IProduct } from '@/app/store/hooks/data/useProducts'
 import type { VisibleColumns } from '@/app/store/components/product-management/products/types/product-types'
 import {
   getStatusText,

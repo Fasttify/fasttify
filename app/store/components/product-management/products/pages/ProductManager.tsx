@@ -1,4 +1,4 @@
-import { useProducts } from '@/app/store/hooks/useProducts'
+import { useProducts } from '@/app/store/hooks/data/useProducts'
 import { ProductForm } from '@/app/store/components/product-management/products/components/form/ProductForm'
 import { ProductList } from '@/app/store/components/product-management/products/components/listing/ProductList'
 import { ProductsPage } from '@/app/store/components/product-management/products/pages/ProductPage'

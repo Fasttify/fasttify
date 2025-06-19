@@ -11,4 +11,7 @@ export { default as UploadDropZone } from '@/app/store/components/images-selecto
 export { default as ImageGallery } from '@/app/store/components/images-selector/components/ImageGallery'
 
 // Re-exportar tipos del hook principal
-export type { S3Image } from '@/app/store/hooks/useS3Images'
+export type { S3Image } from '@/app/store/hooks/storage/useS3Images'
+
+// Nuevos tipos para operaciones por lotes
+export type { BatchUploadResult } from '@/app/store/components/images-selector/hooks/useImageUpload'

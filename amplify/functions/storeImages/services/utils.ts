@@ -73,7 +73,7 @@ export class ValidationUtils {
    * Valida que la acción sea válida
    */
   public static validateAction(action?: string): void {
-    const validActions = ['list', 'upload', 'delete']
+    const validActions = ['list', 'upload', 'delete', 'batchUpload', 'batchDelete']
     if (!action || !validActions.includes(action)) {
       throw new Error('Invalid action')
     }
@@ -93,11 +93,57 @@ export class ValidationUtils {
   }
 
   /**
+   * Valida los parámetros requeridos para batch upload
+   */
+  public static validateBatchUploadParams(
+    files?: { filename: string; contentType: string; fileContent: string }[]
+  ): void {
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      throw new Error('At least one file is required for batch upload')
+    }
+
+    // Reducir límite a 25 archivos para evitar problemas de payload con API Gateway
+    if (files.length > 25) {
+      throw new Error('Maximum of 25 files can be uploaded in a single batch')
+    }
+
+    // Validar cada archivo en el lote
+    files.forEach((file, index) => {
+      if (!file.filename || !file.contentType || !file.fileContent) {
+        throw new Error(
+          `Invalid file data at index ${index}: filename, contentType, and fileContent are required`
+        )
+      }
+    })
+  }
+
+  /**
    * Valida los parámetros requeridos para delete
    */
   public static validateDeleteParams(key?: string): void {
     if (!key) {
       throw new Error('key is required for delete')
     }
+  }
+
+  /**
+   * Valida los parámetros requeridos para batch delete
+   */
+  public static validateBatchDeleteParams(keys?: string[]): void {
+    if (!keys || !Array.isArray(keys) || keys.length === 0) {
+      throw new Error('At least one key is required for batch delete')
+    }
+
+    // Mantener límite de 50 para delete ya que los keys son pequeños
+    if (keys.length > 50) {
+      throw new Error('Maximum of 50 keys can be deleted in a single batch')
+    }
+
+    // Validar cada clave en el lote
+    keys.forEach((key, index) => {
+      if (!key) {
+        throw new Error(`Invalid key at index ${index}: key cannot be empty`)
+      }
+    })
   }
 }
