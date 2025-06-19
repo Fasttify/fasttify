@@ -9,7 +9,7 @@ import {
   Box,
   InlineStack,
 } from '@shopify/polaris'
-import type { S3Image } from '@/app/store/hooks/useS3Images'
+import type { S3Image } from '@/app/store/hooks/storage/useS3Images'
 import { ImageSelectorModal } from '@/app/store/components/images-selector'
 
 const ImagePlaceholder = ({ onOpenModal }: { onOpenModal: () => void }) => (
