@@ -8,6 +8,7 @@ import {
   StoreIcon,
   SettingsIcon,
   PersonIcon,
+  ContentIcon,
 } from '@shopify/polaris-icons'
 import { usePathname } from 'next/navigation'
 
@@ -90,6 +91,16 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
           },
         ]}
       />
+      <Navigation.Section
+        items={[
+          {
+            url: `/store/${storeId}/navigation`,
+            label: 'Navegación',
+            icon: ContentIcon,
+            selected: pathname.includes('/navigation'),
+          },
+        ]}
+      />
 
       <Navigation.Section
         title="CONFIGURACIÓN"
@@ -103,6 +114,11 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
               {
                 url: `/store/${storeId}/setup/domain`,
                 label: 'Dominio y Nombre',
+                disabled: false,
+              },
+              {
+                url: `/store/${storeId}/setup/pages`,
+                label: 'Páginas',
                 disabled: false,
               },
               {

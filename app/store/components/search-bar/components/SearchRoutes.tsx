@@ -16,7 +16,7 @@ import { routes } from '@/utils/routes'
 export interface SearchRoute {
   path: string
   label: string
-  icon: LucideIcon
+  icon?: LucideIcon
   section?: string
   keywords?: string[]
 }
@@ -83,6 +83,12 @@ export function generateSearchRoutes(storeId: string): SearchRoute[] {
       icon: Palette,
       section: 'Temas',
       keywords: ['temas', 'diseño', 'estilo', 'personalización'],
+    },
+    {
+      path: routes.store.setup.pages(storeId),
+      label: 'Páginas',
+      section: 'Páginas',
+      keywords: ['páginas', 'contenido', 'estructura'],
     },
     {
       path: routes.store.products.inventory(storeId),
