@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals'
 import { Liquid } from 'liquidjs'
-import { SchemaTag } from '../../../lib/store-renderer/liquid/tags/schema-tag'
+import { SchemaTag } from '@/renderer-engine/liquid/tags/schema-tag'
 import { createTestContext, createTestLiquid } from './setup'
 
 describe('SchemaTag', () => {

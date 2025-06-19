@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals'
 import { Liquid } from 'liquidjs'
-import { ScriptTag } from '../../../lib/store-renderer/liquid/tags/script-tag'
+import { ScriptTag } from '@/renderer-engine/liquid/tags/script-tag'
 import { createTestContext, createTestLiquid } from './setup'
 
 describe('ScriptTag', () => {

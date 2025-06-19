@@ -1,5 +1,5 @@
 import { Liquid } from 'liquidjs'
-import type { RenderContext } from '../../../lib/store-renderer/types/template'
+import type { RenderContext } from '@/renderer-engine/types/template'
 
 // Crear contexto de prueba simple
 export const createTestContext = (customData: Partial<RenderContext> = {}): RenderContext => {
