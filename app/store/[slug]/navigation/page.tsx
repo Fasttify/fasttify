@@ -2,9 +2,9 @@ import { Suspense } from 'react'
 import { NavigationManager } from '@/app/store/components/navigation-management'
 
 interface NavigationPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 /**
