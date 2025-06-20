@@ -75,16 +75,16 @@ class TemplateLoader {
   }
 
   /**
-   * Carga todas las plantillas de una tienda
+   * Carga todos los menús de navegación de una tienda
    * @param storeId - ID de la tienda
-   * @returns Array de archivos de plantilla
+   * @returns Array de menús de navegación
    */
   public async loadAllTemplates(storeId: string): Promise<TemplateFile[]> {
     try {
-      // Primero verificar si existe el registro en StoreTemplate
-      const storeTemplate = await dataFetcher.getStoreTemplateData(storeId)
+      // Primero verificar si existe el registro en NavigationMenu
+      const storeNavigationMenus = await dataFetcher.getStoreNavigationMenus(storeId)
 
-      if (!storeTemplate || !storeTemplate.isActive) {
+      if (!storeNavigationMenus || !storeNavigationMenus.menus.length) {
         throw new Error(`No active templates found for store: ${storeId}`)
       }
 
@@ -232,16 +232,19 @@ class TemplateLoader {
   }
 
   /**
-   * Verifica si una tienda tiene plantillas disponibles
+   * Verifica si una tienda tiene menús de navegación activos
    * @param storeId - ID de la tienda
-   * @returns true si tiene plantillas activas
+   * @returns true si tiene menús de navegación activos
    */
-  public async hasTemplates(storeId: string): Promise<boolean> {
+  public async hasNavigationMenus(storeId: string): Promise<boolean> {
     try {
-      await dataFetcher.getStoreTemplateData(storeId)
+      const storeNavigationMenus = await dataFetcher.getStoreNavigationMenus(storeId)
+      if (!storeNavigationMenus || !storeNavigationMenus.menus.length) {
+        return false
+      }
       return true
     } catch (error) {
-      console.error(`Error checking templates for store ${storeId}:`, error)
+      console.error(`Error checking navigation menus for store ${storeId}:`, error)
       return false
     }
   }

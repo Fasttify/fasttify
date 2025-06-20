@@ -1,7 +1,7 @@
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
 import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher'
 import { collectionFetcher } from '@/renderer-engine/services/fetchers/collection-fetcher'
-import { templateFetcher } from '@/renderer-engine/services/fetchers/template-fetcher'
+import { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher'
 import type { ProductContext, CollectionContext } from '@/renderer-engine/types'
 
 interface PaginationOptions {
@@ -20,6 +20,12 @@ interface CollectionsResponse {
   collections: CollectionContext[]
   nextToken?: string
   totalCount?: number
+}
+
+interface NavigationMenusResponse {
+  menus: any[]
+  mainMenu?: any
+  footerMenu?: any
 }
 
 /**
@@ -90,8 +96,17 @@ class DataFetcher {
   /**
    * Obtiene los datos del template de la tienda
    */
-  public async getStoreTemplateData(storeId: string): Promise<any> {
-    return templateFetcher.getStoreTemplateData(storeId)
+  // public async getStoreTemplateData(storeId: string): Promise<any> {
+  //   return templateFetcher.getStoreTemplateData(storeId)
+  // }
+
+  // === NAVEGACIÓN ===
+
+  /**
+   * Obtiene todos los menús de navegación de una tienda
+   */
+  public async getStoreNavigationMenus(storeId: string): Promise<NavigationMenusResponse> {
+    return navigationFetcher.getStoreNavigationMenus(storeId)
   }
 
   // === GESTIÓN DE CACHÉ ===

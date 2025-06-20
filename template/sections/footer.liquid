@@ -1,25 +1,22 @@
 <footer class="footer-main">
   <div class="footer-container">
     <div class="footer-sec-1">
-      {%- if section.blocks.size == 0 -%}
-        <div class="footer-column">
-
-      {% else %}
-        <!-- Dividir los enlaces en columnas -->
-        {% assign blocks_per_column = section.blocks.size | divided_by: 4 | ceil %}
+      {%- if linklists.footer-menu and linklists.footer-menu.links.size > 0 -%}
+        <!-- Dividir los enlaces del footer-menu en columnas -->
+        {% assign links_per_column = linklists.footer-menu.links.size | divided_by: 4 | ceil %}
         
         {% for i in (0..3) %}
           <div class="footer-column">
             <h4 class="footer-heading">Enlaces {{ i | plus: 1 }}</h4>
             <ul class="footer-links">
-              {% assign start_index = i | times: blocks_per_column %}
-              {% assign end_index = start_index | plus: blocks_per_column | minus: 1 %}
+              {% assign start_index = i | times: links_per_column %}
+              {% assign end_index = start_index | plus: links_per_column | minus: 1 %}
               
               {% for j in (start_index..end_index) %}
-                {% if section.blocks[j] %}
+                {% if linklists.footer-menu.links[j] %}
                   <li>
-                    <a href="{{ section.blocks[j].settings.link }}">
-                      {{ section.blocks[j].settings.text | escape }}
+                    <a href="{{ linklists.footer-menu.links[j].url }}">
+                      {{ linklists.footer-menu.links[j].title | escape }}
                     </a>
                   </li>
                 {% endif %}
@@ -27,7 +24,17 @@
             </ul>
           </div>
         {% endfor %}
-      {% endif %}
+      {%- else -%}
+        <!-- Fallback si no hay footer-menu configurado -->
+        <div class="footer-column">
+          <h4 class="footer-heading">Enlaces</h4>
+          <ul class="footer-links">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/about">Acerca de</a></li>
+            <li><a href="/contact">Contacto</a></li>
+          </ul>
+        </div>
+      {%- endif -%}
     </div>
   </div>
   
@@ -183,25 +190,10 @@
       "id": "text_color",
       "label": "Text",
       "default": "#F4F4F4"
-    }
-  ],
-  "blocks": [
+    },
     {
-      "name": "Links",
-      "type": "links",
-      "settings": [
-        {
-          "type": "text",
-          "id": "text",
-          "label": "Text",
-          "default": "link"
-        },
-        {
-          "type": "url",
-          "id": "link",
-          "label": "Link"
-        }
-      ]
+      "type": "paragraph",
+      "content": "Los enlaces del footer se gestionan desde el menú 'footer-menu' en la configuración de navegación de la tienda."
     }
   ],
   "presets": [

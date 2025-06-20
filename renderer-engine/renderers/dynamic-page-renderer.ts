@@ -34,11 +34,11 @@ export class DynamicPageRenderer {
       const [layout, pageData, storeTemplate] = await Promise.all([
         templateLoader.loadMainLayout(store.storeId),
         pageDataLoader.load(store.storeId, options),
-        dataFetcher.getStoreTemplateData(store.storeId),
+        dataFetcher.getStoreNavigationMenus(store.storeId),
       ])
 
       // 4. Crear contexto y renderizar contenido de la página
-      const context = this.buildInitialContext(store, pageData, storeTemplate)
+      const context = await this.buildInitialContext(store, pageData, storeTemplate)
       const renderedContent = await this.renderPageContent(
         store.storeId,
         options,
@@ -83,8 +83,8 @@ export class DynamicPageRenderer {
   }
 
   private async ensureTemplatesExist(storeId: string): Promise<void> {
-    const hasTemplates = await templateLoader.hasTemplates(storeId)
-    if (!hasTemplates) {
+    const hasNavigationMenus = await templateLoader.hasNavigationMenus(storeId)
+    if (!hasNavigationMenus) {
       throw this.createTemplateError(
         'TEMPLATE_NOT_FOUND',
         `No templates found for store: ${storeId}`
@@ -92,8 +92,8 @@ export class DynamicPageRenderer {
     }
   }
 
-  private buildInitialContext(store: any, pageData: any, storeTemplate: any): any {
-    const context = contextBuilder.createRenderContext(
+  private async buildInitialContext(store: any, pageData: any, storeTemplate: any): Promise<any> {
+    const context = await contextBuilder.createRenderContext(
       store,
       pageData.featuredProducts || [],
       pageData.collections || [],

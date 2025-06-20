@@ -28,7 +28,7 @@
       },
       {
         "label": "Sobre nosotros",
-        "pageHandle": "sobre-nosotros",
+        "pageHandle": "about-us",
         "type": "page",
         "isVisible": true,
         "target": "_self",
@@ -36,7 +36,7 @@
       },
       {
         "label": "Contacto",
-        "pageHandle": "contacto",
+        "pageHandle": "contact",
         "type": "page",
         "isVisible": true,
         "target": "_self",
@@ -75,7 +75,7 @@
       },
       {
         "label": "Política de privacidad",
-        "pageHandle": "politica-privacidad",
+        "pageHandle": "privacy-policy",
         "type": "page",
         "isVisible": true,
         "target": "_self",
@@ -83,7 +83,7 @@
       },
       {
         "label": "Términos y condiciones",
-        "pageHandle": "terminos-condiciones",
+        "pageHandle": "terms-and-conditions",
         "type": "page",
         "isVisible": true,
         "target": "_self",
@@ -91,7 +91,7 @@
       },
       {
         "label": "Política de envíos",
-        "pageHandle": "politica-envios",
+        "pageHandle": "shipping-policy",
         "type": "page",
         "isVisible": true,
         "target": "_self",
@@ -99,7 +99,7 @@
       },
       {
         "label": "Devoluciones",
-        "pageHandle": "devoluciones",
+        "pageHandle": "returns",
         "type": "page",
         "isVisible": true,
         "target": "_self",

@@ -1,3 +1,6 @@
+import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher'
+import type { ProcessedNavigationMenu } from '@/renderer-engine/types/store'
+
 export interface LinkListItem {
   title: string
   url: string
@@ -16,7 +19,56 @@ export interface LinkLists {
 
 export class LinkListService {
   /**
+   * Crea linklists desde la tabla NavigationMenu (método principal)
+   * @param storeId - ID de la tienda
+   * @returns LinkLists compatible con Shopify
+   */
+  public async createLinkListsFromDatabase(storeId: string): Promise<LinkLists> {
+    try {
+      const navigationMenusResponse = await dataFetcher.getStoreNavigationMenus(storeId)
+
+      if (!navigationMenusResponse.menus || navigationMenusResponse.menus.length === 0) {
+        console.info(`No navigation menus found for store: ${storeId}`)
+        return {}
+      }
+
+      const linkLists: LinkLists = {}
+
+      // Convertir cada menú procesado a formato LinkList
+      for (const menu of navigationMenusResponse.menus) {
+        linkLists[menu.handle] = this.convertNavigationMenuToLinkList(menu)
+        if (menu.handle === 'footer-menu') {
+          linkLists['footer-menu'] = this.convertNavigationMenuToLinkList(menu)
+        }
+      }
+
+      return linkLists
+    } catch (error) {
+      console.error(`Error creating linklists from database for store ${storeId}:`, error)
+      return {}
+    }
+  }
+
+  /**
+   * Convierte un menú de navegación procesado a formato LinkList
+   * @param menu - Menú de navegación procesado
+   * @returns LinkList compatible con Shopify
+   */
+  private convertNavigationMenuToLinkList(menu: ProcessedNavigationMenu): LinkList {
+    return {
+      title: menu.name,
+      handle: menu.handle,
+      links: menu.items.map(item => ({
+        title: item.title,
+        url: item.url,
+        active: item.active,
+      })),
+    }
+  }
+
+  /**
    * Convierte los menu_items del store template en formato linklists compatible con Shopify
+   * @deprecated Usar createLinkListsFromDatabase() en su lugar
    */
   public createLinkListsFromStoreTemplate(storeTemplate: any): LinkLists {
     const linkLists: LinkLists = {}
@@ -37,20 +89,6 @@ export class LinkListService {
       }
     }
 
-    // Si no hay menu_items, crear un menú por defecto
-    if (!linkLists['main-menu']) {
-      linkLists['main-menu'] = {
-        title: 'Menú Principal',
-        handle: 'main-menu',
-        links: [
-          { title: 'Inicio', url: '/', active: true },
-          { title: 'Productos', url: '/productos', active: true },
-          { title: 'Colecciones', url: '/colecciones', active: true },
-          { title: 'Contacto', url: '/contacto', active: true },
-        ],
-      }
-    }
-
     return linkLists
   }
 
@@ -58,13 +96,7 @@ export class LinkListService {
    * Crear linklists vacío para evitar errores
    */
   public createEmptyLinkLists(): LinkLists {
-    return {
-      'main-menu': {
-        title: 'Menú Principal',
-        handle: 'main-menu',
-        links: [],
-      },
-    }
+    return {}
   }
 }
 

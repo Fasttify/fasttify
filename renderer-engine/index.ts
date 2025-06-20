@@ -156,5 +156,7 @@ export { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-re
 export { domainResolver } from '@/renderer-engine/services/core/domain-resolver'
 export { templateLoader } from '@/renderer-engine/services/templates/template-loader'
 export { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher'
+export { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher'
+export { linkListService } from '@/renderer-engine/services/core/linkList-service'
 export { liquidEngine } from '@/renderer-engine/liquid/engine'
 export { errorRenderer } from '@/renderer-engine/services/errors/error-renderer'
