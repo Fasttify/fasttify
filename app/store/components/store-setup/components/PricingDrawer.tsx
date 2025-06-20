@@ -44,7 +44,10 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
       <Modal open={open} onClose={handleClose} title="Elige tu plan" size="large">
         <Modal.Section>
           <Box padding="400">
-            <div className="grid gap-6 md:grid-cols-3">
+            <div
+              className="grid gap-8 md:grid-cols-3 grid-rows-1"
+              style={{ gridAutoRows: '520px' }}
+            >
               {plans.map(plan => (
                 <PlanCard
                   key={plan.name}
@@ -184,61 +187,83 @@ function PlanCard({
   }
 
   return (
-    <Card>
+    <div className={`relative h-full ${isPopular ? 'transform scale-105' : ''}`}>
+      {/* Badge popular */}
       {isPopular && (
-        <div className="flex justify-end">
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
           <Badge tone="info">Más popular</Badge>
         </div>
       )}
-      <div>
-        <InlineStack gap="200" blockAlign="center">
-          <Text variant="headingMd" as="h3">
-            {title}
-          </Text>
-          <Text variant="bodyMd" tone="subdued" as="p">
-            {description}
-          </Text>
-        </InlineStack>
 
-        <div className="mt-4">
-          <Text variant="bodyMd" tone="subdued" as="p">
-            Desde
-          </Text>
-          <InlineStack gap="200" blockAlign="baseline">
-            <Text variant="headingXl" as="p">
-              ${formattedPrice}
-            </Text>
-            <Text variant="bodyMd" tone="subdued" as="p">
-              COP/mes
-            </Text>
-          </InlineStack>
-        </div>
-
-        <Button
-          fullWidth
-          variant="primary"
-          disabled={!isClient || isButtonDisabled || hasActivePlan || isSubmitting}
-          onClick={handleSubscribe}
-          loading={isButtonDisabled || isSubmitting}
+      <Card>
+        <div
+          className="h-full p-6 flex flex-col justify-between"
+          style={{ minHeight: '480px', height: '480px' }}
         >
-          {hasActivePlan
-            ? 'Plan activo'
-            : isButtonDisabled || isSubmitting
-              ? 'Procesando...'
-              : buttonText}
-        </Button>
-      </div>
-
-      <div className="border-t mt-4 pt-4">
-        {features.map((feature, index) => (
-          <InlineStack key={index} gap="200" blockAlign="center">
-            <CheckIcon className="h-4 w-4 text-zinc-900" />
-            <Text variant="bodyMd" as="p">
-              {feature}
+          {/* Header Section */}
+          <div className="text-center mb-8">
+            <Text variant="headingLg" as="h3" alignment="center">
+              {title}
             </Text>
-          </InlineStack>
-        ))}
-      </div>
-    </Card>
+            <div className="mt-2">
+              <Text variant="bodyMd" tone="subdued" as="p" alignment="center">
+                {description}
+              </Text>
+            </div>
+          </div>
+
+          {/* Price Section */}
+          <div className="text-center mb-8">
+            <div className="flex items-baseline justify-center gap-1">
+              <Text variant="bodyMd" tone="subdued" as="span">
+                Desde
+              </Text>
+            </div>
+            <div className="flex items-baseline justify-center gap-1 mt-1">
+              <Text variant="headingXl" as="span">
+                ${formattedPrice}
+              </Text>
+              <Text variant="bodyMd" tone="subdued" as="span">
+                COP/mes
+              </Text>
+            </div>
+          </div>
+
+          {/* Features Section */}
+          <div className="flex-1 mb-8 overflow-hidden">
+            <div className="space-y-3">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
+                    <CheckIcon className="w-3 h-3 text-green-600" />
+                  </div>
+                  <Text variant="bodyMd" as="p" alignment="start">
+                    {feature}
+                  </Text>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Button Section */}
+          <div className="mt-auto">
+            <Button
+              fullWidth
+              variant={isPopular ? 'primary' : 'secondary'}
+              size="large"
+              disabled={!isClient || isButtonDisabled || hasActivePlan || isSubmitting}
+              onClick={handleSubscribe}
+              loading={isButtonDisabled || isSubmitting}
+            >
+              {hasActivePlan
+                ? 'Plan activo'
+                : isButtonDisabled || isSubmitting
+                  ? 'Procesando...'
+                  : buttonText}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
   )
 }

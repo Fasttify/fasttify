@@ -31,6 +31,52 @@ export interface StoreTemplate {
   owner: string
 }
 
+export interface NavigationMenuItem {
+  label: string
+  url?: string
+  type: 'internal' | 'external' | 'page' | 'collection' | 'product'
+  isVisible: boolean
+  target?: '_blank' | '_self'
+  sortOrder: number
+  pageHandle?: string
+  collectionHandle?: string
+  productHandle?: string
+}
+
+export interface NavigationMenu {
+  id: string
+  storeId: string
+  domain: string
+  name: string
+  handle: string
+  isMain: boolean
+  isActive: boolean
+  menuData: NavigationMenuItem[]
+  owner: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ProcessedNavigationMenu {
+  id: string
+  storeId: string
+  domain: string
+  name: string
+  handle: string
+  isMain: boolean
+  isActive: boolean
+  items: ProcessedNavigationMenuItem[]
+  owner: string
+}
+
+export interface ProcessedNavigationMenuItem {
+  title: string
+  url: string
+  active: boolean
+  type: string
+  target?: string
+}
+
 export interface StoreConfig {
   name: string
   description: string

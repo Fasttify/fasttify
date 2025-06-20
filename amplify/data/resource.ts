@@ -5,9 +5,6 @@ import { planScheduler } from '../functions/planScheduler/resource'
 import { checkStoreName } from '../functions/checkStoreName/resource'
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource'
 import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource'
-import { getStoreProducts } from '../functions/getStoreProducts/resource'
-import { getStoreData } from '../functions/getStoreData/resource'
-import { getStoreCollections } from '../functions/getStoreCollections/resource'
 import { createStoreTemplate } from '../functions/createStoreTemplate/resource'
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0'
@@ -307,8 +304,16 @@ const schema = a
         allow.publicApiKey().to(['read']),
       ]),
 
-    StoreTemplate: a
+    NavigationMenu: a
       .model({
+        id: a
+          .id()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
         storeId: a
           .string()
           .required()
@@ -325,7 +330,7 @@ const schema = a
             allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
-        templateKey: a
+        name: a
           .string()
           .required()
           .authorization(allow => [
@@ -333,8 +338,16 @@ const schema = a
             allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
-        templateData: a
-          .json()
+        handle: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        isMain: a
+          .boolean()
           .required()
           .authorization(allow => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
@@ -349,7 +362,14 @@ const schema = a
             allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
-        lastUpdated: a.datetime(),
+        menuData: a
+          .json()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
         owner: a
           .string()
           .required()
@@ -359,8 +379,84 @@ const schema = a
             allow.publicApiKey().to(['read']),
           ]),
       })
-      .identifier(['storeId'])
-      .secondaryIndexes(index => [index('domain')])
+      .secondaryIndexes(index => [index('storeId'), index('handle'), index('domain')])
+      .authorization(allow => [
+        allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
+        allow.guest().to(['read']),
+        allow.publicApiKey().to(['read']),
+      ]),
+
+    Page: a
+      .model({
+        id: a
+          .id()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        storeId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        title: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        content: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        slug: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        metaTitle: a.string(),
+        metaDescription: a.string(),
+        status: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        isVisible: a
+          .boolean()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        template: a.string(),
+        owner: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
+            allow.guest().to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+      })
+      .secondaryIndexes(index => [index('storeId'), index('slug'), index('status')])
       .authorization(allow => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.guest().to(['read']),
@@ -374,9 +470,6 @@ const schema = a
     allow.resource(checkStoreName),
     allow.resource(checkStoreDomain),
     allow.resource(apiKeyManager),
-    allow.resource(getStoreProducts),
-    allow.resource(getStoreData),
-    allow.resource(getStoreCollections),
     allow.resource(createStoreTemplate),
   ])
 

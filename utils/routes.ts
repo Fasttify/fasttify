@@ -27,11 +27,15 @@ export const routes = {
       main: (storeId: string) => `/store/${storeId}/setup`,
       explore: (storeId: string) => `/store/${storeId}/products/connect-products`,
       design: (storeId: string) => `/store/${storeId}/setup/design`,
+      pages: (storeId: string) => `/store/${storeId}/setup/pages`,
       domain: (storeId: string) => `/store/${storeId}/setup/domain`,
       apps: (storeId: string) => `/store/${storeId}/setup/apps`,
       shipping: (storeId: string) => `/store/${storeId}/setup/shipping`,
       payments: (storeId: string) => `/store/${storeId}/setup/payments`,
       testOrder: (storeId: string) => `/store/${storeId}/setup/test-order`,
+    },
+    navigation: {
+      main: (storeId: string) => `/store/${storeId}/navigation`,
     },
 
     themes: {

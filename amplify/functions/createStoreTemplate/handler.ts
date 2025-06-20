@@ -5,9 +5,8 @@ import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtim
 import { env } from '$amplify/env/create-store-template'
 import { InitializationResult } from './types/index'
 import { validateInputs } from './services/validationService'
-import { checkExistingTemplate, createStoreTemplate } from './services/templateService'
 import { createDefaultCollections } from './services/collectionService'
-import { buildTemplateData, validateTemplateData } from './utils/templateBuilder'
+import { createDefaultMenus } from './services/menuService'
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 
@@ -35,7 +34,7 @@ export const handler = async (event: any): Promise<InitializationResult> => {
 }
 
 /**
- * Inicializa el template y datos por defecto para una tienda
+ * Inicializa los datos por defecto para una tienda (sin template estático)
  */
 async function initializeStoreTemplate(
   storeId: string,
@@ -43,34 +42,22 @@ async function initializeStoreTemplate(
   owner: string
 ): Promise<InitializationResult> {
   try {
-    // Verificar si ya existe un template usando el servicio
-    const existingCheck = await checkExistingTemplate(client, storeId)
-    if (!existingCheck.canProceed) {
-      return existingCheck.result!
-    }
+    console.log(`Initializing store data for: ${storeId}`)
 
-    // Crear template por defecto usando el builder
-    const templateData = buildTemplateData()
-
-    // Validar que el template generado sea válido
-    if (!validateTemplateData(templateData)) {
-      throw new Error('Generated template data is invalid')
-    }
-
-    const templateResult = await createStoreTemplate(client, storeId, domain, owner, templateData)
-
-    // Crear colecciones por defecto usando el servicio
+    // Crear colecciones por defecto
     const collectionIds = await createDefaultCollections(client, storeId, owner)
+
+    // Crear menús de navegación por defecto (incluye footer)
+    const menuIds = await createDefaultMenus(client, storeId, domain, owner)
 
     return {
       success: true,
-      message: 'Store template initialized successfully',
-      templateId: templateResult.storeId,
-      templateData: templateData,
+      message: 'Store initialized successfully with collections and menus',
       collections: collectionIds,
+      menus: menuIds,
     }
   } catch (error) {
-    console.error('Error initializing store template:', error)
+    console.error('Error initializing store:', error)
     throw error
   }
 }

@@ -8,9 +8,6 @@ import { checkStoreName } from './functions/checkStoreName/resource'
 import { checkStoreDomain } from './functions/checkStoreDomain/resource'
 import { postConfirmation } from './auth/post-confirmation/resource'
 import { apiKeyManager } from './functions/LambdaEncryptKeys/resource'
-import { getStoreProducts } from './functions/getStoreProducts/resource'
-import { getStoreData } from './functions/getStoreData/resource'
-import { getStoreCollections } from './functions/getStoreCollections/resource'
 import { storeImages } from './functions/storeImages/resource'
 import {
   data,
@@ -39,10 +36,7 @@ const backend = defineBackend({
   apiKeyManager,
   generateProductDescriptionFunction,
   generatePriceSuggestionFunction,
-  getStoreProducts,
-  getStoreData,
   storeImages,
-  getStoreCollections,
 })
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
@@ -238,49 +232,6 @@ apiKeyManagerResource.addMethod('POST', apiKeyManagerIntegration)
 
 /**
  *
- * API para Obtener Productos de Tienda
- *
- */
-
-const getStoreProductsApi = new RestApi(apiStack, 'GetStoreProductsApi', {
-  restApiName: 'GetStoreProductsApi',
-  deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
-})
-
-const getStoreProductsIntegration = new LambdaIntegration(backend.getStoreProducts.resources.lambda)
-
-const getStoreProductsResource = getStoreProductsApi.root.addResource('get-store-products')
-getStoreProductsResource.addMethod('GET', getStoreProductsIntegration)
-
-/**
- *
- * API para Obtener Datos de Tienda
- *
- */
-
-const getStoreDataApi = new RestApi(apiStack, 'GetStoreDataApi', {
-  restApiName: 'GetStoreDataApi',
-  deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
-})
-const getStoreDataIntegration = new LambdaIntegration(backend.getStoreData.resources.lambda)
-
-const getStoreDataResource = getStoreDataApi.root.addResource('get-store-data')
-getStoreDataResource.addMethod('GET', getStoreDataIntegration)
-
-/**
- *
  * API para Almacenar Imágenes
  *
  */
@@ -302,29 +253,6 @@ storeImagesResource.addMethod('POST', storeImagesIntegration)
 
 /**
  *
- * API para Obtener Colecciones de Tienda
- *
- */
-const getStoreCollectionsApi = new RestApi(apiStack, 'GetStoreCollectionsApi', {
-  restApiName: 'GetStoreCollectionsApi',
-  deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
-})
-
-const getStoreCollectionsIntegration = new LambdaIntegration(
-  backend.getStoreCollections.resources.lambda
-)
-const getStoreCollectionsResource = getStoreCollectionsApi.root.addResource('get-store-collections')
-
-getStoreCollectionsResource.addMethod('GET', getStoreCollectionsIntegration)
-
-/**
- *
  * Política de IAM para Invocar las APIs
  *
  */
@@ -338,10 +266,7 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
         `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', 'dev')}`,
         `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', 'dev')}`,
         `${apiKeyManagerApi.arnForExecuteApi('*', '/api-keys', 'dev')}`,
-        `${getStoreProductsApi.arnForExecuteApi('*', '/get-store-products', 'dev')}`,
-        `${getStoreDataApi.arnForExecuteApi('*', '/get-store-data', 'dev')}`,
         `${storeImagesApi.arnForExecuteApi('*', '/store-images', 'dev')}`,
-        `${getStoreCollectionsApi.arnForExecuteApi('*', '/get-store-collections', 'dev')}`,
       ],
     }),
   ],
@@ -384,25 +309,10 @@ backend.addOutput({
         region: Stack.of(apiKeyManagerApi).region,
         apiName: apiKeyManagerApi.restApiName,
       },
-      GetStoreProductsApi: {
-        endpoint: getStoreProductsApi.url,
-        region: Stack.of(getStoreProductsApi).region,
-        apiName: getStoreProductsApi.restApiName,
-      },
-      GetStoreDataApi: {
-        endpoint: getStoreDataApi.url,
-        region: Stack.of(getStoreDataApi).region,
-        apiName: getStoreDataApi.restApiName,
-      },
       StoreImagesApi: {
         endpoint: storeImagesApi.url,
         region: Stack.of(storeImagesApi).region,
         apiName: storeImagesApi.restApiName,
-      },
-      GetStoreCollectionsApi: {
-        endpoint: getStoreCollectionsApi.url,
-        region: Stack.of(getStoreCollectionsApi).region,
-        apiName: getStoreCollectionsApi.restApiName,
       },
     },
   },

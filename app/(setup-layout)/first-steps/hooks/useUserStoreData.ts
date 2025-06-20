@@ -21,6 +21,27 @@ export interface PaymentGatewayConfig {
   createdAt: string
 }
 
+// Tipos para respuestas de inicialización
+export interface StoreInitializationResult {
+  success: boolean
+  message: string
+  collections?: string[]
+  menus?: string[]
+}
+
+// Tipos para menús de navegación
+export type NavigationMenu = Schema['NavigationMenu']['type']
+
+// Tipos para items de menú (ahora son objetos JavaScript, no registros de BD)
+export interface MenuItem {
+  label: string
+  url: string
+  type: 'internal' | 'external' | 'page' | 'collection' | 'product'
+  isVisible: boolean
+  target?: '_blank' | '_self'
+  sortOrder: number
+}
+
 export const useUserStoreData = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<any>(null)
@@ -204,8 +225,8 @@ export const useUserStoreData = () => {
   }
 
   /**
-   * Inicializa el template y datos por defecto para una nueva tienda.
-   * Crea las secciones por defecto, colecciones base y configuración inicial.
+   * Inicializa los datos por defecto para una nueva tienda.
+   * Crea colecciones base y menús de navegación dinámicos.
    */
   const initializeStoreTemplate = async (storeId: string, domain: string) => {
     if (!storeId || !domain) {
@@ -222,8 +243,28 @@ export const useUserStoreData = () => {
   }
 
   /**
+   * Obtiene los menús de navegación de una tienda específica.
+   */
+  const getStoreMenus = async (storeId: string, domain: string) => {
+    if (!storeId || !domain) {
+      setError('Store ID and domain are required')
+      return null
+    }
+
+    return performOperation(() =>
+      client.models.NavigationMenu.list({
+        filter: {
+          storeId: { eq: storeId },
+          domain: { eq: domain },
+        },
+        selectionSet: ['id', 'name', 'handle', 'isMain', 'isActive', 'domain', 'menuData'],
+      })
+    )
+  }
+
+  /**
    * Función completa para crear una tienda con todos sus datos iniciales.
-   * Crea la tienda y luego inicializa su template automáticamente.
+   * Crea la tienda y luego inicializa sus colecciones y menús automáticamente.
    */
   const createStoreWithTemplate = async (
     storeInput: Omit<Schema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>
@@ -239,11 +280,11 @@ export const useUserStoreData = () => {
         throw new Error('Failed to create store')
       }
 
-      // Luego inicializar el template con los datos por defecto
-      const templateResult = await initializeStoreTemplate(
-        storeInput.storeId,
-        storeInput.customDomain || storeInput.storeName
-      )
+      // Luego inicializar los datos por defecto (colecciones y menús)
+      // Priorizar customDomain, luego generar dominio fasttify si no existe
+      const domain = storeInput.customDomain || `${storeInput.storeName}.fasttify.com`
+
+      const templateResult = await initializeStoreTemplate(storeInput.storeId, domain)
 
       return {
         store: storeResult,
@@ -267,6 +308,7 @@ export const useUserStoreData = () => {
     getStorePaymentInfo,
     configurePaymentGateway,
     initializeStoreTemplate,
+    getStoreMenus,
     createStoreWithTemplate,
   }
 }

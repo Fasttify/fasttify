@@ -17,6 +17,7 @@ interface StoreDataState {
   error: Error | null
   connectionState: ConnectionState | null
   hasMasterShopApiKey: boolean
+  activeSubscription: (() => void) | null // Tracking de suscripción activa
   setStoreId: (id: string | null) => void
   fetchStoreData: (storeId: string, userId: string) => Promise<void>
   clearStore: () => void
@@ -41,19 +42,26 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
   error: null,
   connectionState: null,
   hasMasterShopApiKey: false,
+  activeSubscription: null,
 
   setStoreId: id => set({ storeId: id }),
 
   setConnectionState: (state: ConnectionState) => set({ connectionState: state }),
 
   fetchStoreData: async (storeId, userId) => {
-    // No hacer fetch si ya tenemos los datos de esta tienda
-    if (get().currentStore && get().storeId === storeId) {
-      set({ isLoading: false })
+    const currentState = get()
+
+    // No hacer fetch si ya tenemos los datos de esta tienda y no está cargando
+    if (currentState.currentStore?.storeId === storeId && !currentState.isLoading) {
       return
     }
 
-    set({ isLoading: true, error: null })
+    // Si ya hay una petición en curso para la misma tienda, no hacer otra
+    if (currentState.isLoading && currentState.storeId === storeId) {
+      return
+    }
+
+    set({ isLoading: true, error: null, storeId })
 
     try {
       const { data: store } = await client.models.UserStore.get(
@@ -83,8 +91,12 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
         const hasMasterShopApiKey = await get().checkMasterShopApiKey(storeId, userId)
         set({ hasMasterShopApiKey })
 
-        // Configurar suscripción automáticamente después de obtener los datos
-        get().setupSubscription(storeId)
+        // Solo configurar suscripción si no hay una activa ya
+        const state = get()
+        if (!state.activeSubscription) {
+          const unsubscribe = get().setupSubscription(storeId)
+          set({ activeSubscription: unsubscribe })
+        }
       } else {
         set({
           error: new Error('Store not found'),
@@ -126,14 +138,23 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     }
   },
 
-  clearStore: () =>
+  clearStore: () => {
+    const state = get()
+
+    // Cancelar suscripción activa antes de limpiar
+    if (state.activeSubscription) {
+      state.activeSubscription()
+    }
+
     set({
       currentStore: null,
       storeId: null,
       error: null,
       isLoading: true,
       hasMasterShopApiKey: false,
-    }),
+      activeSubscription: null,
+    })
+  },
 
   // Configurar suscripción para actualizaciones en tiempo real
   setupSubscription: (id: string) => {

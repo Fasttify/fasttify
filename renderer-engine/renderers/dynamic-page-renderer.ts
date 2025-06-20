@@ -27,18 +27,18 @@ export class DynamicPageRenderer {
       const store = await domainResolver.resolveStoreByDomain(domain)
       liquidEngine.assetCollector.clear()
 
-      // 2. Verificar que la tienda tenga plantillas
-      await this.ensureTemplatesExist(store.storeId)
+      // 2. Verificar que la tienda tenga menús de navegación
+      await this.ensureMenusExist(store.storeId)
 
       // 3. Cargar datos y plantillas en paralelo
       const [layout, pageData, storeTemplate] = await Promise.all([
         templateLoader.loadMainLayout(store.storeId),
         pageDataLoader.load(store.storeId, options),
-        dataFetcher.getStoreTemplateData(store.storeId),
+        dataFetcher.getStoreNavigationMenus(store.storeId),
       ])
 
       // 4. Crear contexto y renderizar contenido de la página
-      const context = this.buildInitialContext(store, pageData, storeTemplate)
+      const context = await this.buildInitialContext(store, pageData, storeTemplate)
       const renderedContent = await this.renderPageContent(
         store.storeId,
         options,
@@ -82,9 +82,9 @@ export class DynamicPageRenderer {
     }
   }
 
-  private async ensureTemplatesExist(storeId: string): Promise<void> {
-    const hasTemplates = await templateLoader.hasTemplates(storeId)
-    if (!hasTemplates) {
+  private async ensureMenusExist(storeId: string): Promise<void> {
+    const hasNavigationMenus = await templateLoader.hasNavigationMenus(storeId)
+    if (!hasNavigationMenus) {
       throw this.createTemplateError(
         'TEMPLATE_NOT_FOUND',
         `No templates found for store: ${storeId}`
@@ -92,8 +92,8 @@ export class DynamicPageRenderer {
     }
   }
 
-  private buildInitialContext(store: any, pageData: any, storeTemplate: any): any {
-    const context = contextBuilder.createRenderContext(
+  private async buildInitialContext(store: any, pageData: any, storeTemplate: any): Promise<any> {
+    const context = await contextBuilder.createRenderContext(
       store,
       pageData.featuredProducts || [],
       pageData.collections || [],

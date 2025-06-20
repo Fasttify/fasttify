@@ -1,0 +1,118 @@
+[
+  {
+    "name": "Menú Principal",
+    "handle": "main-menu",
+    "isMain": true,
+    "items": [
+      {
+        "label": "Inicio",
+        "url": "/",
+        "type": "internal",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 1
+      },
+      {
+        "label": "Todos los Productos",
+        "type": "product",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 2
+      },
+      {
+        "label": "Todas las Colecciones",
+        "type": "collection",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 3
+      },
+      {
+        "label": "Sobre nosotros",
+        "pageHandle": "about-us",
+        "type": "page",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 4
+      },
+      {
+        "label": "Contacto",
+        "pageHandle": "contact",
+        "type": "page",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 5
+      }
+    ]
+  },
+  {
+    "name": "Menú Footer",
+    "handle": "footer-menu",
+    "isMain": false,
+    "items": [
+      {
+        "label": "Inicio",
+        "url": "/",
+        "type": "internal",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 1
+      },
+      {
+        "label": "Ropa Masculina",
+        "collectionHandle": "ropa-hombre",
+        "type": "collection",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 2
+      },
+      {
+        "label": "Ropa Femenina",
+        "collectionHandle": "ropa-mujer",
+        "type": "collection",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 3
+      },
+      {
+        "label": "Política de privacidad",
+        "pageHandle": "privacy-policy",
+        "type": "page",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 4
+      },
+      {
+        "label": "Términos y condiciones",
+        "pageHandle": "terms-and-conditions",
+        "type": "page",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 5
+      },
+      {
+        "label": "Política de envíos",
+        "pageHandle": "shipping-policy",
+        "type": "page",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 6
+      },
+      {
+        "label": "Devoluciones",
+        "pageHandle": "returns",
+        "type": "page",
+        "isVisible": true,
+        "target": "_self",
+        "sortOrder": 7
+      },
+      {
+        "label": "Síguenos en Facebook",
+        "url": "https://facebook.com/mitienda",
+        "type": "external",
+        "isVisible": true,
+        "target": "_blank",
+        "sortOrder": 8
+      }
+    ]
+  }
+]

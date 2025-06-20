@@ -56,11 +56,22 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     try {
+      // 1. Cerrar sesión en Amplify primero
       await signOut()
-      await clearUser()
+
+      // 2. Limpiar el estado local
+      clearUser()
+
+      // 3. Refrescar el router para limpiar cualquier caché/estado
+      router.refresh()
+
+      // 4. Navegar usando Next.js router
       router.push('/login')
     } catch (error) {
       console.error('Error al cerrar sesión:', error)
+      // Fallback: limpiar estado y navegar
+      clearUser()
+      router.push('/login')
     }
   }
 
