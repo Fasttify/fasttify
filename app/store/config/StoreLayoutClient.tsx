@@ -27,7 +27,10 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   const pathname = usePathname()
   const params = useParams()
   const storeId = getStoreId(params, pathname)
+
+  // Solo cargar los datos de la tienda una vez en el layout principal
   useStore(storeId)
+
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   return (

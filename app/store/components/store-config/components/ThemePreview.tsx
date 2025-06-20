@@ -100,7 +100,7 @@ export function ThemePreview() {
                 <Text as="h2" variant="headingMd">
                   Logo de la tienda
                 </Text>
-                <LogoUploadCard />
+                <LogoUploadCard currentStore={currentStore} />
               </BlockStack>
             </Card>
           </BlockStack>
@@ -110,8 +110,7 @@ export function ThemePreview() {
   )
 }
 
-function LogoUploadCard() {
-  const { currentStore } = useStoreDataStore()
+function LogoUploadCard({ currentStore }: { currentStore: any }) {
   const storeLogo = currentStore?.storeLogo
   const storeName = currentStore?.storeName
 

@@ -7,14 +7,15 @@ import { NavigationMenuList } from '@/app/store/components/navigation-management
 import { NavigationMenuForm } from '@/app/store/components/navigation-management/components/NavigationMenuForm'
 import { NavigationManagerProps } from '@/app/store/components/navigation-management/types'
 import { useNavigationMenus } from '@/app/store/hooks/data/useNavigationMenus'
-import { useStore } from '@/app/store/hooks/data/useStore'
+import { useCurrentStore } from '@/app/store/hooks/data/useStoreFromZustand'
 import { useToast } from '@/app/store/context/ToastContext'
 
 /**
  * Componente principal para la gestión de menús de navegación
  */
 export function NavigationManager({ storeId }: NavigationManagerProps) {
-  const { store } = useStore(storeId)
+  // Usar hook específico que solo obtiene el store actual
+  const store = useCurrentStore()
   const { useDeleteNavigationMenu } = useNavigationMenus()
   const { showToast } = useToast()
 
