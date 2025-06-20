@@ -91,15 +91,6 @@ class DataFetcher {
     return collectionFetcher.getCollection(storeId, collectionId)
   }
 
-  // === TEMPLATES ===
-
-  /**
-   * Obtiene los datos del template de la tienda
-   */
-  // public async getStoreTemplateData(storeId: string): Promise<any> {
-  //   return templateFetcher.getStoreTemplateData(storeId)
-  // }
-
   // === NAVEGACIÓN ===
 
   /**

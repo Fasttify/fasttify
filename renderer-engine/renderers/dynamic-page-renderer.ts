@@ -27,8 +27,8 @@ export class DynamicPageRenderer {
       const store = await domainResolver.resolveStoreByDomain(domain)
       liquidEngine.assetCollector.clear()
 
-      // 2. Verificar que la tienda tenga plantillas
-      await this.ensureTemplatesExist(store.storeId)
+      // 2. Verificar que la tienda tenga menús de navegación
+      await this.ensureMenusExist(store.storeId)
 
       // 3. Cargar datos y plantillas en paralelo
       const [layout, pageData, storeTemplate] = await Promise.all([
@@ -82,7 +82,7 @@ export class DynamicPageRenderer {
     }
   }
 
-  private async ensureTemplatesExist(storeId: string): Promise<void> {
+  private async ensureMenusExist(storeId: string): Promise<void> {
     const hasNavigationMenus = await templateLoader.hasNavigationMenus(storeId)
     if (!hasNavigationMenus) {
       throw this.createTemplateError(
