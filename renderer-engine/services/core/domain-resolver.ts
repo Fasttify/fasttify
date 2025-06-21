@@ -68,12 +68,13 @@ class DomainResolver {
       throw error
     }
 
-    const isActive = store.onboardingCompleted && store.storeStatus !== 'inactive'
+    // Verificar que la tienda esté completada y pagada
+    const isActive = store.onboardingCompleted && store.storeStatus === true
     if (!isActive) {
       const error: TemplateError = {
-        type: 'STORE_NOT_FOUND',
-        message: `Store is not active for domain: ${domain}`,
-        statusCode: 503,
+        type: 'STORE_NOT_ACTIVE',
+        message: `Store is not active or subscription not paid for domain: ${domain}`,
+        statusCode: 402, // Payment Required si no está pagada
       }
       throw error
     }

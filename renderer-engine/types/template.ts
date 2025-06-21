@@ -181,7 +181,12 @@ export interface SchemaData {
 }
 
 export interface TemplateError {
-  type: 'STORE_NOT_FOUND' | 'TEMPLATE_NOT_FOUND' | 'RENDER_ERROR' | 'DATA_ERROR'
+  type:
+    | 'STORE_NOT_FOUND'
+    | 'TEMPLATE_NOT_FOUND'
+    | 'RENDER_ERROR'
+    | 'DATA_ERROR'
+    | 'STORE_NOT_ACTIVE'
   message: string
   details?: any
   statusCode: number

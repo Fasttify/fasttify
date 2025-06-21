@@ -96,6 +96,7 @@ export class ErrorRenderer {
       TEMPLATE_NOT_FOUND: this.getTemplateNotFoundTemplate(),
       RENDER_ERROR: this.getRenderErrorTemplate(),
       DATA_ERROR: this.getDataErrorTemplate(),
+      STORE_NOT_ACTIVE: this.getStoreNotActiveTemplate(),
     }
 
     return templates[errorType] || templates.RENDER_ERROR
@@ -1047,6 +1048,241 @@ export class ErrorRenderer {
     `
   }
 
+  private getStoreNotActiveTemplate(): string {
+    return `
+         <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f3f4f6;
+      color: #1f2937;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      padding: 20px 0;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+      background: white;
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #6b7280;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    .header-content:hover {
+      color: #4b5563;
+    }
+    .arrow {
+      font-size: 12px;
+    }
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .error-container {
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+    .error-title {
+      font-size: 2.5rem;
+      font-weight: 400;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+    .error-subtitle {
+      font-size: 1.1rem;
+      color: #6b7280;
+      margin-bottom: 3rem;
+    }
+    .button-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 4rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-block;
+    }
+    .btn-primary {
+      background-color: #1f2937;
+      color: white;
+      border-color: #1f2937;
+    }
+    .btn-primary:hover {
+      background-color: #111827;
+      border-color: #111827;
+    }
+    .btn-secondary {
+      background-color: white;
+      color: #1f2937;
+      border-color: #d1d5db;
+    }
+    .btn-secondary:hover {
+      background-color: #f9fafb;
+      border-color: #9ca3af;
+    }
+    .info-sections {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+    .info-section {
+      text-align: left;
+    }
+    .info-section h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+    .info-section p {
+      color: #6b7280;
+      margin-bottom: 1rem;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .info-section a {
+      color: #1f2937;
+      text-decoration: underline;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .info-section a:hover {
+      color: #111827;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #6b7280;
+      font-size: 12px;
+    }
+    .footer a {
+      color: #6b7280;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      color: #4b5563;
+    }
+    .error-details {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      text-align: left;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      color: #991b1b;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    @media (max-width: 768px) {
+      .error-title {
+        font-size: 2rem;
+      }
+      .button-group {
+        flex-direction: column;
+        align-items: center;
+      }
+      .btn {
+        width: 200px;
+      }
+      .info-sections {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="https://fasttify.com" class="header-content">
+      <span class="arrow">←</span>
+      <span>FASTTIFY</span>
+    </a>
+  </div>
+  
+  <div class="main-content">
+    <div class="error-container">
+        <h1 class="error-title">La tienda que buscas no está activa o no está pagada.</h1>
+      <p class="error-subtitle">Por favor, contacta al propietario de la tienda para resolver el problema.</p>
+      
+      <div class="button-group">
+        <a href="javascript:location.reload()" class="btn btn-primary">Reintentar</a>
+        <a href="/" class="btn btn-secondary">Ir al inicio</a>
+      </div>
+      
+      <div class="info-sections">
+        <div class="info-section">
+          <h3>Verificar pago</h3>
+          <p>Asegúrate de que la tienda esté pagada y activa.</p>
+          <a href="https://fasttify.com/dashboard">Verificar pago</a>
+        </div>
+        
+        <div class="info-section">
+          <h3>Contactar soporte</h3>
+          <p>Si el problema persiste, nuestro equipo técnico puede ayudarte a resolverlo.</p>
+          <a href="https://fasttify.com/support">Obtener ayuda</a>
+        </div>
+        
+        <div class="info-section">
+          <h3>Explorar otras tiendas</h3>
+          <p>Explora otras tiendas en Fasttify.</p>
+          <a href="https://fasttify.com">Explorar otras tiendas</a>
+        </div>
+      </div>
+      
+      {% if error.show_details %}
+      <div class="error-details">
+        <strong>Detalles técnicos:</strong><br>
+        Tipo: {{ error.type }}<br>
+        Mensaje: {{ error.message }}<br>
+        Código: {{ error.status_code }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <div class="footer">
+    <span>powered by </span><a href="https://fasttify.com"><strong>fasttify</strong></a>
+  </div>
+</body>
+</html> 
+    `
+  }
+
   /**
    * Obtiene mensajes amigables para cada tipo de error
    */
@@ -1058,6 +1294,7 @@ export class ErrorRenderer {
         'Experimentamos un problema técnico temporal. Nuestro equipo ya está trabajando en solucionarlo.',
       DATA_ERROR:
         'Hubo un problema al cargar los datos de la tienda. Inténtalo de nuevo en unos momentos.',
+      STORE_NOT_ACTIVE: 'La tienda que buscas no está activa o no está pagada.',
     }
 
     return messages[errorType] || 'Se produjo un error inesperado.'
@@ -1088,6 +1325,11 @@ export class ErrorRenderer {
         'Intentar de nuevo en unos momentos',
         'Contactar soporte si el error continúa',
       ],
+      STORE_NOT_ACTIVE: [
+        'Verificar que la tienda esté activa y pagada',
+        'Contactar al propietario de la tienda si crees que debería estar activa',
+        'Explorar otras tiendas en Fasttify',
+      ],
     }
 
     return suggestions[errorType] || ['Intentar de nuevo más tarde']
@@ -1102,6 +1344,7 @@ export class ErrorRenderer {
       TEMPLATE_NOT_FOUND: 'Tienda en Construcción - Fasttify',
       RENDER_ERROR: 'Error Temporal - Fasttify',
       DATA_ERROR: 'Error de Conexión - Fasttify',
+      STORE_NOT_ACTIVE: 'Tienda No Activa - Fasttify',
     }
 
     return titles[errorType] || 'Error - Fasttify'
@@ -1117,6 +1360,7 @@ export class ErrorRenderer {
       RENDER_ERROR:
         'Se produjo un error técnico temporal. Nuestro equipo está trabajando para solucionarlo.',
       DATA_ERROR: 'Hubo un problema al cargar los datos. Inténtalo de nuevo en unos momentos.',
+      STORE_NOT_ACTIVE: 'La tienda que buscas no está activa o no está pagada.',
     }
 
     return descriptions[errorType] || 'Se produjo un error inesperado.'
