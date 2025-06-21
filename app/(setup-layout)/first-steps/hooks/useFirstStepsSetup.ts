@@ -115,6 +115,7 @@ export const useFirstStepsSetup = () => {
           storeName: formData.storeName,
           storeDescription: formData.description,
           storeCurrency: 'COP',
+          storeStatus: true,
           storeAdress: formData.location,
           contactEmail: formData.email,
           contactPhone: parseInt(formData.phone),
@@ -186,6 +187,7 @@ export const useFirstStepsSetup = () => {
     const quickStoreInput = {
       userId: cognitoUsername,
       storeId: storeIdShort,
+      storeStatus: true,
       storeName: storeName,
       customDomain: `${storeName.toLowerCase().replace(/\s+/g, '-')}.fasttify.com`,
       storeType: 'quick-setup',

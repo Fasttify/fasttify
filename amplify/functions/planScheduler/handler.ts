@@ -96,6 +96,35 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
           planPrice: null,
           lastFourDigits: null,
         })
+
+        // 3.3. Actualizar storeStatus según el tipo de plan
+        const isFreePlan = newPlan.toLowerCase() === 'free'
+        const newStoreStatus = !isFreePlan // false para plan free, true para planes de pago
+
+        // Obtener todas las tiendas del usuario
+        const userStoresResponse = await clientSchema.models.UserStore.listUserStoreByUserId({
+          userId: userId,
+        })
+
+        const userStores = userStoresResponse.data || []
+        console.log(`Found ${userStores.length} stores for user ${userId}`)
+
+        // Actualizar el storeStatus de todas las tiendas del usuario
+        for (const store of userStores) {
+          try {
+            await clientSchema.models.UserStore.update({
+              storeId: store.storeId,
+              storeStatus: newStoreStatus,
+            })
+            console.log(`Updated store ${store.storeId} storeStatus to ${newStoreStatus}`)
+          } catch (storeUpdateError) {
+            console.error(`Error updating store ${store.storeId} status:`, storeUpdateError)
+          }
+        }
+
+        console.log(
+          `Successfully processed subscription for ${userId}: plan=${newPlan}, storeStatus=${newStoreStatus}`
+        )
       } catch (dbError) {
         console.error(`Error updating user subscription ${userId} in DynamoDB:`, dbError)
       }

@@ -9,7 +9,7 @@ export interface Store {
   storeTheme?: string
   storeCurrency: string
   storeType: string
-  storeStatus: string
+  storeStatus: boolean
   storePolicy?: string
   storeAdress?: string
   contactEmail?: string

@@ -69,10 +69,53 @@ export class CognitoUserService implements UserService {
         })
       )
 
+      // Update storeStatus based on the plan type
+      await this.updateUserStoresStatus(userId, planName)
+
       console.log(`✅ User plan updated successfully`)
     } catch (error) {
       console.error(`❌ Error updating user plan for ${userId}:`, error)
       throw new Error(`Failed to update user plan: ${userId}`)
+    }
+  }
+
+  /**
+   * Updates all user stores status based on plan type
+   */
+  private async updateUserStoresStatus(userId: string, planName: string): Promise<void> {
+    try {
+      const isFreePlan = planName.toLowerCase() === 'free'
+      const newStoreStatus = !isFreePlan // false for free plan, true for paid plans
+
+      console.log(
+        `🔄 Updating stores status for user ${userId}: plan=${planName}, storeStatus=${newStoreStatus}`
+      )
+
+      // Get all user stores
+      const userStoresResponse = await dynamoClient.models.UserStore.listUserStoreByUserId({
+        userId: userId,
+      })
+
+      const userStores = userStoresResponse.data || []
+      console.log(`📦 Found ${userStores.length} stores for user ${userId}`)
+
+      // Update storeStatus of all user stores
+      for (const store of userStores) {
+        try {
+          await dynamoClient.models.UserStore.update({
+            storeId: store.storeId,
+            storeStatus: newStoreStatus,
+          })
+          console.log(`✅ Updated store ${store.storeId} storeStatus to ${newStoreStatus}`)
+        } catch (storeUpdateError) {
+          console.error(`❌ Error updating store ${store.storeId} status:`, storeUpdateError)
+        }
+      }
+
+      console.log(`✅ All stores updated for user ${userId}`)
+    } catch (error) {
+      console.error(`❌ Error updating stores status for user ${userId}:`, error)
+      throw error
     }
   }
 
@@ -88,6 +131,8 @@ export class CognitoUserService implements UserService {
 
       if (currentPlan === 'free') {
         console.log('🔍 User already has free plan, no changes needed')
+        // Update stores status even if the user already has a free plan
+        await this.updateUserStoresStatus(userId, 'free')
         return
       }
 
@@ -194,7 +239,10 @@ export class CognitoUserService implements UserService {
         await dynamoClient.models.UserSubscription.create(subscriptionPayload)
       }
 
-      console.log(`✅ Subscription saved successfully`)
+      // Update storeStatus based on the new plan
+      await this.updateUserStoresStatus(userId, subscriptionData.planName)
+
+      console.log(`✅ Subscription saved and stores updated successfully`)
     } catch (error) {
       console.error(`❌ Error saving subscription for ${userId}:`, error)
       console.error('Subscription data:', JSON.stringify(subscriptionData, null, 2))

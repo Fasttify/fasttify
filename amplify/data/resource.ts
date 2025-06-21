@@ -165,7 +165,7 @@ const schema = a
         storeTheme: a.string(),
         storeCurrency: a.string(),
         storeType: a.string(),
-        storeStatus: a.string(),
+        storeStatus: a.boolean(),
         storePolicy: a.string(),
         storeAdress: a.string(),
         contactEmail: a.string(),
