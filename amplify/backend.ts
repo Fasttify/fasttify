@@ -20,6 +20,52 @@ import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib
 import { Policy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam'
 
 /**
+ * Detección simple de entorno
+ */
+const isProduction = process.env.APP_ENV === 'production'
+
+const stageName = isProduction ? 'prod' : 'dev'
+
+/**
+ * Configuración de CORS según entorno
+ */
+const corsConfig = isProduction
+  ? {
+      allowOrigins: ['https://fasttify.com', 'https://www.fasttify.com'],
+      allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowHeaders: [
+        'Content-Type',
+        'X-Amz-Date',
+        'Authorization',
+        'X-Api-Key',
+        'X-Amz-Security-Token',
+      ],
+      allowCredentials: true,
+    }
+  : {
+      allowOrigins: Cors.ALL_ORIGINS,
+      allowMethods: Cors.ALL_METHODS,
+      allowHeaders: Cors.DEFAULT_HEADERS,
+      allowCredentials: false,
+    }
+
+/**
+ * Configuración base de deployment
+ */
+const deployConfig = {
+  stageName,
+  ...(isProduction && {
+    throttle: {
+      rateLimit: 1000,
+      burstLimit: 2000,
+    },
+  }),
+}
+
+console.log(`🚀 Configurando backend para: ${isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}`)
+console.log(`📋 Stage: ${stageName}`)
+
+/**
  * Definición del backend con sus respectivos recursos.
  */
 const backend = defineBackend({
@@ -119,14 +165,10 @@ const apiStack = backend.createStack('api-stack')
  *
  */
 const subscriptionApi = new RestApi(apiStack, 'SubscriptionApi', {
-  restApiName: 'SubscriptionApi',
+  restApiName: `SubscriptionApi-${stageName}`,
   deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS, // Se debe ajustar en produccion para solicitar autorizacion
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
+  deployOptions: deployConfig,
+  defaultCorsPreflightOptions: corsConfig,
 })
 
 const createSubscriptionIntegration = new LambdaIntegration(
@@ -145,14 +187,10 @@ subscribeResource.addMethod('POST', createSubscriptionIntegration)
  *
  */
 const webHookApi = new RestApi(apiStack, 'WebHookApi', {
-  restApiName: 'WebHookApi',
+  restApiName: `WebHookApi-${stageName}`,
   deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
+  deployOptions: deployConfig,
+  defaultCorsPreflightOptions: corsConfig,
 })
 
 const webHookPlanIntegration = new LambdaIntegration(backend.webHookPlan.resources.lambda)
@@ -169,14 +207,10 @@ webhookResource.addMethod('POST', webHookPlanIntegration)
  *
  */
 const checkStoreNameApi = new RestApi(apiStack, 'CheckStoreNameApi', {
-  restApiName: 'CheckStoreNameApi',
+  restApiName: `CheckStoreNameApi-${stageName}`,
   deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
+  deployOptions: deployConfig,
+  defaultCorsPreflightOptions: corsConfig,
 })
 const checkStoreNameIntegration = new LambdaIntegration(backend.checkStoreName.resources.lambda)
 
@@ -192,14 +226,10 @@ checkStoreNameResource.addMethod('GET', checkStoreNameIntegration)
  *
  */
 const checkStoreDomainApi = new RestApi(apiStack, 'CheckStoreDomainApi', {
-  restApiName: 'CheckStoreDomain',
+  restApiName: `CheckStoreDomainApi-${stageName}`,
   deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
+  deployOptions: deployConfig,
+  defaultCorsPreflightOptions: corsConfig,
 })
 const checkStoreDomainIntegration = new LambdaIntegration(backend.checkStoreDomain.resources.lambda)
 
@@ -215,14 +245,10 @@ checkStoreDomainResource.addMethod('GET', checkStoreDomainIntegration)
  *
  */
 const apiKeyManagerApi = new RestApi(apiStack, 'ApiKeyManagerApi', {
-  restApiName: 'ApiKeyManagerApi',
+  restApiName: `ApiKeyManagerApi-${stageName}`,
   deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
+  deployOptions: deployConfig,
+  defaultCorsPreflightOptions: corsConfig,
 })
 
 const apiKeyManagerIntegration = new LambdaIntegration(backend.apiKeyManager.resources.lambda)
@@ -237,14 +263,10 @@ apiKeyManagerResource.addMethod('POST', apiKeyManagerIntegration)
  */
 
 const storeImagesApi = new RestApi(apiStack, 'StoreImagesApi', {
-  restApiName: 'StoreImagesApi',
+  restApiName: `StoreImagesApi-${stageName}`,
   deploy: true,
-  deployOptions: { stageName: 'dev' },
-  defaultCorsPreflightOptions: {
-    allowOrigins: Cors.ALL_ORIGINS,
-    allowMethods: Cors.ALL_METHODS,
-    allowHeaders: Cors.DEFAULT_HEADERS,
-  },
+  deployOptions: deployConfig,
+  defaultCorsPreflightOptions: corsConfig,
 })
 const storeImagesIntegration = new LambdaIntegration(backend.storeImages.resources.lambda)
 const storeImagesResource = storeImagesApi.root.addResource('store-images')
@@ -261,12 +283,12 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
     new PolicyStatement({
       actions: ['execute-api:Invoke'],
       resources: [
-        `${subscriptionApi.arnForExecuteApi('*', '/subscribe', 'dev')}`,
-        `${webHookApi.arnForExecuteApi('*', '/webhook', 'dev')}`,
-        `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', 'dev')}`,
-        `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', 'dev')}`,
-        `${apiKeyManagerApi.arnForExecuteApi('*', '/api-keys', 'dev')}`,
-        `${storeImagesApi.arnForExecuteApi('*', '/store-images', 'dev')}`,
+        `${subscriptionApi.arnForExecuteApi('*', '/subscribe', stageName)}`,
+        `${webHookApi.arnForExecuteApi('*', '/webhook', stageName)}`,
+        `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', stageName)}`,
+        `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', stageName)}`,
+        `${apiKeyManagerApi.arnForExecuteApi('*', '/api-keys', stageName)}`,
+        `${storeImagesApi.arnForExecuteApi('*', '/store-images', stageName)}`,
       ],
     }),
   ],
@@ -283,36 +305,46 @@ backend.auth.resources.unauthenticatedUserIamRole.attachInlinePolicy(apiRestPoli
  */
 backend.addOutput({
   custom: {
+    Environment: {
+      stage: stageName,
+      isProduction,
+    },
     APIs: {
       SubscriptionApi: {
         endpoint: subscriptionApi.url,
         region: Stack.of(subscriptionApi).region,
         apiName: subscriptionApi.restApiName,
+        stage: stageName,
       },
       WebHookApi: {
         endpoint: webHookApi.url,
         region: Stack.of(webHookApi).region,
         apiName: webHookApi.restApiName,
+        stage: stageName,
       },
       CheckStoreNameApi: {
         endpoint: checkStoreNameApi.url,
         region: Stack.of(checkStoreNameApi).region,
         apiName: checkStoreNameApi.restApiName,
+        stage: stageName,
       },
       CheckStoreDomainApi: {
         endpoint: checkStoreDomainApi.url,
         region: Stack.of(checkStoreDomainApi).region,
         apiName: checkStoreDomainApi.restApiName,
+        stage: stageName,
       },
       ApiKeyManagerApi: {
         endpoint: apiKeyManagerApi.url,
         region: Stack.of(apiKeyManagerApi).region,
         apiName: apiKeyManagerApi.restApiName,
+        stage: stageName,
       },
       StoreImagesApi: {
         endpoint: storeImagesApi.url,
         region: Stack.of(storeImagesApi).region,
         apiName: storeImagesApi.restApiName,
+        stage: stageName,
       },
     },
   },
