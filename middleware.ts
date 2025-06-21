@@ -8,7 +8,23 @@ import { handleCollectionOwnershipMiddleware } from './middlewares/ownership/col
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
-  const hostname = request.headers.get('host') || ''
+
+  // DEBUG: Mostrar todos los headers de Cloudflare
+  console.log('=== MIDDLEWARE DEBUG ===')
+  console.log('Path:', path)
+  console.log('Headers:')
+  console.log('- host:', request.headers.get('host'))
+  console.log('- x-forwarded-host:', request.headers.get('x-forwarded-host'))
+  console.log('- cf-connecting-ip:', request.headers.get('cf-connecting-ip'))
+  console.log('- cf-ray:', request.headers.get('cf-ray'))
+  console.log('- x-forwarded-proto:', request.headers.get('x-forwarded-proto'))
+
+  // Obtener el hostname real, considerando proxy de Cloudflare
+  const hostname = request.headers.get('cf-connecting-ip')
+    ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
+    : request.headers.get('host') || ''
+
+  console.log('Final hostname:', hostname)
 
   // Configuración de dominios
   const isProduction = process.env.APP_ENV === 'production'
