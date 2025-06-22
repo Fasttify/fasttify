@@ -45,56 +45,62 @@ describe('Main Middleware Security Tests', () => {
   })
 
   describe('Subdomain Security Validation', () => {
-    it('should reject malicious domains that end with allowed domain in production', async () => {
+    it('should treat non-fasttify domains as custom domains in production', async () => {
       process.env.APP_ENV = 'production'
 
-      const maliciousRequest = {
+      const customDomainRequest = {
         nextUrl: {
           pathname: '/',
           clone: () => ({
             pathname: '/',
+            searchParams: {
+              set: jest.fn(),
+            },
           }),
         },
         headers: {
-          get: jest.fn().mockReturnValue('malicious-fasttify.com'),
+          get: jest.fn().mockReturnValue('mitienda.com'),
         },
       } as unknown as NextRequest
 
-      const mockNext = jest.fn().mockReturnValue({ type: 'next' })
-      const mockNextResponse = NextResponse.next as jest.Mock
-      mockNextResponse.mockReturnValue(mockNext())
+      const mockRewrite = jest.fn().mockReturnValue({ type: 'rewrite' })
+      const mockNextResponse = NextResponse.rewrite as jest.Mock
+      mockNextResponse.mockReturnValue(mockRewrite())
 
-      const result = await middleware(maliciousRequest)
+      const result = await middleware(customDomainRequest)
 
-      // No debería reescribir la URL porque no es un dominio válido
-      expect(NextResponse.rewrite).not.toHaveBeenCalled()
-      expect(result).toEqual({ type: 'next' })
+      // Debería reescribir la URL porque es un dominio personalizado válido
+      expect(NextResponse.rewrite).toHaveBeenCalled()
+      expect(result).toEqual({ type: 'rewrite' })
     })
 
-    it('should reject malicious domains that end with allowed domain in development', async () => {
+    it('should treat non-localhost domains as custom domains in development', async () => {
       process.env.APP_ENV = 'development'
 
-      const maliciousRequest = {
+      const customDomainRequest = {
         nextUrl: {
           pathname: '/',
           clone: () => ({
             pathname: '/',
+            searchParams: {
+              set: jest.fn(),
+            },
           }),
         },
         headers: {
-          get: jest.fn().mockReturnValue('malicious-localhost'),
+          get: jest.fn().mockReturnValue('mitienda.dev'),
         },
       } as unknown as NextRequest
 
-      const mockNext = jest.fn().mockReturnValue({ type: 'next' })
-      const mockNextResponse = NextResponse.next as jest.Mock
-      mockNextResponse.mockReturnValue(mockNext())
+      const mockRewrite = jest.fn().mockReturnValue({ type: 'rewrite' })
+      const mockNextResponse = NextResponse.rewrite as jest.Mock
+      mockNextResponse.mockReturnValue(mockRewrite())
 
-      const result = await middleware(maliciousRequest)
+      const result = await middleware(customDomainRequest)
 
-      // No debería reescribir la URL porque no es un dominio válido
-      expect(NextResponse.rewrite).not.toHaveBeenCalled()
-      expect(result).toEqual({ type: 'next' })
+      // Debería reescribir la URL porque es un dominio personalizado válido
+      expect(NextResponse.rewrite).toHaveBeenCalled()
+      expect(result).toEqual({ type: 'rewrite' })
     })
 
     it('should accept valid subdomain in production', async () => {
@@ -105,6 +111,9 @@ describe('Main Middleware Security Tests', () => {
           pathname: '/',
           clone: () => ({
             pathname: '/',
+            searchParams: {
+              set: jest.fn(),
+            },
           }),
         },
         headers: {
@@ -131,6 +140,9 @@ describe('Main Middleware Security Tests', () => {
           pathname: '/',
           clone: () => ({
             pathname: '/',
+            searchParams: {
+              set: jest.fn(),
+            },
           }),
         },
         headers: {
@@ -149,10 +161,10 @@ describe('Main Middleware Security Tests', () => {
       expect(result).toEqual({ type: 'rewrite' })
     })
 
-    it('should reject domain with multiple malicious subdomains', async () => {
+    it('should reject domain with multiple subdomains', async () => {
       process.env.APP_ENV = 'production'
 
-      const maliciousRequest = {
+      const multiSubdomainRequest = {
         nextUrl: {
           pathname: '/',
           clone: () => ({
@@ -168,9 +180,9 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.next as jest.Mock
       mockNextResponse.mockReturnValue(mockNext())
 
-      const result = await middleware(maliciousRequest)
+      const result = await middleware(multiSubdomainRequest)
 
-      // No debería reescribir porque tiene múltiples subdominios sospechosos
+      // No debería reescribir porque tiene múltiples subdominios (no es válido)
       expect(NextResponse.rewrite).not.toHaveBeenCalled()
       expect(result).toEqual({ type: 'next' })
     })
@@ -233,6 +245,9 @@ describe('Main Middleware Security Tests', () => {
           pathname: '/',
           clone: () => ({
             pathname: '/',
+            searchParams: {
+              set: jest.fn(),
+            },
           }),
         },
         headers: {
@@ -240,13 +255,14 @@ describe('Main Middleware Security Tests', () => {
         },
       } as unknown as NextRequest
 
-      const mockNext = jest.fn().mockReturnValue({ type: 'next' })
-      const mockNextResponse = NextResponse.next as jest.Mock
-      mockNextResponse.mockReturnValue(mockNext())
+      const mockRewrite = jest.fn().mockReturnValue({ type: 'rewrite' })
+      const mockNextResponse = NextResponse.rewrite as jest.Mock
+      mockNextResponse.mockReturnValue(mockRewrite())
 
       const result = await middleware(emptyHostRequest)
 
-      expect(result).toEqual({ type: 'next' })
+      // Hostname vacío se trata como dominio personalizado
+      expect(result).toEqual({ type: 'rewrite' })
     })
 
     it('should handle hostname with port correctly', async () => {
@@ -257,6 +273,9 @@ describe('Main Middleware Security Tests', () => {
           pathname: '/',
           clone: () => ({
             pathname: '/',
+            searchParams: {
+              set: jest.fn(),
+            },
           }),
         },
         headers: {
@@ -270,6 +289,66 @@ describe('Main Middleware Security Tests', () => {
 
       const result = await middleware(portRequest)
 
+      expect(NextResponse.rewrite).toHaveBeenCalled()
+      expect(result).toEqual({ type: 'rewrite' })
+    })
+
+    it('should properly validate fasttify.com domains', async () => {
+      process.env.APP_ENV = 'production'
+
+      // Test que fasttify.com.evil.com NO se detecte como fasttify domain
+      const evilRequest = {
+        nextUrl: {
+          pathname: '/',
+          clone: () => ({
+            pathname: '/',
+            searchParams: {
+              set: jest.fn(),
+            },
+          }),
+        },
+        headers: {
+          get: jest.fn().mockReturnValue('fasttify.com.evil.com'),
+        },
+      } as unknown as NextRequest
+
+      const mockRewrite = jest.fn().mockReturnValue({ type: 'rewrite' })
+      const mockNextResponse = NextResponse.rewrite as jest.Mock
+      mockNextResponse.mockReturnValue(mockRewrite())
+
+      const result = await middleware(evilRequest)
+
+      // Debería tratarse como dominio personalizado, no como fasttify.com
+      expect(NextResponse.rewrite).toHaveBeenCalled()
+      expect(result).toEqual({ type: 'rewrite' })
+    })
+
+    it('should properly validate localhost domains', async () => {
+      process.env.APP_ENV = 'development'
+
+      // Test que localhost.evil.com NO se detecte como localhost
+      const evilLocalRequest = {
+        nextUrl: {
+          pathname: '/',
+          clone: () => ({
+            pathname: '/',
+            searchParams: {
+              set: jest.fn(),
+            },
+          }),
+        },
+        headers: {
+          get: jest.fn().mockReturnValue('localhost.evil.com'),
+        },
+      } as unknown as NextRequest
+
+      const mockRewrite = jest.fn().mockReturnValue({ type: 'rewrite' })
+      const mockNextResponse = NextResponse.rewrite as jest.Mock
+      mockNextResponse.mockReturnValue(mockRewrite())
+
+      const result = await middleware(evilLocalRequest)
+
+      // Debería tratarse como dominio personalizado, no como localhost
       expect(NextResponse.rewrite).toHaveBeenCalled()
       expect(result).toEqual({ type: 'rewrite' })
     })

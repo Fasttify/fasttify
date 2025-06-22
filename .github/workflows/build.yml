@@ -51,6 +51,11 @@ jobs:
             }
           }' > amplify_outputs.json
 
+      - name: Create dummy .env file
+        run: |
+          echo 'CLOUDFLARE_API_TOKEN=dummy_cloudflare_api_token
+          CLOUDFLARE_ZONE_ID=dummy_cloudflare_zone_id' > .env
+
       - name: Install dependencies
         run: npm ci
 
