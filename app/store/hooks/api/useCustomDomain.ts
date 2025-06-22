@@ -151,11 +151,16 @@ export function useCustomDomain(storeId: string) {
     }
 
     // No permitir subdominios de fasttify.com como dominio personalizado
-    if (domain.includes('fasttify.com')) {
-      return {
-        isValid: false,
-        error: 'You cannot use subdomains of fasttify.com as a custom domain',
+    try {
+      const parsedDomain = new URL(`http://${domain}`).hostname
+      if (parsedDomain === 'fasttify.com' || parsedDomain.endsWith('.fasttify.com')) {
+        return {
+          isValid: false,
+          error: 'You cannot use subdomains of fasttify.com as a custom domain',
+        }
       }
+    } catch {
+      return { isValid: false, error: 'Invalid domain format' }
     }
 
     return { isValid: true }

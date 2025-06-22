@@ -178,7 +178,6 @@ export function CustomDomainDialog({
 
         <Banner>
           <Text as="p">
-            💡{' '}
             <Text as="span" fontWeight="semibold">
               Tip:
             </Text>{' '}

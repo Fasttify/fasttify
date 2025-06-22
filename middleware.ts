@@ -18,7 +18,10 @@ export async function middleware(request: NextRequest) {
   const isProduction = process.env.APP_ENV === 'production'
 
   // Detectar automáticamente el tipo de dominio basándose en la estructura
-  const isFasttifyDomain = hostname.includes('fasttify.com')
+  const cleanHostnameForDetection = hostname.split(':')[0]
+  const isFasttifyDomain =
+    cleanHostnameForDetection === 'fasttify.com' ||
+    cleanHostnameForDetection.endsWith('.fasttify.com')
 
   const allowedDomains = isFasttifyDomain
     ? ['fasttify.com']
@@ -38,7 +41,8 @@ export async function middleware(request: NextRequest) {
       const parts = cleanHostname.split('.')
 
       // Detectar automáticamente si es un dominio de fasttify.com
-      const isFasttifyDomain = cleanHostname.includes('fasttify.com')
+      const isFasttifyDomain =
+        cleanHostname === 'fasttify.com' || cleanHostname.endsWith('.fasttify.com')
 
       if (isFasttifyDomain || isProduction) {
         // Lista blanca de dominios permitidos en producción
@@ -87,7 +91,13 @@ export async function middleware(request: NextRequest) {
 
     // Manejar dominios personalizados (que no son subdominios de fasttify.com)
     const cleanHostname = hostname.split(':')[0]
-    if (!cleanHostname.includes('fasttify.com') && !cleanHostname.includes('localhost')) {
+
+    // Validación segura para detectar dominios personalizados
+    const isFasttifyDomain =
+      cleanHostname === 'fasttify.com' || cleanHostname.endsWith('.fasttify.com')
+    const isLocalhost = cleanHostname === 'localhost' || cleanHostname.startsWith('localhost:')
+
+    if (!isFasttifyDomain && !isLocalhost) {
       // Es un dominio personalizado
       // NO reescribir rutas de assets - dejar que la API las maneje
       if (path.startsWith('/assets/')) {
