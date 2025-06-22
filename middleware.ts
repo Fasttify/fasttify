@@ -14,6 +14,15 @@ export async function middleware(request: NextRequest) {
     ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
     : request.headers.get('host') || ''
 
+  // DEBUG: Log de headers importantes
+  console.log('🔗 Headers debug:', {
+    host: request.headers.get('host'),
+    'x-forwarded-host': request.headers.get('x-forwarded-host'),
+    'cf-connecting-ip': request.headers.get('cf-connecting-ip'),
+    resolvedHostname: hostname,
+    path,
+  })
+
   // Configuración de dominios
   const isProduction = process.env.APP_ENV === 'production'
 
@@ -99,6 +108,8 @@ export async function middleware(request: NextRequest) {
 
     if (!isFasttifyDomain && !isLocalhost) {
       // Es un dominio personalizado
+      console.log('🌐 Custom domain detected:', cleanHostname)
+
       // NO reescribir rutas de assets - dejar que la API las maneje
       if (path.startsWith('/assets/')) {
         return NextResponse.next()
@@ -112,6 +123,7 @@ export async function middleware(request: NextRequest) {
         url.searchParams.set('path', path)
       }
 
+      console.log('🔄 Rewriting to:', url.pathname, url.searchParams.toString())
       return NextResponse.rewrite(url)
     }
   }
