@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Page,
   Layout,
@@ -23,13 +23,30 @@ import {
 
 import { ChangeDomainDialog } from '@/app/store/components/domains/components/ChangeDomainDialog'
 import { EditStoreProfileDialog } from '@/app/store/components/domains/components/EditStoreProfileDialog'
+import { CustomDomainDialog } from '@/app/store/components/domains/components/CustomDomainDialog'
+import { useCustomDomain } from '@/app/store/hooks/api/useCustomDomain'
 import useStoreDataStore from '@/context/core/storeDataStore'
 
 export function DomainManagement() {
   const { currentStore, isLoading } = useStoreDataStore()
   const [openChangeDomainDialog, setOpenChangeDomainDialog] = useState(false)
   const [openEditProfileDialog, setOpenEditProfileDialog] = useState(false)
+  const [openCustomDomainDialog, setOpenCustomDomainDialog] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+
+  const { status: customDomainStatus, getCustomDomainStatus } = useCustomDomain(
+    currentStore?.storeId || ''
+  )
+
+  // Cargar estado del dominio personalizado al inicio
+  const [customDomainLoaded, setCustomDomainLoaded] = useState(false)
+
+  useEffect(() => {
+    if (currentStore?.storeId && !customDomainLoaded) {
+      getCustomDomainStatus()
+      setCustomDomainLoaded(true)
+    }
+  }, [currentStore?.storeId, customDomainLoaded, getCustomDomainStatus])
 
   if (isLoading) {
     return <Loading />
@@ -78,7 +95,9 @@ export function DomainManagement() {
             <LegacyCard.Section>
               <ButtonGroup>
                 <Button variant="primary">Comprar dominio</Button>
-                <Button>Conectar dominio existente</Button>
+                <Button onClick={() => setOpenCustomDomainDialog(true)}>
+                  Conectar dominio existente
+                </Button>
               </ButtonGroup>
             </LegacyCard.Section>
           </LegacyCard>
@@ -124,6 +143,48 @@ export function DomainManagement() {
                 autoComplete="off"
               />
             </LegacyCard.Section>
+
+            {/* Dominio personalizado (si existe) */}
+            {customDomainStatus?.hasCustomDomain && (
+              <LegacyCard.Section>
+                <LegacyStack distribution="equalSpacing" alignment="center">
+                  <LegacyStack alignment="center">
+                    <Icon source={GlobeIcon} tone="base" />
+                    <LegacyStack vertical spacing="none">
+                      <Text as="p">{customDomainStatus.domain}</Text>
+                      <Text as="p" tone="subdued">
+                        Dominio personalizado
+                      </Text>
+                    </LegacyStack>
+                  </LegacyStack>
+                  <Badge
+                    tone={
+                      customDomainStatus.status === 'active'
+                        ? 'success'
+                        : customDomainStatus.status === 'pending'
+                          ? 'warning'
+                          : 'critical'
+                    }
+                    size="small"
+                  >
+                    {customDomainStatus.status === 'active'
+                      ? 'Activo'
+                      : customDomainStatus.status === 'pending'
+                        ? 'Pendiente'
+                        : 'Error'}
+                  </Badge>
+                </LegacyStack>
+                {customDomainStatus.status === 'pending' && (
+                  <Box paddingBlockStart="200" paddingInlineStart="400">
+                    <Text as="p" tone="subdued">
+                      Esperando configuración DNS. Revisa las instrucciones de configuración.
+                    </Text>
+                  </Box>
+                )}
+              </LegacyCard.Section>
+            )}
+
+            {/* Subdominio de fasttify.com */}
             <LegacyCard.Section>
               <LegacyStack distribution="equalSpacing" alignment="center">
                 <LegacyStack alignment="center">
@@ -131,7 +192,9 @@ export function DomainManagement() {
                   <LegacyStack vertical spacing="none">
                     <Text as="p">{currentStore?.customDomain}</Text>
                     <Text as="p" tone="subdued">
-                      Dominio predeterminado
+                      {customDomainStatus?.hasCustomDomain
+                        ? 'Dominio de respaldo'
+                        : 'Dominio predeterminado'}
                     </Text>
                   </LegacyStack>
                 </LegacyStack>
@@ -163,6 +226,15 @@ export function DomainManagement() {
           storeName: currentStore?.storeName,
           contactEmail: currentStore?.contactEmail || '',
           contactPhone: currentStore?.contactPhone?.toString() || '',
+        }}
+      />
+
+      <CustomDomainDialog
+        open={openCustomDomainDialog}
+        onOpenChange={setOpenCustomDomainDialog}
+        storeId={currentStore?.storeId || ''}
+        onDomainUpdated={() => {
+          getCustomDomainStatus()
         }}
       />
     </Page>

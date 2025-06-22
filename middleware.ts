@@ -9,22 +9,10 @@ import { handleCollectionOwnershipMiddleware } from './middlewares/ownership/col
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
-  // DEBUG: Mostrar todos los headers de Cloudflare
-  console.log('=== MIDDLEWARE DEBUG ===')
-  console.log('Path:', path)
-  console.log('Headers:')
-  console.log('- host:', request.headers.get('host'))
-  console.log('- x-forwarded-host:', request.headers.get('x-forwarded-host'))
-  console.log('- cf-connecting-ip:', request.headers.get('cf-connecting-ip'))
-  console.log('- cf-ray:', request.headers.get('cf-ray'))
-  console.log('- x-forwarded-proto:', request.headers.get('x-forwarded-proto'))
-
   // Obtener el hostname real, considerando proxy de Cloudflare
   const hostname = request.headers.get('cf-connecting-ip')
     ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
     : request.headers.get('host') || ''
-
-  console.log('Final hostname:', hostname)
 
   // Configuración de dominios
   const isProduction = process.env.APP_ENV === 'production'
@@ -94,6 +82,26 @@ export async function middleware(request: NextRequest) {
         // La ruta ya tiene el prefijo correcto
         return NextResponse.next()
       }
+      return NextResponse.rewrite(url)
+    }
+
+    // Manejar dominios personalizados (que no son subdominios de fasttify.com)
+    const cleanHostname = hostname.split(':')[0]
+    if (!cleanHostname.includes('fasttify.com') && !cleanHostname.includes('localhost')) {
+      // Es un dominio personalizado
+      // NO reescribir rutas de assets - dejar que la API las maneje
+      if (path.startsWith('/assets/')) {
+        return NextResponse.next()
+      }
+
+      const url = request.nextUrl.clone()
+
+      // Para dominios personalizados, usar el dominio completo como identificador
+      url.pathname = `/${cleanHostname}`
+      if (path !== '/') {
+        url.searchParams.set('path', path)
+      }
+
       return NextResponse.rewrite(url)
     }
   }

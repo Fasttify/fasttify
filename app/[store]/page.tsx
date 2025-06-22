@@ -60,11 +60,6 @@ export default async function StorePage({ params, searchParams }: StorePageProps
   const { store } = resolvedParams
   const path = resolvedSearchParams.path || '/'
 
-  // DEBUG: Logging para Cloudflare
-  console.log('=== CLOUDFLARE DEBUG ===')
-  console.log('Store param:', store)
-  console.log('Path:', path)
-
   // Validar que no sea una ruta de asset
   if (isAssetPath(path)) {
     notFound()
@@ -74,7 +69,6 @@ export default async function StorePage({ params, searchParams }: StorePageProps
     // Resolver dominio completo - usar el store name del parámetro
     // El middleware ya debería haber procesado esto correctamente
     const domain = `${store}.fasttify.com`
-    console.log('Resolved domain:', domain)
 
     // Renderizar página usando el sistema con caché temporal
     const result = await getCachedRenderResult(domain, path)
