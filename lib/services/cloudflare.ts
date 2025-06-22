@@ -52,12 +52,10 @@ class CloudflareService {
   private readonly apiToken: string
   private readonly zoneId: string
   private readonly baseUrl = 'https://api.cloudflare.com/client/v4'
-  private readonly amplifyOrigin: string
 
   constructor() {
     this.apiToken = process.env.CLOUDFLARE_API_TOKEN!
     this.zoneId = process.env.CLOUDFLARE_ZONE_ID!
-    this.amplifyOrigin = process.env.CLIENT_DOMAIN!
 
     if (!this.apiToken || !this.zoneId) {
       throw new Error('CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID must be set')
@@ -105,7 +103,6 @@ class CloudflareService {
             tls_1_3: 'on',
           },
         },
-        custom_origin_server: this.amplifyOrigin,
       }),
     })
 
