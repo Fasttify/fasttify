@@ -66,9 +66,9 @@ export default async function StorePage({ params, searchParams }: StorePageProps
   }
 
   try {
-    // Resolver dominio completo - usar el store name del parámetro
+    // Resolver dominio completo - detectar el tipo de dominio
     // El middleware ya debería haber procesado esto correctamente
-    const domain = `${store}.fasttify.com`
+    const domain = store.includes('.') ? store : `${store}.fasttify.com`
 
     // Renderizar página usando el sistema con caché temporal
     const result = await getCachedRenderResult(domain, path)
@@ -163,7 +163,7 @@ export async function generateMetadata({
   }
 
   try {
-    const domain = `${store}.fasttify.com`
+    const domain = store.includes('.') ? store : `${store}.fasttify.com`
 
     // Usar el cache global para obtener el resultado completo
     const result = await getCachedRenderResult(domain, path)
