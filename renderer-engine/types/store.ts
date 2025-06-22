@@ -15,7 +15,10 @@ export interface Store {
   contactEmail?: string
   contactPhone?: number
   contactName?: string
-  customDomain: string
+  customDomain?: string
+  customDomainStatus?: 'pending' | 'active' | 'failed' | 'inactive'
+  cloudflareHostnameId?: string
+  customDomainVerifiedAt?: string
   onboardingCompleted: boolean
   wompiConfig?: string // JSON string
   mercadoPagoConfig?: string // JSON string
