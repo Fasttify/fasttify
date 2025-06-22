@@ -154,7 +154,7 @@ export function CustomDomainDialog({
                       Valor:
                     </Text>
                     <Text as="span" breakWord>
-                      proxy.fasttify.com
+                      {process.env.NEXT_PUBLIC_CLIENT_DOMAIN}
                     </Text>
                   </LegacyStack>
                 </LegacyStack>
