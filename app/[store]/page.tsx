@@ -60,6 +60,9 @@ export default async function StorePage({ params, searchParams }: StorePageProps
   const { store } = resolvedParams
   const path = resolvedSearchParams.path || '/'
 
+  // DEBUG: Log para verificar que llegamos aquí
+  console.log('🚀 StorePage called with:', { store, path })
+
   // Validar que no sea una ruta de asset
   if (isAssetPath(path)) {
     notFound()
@@ -69,6 +72,9 @@ export default async function StorePage({ params, searchParams }: StorePageProps
     // Resolver dominio completo - detectar el tipo de dominio
     // El middleware ya debería haber procesado esto correctamente
     const domain = store.includes('.') ? store : `${store}.fasttify.com`
+
+    // DEBUG: Log del dominio que vamos a buscar
+    console.log('🔍 Looking for domain:', domain)
 
     // Renderizar página usando el sistema con caché temporal
     const result = await getCachedRenderResult(domain, path)
