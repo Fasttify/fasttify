@@ -9,27 +9,10 @@ import { handleCollectionOwnershipMiddleware } from './middlewares/ownership/col
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
-  // Primero verificar si es un dominio personalizado detectado por CloudFront Function
-  const xCustomDomain = request.headers.get('x-custom-domain')
-  const xOriginalHost = request.headers.get('x-original-host')
-
-  // DEBUG: Log de headers importantes
-  console.log('🔗 Headers debug:', {
-    host: request.headers.get('host'),
-    'x-original-host': xOriginalHost,
-    'x-custom-domain': xCustomDomain,
-    'x-forwarded-host': request.headers.get('x-forwarded-host'),
-    'cf-connecting-ip': request.headers.get('cf-connecting-ip'),
-    path,
-  })
-
-  // Si CloudFront Function detectó dominio personalizado, usar ese hostname
-  const hostname =
-    xCustomDomain === 'true' && xOriginalHost
-      ? xOriginalHost
-      : request.headers.get('cf-connecting-ip')
-        ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
-        : request.headers.get('host') || ''
+  // Obtener el hostname real, considerando proxy de Cloudflare
+  const hostname = request.headers.get('cf-connecting-ip')
+    ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
+    : request.headers.get('host') || ''
 
   // Configuración de dominios
   const isProduction = process.env.APP_ENV === 'production'
@@ -116,8 +99,6 @@ export async function middleware(request: NextRequest) {
 
     if (!isFasttifyDomain && !isLocalhost) {
       // Es un dominio personalizado
-      console.log('🌐 Custom domain detected:', cleanHostname)
-
       // NO reescribir rutas de assets - dejar que la API las maneje
       if (path.startsWith('/assets/')) {
         return NextResponse.next()
@@ -131,7 +112,6 @@ export async function middleware(request: NextRequest) {
         url.searchParams.set('path', path)
       }
 
-      console.log('🔄 Rewriting to:', url.pathname, url.searchParams.toString())
       return NextResponse.rewrite(url)
     }
   }
