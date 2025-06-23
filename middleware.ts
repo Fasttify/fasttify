@@ -9,10 +9,15 @@ import { handleCollectionOwnershipMiddleware } from './middlewares/ownership/col
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
-  // Obtener el hostname real, considerando proxy de Cloudflare
-  const hostname = request.headers.get('cf-connecting-ip')
-    ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
-    : request.headers.get('host') || ''
+  // Primero verificar si hay un dominio original de CloudFront Multi-Tenant
+  const xOriginalHost = request.headers.get('x-original-host')
+
+  // Obtener el hostname real, priorizando x-original-host para dominios personalizados
+  const hostname =
+    xOriginalHost ||
+    (request.headers.get('cf-connecting-ip')
+      ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
+      : request.headers.get('host') || '')
 
   // Configuración de dominios
   const isProduction = process.env.APP_ENV === 'production'
