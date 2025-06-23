@@ -9,19 +9,27 @@ import { handleCollectionOwnershipMiddleware } from './middlewares/ownership/col
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
-  // Obtener el hostname real, considerando proxy de Cloudflare
-  const hostname = request.headers.get('cf-connecting-ip')
-    ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
-    : request.headers.get('host') || ''
+  // Primero verificar si es un dominio personalizado detectado por CloudFront Function
+  const xCustomDomain = request.headers.get('x-custom-domain')
+  const xOriginalHost = request.headers.get('x-original-host')
 
   // DEBUG: Log de headers importantes
   console.log('🔗 Headers debug:', {
     host: request.headers.get('host'),
+    'x-original-host': xOriginalHost,
+    'x-custom-domain': xCustomDomain,
     'x-forwarded-host': request.headers.get('x-forwarded-host'),
     'cf-connecting-ip': request.headers.get('cf-connecting-ip'),
-    resolvedHostname: hostname,
     path,
   })
+
+  // Si CloudFront Function detectó dominio personalizado, usar ese hostname
+  const hostname =
+    xCustomDomain === 'true' && xOriginalHost
+      ? xOriginalHost
+      : request.headers.get('cf-connecting-ip')
+        ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
+        : request.headers.get('host') || ''
 
   // Configuración de dominios
   const isProduction = process.env.APP_ENV === 'production'
