@@ -26,23 +26,26 @@ export class ErrorRenderer {
       // Renderizar el error con Liquid
       const html = await liquidEngine.render(template, context, `error_${error.type}`)
 
+      const storeName = this.extractStoreName(options.domain)
+      const title = this.getErrorTitle(error.type, storeName)
+
       return {
         html,
         metadata: {
           icons: options.store?.favicon || '/favicon.ico',
-          title: this.getErrorTitle(error.type),
+          title,
           description: this.getErrorDescription(error.type),
           openGraph: {
-            title: this.getErrorTitle(error.type),
+            title,
             description: this.getErrorDescription(error.type),
             url: options.domain + (options.path || ''),
             type: 'website',
-            site_name: options.store?.name || 'Tienda Online',
+            site_name: storeName,
           },
           schema: {
             '@context': 'https://schema.org',
             '@type': 'WebPage',
-            name: this.getErrorTitle(error.type),
+            name: title,
             description: this.getErrorDescription(error.type),
           },
         },
@@ -60,6 +63,8 @@ export class ErrorRenderer {
    * Crea el contexto para renderizar errores
    */
   private createErrorContext(error: TemplateError, options: ErrorRenderOptions) {
+    const storeName = this.extractStoreName(options.domain)
+
     return {
       error: {
         type: error.type,
@@ -71,12 +76,12 @@ export class ErrorRenderer {
         details: error.details,
       },
       store: options.store || {
-        name: this.extractStoreName(options.domain),
+        name: storeName,
         domain: options.domain,
         url: `https://${options.domain}`,
       },
       page: {
-        title: this.getErrorTitle(error.type),
+        title: this.getErrorTitle(error.type, storeName),
         template: 'error',
         url: options.domain + (options.path || ''),
       },
@@ -1338,16 +1343,18 @@ export class ErrorRenderer {
   /**
    * Obtiene títulos para cada tipo de error
    */
-  private getErrorTitle(errorType: TemplateError['type']): string {
+  private getErrorTitle(errorType: TemplateError['type'], storeName?: string): string {
+    const storeNamePart = storeName ? ` | ${storeName}` : ''
+
     const titles = {
-      STORE_NOT_FOUND: 'Tienda No Encontrada - Fasttify',
-      TEMPLATE_NOT_FOUND: 'Tienda en Construcción - Fasttify',
-      RENDER_ERROR: 'Error Temporal - Fasttify',
-      DATA_ERROR: 'Error de Conexión - Fasttify',
-      STORE_NOT_ACTIVE: 'Tienda No Activa - Fasttify',
+      STORE_NOT_FOUND: `Tienda No Encontrada${storeNamePart} - Fasttify`,
+      TEMPLATE_NOT_FOUND: `${storeName || 'Tienda'} en Construcción - Fasttify`,
+      RENDER_ERROR: `${storeName || 'Tienda'} - Error Temporal - Fasttify`,
+      DATA_ERROR: `${storeName || 'Tienda'} - Error de Conexión - Fasttify`,
+      STORE_NOT_ACTIVE: `${storeName || 'Tienda'} No Activa - Fasttify`,
     }
 
-    return titles[errorType] || 'Error - Fasttify'
+    return titles[errorType] || `${storeName || 'Tienda'} - Error - Fasttify`
   }
 
   /**
@@ -1367,11 +1374,20 @@ export class ErrorRenderer {
   }
 
   /**
-   * Extrae el nombre de la tienda del dominio
+   * Extrae el nombre de la tienda del dominio de forma más amigable
    */
   private extractStoreName(domain: string): string {
+    // Si es un dominio personalizado (tienda.com, etc), usar el nombre del dominio
+    if (domain.includes('.') && !domain.endsWith('.fasttify.com')) {
+      // Para dominios personalizados, usar todo el dominio sin el TLD
+      const withoutTLD = domain.split('.').slice(0, -1).join('.')
+      return withoutTLD.charAt(0).toUpperCase() + withoutTLD.slice(1)
+    }
+
+    // Para subdominios de fasttify.com, usar solo la primera parte
     const parts = domain.split('.')
-    return parts[0] || domain
+    const storeName = parts[0] || domain
+    return storeName.charAt(0).toUpperCase() + storeName.slice(1)
   }
 
   /**
