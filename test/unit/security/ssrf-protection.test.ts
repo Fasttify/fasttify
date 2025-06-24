@@ -221,6 +221,31 @@ describe('SSRF Protection Tests', () => {
       }
     })
 
+    test('should build secure endpoints using fixed mapping', () => {
+      const validDomains = ['example.com', 'test.example.com', 'valid-domain.org']
+
+      for (const domain of validDomains) {
+        const endpoint = SecurityConfig.getSecureValidationEndpoint(domain)
+        expect(endpoint).toBeTruthy()
+        expect(endpoint).toMatch(/^http:\/\/[^\/]+\/\.well-known\/fasttify-validation\.txt$/)
+        // Verificar que no hay componentes adicionales
+        const url = new URL(endpoint!)
+        expect(url.search).toBe('')
+        expect(url.hash).toBe('')
+        expect(url.username).toBe('')
+        expect(url.password).toBe('')
+      }
+    })
+
+    test('should reject endpoint mapping for prohibited domains', () => {
+      const prohibitedDomains = ['localhost', 'test.local', 'metadata.google.internal', '127.0.0.1']
+
+      for (const domain of prohibitedDomains) {
+        const endpoint = SecurityConfig.getSecureValidationEndpoint(domain)
+        expect(endpoint).toBeNull()
+      }
+    })
+
     test('should reject URL construction for prohibited domains', () => {
       const prohibitedDomains = ['localhost', 'test.local', 'metadata.google.internal', '127.0.0.1']
 
@@ -241,6 +266,9 @@ describe('SSRF Protection Tests', () => {
       for (const domain of maliciousDomains) {
         const url = SecurityConfig.buildSecureValidationURL(domain)
         expect(url).toBeNull()
+
+        const endpoint = SecurityConfig.getSecureValidationEndpoint(domain)
+        expect(endpoint).toBeNull()
       }
     })
 

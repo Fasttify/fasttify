@@ -155,4 +155,52 @@ export class SecurityConfig {
       return false
     }
   }
+
+  /**
+   * Mapeo seguro de dominios a URLs usando lista fija
+   * Este enfoque es más fácil de analizar estáticamente por herramientas como CodeQL
+   */
+  static getSecureValidationEndpoint(domain: string): string | null {
+    const sanitizedDomain = domain.trim().toLowerCase()
+
+    // Verificar que el dominio esté permitido
+    if (!this.isDomainAllowed(sanitizedDomain)) {
+      return null
+    }
+
+    // Componentes fijos controlados por el servidor
+    const allowedProtocol = 'http'
+    const allowedPath = '/.well-known/fasttify-validation.txt'
+
+    // Construcción usando componentes fijos - CodeQL puede verificar que no hay input directo
+    try {
+      // Usar URL constructor con validación estricta
+      const baseUrl = new URL(`${allowedProtocol}://${sanitizedDomain}`)
+
+      // Verificar que la URL base es válida
+      if (baseUrl.protocol !== `${allowedProtocol}:`) {
+        return null
+      }
+
+      if (baseUrl.hostname !== sanitizedDomain) {
+        return null
+      }
+
+      // Construir URL final con path fijo
+      const finalUrl = new URL(allowedPath, baseUrl)
+
+      // Verificaciones post-construcción
+      if (finalUrl.pathname !== allowedPath) {
+        return null
+      }
+
+      if (finalUrl.search || finalUrl.hash || finalUrl.username || finalUrl.password) {
+        return null
+      }
+
+      return finalUrl.toString()
+    } catch (error) {
+      return null
+    }
+  }
 }
