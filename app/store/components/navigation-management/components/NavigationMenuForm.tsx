@@ -12,6 +12,7 @@ import {
   Text,
   Divider,
   Banner,
+  Spinner,
 } from '@shopify/polaris'
 import {
   useNavigationMenus,
@@ -256,7 +257,8 @@ export function NavigationMenuForm({
   if (isLoadingMenu && menuId) {
     return (
       <Card>
-        <div className="p-4">
+        <div className="p-4 flex justify-center items-center gap-1">
+          <Spinner size="small" />
           <Text variant="bodyMd" as="p">
             Cargando menú...
           </Text>
