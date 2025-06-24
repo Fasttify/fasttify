@@ -202,73 +202,12 @@ export class CustomDomainService {
   /**
    * Eliminar dominio personalizado completamente
    */
-  async deleteCustomDomain(tenantId: string, domain?: string): Promise<boolean> {
+  async deleteCustomDomain(tenantId: string): Promise<boolean> {
     try {
-      let success = true
-      const errors: string[] = []
-
-      // 1. Obtener información del tenant antes de eliminarlo
-      let tenantInfo = null
-      try {
-        tenantInfo = await this.tenantManager.getTenantStatus(tenantId)
-      } catch (error) {
-        // Si no podemos obtener info del tenant, continuar
-        SecureLogger.secureLog('warn', 'Could not get tenant info for %s:', tenantId, error)
-      }
-
-      // 2. Eliminar tenant de CloudFront Multi-Tenant
-      try {
-        const tenantDeleted = await this.tenantManager.deleteTenant(tenantId)
-        if (!tenantDeleted) {
-          errors.push('Failed to delete CloudFront tenant')
-          success = false
-        }
-      } catch (error) {
-        SecureLogger.secureLog('error', 'Error deleting CloudFront tenant %s:', tenantId, error)
-        errors.push(
-          `CloudFront tenant deletion failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-        )
-        success = false
-      }
-
-      // 3. Eliminar certificado SSL si tenemos información del dominio
-      if (domain) {
-        try {
-          const certificateDeleted = await this.certificateManager.deleteCertificate(domain)
-          if (!certificateDeleted) {
-            errors.push('Failed to delete SSL certificate')
-            // No marcamos como fallo total porque el tenant principal se eliminó
-          }
-        } catch (error) {
-          SecureLogger.secureLog('error', 'Error deleting certificate for %s:', domain, error)
-          errors.push(
-            `Certificate deletion failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-          )
-        }
-      }
-
-      // 4. Limpiar validación de dominio si está disponible
-      if (domain) {
-        try {
-          this.domainValidator.clearDomainValidation(domain)
-        } catch (error) {
-          SecureLogger.secureLog('warn', 'Could not clear domain validation for %s:', domain, error)
-        }
-      }
-
-      if (errors.length > 0) {
-        SecureLogger.secureLog(
-          'warn',
-          'Custom domain deletion completed with warnings for %s: %s',
-          tenantId,
-          errors.join(', ')
-        )
-      }
-
-      return success
+      return await this.tenantManager.deleteTenant(tenantId)
     } catch (error) {
-      SecureLogger.secureLog('error', 'Error deleting custom domain %s:', tenantId, error)
-      return false
+      SecureLogger.error('Error deleting custom domain:', error)
+      throw error
     }
   }
 

@@ -201,20 +201,9 @@ export class CloudFrontTenantManager {
    */
   async deleteTenant(tenantId: string): Promise<boolean> {
     try {
-      // First get the tenant to obtain the ETag
-      const getTenantCommand = new GetDistributionTenantCommand({
-        Identifier: tenantId,
-      } as any)
-
-      const getTenantResult = await this.cloudFrontClient.send(getTenantCommand)
-
-      if (!getTenantResult.DistributionTenant) {
-        throw new Error('Tenant not found')
-      }
-
       const command = new DeleteDistributionTenantCommand({
         Id: tenantId,
-        IfMatch: (getTenantResult as any).ETag || '*',
+        IfMatch: '*', // Requerido por la API
       })
 
       await this.cloudFrontClient.send(command)
