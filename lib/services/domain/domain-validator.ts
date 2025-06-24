@@ -226,13 +226,6 @@ export class DomainValidator {
   }
 
   /**
-   * Limpiar validación de un dominio específico
-   */
-  clearDomainValidation(domain: string): void {
-    this.validatedDomains.delete(domain)
-  }
-
-  /**
    * Limpiar dominios validados (para testing)
    */
   clearValidatedDomains(): void {

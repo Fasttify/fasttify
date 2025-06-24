@@ -38,45 +38,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid validation token format' }, { status: 400 })
     }
 
-    // Verificar validación del dominio y preparar certificado SSL con reintentos de 5 segundos
-    const startTime = Date.now()
-    const maxDuration = 5000 // 5 segundos
-    const retryInterval = 1000 // 1 segundo entre intentos
+    // Verificar validación del dominio y preparar certificado SSL
+    const result = await customDomainService.verifyDomainValidation(domain, validationToken)
 
-    let result
-    let lastError
-
-    // Verificar múltiples veces durante 5 segundos
-    while (Date.now() - startTime < maxDuration) {
-      try {
-        result = await customDomainService.verifyDomainValidation(domain, validationToken)
-
-        // Si la verificación fue exitosa, salir del loop
-        if (result.success) {
-          break
-        }
-
-        lastError = result.error
-      } catch (error) {
-        lastError = error instanceof Error ? error.message : 'Unknown error'
-      }
-
-      // Esperar antes del siguiente intento si aún hay tiempo
-      if (Date.now() - startTime < maxDuration - retryInterval) {
-        await new Promise(resolve => setTimeout(resolve, retryInterval))
-      }
-    }
-
-    if (!result?.success) {
-      SecureLogger.info(
-        'Domain validation failed for %s after multiple attempts: %s',
-        domain,
-        lastError
-      )
+    if (!result.success) {
+      SecureLogger.info('Domain validation failed for %s: %s', domain, result.error)
       return NextResponse.json(
         {
           success: false,
-          error: lastError || 'Domain validation failed after multiple attempts',
+          error: result.error,
           suggestions: [
             'Verifica que el registro DNS TXT esté configurado correctamente',
             'Asegúrate de que el archivo HTTP esté accesible',

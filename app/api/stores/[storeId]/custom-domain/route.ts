@@ -172,41 +172,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Eliminar tenant de CloudFront si existe con reintentos de 5 segundos
+    // Eliminar tenant de CloudFront si existe
     if (store.cloudFrontTenantId) {
-      const startTime = Date.now()
-      const maxDuration = 5000 // 5 segundos
-      const retryInterval = 1000 // 1 segundo entre intentos
-
-      let lastError
-      let success = false
-
-      // Intentar eliminar múltiples veces durante 5 segundos
-      while (Date.now() - startTime < maxDuration && !success) {
-        try {
-          await customDomainService.deleteCustomDomain(
-            store.cloudFrontTenantId,
-            store.customDomain || undefined
-          )
-          success = true
-        } catch (error) {
-          lastError = error instanceof Error ? error.message : 'Unknown error'
-
-          // Esperar antes del siguiente intento si aún hay tiempo
-          if (Date.now() - startTime < maxDuration - retryInterval) {
-            await new Promise(resolve => setTimeout(resolve, retryInterval))
-          }
-        }
-      }
-
-      // Si no se pudo eliminar después de varios intentos, continuar de todas formas
-      // pero loggear el error
-      if (!success) {
-        console.warn(
-          `Failed to delete CloudFront tenant ${store.cloudFrontTenantId} after multiple attempts:`,
-          lastError
-        )
-      }
+      await customDomainService.deleteCustomDomain(store.cloudFrontTenantId)
     }
 
     // Actualizar la tienda en la base de datos
@@ -254,42 +222,11 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Verificar estado en CloudFront con reintentos de 5 segundos
-    const startTime = Date.now()
-    const maxDuration = 5000 // 5 segundos
-    const retryInterval = 1000 // 1 segundo entre intentos
+    // Verificar estado en CloudFront
+    const tenantStatus = await customDomainService.getCustomDomainStatus(store.cloudFrontTenantId)
 
-    let tenantStatus, dnsStatus
-    let lastError
-
-    // Verificar múltiples veces durante 5 segundos
-    while (Date.now() - startTime < maxDuration) {
-      try {
-        tenantStatus = await customDomainService.getCustomDomainStatus(store.cloudFrontTenantId)
-        dnsStatus = await customDomainService.verifyDNSConfiguration(store.customDomain)
-
-        // Si obtenemos respuestas válidas, salir del loop
-        if (tenantStatus && dnsStatus) {
-          break
-        }
-      } catch (error) {
-        lastError = error instanceof Error ? error.message : 'Unknown error'
-      }
-
-      // Esperar antes del siguiente intento si aún hay tiempo
-      if (Date.now() - startTime < maxDuration - retryInterval) {
-        await new Promise(resolve => setTimeout(resolve, retryInterval))
-      }
-    }
-
-    if (!tenantStatus || !dnsStatus) {
-      return NextResponse.json(
-        {
-          error: lastError || 'Unable to verify domain status after multiple attempts',
-        },
-        { status: 500 }
-      )
-    }
+    // Verificar DNS
+    const dnsStatus = await customDomainService.verifyDNSConfiguration(store.customDomain)
 
     let newStatus = store.customDomainStatus
     let verifiedAt = store.customDomainVerifiedAt
