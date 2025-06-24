@@ -172,9 +172,38 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Eliminar tenant de CloudFront si existe
+    // Eliminar tenant de CloudFront si existe con reintentos de 5 segundos
     if (store.cloudFrontTenantId) {
-      await customDomainService.deleteCustomDomain(store.cloudFrontTenantId)
+      const startTime = Date.now()
+      const maxDuration = 5000 // 5 segundos
+      const retryInterval = 1000 // 1 segundo entre intentos
+
+      let lastError
+      let success = false
+
+      // Intentar eliminar múltiples veces durante 5 segundos
+      while (Date.now() - startTime < maxDuration && !success) {
+        try {
+          await customDomainService.deleteCustomDomain(store.cloudFrontTenantId)
+          success = true
+        } catch (error) {
+          lastError = error instanceof Error ? error.message : 'Unknown error'
+
+          // Esperar antes del siguiente intento si aún hay tiempo
+          if (Date.now() - startTime < maxDuration - retryInterval) {
+            await new Promise(resolve => setTimeout(resolve, retryInterval))
+          }
+        }
+      }
+
+      // Si no se pudo eliminar después de varios intentos, continuar de todas formas
+      // pero loggear el error
+      if (!success) {
+        console.warn(
+          `Failed to delete CloudFront tenant ${store.cloudFrontTenantId} after multiple attempts:`,
+          lastError
+        )
+      }
     }
 
     // Actualizar la tienda en la base de datos

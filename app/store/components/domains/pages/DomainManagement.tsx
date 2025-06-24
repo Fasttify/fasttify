@@ -12,6 +12,7 @@ import {
   LegacyStack,
   TextField,
   Loading,
+  Modal,
 } from '@shopify/polaris'
 import {
   SearchIcon,
@@ -20,12 +21,14 @@ import {
   MarketsIcon,
   DomainLandingPageIcon,
   ClipboardIcon,
+  DeleteIcon,
 } from '@shopify/polaris-icons'
 
 import { ChangeDomainDialog } from '@/app/store/components/domains/components/ChangeDomainDialog'
 import { EditStoreProfileDialog } from '@/app/store/components/domains/components/EditStoreProfileDialog'
 import { AutomatedCustomDomainDialog } from '@/app/store/components/domains/components/AutomatedCustomDomainDialog'
 import { useCustomDomain } from '@/app/store/hooks/api/useCustomDomain'
+import { useToast } from '@/app/store/context/ToastContext'
 import useStoreDataStore from '@/context/core/storeDataStore'
 
 export function DomainManagement() {
@@ -33,13 +36,18 @@ export function DomainManagement() {
   const [openChangeDomainDialog, setOpenChangeDomainDialog] = useState(false)
   const [openEditProfileDialog, setOpenEditProfileDialog] = useState(false)
   const [openCustomDomainDialog, setOpenCustomDomainDialog] = useState(false)
+  const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
   const {
     status: customDomainStatus,
     getCustomDomainStatus,
     verifyCustomDomainStatus,
+    removeCustomDomain,
+    loading: customDomainLoading,
   } = useCustomDomain(currentStore?.storeId || '')
+
+  const { showToast } = useToast()
 
   // Cargar estado del dominio personalizado al inicio
   const [customDomainLoaded, setCustomDomainLoaded] = useState(false)
@@ -62,6 +70,22 @@ export function DomainManagement() {
       console.error('Error verifying domain status:', error)
     } finally {
       setIsVerifying(false)
+    }
+  }
+
+  const handleDeleteCustomDomain = async () => {
+    try {
+      const success = await removeCustomDomain()
+      if (success) {
+        showToast('Dominio personalizado eliminado exitosamente')
+        await getCustomDomainStatus()
+        setOpenDeleteConfirmation(false)
+      } else {
+        showToast('Error al eliminar el dominio personalizado', true)
+      }
+    } catch (error) {
+      console.error('Error deleting custom domain:', error)
+      showToast('Error inesperado al eliminar el dominio', true)
     }
   }
 
@@ -176,22 +200,32 @@ export function DomainManagement() {
                         </Text>
                       </LegacyStack>
                     </LegacyStack>
-                    <Badge
-                      tone={
-                        customDomainStatus.status === 'active'
-                          ? 'success'
+                    <LegacyStack alignment="center" spacing="tight">
+                      <Badge
+                        tone={
+                          customDomainStatus.status === 'active'
+                            ? 'success'
+                            : customDomainStatus.status === 'pending'
+                              ? 'warning'
+                              : 'critical'
+                        }
+                        size="small"
+                      >
+                        {customDomainStatus.status === 'active'
+                          ? 'Activo'
                           : customDomainStatus.status === 'pending'
-                            ? 'warning'
-                            : 'critical'
-                      }
-                      size="small"
-                    >
-                      {customDomainStatus.status === 'active'
-                        ? 'Activo'
-                        : customDomainStatus.status === 'pending'
-                          ? 'Pendiente'
-                          : 'Error'}
-                    </Badge>
+                            ? 'Pendiente'
+                            : 'Error'}
+                      </Badge>
+                      <Button
+                        size="micro"
+                        variant="plain"
+                        icon={DeleteIcon}
+                        tone="critical"
+                        onClick={() => setOpenDeleteConfirmation(true)}
+                        accessibilityLabel="Eliminar dominio personalizado"
+                      />
+                    </LegacyStack>
                   </LegacyStack>
                   {customDomainStatus.status !== 'active' && (
                     <Box paddingBlockStart="200" paddingInlineStart="400">
@@ -346,6 +380,58 @@ export function DomainManagement() {
           getCustomDomainStatus()
         }}
       />
+
+      {/* Modal de confirmación para eliminar dominio */}
+      <Modal
+        open={openDeleteConfirmation}
+        onClose={() => setOpenDeleteConfirmation(false)}
+        title="¿Eliminar dominio personalizado?"
+        primaryAction={{
+          content: 'Eliminar dominio',
+          destructive: true,
+          onAction: handleDeleteCustomDomain,
+          loading: customDomainLoading,
+        }}
+        secondaryActions={[
+          {
+            content: 'Cancelar',
+            onAction: () => setOpenDeleteConfirmation(false),
+          },
+        ]}
+      >
+        <Modal.Section>
+          <LegacyStack vertical spacing="loose">
+            <Text as="p">
+              ¿Estás seguro de que deseas eliminar el dominio personalizado{' '}
+              <Text variant="bodyMd" as="span" fontWeight="semibold">
+                {customDomainStatus?.domain}
+              </Text>
+              ?
+            </Text>
+
+            <Text as="p" tone="subdued">
+              Esta acción no se puede deshacer. El dominio será desconectado de tu tienda y:
+            </Text>
+
+            <Box paddingInlineStart="400">
+              <LegacyStack vertical spacing="extraTight">
+                <Text as="p" tone="subdued">
+                  • Perderás el acceso mediante este dominio
+                </Text>
+                <Text as="p" tone="subdued">
+                  • Los visitantes no podrán acceder a tu tienda usando este dominio
+                </Text>
+                <Text as="p" tone="subdued">
+                  • Tendrás que volver a configurarlo si deseas usarlo nuevamente
+                </Text>
+                <Text as="p" tone="subdued">
+                  • Tu tienda seguirá accesible mediante tu subdominio .fasttify.com
+                </Text>
+              </LegacyStack>
+            </Box>
+          </LegacyStack>
+        </Modal.Section>
+      </Modal>
     </Page>
   )
 }
