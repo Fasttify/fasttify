@@ -14,6 +14,7 @@ import { AIGenerateButton } from '@/app/store/components/product-management/prod
 import type { PriceSuggestionResult } from '@/app/store/components/product-management/products/hooks/usePriceSuggestion'
 import type { UseFormReturn } from 'react-hook-form'
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
+import { formatPrice } from '@/app/store/components/product-management/utils/productUtils'
 
 interface PriceSuggestionPanelProps {
   form: UseFormReturn<ProductFormValues>
@@ -91,10 +92,7 @@ export function PriceSuggestionPanel({
                       Mínimo
                     </Text>
                     <Text as="p" variant="bodyLg" fontWeight="medium">
-                      {`$${Number(displayResult.minPrice || 0).toLocaleString('es-CO', {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      })}`}
+                      {formatPrice(displayResult.minPrice)}
                     </Text>
                   </BlockStack>
                 </Card>
@@ -106,10 +104,7 @@ export function PriceSuggestionPanel({
                       Sugerido
                     </Text>
                     <Text as="p" variant="headingMd">
-                      {`$${Number(displayResult.suggestedPrice || 0).toLocaleString('es-CO', {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      })}`}
+                      {formatPrice(displayResult.suggestedPrice)}
                     </Text>
                   </BlockStack>
                 </Card>
@@ -121,10 +116,7 @@ export function PriceSuggestionPanel({
                       Máximo
                     </Text>
                     <Text as="p" variant="bodyLg" fontWeight="medium">
-                      {`$${Number(displayResult.maxPrice || 0).toLocaleString('es-CO', {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      })}`}
+                      {formatPrice(displayResult.maxPrice)}
                     </Text>
                   </BlockStack>
                 </Card>

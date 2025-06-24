@@ -66,7 +66,7 @@ export class StyleTag extends Tag {
     const assetCollector = (this.liquid.options.globals as any)._assetCollector as
       | AssetCollector
       | undefined
-    const sectionId = ctx.get(['section', 'id']) as string | undefined
+    const sectionId = ctx.getSync(['section', 'id']) as string | undefined
 
     if (!assetCollector || !this.cssContent.trim()) {
       return
@@ -170,7 +170,7 @@ export class StylesheetTag extends Tag {
     const assetCollector = (this.liquid.options.globals as any)._assetCollector as
       | AssetCollector
       | undefined
-    const sectionId = ctx.get(['section', 'id']) as string | undefined
+    const sectionId = ctx.getSync(['section', 'id']) as string | undefined
 
     if (!assetCollector || !this.cssContent.trim()) {
       return

@@ -125,3 +125,18 @@ export async function handleProductCreate(
     throw error
   }
 }
+
+/**
+ * Formatea un precio a una cadena de texto con formato de moneda
+ * @param price Precio a formatear
+ * @returns Precio formateado con formato de moneda
+ */
+export function formatPrice(price: number | null | undefined): string {
+  if (price === null || price === undefined) {
+    return '$0'
+  }
+  return `$${Number(price).toLocaleString('es-CO', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}`
+}

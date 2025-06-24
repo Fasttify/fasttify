@@ -39,7 +39,7 @@ export function DomainManagement() {
     status: customDomainStatus,
     getCustomDomainStatus,
     verifyCustomDomainStatus,
-  } = useCustomDomain(currentStore?.storeId || '')
+  } = useCustomDomain(currentStore?.storeId ?? '')
 
   // Cargar estado del dominio personalizado al inicio
   const [customDomainLoaded, setCustomDomainLoaded] = useState(false)
@@ -55,8 +55,7 @@ export function DomainManagement() {
   const handleVerifyDomainStatus = async () => {
     setIsVerifying(true)
     try {
-      const result = await verifyCustomDomainStatus()
-
+      await verifyCustomDomainStatus()
       await getCustomDomainStatus()
     } catch (error) {
       console.error('Error verifying domain status:', error)
@@ -244,7 +243,7 @@ export function DomainManagement() {
                                       onClick={() =>
                                         navigator.clipboard.writeText(
                                           customDomainStatus.cloudFrontStatus?.dnsInstructions
-                                            ?.name || ''
+                                            ?.name ?? ''
                                         )
                                       }
                                     />
@@ -266,7 +265,7 @@ export function DomainManagement() {
                                       onClick={() =>
                                         navigator.clipboard.writeText(
                                           customDomainStatus.cloudFrontStatus?.dnsInstructions
-                                            ?.value || ''
+                                            ?.value ?? ''
                                         )
                                       }
                                     />
@@ -324,24 +323,24 @@ export function DomainManagement() {
       <ChangeDomainDialog
         open={openChangeDomainDialog}
         onOpenChange={setOpenChangeDomainDialog}
-        storeId={currentStore?.storeId || ''}
+        storeId={currentStore?.storeId ?? ''}
       />
 
       <EditStoreProfileDialog
         open={openEditProfileDialog}
         onOpenChange={setOpenEditProfileDialog}
-        storeId={currentStore?.storeId || ''}
+        storeId={currentStore?.storeId ?? ''}
         initialData={{
           storeName: currentStore?.storeName,
-          contactEmail: currentStore?.contactEmail || '',
-          contactPhone: currentStore?.contactPhone?.toString() || '',
+          contactEmail: currentStore?.contactEmail ?? '',
+          contactPhone: currentStore?.contactPhone?.toString() ?? '',
         }}
       />
 
       <AutomatedCustomDomainDialog
         open={openCustomDomainDialog}
         onOpenChange={setOpenCustomDomainDialog}
-        storeId={currentStore?.storeId || ''}
+        storeId={currentStore?.storeId ?? ''}
         onDomainUpdated={() => {
           getCustomDomainStatus()
         }}

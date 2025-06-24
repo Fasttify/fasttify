@@ -1,13 +1,4 @@
-import {
-  TagToken,
-  Context,
-  Emitter,
-  Tag,
-  Template,
-  TopLevelToken,
-  TokenKind,
-  Liquid,
-} from 'liquidjs'
+import { TagToken, Context, Emitter, Tag, TopLevelToken, TokenKind, Liquid } from 'liquidjs'
 
 /**
  * Tag para manejar formularios de Shopify

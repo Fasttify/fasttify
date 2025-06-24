@@ -88,12 +88,15 @@ export function useCustomDomain(storeId: string) {
         setLoading(true)
         setError(null)
 
+        // Normalizar el dominio antes de enviarlo
+        const normalizedDomain = domain.toLowerCase().trim()
+
         const response = await fetch(`/api/stores/${storeId}/custom-domain`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ customDomain: domain }),
+          body: JSON.stringify({ customDomain: normalizedDomain }),
         })
 
         if (!response.ok) {
@@ -187,33 +190,44 @@ export function useCustomDomain(storeId: string) {
   /**
    * Validar formato de dominio
    */
-  const validateDomain = useCallback((domain: string): { isValid: boolean; error?: string } => {
-    if (!domain) {
-      return { isValid: false, error: 'Domain is required' }
-    }
+  const validateDomain = useCallback(
+    (domain: string): { isValid: boolean; error?: string; normalizedDomain?: string } => {
+      if (!domain) {
+        return { isValid: false, error: 'Domain is required' }
+      }
 
-    // Regex básico para validar dominio
-    const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/
+      // Normalizar a minúsculas y limpiar espacios
+      const normalizedDomain = domain.toLowerCase().trim()
 
-    if (!domainRegex.test(domain)) {
-      return { isValid: false, error: 'Invalid domain format' }
-    }
+      // Regex básico para validar dominio - solo minúsculas
+      const domainRegex = /^[a-z0-9][a-z0-9-]{0,61}[a-z0-9](?:\.[a-z]{2,})+$/
 
-    // No permitir subdominios de fasttify.com como dominio personalizado
-    try {
-      const parsedDomain = new URL(`http://${domain}`).hostname
-      if (parsedDomain === 'fasttify.com' || parsedDomain.endsWith('.fasttify.com')) {
+      if (!domainRegex.test(normalizedDomain)) {
         return {
           isValid: false,
-          error: 'You cannot use subdomains of fasttify.com as a custom domain',
+          error: 'El dominio debe contener solo letras minúsculas, números y guiones',
+          normalizedDomain,
         }
       }
-    } catch {
-      return { isValid: false, error: 'Invalid domain format' }
-    }
 
-    return { isValid: true }
-  }, [])
+      // No permitir subdominios de fasttify.com como dominio personalizado
+      try {
+        const parsedDomain = new URL(`http://${normalizedDomain}`).hostname
+        if (parsedDomain === 'fasttify.com' || parsedDomain.endsWith('.fasttify.com')) {
+          return {
+            isValid: false,
+            error: 'No puedes usar subdominios de fasttify.com como dominio personalizado',
+            normalizedDomain,
+          }
+        }
+      } catch {
+        return { isValid: false, error: 'Formato de dominio inválido', normalizedDomain }
+      }
+
+      return { isValid: true, normalizedDomain }
+    },
+    []
+  )
 
   return {
     loading,

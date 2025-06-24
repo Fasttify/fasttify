@@ -145,6 +145,9 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     { label: 'Hogar y Cocina', value: 'Hogar' },
     { label: 'Belleza y Cuidado Personal', value: 'Belleza' },
     { label: 'Deportes y Aire Libre', value: 'Deporte' },
+    { label: 'Otros', value: 'Otros' },
+    { label: 'Todas las categorías', value: 'Todas las categorías' },
+    { label: 'No categorizado', value: 'No categorizado' },
   ]
 
   const statusOptions = [
@@ -249,6 +252,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                     control={form.control}
                     render={({ field }) => (
                       <Select
+                        placeholder="Selecciona una categoría"
                         label="Categoría del producto"
                         labelHidden
                         options={categoryOptions}

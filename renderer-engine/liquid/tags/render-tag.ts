@@ -107,7 +107,9 @@ export class RenderTag extends Tag {
       }
 
       // Usar el TemplateLoader para cargar el snippet
-      const { TemplateLoader } = await import('../../services/templates/template-loader')
+      const { TemplateLoader } = await import(
+        '@/renderer-engine/services/templates/template-loader'
+      )
       const templateLoader = TemplateLoader.getInstance()
 
       // Los snippets están en la carpeta 'snippets'
@@ -115,8 +117,6 @@ export class RenderTag extends Tag {
         ? snippetName
         : `${snippetName}.liquid`
       const snippetPath = `snippets/${snippetFileName}`
-
-      console.log(`[RenderTag] Loading snippet: ${snippetPath} for store: ${storeId}`)
 
       const snippetContent = await templateLoader.loadTemplate(storeId, snippetPath)
 
