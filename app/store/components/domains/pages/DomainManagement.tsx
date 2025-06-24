@@ -19,11 +19,12 @@ import {
   StoreIcon,
   MarketsIcon,
   DomainLandingPageIcon,
+  ClipboardIcon,
 } from '@shopify/polaris-icons'
 
 import { ChangeDomainDialog } from '@/app/store/components/domains/components/ChangeDomainDialog'
 import { EditStoreProfileDialog } from '@/app/store/components/domains/components/EditStoreProfileDialog'
-import { CustomDomainDialog } from '@/app/store/components/domains/components/CustomDomainDialog'
+import { AutomatedCustomDomainDialog } from '@/app/store/components/domains/components/AutomatedCustomDomainDialog'
 import { useCustomDomain } from '@/app/store/hooks/api/useCustomDomain'
 import useStoreDataStore from '@/context/core/storeDataStore'
 
@@ -34,12 +35,15 @@ export function DomainManagement() {
   const [openCustomDomainDialog, setOpenCustomDomainDialog] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  const { status: customDomainStatus, getCustomDomainStatus } = useCustomDomain(
-    currentStore?.storeId || ''
-  )
+  const {
+    status: customDomainStatus,
+    getCustomDomainStatus,
+    verifyCustomDomainStatus,
+  } = useCustomDomain(currentStore?.storeId || '')
 
   // Cargar estado del dominio personalizado al inicio
   const [customDomainLoaded, setCustomDomainLoaded] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
 
   useEffect(() => {
     if (currentStore?.storeId && !customDomainLoaded) {
@@ -47,6 +51,22 @@ export function DomainManagement() {
       setCustomDomainLoaded(true)
     }
   }, [currentStore?.storeId, customDomainLoaded, getCustomDomainStatus])
+
+  const handleVerifyDomainStatus = async () => {
+    setIsVerifying(true)
+    try {
+      const result = await verifyCustomDomainStatus()
+      if (result) {
+        console.log('Estado actualizado:', result)
+      }
+      // Refrescar el estado después de verificar (independientemente del resultado)
+      await getCustomDomainStatus()
+    } catch (error) {
+      console.error('Error verificando dominio:', error)
+    } finally {
+      setIsVerifying(false)
+    }
+  }
 
   if (isLoading) {
     return <Loading />
@@ -174,11 +194,101 @@ export function DomainManagement() {
                         : 'Error'}
                   </Badge>
                 </LegacyStack>
-                {customDomainStatus.status === 'pending' && (
+                {customDomainStatus.status !== 'active' && (
                   <Box paddingBlockStart="200" paddingInlineStart="400">
-                    <Text as="p" tone="subdued">
-                      Esperando configuración DNS. Revisa las instrucciones de configuración.
-                    </Text>
+                    <LegacyStack vertical spacing="tight">
+                      {customDomainStatus.status === 'pending' && (
+                        <Text as="p" tone="subdued">
+                          Para completar la configuración, necesitas configurar tu DNS:
+                        </Text>
+                      )}
+
+                      {customDomainStatus.status === 'failed' && (
+                        <Text as="p" tone="critical">
+                          Error en la configuración del dominio. Verifica que el DNS esté
+                          configurado correctamente y vuelve a intentar.
+                        </Text>
+                      )}
+
+                      {/* Mostrar instrucciones DNS tanto en pending como en failed */}
+                      {(customDomainStatus.status === 'pending' ||
+                        customDomainStatus.status === 'failed') &&
+                        customDomainStatus.cloudFrontStatus?.dnsInstructions && (
+                          <LegacyCard sectioned>
+                            <LegacyStack vertical spacing="tight">
+                              <Text variant="headingSm" as="h4">
+                                Configuración DNS requerida
+                              </Text>
+                              <LegacyStack>
+                                <Box minWidth="60px">
+                                  <Text as="p" variant="bodyMd" fontWeight="medium">
+                                    Tipo:
+                                  </Text>
+                                </Box>
+                                <Text as="p" variant="bodyMd">
+                                  {customDomainStatus.cloudFrontStatus.dnsInstructions.type}
+                                </Text>
+                              </LegacyStack>
+                              <LegacyStack>
+                                <Box minWidth="60px">
+                                  <Text as="p" variant="bodyMd" fontWeight="medium">
+                                    Nombre:
+                                  </Text>
+                                </Box>
+                                <LegacyStack alignment="center">
+                                  <Text as="p" variant="bodyMd">
+                                    {customDomainStatus.cloudFrontStatus.dnsInstructions.name}
+                                  </Text>
+                                  <Button
+                                    size="micro"
+                                    icon={ClipboardIcon}
+                                    onClick={() =>
+                                      navigator.clipboard.writeText(
+                                        customDomainStatus.cloudFrontStatus?.dnsInstructions
+                                          ?.name || ''
+                                      )
+                                    }
+                                  />
+                                </LegacyStack>
+                              </LegacyStack>
+                              <LegacyStack>
+                                <Box minWidth="60px">
+                                  <Text as="p" variant="bodyMd" fontWeight="medium">
+                                    Valor:
+                                  </Text>
+                                </Box>
+                                <LegacyStack alignment="center">
+                                  <Text as="p" variant="bodyMd">
+                                    {customDomainStatus.cloudFrontStatus.dnsInstructions.value}
+                                  </Text>
+                                  <Button
+                                    size="micro"
+                                    icon={ClipboardIcon}
+                                    onClick={() =>
+                                      navigator.clipboard.writeText(
+                                        customDomainStatus.cloudFrontStatus?.dnsInstructions
+                                          ?.value || ''
+                                      )
+                                    }
+                                  />
+                                </LegacyStack>
+                              </LegacyStack>
+                              <Text as="p" variant="bodySm" tone="subdued">
+                                Los cambios DNS pueden tardar hasta 48 horas en propagarse.
+                              </Text>
+                            </LegacyStack>
+                          </LegacyCard>
+                        )}
+
+                      <Button
+                        variant="primary"
+                        size="slim"
+                        onClick={handleVerifyDomainStatus}
+                        loading={isVerifying}
+                      >
+                        {isVerifying ? 'Verificando...' : 'Verificar Estado'}
+                      </Button>
+                    </LegacyStack>
                   </Box>
                 )}
               </LegacyCard.Section>
@@ -229,7 +339,7 @@ export function DomainManagement() {
         }}
       />
 
-      <CustomDomainDialog
+      <AutomatedCustomDomainDialog
         open={openCustomDomainDialog}
         onOpenChange={setOpenCustomDomainDialog}
         storeId={currentStore?.storeId || ''}

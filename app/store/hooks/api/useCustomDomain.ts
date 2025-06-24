@@ -15,17 +15,32 @@ export interface CustomDomainStatus {
     validationErrors?: string[]
   }
   verifiedAt?: string
+  cloudFrontTenantId?: string
+  cloudFrontStatus?: {
+    isActive: boolean
+    hasError: boolean
+    status: string
+    endpoint: string
+    dnsInstructions: {
+      type: string
+      name: string
+      value: string
+      instructions: string
+    }
+  }
 }
 
 export interface CustomDomainSetupResponse {
   success: boolean
   domain: string
   status: string
-  cloudflareId: string
+  tenantId: string
+  endpoint: string
   verificationInfo: {
     type: string
     name: string
     value: string
+    instructions: string
   }
 }
 
@@ -104,6 +119,40 @@ export function useCustomDomain(storeId: string) {
   )
 
   /**
+   * Verificar y actualizar estado del dominio personalizado
+   */
+  const verifyCustomDomainStatus = useCallback(async (): Promise<any> => {
+    if (!storeId) return null
+
+    try {
+      setLoading(true)
+      setError(null)
+
+      const response = await fetch(`/api/stores/${storeId}/custom-domain`, {
+        method: 'PATCH',
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Error at verifyCustomDomainStatus')
+      }
+
+      const data = await response.json()
+
+      // Actualizar el estado local
+      await getCustomDomainStatus()
+
+      return data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      setError(errorMessage)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }, [storeId, getCustomDomainStatus])
+
+  /**
    * Eliminar dominio personalizado
    */
   const removeCustomDomain = useCallback(async (): Promise<boolean> => {
@@ -172,6 +221,7 @@ export function useCustomDomain(storeId: string) {
     status,
     getCustomDomainStatus,
     setupCustomDomain,
+    verifyCustomDomainStatus,
     removeCustomDomain,
     validateDomain,
   }
