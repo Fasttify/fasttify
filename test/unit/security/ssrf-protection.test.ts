@@ -1,5 +1,6 @@
 import { DNSHTTPVerifier } from '@/lib/services/domain/dns-http-verifier'
 import { DomainValidator } from '@/lib/services/domain/domain-validator'
+import { SecurityConfig } from '@/lib/config/security-config'
 
 describe('SSRF Protection Tests', () => {
   let verifier: DNSHTTPVerifier
@@ -8,6 +9,59 @@ describe('SSRF Protection Tests', () => {
   beforeEach(() => {
     verifier = new DNSHTTPVerifier()
     validator = new DomainValidator()
+  })
+
+  describe('SecurityConfig Integration', () => {
+    test('should reject domains not in allow-list', () => {
+      const suspiciousDomains = [
+        'localhost',
+        'test.local',
+        'evil.internal',
+        'metadata.google.internal',
+      ]
+
+      for (const domain of suspiciousDomains) {
+        const isAllowed = SecurityConfig.isDomainAllowed(domain)
+        expect(isAllowed).toBe(false)
+      }
+    })
+
+    test('should allow valid public domains', () => {
+      const validDomains = [
+        'example.com',
+        'mydomain.org',
+        'subdomain.example.com',
+        'test-site.co.uk',
+      ]
+
+      for (const domain of validDomains) {
+        const isAllowed = SecurityConfig.isDomainAllowed(domain)
+        expect(isAllowed).toBe(true)
+      }
+    })
+
+    test('should provide appropriate error messages', () => {
+      const blockedDomain = 'localhost'
+      const message = SecurityConfig.getDomainNotAllowedMessage(blockedDomain)
+      expect(message).toContain(blockedDomain)
+      expect(message).toContain('no está permitido')
+    })
+  })
+
+  describe('Enhanced IP Validation', () => {
+    test('should block domains resolving to private IPs', async () => {
+      // Este test requiere mocking de DNS resolution
+      // En un entorno real, esto bloquearía dominios que resuelvan a IPs privadas
+      const privateDomainResult = await verifier.verifyHTTPValidation('127.0.0.1', 'test-token')
+      expect(privateDomainResult).toBe(false)
+    })
+
+    test('should handle DNS resolution errors gracefully', async () => {
+      // Dominio que no existe
+      const nonExistentDomain = 'this-domain-definitely-does-not-exist-12345.com'
+      const result = await verifier.verifyHTTPValidation(nonExistentDomain, 'test-token')
+      expect(result).toBe(false)
+    })
   })
 
   describe('DNSHTTPVerifier SSRF Protection', () => {

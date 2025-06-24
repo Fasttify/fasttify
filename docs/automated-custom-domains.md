@@ -55,7 +55,7 @@ Hemos implementado un **sistema completamente automatizado** para la configuraci
 ### 2. Creación Automática del Tenant
 
 - Creación automática del tenant en CloudFront Multi-Tenant
-- Configuración del origen (`main.d1wc36cp4amanq.amplifyapp.com`)
+- Configuración del origen (`fasttify.com`)
 - Asignación automática de certificado SSL
 - Configuración de Lambda@Edge para reescritura de headers
 

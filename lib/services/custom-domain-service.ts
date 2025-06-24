@@ -119,7 +119,7 @@ export class CustomDomainService {
   async setupCustomDomain(
     domain: string,
     storeId: string,
-    origin: string = 'main.d1wc36cp4amanq.amplifyapp.com'
+    origin: string = 'fasttify.com'
   ): Promise<CustomDomainSetupResult> {
     try {
       // Verificar que el dominio esté validado

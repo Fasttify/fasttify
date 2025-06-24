@@ -115,11 +115,7 @@ export async function POST(
     }
 
     // Crear tenant en CloudFront Multi-Tenant
-    const tenantResult = await customDomainService.setupCustomDomain(
-      customDomain,
-      storeId,
-      'main.d1wc36cp4amanq.amplifyapp.com'
-    )
+    const tenantResult = await customDomainService.setupCustomDomain(customDomain, storeId)
 
     if (!tenantResult.success) {
       return NextResponse.json(

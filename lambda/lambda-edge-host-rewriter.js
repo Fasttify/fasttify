@@ -14,7 +14,7 @@ exports.handler = async event => {
   headers.host = [
     {
       key: 'Host',
-      value: 'main.d1wc36cp4amanq.amplifyapp.com',
+      value: 'fasttify.com',
     },
   ]
 

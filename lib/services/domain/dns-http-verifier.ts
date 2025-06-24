@@ -33,6 +33,33 @@ export class DNSHTTPVerifier {
   ]
 
   /**
+   * Resolver dominio a dirección IP
+   */
+  private async resolveDomainToIP(domain: string): Promise<string[]> {
+    try {
+      const dns = require('dns').promises
+      const addresses = await dns.resolve4(domain)
+      return addresses
+    } catch (error) {
+      // Intentar IPv6 si IPv4 falla
+      try {
+        const dns = require('dns').promises
+        const addresses = await dns.resolve6(domain)
+        return addresses
+      } catch (ipv6Error) {
+        throw new Error(`Cannot resolve domain ${domain}`)
+      }
+    }
+  }
+
+  /**
+   * Verificar si una IP está en rangos prohibidos
+   */
+  private isProhibitedIP(ip: string): boolean {
+    return this.PROHIBITED_IP_RANGES.some(range => range.test(ip))
+  }
+
+  /**
    * Validar que un dominio sea seguro para peticiones HTTP
    */
   private async validateDomainSecurity(
@@ -71,40 +98,15 @@ export class DNSHTTPVerifier {
     }
 
     try {
-      // Resolver IP del dominio
-      const dns = require('dns').promises
-      let resolvedIPs: string[] = []
-
-      try {
-        const ipv4Addresses = await dns.resolve4(sanitizedDomain)
-        resolvedIPs.push(...ipv4Addresses)
-      } catch {
-        // IPv4 falló, intentar IPv6
-      }
-
-      try {
-        const ipv6Addresses = await dns.resolve6(sanitizedDomain)
-        resolvedIPs.push(...ipv6Addresses)
-      } catch {
-        // IPv6 falló también
-      }
-
-      // Si no se pudo resolver ninguna IP, es sospechoso
-      if (resolvedIPs.length === 0) {
-        return {
-          valid: false,
-          error: 'No se pudo resolver el dominio',
-        }
-      }
+      // Resolver IP del dominio usando el nuevo método
+      const resolvedIPs = await this.resolveDomainToIP(sanitizedDomain)
 
       // Verificar que ninguna IP esté en rangos prohibidos
       for (const ip of resolvedIPs) {
-        for (const prohibitedRange of this.PROHIBITED_IP_RANGES) {
-          if (prohibitedRange.test(ip)) {
-            return {
-              valid: false,
-              error: 'El dominio resuelve a una IP privada o prohibida',
-            }
+        if (this.isProhibitedIP(ip)) {
+          return {
+            valid: false,
+            error: `El dominio resuelve a una IP privada o prohibida: ${ip}`,
           }
         }
       }
@@ -113,7 +115,7 @@ export class DNSHTTPVerifier {
     } catch (error) {
       return {
         valid: false,
-        error: 'Error al resolver el dominio',
+        error: error instanceof Error ? error.message : 'Error al resolver el dominio',
       }
     }
   }
@@ -147,6 +149,24 @@ export class DNSHTTPVerifier {
           domain,
           securityValidation.error
         )
+        return false
+      }
+
+      // Verificación adicional de IP en tiempo real antes de la petición
+      try {
+        const resolvedIPs = await this.resolveDomainToIP(domain)
+        for (const ip of resolvedIPs) {
+          if (this.isProhibitedIP(ip)) {
+            SecureLogger.warn(
+              'HTTP validation blocked for domain %s: resolved IP %s is prohibited',
+              domain,
+              ip
+            )
+            return false
+          }
+        }
+      } catch (error) {
+        SecureLogger.warn('Cannot resolve domain %s for HTTP validation: %s', domain, error)
         return false
       }
 

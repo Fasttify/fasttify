@@ -1,5 +1,6 @@
 import { TokenGenerator, TokenGenerationResult } from '@/lib/services/domain/token-generator'
 import { DNSHTTPVerifier } from '@/lib/services/domain/dns-http-verifier'
+import { SecurityConfig } from '@/lib/config/security-config'
 
 export interface DomainValidationResult {
   success: boolean
@@ -166,6 +167,14 @@ export class DomainValidator {
       return {
         valid: false,
         error: 'No puedes usar subdominios de fasttify.com, dominios locales o IPs privadas',
+      }
+    }
+
+    // Verificar contra la lista de dominios permitidos
+    if (!SecurityConfig.isDomainAllowed(sanitizedDomain)) {
+      return {
+        valid: false,
+        error: SecurityConfig.getDomainNotAllowedMessage(sanitizedDomain),
       }
     }
 

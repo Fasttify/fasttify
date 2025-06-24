@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { CustomDomainService } from '@/lib/services/custom-domain-service'
+import { SecurityConfig } from '@/lib/config/security-config'
+import { SecureLogger } from '@/lib/utils/secure-logger'
 
 const customDomainService = new CustomDomainService()
 
@@ -14,14 +16,25 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Validar reglas de dominio
+    // Validación de seguridad: verificar contra lista de dominios permitidos
+    if (!SecurityConfig.isDomainAllowed(domain)) {
+      SecureLogger.warn('Domain validation attempt blocked: domain not in allow-list %s', domain)
+      return NextResponse.json(
+        { error: SecurityConfig.getDomainNotAllowedMessage(domain) },
+        { status: 400 }
+      )
+    }
+
+    // Validar reglas de dominio (incluye validaciones SSRF)
     const validation = customDomainService.validateDomainRules(domain)
     if (!validation.valid) {
+      SecureLogger.warn('Domain validation failed: %s for domain %s', validation.error, domain)
       return NextResponse.json({ error: validation.error }, { status: 400 })
     }
 
     // Verificar formato del token
     if (!validationToken.startsWith('fasttify-validation-')) {
+      SecureLogger.warn('Invalid validation token format for domain %s', domain)
       return NextResponse.json({ error: 'Invalid validation token format' }, { status: 400 })
     }
 
@@ -29,6 +42,7 @@ export async function POST(req: NextRequest) {
     const result = await customDomainService.verifyDomainValidation(domain, validationToken)
 
     if (!result.success) {
+      SecureLogger.info('Domain validation failed for %s: %s', domain, result.error)
       return NextResponse.json(
         {
           success: false,
@@ -43,6 +57,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    SecureLogger.info('Domain validation successful for %s via %s', domain, result.method)
     return NextResponse.json({
       success: true,
       domain,
@@ -54,7 +69,7 @@ export async function POST(req: NextRequest) {
       message: `Dominio ${domain} validado exitosamente mediante ${result.method === 'dns' ? 'DNS TXT' : 'archivo HTTP'}`,
     })
   } catch (error) {
-    console.error('Error verifying domain validation:', error)
+    SecureLogger.error('Error verifying domain validation:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

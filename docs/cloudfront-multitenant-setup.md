@@ -23,7 +23,7 @@ Distribution Tenant (específico por dominio)
     ↓
 Lambda@Edge (Origin Request)
     ↓
-Amplify Gen 2 (main.d1wc36cp4amanq.amplifyapp.com)
+Amplify Gen 2 (fasttify.com)
     ↓
 Next.js App + Middleware
     ↓
@@ -76,7 +76,7 @@ exports.handler = async event => {
   headers.host = [
     {
       key: 'Host',
-      value: 'main.d1wc36cp4amanq.amplifyapp.com',
+      value: 'fasttify.com',
     },
   ]
 
@@ -159,7 +159,7 @@ aws lambda publish-version \
 3. **Configurar**:
    - **Tenant name**: `test-tenant`
    - **Domain**: `kingsdev.tech`
-   - **Origin**: `main.d1wc36cp4amanq.amplifyapp.com`
+   - **Origin**: `fasttify.com`
 
 ### 4. Configurar Cache Behavior
 
@@ -202,7 +202,7 @@ await client.models.UserStore.update({
 3. **CloudFront Tenant** → recibe request con `Host: kingsdev.tech`
 4. **Lambda@Edge** →
    - Preserva: `x-original-host: kingsdev.tech`
-   - Cambia: `Host: main.d1wc36cp4amanq.amplifyapp.com`
+   - Cambia: `Host: fasttify.com`
 5. **Amplify** → acepta request (Host válido)
 6. **Next.js Middleware** → usa `x-original-host` para identificar tienda
 7. **Domain Resolver** → busca tienda con `customDomain: "kingsdev.tech"`
@@ -236,7 +236,7 @@ await client.models.UserStore.update({
 
 ```
 Original Host header: kingsdev.tech
-Modified Host header: main.d1wc36cp4amanq.amplifyapp.com
+Modified Host header: fasttify.com
 Added x-original-host: kingsdev.tech
 ```
 
