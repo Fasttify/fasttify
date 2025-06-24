@@ -46,23 +46,6 @@ export function ACMValidationStep({
     }
   }, [certificateArn, onVerifyACM, onContinue])
 
-  // Si no hay registros de validación disponibles, mostrar loading
-  if (!acmValidationRecords || acmValidationRecords.length === 0) {
-    return (
-      <LegacyStack vertical spacing="extraLoose" alignment="center">
-        <Text variant="headingLg" as="h2">
-          Preparando registros de validación SSL...
-        </Text>
-        <Text variant="bodyMd" as="p" tone="subdued">
-          Obteniendo la información de validación ACM para {domain}
-        </Text>
-        <LegacyStack distribution="trailing" spacing="tight">
-          <Button onClick={onBack}>Volver</Button>
-        </LegacyStack>
-      </LegacyStack>
-    )
-  }
-
   return (
     <LegacyStack vertical spacing="extraLoose">
       {/* Header */}
