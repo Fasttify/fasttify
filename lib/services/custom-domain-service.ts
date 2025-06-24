@@ -6,6 +6,7 @@ import {
   TenantStatus,
 } from '@/lib/services/cloudfront/tenant-manager'
 import { DNSVerifier, DNSStatus } from '@/lib/services/cloudfront/dns-verifier'
+import { SecureLogger } from '@/lib/utils/secure-logger'
 
 export interface CustomDomainSetupResult {
   success: boolean
@@ -176,7 +177,7 @@ export class CustomDomainService {
         },
       }
     } catch (error) {
-      console.error(` Error setting up custom domain for ${domain}:`, error)
+      SecureLogger.secureLog('error', 'Error setting up custom domain for %s:', domain, error)
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',

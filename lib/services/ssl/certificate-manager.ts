@@ -4,7 +4,7 @@ import {
   RequestCertificateCommand,
   DescribeCertificateCommand,
 } from '@aws-sdk/client-acm'
-
+import { SecureLogger } from '@/lib/utils/secure-logger'
 export interface CertificateInfo {
   arn: string
   status: 'ISSUED' | 'PENDING_VALIDATION' | 'FAILED'
@@ -159,7 +159,7 @@ export class CertificateManager {
         validationRecords: info?.validationRecords,
       }
     } catch (error) {
-      console.error(`Error ensuring certificate for ${domain}:`, error)
+      SecureLogger.error('Error ensuring certificate for domain %s:', domain, error)
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',

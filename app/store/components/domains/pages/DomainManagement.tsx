@@ -56,13 +56,10 @@ export function DomainManagement() {
     setIsVerifying(true)
     try {
       const result = await verifyCustomDomainStatus()
-      if (result) {
-        console.log('Estado actualizado:', result)
-      }
-      // Refrescar el estado después de verificar (independientemente del resultado)
+
       await getCustomDomainStatus()
     } catch (error) {
-      console.error('Error verificando dominio:', error)
+      console.error('Error verifying domain status:', error)
     } finally {
       setIsVerifying(false)
     }

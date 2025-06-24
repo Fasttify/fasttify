@@ -31,7 +31,7 @@ export function AutomatedCustomDomainDialog({
   const [currentStep, setCurrentStep] = useState<SetupStep>('input')
   const [showCloseConfirmation, setShowCloseConfirmation] = useState(false)
 
-  const { setupCustomDomain, validateDomain, loading } = useCustomDomain(storeId)
+  const { setupCustomDomain, validateDomain } = useCustomDomain(storeId)
   const { showToast } = useToast()
 
   // Hook de validación de dominios
@@ -43,14 +43,10 @@ export function AutomatedCustomDomainDialog({
     isLoading: isValidationLoading,
     validationToken,
     instructions,
-    isValidated,
     validationMethod,
     certificateArn,
-    certificateStatus,
     acmValidationRecords,
-    needsACMValidation,
     isCertificateReady,
-    error: validationError,
   } = useDomainValidation()
 
   useEffect(() => {

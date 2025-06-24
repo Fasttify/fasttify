@@ -7,7 +7,7 @@ const customDomainService = new CustomDomainService()
 // GET - Obtener estado del dominio personalizado
 export async function GET(
   request: NextRequest,
-  { params }: { params: { storeId: string } }
+  { params }: { params: Promise<{ storeId: string }> }
 ): Promise<NextResponse> {
   try {
     const { storeId } = await params
@@ -62,7 +62,7 @@ export async function GET(
 // POST - Configurar nuevo dominio personalizado
 export async function POST(
   request: NextRequest,
-  { params }: { params: { storeId: string } }
+  { params }: { params: Promise<{ storeId: string }> }
 ): Promise<NextResponse> {
   try {
     const { storeId } = await params
@@ -154,7 +154,7 @@ export async function POST(
 // DELETE - Eliminar dominio personalizado
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { storeId: string } }
+  { params }: { params: Promise<{ storeId: string }> }
 ): Promise<NextResponse> {
   try {
     const { storeId } = await params
@@ -204,7 +204,7 @@ export async function DELETE(
 // PATCH - Verificar estado del dominio
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { storeId: string } }
+  { params }: { params: Promise<{ storeId: string }> }
 ): Promise<NextResponse> {
   try {
     const { storeId } = await params

@@ -1,3 +1,4 @@
+import { SecureLogger } from '@/lib/utils/secure-logger'
 export interface VerificationResult {
   success: boolean
   method?: 'dns' | 'http'
@@ -10,6 +11,112 @@ export interface VerificationResult {
 export class DNSHTTPVerifier {
   private readonly HTTP_TIMEOUT_MS = 10000
   private readonly DNS_CACHE_TTL = 60000 // 1 minuto
+
+  // Rangos de IP privadas/locales prohibidas para prevenir SSRF
+  private readonly PROHIBITED_IP_RANGES = [
+    /^127\./, // 127.0.0.0/8 - localhost
+    /^10\./, // 10.0.0.0/8 - RFC 1918
+    /^172\.(1[6-9]|2[0-9]|3[01])\./, // 172.16.0.0/12 - RFC 1918
+    /^192\.168\./, // 192.168.0.0/16 - RFC 1918
+    /^169\.254\./, // 169.254.0.0/16 - Link-local
+    /^::1$/, // ::1 - IPv6 localhost
+    /^fc00:/, // fc00::/7 - IPv6 Unique Local
+    /^fe80:/, // fe80::/10 - IPv6 Link-local
+  ]
+
+  // Dominios explícitamente prohibidos
+  private readonly PROHIBITED_DOMAINS = [
+    'localhost',
+    'metadata.google.internal',
+    '169.254.169.254', // AWS/GCP metadata
+    '100.100.100.200', // Alibaba metadata
+  ]
+
+  /**
+   * Validar que un dominio sea seguro para peticiones HTTP
+   */
+  private async validateDomainSecurity(
+    domain: string
+  ): Promise<{ valid: boolean; error?: string }> {
+    // Sanitizar el dominio
+    const sanitizedDomain = domain.trim().toLowerCase()
+
+    // Verificar formato básico de dominio
+    const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9.-]{0,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/
+    if (!domainRegex.test(sanitizedDomain)) {
+      return {
+        valid: false,
+        error: 'Formato de dominio inválido',
+      }
+    }
+
+    // Verificar dominios explícitamente prohibidos
+    if (this.PROHIBITED_DOMAINS.includes(sanitizedDomain)) {
+      return {
+        valid: false,
+        error: 'Dominio prohibido',
+      }
+    }
+
+    // Verificar que no contenga caracteres peligrosos
+    if (
+      sanitizedDomain.includes('..') ||
+      sanitizedDomain.includes('@') ||
+      sanitizedDomain.includes(' ')
+    ) {
+      return {
+        valid: false,
+        error: 'Dominio contiene caracteres no válidos',
+      }
+    }
+
+    try {
+      // Resolver IP del dominio
+      const dns = require('dns').promises
+      let resolvedIPs: string[] = []
+
+      try {
+        const ipv4Addresses = await dns.resolve4(sanitizedDomain)
+        resolvedIPs.push(...ipv4Addresses)
+      } catch {
+        // IPv4 falló, intentar IPv6
+      }
+
+      try {
+        const ipv6Addresses = await dns.resolve6(sanitizedDomain)
+        resolvedIPs.push(...ipv6Addresses)
+      } catch {
+        // IPv6 falló también
+      }
+
+      // Si no se pudo resolver ninguna IP, es sospechoso
+      if (resolvedIPs.length === 0) {
+        return {
+          valid: false,
+          error: 'No se pudo resolver el dominio',
+        }
+      }
+
+      // Verificar que ninguna IP esté en rangos prohibidos
+      for (const ip of resolvedIPs) {
+        for (const prohibitedRange of this.PROHIBITED_IP_RANGES) {
+          if (prohibitedRange.test(ip)) {
+            return {
+              valid: false,
+              error: 'El dominio resuelve a una IP privada o prohibida',
+            }
+          }
+        }
+      }
+
+      return { valid: true }
+    } catch (error) {
+      return {
+        valid: false,
+        error: 'Error al resolver el dominio',
+      }
+    }
+  }
 
   /**
    * Verificar propiedad de dominio vía DNS TXT
@@ -32,28 +139,53 @@ export class DNSHTTPVerifier {
    */
   async verifyHTTPValidation(domain: string, validationToken: string): Promise<boolean> {
     try {
+      // Validar seguridad del dominio antes de hacer petición
+      const securityValidation = await this.validateDomainSecurity(domain)
+      if (!securityValidation.valid) {
+        SecureLogger.warn(
+          'HTTP validation blocked for domain %s: %s',
+          domain,
+          securityValidation.error
+        )
+        return false
+      }
+
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), this.HTTP_TIMEOUT_MS)
 
-      const response = await fetch(`http://${domain}/.well-known/fasttify-validation.txt`, {
+      // Usar el dominio sanitizado
+      const sanitizedDomain = domain.trim().toLowerCase()
+
+      // Construir URL de manera segura
+      const validationURL = `http://${sanitizedDomain}/.well-known/fasttify-validation.txt`
+
+      const response = await fetch(validationURL, {
         method: 'GET',
         signal: controller.signal,
         headers: {
           'User-Agent': 'Fasttify-Domain-Validator/1.0',
           'Cache-Control': 'no-cache',
         },
+        // Configuraciones adicionales de seguridad
+        redirect: 'manual', // No seguir redirects automáticamente
       })
 
       clearTimeout(timeoutId)
 
-      if (response.ok) {
+      // Solo aceptar respuestas 200, no redirects
+      if (response.status === 200) {
         const content = await response.text()
+        // Limitar tamaño de respuesta para prevenir ataques de memoria
+        if (content.length > 1000) {
+          return false
+        }
         const isValid = content.trim() === validationToken
         return isValid
       }
 
       return false
     } catch (error) {
+      // No logear el error completo para evitar información sensible
       return false
     }
   }

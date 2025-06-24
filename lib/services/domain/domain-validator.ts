@@ -97,15 +97,33 @@ export class DomainValidator {
    * Validar formato de dominio
    */
   isValidDomainFormat(domain: string): boolean {
-    const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/
-    return domainRegex.test(domain)
+    // Permitir tanto dominios como IPs para que puedan ser evaluados por la prohibición
+    const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9.-]{0,61}[a-zA-Z0-9](\.[a-zA-Z0-9]{1,})?$/
+    const ipRegex =
+      /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+    const simpleHostRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/ // Para localhost, etc.
+
+    return domainRegex.test(domain) || ipRegex.test(domain) || simpleHostRegex.test(domain)
   }
 
   /**
    * Verificar si dominio está prohibido
    */
   isDomainProhibited(domain: string): boolean {
-    const prohibitedPatterns = [/\.fasttify\.com$/, /localhost/, /127\.0\.0\.1/, /\.local$/]
+    const prohibitedPatterns = [
+      /\.fasttify\.com$/,
+      /^localhost$/,
+      /^127\.0\.0\.1$/,
+      /\.local$/,
+      // Agregamos más patrones de seguridad para prevenir SSRF
+      /^10\./,
+      /^172\.(1[6-9]|2[0-9]|3[01])\./,
+      /^192\.168\./,
+      /^169\.254\./,
+      /metadata\.google\.internal/,
+      /^169\.254\.169\.254$/, // AWS/GCP metadata
+      /^100\.100\.100\.200$/, // Alibaba metadata
+    ]
 
     return prohibitedPatterns.some(pattern => pattern.test(domain))
   }
@@ -114,17 +132,48 @@ export class DomainValidator {
    * Validación completa de dominio (formato + prohibición)
    */
   validateDomainRules(domain: string): { valid: boolean; error?: string } {
-    if (!this.isValidDomainFormat(domain)) {
+    // Sanitizar entrada
+    const sanitizedDomain = domain.trim().toLowerCase()
+
+    // Verificar caracteres peligrosos y ataques Unicode
+    if (
+      sanitizedDomain.includes('..') ||
+      sanitizedDomain.includes('@') ||
+      sanitizedDomain.includes(' ') ||
+      sanitizedDomain.includes('\u0000') || // Null byte injection
+      sanitizedDomain.includes('\r') || // CRLF injection
+      sanitizedDomain.includes('\n') || // CRLF injection
+      sanitizedDomain.includes('\t') || // Tab injection
+      /[\u0080-\uFFFF]/.test(sanitizedDomain) || // Unicode characters
+      sanitizedDomain.includes('xn--') // Punycode attacks
+    ) {
       return {
         valid: false,
-        error: 'Formato de dominio inválido. Usa un dominio válido como ejemplo.com',
+        error: 'El dominio contiene caracteres no válidos',
       }
     }
 
-    if (this.isDomainProhibited(domain)) {
+    // Verificar longitud máxima para prevenir ataques
+    if (sanitizedDomain.length > 253) {
       return {
         valid: false,
-        error: 'No puedes usar subdominios de fasttify.com o dominios locales',
+        error: 'El dominio es demasiado largo',
+      }
+    }
+
+    // Verificar dominios prohibidos ANTES del formato
+    if (this.isDomainProhibited(sanitizedDomain)) {
+      return {
+        valid: false,
+        error: 'No puedes usar subdominios de fasttify.com, dominios locales o IPs privadas',
+      }
+    }
+
+    // Finalmente verificar formato para dominios públicos válidos
+    if (!this.isValidDomainFormat(sanitizedDomain)) {
+      return {
+        valid: false,
+        error: 'Formato de dominio inválido. Usa un dominio válido como ejemplo.com',
       }
     }
 

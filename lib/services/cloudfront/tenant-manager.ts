@@ -7,6 +7,7 @@ import {
   GetConnectionGroupCommand,
   DomainResult,
 } from '@aws-sdk/client-cloudfront'
+import { SecureLogger } from '@/lib/utils/secure-logger'
 
 export interface CreateTenantParams {
   tenantName: string
@@ -105,7 +106,7 @@ export class CloudFrontTenantManager {
         }
       }
     } catch (error) {
-      console.error(' Error creating CloudFront tenant:', error)
+      SecureLogger.error('Error creating CloudFront tenant:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -133,7 +134,7 @@ export class CloudFrontTenantManager {
       const connectionGroupAny = connectionGroup as any
       return connectionGroupAny.RoutingEndpoint || null
     } catch (error) {
-      console.error('Error getting connection group endpoint:', error)
+      SecureLogger.error('Error getting connection group endpoint:', error)
       return null
     }
   }
@@ -179,7 +180,7 @@ export class CloudFrontTenantManager {
         },
       }
     } catch (error) {
-      console.error('Error getting tenant status:', error)
+      SecureLogger.error('Error getting tenant status:', error)
       return {
         isActive: false,
         hasError: true,
@@ -208,7 +209,7 @@ export class CloudFrontTenantManager {
       await this.cloudFrontClient.send(command)
       return true
     } catch (error) {
-      console.error(`Error deleting CloudFront tenant ${tenantId}:`, error)
+      SecureLogger.secureLog('error', 'Error deleting CloudFront tenant %s:', tenantId, error)
       return false
     }
   }
@@ -231,7 +232,7 @@ export class CloudFrontTenantManager {
         endpoint: tenant.Domains?.[0]?.Domain || '',
       }))
     } catch (error) {
-      console.error('Error listing tenants:', error)
+      SecureLogger.error('Error listing tenants:', error)
       return []
     }
   }
@@ -245,7 +246,11 @@ export class CloudFrontTenantManager {
       const currentStatus = await this.getTenantStatus(tenantId)
 
       if (currentStatus.hasError) {
-        console.error(`Cannot update tenant ${tenantId} - current status has error`)
+        SecureLogger.secureLog(
+          'error',
+          'Cannot update tenant %s - current status has error',
+          tenantId
+        )
         return false
       }
 
@@ -253,7 +258,7 @@ export class CloudFrontTenantManager {
       // Por ahora solo logeamos la solicitud
       return true
     } catch (error) {
-      console.error(`Error updating tenant ${tenantId}:`, error)
+      SecureLogger.secureLog('error', 'Error updating tenant %s:', tenantId, error)
       return false
     }
   }
