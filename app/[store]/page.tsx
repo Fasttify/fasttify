@@ -51,33 +51,26 @@ interface StorePageProps {
 }
 
 /**
- * Página principal de tienda con SSR
- * Maneja todas las rutas de tienda: /, /products/slug, /collections/slug
+ * Componente cliente para manejar el auto-reload solo en desarrollo
+ * Esto evita hydration mismatch al ejecutarse solo en el cliente
  */
-export default async function StorePage({ params, searchParams }: StorePageProps) {
-  const resolvedParams = await params
-  const resolvedSearchParams = await searchParams
-  const { store } = resolvedParams
-  const path = resolvedSearchParams.path || '/'
-
-  // Validar que no sea una ruta de asset
-  if (isAssetPath(path)) {
-    notFound()
+function DevAutoReloadScript() {
+  // Este componente se renderiza solo en el cliente
+  if (typeof window === 'undefined') {
+    return null
   }
 
-  try {
-    // Resolver dominio completo - detectar el tipo de dominio
-    // El middleware ya debería haber procesado esto correctamente
-    const domain = store.includes('.') ? store : `${store}.fasttify.com`
+  // Verificar si estamos en desarrollo
+  const isDev = process.env.APP_ENV === 'development'
 
-    // Renderizar página usando el sistema con caché temporal
-    const result = await getCachedRenderResult(domain, path)
+  if (!isDev) {
+    return null
+  }
 
-    // Agregar script de recarga automática solo en desarrollo
-    const isDev = process.env.NODE_ENV === 'development' || process.env.APP_ENV === 'development'
-    const autoReloadScript = isDev
-      ? `
-        <script>
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
           (function() {
             // Crear conexión SSE para recargas automáticas
             function connectSSE() {
@@ -107,21 +100,47 @@ export default async function StorePage({ params, searchParams }: StorePageProps
               };
             }
             
-            // Iniciar conexión
-            connectSSE();
+            // Iniciar conexión solo si estamos en desarrollo
+            if (window.location.hostname === 'localhost' || window.location.hostname.includes('dev')) {
+              connectSSE();
+            }
           })();
-        </script>
-      `
-      : ''
+        `,
+      }}
+    />
+  )
+}
 
-    // Inyectar el script de recarga automática al final del HTML
-    const htmlWithAutoReload = isDev
-      ? result.html.replace('</body>', `${autoReloadScript}</body>`)
-      : result.html
+/**
+ * Página principal de tienda con SSR
+ * Maneja todas las rutas de tienda: /, /products/slug, /collections/slug
+ */
+export default async function StorePage({ params, searchParams }: StorePageProps) {
+  const resolvedParams = await params
+  const resolvedSearchParams = await searchParams
+  const { store } = resolvedParams
+  const path = resolvedSearchParams.path || '/'
 
-    // Retornar HTML renderizado como componente dangerouslySetInnerHTML
-    // Esto permite SSR completo con SEO optimizado
-    return <div dangerouslySetInnerHTML={{ __html: htmlWithAutoReload }} />
+  // Validar que no sea una ruta de asset
+  if (isAssetPath(path)) {
+    notFound()
+  }
+
+  try {
+    // Resolver dominio completo - detectar el tipo de dominio
+    // El middleware ya debería haber procesado esto correctamente
+    const domain = store.includes('.') ? store : `${store}.fasttify.com`
+
+    // Renderizar página usando el sistema con caché temporal
+    const result = await getCachedRenderResult(domain, path)
+
+    // Retornar HTML renderizado con aislamiento CSS y auto-reload seguro
+    return (
+      <>
+        <div dangerouslySetInnerHTML={{ __html: result.html }} />
+        <DevAutoReloadScript />
+      </>
+    )
   } catch (error: any) {
     console.error(`Error rendering store page ${store}${path}:`, error)
 
@@ -211,24 +230,18 @@ export async function generateMetadata({
   } catch (error) {
     console.error(`ERROR generating metadata for ${store}${path}:`, error)
 
-    // Metadata por defecto para errores
+    // Extraer nombre más amigable del dominio para el fallback
+    const friendlyName = store.includes('.')
+      ? store.split('.')[0].charAt(0).toUpperCase() + store.split('.')[0].slice(1)
+      : store.charAt(0).toUpperCase() + store.slice(1)
+
+    // Metadata por defecto para errores - usando nombre más amigable
     return {
       title: {
-        absolute: `${store} - Tienda Online`,
+        absolute: `${friendlyName} - Tienda Online`,
         template: '%s', // Evitar que Next.js añada sufijos
       },
-      description: `Descubre productos únicos en ${store}. ¡Compra online!`,
+      description: `Descubre productos únicos en ${friendlyName}. ¡Compra online!`,
     }
   }
 }
-
-/**
- * COMENTADO: Estas configuraciones estáticas conflictan con force-dynamic
- * No se pueden usar juntas en Next.js 15
- */
-
-// export const revalidate = 1800 // 30 minutos
-
-// export async function generateStaticParams() {
-//   return []
-// }
