@@ -39,7 +39,7 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
     return {
       id: product.id,
       name: product.name,
-      sku: product.sku || `SKU-${product.id}`,
+      sku: product.sku || 'Sin SKU',
       images: images,
       unavailable: 0,
       committed: 0,

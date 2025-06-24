@@ -24,7 +24,6 @@ interface DomainValidationStepProps {
 
 export function DomainValidationStep({
   domain,
-  instructions,
   validationToken,
   onValidate,
   onSkip,

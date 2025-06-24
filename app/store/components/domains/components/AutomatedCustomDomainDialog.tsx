@@ -66,7 +66,7 @@ export function AutomatedCustomDomainDialog({
   // Manejo del primer paso: solicitar token de validación
   const handleRequestValidation = async () => {
     if (!validation.isValid) {
-      showToast(validation.error || 'Dominio inválido', true)
+      showToast(validation.error ?? 'Dominio inválido', true)
       return
     }
 
@@ -75,7 +75,7 @@ export function AutomatedCustomDomainDialog({
       setCurrentStep('validation')
       showToast('Token de validación generado. Configura tu DNS o archivo HTTP.', false)
     } else {
-      showToast(result.error || 'Error generando token de validación', true)
+      showToast(result.error ?? 'Error generando token de validación', true)
     }
   }
 
@@ -96,7 +96,7 @@ export function AutomatedCustomDomainDialog({
         handleCreateCloudFront()
       }
     } else {
-      showToast(result.error || 'Error verificando dominio', true)
+      showToast(result.error ?? 'Error verificando dominio', true)
     }
   }
 
@@ -110,7 +110,10 @@ export function AutomatedCustomDomainDialog({
       showToast('¡Certificado SSL validado! Conectando con tu tienda...', false)
       handleCreateCloudFront()
     } else {
-      showToast('El certificado SSL aún no está listo. Inténtalo de nuevo en unos minutos.', true)
+      showToast(
+        result.error ?? 'El certificado SSL aún no está listo. Inténtalo de nuevo en unos minutos.',
+        true
+      )
     }
   }
 
@@ -180,8 +183,8 @@ export function AutomatedCustomDomainDialog({
         return (
           <DomainValidationStep
             domain={domainName}
-            instructions={instructions || ''}
-            validationToken={validationToken || ''}
+            instructions={instructions ?? ''}
+            validationToken={validationToken ?? ''}
             onValidate={handleValidateDomain}
             onSkip={handleClose}
             isValidating={isValidationLoading}
@@ -192,7 +195,7 @@ export function AutomatedCustomDomainDialog({
         return (
           <ACMValidationStep
             domain={domainName}
-            certificateArn={certificateArn || ''}
+            certificateArn={certificateArn ?? ''}
             acmValidationRecords={acmValidationRecords}
             onContinue={() => {
               setCurrentStep('cloudfront')
@@ -220,7 +223,7 @@ export function AutomatedCustomDomainDialog({
         return (
           <CompletionStep
             domain={domainName}
-            method={validationMethod || 'cloudfront'}
+            method={validationMethod ?? 'cloudfront'}
             onClose={handleClose}
           />
         )

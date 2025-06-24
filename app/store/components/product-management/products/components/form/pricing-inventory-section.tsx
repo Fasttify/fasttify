@@ -9,6 +9,7 @@ import {
 } from '@/app/store/components/product-management/products/hooks/usePriceSuggestion'
 import { PriceSuggestionPanel } from '@/app/store/components/product-management/products/components/form/price-suggestion-panel'
 import { Controller } from 'react-hook-form'
+import { PriceField } from './PriceField'
 
 interface PricingInventorySectionProps {
   form: UseFormReturn<ProductFormValues>
@@ -115,16 +116,6 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
     showToast('La sugerencia de precio ha sido descartada.')
   }
 
-  const currencyTransformer = {
-    format: (value: string | number | undefined) => {
-      if (value === undefined || value === null || value === '') return ''
-      return String(value).replace('.', ',')
-    },
-    parse: (value: string) => {
-      return value.replace(',', '.')
-    },
-  }
-
   return (
     <BlockStack gap="400">
       <Text as="h2" variant="headingMd">
@@ -145,15 +136,11 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
                   onAcceptPrice={acceptPrice}
                   onRejectPrice={rejectPrice}
                 />
-                <TextField
-                  {...field}
+                <PriceField
                   label="Precio"
-                  type="number"
-                  prefix="$"
-                  value={currencyTransformer.format(field.value || '')}
-                  onChange={value => field.onChange(currencyTransformer.parse(value))}
+                  value={field.value}
+                  onChange={field.onChange}
                   error={fieldState.error?.message}
-                  autoComplete="off"
                   helpText="El precio que pagarán los clientes."
                 />
               </BlockStack>
@@ -163,15 +150,11 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
             name="compareAtPrice"
             control={form.control}
             render={({ field, fieldState }) => (
-              <TextField
-                {...field}
+              <PriceField
                 label="Precio de Comparación"
-                type="number"
-                prefix="$"
-                value={currencyTransformer.format(field.value || '')}
-                onChange={value => field.onChange(currencyTransformer.parse(value))}
+                value={field.value}
+                onChange={field.onChange}
                 error={fieldState.error?.message}
-                autoComplete="off"
                 helpText="Precio original antes del descuento (opcional)."
               />
             )}
@@ -182,15 +165,11 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
         name="costPerItem"
         control={form.control}
         render={({ field, fieldState }) => (
-          <TextField
-            {...field}
+          <PriceField
             label="Costo por Artículo"
-            type="number"
-            prefix="$"
-            value={currencyTransformer.format(field.value || '')}
-            onChange={value => field.onChange(currencyTransformer.parse(value))}
+            value={field.value}
+            onChange={field.onChange}
             error={fieldState.error?.message}
-            autoComplete="off"
             helpText="Su costo para comprar o producir este artículo (opcional)."
           />
         )}
