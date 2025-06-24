@@ -74,4 +74,85 @@ export class SecurityConfig {
     maxRedirects: 0,
     maxResponseSize: 1000,
   }
+
+  /**
+   * Construir URL de validación de manera segura usando lista de permitidos
+   */
+  static buildSecureValidationURL(domain: string): string | null {
+    // Sanitizar el dominio
+    const sanitizedDomain = domain.trim().toLowerCase()
+
+    // Verificar que el dominio esté en la lista de permitidos
+    if (!this.isDomainAllowed(sanitizedDomain)) {
+      return null
+    }
+
+    // Lista estricta de componentes de URL permitidos
+    const allowedProtocols = ['http']
+    const allowedPaths = ['/.well-known/fasttify-validation.txt']
+
+    // Verificar caracteres prohibidos en el dominio para construcción de URL
+    const prohibitedUrlChars = ['..', '/', '\\', '@', ' ', '\t', '\n', '\r', '\0']
+    if (prohibitedUrlChars.some(char => sanitizedDomain.includes(char))) {
+      return null
+    }
+
+    // Construir URL usando el constructor URL para validación adicional
+    try {
+      const protocol = allowedProtocols[0]
+      const path = allowedPaths[0]
+      const url = new URL(`${protocol}://${sanitizedDomain}${path}`)
+
+      // Verificaciones estrictas post-construcción
+      if (url.hostname !== sanitizedDomain) {
+        return null
+      }
+
+      if (url.pathname !== path) {
+        return null
+      }
+
+      if (url.protocol !== `${protocol}:`) {
+        return null
+      }
+
+      // Verificar que no hay componentes inesperados
+      if (url.search || url.hash || url.username || url.password) {
+        return null
+      }
+
+      return url.toString()
+    } catch (error) {
+      return null
+    }
+  }
+
+  /**
+   * Validar que una URL construida es segura para usar
+   */
+  static isSecureValidationURL(url: string): boolean {
+    try {
+      const parsedURL = new URL(url)
+
+      // Verificar protocolo
+      if (parsedURL.protocol !== 'http:') {
+        return false
+      }
+
+      // Verificar path exacto
+      if (parsedURL.pathname !== '/.well-known/fasttify-validation.txt') {
+        return false
+      }
+
+      // Verificar que no hay componentes adicionales
+      if (parsedURL.search || parsedURL.hash || parsedURL.username || parsedURL.password) {
+        return false
+      }
+
+      // Verificar que el hostname es un dominio permitido
+      return this.isDomainAllowed(parsedURL.hostname)
+    } catch (error) {
+      return false
+    }
+  }
 }

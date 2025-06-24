@@ -1,4 +1,6 @@
 import { SecureLogger } from '@/lib/utils/secure-logger'
+import { SecurityConfig } from '@/lib/config/security-config'
+
 export interface VerificationResult {
   success: boolean
   method?: 'dns' | 'http'
@@ -176,8 +178,18 @@ export class DNSHTTPVerifier {
       // Usar el dominio sanitizado
       const sanitizedDomain = domain.trim().toLowerCase()
 
-      // Construir URL de manera segura
-      const validationURL = `http://${sanitizedDomain}/.well-known/fasttify-validation.txt`
+      // Construir URL de manera segura usando SecurityConfig
+      const validationURL = SecurityConfig.buildSecureValidationURL(sanitizedDomain)
+      if (!validationURL) {
+        SecureLogger.warn('Failed to build secure validation URL for domain %s', sanitizedDomain)
+        return false
+      }
+
+      // Verificación adicional de que la URL es segura
+      if (!SecurityConfig.isSecureValidationURL(validationURL)) {
+        SecureLogger.warn('Built URL failed security validation for domain %s', sanitizedDomain)
+        return false
+      }
 
       const response = await fetch(validationURL, {
         method: 'GET',

@@ -209,4 +209,64 @@ describe('SSRF Protection Tests', () => {
       }
     })
   })
+
+  describe('Secure URL Construction', () => {
+    test('should build secure URLs for valid domains', () => {
+      const validDomains = ['example.com', 'test.example.com', 'valid-domain.org']
+
+      for (const domain of validDomains) {
+        const url = SecurityConfig.buildSecureValidationURL(domain)
+        expect(url).toBeTruthy()
+        expect(url).toMatch(/^http:\/\/[^\/]+\/\.well-known\/fasttify-validation\.txt$/)
+      }
+    })
+
+    test('should reject URL construction for prohibited domains', () => {
+      const prohibitedDomains = ['localhost', 'test.local', 'metadata.google.internal', '127.0.0.1']
+
+      for (const domain of prohibitedDomains) {
+        const url = SecurityConfig.buildSecureValidationURL(domain)
+        expect(url).toBeNull()
+      }
+    })
+
+    test('should reject domains with path traversal attempts', () => {
+      const maliciousDomains = [
+        'example.com/../admin',
+        'example.com/../../etc/passwd',
+        'example.com\\..\\admin',
+        'example.com@evil.com',
+      ]
+
+      for (const domain of maliciousDomains) {
+        const url = SecurityConfig.buildSecureValidationURL(domain)
+        expect(url).toBeNull()
+      }
+    })
+
+    test('should validate constructed URLs are secure', () => {
+      const secureURL = 'http://example.com/.well-known/fasttify-validation.txt'
+      expect(SecurityConfig.isSecureValidationURL(secureURL)).toBe(true)
+
+      const insecureURLs = [
+        'https://example.com/.well-known/fasttify-validation.txt', // Wrong protocol
+        'http://example.com/admin', // Wrong path
+        'http://example.com/.well-known/fasttify-validation.txt?param=value', // Query params
+        'http://example.com/.well-known/fasttify-validation.txt#fragment', // Fragment
+        'http://user:pass@example.com/.well-known/fasttify-validation.txt', // Credentials
+      ]
+
+      for (const url of insecureURLs) {
+        expect(SecurityConfig.isSecureValidationURL(url)).toBe(false)
+      }
+    })
+
+    test('should handle malformed URLs gracefully', () => {
+      const malformedURLs = ['not-a-url', 'http://', 'http://[invalid', '']
+
+      for (const url of malformedURLs) {
+        expect(SecurityConfig.isSecureValidationURL(url)).toBe(false)
+      }
+    })
+  })
 })
