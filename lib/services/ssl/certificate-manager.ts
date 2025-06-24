@@ -3,6 +3,7 @@ import {
   ListCertificatesCommand,
   RequestCertificateCommand,
   DescribeCertificateCommand,
+  DeleteCertificateCommand,
 } from '@aws-sdk/client-acm'
 import { SecureLogger } from '@/lib/utils/secure-logger'
 export interface CertificateInfo {
@@ -164,6 +165,49 @@ export class CertificateManager {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
       }
+    }
+  }
+
+  /**
+   * Eliminar certificado SSL
+   */
+  async deleteCertificate(domain: string): Promise<boolean> {
+    try {
+      // Buscar certificado para este dominio
+      const certificateArn = await this.findExistingCertificate(domain)
+
+      if (!certificateArn) {
+        SecureLogger.secureLog('info', 'No certificate found to delete for domain %s', domain)
+        return true // No hay certificado que eliminar, consideramos exitoso
+      }
+
+      // Verificar estado del certificado antes de eliminar
+      const info = await this.getCertificateInfo(certificateArn)
+
+      if (info?.status === 'PENDING_VALIDATION') {
+        // Los certificados en estado PENDING_VALIDATION se pueden eliminar
+        const command = new DeleteCertificateCommand({
+          CertificateArn: certificateArn,
+        })
+
+        await this.acmClient.send(command)
+        SecureLogger.secureLog('info', 'Certificate deleted successfully for domain %s', domain)
+        return true
+      } else if (info?.status === 'ISSUED') {
+        // Certificados ISSUED no se pueden eliminar si están en uso
+        // En CloudFront Multi-Tenant, primero debe eliminarse el tenant
+        SecureLogger.secureLog(
+          'warn',
+          'Cannot delete ISSUED certificate for %s - may be in use',
+          domain
+        )
+        return false
+      }
+
+      return true
+    } catch (error) {
+      SecureLogger.secureLog('error', 'Error deleting certificate for %s:', domain, error)
+      return false
     }
   }
 }
