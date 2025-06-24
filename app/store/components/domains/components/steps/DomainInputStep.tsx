@@ -33,11 +33,7 @@ export function DomainInputStep({
         onChange={onDomainChange}
         placeholder="ej: mitienda.com"
         error={domainName && !validation.isValid ? validation.error : undefined}
-        helpText={
-          domainName && !validation.isValid && validation.error
-            ? validation.error
-            : 'Ingresa tu dominio sin www'
-        }
+        helpText="Ingresa tu dominio sin www"
         autoComplete="off"
       />
 

@@ -87,12 +87,9 @@ export function AutomatedCustomDomainDialog({
     if (result.success) {
       showToast('¡Dominio validado! Verificando certificado SSL...', false)
 
-      // Si necesita validación ACM, esperar a que los datos estén disponibles antes de cambiar el paso
+      // Si necesita validación ACM, ir al paso de ACM
       if (result.data?.needsACMValidation) {
-        // Dar tiempo para que el estado se actualice completamente
-        setTimeout(() => {
-          setCurrentStep('acm-validation')
-        }, 100)
+        setCurrentStep('acm-validation')
       } else {
         // Si el certificado ya está listo, crear CloudFront directamente
         setCurrentStep('cloudfront')
