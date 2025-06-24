@@ -69,7 +69,7 @@ class DomainResolver {
     }
 
     // Verificar que la tienda esté completada y pagada
-    const isActive = store.onboardingCompleted && store.storeStatus === true
+    const isActive = store.storeStatus === true
     if (!isActive) {
       const error: TemplateError = {
         type: 'STORE_NOT_ACTIVE',

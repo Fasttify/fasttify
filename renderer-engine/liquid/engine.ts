@@ -42,7 +42,7 @@ class LiquidEngine {
    */
   private createEngine(): Liquid {
     const config: LiquidEngineConfig = {
-      cache: true, // Caché interno de LiquidJS
+      cache: false, // Caché interno de LiquidJS
       greedy: false, // Permite variables undefined sin error
       trimTagLeft: false,
       trimTagRight: false,
