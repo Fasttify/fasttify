@@ -222,11 +222,42 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Verificar estado en CloudFront
-    const tenantStatus = await customDomainService.getCustomDomainStatus(store.cloudFrontTenantId)
+    // Verificar estado en CloudFront con reintentos de 5 segundos
+    const startTime = Date.now()
+    const maxDuration = 5000 // 5 segundos
+    const retryInterval = 1000 // 1 segundo entre intentos
 
-    // Verificar DNS
-    const dnsStatus = await customDomainService.verifyDNSConfiguration(store.customDomain)
+    let tenantStatus, dnsStatus
+    let lastError
+
+    // Verificar múltiples veces durante 5 segundos
+    while (Date.now() - startTime < maxDuration) {
+      try {
+        tenantStatus = await customDomainService.getCustomDomainStatus(store.cloudFrontTenantId)
+        dnsStatus = await customDomainService.verifyDNSConfiguration(store.customDomain)
+
+        // Si obtenemos respuestas válidas, salir del loop
+        if (tenantStatus && dnsStatus) {
+          break
+        }
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : 'Unknown error'
+      }
+
+      // Esperar antes del siguiente intento si aún hay tiempo
+      if (Date.now() - startTime < maxDuration - retryInterval) {
+        await new Promise(resolve => setTimeout(resolve, retryInterval))
+      }
+    }
+
+    if (!tenantStatus || !dnsStatus) {
+      return NextResponse.json(
+        {
+          error: lastError || 'Unable to verify domain status after multiple attempts',
+        },
+        { status: 500 }
+      )
+    }
 
     let newStatus = store.customDomainStatus
     let verifiedAt = store.customDomainVerifiedAt

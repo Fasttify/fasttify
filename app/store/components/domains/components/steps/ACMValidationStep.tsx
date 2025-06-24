@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { LegacyCard, Text, Button, LegacyStack, Banner, Box, Icon, Badge } from '@shopify/polaris'
-import { ClipboardIcon, RefreshIcon, CheckCircleIcon } from '@shopify/polaris-icons'
+import { LegacyCard, Text, Button, LegacyStack, Banner, Box, Badge } from '@shopify/polaris'
+import { ClipboardIcon, RefreshIcon } from '@shopify/polaris-icons'
 
 interface ACMValidationStepProps {
   domain: string
@@ -45,6 +45,23 @@ export function ACMValidationStep({
       setVerificationStatus('error')
     }
   }, [certificateArn, onVerifyACM, onContinue])
+
+  // Si no hay registros de validación disponibles, mostrar loading
+  if (!acmValidationRecords || acmValidationRecords.length === 0) {
+    return (
+      <LegacyStack vertical spacing="extraLoose" alignment="center">
+        <Text variant="headingLg" as="h2">
+          Preparando registros de validación SSL...
+        </Text>
+        <Text variant="bodyMd" as="p" tone="subdued">
+          Obteniendo la información de validación ACM para {domain}
+        </Text>
+        <LegacyStack distribution="trailing" spacing="tight">
+          <Button onClick={onBack}>Volver</Button>
+        </LegacyStack>
+      </LegacyStack>
+    )
+  }
 
   return (
     <LegacyStack vertical spacing="extraLoose">
@@ -158,18 +175,6 @@ export function ACMValidationStep({
           </Text>
         </LegacyStack>
       </Banner>
-
-      {/* Success Status */}
-      {verificationStatus === 'success' && (
-        <Banner title="Certificado SSL validado correctamente">
-          <LegacyStack spacing="tight">
-            <Icon source={CheckCircleIcon} />
-            <Text variant="bodyMd" as="p">
-              El certificado está listo para continuar con la configuración
-            </Text>
-          </LegacyStack>
-        </Banner>
-      )}
 
       {/* Action Buttons */}
       <LegacyStack distribution="trailing" spacing="tight">
