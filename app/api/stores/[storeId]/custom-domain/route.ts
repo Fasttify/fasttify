@@ -184,7 +184,10 @@ export async function DELETE(
       // Intentar eliminar múltiples veces durante 5 segundos
       while (Date.now() - startTime < maxDuration && !success) {
         try {
-          await customDomainService.deleteCustomDomain(store.cloudFrontTenantId)
+          await customDomainService.deleteCustomDomain(
+            store.cloudFrontTenantId,
+            store.customDomain || undefined
+          )
           success = true
         } catch (error) {
           lastError = error instanceof Error ? error.message : 'Unknown error'
