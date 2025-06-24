@@ -177,9 +177,10 @@ const schema = a
         mercadoPagoConfig: a.json(),
         mastershopApiKey: a.string(),
         customDomain: a.string(),
-        customDomainStatus: a.string(), // 'pending', 'active', 'failed', 'inactive'
-        cloudflareHostnameId: a.string(), // ID del hostname en Cloudflare
-        customDomainVerifiedAt: a.datetime(), // Fecha de verificación exitosa
+        customDomainStatus: a.string(),
+        customDomainVerifiedAt: a.datetime(),
+        cloudFrontTenantId: a.string(),
+        cloudFrontEndpoint: a.string(),
         onboardingCompleted: a
           .boolean()
           .required()
