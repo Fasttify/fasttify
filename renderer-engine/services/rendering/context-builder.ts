@@ -84,8 +84,7 @@ export class ContextBuilder {
   public async createRenderContextSync(
     store: any,
     featuredProducts: any[],
-    collections: any[],
-    storeTemplate?: any
+    collections: any[]
   ): Promise<RenderContext> {
     // Crear contexto de la tienda (como 'shop' para compatibilidad)
     const shop: ShopContext = {
