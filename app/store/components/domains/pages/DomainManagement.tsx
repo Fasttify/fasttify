@@ -162,134 +162,136 @@ export function DomainManagement() {
             </LegacyCard.Section>
 
             {/* Dominio personalizado (si existe) */}
-            {customDomainStatus?.hasCustomDomain && (
-              <LegacyCard.Section>
-                <LegacyStack distribution="equalSpacing" alignment="center">
-                  <LegacyStack alignment="center">
-                    <Icon source={GlobeIcon} tone="base" />
-                    <LegacyStack vertical spacing="none">
-                      <Text as="p">{customDomainStatus.domain}</Text>
-                      <Text as="p" tone="subdued">
-                        Dominio personalizado
-                      </Text>
-                    </LegacyStack>
-                  </LegacyStack>
-                  <Badge
-                    tone={
-                      customDomainStatus.status === 'active'
-                        ? 'success'
-                        : customDomainStatus.status === 'pending'
-                          ? 'warning'
-                          : 'critical'
-                    }
-                    size="small"
-                  >
-                    {customDomainStatus.status === 'active'
-                      ? 'Activo'
-                      : customDomainStatus.status === 'pending'
-                        ? 'Pendiente'
-                        : 'Error'}
-                  </Badge>
-                </LegacyStack>
-                {customDomainStatus.status !== 'active' && (
-                  <Box paddingBlockStart="200" paddingInlineStart="400">
-                    <LegacyStack vertical spacing="tight">
-                      {customDomainStatus.status === 'pending' && (
+            {customDomainStatus?.hasCustomDomain &&
+              customDomainStatus?.domain &&
+              !customDomainStatus.domain.endsWith('.fasttify.com') && (
+                <LegacyCard.Section>
+                  <LegacyStack distribution="equalSpacing" alignment="center">
+                    <LegacyStack alignment="center">
+                      <Icon source={GlobeIcon} tone="base" />
+                      <LegacyStack vertical spacing="none">
+                        <Text as="p">{customDomainStatus.domain}</Text>
                         <Text as="p" tone="subdued">
-                          Para completar la configuración, necesitas configurar tu DNS:
+                          Dominio personalizado
                         </Text>
-                      )}
-
-                      {customDomainStatus.status === 'failed' && (
-                        <Text as="p" tone="critical">
-                          Error en la configuración del dominio. Verifica que el DNS esté
-                          configurado correctamente y vuelve a intentar.
-                        </Text>
-                      )}
-
-                      {/* Mostrar instrucciones DNS tanto en pending como en failed */}
-                      {(customDomainStatus.status === 'pending' ||
-                        customDomainStatus.status === 'failed') &&
-                        customDomainStatus.cloudFrontStatus?.dnsInstructions && (
-                          <LegacyCard sectioned>
-                            <LegacyStack vertical spacing="tight">
-                              <Text variant="headingSm" as="h4">
-                                Configuración DNS requerida
-                              </Text>
-                              <LegacyStack>
-                                <Box minWidth="60px">
-                                  <Text as="p" variant="bodyMd" fontWeight="medium">
-                                    Tipo:
-                                  </Text>
-                                </Box>
-                                <Text as="p" variant="bodyMd">
-                                  {customDomainStatus.cloudFrontStatus.dnsInstructions.type}
-                                </Text>
-                              </LegacyStack>
-                              <LegacyStack>
-                                <Box minWidth="60px">
-                                  <Text as="p" variant="bodyMd" fontWeight="medium">
-                                    Nombre:
-                                  </Text>
-                                </Box>
-                                <LegacyStack alignment="center">
-                                  <Text as="p" variant="bodyMd">
-                                    {customDomainStatus.cloudFrontStatus.dnsInstructions.name}
-                                  </Text>
-                                  <Button
-                                    size="micro"
-                                    icon={ClipboardIcon}
-                                    onClick={() =>
-                                      navigator.clipboard.writeText(
-                                        customDomainStatus.cloudFrontStatus?.dnsInstructions
-                                          ?.name || ''
-                                      )
-                                    }
-                                  />
-                                </LegacyStack>
-                              </LegacyStack>
-                              <LegacyStack>
-                                <Box minWidth="60px">
-                                  <Text as="p" variant="bodyMd" fontWeight="medium">
-                                    Valor:
-                                  </Text>
-                                </Box>
-                                <LegacyStack alignment="center">
-                                  <Text as="p" variant="bodyMd">
-                                    {customDomainStatus.cloudFrontStatus.dnsInstructions.value}
-                                  </Text>
-                                  <Button
-                                    size="micro"
-                                    icon={ClipboardIcon}
-                                    onClick={() =>
-                                      navigator.clipboard.writeText(
-                                        customDomainStatus.cloudFrontStatus?.dnsInstructions
-                                          ?.value || ''
-                                      )
-                                    }
-                                  />
-                                </LegacyStack>
-                              </LegacyStack>
-                              <Text as="p" variant="bodySm" tone="subdued">
-                                Los cambios DNS pueden tardar hasta 48 horas en propagarse.
-                              </Text>
-                            </LegacyStack>
-                          </LegacyCard>
+                      </LegacyStack>
+                    </LegacyStack>
+                    <Badge
+                      tone={
+                        customDomainStatus.status === 'active'
+                          ? 'success'
+                          : customDomainStatus.status === 'pending'
+                            ? 'warning'
+                            : 'critical'
+                      }
+                      size="small"
+                    >
+                      {customDomainStatus.status === 'active'
+                        ? 'Activo'
+                        : customDomainStatus.status === 'pending'
+                          ? 'Pendiente'
+                          : 'Error'}
+                    </Badge>
+                  </LegacyStack>
+                  {customDomainStatus.status !== 'active' && (
+                    <Box paddingBlockStart="200" paddingInlineStart="400">
+                      <LegacyStack vertical spacing="tight">
+                        {customDomainStatus.status === 'pending' && (
+                          <Text as="p" tone="subdued">
+                            Para completar la configuración, necesitas configurar tu DNS:
+                          </Text>
                         )}
 
-                      <Button
-                        variant="primary"
-                        size="slim"
-                        onClick={handleVerifyDomainStatus}
-                        loading={isVerifying}
-                      >
-                        {isVerifying ? 'Verificando...' : 'Verificar Estado'}
-                      </Button>
-                    </LegacyStack>
-                  </Box>
-                )}
-              </LegacyCard.Section>
-            )}
+                        {customDomainStatus.status === 'failed' && (
+                          <Text as="p" tone="critical">
+                            Error en la configuración del dominio. Verifica que el DNS esté
+                            configurado correctamente y vuelve a intentar.
+                          </Text>
+                        )}
+
+                        {/* Mostrar instrucciones DNS tanto en pending como en failed */}
+                        {(customDomainStatus.status === 'pending' ||
+                          customDomainStatus.status === 'failed') &&
+                          customDomainStatus.cloudFrontStatus?.dnsInstructions && (
+                            <LegacyCard sectioned>
+                              <LegacyStack vertical spacing="tight">
+                                <Text variant="headingSm" as="h4">
+                                  Configuración DNS requerida
+                                </Text>
+                                <LegacyStack>
+                                  <Box minWidth="60px">
+                                    <Text as="p" variant="bodyMd" fontWeight="medium">
+                                      Tipo:
+                                    </Text>
+                                  </Box>
+                                  <Text as="p" variant="bodyMd">
+                                    {customDomainStatus.cloudFrontStatus.dnsInstructions.type}
+                                  </Text>
+                                </LegacyStack>
+                                <LegacyStack>
+                                  <Box minWidth="60px">
+                                    <Text as="p" variant="bodyMd" fontWeight="medium">
+                                      Nombre:
+                                    </Text>
+                                  </Box>
+                                  <LegacyStack alignment="center">
+                                    <Text as="p" variant="bodyMd">
+                                      {customDomainStatus.cloudFrontStatus.dnsInstructions.name}
+                                    </Text>
+                                    <Button
+                                      size="micro"
+                                      icon={ClipboardIcon}
+                                      onClick={() =>
+                                        navigator.clipboard.writeText(
+                                          customDomainStatus.cloudFrontStatus?.dnsInstructions
+                                            ?.name || ''
+                                        )
+                                      }
+                                    />
+                                  </LegacyStack>
+                                </LegacyStack>
+                                <LegacyStack>
+                                  <Box minWidth="60px">
+                                    <Text as="p" variant="bodyMd" fontWeight="medium">
+                                      Valor:
+                                    </Text>
+                                  </Box>
+                                  <LegacyStack alignment="center">
+                                    <Text as="p" variant="bodyMd">
+                                      {customDomainStatus.cloudFrontStatus.dnsInstructions.value}
+                                    </Text>
+                                    <Button
+                                      size="micro"
+                                      icon={ClipboardIcon}
+                                      onClick={() =>
+                                        navigator.clipboard.writeText(
+                                          customDomainStatus.cloudFrontStatus?.dnsInstructions
+                                            ?.value || ''
+                                        )
+                                      }
+                                    />
+                                  </LegacyStack>
+                                </LegacyStack>
+                                <Text as="p" variant="bodySm" tone="subdued">
+                                  Los cambios DNS pueden tardar hasta 48 horas en propagarse.
+                                </Text>
+                              </LegacyStack>
+                            </LegacyCard>
+                          )}
+
+                        <Button
+                          variant="primary"
+                          size="slim"
+                          onClick={handleVerifyDomainStatus}
+                          loading={isVerifying}
+                        >
+                          {isVerifying ? 'Verificando...' : 'Verificar Estado'}
+                        </Button>
+                      </LegacyStack>
+                    </Box>
+                  )}
+                </LegacyCard.Section>
+              )}
 
             {/* Subdominio de fasttify.com */}
             <LegacyCard.Section>

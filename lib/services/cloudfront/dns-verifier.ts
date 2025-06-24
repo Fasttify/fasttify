@@ -102,7 +102,7 @@ export class DNSVerifier {
    */
   generateDNSInstructions(domain: string, endpoint: string): string {
     return `
-📋 Configuración DNS requerida para ${domain}:
+ Configuración DNS requerida para ${domain}:
 
 🔹 OPCIÓN RECOMENDADA - Registro CNAME:
    • Tipo: CNAME
@@ -110,12 +110,12 @@ export class DNSVerifier {
    • Valor: ${endpoint}
    • TTL: 300 (5 minutos)
 
-⚠️ IMPORTANTE:
+ IMPORTANTE:
    • Si usas un dominio raíz (ej: midominio.com), algunos proveedores no permiten CNAME
    • En ese caso, consulta con tu proveedor sobre alias/ANAME records
    • Los cambios DNS pueden tardar hasta 48 horas en propagarse completamente
 
-🧪 Verificar configuración:
+ Verificar configuración:
    • Comando: dig CNAME ${domain}
    • Resultado esperado: ${endpoint}
     `.trim()
