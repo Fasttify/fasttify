@@ -4,6 +4,7 @@ import chokidar from 'chokidar'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader'
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
+import { logger } from '@/renderer-engine/lib/logger'
 
 interface SyncOptions {
   localDir: string
@@ -92,7 +93,11 @@ export class TemplateDevSynchronizer {
       },
     })
 
-    console.log(`[TemplateDevSynchronizer] Observando cambios en ${this.localDir}`)
+    logger.debug(
+      `[TemplateDevSynchronizer] Observando cambios en ${this.localDir}`,
+      undefined,
+      'TemplateDevSynchronizer'
+    )
 
     // Configurar eventos
     this.watcher
@@ -105,7 +110,11 @@ export class TemplateDevSynchronizer {
       if (this.watcher) {
         this.watcher.on('ready', () => {
           this.isActive = true
-          console.log(`[TemplateDevSynchronizer] Listo para sincronizar cambios`)
+          logger.debug(
+            `[TemplateDevSynchronizer] Listo para sincronizar cambios`,
+            undefined,
+            'TemplateDevSynchronizer'
+          )
           resolve()
         })
       } else {
@@ -122,7 +131,11 @@ export class TemplateDevSynchronizer {
       await this.watcher.close()
       this.watcher = null
       this.isActive = false
-      console.log('[TemplateDevSynchronizer] Sincronización detenida')
+      logger.debug(
+        '[TemplateDevSynchronizer] Sincronización detenida',
+        undefined,
+        'TemplateDevSynchronizer'
+      )
     }
   }
 
@@ -136,7 +149,11 @@ export class TemplateDevSynchronizer {
     try {
       // Obtener ruta relativa al directorio local
       const relativePath = path.relative(this.localDir, filePath)
-      console.log(`[TemplateDevSynchronizer] ${event.toUpperCase()}: ${relativePath}`)
+      logger.debug(
+        `[TemplateDevSynchronizer] ${event.toUpperCase()}: ${relativePath}`,
+        undefined,
+        'TemplateDevSynchronizer'
+      )
 
       // Construir clave S3
       const s3Key = `templates/${this.storeId}/${relativePath}`.replace(/\\/g, '/')
@@ -146,7 +163,11 @@ export class TemplateDevSynchronizer {
         await this.uploadFileToS3(filePath, s3Key)
       } else if (event === 'unlink') {
         // TODO: Implementar eliminación de archivos en S3
-        console.log(`[TemplateDevSynchronizer] Eliminación de archivos no implementada aún`)
+        logger.warn(
+          `[TemplateDevSynchronizer] Eliminación de archivos no implementada aún`,
+          undefined,
+          'TemplateDevSynchronizer'
+        )
       }
 
       // Invalidar caché de manera agresiva
@@ -158,8 +179,10 @@ export class TemplateDevSynchronizer {
 
       // Forzar recarga del template - Si es un cambio importante, invalidar toda la caché
       if (templatePath.includes('template/')) {
-        console.log(
-          `[TemplateDevSynchronizer] Cambio crítico detectado, invalidando toda la caché de la tienda`
+        logger.debug(
+          `[TemplateDevSynchronizer] Cambio crítico detectado, invalidando toda la caché de la tienda`,
+          undefined,
+          'TemplateDevSynchronizer'
         )
         templateLoader.invalidateAllTemplateCache(this.storeId)
       }
@@ -182,7 +205,11 @@ export class TemplateDevSynchronizer {
         this.onChangeCallback([...this.recentChanges])
       }
     } catch (error) {
-      console.error(`[TemplateDevSynchronizer] Error al manejar cambio en archivo:`, error)
+      logger.error(
+        `[TemplateDevSynchronizer] Error al manejar cambio en archivo`,
+        error,
+        'TemplateDevSynchronizer'
+      )
     }
   }
 
@@ -221,9 +248,17 @@ export class TemplateDevSynchronizer {
       })
 
       await this.s3Client.send(command)
-      console.log(`[TemplateDevSynchronizer] Subido a S3: ${s3Key}`)
+      logger.debug(
+        `[TemplateDevSynchronizer] Subido a S3: ${s3Key}`,
+        undefined,
+        'TemplateDevSynchronizer'
+      )
     } catch (error) {
-      console.error(`[TemplateDevSynchronizer] Error al subir a S3:`, error)
+      logger.error(
+        `[TemplateDevSynchronizer] Error al subir a S3`,
+        error,
+        'TemplateDevSynchronizer'
+      )
       throw error
     }
   }
@@ -279,7 +314,11 @@ export class TemplateDevSynchronizer {
       throw new Error('El sincronizador no está activo')
     }
 
-    console.log(`[TemplateDevSynchronizer] Sincronizando todos los archivos...`)
+    logger.debug(
+      `[TemplateDevSynchronizer] Sincronizando todos los archivos...`,
+      undefined,
+      'TemplateDevSynchronizer'
+    )
 
     const syncFiles = async (dir: string) => {
       const entries = fs.readdirSync(dir, { withFileTypes: true })
@@ -296,7 +335,11 @@ export class TemplateDevSynchronizer {
     }
 
     await syncFiles(this.localDir)
-    console.log(`[TemplateDevSynchronizer] Sincronización completa`)
+    logger.debug(
+      `[TemplateDevSynchronizer] Sincronización completa`,
+      undefined,
+      'TemplateDevSynchronizer'
+    )
   }
 
   /**

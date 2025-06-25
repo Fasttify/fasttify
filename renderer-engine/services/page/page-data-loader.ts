@@ -3,12 +3,26 @@ import type { PageRenderOptions } from '@/renderer-engine/types/template'
 
 class PageDataLoader {
   public async load(storeId: string, options: PageRenderOptions) {
+    // =============================================
+    // DATOS GLOBALES (necesarios en todas las páginas)
+    // =============================================
+
+    // Carrito - siempre necesario para header/contador
+    const cart = await dataFetcher.getCart(storeId)
+    const cartContext = dataFetcher.transformCartToContext(cart)
+
+    // Base de datos para todas las páginas
     const baseData = {
       featuredProducts: [],
       collections: [],
       contextData: {},
       metaData: {},
+      cartData: cartContext, // Dato global
     }
+
+    // =============================================
+    // DATOS ESPECÍFICOS POR TIPO DE PÁGINA
+    // =============================================
 
     switch (options.pageType) {
       case 'index':
@@ -105,7 +119,7 @@ class PageDataLoader {
           contextData: {
             template: 'cart',
             page_title: 'Carrito de Compras',
-            cart_items: [],
+            cart: cartContext,
           },
         }
 

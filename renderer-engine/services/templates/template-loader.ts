@@ -1,6 +1,7 @@
 import { S3Client, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 import type { TemplateFile, TemplateCache, TemplateError } from '@/renderer-engine/types'
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
+import { logger } from '@/renderer-engine/lib/logger'
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher'
 
 class TemplateLoader {
@@ -58,9 +59,10 @@ class TemplateLoader {
 
       return content
     } catch (error) {
-      console.error(
-        `[TemplateLoader] Error loading template ${templatePath} for store ${storeId}:`,
-        error
+      logger.error(
+        `Error loading template ${templatePath} for store ${storeId}`,
+        error,
+        'TemplateLoader'
       )
 
       const templateError: TemplateError = {
@@ -120,7 +122,7 @@ class TemplateLoader {
             lastModified: object.LastModified,
           })
         } catch (error) {
-          console.warn(`Failed to load template file: ${relativePath}`, error)
+          logger.warn(`Failed to load template file: ${relativePath}`, error, 'TemplateLoader')
           // Continuar con otros archivos
         }
       }
@@ -131,7 +133,7 @@ class TemplateLoader {
 
       return templateFiles
     } catch (error) {
-      console.error(`Error loading templates for store ${storeId}:`, error)
+      logger.error(`Error loading templates for store ${storeId}`, error, 'TemplateLoader')
 
       const templateError: TemplateError = {
         type: 'TEMPLATE_NOT_FOUND',
@@ -215,10 +217,7 @@ class TemplateLoader {
 
       return assetBuffer
     } catch (error) {
-      console.error(
-        `[TemplateLoader] Error loading asset ${assetPath} for store ${storeId}:`,
-        error
-      )
+      logger.error(`Error loading asset ${assetPath} for store ${storeId}`, error, 'TemplateLoader')
 
       const templateError: TemplateError = {
         type: 'TEMPLATE_NOT_FOUND',
@@ -244,7 +243,7 @@ class TemplateLoader {
       }
       return true
     } catch (error) {
-      console.error(`Error checking navigation menus for store ${storeId}:`, error)
+      logger.error(`Error checking navigation menus for store ${storeId}`, error, 'TemplateLoader')
       return false
     }
   }
@@ -266,7 +265,11 @@ class TemplateLoader {
     const cacheKey = `template_${storeId}_${templatePath}`
     // Invalidar estableciendo a null con TTL de 0
     cacheManager.setCached(cacheKey, null, 0)
-    console.log(`[TemplateLoader] Caché invalidada para ${templatePath} en tienda ${storeId}`)
+    logger.debug(
+      `Cache invalidated for ${templatePath} in store ${storeId}`,
+      undefined,
+      'TemplateLoader'
+    )
   }
 
   /**
@@ -276,7 +279,7 @@ class TemplateLoader {
   public invalidateAllTemplateCache(storeId: string): void {
     // Usar el método existente para invalidar caché por tienda
     cacheManager.invalidateStoreCache(storeId)
-    console.log(`[TemplateLoader] Caché de todas las plantillas invalidada para tienda ${storeId}`)
+    logger.debug(`All template cache invalidated for store ${storeId}`, undefined, 'TemplateLoader')
   }
 
   /**

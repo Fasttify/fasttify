@@ -466,6 +466,243 @@ const schema = a
         allow.guest().to(['read']),
         allow.publicApiKey().to(['read']),
       ]),
+
+    // Modelo para carritos de usuarios registrados
+    Cart: a
+      .model({
+        userId: a
+          .string()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+          ]), // Para usuarios registrados
+        sessionId: a
+          .string()
+          .authorization(allow => [allow.publicApiKey().to(['create', 'read', 'update'])]), // Para usuarios invitados
+        storeId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        items: a.hasMany('CartItem', 'cartId'),
+        totalAmount: a
+          .float()
+          .default(0)
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['read', 'update']),
+            allow.publicApiKey().to(['read', 'update']),
+          ]),
+        itemCount: a
+          .integer()
+          .default(0)
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['read', 'update']),
+            allow.publicApiKey().to(['read', 'update']),
+          ]),
+        currency: a
+          .string()
+          .default('COP')
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        expiresAt: a
+          .datetime()
+          .authorization(allow => [
+            allow.ownerDefinedIn('userId').to(['read']),
+            allow.publicApiKey().to(['read', 'update']),
+          ]), // Para limpiar carritos abandonados
+      })
+      .secondaryIndexes(index => [
+        index('userId'),
+        index('sessionId'),
+        index('storeId'),
+        index('expiresAt'),
+      ])
+      .authorization(allow => [
+        allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
+        allow.publicApiKey().to(['read', 'create', 'update']),
+      ]),
+
+    // Items individuales del carrito
+    CartItem: a
+      .model({
+        cartId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        cart: a.belongsTo('Cart', 'cartId'),
+        productId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        variantId: a
+          .string()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+          ]), // Para variantes del producto
+        quantity: a
+          .integer()
+          .required()
+          .default(1)
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update']),
+            allow.publicApiKey().to(['read', 'update']),
+          ]),
+        unitPrice: a
+          .float()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        totalPrice: a
+          .float()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update']),
+            allow.publicApiKey().to(['read', 'update']),
+          ]),
+        productSnapshot: a
+          .json()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+          ]), // Snapshot del producto en el momento de agregarlo
+        owner: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('owner').to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+      })
+      .secondaryIndexes(index => [index('cartId'), index('productId')])
+      .authorization(allow => [
+        allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+        allow.publicApiKey().to(['read', 'create', 'update', 'delete']),
+      ]),
+
+    // Órdenes completadas
+    Order: a
+      .model({
+        orderNumber: a.string().required(),
+        storeId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['read']),
+          ]),
+        customerId: a.string(), // Puede ser userId o sessionId
+        customerType: a.enum(['registered', 'guest']),
+        items: a.hasMany('OrderItem', 'orderId'),
+        subtotal: a.float().required(),
+        shippingCost: a.float().default(0),
+        taxAmount: a.float().default(0),
+        totalAmount: a.float().required(),
+        currency: a.string().default('USD'),
+        status: a.enum(['pending', 'processing', 'shipped', 'delivered', 'cancelled']),
+        paymentStatus: a.enum(['pending', 'paid', 'failed', 'refunded']),
+        paymentMethod: a.string(),
+        paymentId: a.string(), // ID de la transacción del gateway de pago
+        shippingAddress: a.json(),
+        billingAddress: a.json(),
+        customerInfo: a.json(), // Email, nombre, teléfono
+        notes: a.string(),
+        storeOwner: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['create', 'read']),
+          ]),
+      })
+      .secondaryIndexes(index => [
+        index('storeId'),
+        index('customerId'),
+        index('orderNumber'),
+        index('status'),
+        index('storeOwner'),
+      ])
+      .authorization(allow => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read', 'update']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+
+    // Items de las órdenes
+    OrderItem: a
+      .model({
+        orderId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['create', 'read']),
+          ]),
+        order: a.belongsTo('Order', 'orderId'),
+        productId: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['create', 'read']),
+          ]),
+        variantId: a
+          .string()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['create', 'read']),
+          ]),
+        quantity: a
+          .integer()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['create', 'read']),
+          ]),
+        unitPrice: a
+          .float()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['create', 'read']),
+          ]),
+        totalPrice: a
+          .float()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['create', 'read']),
+          ]),
+        productSnapshot: a
+          .json()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['create', 'read']),
+          ]), // Snapshot completo del producto
+        storeOwner: a
+          .string()
+          .required()
+          .authorization(allow => [
+            allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+            allow.publicApiKey().to(['create', 'read']),
+          ]),
+      })
+      .secondaryIndexes(index => [index('orderId'), index('productId')])
+      .authorization(allow => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
   })
   .authorization(allow => [
     allow.resource(postConfirmation),

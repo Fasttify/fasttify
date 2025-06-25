@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
+import { logger } from '@/renderer-engine/lib/logger'
 
 // Configuración de S3
 const s3Client = new S3Client({
@@ -36,7 +37,11 @@ export async function GET(
     // Determinar content type
     const contentType = getContentTypeFromFilename(assetPath)
 
-    console.log(`[AssetsAPI] Serving asset: ${assetPath} (${contentType}) - ${buffer.length} bytes`)
+    logger.debug(
+      `[AssetsAPI] Serving asset: ${assetPath} (${contentType}) - ${buffer.length} bytes`,
+      undefined,
+      'AssetsAPI'
+    )
 
     // Retornar el archivo con headers apropiados
     return new NextResponse(new Uint8Array(buffer), {
@@ -49,7 +54,7 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('[AssetsAPI] Error loading asset:', error)
+    logger.error('[AssetsAPI] Error loading asset', error, 'AssetsAPI')
 
     if (error instanceof Error && error.name === 'NoSuchKey') {
       return NextResponse.json({ error: 'Asset not found' }, { status: 404 })

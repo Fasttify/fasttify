@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-  <!-- SEO básico (el título se maneja desde Next.js) -->
+  <!-- SEO -->
   {% if page_description %}
   <meta name="description" content="{{ page_description | escape }}">
   {% endif %}
@@ -20,11 +20,11 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;700&display=swap"
     rel="stylesheet">
 
-  <!-- Estilos y assets -->
+  <!-- Styles -->
   {{ 'theme.css' | asset_url | stylesheet_tag }}
   {{ 'header.css' | asset_url | stylesheet_tag }}
-
-  <!-- Shopify data -->
+  {{ 'cart.css' | asset_url | stylesheet_tag }}
+  <!-- Fasttify data -->
   {{ content_for_header }}
 
   {% render 'pagefly-head' %}
@@ -41,16 +41,12 @@
 
   {% section 'footer' %}
   
-  <!-- Side Cart -->
+  <!-- Sections -->
   {% section 'cart' %}
-
-  <!-- Newsletter Popup -->
   {% section 'newsletter-popup' %}
-
-  <!-- Newsletter Popup JavaScript -->
-  {{ 'newsletter-popup.js' | asset_url | script_tag }}
   
-  <!-- Side Cart JavaScript -->
+  <!-- Scripts -->
+  {{ 'newsletter-popup.js' | asset_url | script_tag }}
   {{ 'side-cart.js' | asset_url | script_tag }}
 
 </body>

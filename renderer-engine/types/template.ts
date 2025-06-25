@@ -23,14 +23,15 @@ export interface RenderContext {
   page: PageContext
   page_title: string
   page_description: string
-  products: any[]
-  collections: any[]
-  linklists?: any // Navegación compatible con Shopify
+  products: ProductContext[]
+  collections: CollectionContext[]
+  linklists?: Record<string, any> // Navegación compatible con Shopify
   content_for_layout?: string // Contenido principal de la página
   content_for_header?: string // Contenido adicional para el <head>
-  product?: any // Para páginas de producto
-  collection?: any // Para páginas de colección
-  pagination?: any // Para páginas con paginación
+  product?: ProductContext // Para páginas de producto
+  collection?: CollectionContext // Para páginas de colección
+  cart?: any // Para datos del carrito (mantenemos any por compatibilidad con Liquid)
+  pagination?: PaginationContext // Para páginas con paginación
   preloaded_sections?: Record<string, string> // Secciones pre-cargadas
   _assetCollector?: AssetCollector
 }
@@ -90,9 +91,20 @@ export interface ProductContext {
   }>
 
   // Variantes y opciones
-  variants: any[]
+  variants: Array<{
+    id: string
+    title: string
+    price: string
+    available: boolean
+    sku?: string
+    [key: string]: any
+  }>
 
-  attributes: any[]
+  attributes: Array<{
+    name: string
+    value: any
+    [key: string]: any
+  }>
 
   // Categorización
   category?: string | null

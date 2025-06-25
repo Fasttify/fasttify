@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { templateDevSynchronizer } from '@/renderer-engine/services/templates/template-dev-synchronizer'
+import { logger } from '@/renderer-engine/lib/logger'
 
 /**
  * API para manejar la sincronización de plantillas en modo desarrollo
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
   } catch (error) {
-    console.error('Error in template sync endpoint:', error)
+    logger.error('Error in template sync endpoint', error, 'TemplateDev')
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -73,7 +74,7 @@ export async function GET() {
       changes: templateDevSynchronizer.getRecentChanges(),
     })
   } catch (error) {
-    console.error('Error in template sync status endpoint:', error)
+    logger.error('Error in template sync status endpoint', error, 'TemplateDev')
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

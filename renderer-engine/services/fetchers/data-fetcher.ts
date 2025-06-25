@@ -2,7 +2,16 @@ import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
 import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher'
 import { collectionFetcher } from '@/renderer-engine/services/fetchers/collection-fetcher'
 import { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher'
-import type { ProductContext, CollectionContext } from '@/renderer-engine/types'
+import { cartFetcher } from '@/renderer-engine/services/fetchers/cart-fetcher'
+import type {
+  ProductContext,
+  CollectionContext,
+  Cart,
+  CartContext,
+  AddToCartRequest,
+  UpdateCartRequest,
+  CartResponse,
+} from '@/renderer-engine/types'
 
 interface PaginationOptions {
   limit?: number
@@ -31,18 +40,7 @@ interface NavigationMenusResponse {
 /**
  * DataFetcher refactorizado que orquesta todos los servicios especializados
  */
-class DataFetcher {
-  private static instance: DataFetcher
-
-  private constructor() {}
-
-  public static getInstance(): DataFetcher {
-    if (!DataFetcher.instance) {
-      DataFetcher.instance = new DataFetcher()
-    }
-    return DataFetcher.instance
-  }
-
+export class DataFetcher {
   // === PRODUCTOS ===
 
   /**
@@ -100,6 +98,57 @@ class DataFetcher {
     return navigationFetcher.getStoreNavigationMenus(storeId)
   }
 
+  // === CARRITO ===
+
+  /**
+   * Obtiene el carrito para una sesión específica
+   */
+  public async getCart(storeId: string): Promise<Cart> {
+    return cartFetcher.getCart(storeId)
+  }
+
+  /**
+   * Agrega un producto al carrito
+   */
+  public async addToCart(request: AddToCartRequest): Promise<CartResponse> {
+    return cartFetcher.addToCart(request)
+  }
+
+  /**
+   * Actualiza la cantidad de un item en el carrito
+   */
+  public async updateCartItem(request: UpdateCartRequest): Promise<CartResponse> {
+    return cartFetcher.updateCartItem(request)
+  }
+
+  /**
+   * Remueve un item del carrito
+   */
+  public async removeFromCart(storeId: string, itemId: string): Promise<CartResponse> {
+    return cartFetcher.removeFromCart(storeId, itemId)
+  }
+
+  /**
+   * Limpia todos los items del carrito
+   */
+  public async clearCart(storeId: string): Promise<CartResponse> {
+    return cartFetcher.clearCart(storeId)
+  }
+
+  /**
+   * Convierte un carrito a contexto Liquid
+   */
+  public transformCartToContext(cart: Cart): CartContext {
+    return cartFetcher.transformCartToContext(cart)
+  }
+
+  /**
+   * Limpia carritos expirados
+   */
+  public cleanupExpiredCarts(): void {
+    return cartFetcher.cleanupExpiredCarts()
+  }
+
   // === GESTIÓN DE CACHÉ ===
 
   /**
@@ -139,7 +188,6 @@ class DataFetcher {
 }
 
 // Export singleton instance
-export const dataFetcher = DataFetcher.getInstance()
+export const dataFetcher = new DataFetcher()
 
-// Export class for testing
-export { DataFetcher }
+// Class ya está exportada arriba

@@ -5,6 +5,7 @@ import type {
   ProcessedNavigationMenu,
   ProcessedNavigationMenuItem,
 } from '@/renderer-engine/types/store'
+import { logger } from '@/renderer-engine/lib/logger'
 
 interface NavigationMenusResponse {
   menus: ProcessedNavigationMenu[]
@@ -55,7 +56,11 @@ export class NavigationFetcher {
         )
 
       if (!rawMenus || rawMenus.length === 0) {
-        console.warn(`No navigation menus found for store: ${storeId}`)
+        logger.warn(
+          `No navigation menus found for store: ${storeId}`,
+          undefined,
+          'NavigationFetcher'
+        )
         const emptyResponse = { menus: [] }
         // Cachear respuesta vacía por menor tiempo (5 minutos)
         cacheManager.setCached(cacheKey, emptyResponse, 5 * 60 * 1000)
@@ -83,7 +88,11 @@ export class NavigationFetcher {
 
       return response
     } catch (error) {
-      console.error(`Error fetching navigation menus for store ${storeId}:`, error)
+      logger.error(
+        `Error fetching navigation menus for store ${storeId}`,
+        error,
+        'NavigationFetcher'
+      )
       return { menus: [] }
     }
   }
@@ -131,7 +140,11 @@ export class NavigationFetcher {
 
       return processedMenu
     } catch (error) {
-      console.error(`Error fetching navigation menu ${handle} for store ${storeId}:`, error)
+      logger.error(
+        `Error fetching navigation menu ${handle} for store ${storeId}`,
+        error,
+        'NavigationFetcher'
+      )
       return null
     }
   }
@@ -177,7 +190,7 @@ export class NavigationFetcher {
         owner: rawMenu.owner,
       }
     } catch (error) {
-      console.error(`Error processing navigation menu ${rawMenu.handle}:`, error)
+      logger.error(`Error processing navigation menu ${rawMenu.handle}`, error, 'NavigationFetcher')
       return {
         id: rawMenu.id,
         storeId: rawMenu.storeId,
@@ -270,7 +283,7 @@ export class NavigationFetcher {
         }
       }
     } catch (error) {
-      console.warn(`Error resolving page URL for handle ${pageHandle}:`, error)
+      logger.warn(`Error resolving page URL for handle ${pageHandle}`, error, 'NavigationFetcher')
     }
 
     return `/${pageHandle}`
@@ -296,7 +309,11 @@ export class NavigationFetcher {
         }
       }
     } catch (error) {
-      console.warn(`Error resolving collection URL for handle ${collectionHandle}:`, error)
+      logger.warn(
+        `Error resolving collection URL for handle ${collectionHandle}`,
+        error,
+        'NavigationFetcher'
+      )
     }
 
     return `/collections/${collectionHandle}`

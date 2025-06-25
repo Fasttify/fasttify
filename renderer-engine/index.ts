@@ -1,4 +1,5 @@
 import { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-renderer'
+import { logger } from '@/renderer-engine/lib/logger'
 import type { RenderResult } from '@/renderer-engine/types'
 import type { PageRenderOptions } from '@/renderer-engine/types/template'
 
@@ -30,7 +31,11 @@ export class StoreRendererFactory {
       // Usar el renderizador dinámico unificado
       return await this.dynamicRenderer.render(domain, options)
     } catch (error) {
-      console.error(`Error rendering page ${cleanPath} for domain ${domain}:`, error)
+      logger.error(
+        `Error rendering page ${cleanPath} for domain ${domain}`,
+        error,
+        'StoreRendererFactory'
+      )
 
       // Si es un error tipado de plantilla, renderizar página de error amigable
       if (error && typeof error === 'object' && 'type' in error) {
@@ -38,7 +43,11 @@ export class StoreRendererFactory {
         try {
           return await this.dynamicRenderer.renderError(templateError, domain, cleanPath)
         } catch (renderError) {
-          console.error('Failed to render error page, falling back to throwing error:', renderError)
+          logger.error(
+            'Failed to render error page, falling back to throwing error',
+            renderError,
+            'StoreRendererFactory'
+          )
           throw error // Si falla el renderizado de error, lanzar el error original
         }
       }
@@ -54,7 +63,11 @@ export class StoreRendererFactory {
       try {
         return await this.dynamicRenderer.renderError(genericError, domain, cleanPath)
       } catch (renderError) {
-        console.error('Failed to render error page for generic error:', renderError)
+        logger.error(
+          'Failed to render error page for generic error',
+          renderError,
+          'StoreRendererFactory'
+        )
         throw genericError
       }
     }
@@ -139,7 +152,7 @@ export class StoreRendererFactory {
       await this.dynamicRenderer.render(domain, { pageType: 'index' })
       return true
     } catch (error) {
-      console.warn(`Store ${domain} cannot be rendered:`, error)
+      logger.warn(`Store ${domain} cannot be rendered`, error, 'StoreRendererFactory')
       return false
     }
   }

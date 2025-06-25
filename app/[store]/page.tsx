@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
 import { storeRenderer } from '@/renderer-engine'
+import { logger } from '@/renderer-engine/lib/logger'
 
 // Forzar renderizado dinámico para acceder a variables de entorno en runtime
 export const dynamic = 'force-dynamic'
@@ -142,7 +143,7 @@ export default async function StorePage({ params, searchParams }: StorePageProps
       </>
     )
   } catch (error: any) {
-    console.error(`Error rendering store page ${store}${path}:`, error)
+    logger.error(`Error rendering store page ${store}${path}`, error, 'StorePage')
 
     // Si el error ya tiene HTML renderizado (páginas de error amigables),
     // mostrar esa página en lugar de lanzar el error
@@ -228,7 +229,7 @@ export async function generateMetadata({
         : undefined,
     }
   } catch (error) {
-    console.error(`ERROR generating metadata for ${store}${path}:`, error)
+    logger.error(`ERROR generating metadata for ${store}${path}`, error, 'StorePage')
 
     // Extraer nombre más amigable del dominio para el fallback
     const friendlyName = store.includes('.')

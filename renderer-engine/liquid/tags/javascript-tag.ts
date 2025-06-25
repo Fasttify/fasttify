@@ -1,5 +1,6 @@
 import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs'
 import { AssetCollector } from '@/renderer-engine/services/rendering/asset-collector'
+import { logger } from '@/renderer-engine/lib/logger'
 
 /**
  * Custom JavaScript Tag para manejar {% javascript %} en LiquidJS
@@ -78,7 +79,7 @@ export class JavaScriptTag extends Tag {
       const uniqueId = sectionId || `javascript-${Math.random().toString(36).substring(2, 9)}`
       assetCollector.addJs(processedJS, uniqueId)
     } catch (error) {
-      console.error('Error processing JavaScript in javascript tag:', error)
+      logger.error('Error processing JavaScript in javascript tag', error, 'JavaScriptTag')
     }
   }
 

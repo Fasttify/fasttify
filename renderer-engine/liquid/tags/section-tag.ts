@@ -1,4 +1,5 @@
 import { Tag, TagToken, Context, TopLevelToken, Liquid } from 'liquidjs'
+import { logger } from '@/renderer-engine/lib/logger'
 
 /**
  * Custom Section Tag para manejar {% section 'section-name' %} en LiquidJS
@@ -59,7 +60,7 @@ export class SectionTag extends Tag {
       // Fallback: mostrar mensaje de sección no encontrada
       emitter.write(`<!-- Section '${this.sectionName}' not preloaded -->`)
     } catch (error) {
-      console.error(`Error rendering section '${this.sectionName}':`, error)
+      logger.error(`Error rendering section '${this.sectionName}'`, error, 'SectionTag')
       emitter.write(
         `<!-- Error loading section '${this.sectionName}': ${error instanceof Error ? error.message : 'Unknown error'} -->`
       )

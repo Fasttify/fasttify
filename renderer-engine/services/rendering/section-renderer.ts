@@ -2,6 +2,7 @@ import { liquidEngine } from '@/renderer-engine/liquid/engine'
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader'
 import { schemaParser } from '@/renderer-engine/services/templates/schema-parser'
 import type { RenderContext } from '@/renderer-engine/types'
+import { logger } from '@/renderer-engine/lib/logger'
 
 export class SectionRenderer {
   /**
@@ -41,11 +42,15 @@ export class SectionRenderer {
       // Renderizar la sección con el contexto enriquecido
       return await liquidEngine.render(cleanedContent, sectionContext, `section_${sectionName}`)
     } catch (error) {
-      console.error(`Error rendering section ${sectionName}:`, error)
+      logger.error(`Error rendering section ${sectionName}`, error, 'SectionRenderer')
 
       // Intentar render con contexto más simple como fallback
       if (error instanceof Error && error.message.includes('unexpected')) {
-        console.warn(`Attempting simplified render for section ${sectionName}...`)
+        logger.warn(
+          `Attempting simplified render for section ${sectionName}...`,
+          undefined,
+          'SectionRenderer'
+        )
         try {
           // Contexto más básico sin blocks complejos
           const simpleContext = {
@@ -62,7 +67,11 @@ export class SectionRenderer {
             `section_${sectionName}_simple`
           )
         } catch (fallbackError) {
-          console.error(`Simplified render also failed for ${sectionName}:`, fallbackError)
+          logger.error(
+            `Simplified render also failed for ${sectionName}`,
+            fallbackError,
+            'SectionRenderer'
+          )
         }
       }
 
@@ -88,7 +97,7 @@ export class SectionRenderer {
       )
       return await this.renderSectionWithSchema(sectionName, sectionContent, context, storeTemplate)
     } catch (error) {
-      console.warn(`Section ${sectionName} not found or failed to render:`, error)
+      logger.warn(`Section ${sectionName} not found or failed to render`, error, 'SectionRenderer')
       return `<!-- Section '${sectionName}' not found -->`
     }
   }

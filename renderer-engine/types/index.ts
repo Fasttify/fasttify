@@ -51,3 +51,13 @@ export type {
   StyleTag,
   JavaScriptTag,
 } from './liquid'
+
+// Cart types
+export type {
+  Cart,
+  CartItem,
+  CartContext,
+  AddToCartRequest,
+  UpdateCartRequest,
+  CartResponse,
+} from './cart'

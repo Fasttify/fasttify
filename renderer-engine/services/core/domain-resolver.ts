@@ -1,6 +1,7 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
 import type { Store, TemplateError } from '@/renderer-engine/types'
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
+import { logger } from '@/renderer-engine/lib/logger'
 
 class DomainResolver {
   private static instance: DomainResolver
@@ -45,7 +46,7 @@ class DomainResolver {
       cacheManager.setCached(cacheKey, store, cacheManager.DOMAIN_CACHE_TTL)
       return store
     } catch (error) {
-      console.error(`Error resolving domain ${domain}:`, error)
+      logger.error(`Error resolving domain ${domain}`, error, 'DomainResolver')
 
       return null
     }

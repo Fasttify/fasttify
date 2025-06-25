@@ -1,3 +1,5 @@
+import { logger } from '@/renderer-engine/lib/logger'
+
 export class SchemaParser {
   /**
    * Limpia y valida el contenido JSON de un schema
@@ -25,14 +27,18 @@ export class SchemaParser {
       } catch (bracketError) {
         const errorMessage =
           bracketError instanceof Error ? bracketError.message : 'Unknown bracket error'
-        console.warn('Schema has unbalanced brackets, but continuing with parsing:', errorMessage)
+        logger.warn(
+          'Schema has unbalanced brackets, but continuing with parsing',
+          errorMessage,
+          'SchemaParser'
+        )
         // No retornamos error, intentamos parsear el JSON de todas formas
       }
 
       return cleaned
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      console.warn('Error cleaning schema JSON, using original:', errorMessage)
+      logger.warn('Error cleaning schema JSON, using original', errorMessage, 'SchemaParser')
       // Si hay error en la limpieza, devolver el contenido original
       return jsonContent
     }
@@ -136,13 +142,17 @@ export class SchemaParser {
 
       return settings
     } catch (error) {
-      console.error('Error extracting schema settings:', error)
+      logger.error('Error extracting schema settings', error, 'SchemaParser')
 
       // Buscar nuevamente el match para el log de error
       const schemaRegex = /{%\s*schema\s*%}([\s\S]*?){%\s*endschema\s*%}/i
       const errorMatch = templateContent.match(schemaRegex)
       if (errorMatch?.[1]) {
-        console.error('Schema content that failed:', errorMatch[1].substring(0, 500) + '...')
+        logger.error(
+          'Schema content that failed',
+          errorMatch[1].substring(0, 500) + '...',
+          'SchemaParser'
+        )
       }
 
       return {}
@@ -173,14 +183,14 @@ export class SchemaParser {
           const cleanedContent = this.cleanSchemaJSON(rawContent)
           schemaJSON = JSON.parse(cleanedContent)
         } catch (cleanError) {
-          console.warn('Error extracting schema blocks:', cleanError)
+          logger.warn('Error extracting schema blocks', cleanError, 'SchemaParser')
           return []
         }
       }
 
       return schemaJSON.blocks || []
     } catch (error) {
-      console.warn('Error extracting schema blocks:', error)
+      logger.warn('Error extracting schema blocks', error, 'SchemaParser')
       return []
     }
   }
@@ -236,12 +246,12 @@ export class SchemaParser {
           const cleanedContent = this.cleanSchemaJSON(rawContent)
           return JSON.parse(cleanedContent)
         } catch (cleanError) {
-          console.warn('Error extracting full schema:', cleanError)
+          logger.warn('Error extracting full schema', cleanError, 'SchemaParser')
           return {}
         }
       }
     } catch (error) {
-      console.warn('Error extracting schema:', error)
+      logger.warn('Error extracting schema', error, 'SchemaParser')
       return {}
     }
   }
