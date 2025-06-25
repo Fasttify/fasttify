@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { templateDevSynchronizer } from '@/renderer-engine/services/templates/template-dev-synchronizer'
+import { logger } from '@/renderer-engine/lib/logger'
 
 // Almacén de conexiones SSE activas
 const activeConnections = new Set<ReadableStreamDefaultController>()
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
             try {
               controller.enqueue(encoder.encode(`data: ${message}\n\n`))
             } catch (error) {
-              console.error('Error sending SSE message:', error)
+              logger.error('Error sending SSE message', error, 'SSE')
             }
           })
         })
@@ -53,7 +54,11 @@ export async function GET(request: NextRequest) {
       request.signal.addEventListener('abort', () => {
         activeConnections.delete(controller)
         clearInterval(pingInterval)
-        console.log('[SSE] Client disconnected, remaining:', activeConnections.size)
+        logger.debug(
+          `[SSE] Client disconnected, remaining: ${activeConnections.size}`,
+          undefined,
+          'SSE'
+        )
       })
     },
   })

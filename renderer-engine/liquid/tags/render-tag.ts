@@ -1,4 +1,5 @@
 import { Tag, TagToken, Context, TopLevelToken, Liquid } from 'liquidjs'
+import { logger } from '@/renderer-engine/lib/logger'
 
 /**
  * Custom Render Tag para manejar {% render 'snippet' %} en LiquidJS
@@ -53,7 +54,7 @@ export class RenderTag extends Tag {
       const snippetContent = (yield this.loadSnippet(this.snippetName, ctx)) as string
 
       if (!snippetContent) {
-        console.warn(`Snippet '${this.snippetName}' not found`)
+        logger.warn(`Snippet '${this.snippetName}' not found`, undefined, 'RenderTag')
         emitter.write(`<!-- Snippet '${this.snippetName}' not found -->`)
         return
       }
@@ -73,7 +74,7 @@ export class RenderTag extends Tag {
             evaluatedParams[key] = String(result).trim()
           }
         } catch (error) {
-          console.warn(`Error evaluating parameter '${key}': '${value}'`, error)
+          logger.warn(`Error evaluating parameter '${key}': '${value}'`, error, 'RenderTag')
           evaluatedParams[key] = value
         }
       }
@@ -87,7 +88,7 @@ export class RenderTag extends Tag {
 
       emitter.write(result as string)
     } catch (error) {
-      console.error(`Error rendering snippet '${this.snippetName}':`, error)
+      logger.error(`Error rendering snippet '${this.snippetName}'`, error, 'RenderTag')
       emitter.write(`<!-- Error rendering snippet '${this.snippetName}' -->`)
     }
   }
@@ -102,7 +103,11 @@ export class RenderTag extends Tag {
       const storeId = contextData.store?.storeId || contextData.storeId
 
       if (!storeId) {
-        console.warn(`No storeId found in context for snippet '${snippetName}'`)
+        logger.warn(
+          `No storeId found in context for snippet '${snippetName}'`,
+          undefined,
+          'RenderTag'
+        )
         return `<!-- Error: No storeId found for snippet '${snippetName}' -->`
       }
 
@@ -121,14 +126,14 @@ export class RenderTag extends Tag {
       const snippetContent = await templateLoader.loadTemplate(storeId, snippetPath)
 
       if (!snippetContent) {
-        console.warn(`Snippet '${snippetName}' is empty`)
+        logger.warn(`Snippet '${snippetName}' is empty`, undefined, 'RenderTag')
         return `<!-- Warning: Snippet '${snippetName}' is empty -->`
       }
 
       return snippetContent
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      console.warn(`Could not load snippet '${snippetName}':`, error)
+      logger.warn(`Could not load snippet '${snippetName}'`, error, 'RenderTag')
 
       // Devolver comentario HTML en lugar de null para mejor debugging
       return `<!-- Error loading snippet '${snippetName}': ${errorMessage} -->`

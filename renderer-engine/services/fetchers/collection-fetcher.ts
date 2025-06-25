@@ -2,6 +2,7 @@ import { cookiesClient } from '@/utils/AmplifyServer'
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer'
 import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher'
+import { logger } from '@/renderer-engine/lib/logger'
 import type { CollectionContext, ProductContext, TemplateError } from '@/renderer-engine/types'
 
 interface PaginationOptions {
@@ -75,7 +76,7 @@ export class CollectionFetcher {
 
       return result
     } catch (error) {
-      console.error(`Error fetching collections for store ${storeId}:`, error)
+      logger.error(`Error fetching collections for store ${storeId}`, error, 'CollectionFetcher')
 
       const templateError: TemplateError = {
         type: 'DATA_ERROR',
@@ -123,7 +124,11 @@ export class CollectionFetcher {
 
       return transformedCollection
     } catch (error) {
-      console.error(`Error fetching collection ${collectionId} for store ${storeId}:`, error)
+      logger.error(
+        `Error fetching collection ${collectionId} for store ${storeId}`,
+        error,
+        'CollectionFetcher'
+      )
       return null
     }
   }
@@ -150,7 +155,11 @@ export class CollectionFetcher {
           products = productData.data.map((p: any) => productFetcher.transformProduct(p))
         }
       } catch (error) {
-        console.warn(`Could not fetch products for collection ${collection.id}.`, error)
+        logger.warn(
+          `Could not fetch products for collection ${collection.id}`,
+          error,
+          'CollectionFetcher'
+        )
       }
     }
 

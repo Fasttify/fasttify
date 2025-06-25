@@ -1,5 +1,6 @@
 import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs'
 import { AssetCollector } from '@/renderer-engine/services/rendering/asset-collector'
+import { logger } from '@/renderer-engine/lib/logger'
 
 /**
  * Custom Style Tag para manejar {% style %} en LiquidJS
@@ -79,7 +80,7 @@ export class StyleTag extends Tag {
       const optimizedCSS = this.optimizeCSS(processedCSS)
       assetCollector.addCss(optimizedCSS, uniqueId)
     } catch (error) {
-      console.error('Error processing CSS in style tag:', error)
+      logger.error('Error processing CSS in style tag', error, 'StyleTag')
     }
   }
 
@@ -182,7 +183,7 @@ export class StylesheetTag extends Tag {
       const uniqueId = sectionId || `stylesheet-${Math.random().toString(36).substring(2, 9)}`
       assetCollector.addCss(processedCSS, uniqueId)
     } catch (error) {
-      console.error('Error processing CSS in stylesheet tag:', error)
+      logger.error('Error processing CSS in stylesheet tag', error, 'StylesheetTag')
     }
   }
 }

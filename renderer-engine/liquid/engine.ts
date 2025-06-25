@@ -6,7 +6,7 @@ import type {
   LiquidContext,
   TemplateError,
 } from '@/renderer-engine/types'
-import { ecommerceFilters } from '@/renderer-engine/liquid/filters'
+import { allFilters } from '@/renderer-engine/liquid/filters'
 import { SchemaTag } from '@/renderer-engine/liquid/tags/schema-tag'
 import { ScriptTag } from '@/renderer-engine/liquid/tags/script-tag'
 import { SectionTag } from '@/renderer-engine/liquid/tags/section-tag'
@@ -17,11 +17,13 @@ import { JavaScriptTag } from '@/renderer-engine/liquid/tags/javascript-tag'
 import { FormTag } from '@/renderer-engine/liquid/tags/form-tag'
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
 import { AssetCollector } from '@/renderer-engine/services/rendering/asset-collector'
+import { logger } from '@/renderer-engine/lib/logger'
 
 class LiquidEngine {
   private static instance: LiquidEngine
   private liquid: Liquid
   public assetCollector: AssetCollector
+  private currentStoreId: string | null = null // 🆕 Trackear el storeId actual
 
   private constructor() {
     this.assetCollector = new AssetCollector()
@@ -71,15 +73,23 @@ class LiquidEngine {
    * Registra todos los filtros personalizados
    */
   private registerFilters(): void {
-    ecommerceFilters.forEach(({ name, filter }) => {
+    allFilters.forEach(({ name, filter }) => {
       this.liquid.registerFilter(name, filter)
     })
   }
 
   /**
    * Registra filtros específicos del contexto de una tienda
+   * Solo registra si el storeId cambió para evitar acumulación
    */
   private registerStoreFilters(storeId: string): void {
+    //  SOLO registrar si cambió el storeId o es la primera vez
+    if (this.currentStoreId === storeId) {
+      return // Ya está registrado para este store, no hacer nada
+    }
+
+    logger.debug(`Registering filters for store: ${storeId}`, 'LiquidEngine')
+
     // Registrar asset_url con storeId específico
     this.liquid.registerFilter('asset_url', (filename: string) => {
       if (!filename) {
@@ -92,6 +102,9 @@ class LiquidEngine {
       // URL para assets específicos de la tienda via API
       return `/api/stores/${storeId}/assets/${cleanFilename}`
     })
+
+    //  Actualizar el storeId actual
+    this.currentStoreId = storeId
   }
 
   /**
@@ -142,7 +155,7 @@ class LiquidEngine {
 
       return result
     } catch (error) {
-      console.error('Liquid render error:', error)
+      logger.error('Template rendering failed', error, 'LiquidEngine')
 
       const templateError: TemplateError = {
         type: 'RENDER_ERROR',
@@ -178,7 +191,7 @@ class LiquidEngine {
         compiledAt: new Date(),
       }
     } catch (error) {
-      console.error('Template compilation error:', error)
+      logger.error('Template compilation failed', error, 'LiquidEngine')
 
       const templateError: TemplateError = {
         type: 'RENDER_ERROR',
@@ -201,7 +214,7 @@ class LiquidEngine {
     try {
       return await compiled.liquid.render(compiled.template, context)
     } catch (error) {
-      console.error('Compiled template render error:', error)
+      logger.error('Compiled template rendering failed', error, 'LiquidEngine')
 
       const templateError: TemplateError = {
         type: 'RENDER_ERROR',
@@ -266,6 +279,10 @@ class LiquidEngine {
     this.assetCollector = new AssetCollector()
     this.liquid = this.createEngine()
     this.registerFilters()
+    this.registerCustomTags()
+    // 🆕 Resetear el contexto de store
+    this.currentStoreId = null
+    logger.info('Cache y contexto de Liquid limpiados completamente', 'LiquidEngine')
   }
 
   /**

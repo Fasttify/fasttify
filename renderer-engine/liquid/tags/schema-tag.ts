@@ -1,4 +1,5 @@
 import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs'
+import { logger } from '@/renderer-engine/lib/logger'
 
 /**
  * Custom Schema Tag para manejar {% schema %} de Shopify en LiquidJS
@@ -53,8 +54,8 @@ export class SchemaTag extends Tag {
         this.parsedSchema = JSON.parse(this.schemaContent)
       }
     } catch (error) {
-      console.warn('Error parsing schema JSON:', error)
-      console.warn('Schema content:', this.schemaContent)
+      logger.warn('Error parsing schema JSON', error, 'SchemaTag')
+      logger.warn('Schema content', this.schemaContent, 'SchemaTag')
       this.parsedSchema = {}
     }
   }

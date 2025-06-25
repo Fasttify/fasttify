@@ -42,6 +42,14 @@ class SideCart {
     document.addEventListener('cart:open', () => this.open())
     document.addEventListener('cart:close', () => this.close())
     document.addEventListener('cart:updated', () => this.refresh())
+
+    // Event listener global para botones data-open-cart
+    document.addEventListener('click', e => {
+      if (e.target.closest('[data-open-cart]')) {
+        e.preventDefault()
+        this.open()
+      }
+    })
   }
 
   open() {
@@ -49,7 +57,7 @@ class SideCart {
 
     this.isOpen = true
     document.body.style.overflow = 'hidden'
-    this.overlay.classList.add('is-open')
+    this.overlay.classList.add('active')
 
     // Focus en el primer elemento focusable
     setTimeout(() => {
@@ -65,7 +73,7 @@ class SideCart {
 
     this.isOpen = false
     document.body.style.overflow = ''
-    this.overlay.classList.remove('is-open')
+    this.overlay.classList.remove('active')
   }
 
   setupQuantityControls() {
@@ -76,21 +84,21 @@ class SideCart {
 
       if (plusBtn) {
         e.preventDefault()
-        const input = this.getQuantityInput(plusBtn.dataset.itemKey)
+        const input = this.getQuantityInput(plusBtn.dataset.itemId)
         if (input) {
           const newValue = parseInt(input.value) + 1
           input.value = newValue
-          this.updateQuantity(plusBtn.dataset.itemKey, newValue)
+          this.updateQuantity(plusBtn.dataset.itemId, newValue)
         }
       }
 
       if (minusBtn) {
         e.preventDefault()
-        const input = this.getQuantityInput(minusBtn.dataset.itemKey)
+        const input = this.getQuantityInput(minusBtn.dataset.itemId)
         if (input) {
           const newValue = Math.max(0, parseInt(input.value) - 1)
           input.value = newValue
-          this.updateQuantity(minusBtn.dataset.itemKey, newValue)
+          this.updateQuantity(minusBtn.dataset.itemId, newValue)
         }
       }
     })
@@ -101,7 +109,7 @@ class SideCart {
       if (input) {
         const newValue = Math.max(0, parseInt(input.value) || 0)
         input.value = newValue
-        this.updateQuantity(input.dataset.itemKey, newValue)
+        this.updateQuantity(input.dataset.itemId, newValue)
       }
     })
   }
@@ -111,7 +119,7 @@ class SideCart {
       const removeBtn = e.target.closest('[data-remove-item]')
       if (removeBtn) {
         e.preventDefault()
-        this.removeItem(removeBtn.dataset.itemKey)
+        this.removeItem(removeBtn.dataset.itemId)
       }
     })
   }
@@ -126,11 +134,11 @@ class SideCart {
     })
   }
 
-  getQuantityInput(itemKey) {
-    return this.sidebar.querySelector(`input[data-item-key="${itemKey}"]`)
+  getQuantityInput(itemId) {
+    return this.sidebar.querySelector(`input[data-item-id="${itemId}"]`)
   }
 
-  async updateQuantity(itemKey, quantity) {
+  async updateQuantity(itemId, quantity) {
     if (this.isUpdating) return
 
     try {
@@ -144,7 +152,7 @@ class SideCart {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          id: itemKey,
+          id: itemId,
           quantity: quantity,
         }),
       })
@@ -161,7 +169,7 @@ class SideCart {
     } catch (error) {
       console.error('Error updating quantity:', error)
       // Revertir el valor en caso de error
-      const input = this.getQuantityInput(itemKey)
+      const input = this.getQuantityInput(itemId)
       if (input) {
         // Buscar el valor original en el DOM o recargar
         this.refresh()
@@ -172,8 +180,8 @@ class SideCart {
     }
   }
 
-  async removeItem(itemKey) {
-    return this.updateQuantity(itemKey, 0)
+  async removeItem(itemId) {
+    return this.updateQuantity(itemId, 0)
   }
 
   async updateCart() {

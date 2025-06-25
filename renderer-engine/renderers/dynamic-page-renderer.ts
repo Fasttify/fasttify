@@ -8,6 +8,7 @@ import { sectionRenderer } from '@/renderer-engine/services/rendering/section-re
 import { errorRenderer } from '@/renderer-engine/services/errors/error-renderer'
 import { pageConfig } from '@/renderer-engine/services/page/page-config'
 import { pageDataLoader } from '@/renderer-engine/services/page/page-data-loader'
+import { logger } from '@/renderer-engine/lib/logger'
 import type { RenderResult, ShopContext, TemplateError } from '@/renderer-engine/types'
 import type { PageRenderOptions } from '@/renderer-engine/types/template'
 
@@ -37,16 +38,24 @@ export class DynamicPageRenderer {
         dataFetcher.getStoreNavigationMenus(store.storeId),
       ])
 
-      // 4. Crear contexto y renderizar contenido de la página
-      const context = await this.buildInitialContext(store, pageData, storeTemplate)
-      const renderedContent = await this.renderPageContent(
+      // 4. Paralelizar: construir contexto Y cargar template
+      const templatePath = pageConfig.getTemplatePath(options.pageType)
+      const [context, pageTemplate] = await Promise.all([
+        this.buildInitialContext(store, pageData, storeTemplate),
+        templateLoader.loadTemplate(store.storeId, templatePath),
+      ])
+
+      // 5. Renderizar contenido con template y contexto ya cargados
+      const renderedContent = await this.renderPageContentOptimized(
+        templatePath,
+        pageTemplate,
+        context,
         store.storeId,
         options,
-        context,
         storeTemplate
       )
 
-      // 5. Pre-cargar secciones del layout y renderizar layout completo
+      // 6. Pre-cargar secciones del layout y renderizar layout completo
       await this.preloadLayoutSections(store.storeId, layout, context, storeTemplate)
       context.content_for_layout = renderedContent
       context.content_for_header = metadataGenerator.generateHeadContent(store)
@@ -58,7 +67,7 @@ export class DynamicPageRenderer {
       )
       const htmlWithAssets = this.injectAssets(html, liquidEngine.assetCollector)
 
-      // 6. Generar metadata y clave de caché
+      // 7. Generar metadata y clave de caché
       const pageTitle = context.page_title || context.page?.title
       const metadata = metadataGenerator.generateMetadata(store, domain, pageTitle)
       const cacheKey = this.generateCacheKey(store.storeId, options)
@@ -70,7 +79,11 @@ export class DynamicPageRenderer {
         cacheTTL: pageConfig.getCacheTTL(options.pageType),
       }
     } catch (error) {
-      console.error(`Error rendering ${options.pageType} page for domain ${domain}:`, error)
+      logger.error(
+        `Error rendering ${options.pageType} page for domain ${domain}`,
+        error,
+        'DynamicPageRenderer'
+      )
       if (error && typeof error === 'object' && 'type' in error) {
         throw error
       }
@@ -97,21 +110,24 @@ export class DynamicPageRenderer {
       store,
       pageData.featuredProducts || [],
       pageData.collections || [],
-      storeTemplate
+      storeTemplate,
+      pageData.cartData
     )
     Object.assign(context, pageData.contextData)
     return context
   }
 
-  private async renderPageContent(
+  /**
+   *  Template ya cargado en paralelo
+   */
+  private async renderPageContentOptimized(
+    templatePath: string,
+    pageTemplate: string,
+    context: any,
     storeId: string,
     options: PageRenderOptions,
-    context: any,
     storeTemplate: any
   ): Promise<string> {
-    const templatePath = pageConfig.getTemplatePath(options.pageType)
-    const pageTemplate = await templateLoader.loadTemplate(storeId, templatePath)
-
     if (templatePath.endsWith('.json')) {
       const templateConfig = JSON.parse(
         pageTemplate.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1')
@@ -191,7 +207,7 @@ export class DynamicPageRenderer {
           storeTemplate
         )
       } catch (error) {
-        console.warn(`Section ${sectionConfig.type} not found:`, error)
+        logger.warn(`Section ${sectionConfig.type} not found`, error, 'DynamicPageRenderer')
         return `<!-- Section '${sectionConfig.type}' not found -->`
       }
     })
@@ -229,7 +245,7 @@ export class DynamicPageRenderer {
       }
       return await errorRenderer.renderError(error, { domain, path, store })
     } catch (renderError) {
-      console.error('Critical error in renderError:', renderError)
+      logger.error('Critical error in renderError', renderError, 'DynamicPageRenderer')
       // Fallback to a plain text error response
       throw error
     }

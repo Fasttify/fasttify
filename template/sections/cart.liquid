@@ -1,520 +1,192 @@
 <!-- Side Cart Overlay -->
-<div id="cart-overlay" class="cart-overlay" data-cart-overlay>
+<div
+  id="cart-overlay"
+  class="cart-overlay"
+  data-cart-overlay>
   <div class="cart-sidebar" data-cart-sidebar>
     <!-- Header del carrito -->
     <div class="cart-header">
       <h2 class="cart-title">Tu carrito</h2>
-      <button type="button" class="cart-close" data-cart-close aria-label="Cerrar carrito">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13.5 4.5L4.5 13.5M4.5 4.5L13.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <button
+        type="button"
+        class="cart-close"
+        data-cart-close
+        aria-label="Cerrar carrito">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M13.5 4.5L4.5 13.5M4.5 4.5L13.5 13.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
         </svg>
       </button>
     </div>
-    
+
     <!-- Contenido del carrito -->
     <div class="cart-content">
-      {% form 'cart', cart %}
-        {% if cart.empty? %}
-          <div class="cart-empty">
-            <h3 class="cart-empty-title">Tu carrito está vacío</h3>
-            <p class="cart-empty-text">¿Tienes una cuenta? <a href="/account/login" class="cart-empty-link">Inicia sesión</a> para pagar más rápido.</p>
-            <button type="button" class="cart-continue-shopping" data-cart-close>Seguir comprando</button>
-          </div>
-        {% else %}
-          <!-- Items del carrito -->
-          <div class="cart-items">
-            {% for item in cart.items %}
-              <div class="cart-item" data-item-key="{{ item.key }}">
-                <div class="cart-item-image">
-                  <img
-                    src="{{ item.image | img_url: '120x120' }}"
-                    alt="{{ item.title | escape }}"
-                    loading="lazy"
-                  >
-                </div>
-                
-                <div class="cart-item-details">
-                  <h4 class="cart-item-title">{{ item.product.title }}</h4>
-                  {% if item.variant.title != 'Default Title' %}
-                    <p class="cart-item-variant">{{ item.variant.title }}</p>
+      {% if cart.item_count == 0 %}
+        <div class="cart-empty">
+          <h3 class="cart-empty-title">Tu carrito está vacío</h3>
+          <p class="cart-empty-text">¿Tienes una cuenta?
+            <a href="/account/login" class="cart-empty-link">Inicia sesión</a>
+            para pagar más rápido.</p>
+          <button
+            type="button"
+            class="cart-continue-shopping"
+            data-cart-close>Seguir comprando</button>
+        </div>
+      {% else %}
+        <!-- Items del carrito -->
+        <div class="cart-items">
+          {% for item in cart.items %}
+            <div
+              class="cart-item"
+              data-item-id="{{ item.id }}"
+              data-product-id="{{ item.product_id }}"
+              data-variant-id="{{ item.variant_id }}">
+              <div class="cart-item-image">
+                <img
+                  src="{{ item.image | img_url: '120x120' }}"
+                  alt="{{ item.title | escape }}"
+                  loading="lazy">
+              </div>
+
+              <div class="cart-item-details">
+                <h4 class="cart-item-title">{{ item.title }}</h4>
+                {% if item.variant_id and item.variant_id != '' %}
+                  <p class="cart-item-variant">Variante: {{ item.variant_id }}</p>
+                {% endif %}
+
+                <div class="cart-item-price">
+                  <span class="cart-item-price-final">{{ item.price | money }}</span>
+                  {% if item.quantity > 1 %}
+                    <span class="cart-item-line-price">
+                      - Total: {{ item.line_price | money }}</span>
                   {% endif %}
-                  
-                  <div class="cart-item-price">
-                    {% if item.original_price != item.final_price %}
-                      <span class="cart-item-price-original">{{ item.original_price | money }}</span>
-                    {% endif %}
-                    <span class="cart-item-price-final">{{ item.final_price | money }}</span>
-                  </div>
-                  
-                  <!-- Cantidad -->
-                  <div class="cart-item-quantity">
-                    <button type="button" class="quantity-btn quantity-minus" data-quantity-minus data-item-key="{{ item.key }}">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M2.5 6H9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                      </svg>
-                    </button>
-                    <input 
-                      type="number" 
-                      name="updates[]" 
-                      value="{{ item.quantity }}" 
-                      min="0" 
-                      class="quantity-input"
-                      data-item-key="{{ item.key }}"
-                    >
-                    <button type="button" class="quantity-btn quantity-plus" data-quantity-plus data-item-key="{{ item.key }}">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M6 2.5V9.5M2.5 6H9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                      </svg>
-                    </button>
-                  </div>
                 </div>
-                
-                <!-- Remover item -->
-                <button type="button" class="cart-item-remove" data-remove-item data-item-key="{{ item.key }}">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  </svg>
-                </button>
+
+                <!-- Cantidad -->
+                <div class="cart-item-quantity">
+                  <button
+                    type="button"
+                    class="quantity-btn quantity-minus"
+                    data-quantity-minus
+                    data-item-id="{{ item.id }}">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none">
+                      <path
+                        d="M2.5 6H9.5"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round" />
+                    </svg>
+                  </button>
+                  <input
+                    type="number"
+                    value="{{ item.quantity }}"
+                    min="0"
+                    class="quantity-input"
+                    data-item-id="{{ item.id }}"
+                    data-product-id="{{ item.product_id }}"
+                    data-variant-id="{{ item.variant_id }}">
+                  <button
+                    type="button"
+                    class="quantity-btn quantity-plus"
+                    data-quantity-plus
+                    data-item-id="{{ item.id }}">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none">
+                      <path
+                        d="M6 2.5V9.5M2.5 6H9.5"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-            {% endfor %}
-          </div>
-          
-          <!-- Footer del carrito -->
-          <div class="cart-footer">
-            <div class="cart-total">
-              <div class="cart-subtotal">
-                <span>Subtotal ({{ cart.item_count }} {% if cart.item_count == 1 %}artículo{% else %}artículos{% endif %})</span>
-                <span class="cart-total-price">{{ cart.total_price | money }}</span>
-              </div>
-              <p class="cart-shipping-note">Los gastos de envío se calculan en el checkout.</p>
+
+              <!-- Remover item -->
+              <button
+                type="button"
+                class="cart-item-remove"
+                data-remove-item
+                data-item-id="{{ item.id }}">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none">
+                  <path
+                    d="M12 4L4 12M4 4L12 12"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round" />
+                </svg>
+              </button>
             </div>
-            
-            <div class="cart-actions">
-              <button type="submit" name="update" class="cart-update-btn">Actualizar carrito</button>
-              <button type="submit" name="checkout" class="cart-checkout-btn">Finalizar compra</button>
+          {% endfor %}
+        </div>
+
+        <!-- Footer del carrito -->
+        <div class="cart-footer">
+          <div class="cart-total">
+            <div class="cart-subtotal">
+              <span>Subtotal ({{ cart.item_count }}
+                {% if cart.item_count == 1 %}artículo{% else %}artículos{% endif %})</span>
+              <span class="cart-total-price">{{ cart.total_price | money }}</span>
             </div>
+            <p class="cart-shipping-note">Los gastos de envío se calculan en el checkout.</p>
           </div>
-        {% endif %}
-      {% endform %}
+
+          <div class="cart-actions">
+            <a href="{{ cart_url }}" class="cart-view-btn">Ver carrito completo</a>
+            <button
+              type="button"
+              class="cart-checkout-btn"
+              data-checkout>Finalizar compra</button>
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>
 
-<style>
-  /* Cart Overlay */
-  .cart-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
-  
-  .cart-overlay.is-open {
-    opacity: 1;
-    visibility: visible;
-  }
-  
-  /* Cart Sidebar */
-  .cart-sidebar {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    max-width: 420px;
-    height: 100%;
-    background-color: #ffffff;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .cart-overlay.is-open .cart-sidebar {
-    transform: translateX(0);
-  }
-  
-  /* Cart Header */
-  .cart-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
-    background-color: #ffffff;
-  }
-  
-  .cart-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-  }
-  
-  .cart-close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    color: #6b7280;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-  }
-  
-  .cart-close:hover {
-    background-color: #f3f4f6;
-    color: #374151;
-  }
-  
-  /* Cart Content */
-  .cart-content {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Empty Cart */
-  .cart-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 24px;
-    text-align: center;
-    flex: 1;
-  }
-  
-  .cart-empty-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: black;
-    margin: 0 0 8px 0;
-    font-family: 'Montserrat', sans-serif;
-  }
-  
-  .cart-empty-text {
-    color: #6b7280;
-    margin: 0 0 24px 0;
-    font-size: 14px;
-    line-height: 1.5;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .cart-empty-link {
-    color: black;
-    text-decoration: underline;
-  }
-  
-  .cart-continue-shopping {
-    background-color: black;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .cart-continue-shopping:hover {
-    background-color: #272829;
-  }
-  
-  /* Cart Items */
-  .cart-items {
-    flex: 1;
-    padding: 0 24px;
-  }
-  
-  .cart-item {
-    display: flex;
-    gap: 16px;
-    padding: 20px 0;
-    border-bottom: 1px solid #f3f4f6;
-    position: relative;
-  }
-  
-  .cart-item:last-child {
-    border-bottom: none;
-  }
-  
-  .cart-item-image {
-    flex-shrink: 0;
-  }
-  
-  .cart-item-image img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    background-color: #f9fafb;
-  }
-  
-  .cart-item-details {
-    flex: 1;
-    min-width: 0;
-  }
-  
-  .cart-item-title {
-    font-size: 14px;
-    font-weight: 500;
-    color: black;
-    margin: 0 0 4px 0;
-    line-height: 1.4;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .cart-item-variant {
-    font-size: 12px;
-    color: #6b7280;
-    margin: 0 0 8px 0;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .cart-item-price {
-    margin-bottom: 12px;
-  }
-  
-  .cart-item-price-original {
-    font-size: 12px;
-    color: #9ca3af;
-    text-decoration: line-through;
-    margin-right: 8px;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .cart-item-price-final {
-    font-size: 14px;
-    font-weight: 600;
-    color: black;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  /* Quantity Controls */
-  .cart-item-quantity {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .quantity-btn {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #6b7280;
-  }
-  
-  .quantity-btn:hover {
-    background-color: #f3f4f6;
-    border-color: #d1d5db;
-  }
-  
-  .quantity-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  .quantity-input {
-    width: 50px;
-    height: 28px;
-    text-align: center;
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
-    font-size: 12px;
-    font-family: 'Inter', sans-serif;
-    background-color: #ffffff;
-  }
-  
-  .quantity-input:focus {
-    outline: none;
-    border-color: black;
-  }
-  
-  /* Remove Button */
-  .cart-item-remove {
-    position: absolute;
-    top: 16px;
-    right: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    color: #9ca3af;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-  }
-  
-  .cart-item-remove:hover {
-    background-color: #fef2f2;
-    color: #dc2626;
-  }
-  
-  /* Cart Footer */
-  .cart-footer {
-    border-top: 1px solid #e5e7eb;
-    padding: 24px;
-    background-color: #ffffff;
-  }
-  
-  .cart-total {
-    margin-bottom: 20px;
-  }
-  
-  .cart-subtotal {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  
-  .cart-subtotal span:first-child {
-    font-size: 14px;
-    color: #6b7280;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .cart-total-price {
-    font-size: 18px;
-    font-weight: 600;
-    color: black;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .cart-shipping-note {
-    font-size: 12px;
-    color: #9ca3af;
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .cart-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .cart-update-btn {
-    background: none;
-    border: 1px solid #e5e7eb;
-    color: #6b7280;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .cart-update-btn:hover {
-    border-color: #d1d5db;
-    background-color: #f9fafb;
-  }
-  
-  .cart-checkout-btn {
-    background-color: black;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    padding: 16px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-family: 'Inter', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .cart-checkout-btn:hover {
-    background-color: #272829;
-  }
-  
-  /* Mobile Responsive */
-  @media (max-width: 480px) {
-    .cart-sidebar {
-      max-width: 100%;
-    }
-    
-    .cart-header {
-      padding: 16px 20px;
-    }
-    
-    .cart-items {
-      padding: 0 20px;
-    }
-    
-    .cart-footer {
-      padding: 20px;
-    }
-    
-    .cart-item {
-      gap: 12px;
-    }
-    
-    .cart-item-image img {
-      width: 60px;
-      height: 60px;
-    }
-  }
-  
-  /* Scrollbar Styling */
-  .cart-content::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .cart-content::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-  
-  .cart-content::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-  }
-  
-  .cart-content::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-  }
-</style>
+<!-- El JavaScript está en assets/side-cart.js -->
 
 {% schema %}
-{
-  "name": "cart",
-  "settings": [
-    {
-      "type": "color",
-      "id": "background",
-      "label": "Background",
-      "default": "#F4F4F4"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "Text",
-      "default": "#000000"
-    }
-  ],
-  "presets": [
-    {
-      "name": "cart"
-    }
-  ]
-}
+  {
+    "name": "cart",
+    "settings": [
+      {
+        "type": "color",
+        "id": "background",
+        "label": "Background",
+        "default": "#F4F4F4"
+      },
+      {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text",
+        "default": "#000000"
+      }
+    ],
+    "presets": [
+      {
+        "name": "cart"
+      }
+    ]
+  }
 {% endschema %}

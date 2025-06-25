@@ -147,7 +147,7 @@ export default function StoreError({ error, reset }: ErrorProps) {
             </button>
           </div>
 
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.APP_ENV === 'development' && (
             <div className="error-details">
               <strong>Detalles técnicos (solo en desarrollo):</strong>
               <br />

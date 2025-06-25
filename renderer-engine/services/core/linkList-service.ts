@@ -1,5 +1,6 @@
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher'
 import type { ProcessedNavigationMenu } from '@/renderer-engine/types/store'
+import { logger } from '@/renderer-engine/lib/logger'
 
 export interface LinkListItem {
   title: string
@@ -44,7 +45,11 @@ export class LinkListService {
 
       return linkLists
     } catch (error) {
-      console.error(`Error creating linklists from database for store ${storeId}:`, error)
+      logger.error(
+        `Error creating linklists from database for store ${storeId}`,
+        error,
+        'LinkListService'
+      )
       return {}
     }
   }

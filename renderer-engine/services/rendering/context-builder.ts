@@ -1,4 +1,4 @@
-import type { RenderContext, ShopContext, PageContext } from '@/renderer-engine/types'
+import type { RenderContext, ShopContext, PageContext, CartContext } from '@/renderer-engine/types'
 import { linkListService } from '@/renderer-engine/services/core/linkList-service'
 
 export class ContextBuilder {
@@ -9,7 +9,8 @@ export class ContextBuilder {
     store: any,
     featuredProducts: any[],
     collections: any[],
-    storeTemplate?: any
+    storeTemplate?: any,
+    cartData?: CartContext
   ): Promise<RenderContext> {
     // Crear contexto de la tienda (como 'shop' para compatibilidad)
     const shop: ShopContext = {
@@ -40,6 +41,16 @@ export class ContextBuilder {
           html_meta: '',
         },
       },
+    }
+
+    // Usar el carrito pasado como parámetro o crear uno vacío por defecto
+    const cartContext: CartContext = cartData || {
+      id: '',
+      item_count: 0,
+      total_price: 0,
+      items: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
 
     // Crear linklists para navegación usando el nuevo sistema
@@ -74,6 +85,7 @@ export class ContextBuilder {
       products: featuredProducts,
       collections,
       linklists,
+      cart: cartContext,
     }
   }
 
@@ -117,6 +129,16 @@ export class ContextBuilder {
       },
     }
 
+    // Para el método deprecated, crear un carrito vacío
+    const cartContext: CartContext = {
+      id: '',
+      item_count: 0,
+      total_price: 0,
+      items: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+
     // Crear linklists para navegación
     const linklists = await linkListService.createLinkListsFromDatabase(store.storeId)
 
@@ -132,6 +154,7 @@ export class ContextBuilder {
       products: featuredProducts,
       collections,
       linklists,
+      cart: cartContext,
     }
   }
 }

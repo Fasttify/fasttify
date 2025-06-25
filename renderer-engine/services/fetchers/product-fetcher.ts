@@ -1,5 +1,6 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
+import { logger } from '@/renderer-engine/lib/logger'
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer'
 import type { ProductContext, TemplateError } from '@/renderer-engine/types'
 
@@ -62,7 +63,7 @@ export class ProductFetcher {
 
       return result
     } catch (error) {
-      console.error(`Error fetching products for store ${storeId}:`, error)
+      logger.error(`Error fetching products for store ${storeId}`, error, 'ProductFetcher')
 
       const templateError: TemplateError = {
         type: 'DATA_ERROR',
@@ -105,7 +106,11 @@ export class ProductFetcher {
 
       return transformedProduct
     } catch (error) {
-      console.error(`Error fetching product ${productId} for store ${storeId}:`, error)
+      logger.error(
+        `Error fetching product ${productId} for store ${storeId}`,
+        error,
+        'ProductFetcher'
+      )
       return null
     }
   }
@@ -144,7 +149,7 @@ export class ProductFetcher {
 
       return products
     } catch (error) {
-      console.error(`Error fetching featured products for store ${storeId}:`, error)
+      logger.error(`Error fetching featured products for store ${storeId}`, error, 'ProductFetcher')
       return []
     }
   }

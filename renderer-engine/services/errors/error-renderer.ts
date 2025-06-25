@@ -1,5 +1,6 @@
 import { liquidEngine } from '@/renderer-engine/liquid/engine'
 import type { TemplateError, RenderResult, ShopContext } from '@/renderer-engine/types'
+import { logger } from '@/renderer-engine/lib/logger'
 
 export interface ErrorRenderOptions {
   storeId?: string
@@ -54,7 +55,7 @@ export class ErrorRenderer {
       }
     } catch (renderError) {
       // Si falla el renderizado de error, devolver HTML básico
-      console.error('Error rendering error page:', renderError)
+      logger.error('Error rendering error page', renderError, 'ErrorRenderer')
       return this.getFallbackErrorPage(error, options)
     }
   }

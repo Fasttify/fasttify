@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { CustomDomainService } from '@/lib/services/custom-domain-service'
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/AmplifyUtils'
+import { logger } from '@/renderer-engine/lib/logger'
 
 const customDomainService = new CustomDomainService()
 
@@ -54,7 +55,7 @@ export async function GET(
       verificationInfo: cloudFrontStatus?.dnsInstructions || null,
     })
   } catch (error) {
-    console.error('Error getting custom domain status:', error)
+    logger.error('Error getting custom domain status', error, 'CustomDomain')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -142,7 +143,7 @@ export async function POST(
       verificationInfo: tenantResult.dnsInstructions,
     })
   } catch (error) {
-    console.error('Error setting up custom domain:', error)
+    logger.error('Error setting up custom domain', error, 'CustomDomain')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -192,7 +193,7 @@ export async function DELETE(
       message: 'Custom domain removed successfully',
     })
   } catch (error) {
-    console.error('Error removing custom domain:', error)
+    logger.error('Error removing custom domain', error, 'CustomDomain')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -260,7 +261,7 @@ export async function PATCH(
       isActive: newStatus === 'active',
     })
   } catch (error) {
-    console.error('Error verifying custom domain:', error)
+    logger.error('Error verifying custom domain', error, 'CustomDomain')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
