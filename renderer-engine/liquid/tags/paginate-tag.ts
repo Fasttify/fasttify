@@ -1,234 +1,227 @@
-import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs'
+import { Tag, TagToken, Context, TopLevelToken, Liquid } from 'liquidjs'
 
 /**
- * Custom Paginate Tag para manejar {% paginate array by limit %} en LiquidJS
- * Simplificado para compatibilidad con LiquidJS API
+ * Tag Paginate que solo modifica el contexto sin consumir contenido
+ * Funciona como un modificador de datos transparente
  */
 export class PaginateTag extends Tag {
-  private arrayPath!: string
-  private limitPath!: string
-  private templateContent: string = ''
+  private arrayPath: string
+  private limit: number
 
   constructor(tagToken: TagToken, remainTokens: TopLevelToken[], liquid: Liquid) {
     super(tagToken, remainTokens, liquid)
-    this.parseArguments(tagToken)
-    this.parseTemplateContent(remainTokens)
-  }
 
-  private parseArguments(tagToken: TagToken): void {
+    // Parsear argumentos
     const args = tagToken.args?.trim() || ''
-    const match = args.match(/^(.+?)\s+by\s+(.+)$/)
+    const match = args.match(/^(.+?)\s+by\s+(\d+)$/)
 
     if (!match) {
-      throw new Error(`Invalid paginate syntax: ${args}. Expected: "array by limit"`)
+      throw new Error(`Invalid paginate syntax. Expected: "array by number"`)
     }
 
     this.arrayPath = match[1].trim()
-    this.limitPath = match[2].trim()
-  }
+    this.limit = parseInt(match[2]) || 12
 
-  private parseTemplateContent(remainTokens: TopLevelToken[]): void {
-    const contentTokens: string[] = []
-    let closed = false
-
-    while (remainTokens.length) {
-      const token = remainTokens.shift()
-      if (!token) break
-
-      if (token.kind === TokenKind.Tag && (token as any).name === 'endpaginate') {
-        closed = true
-        break
-      }
-
-      if (token.kind === TokenKind.HTML) {
-        // Acceder correctamente al contenido HTML usando begin y end
-        const htmlToken = token as any
-        const tokenContent = htmlToken.input
-          ? htmlToken.input.substring(htmlToken.begin, htmlToken.end)
-          : ''
-        contentTokens.push(tokenContent)
-      } else if (token.kind === TokenKind.Output) {
-        const outputToken = token as any
-        const tokenContent = outputToken.content || outputToken.value || ''
-        contentTokens.push(`{{ ${tokenContent} }}`)
-      } else if (token.kind === TokenKind.Tag) {
-        const tagToken = token as any
-        const tokenContent = tagToken.content || tagToken.value || ''
-        contentTokens.push(`{% ${tokenContent} %}`)
-      }
-    }
-
-    if (!closed) {
-      throw new Error('tag {% paginate %} not closed')
-    }
-
-    this.templateContent = contentTokens.join('')
+    // NO consumir tokens - dejar que el contenido se renderice normalmente
   }
 
   *render(ctx: Context, emitter: any): Generator<any, void, unknown> {
-    // Obtener array del contexto usando el path
-    const array = this.getNestedValue(ctx, this.arrayPath)
-    if (!Array.isArray(array)) {
-      return
+    // Obtener array del contexto
+    const contextData = ctx.getAll() as any
+    let targetArray = contextData
+
+    // Navegar por el path (ej: collection.products)
+    const pathParts = this.arrayPath.split('.')
+    for (const part of pathParts) {
+      targetArray = targetArray?.[part]
     }
 
-    // Obtener y validar el límite
-    const rawLimit = this.getNestedValue(ctx, this.limitPath)
-    const limit = Math.max(1, Math.min(50, parseInt(String(rawLimit)) || 12))
-
-    const currentPage = parseInt((ctx.getRegister('page') as string) || '1')
-    const totalPages = Math.ceil(array.length / limit)
-    const startIndex = (currentPage - 1) * limit
-    const endIndex = Math.min(startIndex + limit, array.length)
-
-    // Crear slice paginado del array
-    const paginatedArray = array.slice(startIndex, endIndex)
-
-    // Crear objeto paginate
-    const paginateObj = this.createPaginateObject(currentPage, totalPages, limit, array.length, 5)
-
-    // Agregar el objeto paginate al contexto
-    ctx.push(paginateObj)
-
-    // Agregar el array paginado al contexto con el mismo nombre que el original
-    const arrayName = this.arrayPath.split('.').pop() || 'items'
-    ctx.push({ [arrayName]: paginatedArray })
-
-    // Renderizar el contenido
-    yield this.liquid.renderer.renderTemplates(this.liquid.parse(this.templateContent), ctx)
-
-    // Restaurar el contexto original
-    ctx.pop()
-    ctx.pop()
-  }
-
-  private getNestedValue(ctx: Context, path: string): unknown {
-    const parts = path.split('.')
-    let current: any = ctx.getAll()
-    for (const part of parts) {
-      current = current?.[part]
+    if (!Array.isArray(targetArray)) {
+      return // No hay array válido, no hacer nada
     }
-    return current
+
+    // Calcular paginación - obtener número de página del contexto o URL
+    let currentPage = 1
+
+    // Intentar obtener de diferentes fuentes
+    const pageFromRegister = ctx.getRegister('page')
+    const pageFromContext = contextData.page || contextData.current_page
+
+    if (pageFromRegister) {
+      currentPage = parseInt(String(pageFromRegister)) || 1
+    } else if (pageFromContext) {
+      currentPage = parseInt(String(pageFromContext)) || 1
+    } else {
+      // Fallback: intentar obtener de query parameters si están disponibles
+      currentPage = 1
+    }
+
+    const totalItems = targetArray.length
+    const totalPages = Math.ceil(totalItems / this.limit)
+    const startIndex = (currentPage - 1) * this.limit
+    const endIndex = Math.min(startIndex + this.limit, totalItems)
+
+    // Crear array paginado
+    const paginatedItems = targetArray.slice(startIndex, endIndex)
+
+    // Actualizar el array en el contexto original
+    let contextTarget = contextData
+    for (let i = 0; i < pathParts.length - 1; i++) {
+      contextTarget = contextTarget[pathParts[i]]
+    }
+    contextTarget[pathParts[pathParts.length - 1]] = paginatedItems
+
+    // Obtener parámetros de query existentes para preservarlos
+    const existingQueryParams = this.getExistingQueryParams(contextData)
+
+    // Crear objeto paginate COMPLETO con propiedad parts
+    contextData.paginate = {
+      current_page: currentPage,
+      current_offset: startIndex,
+      items: totalItems,
+      pages: totalPages,
+      previous:
+        currentPage > 1
+          ? {
+              url: this.buildPaginationUrl(currentPage - 1, existingQueryParams),
+              title: '← Anterior',
+            }
+          : null,
+      next:
+        currentPage < totalPages
+          ? {
+              url: this.buildPaginationUrl(currentPage + 1, existingQueryParams),
+              title: 'Siguiente →',
+            }
+          : null,
+      parts: this.generatePaginationParts(currentPage, totalPages, existingQueryParams),
+    }
   }
 
-  private createPaginateObject(
+  /**
+   * Obtiene los parámetros de query existentes del contexto
+   */
+  private getExistingQueryParams(contextData: any): URLSearchParams {
+    const params = new URLSearchParams()
+
+    // Preservar sort_by si existe
+    if (contextData.collection?.sort_by && contextData.collection.sort_by !== 'manual') {
+      params.set('sort_by', contextData.collection.sort_by)
+    }
+
+    // Preservar otros parámetros comunes si existen
+    if (contextData.q || contextData.query) {
+      params.set('q', contextData.q || contextData.query)
+    }
+
+    return params
+  }
+
+  /**
+   * Construye una URL de paginación preservando otros parámetros
+   */
+  private buildPaginationUrl(page: number, existingParams: URLSearchParams): string {
+    const params = new URLSearchParams(existingParams.toString())
+
+    if (page > 1) {
+      params.set('page', page.toString())
+    } else {
+      params.delete('page') // No mostrar page=1 en la URL
+    }
+
+    const queryString = params.toString()
+    return queryString ? `?${queryString}` : ''
+  }
+
+  /**
+   * Genera las partes de paginación para el filtro default_pagination
+   * Algoritmo mejorado similar a Shopify
+   */
+  private generatePaginationParts(
     currentPage: number,
     totalPages: number,
-    limit: number,
-    totalItems: number,
-    windowSize: number
+    existingParams: URLSearchParams
   ) {
-    const parts = this.generatePaginationParts(currentPage, totalPages, windowSize)
+    const parts: Array<{
+      title: string
+      url: string
+      is_link: boolean
+    }> = []
 
-    return {
-      paginate: {
-        current_page: currentPage,
-        current_offset: (currentPage - 1) * limit,
-        items: totalItems,
-        parts: parts,
-        pages: totalPages,
-
-        // Enlaces de navegación
-        previous:
-          currentPage > 1
-            ? {
-                title: currentPage - 1,
-                url: this.generatePageUrl(currentPage - 1),
-                is_link: true,
-              }
-            : null,
-
-        next:
-          currentPage < totalPages
-            ? {
-                title: currentPage + 1,
-                url: this.generatePageUrl(currentPage + 1),
-                is_link: true,
-              }
-            : null,
-
-        // Métodos de utilidad
-        first: {
-          title: 1,
-          url: this.generatePageUrl(1),
-          is_link: currentPage !== 1,
-        },
-
-        last: {
-          title: totalPages,
-          url: this.generatePageUrl(totalPages),
-          is_link: currentPage !== totalPages,
-        },
-      },
-    }
-  }
-
-  private generatePaginationParts(currentPage: number, totalPages: number, windowSize: number) {
-    const parts = []
-
-    // Calcular rango de páginas a mostrar
-    const halfWindow = Math.floor(windowSize / 2)
-    let startPage = Math.max(1, currentPage - halfWindow)
-    let endPage = Math.min(totalPages, currentPage + halfWindow)
-
-    // Ajustar si estamos cerca del inicio o final
-    if (endPage - startPage + 1 < windowSize) {
-      if (startPage === 1) {
-        endPage = Math.min(totalPages, startPage + windowSize - 1)
-      } else if (endPage === totalPages) {
-        startPage = Math.max(1, endPage - windowSize + 1)
-      }
+    if (totalPages <= 1) {
+      return parts
     }
 
-    // Agregar primera página y ellipsis si es necesario
-    if (startPage > 1) {
+    // Configuración
+    const WINDOW_SIZE = 2 // Páginas a mostrar a cada lado de la actual
+    const EDGE_COUNT = 1 // Páginas a mostrar al inicio y final
+
+    // Calcular rangos
+    const leftEdge = EDGE_COUNT
+    const rightEdge = totalPages - EDGE_COUNT + 1
+    const windowStart = Math.max(leftEdge + 1, currentPage - WINDOW_SIZE)
+    const windowEnd = Math.min(rightEdge - 1, currentPage + WINDOW_SIZE)
+
+    // Primera(s) página(s)
+    for (let i = 1; i <= Math.min(leftEdge, totalPages); i++) {
       parts.push({
-        title: 1,
-        url: this.generatePageUrl(1),
-        is_link: true,
-      })
-
-      if (startPage > 2) {
-        parts.push({
-          title: '…',
-          url: null,
-          is_link: false,
-        })
-      }
-    }
-
-    // Agregar páginas del rango principal
-    for (let i = startPage; i <= endPage; i++) {
-      parts.push({
-        title: i,
-        url: i === currentPage ? null : this.generatePageUrl(i),
+        title: i.toString(),
+        url: this.buildPaginationUrl(i, existingParams),
         is_link: i !== currentPage,
       })
     }
 
-    // Agregar ellipsis y última página si es necesario
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
+    // Ellipsis izquierda
+    if (windowStart > leftEdge + 1) {
+      parts.push({
+        title: '…',
+        url: '',
+        is_link: false,
+      })
+    }
+
+    // Ventana central
+    for (let i = windowStart; i <= windowEnd; i++) {
+      if (i > leftEdge && i < rightEdge) {
         parts.push({
-          title: '…',
-          url: null,
-          is_link: false,
+          title: i.toString(),
+          url: this.buildPaginationUrl(i, existingParams),
+          is_link: i !== currentPage,
         })
       }
+    }
 
+    // Ellipsis derecha
+    if (windowEnd < rightEdge - 1) {
       parts.push({
-        title: totalPages,
-        url: this.generatePageUrl(totalPages),
-        is_link: true,
+        title: '…',
+        url: '',
+        is_link: false,
+      })
+    }
+
+    // Última(s) página(s)
+    for (let i = Math.max(rightEdge, leftEdge + 1); i <= totalPages; i++) {
+      parts.push({
+        title: i.toString(),
+        url: this.buildPaginationUrl(i, existingParams),
+        is_link: i !== currentPage,
       })
     }
 
     return parts
   }
+}
 
-  private generatePageUrl(page: number): string {
-    // En un entorno real, esto generaría la URL correcta con parámetros
-    // Por ahora, retornamos una URL básica
-    return page === 1 ? '?' : `?page=${page}`
+/**
+ * Tag EndPaginate - no hace nada, solo marca el final del bloque
+ */
+export class EndPaginateTag extends Tag {
+  constructor(tagToken: TagToken, remainTokens: TopLevelToken[], liquid: Liquid) {
+    super(tagToken, remainTokens, liquid)
+  }
+
+  *render(ctx: Context, emitter: any): Generator<any, void, unknown> {
+    // No hacer nada - solo es un marcador de fin
   }
 }

@@ -87,7 +87,7 @@ export const scriptTagFilter: LiquidFilter = {
 export const defaultPaginationFilter: LiquidFilter = {
   name: 'default_pagination',
   filter: (paginate: any): string => {
-    if (!paginate) {
+    if (!paginate || !paginate.parts || paginate.parts.length === 0) {
       return ''
     }
 
@@ -95,33 +95,27 @@ export const defaultPaginationFilter: LiquidFilter = {
 
     // Botón anterior
     if (paginate.previous) {
-      parts.push(`<a href="${paginate.previous.url}" class="prev">&laquo; Anterior</a>`)
-    } else {
-      parts.push(`<span class="prev disabled">&laquo; Anterior</span>`)
+      parts.push(`<a href="${paginate.previous.url}" class="prev">${paginate.previous.title}</a>`)
     }
 
     // Páginas numeradas
-    if (paginate.parts && Array.isArray(paginate.parts)) {
-      paginate.parts.forEach((part: any) => {
-        if (!part.is_link) {
-          // Página actual o ellipsis
-          if (part.title === '…') {
-            parts.push(`<span class="ellipsis">…</span>`)
-          } else {
-            parts.push(`<span class="current">${part.title}</span>`)
-          }
+    paginate.parts.forEach((part: any) => {
+      if (!part.is_link) {
+        // Página actual o ellipsis
+        if (part.title === '…') {
+          parts.push(`<span class="ellipsis">…</span>`)
         } else {
-          // Enlace a otra página
-          parts.push(`<a href="${part.url}">${part.title}</a>`)
+          parts.push(`<span class="current">${part.title}</span>`)
         }
-      })
-    }
+      } else {
+        // Enlace a otra página
+        parts.push(`<a href="${part.url}">${part.title}</a>`)
+      }
+    })
 
     // Botón siguiente
     if (paginate.next) {
-      parts.push(`<a href="${paginate.next.url}" class="next">Siguiente &raquo;</a>`)
-    } else {
-      parts.push(`<span class="next disabled">Siguiente &raquo;</span>`)
+      parts.push(`<a href="${paginate.next.url}" class="next">${paginate.next.title}</a>`)
     }
 
     return `<div class="pagination">${parts.join('')}</div>`

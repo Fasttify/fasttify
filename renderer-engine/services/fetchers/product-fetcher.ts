@@ -172,14 +172,17 @@ export class ProductFetcher {
     const variants = dataTransformer.transformVariants(product.variants, product.price)
     const attributes = dataTransformer.transformAttributes(product.attributes)
 
+    // Obtener featured_image como string seguro (primera imagen o placeholder)
+    const featuredImage = images.length > 0 ? images[0].url : 'product-placeholder'
+
     return {
       id: product.id,
       storeId: product.storeId,
       name: product.name,
-      title: product.name,
+      title: product.name, // Alias para name (compatibilidad Shopify)
       slug: handle,
       attributes: attributes,
-      featured_image: images[0],
+      featured_image: featuredImage, // Imagen principal como string
       quantity: product.quantity,
       description: product.description,
       price: price,

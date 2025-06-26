@@ -65,7 +65,13 @@ class PageDataLoader {
 
       case 'collection':
         if (options.collectionId) {
-          const collection = await dataFetcher.getCollection(storeId, options.collectionId)
+          const collection = options.sortBy
+            ? await dataFetcher.getCollectionWithSorting(
+                storeId,
+                options.collectionId,
+                options.sortBy
+              )
+            : await dataFetcher.getCollection(storeId, options.collectionId)
           if (collection) {
             return {
               ...baseData,
@@ -73,34 +79,34 @@ class PageDataLoader {
                 template: 'collection',
                 collection,
                 page_title: collection.title,
+                current_page: options.pageNumber || 1,
+                page: options.pageNumber || 1,
               },
             }
           }
         }
 
         if (options.handle) {
-          const collectionsResponse = await dataFetcher.getStoreCollections(storeId, { limit: 200 })
-          const collectionRef = collectionsResponse.collections.find(
-            c =>
-              c.slug === options.handle ||
-              c.title.toLowerCase().replace(/\s+/g, '-') === options.handle
-          )
+          const collectionWithProducts = options.sortBy
+            ? await dataFetcher.getCollectionWithSortingByHandle(
+                storeId,
+                options.handle,
+                options.sortBy
+              )
+            : await dataFetcher.getCollectionByHandle(storeId, options.handle)
 
-          if (collectionRef) {
-            const collectionWithProducts = await dataFetcher.getCollection(
-              storeId,
-              collectionRef.id
-            )
+          if (collectionWithProducts) {
+            const contextData = {
+              template: 'collection',
+              collection: collectionWithProducts,
+              page_title: collectionWithProducts.title,
+              current_page: options.pageNumber || 1,
+              page: options.pageNumber || 1,
+            }
 
-            if (collectionWithProducts) {
-              return {
-                ...baseData,
-                contextData: {
-                  template: 'collection',
-                  collection: collectionWithProducts,
-                  page_title: collectionWithProducts.title,
-                },
-              }
+            return {
+              ...baseData,
+              contextData,
             }
           }
         }
@@ -110,6 +116,8 @@ class PageDataLoader {
           contextData: {
             template: 'collection',
             page_title: 'Colección',
+            current_page: options.pageNumber || 1,
+            page: options.pageNumber || 1,
           },
         }
 

@@ -17,7 +17,7 @@ export class StoreRendererFactory {
   /**
    * Renderiza cualquier página de una tienda basada en el path
    * @param domain - Dominio completo de la tienda
-   * @param path - Path de la página (ej: '/', '/products/mi-producto')
+   * @param path - Path de la página (ej: '/', '/products/mi-producto', '/collections/zapatos?sort_by=price-ascending')
    * @returns Resultado del renderizado con metadata SEO
    */
   public async renderPage(domain: string, path: string = '/'): Promise<RenderResult> {
@@ -25,7 +25,7 @@ export class StoreRendererFactory {
     const cleanPath = path.startsWith('/') ? path : `/${path}`
 
     try {
-      // Convertir path a opciones del renderizador dinámico
+      // Convertir path completo (incluyendo query parameters) a opciones del renderizador dinámico
       const options = this.pathToRenderOptions(cleanPath)
 
       // Usar el renderizador dinámico unificado
@@ -77,68 +77,89 @@ export class StoreRendererFactory {
    * Convierte un path a opciones del renderizador dinámico
    */
   private pathToRenderOptions(path: string): PageRenderOptions {
+    // Separar path de query parameters
+    const [pathname, queryString] = path.split('?', 2)
+    const queryParams = new URLSearchParams(queryString || '')
+
+    // Extraer parámetros comunes de query string
+    const sortBy = queryParams.get('sort_by') || undefined
+    const pageNumber = queryParams.get('page') ? parseInt(queryParams.get('page')!) : undefined
+    const searchQuery = queryParams.get('q') || queryParams.get('query') || undefined
+
     // Homepage
-    if (path === '/') {
-      return { pageType: 'index' }
+    if (pathname === '/') {
+      return { pageType: 'index', sortBy, pageNumber, searchQuery }
     }
 
     // Producto: /products/mi-producto
-    const productMatch = path.match(/^\/products\/([^\/]+)$/)
+    const productMatch = pathname.match(/^\/products\/([^\/]+)$/)
     if (productMatch) {
       return {
         pageType: 'product',
         handle: productMatch[1],
+        sortBy,
+        pageNumber,
+        searchQuery,
       }
     }
 
     // Colección: /collections/mi-coleccion
-    const collectionMatch = path.match(/^\/collections\/([^\/]+)$/)
+    const collectionMatch = pathname.match(/^\/collections\/([^\/]+)$/)
     if (collectionMatch) {
       return {
         pageType: 'collection',
         handle: collectionMatch[1],
+        sortBy,
+        pageNumber,
+        searchQuery,
       }
     }
 
     // Página estática: /pages/mi-pagina
-    const pageMatch = path.match(/^\/pages\/([^\/]+)$/)
+    const pageMatch = pathname.match(/^\/pages\/([^\/]+)$/)
     if (pageMatch) {
       return {
         pageType: 'page',
         handle: pageMatch[1],
+        sortBy,
+        pageNumber,
+        searchQuery,
       }
     }
 
     // Blog: /blogs/mi-blog
-    const blogMatch = path.match(/^\/blogs\/([^\/]+)$/)
+    const blogMatch = pathname.match(/^\/blogs\/([^\/]+)$/)
     if (blogMatch) {
       return {
         pageType: 'blog',
         handle: blogMatch[1],
+        sortBy,
+        pageNumber,
+        searchQuery,
       }
     }
 
     // Búsqueda: /search
-    if (path === '/search') {
-      return { pageType: 'search' }
+    if (pathname === '/search') {
+      return { pageType: 'search', sortBy, pageNumber, searchQuery }
     }
 
     // Cart: /cart
-    if (path === '/cart') {
-      return { pageType: 'cart' }
+    if (pathname === '/cart') {
+      return { pageType: 'cart', sortBy, pageNumber, searchQuery }
     }
 
     // 404: /404 (para pruebas)
-    if (path === '/404') {
-      return { pageType: '404' }
+    if (pathname === '/404') {
+      return { pageType: '404', sortBy, pageNumber, searchQuery }
     }
 
-    if (path === '/collection') {
-      return { pageType: 'collection' }
+    if (pathname === '/collection') {
+      return { pageType: 'collection', sortBy, pageNumber, searchQuery }
     }
 
-    // Fallback a homepage para paths no reconocidos
-    return { pageType: '404' }
+    // Fallback a 404 para paths no reconocidos
+    return { pageType: '404', sortBy, pageNumber, searchQuery }
   }
 
   /**

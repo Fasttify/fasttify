@@ -89,6 +89,38 @@ export class DataFetcher {
     return collectionFetcher.getCollection(storeId, collectionId)
   }
 
+  /**
+   * Obtiene una colección específica por handle (slug) con sus productos
+   */
+  public async getCollectionByHandle(
+    storeId: string,
+    handle: string
+  ): Promise<CollectionContext | null> {
+    return collectionFetcher.getCollectionByHandle(storeId, handle)
+  }
+
+  /**
+   * Obtiene una colección específica con sus productos y parámetros de sorting
+   */
+  public async getCollectionWithSorting(
+    storeId: string,
+    collectionId: string,
+    sortBy?: string
+  ): Promise<CollectionContext | null> {
+    return collectionFetcher.getCollectionWithSorting(storeId, collectionId, sortBy)
+  }
+
+  /**
+   * Obtiene una colección específica por handle con sus productos y parámetros de sorting
+   */
+  public async getCollectionWithSortingByHandle(
+    storeId: string,
+    handle: string,
+    sortBy?: string
+  ): Promise<CollectionContext | null> {
+    return collectionFetcher.getCollectionByHandleWithSorting(storeId, handle, sortBy)
+  }
+
   // === NAVEGACIÓN ===
 
   /**

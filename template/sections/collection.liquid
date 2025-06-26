@@ -1,117 +1,237 @@
 {% paginate collection.products by 4 %}
   <section class="collection-sec">
-    <div>
-      <select id="sort-by">
-        {% assign sort_by = collection.sort_by | default: collection.default_sort_by %}
-
-        {% for option in collection.sort_options %}
-          <option
-            value="{{ option.value }}"
-            {% if option.value == sort_by %}
+    <div class="collection-header">
+      <h1 class="collection-title">{{ collection.title }}</h1>
+      <div class="collection-sort">
+        <label for="sort-by">Ordenar por:</label>
+        <select id="sort-by">
+          {% assign sort_by = collection.sort_by | default: collection.default_sort_by %}
+          {% for option in collection.sort_options %}
+            <option
+              value="{{ option.value }}"
+              {% if option.value == sort_by %}
               selected="selected"
-            {% endif %}
-          >
-            {{ option.name }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-    <div>
-      <h1>collections</h1>
-      <p>{{ collection.title }}</p>
-      <div class="products-grid">
-        {% for product in collection.products %}
-          <div class="product-card">
-            <img
-              width="300"
-              height="300"
-              loading="lazy"
-              src="{{ product.featured_image | image_url}}"
-            >
-            <h3>{{- product.title | link_to: product.url }}</h3>
-          </div>
-        {% endfor %}
+              {% endif %}>
+              {{ option.name }}
+            </option>
+          {% endfor %}
+        </select>
       </div>
+    </div>
+
+    <div class="products-grid">
+      {% for product in collection.products %}
+        <div class="product-card">
+          <img
+            width="300"
+            height="300"
+            loading="lazy"
+            src="{{ product.featured_image | image_url}}">
+          <h3>{{- product.title | link_to: product.url }}</h3>
+          <p>{{ product.price  }}</p>
+        </div>
+      {% endfor %}
     </div>
   </section>
 
-  {{ paginate | default_pagination }}
+  <div class="pagination-wrapper">
+    {{ paginate | default_pagination }}
+  </div>
 {% endpaginate %}
 
 <style>
   .collection-sec {
-    background: {{ section.settings.background }}
-    ;
-    color: {{ section.settings.text_color }}
-    ;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between
+    background: {{ section.settings.background }};
+    color: {{ section.settings.text_color }};
+    padding: 2rem 1.5rem;
   }
+
+  .collection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .collection-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .collection-sort {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .collection-sort label {
+    font-size: 0.875rem;
+    color: #4b5563;
+    white-space: nowrap;
+  }
+
   .products-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Three columns */
-    gap: 20px; /* Adjust the gap between grid items */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
   }
 
   .product-card {
-    border: 1px solid #ddd; /* Add a border for each product card */
-    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
     text-align: center;
+    background: white;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .product-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .product-card img {
     max-width: 100%;
     height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  .product-card h3 {
+    margin: 0 0 0.5rem;
+  }
+
+  .product-card h3 a {
+    text-decoration: none;
+    color: inherit;
+    font-size: 1rem;
+  }
+
+  .product-card p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  /* Estilos para paginación */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 40px;
+    padding: 20px 0;
+  }
+
+  .pagination a,
+  .pagination span {
+    padding: 8px 12px;
+    text-decoration: none;
+    color: {{ section.settings.text_color }};
+    background-color: transparent;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+
+  .pagination a:hover {
+    background-color: #f0f0f0;
+    border-color: #999;
+  }
+
+  .pagination .current {
+    background-color: {{ section.settings.text_color }};
+    color: {{ section.settings.background }};
+    border-color: {{ section.settings.text_color }};
+    font-weight: bold;
+  }
+
+  .pagination .disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination .ellipsis {
+    border: none;
+    cursor: default;
+  }
+
+  .pagination .prev,
+  .pagination .next {
+    font-weight: 500;
+  }
+
+  /* Estilos para el selector de ordenamiento */
+  #sort-by {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+
+  #sort-by:hover {
+    border-color: #999;
+  }
+
+  #sort-by:focus {
+    outline: none;
+    border-color: #666;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
   }
 </style>
 
 <script>
-  Shopify.queryParams = {};
+  document.addEventListener('DOMContentLoaded', function() {
+    const sortBySelect = document.querySelector('#sort-by');
+    if (!sortBySelect) return;
 
-  // Preserve existing query parameters
-  if (location.search.length) {
-    var params = location.search.substr(1).split('&');
-
-    for (var i = 0; i < params.length; i++) {
-      var keyValue = params[i].split('=');
-
-      if (keyValue.length) {
-        Shopify.queryParams[decodeURIComponent(keyValue[0])] = decodeURIComponent(keyValue[1]);
-      }
-    }
-  }
-
-  // Update sort_by query parameter on select change
-  document.querySelector('#sort-by').addEventListener('change', function (e) {
-    var value = e.target.value;
-
-    Shopify.queryParams.sort_by = value;
-    location.search = new URLSearchParams(Shopify.queryParams).toString();
+    sortBySelect.addEventListener('change', function (e) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('sort_by', e.target.value);
+      // Al cambiar el orden, volvemos a la página 1
+      params.delete('page');
+      window.location.search = params.toString();
+    });
   });
 </script>
 
 {% schema %}
-{
-  "name": "collection",
-  "settings": [
-    {
-      "type": "color",
-      "id": "background",
-      "label": "Background",
-      "default": "#F4F4F4"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "Text",
-      "default": "#000000"
-    }
-  ],
-  "presets": [
-    {
-      "name": "collection"
-    }
-  ]
-}
+  {
+    "name": "collection",
+    "settings": [
+      {
+        "type": "color",
+        "id": "background",
+        "label": "Background",
+        "default": "#F4F4F4"
+      },
+      {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text",
+        "default": "#000000"
+      }
+    ],
+    "presets": [
+      {
+        "name": "collection"
+      }
+    ]
+  }
 {% endschema %}

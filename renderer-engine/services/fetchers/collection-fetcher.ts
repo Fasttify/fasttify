@@ -136,10 +136,10 @@ export class CollectionFetcher {
   /**
    * Transforma una colección de Amplify al formato Liquid
    */
-  private async transformCollection(
+  public async transformCollection(
     collection: any,
     storeId: string,
-    options: { withProducts?: boolean } = {}
+    options: { withProducts?: boolean; sortBy?: string } = {}
   ): Promise<CollectionContext> {
     const handle = dataTransformer.createHandle(
       collection.name || collection.title || `collection-${collection.id}`
@@ -149,10 +149,20 @@ export class CollectionFetcher {
     let products: ProductContext[] = []
     if (options.withProducts) {
       try {
-        const productData = await collection.products()
+        let allProducts: any[] = []
+        let nextToken: string | null | undefined = undefined
 
-        if (productData && productData.data) {
-          products = productData.data.map((p: any) => productFetcher.transformProduct(p))
+        do {
+          const productResult: { data: any[]; nextToken?: string | null } =
+            await collection.products({ nextToken })
+          if (productResult.data) {
+            allProducts = allProducts.concat(productResult.data)
+          }
+          nextToken = productResult.nextToken
+        } while (nextToken)
+
+        if (allProducts.length > 0) {
+          products = allProducts.map((p: any) => productFetcher.transformProduct(p))
         }
       } catch (error) {
         logger.warn(
@@ -166,6 +176,18 @@ export class CollectionFetcher {
     // Transformar imagen de colección
     const image = collection.image || 'collection-img'
 
+    // Definir opciones de sorting estándar (compatibles con Shopify)
+    const sortOptions = [
+      { name: 'Mejor resultado', value: 'manual' },
+      { name: 'Más vendidos', value: 'best-selling' },
+      { name: 'Alfabéticamente, A-Z', value: 'title-ascending' },
+      { name: 'Alfabéticamente, Z-A', value: 'title-descending' },
+      { name: 'Precio, menor a mayor', value: 'price-ascending' },
+      { name: 'Precio, mayor a menor', value: 'price-descending' },
+      { name: 'Fecha, nuevo a antiguo', value: 'created-descending' },
+      { name: 'Fecha, antiguo a nuevo', value: 'created-ascending' },
+    ]
+
     return {
       id: collection.id,
       storeId: collection.storeId,
@@ -174,6 +196,9 @@ export class CollectionFetcher {
       slug: handle,
       url: `/collections/${handle}`,
       image,
+      sort_by: options.sortBy || 'manual', // Sorting actual aplicado
+      default_sort_by: 'manual', // Sorting por defecto
+      sort_options: sortOptions, // Opciones disponibles para el selector
       isActive: collection.isActive,
       createdAt: collection.createdAt,
       updatedAt: collection.updatedAt,
@@ -181,6 +206,127 @@ export class CollectionFetcher {
       sortOrder: collection.sortOrder,
       products,
     }
+  }
+
+  /**
+   * Obtiene una colección específica por handle (slug) sin cargar todas las colecciones
+   */
+  public async getCollectionByHandle(
+    storeId: string,
+    handle: string
+  ): Promise<CollectionContext | null> {
+    try {
+      const cacheKey = `collection_handle_${storeId}_${handle}`
+
+      // Verificar caché
+      const cached = cacheManager.getCached(cacheKey)
+      if (cached) {
+        return cached as CollectionContext
+      }
+
+      // Buscar colección por handle/slug directamente en la base de datos
+      // Nota: Amplify no tiene filtro directo por handle, así que necesitamos una consulta custom
+      // Por ahora, usamos la búsqueda optimizada
+
+      // Obtener todas las colecciones (solo metadatos, sin productos)
+      const collections = await this.getStoreCollections(storeId, { limit: 100 })
+
+      // Buscar por handle o título transformado
+      const collectionRef = collections.collections.find(
+        c => c.slug === handle || c.title.toLowerCase().replace(/\s+/g, '-') === handle
+      )
+
+      if (!collectionRef) {
+        return null
+      }
+
+      // Ahora obtener la colección completa con productos
+      const fullCollection = await this.getCollection(storeId, collectionRef.id)
+
+      if (fullCollection) {
+        // Guardar en caché con la clave del handle
+        cacheManager.setCached(cacheKey, fullCollection, cacheManager.COLLECTION_CACHE_TTL)
+      }
+
+      return fullCollection
+    } catch (error) {
+      logger.error(
+        `Error fetching collection by handle ${handle} for store ${storeId}`,
+        error,
+        'CollectionFetcher'
+      )
+      return null
+    }
+  }
+
+  /**
+   * Obtiene una colección específica por handle con sus productos y parámetros de sorting
+   */
+  public async getCollectionByHandleWithSorting(
+    storeId: string,
+    handle: string,
+    sortBy?: string
+  ): Promise<CollectionContext | null> {
+    const collection = await this.getCollectionByHandle(storeId, handle)
+
+    if (collection && sortBy) {
+      // Re-transformar la colección con el sortBy especificado
+      const collectionData = {
+        id: collection.id,
+        storeId,
+        name: collection.title,
+        title: collection.title,
+        description: collection.description,
+        image: collection.image,
+        isActive: collection.isActive,
+        createdAt: collection.createdAt,
+        updatedAt: collection.updatedAt,
+        owner: collection.owner,
+        sortOrder: collection.sortOrder,
+        products: () => Promise.resolve({ data: collection.products }),
+      }
+
+      return this.transformCollection(collectionData, storeId, {
+        withProducts: true,
+        sortBy,
+      })
+    }
+    return collection
+  }
+
+  /**
+   * Obtiene una colección específica con sus productos y parámetros de sorting
+   */
+  public async getCollectionWithSorting(
+    storeId: string,
+    collectionId: string,
+    sortBy?: string
+  ): Promise<CollectionContext | null> {
+    const collection = await this.getCollection(storeId, collectionId)
+
+    if (collection && sortBy) {
+      // Re-transformar la colección con el sortBy especificado
+      const collectionData = {
+        id: collectionId,
+        storeId,
+        name: collection.title,
+        title: collection.title,
+        description: collection.description,
+        image: collection.image,
+        isActive: collection.isActive,
+        createdAt: collection.createdAt,
+        updatedAt: collection.updatedAt,
+        owner: collection.owner,
+        sortOrder: collection.sortOrder,
+        products: () => Promise.resolve({ data: collection.products }),
+      }
+
+      return this.transformCollection(collectionData, storeId, {
+        withProducts: true,
+        sortBy,
+      })
+    }
+    return collection
   }
 }
 

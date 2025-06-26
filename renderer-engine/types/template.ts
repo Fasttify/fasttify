@@ -71,6 +71,7 @@ export interface ProductContext {
   id: string
   storeId: string
   name: string
+  title: string // Alias para name (compatibilidad Shopify)
   description: string | null
   handle?: string // SEO friendly URL slug
 
@@ -85,6 +86,7 @@ export interface ProductContext {
   slug: string | null
 
   // Imágenes y media
+  featured_image: string // Imagen principal como string
   images: Array<{
     url: string
     alt?: string
@@ -140,11 +142,26 @@ export interface CollectionContext {
   slug: string
   url: string
   image: string
+  sort_by?: string // Sorting actual aplicado
+  default_sort_by: string // Sorting por defecto
+  sort_options: Array<{
+    name: string
+    value: string
+  }>
   createdAt: string
   updatedAt: string
   owner: string
   sortOrder: number
   products: ProductContext[]
+  // Metadatos de paginación
+  pagination?: {
+    currentPage: number
+    totalPages: number
+    totalItems: number
+    itemsPerPage: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
 }
 
 export interface PaginationContext {
@@ -245,4 +262,5 @@ export interface PageRenderOptions {
   collectionId?: string // ID específico de la colección
   searchQuery?: string // Para páginas de búsqueda
   pageNumber?: number // Para paginación
+  sortBy?: string // Para ordenamiento (sort_by parameter)
 }

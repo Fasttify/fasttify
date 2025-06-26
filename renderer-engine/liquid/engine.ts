@@ -10,7 +10,7 @@ import { allFilters } from '@/renderer-engine/liquid/filters'
 import { SchemaTag } from '@/renderer-engine/liquid/tags/schema-tag'
 import { ScriptTag } from '@/renderer-engine/liquid/tags/script-tag'
 import { SectionTag } from '@/renderer-engine/liquid/tags/section-tag'
-import { PaginateTag } from '@/renderer-engine/liquid/tags/paginate-tag'
+import { PaginateTag, EndPaginateTag } from '@/renderer-engine/liquid/tags/paginate-tag'
 import { RenderTag, IncludeTag } from '@/renderer-engine/liquid/tags/render-tag'
 import { StyleTag, StylesheetTag } from '@/renderer-engine/liquid/tags/style-tag'
 import { JavaScriptTag } from '@/renderer-engine/liquid/tags/javascript-tag'
@@ -23,7 +23,7 @@ class LiquidEngine {
   private static instance: LiquidEngine
   private liquid: Liquid
   public assetCollector: AssetCollector
-  private currentStoreId: string | null = null // 🆕 Trackear el storeId actual
+  private currentStoreId: string | null = null
 
   private constructor() {
     this.assetCollector = new AssetCollector()
@@ -117,6 +117,7 @@ class LiquidEngine {
 
     // ETIQUETAS DE PAGINACIÓN
     this.liquid.registerTag('paginate', PaginateTag)
+    this.liquid.registerTag('endpaginate', EndPaginateTag)
 
     // ETIQUETAS DE COMPONENTES/SNIPPETS
     this.liquid.registerTag('render', RenderTag)
