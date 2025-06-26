@@ -42,18 +42,9 @@ export class PaginateTag extends Tag {
 
     // Calcular paginación - obtener número de página del contexto o URL
     let currentPage = 1
-
-    // Intentar obtener de diferentes fuentes
-    const pageFromRegister = ctx.getRegister('page')
     const pageFromContext = contextData.page || contextData.current_page
-
-    if (pageFromRegister) {
-      currentPage = parseInt(String(pageFromRegister)) || 1
-    } else if (pageFromContext) {
+    if (pageFromContext) {
       currentPage = parseInt(String(pageFromContext)) || 1
-    } else {
-      // Fallback: intentar obtener de query parameters si están disponibles
-      currentPage = 1
     }
 
     const totalItems = targetArray.length

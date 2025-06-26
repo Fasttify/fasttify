@@ -1,4 +1,4 @@
-{% paginate collection.products by 4 %}
+{% paginate collection.products by 10 %}
   <section class="collection-sec">
     <div class="collection-header">
       <h1 class="collection-title">{{ collection.title }}</h1>
@@ -28,7 +28,7 @@
             loading="lazy"
             src="{{ product.featured_image | image_url}}">
           <h3>{{- product.title | link_to: product.url }}</h3>
-          <p>{{ product.price  }}</p>
+          <p>{{ product.price }}</p>
         </div>
       {% endfor %}
     </div>
@@ -52,6 +52,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
+    margin-top: 100px;
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid #e5e7eb;
