@@ -21,7 +21,7 @@ interface PaginationOptions {
 
 interface ProductsResponse {
   products: ProductContext[]
-  nextToken?: string
+  nextToken?: string | null
   totalCount?: number
 }
 
@@ -75,8 +75,8 @@ export class DataFetcher {
   public async getStoreCollections(
     storeId: string,
     options: PaginationOptions = {}
-  ): Promise<CollectionsResponse> {
-    return collectionFetcher.getStoreCollections(storeId, options)
+  ): Promise<CollectionContext[]> {
+    return await collectionFetcher.getStoreCollections(storeId, options)
   }
 
   /**

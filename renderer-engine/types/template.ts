@@ -135,26 +135,30 @@ export interface CollectionContext {
   id: string
   storeId: string
   title: string
-  description: string
-  isActive: boolean
+  description?: string
   slug: string
   url: string
-  image: string
+  image?: string
+  products: ProductContext[]
+  nextToken?: string | null
+  owner: string
+  sortOrder?: number
+  isActive: boolean
   createdAt: string
   updatedAt: string
-  owner: string
-  sortOrder: number
-  products: ProductContext[]
 }
 
 export interface PaginationContext {
   current_page: number
-  current_offset: number
-  total_pages: number
-  total_items: number
   items_per_page: number
-  previous_page?: number
-  next_page?: number
+  previous?: {
+    title: string
+    url: string
+  }
+  next?: {
+    title: string
+    url: string
+  }
   parts: Array<{
     title: string
     url: string

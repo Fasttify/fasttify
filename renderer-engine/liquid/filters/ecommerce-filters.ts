@@ -48,7 +48,8 @@ export const imgUrlFilter: LiquidFilter = {
 export const imageUrlFilter: LiquidFilter = {
   name: 'image_url',
   filter: (imageUrl: string, size?: string): string => {
-    if (!imageUrl) {
+    // Asegurarse de que imageUrl es un string y no está vacío
+    if (typeof imageUrl !== 'string' || !imageUrl) {
       return ''
     }
 

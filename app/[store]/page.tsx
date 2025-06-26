@@ -38,9 +38,11 @@ function isAssetPath(path: string): boolean {
  * Función cacheada usando React.cache() que persiste entre generateMetadata y StorePage
  * Esta es la forma oficial de Next.js para compartir datos entre estas funciones
  */
-const getCachedRenderResult = cache(async (domain: string, path: string) => {
-  return await storeRenderer.renderPage(domain, path)
-})
+const getCachedRenderResult = cache(
+  async (domain: string, path: string, searchParams: Record<string, string>) => {
+    return await storeRenderer.renderPage(domain, path, searchParams)
+  }
+)
 
 interface StorePageProps {
   params: Promise<{
@@ -133,7 +135,7 @@ export default async function StorePage({ params, searchParams }: StorePageProps
     const domain = store.includes('.') ? store : `${store}.fasttify.com`
 
     // Renderizar página usando el sistema con caché temporal
-    const result = await getCachedRenderResult(domain, path)
+    const result = await getCachedRenderResult(domain, path, resolvedSearchParams as any)
 
     // Retornar HTML renderizado con aislamiento CSS y auto-reload seguro
     return (
@@ -186,7 +188,7 @@ export async function generateMetadata({
     const domain = store.includes('.') ? store : `${store}.fasttify.com`
 
     // Usar el cache global para obtener el resultado completo
-    const result = await getCachedRenderResult(domain, path)
+    const result = await getCachedRenderResult(domain, path, resolvedSearchParams as any)
     const { metadata } = result
 
     // Asegurar que el título se muestre correctamente sin sufijos

@@ -7,7 +7,7 @@ import { metadataGenerator } from '@/renderer-engine/services/rendering/metadata
 import { sectionRenderer } from '@/renderer-engine/services/rendering/section-renderer'
 import { errorRenderer } from '@/renderer-engine/services/errors/error-renderer'
 import { pageConfig } from '@/renderer-engine/services/page/page-config'
-import { pageDataLoader } from '@/renderer-engine/services/page/page-data-loader'
+import { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader'
 import { logger } from '@/renderer-engine/lib/logger'
 import type { RenderResult, ShopContext, TemplateError } from '@/renderer-engine/types'
 import type { PageRenderOptions } from '@/renderer-engine/types/template'
@@ -17,11 +17,13 @@ export class DynamicPageRenderer {
    * Renderiza cualquier página de una tienda dinámicamente
    * @param domain - Dominio completo de la tienda
    * @param options - Opciones de renderizado específicas para el tipo de página (opcional, por defecto homepage)
+   * @param searchParams - Parámetros de búsqueda (opcional)
    * @returns Resultado completo del renderizado con metadata SEO
    */
   public async render(
     domain: string,
-    options: PageRenderOptions = { pageType: 'index' }
+    options: PageRenderOptions = { pageType: 'index' },
+    searchParams: Record<string, string> = {}
   ): Promise<RenderResult> {
     try {
       // 1. Resolver dominio a tienda
@@ -31,12 +33,25 @@ export class DynamicPageRenderer {
       // 2. Verificar que la tienda tenga menús de navegación
       await this.ensureMenusExist(store.storeId)
 
-      // 3. Cargar datos y plantillas en paralelo
+      // 3. Cargar datos usando el sistema dinámico
+      logger.info(`Using dynamic data loading for ${options.pageType}`, 'DynamicPageRenderer')
+
       const [layout, pageData, storeTemplate] = await Promise.all([
         templateLoader.loadMainLayout(store.storeId),
-        pageDataLoader.load(store.storeId, options),
+        dynamicDataLoader.loadDynamicData(store.storeId, options),
         dataFetcher.getStoreNavigationMenus(store.storeId),
       ])
+
+      // Log del análisis dinámico para debugging
+      logger.debug(
+        `Dynamic analysis results for ${options.pageType}:`,
+        {
+          requiredData: Array.from(pageData.analysis.requiredData.keys()),
+          liquidObjects: pageData.analysis.liquidObjects,
+          dependencies: pageData.analysis.dependencies.length,
+        },
+        'DynamicPageRenderer'
+      )
 
       // 4. Paralelizar: construir contexto Y cargar template
       const templatePath = pageConfig.getTemplatePath(options.pageType)
@@ -44,6 +59,10 @@ export class DynamicPageRenderer {
         this.buildInitialContext(store, pageData, storeTemplate),
         templateLoader.loadTemplate(store.storeId, templatePath),
       ])
+
+      // inyectar parametros de busqueda en el contexto
+      context.current_token = searchParams.token
+      context.previous_token = searchParams.previous_token
 
       // 5. Renderizar contenido con template y contexto ya cargados
       const renderedContent = await this.renderPageContentOptimized(

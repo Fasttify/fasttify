@@ -9,46 +9,67 @@
   </div>
 
   <div class="collection-container">
-    <div class="all-collections-wrapper">
-      {% for collection in collections %}
-        <div class="collection-card">
-          <div class="collection-card-inner">
-            <div class="collection-image-wrapper">
-              {% if collection.image %}
-                <img 
-                  class="collection-image"
-                  loading="lazy"
-                  src="{{ collection.image }}"
-                  alt="{{ collection.title | escape }}"
-                >
-              {% else %}
-                <div class="collection-placeholder">
-                  {{ collection.title | slice: 0, 1 | upcase }}
-                </div>
-              {% endif %}
-              <div class="collection-overlay">
-                <div class="collection-content">
-                  <p class="collection-product-count">{{ collection.products_count }} productos</p>
-                  <h3 class="collection-title">{{ collection.title }}</h3>
-                  <p class="collection-description">{{ collection.description }}</p>
-                  <a href="{{ collection.url }}" class="collection-button">Ver colección</a>
+    {% paginate shop.collections by 4 %}
+      <div class="all-collections-wrapper">
+        {% for collection in shop.collections %}
+          <div class="collection-card">
+            <div class="collection-card-inner">
+              <div class="collection-image-wrapper">
+                {% if collection.image %}
+                  <img
+                    class="collection-image"
+                    loading="lazy"
+                    src="{{ collection.image }}"
+                    alt="{{ collection.title | escape }}">
+                {% else %}
+                  <div class="collection-placeholder">
+                    {{ collection.title | slice: 0, 1 | upcase }}
+                  </div>
+                {% endif %}
+                <div class="collection-overlay">
+                  <div class="collection-content">
+                    <p class="collection-product-count">{{ collection.products_count }} productos</p>
+                    <h3 class="collection-title">{{ collection.title }}</h3>
+                    <p class="collection-description">{{ collection.description }}</p>
+                    <a href="{{ collection.url }}" class="collection-button">Ver colección</a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      {% endfor %}
-    </div>
+        {% endfor %}
+      </div>
+    {% endpaginate %}
 
     <div class="scroll-controls">
       <button class="scroll-button scroll-left" aria-label="Desplazarse hacia la izquierda">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M15 18L9 12L15 6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
         </svg>
       </button>
       <button class="scroll-button scroll-right" aria-label="Desplazarse hacia la derecha">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M9 6L15 12L9 18"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
         </svg>
       </button>
     </div>
@@ -252,7 +273,8 @@
     color: {{ section.settings.button_text_color }};
   }
 
-  html, body {
+  html,
+  body {
     overflow-x: hidden;
     width: 100%;
     max-width: 100%;
@@ -269,15 +291,15 @@
       padding: 40px 0 60px;
       max-width: 100%;
     }
-    
+
     .section-header h2 {
       font-size: 24px;
     }
-    
+
     .collection-card {
       width: 100%;
     }
-    
+
     .collection-title {
       font-size: 20px;
     }
@@ -286,7 +308,7 @@
       width: 32px;
       height: 32px;
     }
-    
+
     .collection-container,
     .all-collections-wrapper {
       width: 100%;
@@ -333,99 +355,99 @@
 </script>
 
 {% schema %}
-{
-  "name": "Colecciones destacadas",
-  "settings": [
-    {
-      "type": "text",
-      "id": "title",
-      "label": "Título",
-      "default": "Colecciones destacadas"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_description",
-      "label": "Mostrar descripción",
-      "default": false
-    },
-    {
-      "type": "textarea",
-      "id": "description",
-      "label": "Descripción"
-    },
-    {
-      "type": "range",
-      "id": "cards_per_row",
-      "label": "Tarjetas por fila (escritorio)",
-      "min": 1,
-      "max": 4,
-      "step": 1,
-      "default": 4
-    },
-    {
-      "type": "range",
-      "id": "cards_per_row_tablet",
-      "label": "Tarjetas por fila (tablet)",
-      "min": 1,
-      "max": 3,
-      "step": 1,
-      "default": 2
-    },
-    {
-      "type": "range",
-      "id": "cards_per_row_mobile",
-      "label": "Tarjetas por fila (móvil)",
-      "min": 1,
-      "max": 2,
-      "step": 1,
-      "default": 1
-    },
-    {
-      "type": "range",
-      "id": "image_aspect_ratio",
-      "label": "Proporción de la imagen",
-      "info": "Porcentaje de altura respecto al ancho",
-      "min": 75,
-      "max": 150,
-      "step": 5,
-      "default": 125
-    },
-    {
-      "type": "color",
-      "id": "background",
-      "label": "Color de fondo",
-      "default": "#F9F9F9"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "Color de texto",
-      "default": "#333333"
-    },
-    {
-      "type": "color",
-      "id": "button_color",
-      "label": "Color de botón",
-      "default": "#000000"
-    },
-    {
-      "type": "color",
-      "id": "button_text_color",
-      "label": "Color de texto de botón",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "accent_color",
-      "label": "Color de acento",
-      "default": "#0066CC"
-    }
-  ],
-  "presets": [
-    {
-      "name": "Colecciones destacadas",
-      "category": "Colecciones"
-    }
-  ]
-}
+  {
+    "name": "Colecciones destacadas",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Título",
+        "default": "Colecciones destacadas"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_description",
+        "label": "Mostrar descripción",
+        "default": false
+      },
+      {
+        "type": "textarea",
+        "id": "description",
+        "label": "Descripción"
+      },
+      {
+        "type": "range",
+        "id": "cards_per_row",
+        "label": "Tarjetas por fila (escritorio)",
+        "min": 1,
+        "max": 4,
+        "step": 1,
+        "default": 4
+      },
+      {
+        "type": "range",
+        "id": "cards_per_row_tablet",
+        "label": "Tarjetas por fila (tablet)",
+        "min": 1,
+        "max": 3,
+        "step": 1,
+        "default": 2
+      },
+      {
+        "type": "range",
+        "id": "cards_per_row_mobile",
+        "label": "Tarjetas por fila (móvil)",
+        "min": 1,
+        "max": 2,
+        "step": 1,
+        "default": 1
+      },
+      {
+        "type": "range",
+        "id": "image_aspect_ratio",
+        "label": "Proporción de la imagen",
+        "info": "Porcentaje de altura respecto al ancho",
+        "min": 75,
+        "max": 150,
+        "step": 5,
+        "default": 125
+      },
+      {
+        "type": "color",
+        "id": "background",
+        "label": "Color de fondo",
+        "default": "#F9F9F9"
+      },
+      {
+        "type": "color",
+        "id": "text_color",
+        "label": "Color de texto",
+        "default": "#333333"
+      },
+      {
+        "type": "color",
+        "id": "button_color",
+        "label": "Color de botón",
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "button_text_color",
+        "label": "Color de texto de botón",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "accent_color",
+        "label": "Color de acento",
+        "default": "#0066CC"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Colecciones destacadas",
+        "category": "Colecciones"
+      }
+    ]
+  }
 {% endschema %}
