@@ -950,5 +950,3 @@ Error: TEMPLATE_NOT_FOUND
 ```
 
 ---
-
-Esta documentación cubre los aspectos más importantes de tu motor de renderizado. ¿Te gustaría que profundice en alguna sección específica o que añada ejemplos adicionales?
