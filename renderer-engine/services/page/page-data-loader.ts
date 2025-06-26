@@ -33,7 +33,7 @@ class PageDataLoader {
         return {
           ...baseData,
           featuredProducts,
-          collections: collections.collections,
+          collections: collections,
           contextData: {
             template: 'index',
             page_title: 'Inicio',
@@ -80,7 +80,7 @@ class PageDataLoader {
 
         if (options.handle) {
           const collectionsResponse = await dataFetcher.getStoreCollections(storeId, { limit: 200 })
-          const collectionRef = collectionsResponse.collections.find(
+          const collectionRef = collectionsResponse.find(
             c =>
               c.slug === options.handle ||
               c.title.toLowerCase().replace(/\s+/g, '-') === options.handle

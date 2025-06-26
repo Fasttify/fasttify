@@ -6,13 +6,12 @@ import type { ProductContext, TemplateError } from '@/renderer-engine/types'
 
 interface PaginationOptions {
   limit?: number
-  offset?: number
   nextToken?: string
 }
 
 interface ProductsResponse {
   products: ProductContext[]
-  nextToken?: string
+  nextToken?: string | null
   totalCount?: number
 }
 
@@ -155,6 +154,44 @@ export class ProductFetcher {
   }
 
   /**
+   * Obtiene productos de una colección específica con paginación usando el índice secundario.
+   */
+  public async getProductsByCollection(
+    storeId: string,
+    collectionId: string,
+    options: PaginationOptions = {}
+  ): Promise<ProductsResponse> {
+    try {
+      const { limit = 20, nextToken } = options
+
+      // Usar el índice secundario para una consulta eficiente.
+      const response = await cookiesClient.models.Product.listProductByCollectionId(
+        {
+          collectionId: collectionId,
+        },
+        {
+          limit,
+          nextToken: nextToken,
+        }
+      )
+
+      const products = response.data.map(p => this.transformProduct(p))
+
+      return {
+        products,
+        nextToken: response.nextToken,
+      }
+    } catch (error) {
+      logger.error(
+        `Error fetching products for collection ${collectionId}`,
+        error,
+        'ProductFetcher'
+      )
+      return { products: [], totalCount: 0 }
+    }
+  }
+
+  /**
    * Transforma un producto de Amplify al formato Liquid
    */
   public transformProduct(product: any): ProductContext {
@@ -171,6 +208,7 @@ export class ProductFetcher {
     const images = dataTransformer.transformImages(product.images, product.name)
     const variants = dataTransformer.transformVariants(product.variants, product.price)
     const attributes = dataTransformer.transformAttributes(product.attributes)
+    const featured_image = images.length > 0 ? images[0].url : undefined
 
     return {
       id: product.id,
@@ -179,7 +217,7 @@ export class ProductFetcher {
       title: product.name,
       slug: handle,
       attributes: attributes,
-      featured_image: images[0],
+      featured_image: featured_image,
       quantity: product.quantity,
       description: product.description,
       price: price,

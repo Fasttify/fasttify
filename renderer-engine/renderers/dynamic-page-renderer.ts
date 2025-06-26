@@ -17,11 +17,13 @@ export class DynamicPageRenderer {
    * Renderiza cualquier página de una tienda dinámicamente
    * @param domain - Dominio completo de la tienda
    * @param options - Opciones de renderizado específicas para el tipo de página (opcional, por defecto homepage)
+   * @param searchParams - Parámetros de búsqueda (opcional)
    * @returns Resultado completo del renderizado con metadata SEO
    */
   public async render(
     domain: string,
-    options: PageRenderOptions = { pageType: 'index' }
+    options: PageRenderOptions = { pageType: 'index' },
+    searchParams: Record<string, string> = {}
   ): Promise<RenderResult> {
     try {
       // 1. Resolver dominio a tienda
@@ -44,6 +46,10 @@ export class DynamicPageRenderer {
         this.buildInitialContext(store, pageData, storeTemplate),
         templateLoader.loadTemplate(store.storeId, templatePath),
       ])
+
+      // inyectar parametros de busqueda en el contexto
+      context.current_token = searchParams.token
+      context.previous_token = searchParams.previous_token
 
       // 5. Renderizar contenido con template y contexto ya cargados
       const renderedContent = await this.renderPageContentOptimized(

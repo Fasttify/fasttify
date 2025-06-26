@@ -20,7 +20,11 @@ export class StoreRendererFactory {
    * @param path - Path de la página (ej: '/', '/products/mi-producto')
    * @returns Resultado del renderizado con metadata SEO
    */
-  public async renderPage(domain: string, path: string = '/'): Promise<RenderResult> {
+  public async renderPage(
+    domain: string,
+    path: string = '/',
+    searchParams: Record<string, string> = {}
+  ): Promise<RenderResult> {
     // Limpiar path
     const cleanPath = path.startsWith('/') ? path : `/${path}`
 
@@ -28,8 +32,8 @@ export class StoreRendererFactory {
       // Convertir path a opciones del renderizador dinámico
       const options = this.pathToRenderOptions(cleanPath)
 
-      // Usar el renderizador dinámico unificado
-      return await this.dynamicRenderer.render(domain, options)
+      // Usar el renderizador dinámico unificado, pasando los searchParams
+      return await this.dynamicRenderer.render(domain, options, searchParams)
     } catch (error) {
       logger.error(
         `Error rendering page ${cleanPath} for domain ${domain}`,

@@ -29,6 +29,7 @@
               src="{{ product.featured_image | image_url}}"
             >
             <h3>{{- product.title | link_to: product.url }}</h3>
+            <p>{{ product.price }}</p>
           </div>
         {% endfor %}
       </div>
@@ -46,6 +47,7 @@
     ;
     padding: 10px;
     display: flex;
+    margin-top: 100px;
     justify-content: space-between
   }
   .products-grid {
