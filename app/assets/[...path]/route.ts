@@ -1,29 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
+import { getNextCorsHeaders } from '@/lib/utils/next-cors'
+import { domainResolver } from '@/renderer-engine/services/core/domain-resolver'
 
 // Configuración de S3
 const s3Client = new S3Client({
   region: process.env.REGION_BUCKET || 'us-east-2',
 })
 
+export async function OPTIONS(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request)
+  return new Response(null, { status: 204, headers: corsHeaders })
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
+  const corsHeaders = await getNextCorsHeaders(request)
   try {
     const { path } = await params
     const assetPath = path.join('/')
 
-    // Extraer storeId del host/subdominio
+    // Extraer storeId del host/subdominio usando el resolver
     const host = request.headers.get('host') || ''
-    const storeId = extractStoreIdFromHost(host)
+    const store = await domainResolver.resolveStoreByDomain(host)
 
-    if (!storeId) {
-      return NextResponse.json({ error: 'Store not found' }, { status: 404 })
+    if (!store) {
+      return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders })
     }
 
     // Construir la key de S3
-    const s3Key = `templates/${storeId}/assets/${assetPath}`
+    const s3Key = `templates/${store.storeId}/assets/${assetPath}`
 
     // Obtener el archivo desde S3
     const command = new GetObjectCommand({
@@ -34,7 +42,7 @@ export async function GET(
     const response = await s3Client.send(command)
 
     if (!response.Body) {
-      return NextResponse.json({ error: 'Asset not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Asset not found' }, { status: 404, headers: corsHeaders })
     }
 
     // Convertir stream a buffer
@@ -47,6 +55,7 @@ export async function GET(
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
+        ...corsHeaders,
         'Content-Type': contentType,
         'Content-Length': buffer.length.toString(),
         'Cache-Control': 'public, max-age=31536000', // Cache por 1 año
@@ -57,7 +66,7 @@ export async function GET(
     console.error('[AssetsAPI] Error loading asset:', error)
 
     if (error instanceof Error && error.name === 'NoSuchKey') {
-      return NextResponse.json({ error: 'Asset not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Asset not found' }, { status: 404, headers: corsHeaders })
     }
 
     return NextResponse.json(
@@ -65,34 +74,9 @@ export async function GET(
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     )
   }
-}
-
-// Helper function para extraer storeId del host
-function extractStoreIdFromHost(host: string): string | null {
-  // Ejemplos de host:
-  // tienda-4cbd405.localhost:3000 -> 4cbd405
-  // store-abc123.yourdomain.com -> abc123
-  // localhost:3000 -> null (no es subdominio)
-
-  const parts = host.split('.')
-
-  if (parts.length < 2) {
-    return null // No es un subdominio
-  }
-
-  const subdomain = parts[0]
-
-  // Buscar patrón: palabra-STOREID
-  const match = subdomain.match(/^.+-([a-zA-Z0-9]+)$/)
-
-  if (match && match[1]) {
-    return match[1]
-  }
-
-  return null
 }
 
 // Helper function para convertir stream a buffer

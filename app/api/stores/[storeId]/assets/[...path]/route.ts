@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
 import { logger } from '@/renderer-engine/lib/logger'
+import { getNextCorsHeaders } from '@/lib/utils/next-cors'
 
 // Configuración de S3
 const s3Client = new S3Client({
@@ -12,10 +13,16 @@ const bucketName = process.env.BUCKET_NAME || ''
 const cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN_NAME || ''
 const appEnv = process.env.APP_ENV || 'development'
 
+export async function OPTIONS(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request)
+  return new Response(null, { status: 204, headers: corsHeaders })
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ storeId: string; path: string[] }> }
 ) {
+  const corsHeaders = await getNextCorsHeaders(request)
   try {
     const { storeId, path } = await params
     const assetPath = path.join('/')
@@ -47,6 +54,7 @@ export async function GET(
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
+        ...corsHeaders,
         'Content-Type': contentType,
         'Content-Length': buffer.length.toString(),
         'Cache-Control': 'public, max-age=31536000', // Cache por 1 año
@@ -57,7 +65,7 @@ export async function GET(
     logger.error('[AssetsAPI] Error loading asset', error, 'AssetsAPI')
 
     if (error instanceof Error && error.name === 'NoSuchKey') {
-      return NextResponse.json({ error: 'Asset not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Asset not found' }, { status: 404, headers: corsHeaders })
     }
 
     return NextResponse.json(
@@ -65,7 +73,7 @@ export async function GET(
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     )
   }
 }
