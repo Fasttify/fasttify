@@ -7,7 +7,7 @@ import { metadataGenerator } from '@/renderer-engine/services/rendering/metadata
 import { sectionRenderer } from '@/renderer-engine/services/rendering/section-renderer'
 import { errorRenderer } from '@/renderer-engine/services/errors/error-renderer'
 import { pageConfig } from '@/renderer-engine/services/page/page-config'
-import { pageDataLoader } from '@/renderer-engine/services/page/page-data-loader'
+import { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader'
 import { logger } from '@/renderer-engine/lib/logger'
 import type { RenderResult, ShopContext, TemplateError } from '@/renderer-engine/types'
 import type { PageRenderOptions } from '@/renderer-engine/types/template'
@@ -33,12 +33,25 @@ export class DynamicPageRenderer {
       // 2. Verificar que la tienda tenga menús de navegación
       await this.ensureMenusExist(store.storeId)
 
-      // 3. Cargar datos y plantillas en paralelo
+      // 3. Cargar datos usando el sistema dinámico
+      logger.info(`Using dynamic data loading for ${options.pageType}`, 'DynamicPageRenderer')
+
       const [layout, pageData, storeTemplate] = await Promise.all([
         templateLoader.loadMainLayout(store.storeId),
-        pageDataLoader.load(store.storeId, options),
+        dynamicDataLoader.loadDynamicData(store.storeId, options),
         dataFetcher.getStoreNavigationMenus(store.storeId),
       ])
+
+      // Log del análisis dinámico para debugging
+      logger.debug(
+        `Dynamic analysis results for ${options.pageType}:`,
+        {
+          requiredData: Array.from(pageData.analysis.requiredData.keys()),
+          liquidObjects: pageData.analysis.liquidObjects,
+          dependencies: pageData.analysis.dependencies.length,
+        },
+        'DynamicPageRenderer'
+      )
 
       // 4. Paralelizar: construir contexto Y cargar template
       const templatePath = pageConfig.getTemplatePath(options.pageType)

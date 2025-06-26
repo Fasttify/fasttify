@@ -18,6 +18,7 @@ export class StoreRendererFactory {
    * Renderiza cualquier página de una tienda basada en el path
    * @param domain - Dominio completo de la tienda
    * @param path - Path de la página (ej: '/', '/products/mi-producto')
+   * @param searchParams - Parámetros de búsqueda (opcional)
    * @returns Resultado del renderizado con metadata SEO
    */
   public async renderPage(
@@ -32,7 +33,7 @@ export class StoreRendererFactory {
       // Convertir path a opciones del renderizador dinámico
       const options = this.pathToRenderOptions(cleanPath)
 
-      // Usar el renderizador dinámico unificado, pasando los searchParams
+      // Usar el renderizador dinámico
       return await this.dynamicRenderer.render(domain, options, searchParams)
     } catch (error) {
       logger.error(
@@ -177,3 +178,15 @@ export { navigationFetcher } from '@/renderer-engine/services/fetchers/navigatio
 export { linkListService } from '@/renderer-engine/services/core/linkList-service'
 export { liquidEngine } from '@/renderer-engine/liquid/engine'
 export { errorRenderer } from '@/renderer-engine/services/errors/error-renderer'
+
+// Exportar nuevos servicios dinámicos
+export { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer'
+export { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader'
+
+// Exportar tipos del sistema dinámico
+export type {
+  DataRequirement,
+  DataLoadOptions,
+  TemplateAnalysis,
+} from '@/renderer-engine/services/templates/template-analyzer'
+export type { DynamicLoadResult } from '@/renderer-engine/services/page/dynamic-data-loader'
