@@ -34,7 +34,10 @@ export class DynamicPageRenderer {
       await this.ensureMenusExist(store.storeId)
 
       // 3. Cargar datos usando el sistema dinámico
-      logger.info(`Using dynamic data loading for ${options.pageType}`, 'DynamicPageRenderer')
+      logger.info(
+        `Using dynamic data loading for ${options.pageType}`,
+        'DynamicPageRenderer'
+      )
 
       const [layout, pageData, storeTemplate] = await Promise.all([
         templateLoader.loadMainLayout(store.storeId),
@@ -124,7 +127,11 @@ export class DynamicPageRenderer {
     }
   }
 
-  private async buildInitialContext(store: any, pageData: any, storeTemplate: any): Promise<any> {
+  private async buildInitialContext(
+    store: any,
+    pageData: any,
+    storeTemplate: any
+  ): Promise<any> {
     const context = await contextBuilder.createRenderContext(
       store,
       pageData.featuredProducts || [],
@@ -151,9 +158,18 @@ export class DynamicPageRenderer {
       const templateConfig = JSON.parse(
         pageTemplate.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1')
       )
-      return await this.renderSectionsFromConfig(templateConfig, storeId, context, storeTemplate)
+      return await this.renderSectionsFromConfig(
+        templateConfig,
+        storeId,
+        context,
+        storeTemplate
+      )
     } else {
-      return await liquidEngine.render(pageTemplate, context, `${options.pageType}_${storeId}`)
+      return await liquidEngine.render(
+        pageTemplate,
+        context,
+        `${options.pageType}_${storeId}`
+      )
     }
   }
 
@@ -217,7 +233,7 @@ export class DynamicPageRenderer {
       try {
         const sectionContent = await templateLoader.loadTemplate(
           storeId,
-          `sections/${sectionConfig.type}.liquid`
+          `${sectionConfig.type}.liquid`
         )
         return await sectionRenderer.renderSectionWithSchema(
           sectionConfig.type,
@@ -226,7 +242,11 @@ export class DynamicPageRenderer {
           storeTemplate
         )
       } catch (error) {
-        logger.warn(`Section ${sectionConfig.type} not found`, error, 'DynamicPageRenderer')
+        logger.warn(
+          `Section ${sectionConfig.type} not found`,
+          error,
+          'DynamicPageRenderer'
+        )
         return `<!-- Section '${sectionConfig.type}' not found -->`
       }
     })
@@ -240,7 +260,10 @@ export class DynamicPageRenderer {
     return `${pageType}_${storeId}_${identifier}_${Date.now()}`
   }
 
-  private createTemplateError(type: TemplateError['type'], message: string): TemplateError {
+  private createTemplateError(
+    type: TemplateError['type'],
+    message: string
+  ): TemplateError {
     return {
       type,
       message,
@@ -257,7 +280,9 @@ export class DynamicPageRenderer {
       let store: ShopContext | undefined = undefined
       if (error.type !== 'STORE_NOT_FOUND') {
         try {
-          store = (await domainResolver.resolveStoreByDomain(domain)) as unknown as ShopContext
+          store = (await domainResolver.resolveStoreByDomain(
+            domain
+          )) as unknown as ShopContext
         } catch {
           // Continue without store info if it fails
         }

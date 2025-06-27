@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
- 
   // Configure domains for image optimization
   images: {
     remotePatterns: [
@@ -15,17 +14,8 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.s3.amazonaws.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: '*.s3.*.amazonaws.com',
         pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'd1etr7t5j9fzio.cloudfront.net',
       },
       {
         protocol: 'https',

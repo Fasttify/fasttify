@@ -25,15 +25,15 @@
             <span class="visually-hidden">Menu</span>
           </button>
         </div>
-        
+
         <!-- Logo -->
         <div class="header-logo">
           <a href="/" class="site-logo">
-            <img 
-              src="{{ 'nike.png' | asset_url }}" 
-              alt="{{ shop.name }}" 
-              width="80" 
-              height="50" 
+            <img
+              src="{{ 'nike.png' | asset_url }}"
+              alt="{{ shop.name }}"
+              width="80"
+              height="50"
               loading="lazy"
               class="logo-img">
           </a>
@@ -86,12 +86,12 @@
               </form>
             </div>
           </div>
-          
+
           <!-- Account -->
           <a href="/account" class="header-icon header-account" aria-label="Mi cuenta">
             <img src="{{ 'icon-account.svg' | asset_url }}" alt="Account" width="30" height="30" loading="lazy">
           </a>
-          
+
           <!-- Cart -->
           <button type="button" class="header-icon header-cart" aria-label="cart" onclick="openCart()">
             <span class="cart-icon-wrapper">
@@ -105,7 +105,7 @@
       </div>
     </div>
   </header>
-  
+
   <!-- Mobile menu -->
   <div class="mobile-menu" id="mobile-menu">
     <div class="mobile-menu-inner">
@@ -114,7 +114,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
-      
+
       <nav class="mobile-nav">
         {% if main_menu.links.size > 0 %}
           <ul class="mobile-nav-list">
@@ -158,7 +158,7 @@
       </nav>
     </div>
   </div>
-  
+
   <!-- Mobile search panel -->
   <div class="mobile-search" id="mobile-search">
     <div class="mobile-search-inner">
@@ -184,7 +184,7 @@
     // Menu toggle
     const menuToggles = document.querySelectorAll('.js-menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
-    
+
     menuToggles.forEach(function(toggle) {
       toggle.addEventListener('click', function() {
         const expanded = toggle.getAttribute('aria-expanded') === 'true';
@@ -193,59 +193,59 @@
         document.body.classList.toggle('menu-open');
       });
     });
-    
+
     // Search toggle
     const searchToggles = document.querySelectorAll('.js-search-toggle');
     const mobileSearch = document.getElementById('mobile-search');
-    
+
     searchToggles.forEach(function(toggle) {
       toggle.addEventListener('click', function() {
         const expanded = toggle.getAttribute('aria-expanded') === 'true';
         searchToggles.forEach(t => t.setAttribute('aria-expanded', !expanded));
-        
+
         if (window.innerWidth < 990) {
           mobileSearch.classList.toggle('is-active');
         }
       });
     });
-    
+
     // Mobile submenu
     const submenuToggles = document.querySelectorAll('.mobile-submenu-toggle');
-    
+
     submenuToggles.forEach(function(toggle) {
       toggle.addEventListener('click', function() {
         const parent = toggle.closest('.has-submenu');
         parent.classList.add('is-active');
       });
     });
-    
+
     const backButtons = document.querySelectorAll('.mobile-submenu-back');
-    
+
     backButtons.forEach(function(button) {
       button.addEventListener('click', function() {
         const parent = button.closest('.has-submenu');
         parent.classList.remove('is-active');
       });
     });
-    
+
     // Make header sticky on scroll
     const header = document.getElementById('site-header');
     const scrollThreshold = 50; // Define el umbral de scroll para activar el efecto
-    
+
     window.addEventListener('scroll', function() {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      
+
       if (scrollTop > scrollThreshold) {
         header.classList.add('is-sticky');
       } else {
         header.classList.remove('is-sticky');
       }
     });
-    
+
     // Close dropdowns and menu when clicking outside
     document.addEventListener('click', function(event) {
       const target = event.target;
-      
+
       if (!target.closest('.header-search') && !target.closest('#search-form')) {
         const searchToggle = document.querySelector('.search-toggle');
         if (searchToggle && searchToggle.getAttribute('aria-expanded') === 'true') {

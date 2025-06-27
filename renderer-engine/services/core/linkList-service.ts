@@ -29,7 +29,7 @@ export class LinkListService {
       const navigationMenusResponse = await dataFetcher.getStoreNavigationMenus(storeId)
 
       if (!navigationMenusResponse.menus || navigationMenusResponse.menus.length === 0) {
-        console.info(`No navigation menus found for store: ${storeId}`)
+        logger.info(`No navigation menus found for store: ${storeId}`, 'LinkListService')
         return {}
       }
 

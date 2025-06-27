@@ -30,7 +30,9 @@ export class NavigationFetcher {
    * @param storeId - ID de la tienda
    * @returns Menús de navegación procesados
    */
-  public async getStoreNavigationMenus(storeId: string): Promise<NavigationMenusResponse> {
+  public async getStoreNavigationMenus(
+    storeId: string
+  ): Promise<NavigationMenusResponse> {
     try {
       const cacheKey = `navigation_menus_${storeId}`
 
@@ -74,7 +76,9 @@ export class NavigationFetcher {
       )
 
       // Encontrar el menú principal
-      const mainMenu = processedMenus.find(menu => menu.isMain || menu.handle === 'main-menu')
+      const mainMenu = processedMenus.find(
+        menu => menu.isMain || menu.handle === 'main-menu'
+      )
       const footerMenu = processedMenus.find(menu => menu.handle === 'footer-menu')
 
       const response: NavigationMenusResponse = {
@@ -190,7 +194,11 @@ export class NavigationFetcher {
         owner: rawMenu.owner,
       }
     } catch (error) {
-      logger.error(`Error processing navigation menu ${rawMenu.handle}`, error, 'NavigationFetcher')
+      logger.error(
+        `Error processing navigation menu ${rawMenu.handle}`,
+        error,
+        'NavigationFetcher'
+      )
       return {
         id: rawMenu.id,
         storeId: rawMenu.storeId,
@@ -229,7 +237,7 @@ export class NavigationFetcher {
 
       case 'page':
         if (item.pageHandle) {
-          url = `/${item.pageHandle}`
+          url = `/pages/${item.pageHandle}`
         } else {
           url = await this.resolvePageUrl(storeId, item.pageHandle)
         }
@@ -246,9 +254,6 @@ export class NavigationFetcher {
       case 'product':
         if (item.productHandle) {
           url = `/products/${item.productHandle}`
-        } else {
-          // Enlace a todos los productos
-          url = '/products'
         }
         break
 
@@ -283,7 +288,11 @@ export class NavigationFetcher {
         }
       }
     } catch (error) {
-      logger.warn(`Error resolving page URL for handle ${pageHandle}`, error, 'NavigationFetcher')
+      logger.warn(
+        `Error resolving page URL for handle ${pageHandle}`,
+        error,
+        'NavigationFetcher'
+      )
     }
 
     return `/${pageHandle}`
@@ -292,13 +301,17 @@ export class NavigationFetcher {
   /**
    * Resuelve la URL de una colección por su handle
    */
-  private async resolveCollectionUrl(storeId: string, collectionHandle?: string): Promise<string> {
+  private async resolveCollectionUrl(
+    storeId: string,
+    collectionHandle?: string
+  ): Promise<string> {
     if (!collectionHandle) return '/collections'
 
     try {
-      const { data: collections } = await cookiesClient.models.Collection.listCollectionByStoreId({
-        storeId: storeId,
-      })
+      const { data: collections } =
+        await cookiesClient.models.Collection.listCollectionByStoreId({
+          storeId: storeId,
+        })
 
       if (collections && collections.length > 0) {
         const targetCollection = collections.find(

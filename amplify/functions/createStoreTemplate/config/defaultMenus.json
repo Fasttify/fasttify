@@ -14,7 +14,8 @@
       },
       {
         "label": "Todos los Productos",
-        "type": "product",
+        "type": "collection",
+        "collectionHandle": "all",
         "isVisible": true,
         "target": "_self",
         "sortOrder": 2
@@ -75,7 +76,7 @@
       },
       {
         "label": "Política de privacidad",
-        "pageHandle": "privacy-policy",
+        "pageHandle": "policies/privacy-policy",
         "type": "page",
         "isVisible": true,
         "target": "_self",
@@ -83,7 +84,7 @@
       },
       {
         "label": "Términos y condiciones",
-        "pageHandle": "terms-and-conditions",
+        "pageHandle": "policies/terms-and-conditions",
         "type": "page",
         "isVisible": true,
         "target": "_self",
@@ -91,7 +92,7 @@
       },
       {
         "label": "Política de envíos",
-        "pageHandle": "shipping-policy",
+        "pageHandle": "policies/shipping-policy",
         "type": "page",
         "isVisible": true,
         "target": "_self",
@@ -99,7 +100,7 @@
       },
       {
         "label": "Devoluciones",
-        "pageHandle": "returns",
+        "pageHandle": "policies/returns",
         "type": "page",
         "isVisible": true,
         "target": "_self",
