@@ -49,7 +49,9 @@ export class DynamicDataLoader {
       const analysis = await this.analyzeRequiredTemplates(storeId, options)
 
       // 2. Cargar datos básicos siempre necesarios (carrito para header)
-      const cartData = dataFetcher.transformCartToContext(await dataFetcher.getCart(storeId))
+      const cartData = dataFetcher.transformCartToContext(
+        await dataFetcher.getCart(storeId)
+      )
 
       // 3. Cargar datos específicos según el análisis
       const loadedData = await this.loadDataFromAnalysis(storeId, analysis, options)
@@ -199,7 +201,10 @@ export class DynamicDataLoader {
           return await dataFetcher.getCollection(storeId, pageOptions.collectionId)
         } else if (pageOptions.handle) {
           // Buscar colección por handle
-          const collections = await dataFetcher.getStoreCollections(storeId, { limit: 200 })
+          const collections = await dataFetcher.getStoreCollections(storeId, {
+            limit: options.limit || 10,
+            nextToken: options.nextToken,
+          })
           const collectionRef = collections.find(
             c =>
               c.slug === pageOptions.handle ||
@@ -292,7 +297,9 @@ export class DynamicDataLoader {
     storeId: string,
     options: PageRenderOptions
   ): Promise<DynamicLoadResult> {
-    const cartData = dataFetcher.transformCartToContext(await dataFetcher.getCart(storeId))
+    const cartData = dataFetcher.transformCartToContext(
+      await dataFetcher.getCart(storeId)
+    )
 
     return {
       featuredProducts: [],

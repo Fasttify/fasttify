@@ -1,8 +1,17 @@
-import { Tag, TopLevelToken, Liquid, Context, Value, TagToken, Emitter, TokenKind } from 'liquidjs'
+import {
+  Tag,
+  TopLevelToken,
+  Liquid,
+  Context,
+  Value,
+  TagToken,
+  Emitter,
+  TokenKind,
+} from 'liquidjs'
 import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher'
+import { collectionFetcher } from '@/renderer-engine/services/fetchers/collection-fetcher'
 import { logger } from '@/renderer-engine/lib/logger'
 import type { PaginationContext } from '@/renderer-engine/types'
-import { collectionFetcher } from '@/renderer-engine/services/fetchers/collection-fetcher'
 
 /**
  * Custom Paginate Tag para Shopify Liquid.
@@ -54,6 +63,7 @@ export class PaginateTag extends Tag {
     const childKey = expressionParts.length > 1 ? expressionParts.pop()! : parentPath
     const parentObject = ctx.getSync([parentPath]) as any
 
+    // Caso 1: Productos de una colección específica (collection.products)
     if (childKey === 'products' && parentObject?.id) {
       const { products, nextToken } = (yield productFetcher.getProductsByCollection(
         parentObject.storeId,
@@ -61,11 +71,39 @@ export class PaginateTag extends Tag {
         { limit: pageSize, nextToken: token }
       )) as { products: any[]; nextToken?: string }
       return { items: products, nextToken, parentObject, childKey }
-    } else if (childKey === 'collections' && parentObject?.storeId) {
-      const collections = (yield collectionFetcher.getStoreCollections(parentObject.storeId, {
-        limit: pageSize,
-        nextToken: token,
-      })) as any[]
+    }
+    // Caso 2: Todos los productos de la tienda (products)
+    else if (childKey === 'products' && !parentObject?.id) {
+      // Obtener el storeId del contexto global
+      const storeId = ctx.getSync(['store', 'id']) || ctx.getSync(['storeId'])
+      if (!storeId) {
+        logger.error(
+          'No storeId found in context for products pagination',
+          undefined,
+          'PaginateTag'
+        )
+        return { items: [], parentObject: {}, childKey }
+      }
+
+      const { products, nextToken } = (yield productFetcher.getStoreProducts(
+        storeId as string,
+        {
+          limit: pageSize,
+          nextToken: token,
+        }
+      )) as { products: any[]; nextToken?: string }
+
+      return { items: products, nextToken, parentObject: { storeId }, childKey }
+    }
+    // Caso 3: Colecciones de la tienda (collections)
+    else if (childKey === 'collections' && parentObject?.storeId) {
+      const collections = (yield collectionFetcher.getStoreCollections(
+        parentObject.storeId,
+        {
+          limit: pageSize,
+          nextToken: token,
+        }
+      )) as any[]
       // La API de getStoreCollections no devuelve un nextToken directamente,
       // así que asumimos que no hay más páginas si devuelve menos de `pageSize` items.
       const nextToken = collections.length === pageSize ? 'has_more' : undefined
@@ -76,7 +114,7 @@ export class PaginateTag extends Tag {
     // else if (childKey === 'articles' && parentObject?.id) { ... }
 
     logger.warn(
-      `Paginación no implementada para '${this.collectionExpression}'`,
+      `Pagination not implemented for '${this.collectionExpression}'`,
       undefined,
       'PaginateTag'
     )

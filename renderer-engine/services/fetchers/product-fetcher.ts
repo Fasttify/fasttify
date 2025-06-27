@@ -53,7 +53,7 @@ export class ProductFetcher {
 
       const result: ProductsResponse = {
         products,
-        nextToken: response.nextToken || undefined,
+        nextToken: response.nextToken,
         totalCount: products.length,
       }
 
@@ -62,7 +62,11 @@ export class ProductFetcher {
 
       return result
     } catch (error) {
-      logger.error(`Error fetching products for store ${storeId}`, error, 'ProductFetcher')
+      logger.error(
+        `Error fetching products for store ${storeId}`,
+        error,
+        'ProductFetcher'
+      )
 
       const templateError: TemplateError = {
         type: 'DATA_ERROR',
@@ -78,7 +82,10 @@ export class ProductFetcher {
   /**
    * Obtiene un producto específico por ID
    */
-  public async getProduct(storeId: string, productId: string): Promise<ProductContext | null> {
+  public async getProduct(
+    storeId: string,
+    productId: string
+  ): Promise<ProductContext | null> {
     try {
       const cacheKey = `product_${storeId}_${productId}`
 
@@ -117,7 +124,10 @@ export class ProductFetcher {
   /**
    * Obtiene productos destacados de una tienda
    */
-  public async getFeaturedProducts(storeId: string, limit: number = 8): Promise<ProductContext[]> {
+  public async getFeaturedProducts(
+    storeId: string,
+    limit: number = 8
+  ): Promise<ProductContext[]> {
     try {
       const cacheKey = `featured_products_${storeId}_${limit}`
 
@@ -148,7 +158,11 @@ export class ProductFetcher {
 
       return products
     } catch (error) {
-      logger.error(`Error fetching featured products for store ${storeId}`, error, 'ProductFetcher')
+      logger.error(
+        `Error fetching featured products for store ${storeId}`,
+        error,
+        'ProductFetcher'
+      )
       return []
     }
   }
