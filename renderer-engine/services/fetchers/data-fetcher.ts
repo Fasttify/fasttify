@@ -27,7 +27,7 @@ interface ProductsResponse {
 
 interface CollectionsResponse {
   collections: CollectionContext[]
-  nextToken?: string
+  nextToken?: string | null
   totalCount?: number
 }
 
@@ -56,14 +56,20 @@ export class DataFetcher {
   /**
    * Obtiene un producto específico por ID
    */
-  public async getProduct(storeId: string, productId: string): Promise<ProductContext | null> {
+  public async getProduct(
+    storeId: string,
+    productId: string
+  ): Promise<ProductContext | null> {
     return productFetcher.getProduct(storeId, productId)
   }
 
   /**
    * Obtiene productos destacados de una tienda
    */
-  public async getFeaturedProducts(storeId: string, limit: number = 8): Promise<ProductContext[]> {
+  public async getFeaturedProducts(
+    storeId: string,
+    limit: number = 8
+  ): Promise<ProductContext[]> {
     return productFetcher.getFeaturedProducts(storeId, limit)
   }
 
@@ -75,7 +81,7 @@ export class DataFetcher {
   public async getStoreCollections(
     storeId: string,
     options: PaginationOptions = {}
-  ): Promise<CollectionContext[]> {
+  ): Promise<CollectionsResponse> {
     return await collectionFetcher.getStoreCollections(storeId, options)
   }
 
@@ -94,7 +100,9 @@ export class DataFetcher {
   /**
    * Obtiene todos los menús de navegación de una tienda
    */
-  public async getStoreNavigationMenus(storeId: string): Promise<NavigationMenusResponse> {
+  public async getStoreNavigationMenus(
+    storeId: string
+  ): Promise<NavigationMenusResponse> {
     return navigationFetcher.getStoreNavigationMenus(storeId)
   }
 

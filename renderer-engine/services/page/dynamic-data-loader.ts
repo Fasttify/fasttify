@@ -184,10 +184,11 @@ export class DynamicDataLoader {
         return await dataFetcher.getFeaturedProducts(storeId, options.limit || 8)
 
       case 'collections':
-        return await dataFetcher.getStoreCollections(storeId, {
+        const collectionsResult = await dataFetcher.getStoreCollections(storeId, {
           limit: options.limit || 10,
           nextToken: options.nextToken,
         })
+        return collectionsResult.collections
 
       case 'product':
         if (pageOptions.productId || pageOptions.handle) {
@@ -201,11 +202,11 @@ export class DynamicDataLoader {
           return await dataFetcher.getCollection(storeId, pageOptions.collectionId)
         } else if (pageOptions.handle) {
           // Buscar colección por handle
-          const collections = await dataFetcher.getStoreCollections(storeId, {
+          const collectionsResult = await dataFetcher.getStoreCollections(storeId, {
             limit: options.limit || 10,
             nextToken: options.nextToken,
           })
-          const collectionRef = collections.find(
+          const collectionRef = collectionsResult.collections.find(
             c =>
               c.slug === pageOptions.handle ||
               c.title.toLowerCase().replace(/\s+/g, '-') === pageOptions.handle

@@ -336,19 +336,19 @@
         behavior: 'smooth',
       });
     });
-    
+
     // Show/hide scroll buttons based on scroll position
     function updateScrollButtons() {
       const isAtStart = wrapper.scrollLeft === 0;
       const isAtEnd = wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 10;
-      
+
       scrollLeftButton.style.opacity = isAtStart ? '0.5' : '1';
       scrollRightButton.style.opacity = isAtEnd ? '0.5' : '1';
     }
-    
+
     wrapper.addEventListener('scroll', updateScrollButtons);
     window.addEventListener('resize', updateScrollButtons);
-    
+
     // Initial update
     updateScrollButtons();
   });

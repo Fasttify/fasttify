@@ -97,16 +97,13 @@ export class PaginateTag extends Tag {
     }
     // Caso 3: Colecciones de la tienda (collections)
     else if (childKey === 'collections' && parentObject?.storeId) {
-      const collections = (yield collectionFetcher.getStoreCollections(
+      const { collections, nextToken } = (yield collectionFetcher.getStoreCollections(
         parentObject.storeId,
         {
           limit: pageSize,
           nextToken: token,
         }
-      )) as any[]
-      // La API de getStoreCollections no devuelve un nextToken directamente,
-      // así que asumimos que no hay más páginas si devuelve menos de `pageSize` items.
-      const nextToken = collections.length === pageSize ? 'has_more' : undefined
+      )) as { collections: any[]; nextToken?: string }
       return { items: collections, nextToken, parentObject, childKey }
     }
 
