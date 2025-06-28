@@ -10,5 +10,5 @@ export default function EditPagePage() {
   const storeId = getStoreId(params, pathname)
   const pageId = params.pageId as string
 
-  return <PageManager storeId={storeId} pageId={pageId} />
+  return <PageManager pageId={pageId} storeId={storeId} />
 }

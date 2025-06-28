@@ -36,16 +36,12 @@ export const createDefaultMenus = async (
 
         const menuId = menuResult.data.id
         createdMenuIds.push(menuId)
-        console.log(
-          `Menu created: ${menuConfig.name} (${menuId}) with ${menuConfig.items.length} items`
-        )
       } catch (menuError) {
         console.error(`Error creating menu ${menuConfig.name}:`, menuError)
         // Continuamos con los demás menús aunque uno falle
       }
     }
 
-    console.log(`Default navigation menus created successfully. Total: ${createdMenuIds.length}`)
     return createdMenuIds
   } catch (error) {
     console.error('Error creating default navigation menus:', error)

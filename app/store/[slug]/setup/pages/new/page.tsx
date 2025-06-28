@@ -9,5 +9,5 @@ export default function NewPagePage() {
   const params = useParams()
   const storeId = getStoreId(params, pathname)
 
-  return <PageManager storeId={storeId} pageId="new" />
+  return <PageManager isCreating storeId={storeId} />
 }

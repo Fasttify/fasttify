@@ -27,7 +27,9 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             url: `/store/${storeId}/dashboard`,
             label: 'Dashboard',
             icon: HomeIcon,
-            selected: pathname === `/store/${storeId}/dashboard` || pathname.includes('/dashboard'),
+            selected:
+              pathname === `/store/${storeId}/dashboard` ||
+              pathname.includes('/dashboard'),
             subNavigationItems: [
               {
                 url: `/store/${storeId}/dashboard/statistics`,
@@ -91,16 +93,6 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
           },
         ]}
       />
-      <Navigation.Section
-        items={[
-          {
-            url: `/store/${storeId}/navigation`,
-            label: 'Navegación',
-            icon: ContentIcon,
-            selected: pathname.includes('/navigation'),
-          },
-        ]}
-      />
 
       <Navigation.Section
         title="CONFIGURACIÓN"
@@ -112,8 +104,8 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             selected: pathname.includes('/setup'),
             subNavigationItems: [
               {
-                url: `/store/${storeId}/setup/domain`,
-                label: 'Dominio y Nombre',
+                url: `/store/${storeId}/setup/general`,
+                label: 'General',
                 disabled: false,
               },
               {
@@ -129,6 +121,11 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
               {
                 url: `/store/${storeId}/setup/apps`,
                 label: 'Apps',
+                disabled: false,
+              },
+              {
+                url: `/store/${storeId}/setup/navigation`,
+                label: 'Navegación',
                 disabled: false,
               },
             ],

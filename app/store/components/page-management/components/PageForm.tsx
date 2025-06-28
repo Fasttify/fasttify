@@ -13,21 +13,24 @@ import {
   BlockStack,
   Divider,
 } from '@shopify/polaris'
-import { usePageForm } from '../hooks/usePageForm'
-import type { IPage, PageFormValues } from '../types/page-types'
+import { usePageForm } from '@/app/store/components/page-management/hooks/usePageForm'
+import type {
+  Page as IPage,
+  PageFormValues,
+} from '@/app/store/components/page-management/types/page-types'
 
 interface PageFormProps {
   storeId: string
   initialPage?: IPage
   onSave: (data: PageFormValues) => Promise<boolean>
   onCancel: () => void
-  isEditing?: boolean
+  isEditing: boolean
+  generateSlug: (title: string) => string
 }
 
 const statusOptions = [
   { label: 'Borrador', value: 'draft' },
-  { label: 'Activa', value: 'active' },
-  { label: 'Inactiva', value: 'inactive' },
+  { label: 'Publicada', value: 'published' },
 ]
 
 export function PageForm({
@@ -35,15 +38,19 @@ export function PageForm({
   initialPage,
   onSave,
   onCancel,
-  isEditing = false,
+  isEditing,
+  generateSlug,
 }: PageFormProps) {
-  const { formData, isLoading, isValid, updateField, handleSubmit } = usePageForm({
-    initialPage,
-    onSubmit: onSave,
-    onCancel,
-  })
+  const { formData, errors, isLoading, isDirty, updateField, handleSubmit } = usePageForm(
+    {
+      initialPage,
+      onSubmit: onSave,
+      generateSlug,
+      storeId,
+      isEditing,
+    }
+  )
 
-  // Manejar cambio del título
   const handleTitleChange = useCallback(
     (value: string) => {
       updateField('title', value)
@@ -53,6 +60,9 @@ export function PageForm({
 
   const pageTitle = isEditing ? 'Editar página' : 'Nueva página'
   const submitButtonText = isEditing ? 'Actualizar página' : 'Crear página'
+
+  // El botón está deshabilitado si se está editando y no hay cambios (isDirty es false)
+  const isButtonDisabled = isEditing ? !isDirty : false
 
   return (
     <Page
@@ -65,7 +75,7 @@ export function PageForm({
         content: submitButtonText,
         onAction: handleSubmit,
         loading: isLoading,
-        disabled: !isValid,
+        disabled: isLoading || isButtonDisabled,
       }}
       secondaryActions={[
         {
@@ -78,7 +88,6 @@ export function PageForm({
       <Layout>
         <Layout.Section>
           <BlockStack gap="500">
-            {/* Información básica */}
             <Card>
               <BlockStack gap="400">
                 <Text variant="headingMd" as="h2">
@@ -93,27 +102,26 @@ export function PageForm({
                     placeholder="Ingresa el título de la página"
                     autoComplete="off"
                     requiredIndicator
-                    helpText="Este es el único campo requerido para crear la página"
+                    error={errors.title}
                   />
 
                   <TextField
-                    label="Contenido (opcional)"
+                    label="Contenido"
                     value={formData.content}
                     onChange={value => updateField('content', value)}
                     multiline={6}
                     placeholder="Escribe el contenido de tu página aquí..."
                     autoComplete="off"
-                    helpText="Puedes agregar contenido ahora o editarlo después"
+                    error={errors.content}
                   />
                 </FormLayout>
               </BlockStack>
             </Card>
 
-            {/* Configuración opcional */}
             <Card>
               <BlockStack gap="400">
                 <Text variant="headingMd" as="h2">
-                  Configuración (opcional)
+                  Configuración
                 </Text>
 
                 <FormLayout>
@@ -123,6 +131,7 @@ export function PageForm({
                       options={statusOptions}
                       value={formData.status}
                       onChange={value => updateField('status', value as any)}
+                      error={errors.status}
                     />
 
                     <TextField
@@ -132,6 +141,7 @@ export function PageForm({
                       placeholder="Se genera automáticamente desde el título"
                       autoComplete="off"
                       helpText="Déjalo vacío para generar automáticamente"
+                      error={errors.slug}
                     />
                   </FormLayout.Group>
 
@@ -139,6 +149,7 @@ export function PageForm({
                     label="Página visible en navegación"
                     checked={formData.isVisible}
                     onChange={checked => updateField('isVisible', checked)}
+                    error={errors.isVisible}
                   />
                 </FormLayout>
               </BlockStack>
@@ -146,7 +157,6 @@ export function PageForm({
           </BlockStack>
         </Layout.Section>
 
-        {/* Sidebar simplificado */}
         <Layout.Section variant="oneThird">
           <Card>
             <BlockStack gap="400">
@@ -159,7 +169,7 @@ export function PageForm({
                   <strong>URL de la página:</strong>
                 </Text>
                 <Text variant="bodyMd" as="p">
-                  {`/pages/${formData.slug || 'slug-generado-automaticamente'}`}
+                  {`/pages/${formData.slug || '...'}`}
                 </Text>
               </BlockStack>
 
@@ -171,40 +181,6 @@ export function PageForm({
                 </Text>
                 <Text variant="bodyMd" as="p">
                   {statusOptions.find(opt => opt.value === formData.status)?.label}
-                </Text>
-              </BlockStack>
-
-              <Divider />
-
-              <BlockStack gap="200">
-                <Text variant="bodyMd" as="p">
-                  <strong>Visibilidad:</strong>
-                </Text>
-                <Text variant="bodyMd" as="p">
-                  {formData.isVisible ? 'Visible en navegación' : 'Oculta en navegación'}
-                </Text>
-              </BlockStack>
-            </BlockStack>
-          </Card>
-
-          {/* Consejos simples */}
-          <Card>
-            <BlockStack gap="300">
-              <Text variant="headingMd" as="h2">
-                Consejos
-              </Text>
-
-              <BlockStack gap="200">
-                <Text variant="bodyMd" as="p">
-                  Solo necesitas un título para crear la página. Todo lo demás es opcional.
-                </Text>
-
-                <Text variant="bodyMd" as="p">
-                  El slug se genera automáticamente desde el título si no especificas uno.
-                </Text>
-
-                <Text variant="bodyMd" as="p">
-                  Puedes editar el contenido y configuración después de crear la página.
                 </Text>
               </BlockStack>
             </BlockStack>

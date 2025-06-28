@@ -15,6 +15,7 @@ export interface InitializationResult {
   message: string
   collections?: string[]
   menus?: string[]
+  pages?: string[]
 }
 
 export interface ValidationResult {
@@ -39,4 +40,14 @@ export interface DefaultNavigationMenu {
   handle: string
   isMain: boolean
   items: DefaultMenuItem[]
+}
+
+// ==================== TIPOS PARA PÁGINAS ====================
+
+export interface DefaultPage {
+  title: string
+  content: string
+  slug: string
+  isVisible: boolean
+  status: string
 }

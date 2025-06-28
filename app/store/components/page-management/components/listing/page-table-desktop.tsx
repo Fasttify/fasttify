@@ -9,9 +9,11 @@ import {
   Link as PolarisLink,
 } from '@shopify/polaris'
 import { EditIcon, DeleteIcon, PageIcon } from '@shopify/polaris-icons'
-import type { IPage, SortField, VisibleColumns } from '../../types/page-types'
-import { getStoreId } from '@/utils/store-utils'
-import { useParams, usePathname } from 'next/navigation'
+import type {
+  Page,
+  SortField,
+  VisibleColumns,
+} from '@/app/store/components/page-management/types/page-types'
 import {
   getStatusText,
   getStatusTone,
@@ -19,10 +21,10 @@ import {
   formatVisibility,
   getVisibilityTone,
   truncateContent,
-} from '../../utils/page-utils'
+} from '@/app/store/components/page-management/utils/page-utils'
 
 interface PageTableDesktopProps {
-  pages: IPage[]
+  pages: Page[]
   handleEditPage: (id: string) => void
   handleDeletePage: (id: string) => void
   handleDeleteSelected: (selectedIds: string[]) => void
@@ -42,23 +44,13 @@ export function PageTableDesktop({
   sortDirection,
   sortField,
 }: PageTableDesktopProps) {
-  const pathname = usePathname()
-  const params = useParams()
-  const storeId = getStoreId(params, pathname)
-
   const resourceName = {
     singular: 'página',
     plural: 'páginas',
   }
 
-  // Mapear páginas para que sean compatibles con useIndexResourceState
-  const mappedPages = pages.map(page => ({
-    ...page,
-    [page.id]: page.id, // Añadir índice dinámico para compatibilidad
-  }))
-
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(mappedPages)
+    useIndexResourceState(pages)
 
   const promotedBulkActions = [
     {
@@ -70,19 +62,24 @@ export function PageTableDesktop({
   const rowMarkup = pages.map(
     ({ id, title, slug, status, isVisible, content, createdAt }, index) => {
       return (
-        <IndexTable.Row id={id} key={id} selected={selectedResources.includes(id)} position={index}>
+        <IndexTable.Row
+          id={id}
+          key={id}
+          selected={selectedResources.includes(id)}
+          position={index}
+        >
           <IndexTable.Cell>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <PageIcon />
+              <PageIcon width={22} height={22} />
               <div>
-                <PolarisLink url={`/store/${storeId}/pages/${id}/edit`}>
+                <PolarisLink onClick={() => handleEditPage(id)}>
                   <Text variant="bodyMd" fontWeight="bold" as="span">
                     {title}
                   </Text>
                 </PolarisLink>
                 <div>
                   <Text variant="bodySm" tone="subdued" as="p">
-                    {truncateContent(content)}
+                    {truncateContent(content || '')}
                   </Text>
                 </div>
               </div>
@@ -102,7 +99,9 @@ export function PageTableDesktop({
           )}
           {visibleColumns.visibility && (
             <IndexTable.Cell>
-              <Badge tone={getVisibilityTone(isVisible)}>{formatVisibility(isVisible)}</Badge>
+              <Badge tone={getVisibilityTone(isVisible)}>
+                {formatVisibility(isVisible)}
+              </Badge>
             </IndexTable.Cell>
           )}
           <IndexTable.Cell>{formatDate(createdAt)}</IndexTable.Cell>

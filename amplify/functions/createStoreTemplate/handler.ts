@@ -7,6 +7,7 @@ import { InitializationResult } from './types/index'
 import { validateInputs } from './services/validationService'
 import { createDefaultCollections } from './services/collectionService'
 import { createDefaultMenus } from './services/menuService'
+import { createDefaultPages } from './services/pageService'
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 
@@ -50,11 +51,15 @@ async function initializeStoreTemplate(
     // Crear menús de navegación por defecto (incluye footer)
     const menuIds = await createDefaultMenus(client, storeId, domain, owner)
 
+    // Crear páginas por defecto (políticas)
+    const pageIds = await createDefaultPages(client, storeId, owner)
+
     return {
       success: true,
-      message: 'Store initialized successfully with collections and menus',
+      message: 'Store initialized successfully with collections, menus, and pages',
       collections: collectionIds,
       menus: menuIds,
+      pages: pageIds,
     }
   } catch (error) {
     console.error('Error initializing store:', error)

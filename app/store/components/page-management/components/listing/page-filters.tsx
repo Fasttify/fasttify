@@ -17,7 +17,10 @@ export function PageFilters({
 }: PageFiltersProps) {
   const [visibility, setVisibility] = useState<string[]>()
 
-  const handleVisibilityChange = useCallback((value: string[]) => setVisibility(value), [])
+  const handleVisibilityChange = useCallback(
+    (value: string[]) => setVisibility(value),
+    []
+  )
   const handleSearchQueryChange = useCallback(
     (value: string) => setSearchQuery(value),
     [setSearchQuery]
@@ -60,9 +63,8 @@ export function PageFilters({
 
   const TABS = [
     { id: 'all', content: 'Todas' },
-    { id: 'active', content: 'Activas' },
+    { id: 'published', content: 'Publicadas' },
     { id: 'draft', content: 'Borrador' },
-    { id: 'inactive', content: 'Inactivas' },
   ]
   const selectedTabIndex = TABS.findIndex(tab => tab.id === activeTab)
 

@@ -2,17 +2,18 @@ import { useRouter } from 'next/navigation'
 import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris'
 
 // Hooks
-import { usePageFilters } from '../../hooks/usePageFilters'
-import { usePageSelection } from '../../hooks/usePageSelection'
+import { usePageFilters } from '@/app/store/components/page-management/hooks/usePageFilters'
+import { usePageSelection } from '@/app/store/components/page-management/hooks/usePageSelection'
+import { routes } from '@/utils/routes'
 
 // Components
-import { PageFilters } from './page-filters'
-import { PageTableDesktop } from './page-table-desktop'
+import { PageFilters } from '@/app/store/components/page-management/components/listing/page-filters'
+import { PageTableDesktop } from '@/app/store/components/page-management/components/listing/page-table-desktop'
+import { PageListMobile } from '@/app/store/components/page-management/components/listing/page-list-mobile'
 import { PageIcon } from '@shopify/polaris-icons'
-import { useToast } from '@/app/store/context/ToastContext'
 
 // Types
-import type { PageListProps } from '../../types/page-types'
+import type { PageListProps } from '@/app/store/components/page-management/types/page-types'
 
 export function PageList({
   storeId,
@@ -22,7 +23,6 @@ export function PageList({
   deletePage,
 }: PageListProps) {
   const router = useRouter()
-  const { showToast } = useToast()
 
   // Hooks para manejar diferentes aspectos de la tabla
   const { setSelectedPages } = usePageSelection()
@@ -39,36 +39,26 @@ export function PageList({
 
   // Funciones de navegación y acciones
   const handleAddPage = () => {
-    router.push(`/store/${storeId}/pages/new`)
+    router.push(routes.store.setup.pagesNew(storeId))
   }
 
   const handleEditPage = (id: string) => {
-    router.push(`/store/${storeId}/pages/${id}/edit`)
+    router.push(routes.store.setup.pagesEdit(storeId, id))
   }
 
-  const handleDeletePage = async (id: string) => {
+  const handleDeletePage = (id: string) => {
     if (confirm('¿Estás seguro de que deseas eliminar esta página?')) {
-      const success = await deletePage(id)
-      if (success) {
-        showToast('Página eliminada correctamente')
-        setSelectedPages(prev => prev.filter(pageId => pageId !== id))
-      } else {
-        showToast('Error al eliminar la página', true)
-      }
+      deletePage(id)
+      setSelectedPages(prev => prev.filter(pageId => pageId !== id))
     }
   }
 
-  const handleDeleteSelected = async (selectedIds: string[]) => {
+  const handleDeleteSelected = (selectedIds: string[]) => {
     if (selectedIds.length === 0) return
 
     if (confirm(`¿Estás seguro de que deseas eliminar ${selectedIds.length} páginas?`)) {
-      const success = await deleteMultiplePages(selectedIds)
-      if (success) {
-        showToast(`${selectedIds.length} páginas eliminadas correctamente`)
-        setSelectedPages([])
-      } else {
-        showToast('Error al eliminar algunas páginas', true)
-      }
+      deleteMultiplePages(selectedIds)
+      setSelectedPages([])
     }
   }
 
@@ -112,8 +102,6 @@ export function PageList({
           </Text>
         </div>
         <ButtonGroup>
-          <Button onClick={() => console.log('Importar páginas')}>Importar</Button>
-          <Button onClick={() => console.log('Exportar páginas')}>Exportar</Button>
           <Button variant="primary" onClick={handleAddPage}>
             Crear página
           </Button>
@@ -143,6 +131,12 @@ export function PageList({
           toggleSort={toggleSort}
           sortDirection={sortDirection === 'asc' ? 'ascending' : 'descending'}
           sortField={sortField ?? 'title'}
+        />
+
+        <PageListMobile
+          pages={sortedPages}
+          handleEditPage={handleEditPage}
+          handleDeletePage={handleDeletePage}
         />
 
         {/* Información adicional en lugar de paginación */}

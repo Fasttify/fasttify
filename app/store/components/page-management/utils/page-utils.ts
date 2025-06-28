@@ -1,38 +1,25 @@
-import { IPage } from '../types/page-types'
+import type { Page } from '@/app/store/hooks/data/usePage'
 
-export function getStatusText(status: IPage['status']) {
+export function getStatusText(status: Page['status']) {
   switch (status) {
-    case 'active':
-      return 'Activa'
+    case 'published':
+      return 'Publicada'
     case 'draft':
       return 'Borrador'
-    case 'inactive':
-      return 'Inactiva'
     default:
-      return 'Desconocido'
+      return status || 'Desconocido'
   }
 }
 
-export function getStatusTone(status: IPage['status']) {
+export function getStatusTone(status: Page['status']) {
   switch (status) {
-    case 'active':
+    case 'published':
       return 'success'
     case 'draft':
       return 'info'
-    case 'inactive':
-      return 'critical'
     default:
       return 'info'
   }
-}
-
-export function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // Remover caracteres especiales
-    .replace(/\s+/g, '-') // Reemplazar espacios con guiones
-    .replace(/-+/g, '-') // Reemplazar múltiples guiones con uno solo
-    .trim()
 }
 
 export function formatDate(dateString?: string): string {
@@ -55,6 +42,7 @@ export function getVisibilityTone(isVisible: boolean) {
 }
 
 export function truncateContent(content: string, maxLength: number = 150): string {
+  if (!content) return ''
   if (content.length <= maxLength) return content
   return content.substring(0, maxLength) + '...'
 }

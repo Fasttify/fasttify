@@ -1,129 +1,121 @@
-import { useState, useCallback, useEffect } from 'react'
-import type { IPage, PageFormValues } from '../types/page-types'
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import type {
+  Page,
+  PageFormValues,
+} from '@/app/store/components/page-management/types/page-types'
+import { createPageSchema } from '@/lib/zod-schemas/page'
 
 interface UsePageFormProps {
-  initialPage?: IPage
+  initialPage?: Page
   onSubmit: (data: PageFormValues) => Promise<boolean>
-  onCancel?: () => void
+  generateSlug: (title: string) => string
+  storeId: string
+  isEditing: boolean
 }
 
 interface UsePageFormReturn {
-  formData: PageFormValues
+  formData: Partial<PageFormValues>
+  errors: Record<keyof PageFormValues, string>
   isLoading: boolean
-  isValid: boolean
+  isDirty: boolean
   updateField: (field: keyof PageFormValues, value: any) => void
   handleSubmit: () => Promise<void>
-  generateSlugFromTitle: () => void
-}
-
-const defaultFormData: PageFormValues = {
-  title: '',
-  content: '',
-  slug: '',
-  metaTitle: '',
-  metaDescription: '',
-  status: 'draft',
-  isVisible: true,
-  template: '',
 }
 
 export const usePageForm = ({
   initialPage,
   onSubmit,
-  onCancel,
+  generateSlug,
+  storeId,
+  isEditing,
 }: UsePageFormProps): UsePageFormReturn => {
-  // Estados del formulario
-  const [formData, setFormData] = useState<PageFormValues>(defaultFormData)
+  const getInitialData = useCallback((): Partial<PageFormValues> => {
+    return initialPage
+      ? {
+          storeId: initialPage.storeId,
+          title: initialPage.title,
+          content: initialPage.content,
+          slug: initialPage.slug,
+          status: initialPage.status as 'published' | 'draft',
+          isVisible: initialPage.isVisible,
+          metaTitle: initialPage.metaTitle || '',
+          metaDescription: initialPage.metaDescription || '',
+          template: initialPage.template || '',
+        }
+      : { storeId, title: '', content: '', slug: '', status: 'draft', isVisible: true }
+  }, [initialPage, storeId])
+
+  const [initialData, setInitialData] = useState(getInitialData)
+  const [formData, setFormData] = useState<Partial<PageFormValues>>(initialData)
   const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isDirty, setIsDirty] = useState(false)
 
-  // Inicializar formulario con datos existentes
   useEffect(() => {
-    if (initialPage) {
-      setFormData({
-        title: initialPage.title,
-        content: initialPage.content,
-        slug: initialPage.slug,
-        metaTitle: initialPage.metaTitle || '',
-        metaDescription: initialPage.metaDescription || '',
-        status: initialPage.status,
-        isVisible: initialPage.isVisible,
-        template: initialPage.template || '',
+    const data = getInitialData()
+    setInitialData(data)
+    setFormData(data)
+    setIsDirty(false)
+  }, [getInitialData])
+
+  useEffect(() => {
+    if (isEditing) {
+      setIsDirty(JSON.stringify(formData) !== JSON.stringify(initialData))
+    }
+  }, [formData, initialData, isEditing])
+
+  const validate = useCallback(() => {
+    const result = createPageSchema.safeParse(formData)
+    if (result.success) {
+      setErrors({})
+      return true
+    }
+    const fieldErrors: Record<string, string> = {}
+    result.error.errors.forEach(err => {
+      if (err.path[0]) {
+        fieldErrors[err.path[0] as string] = err.message
+      }
+    })
+    setErrors(fieldErrors)
+    return false
+  }, [formData])
+
+  const updateField = useCallback(
+    (field: keyof PageFormValues, value: any) => {
+      setFormData(prev => {
+        const newFormData = { ...prev, [field]: value }
+        if (field === 'title' && !newFormData.slug) {
+          newFormData.slug = generateSlug(value)
+        }
+        return newFormData
       })
-    }
-  }, [initialPage])
+    },
+    [generateSlug]
+  )
 
-  // Validación simple - solo requerir título
-  const isValid = formData.title.trim().length > 0
-
-  // Actualizar campo individual
-  const updateField = useCallback((field: keyof PageFormValues, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }))
-  }, [])
-
-  // Generar slug desde el título
-  const generateSlugFromTitle = useCallback(() => {
-    const slug = formData.title
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '') // Remover caracteres especiales
-      .replace(/\s+/g, '-') // Reemplazar espacios con guiones
-      .replace(/-+/g, '-') // Reemplazar múltiples guiones con uno solo
-      .replace(/^-|-$/g, '') // Remover guiones al inicio y final
-
-    updateField('slug', slug)
-  }, [formData.title, updateField])
-
-  // Auto-generar slug cuando cambia el título (solo si el slug está vacío)
-  useEffect(() => {
-    if (formData.title && !formData.slug) {
-      generateSlugFromTitle()
-    }
-  }, [formData.title, formData.slug, generateSlugFromTitle])
-
-  // Manejar envío del formulario
   const handleSubmit = useCallback(async () => {
-    if (!isValid) return
-
+    if (!validate()) {
+      return
+    }
+    setIsLoading(true)
     try {
-      setIsLoading(true)
-
-      // Si no hay slug, generarlo automáticamente
-      const finalData = {
-        ...formData,
-        slug:
-          formData.slug ||
-          formData.title
-            .toLowerCase()
-            .trim()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-|-$/g, ''),
+      const success = await onSubmit(formData as PageFormValues)
+      if (!success) {
+        setIsLoading(false)
       }
-
-      // Enviar datos
-      const success = await onSubmit(finalData)
-
-      if (success && !initialPage) {
-        // Resetear formulario si es creación nueva
-        setFormData(defaultFormData)
-      }
+      // On success, isLoading remains true, and the component will unmount on redirect.
     } catch (error) {
-      console.error('Error al enviar formulario:', error)
-    } finally {
+      console.error('Error submitting form:', error)
       setIsLoading(false)
     }
-  }, [formData, onSubmit, initialPage, isValid])
+  }, [onSubmit, formData, validate])
 
   return {
     formData,
+    errors: errors as Record<keyof PageFormValues, string>,
     isLoading,
-    isValid,
+    isDirty,
     updateField,
     handleSubmit,
-    generateSlugFromTitle,
   }
 }
