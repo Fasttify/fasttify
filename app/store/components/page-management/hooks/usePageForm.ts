@@ -84,9 +84,14 @@ export const usePageForm = ({
     (field: keyof PageFormValues, value: any) => {
       setFormData(prev => {
         const newFormData = { ...prev, [field]: value }
-        if (field === 'title' && !newFormData.slug) {
-          newFormData.slug = generateSlug(value)
+
+        if (field === 'title') {
+          const isSlugManuallyEdited = prev.slug !== generateSlug(prev.title || '')
+          if (!isSlugManuallyEdited) {
+            newFormData.slug = generateSlug(value)
+          }
         }
+
         return newFormData
       })
     },
