@@ -144,7 +144,8 @@ class LiquidEngine {
   ): Promise<string> {
     try {
       // Registrar filtros específicos de la tienda si hay storeId en el contexto
-      const storeId = context?.storeId || context?.store?.storeId || context?.shop?.storeId
+      const storeId =
+        context?.storeId || context?.store?.storeId || context?.shop?.storeId
       if (storeId) {
         this.registerStoreFilters(storeId)
       }
@@ -210,7 +211,10 @@ class LiquidEngine {
    * @param context - Variables para el renderizado
    * @returns HTML renderizado
    */
-  public async renderCompiled(compiled: CompiledTemplate, context: LiquidContext): Promise<string> {
+  public async renderCompiled(
+    compiled: CompiledTemplate,
+    context: LiquidContext
+  ): Promise<string> {
     try {
       return await compiled.liquid.render(compiled.template, context)
     } catch (error) {
@@ -304,7 +308,10 @@ class LiquidEngine {
    * @param name - Nombre del filtro
    * @param filterFunction - Función del filtro
    */
-  public registerCustomFilter(name: string, filterFunction: (...args: any[]) => any): void {
+  public registerCustomFilter(
+    name: string,
+    filterFunction: (...args: any[]) => any
+  ): void {
     this.liquid.registerFilter(name, filterFunction)
   }
 

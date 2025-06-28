@@ -13,7 +13,7 @@ import type {
  * Resultado de la carga dinámica de datos
  */
 export interface DynamicLoadResult {
-  featuredProducts: any[]
+  products: any[]
   collections: any[]
   contextData: Record<string, any>
   metaData: Record<string, any>
@@ -60,7 +60,7 @@ export class DynamicDataLoader {
       const contextData = await this.buildContextData(storeId, options, loadedData)
 
       return {
-        featuredProducts: loadedData.featuredProducts || [],
+        products: loadedData.products || [],
         collections: loadedData.collections || [],
         contextData,
         metaData: {},
@@ -303,7 +303,7 @@ export class DynamicDataLoader {
     )
 
     return {
-      featuredProducts: [],
+      products: [],
       collections: [],
       contextData: {
         template: options.pageType,
