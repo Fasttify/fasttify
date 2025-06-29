@@ -142,6 +142,10 @@ export class StoreRendererFactory {
       return { pageType: 'collection' }
     }
 
+    if (path === '/products') {
+      return { pageType: 'product' }
+    }
+
     // Fallback a homepage para paths no reconocidos
     return { pageType: '404' }
   }

@@ -8,14 +8,13 @@ import {
   Emitter,
   TokenKind,
 } from 'liquidjs'
-import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher'
-import { collectionFetcher } from '@/renderer-engine/services/fetchers/collection-fetcher'
 import { logger } from '@/renderer-engine/lib/logger'
 import type { PaginationContext } from '@/renderer-engine/types'
 
 /**
  * Custom Paginate Tag para Shopify Liquid.
- * Extensible para manejar diferentes tipos de datos (productos, artículos, etc.).
+ * RESPONSABILIDAD ÚNICA: Gestionar la presentación de datos ya cargados por DynamicDataLoader.
+ * NO carga datos, solo los presenta con paginación.
  */
 export class PaginateTag extends Tag {
   private collectionExpression: string
@@ -49,120 +48,156 @@ export class PaginateTag extends Tag {
     this.templateContent = contentTokens.join('')
   }
 
-  private *fetchData(
-    ctx: Context,
-    pageSize: number,
-    token: string | undefined
-  ): Generator<
-    unknown,
-    { items: any[]; nextToken?: string; parentObject: any; childKey: string },
-    unknown
-  > {
-    const expressionParts = this.collectionExpression.split('.')
-    const parentPath = expressionParts[0]
-    const childKey = expressionParts.length > 1 ? expressionParts.pop()! : parentPath
-    const parentObject = ctx.getSync([parentPath]) as any
-
-    // Caso 1: Productos de una colección específica (collection.products)
-    if (childKey === 'products' && parentObject?.id) {
-      const { products, nextToken } = (yield productFetcher.getProductsByCollection(
-        parentObject.storeId,
-        parentObject.id,
-        { limit: pageSize, nextToken: token }
-      )) as { products: any[]; nextToken?: string }
-      return { items: products, nextToken, parentObject, childKey }
-    }
-    // Caso 2: Todos los productos de la tienda (products)
-    else if (childKey === 'products' && !parentObject?.id) {
-      // Obtener el storeId del contexto global
-      const storeId = ctx.getSync(['store', 'id']) || ctx.getSync(['storeId'])
-      if (!storeId) {
-        logger.error(
-          'No storeId found in context for products pagination',
-          undefined,
-          'PaginateTag'
-        )
-        return { items: [], parentObject: {}, childKey }
-      }
-
-      const { products, nextToken } = (yield productFetcher.getStoreProducts(
-        storeId as string,
-        {
-          limit: pageSize,
-          nextToken: token,
-        }
-      )) as { products: any[]; nextToken?: string }
-
-      return { items: products, nextToken, parentObject: { storeId }, childKey }
-    }
-    // Caso 3: Colecciones de la tienda (collections)
-    else if (childKey === 'collections' && parentObject?.storeId) {
-      const { collections, nextToken } = (yield collectionFetcher.getStoreCollections(
-        parentObject.storeId,
-        {
-          limit: pageSize,
-          nextToken: token,
-        }
-      )) as { collections: any[]; nextToken?: string }
-      return { items: collections, nextToken, parentObject, childKey }
-    }
-
-    // Futuro: Añadir casos para 'blog.articles', 'search.results', etc.
-    // else if (childKey === 'articles' && parentObject?.id) { ... }
-
-    logger.warn(
-      `Pagination not implemented for '${this.collectionExpression}'`,
-      undefined,
-      'PaginateTag'
-    )
-    return { items: [], parentObject, childKey }
-  }
-
   public *render(ctx: Context, emitter: Emitter): Generator<unknown, void, unknown> {
     try {
-      const pageSize = ((yield this.pageSizeExpression.value(ctx, false)) as number) || 20
+      // 1. Obtener el tamaño de página esperado
+      const pageSizeValue = (yield this.pageSizeExpression.value(ctx, false)) as number
+      const expectedPageSize = Math.max(1, Math.min(50, pageSizeValue || 20))
+
+      // 2. Obtener la lista de elementos YA CARGADA desde el contexto principal
+      const expressionParts = this.collectionExpression.split('.')
+      const items = this.getItemsFromContext(ctx, expressionParts)
+
+      // 3. Obtener tokens de paginación del contexto principal
       const currentToken = String(ctx.getSync(['current_token']) || '')
-      const previousToken = String(ctx.getSync(['previous_token']) || '')
+      const nextToken = String(ctx.getSync(['next_token']) || '')
+      const request = ctx.getSync(['request']) as
+        | { searchParams: URLSearchParams }
+        | undefined
+      const hasToken = !!request?.searchParams.get('token')
 
-      const { items, nextToken, parentObject, childKey } = yield* this.fetchData(
-        ctx,
-        pageSize,
-        currentToken
-      )
-
+      // 4. Crear el objeto 'paginate' para compatibilidad con Shopify
       const pagination: Omit<
         PaginationContext,
         'parts' | 'total_items' | 'total_pages' | 'current_offset'
       > = {
-        current_page: 1,
-        items_per_page: pageSize,
-        previous: previousToken
-          ? { title: 'Anterior', url: this.generatePageUrl(previousToken) }
-          : undefined,
-        next: nextToken
-          ? { title: 'Siguiente', url: this.generatePageUrl(nextToken, currentToken) }
+        current_page: 1, // En token-based pagination, siempre es "página 1"
+        items_per_page: expectedPageSize,
+        next:
+          nextToken && nextToken !== currentToken
+            ? {
+                title: 'Siguiente',
+                url: this.generatePageUrl({ token: nextToken }),
+              }
+            : undefined,
+
+        previous: hasToken
+          ? { title: 'Anterior', url: 'javascript:history.back()' }
           : undefined,
       }
 
-      const newParentObject = { ...parentObject, [childKey]: items }
-      const scope = {
+      // 5. Crear scope local para el contenido del tag
+      const scope: { [key: string]: any } = {
         paginate: pagination,
-        [this.collectionExpression.split('.')[0]]: newParentObject,
       }
 
+      // 6. Poner los elementos disponibles en el scope local
+      this.setItemsInScope(scope, expressionParts, items, ctx)
+
+      // 7. Renderizar el contenido con el scope local
       ctx.push(scope)
-      const templates = this.liquid.parse(this.templateContent)
-      yield this.liquid.renderer.renderTemplates(templates, ctx, emitter)
-      ctx.pop()
+      try {
+        const templates = this.liquid.parse(this.templateContent)
+        yield this.liquid.renderer.renderTemplates(templates, ctx, emitter)
+      } finally {
+        ctx.pop() // Garantizar limpieza del scope
+      }
+
+      logger.debug(
+        `Paginate tag rendered successfully`,
+        {
+          expression: this.collectionExpression,
+          itemCount: items.length,
+          hasNext: !!nextToken,
+        },
+        'PaginateTag'
+      )
     } catch (error) {
-      logger.error('Error in paginate tag', error, 'PaginateTag')
+      logger.error(
+        'Error in paginate tag render',
+        { error, expression: this.collectionExpression },
+        'PaginateTag'
+      )
+
+      // Fallback: renderizar contenido sin paginación
+      try {
+        const templates = this.liquid.parse(this.templateContent)
+        yield this.liquid.renderer.renderTemplates(templates, ctx, emitter)
+      } catch (renderError) {
+        logger.error(
+          'Failed to render paginate content as fallback',
+          renderError,
+          'PaginateTag'
+        )
+        emitter.write(
+          `<!-- Error in paginate tag: ${error instanceof Error ? error.message : 'Unknown error'} -->`
+        )
+      }
     }
   }
 
-  private generatePageUrl(token: string, previous?: string): string {
-    const params = new URLSearchParams()
-    if (token) params.set('token', token)
-    if (previous) params.set('previous_token', previous)
-    return `?${params.toString()}`
+  /**
+   * Obtiene los elementos del contexto siguiendo la expresión (ej: products, collection.products)
+   */
+  private getItemsFromContext(ctx: Context, expressionParts: string[]): any[] {
+    try {
+      if (expressionParts.length === 1) {
+        // Expresión simple: "products"
+        const items = ctx.getSync([expressionParts[0]]) as any[]
+        return Array.isArray(items) ? items : []
+      } else {
+        // Expresión anidada: "collection.products"
+        const parentPath = expressionParts[0]
+        const childKey = expressionParts[expressionParts.length - 1]
+        const parentObject = ctx.getSync([parentPath]) as any
+
+        if (parentObject && parentObject[childKey]) {
+          const items = parentObject[childKey] as any[]
+          return Array.isArray(items) ? items : []
+        }
+        return []
+      }
+    } catch (error) {
+      logger.warn(
+        `Could not retrieve items from context for expression: ${this.collectionExpression}`,
+        { error, expressionParts },
+        'PaginateTag'
+      )
+      return []
+    }
+  }
+
+  /**
+   * Coloca los elementos en el scope local para que estén disponibles en el contenido del tag
+   */
+  private setItemsInScope(
+    scope: { [key: string]: any },
+    expressionParts: string[],
+    items: any[],
+    ctx: Context
+  ): void {
+    if (expressionParts.length === 1) {
+      // Expresión simple: poner directamente
+      scope[expressionParts[0]] = items
+    } else {
+      // Expresión anidada: recrear la estructura
+      const parentPath = expressionParts[0]
+      const childKey = expressionParts[expressionParts.length - 1]
+      const originalParent = (ctx.getSync([parentPath]) as any) || {}
+
+      // Crear una copia del objeto padre con los elementos actualizados
+      scope[parentPath] = {
+        ...originalParent,
+        [childKey]: items,
+      }
+    }
+  }
+
+  /**
+   * Genera URL de paginación con un token.
+   */
+  private generatePageUrl(params: Record<string, string>): string {
+    const searchParams = new URLSearchParams(params)
+    return `?${searchParams.toString()}`
   }
 }

@@ -12,7 +12,6 @@ interface PaginationOptions {
 interface ProductsResponse {
   products: ProductContext[]
   nextToken?: string | null
-  totalCount?: number
 }
 
 export class ProductFetcher {
@@ -54,7 +53,6 @@ export class ProductFetcher {
       const result: ProductsResponse = {
         products,
         nextToken: response.nextToken,
-        totalCount: products.length,
       }
 
       // Guardar en caché
@@ -80,40 +78,89 @@ export class ProductFetcher {
   }
 
   /**
-   * Obtiene un producto específico por ID
+   * Obtiene un producto específico por ID o por su handle (slug).
    */
   public async getProduct(
     storeId: string,
-    productId: string
+    productIdOrHandle: string
   ): Promise<ProductContext | null> {
     try {
-      const cacheKey = `product_${storeId}_${productId}`
-
-      // Verificar caché
-      const cached = cacheManager.getCached(cacheKey)
-      if (cached) {
-        return cached as ProductContext
+      // 1. Siempre buscar el producto individual en caché primero
+      const productCacheKey = `product_${storeId}_${productIdOrHandle}`
+      const cachedProduct = cacheManager.getCached(productCacheKey)
+      if (cachedProduct) {
+        return cachedProduct as ProductContext
       }
 
-      // Obtener producto desde Amplify
-      const { data: product } = await cookiesClient.models.Product.get({
-        id: productId,
-      })
+      // 2. Intentar obtener por ID, que es la forma más rápida
+      try {
+        const { data: productById } = await cookiesClient.models.Product.get({
+          id: productIdOrHandle,
+        })
+        if (productById && productById.storeId === storeId) {
+          const transformed = this.transformProduct(productById)
+          cacheManager.setCached(
+            productCacheKey,
+            transformed,
+            cacheManager.PRODUCT_CACHE_TTL
+          )
+          return transformed
+        }
+      } catch (e) {
+        // Es normal que falle si productIdOrHandle es un handle, así que lo ignoramos.
+      }
 
-      if (!product || product.storeId !== storeId) {
+      // 3. Si no es un ID, buscar en el mapa de handles en caché
+      const handleMapCacheKey = `product_handle_map_${storeId}`
+      const handleMap = cacheManager.getCached(handleMapCacheKey)
+
+      if (handleMap && handleMap[productIdOrHandle]) {
+        const productId = handleMap[productIdOrHandle]
+        // Ahora que tenemos el ID, lo buscamos directamente.
+        return this.getProduct(storeId, productId)
+      }
+
+      // 4. Si el mapa de handles no está en caché, se genera y se guarda.
+      const { data: allProducts } =
+        await cookiesClient.models.Product.listProductByStoreId({ storeId })
+
+      if (!allProducts || allProducts.length === 0) {
         return null
       }
 
-      // Transformar producto
-      const transformedProduct = this.transformProduct(product)
+      // Crear el mapa de handles y encontrar nuestro producto al mismo tiempo
+      const newHandleMap: { [handle: string]: string } = {}
+      let targetProduct: any = null
 
-      // Guardar en caché
-      cacheManager.setCached(cacheKey, transformedProduct, cacheManager.PRODUCT_CACHE_TTL)
+      for (const p of allProducts) {
+        const handle = dataTransformer.createHandle(p.name)
+        newHandleMap[handle] = p.id
+        if (handle === productIdOrHandle) {
+          targetProduct = p
+        }
+      }
 
+      // Guardar el nuevo mapa de handles en caché para futuras solicitudes
+      cacheManager.setCached(
+        handleMapCacheKey,
+        newHandleMap,
+        cacheManager.STORE_CACHE_TTL
+      )
+
+      if (!targetProduct) {
+        return null
+      }
+
+      const transformedProduct = this.transformProduct(targetProduct)
+      cacheManager.setCached(
+        productCacheKey,
+        transformedProduct,
+        cacheManager.PRODUCT_CACHE_TTL
+      )
       return transformedProduct
     } catch (error) {
       logger.error(
-        `Error fetching product ${productId} for store ${storeId}`,
+        `Error fetching product "${productIdOrHandle}" for store ${storeId}`,
         error,
         'ProductFetcher'
       )
@@ -201,7 +248,7 @@ export class ProductFetcher {
         error,
         'ProductFetcher'
       )
-      return { products: [], totalCount: 0 }
+      return { products: [], nextToken: null }
     }
   }
 

@@ -22,13 +22,11 @@ interface PaginationOptions {
 interface ProductsResponse {
   products: ProductContext[]
   nextToken?: string | null
-  totalCount?: number
 }
 
 interface CollectionsResponse {
   collections: CollectionContext[]
   nextToken?: string | null
-  totalCount?: number
 }
 
 interface NavigationMenusResponse {
@@ -90,9 +88,10 @@ export class DataFetcher {
    */
   public async getCollection(
     storeId: string,
-    collectionId: string
+    collectionId: string,
+    options: PaginationOptions = {}
   ): Promise<CollectionContext | null> {
-    return collectionFetcher.getCollection(storeId, collectionId)
+    return collectionFetcher.getCollection(storeId, collectionId, options)
   }
 
   // === NAVEGACIÓN ===

@@ -14,8 +14,7 @@
       },
       {
         "label": "Todos los Productos",
-        "type": "collection",
-        "collectionHandle": "all",
+        "type": "product",
         "isVisible": true,
         "target": "_self",
         "sortOrder": 2

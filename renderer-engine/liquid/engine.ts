@@ -23,7 +23,7 @@ class LiquidEngine {
   private static instance: LiquidEngine
   private liquid: Liquid
   public assetCollector: AssetCollector
-  private currentStoreId: string | null = null // 🆕 Trackear el storeId actual
+  private currentStoreId: string | null = null
 
   private constructor() {
     this.assetCollector = new AssetCollector()

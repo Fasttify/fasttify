@@ -18,7 +18,6 @@ interface PaginationOptions {
 interface CollectionsResponse {
   collections: CollectionContext[]
   nextToken?: string | null
-  totalCount?: number
 }
 
 export class CollectionFetcher {
@@ -48,7 +47,7 @@ export class CollectionFetcher {
       )
 
       if (!response.data) {
-        return { collections: [], totalCount: 0 }
+        return { collections: [] }
       }
 
       const collections: CollectionContext[] = []
@@ -60,7 +59,6 @@ export class CollectionFetcher {
       const result: CollectionsResponse = {
         collections,
         nextToken: response.nextToken,
-        totalCount: collections.length,
       }
 
       cacheManager.setCached(cacheKey, result, cacheManager.COLLECTION_CACHE_TTL)

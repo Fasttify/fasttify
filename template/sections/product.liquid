@@ -1,0 +1,32 @@
+{% comment %} 
+  Este archivo actúa como un router. 
+  - Si el objeto 'product' existe, muestra la vista de detalle. 
+  - Si no, muestra la lista de productos. 
+{% endcomment %}
+
+{% if product %}
+  {% render 'product-details-view' %}
+{% else %}
+  {% render 'product-list-view' %}
+{% endif %}
+
+{% schema %}
+  {
+    "name": "Página de Producto",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Configuración de Lista de Productos"
+      },
+      {
+        "type": "range",
+        "id": "products_per_page",
+        "min": 8,
+        "max": 48,
+        "step": 4,
+        "label": "Productos por página",
+        "default": 16
+      }
+    ]
+  }
+{% endschema %}

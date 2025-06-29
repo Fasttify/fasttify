@@ -41,7 +41,7 @@ export class DynamicPageRenderer {
 
       const [layout, pageData, storeTemplate] = await Promise.all([
         templateLoader.loadMainLayout(store.storeId),
-        dynamicDataLoader.loadDynamicData(store.storeId, options),
+        dynamicDataLoader.loadDynamicData(store.storeId, options, searchParams),
         dataFetcher.getStoreNavigationMenus(store.storeId),
       ])
 
@@ -63,9 +63,22 @@ export class DynamicPageRenderer {
         templateLoader.loadTemplate(store.storeId, templatePath),
       ])
 
-      // inyectar parametros de busqueda en el contexto
-      context.current_token = searchParams.token
-      context.previous_token = searchParams.previous_token
+      // El next_token viene de los datos cargados por DynamicDataLoader
+      if (pageData.nextToken) {
+        context.next_token = pageData.nextToken
+      }
+
+      // Agregar current_token desde searchParams
+      if (searchParams.token) {
+        context.current_token = searchParams.token
+      }
+
+      // Agregar objeto request con searchParams para el tag paginate
+      context.request = {
+        searchParams: new URLSearchParams(
+          Object.entries(searchParams).map(([key, value]) => [key, value])
+        ),
+      }
 
       // 5. Renderizar contenido con template y contexto ya cargados
       const renderedContent = await this.renderPageContentOptimized(
@@ -134,7 +147,7 @@ export class DynamicPageRenderer {
   ): Promise<any> {
     const context = await contextBuilder.createRenderContext(
       store,
-      pageData.featuredProducts || [],
+      pageData.products || [],
       pageData.collections || [],
       storeTemplate,
       pageData.cartData

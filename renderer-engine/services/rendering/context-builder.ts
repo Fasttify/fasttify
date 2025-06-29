@@ -1,4 +1,9 @@
-import type { RenderContext, ShopContext, PageContext, CartContext } from '@/renderer-engine/types'
+import type {
+  RenderContext,
+  ShopContext,
+  PageContext,
+  CartContext,
+} from '@/renderer-engine/types'
 import { linkListService } from '@/renderer-engine/services/core/linkList-service'
 
 export class ContextBuilder {
@@ -28,6 +33,7 @@ export class ContextBuilder {
       theme: store.storeTheme || 'modern',
       favicon: store.storeFavicon,
       storeId: store.storeId,
+      collections: collections, // Agregar colecciones para compatibilidad con Shopify Liquid
     }
 
     // Crear contexto de la página con metafields para PageFly
@@ -114,6 +120,7 @@ export class ContextBuilder {
       theme: store.storeTheme || 'modern',
       favicon: store.storeFavicon,
       storeId: store.storeId,
+      collections: collections, // Agregar colecciones para compatibilidad con Shopify Liquid
     }
 
     // Crear contexto de la página con metafields para PageFly

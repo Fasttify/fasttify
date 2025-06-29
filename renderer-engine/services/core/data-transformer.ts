@@ -89,8 +89,22 @@ export class DataTransformer {
    * Transforma array de atributos
    */
   public static transformAttributes(attributes: any): any[] {
-    return Array.isArray(attributes)
-      ? attributes.map((attribute: any) => ({
+    let attributesArray = []
+    if (attributes) {
+      if (typeof attributes === 'string') {
+        try {
+          attributesArray = JSON.parse(attributes)
+        } catch (error) {
+          console.warn('Error parsing product attributes JSON:', error)
+          attributesArray = []
+        }
+      } else if (Array.isArray(attributes)) {
+        attributesArray = attributes
+      }
+    }
+
+    return Array.isArray(attributesArray)
+      ? attributesArray.map((attribute: any) => ({
           name: attribute.name,
           values: attribute.values,
         }))
