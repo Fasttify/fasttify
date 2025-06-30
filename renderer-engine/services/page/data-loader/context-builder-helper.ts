@@ -1,52 +1,106 @@
 import type { PageRenderOptions } from '@/renderer-engine/types/template'
 
 /**
- * Construye el contextData específico para el tipo de página.
+ * Tipo para builders de contexto por página
+ */
+type PageContextBuilder = (
+  loadedData: Record<string, any>,
+  options: PageRenderOptions
+) => Record<string, any>
+
+/**
+ * Builders declarativos para cada tipo de página
+ */
+const pageContextBuilders: Record<string, PageContextBuilder> = {
+  index: () => ({
+    template: 'index',
+    page_title: 'Inicio',
+  }),
+
+  product: loadedData => {
+    const baseContext: Record<string, any> = {
+      template: 'product',
+      page_title: 'Productos',
+    }
+
+    if (loadedData.product) {
+      baseContext.product = loadedData.product
+      baseContext.page_title = loadedData.product.name
+    }
+
+    return baseContext
+  },
+
+  collection: loadedData => {
+    const baseContext: Record<string, any> = {
+      template: 'collection',
+      page_title: 'Colección',
+    }
+
+    if (loadedData.collection) {
+      baseContext.collection = loadedData.collection
+      baseContext.page_title = loadedData.collection.title
+    }
+
+    return baseContext
+  },
+
+  cart: loadedData => {
+    const baseContext: Record<string, any> = {
+      template: 'cart',
+      page_title: 'Carrito de Compras',
+    }
+
+    if (loadedData.cart) {
+      baseContext.cart = loadedData.cart
+    }
+
+    return baseContext
+  },
+
+  '404': () => ({
+    template: '404',
+    page_title: 'Página No Encontrada',
+    error_message: 'La página que buscas no existe',
+  }),
+
+  search: () => ({
+    template: 'search',
+    page_title: 'Búsqueda',
+  }),
+
+  page: (loadedData, options) => ({
+    template: 'page',
+    page_title: options.handle
+      ? options.handle.charAt(0).toUpperCase() + options.handle.slice(1)
+      : 'Página',
+  }),
+
+  blog: (loadedData, options) => ({
+    template: 'blog',
+    page_title: options.handle
+      ? options.handle.charAt(0).toUpperCase() + options.handle.slice(1)
+      : 'Blog',
+  }),
+}
+
+/**
+ * Construye el contextData específico para el tipo de página usando builders declarativos.
  */
 export async function buildContextData(
   storeId: string,
   options: PageRenderOptions,
   loadedData: Record<string, any>
 ): Promise<Record<string, any>> {
-  const contextData: Record<string, any> = {
+  const builder = pageContextBuilders[options.pageType]
+
+  if (builder) {
+    return builder(loadedData, options)
+  }
+
+  // Fallback para tipos no definidos
+  return {
     template: options.pageType,
+    page_title: options.pageType.charAt(0).toUpperCase() + options.pageType.slice(1),
   }
-
-  switch (options.pageType) {
-    case 'index':
-      contextData.page_title = 'Inicio'
-      break
-    case 'product':
-      if (loadedData.product) {
-        contextData.product = loadedData.product
-        contextData.page_title = loadedData.product.name
-      } else {
-        contextData.page_title = 'Productos'
-      }
-      break
-    case 'collection':
-      if (loadedData.collection) {
-        contextData.collection = loadedData.collection
-        contextData.page_title = loadedData.collection.title
-      } else {
-        contextData.page_title = 'Colección'
-      }
-      break
-    case 'cart':
-      contextData.page_title = 'Carrito de Compras'
-      if (loadedData.cart) {
-        contextData.cart = loadedData.cart
-      }
-      break
-    case '404':
-      contextData.page_title = 'Página No Encontrada'
-      contextData.error_message = 'La página que buscas no existe'
-      break
-    default:
-      contextData.page_title =
-        options.pageType.charAt(0).toUpperCase() + options.pageType.slice(1)
-      break
-  }
-
-  return contextData
 }

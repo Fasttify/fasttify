@@ -284,7 +284,6 @@ class LiquidEngine {
     this.liquid = this.createEngine()
     this.registerFilters()
     this.registerCustomTags()
-    // 🆕 Resetear el contexto de store
     this.currentStoreId = null
     logger.info('Cache y contexto de Liquid limpiados completamente', 'LiquidEngine')
   }

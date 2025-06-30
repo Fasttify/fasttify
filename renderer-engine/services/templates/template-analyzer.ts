@@ -139,7 +139,7 @@ export class TemplateAnalyzer {
             templatesToAnalyze.set(depPath, depContent)
           } catch (error) {
             logger.warn(
-              `No se pudo cargar la dependencia de la plantilla: ${depPath}`,
+              `Could not load template dependency: ${depPath}`,
               error,
               'TemplateAnalyzer'
             )

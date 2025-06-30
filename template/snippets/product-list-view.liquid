@@ -1,7 +1,7 @@
  {{ 'list-product.css' | asset_url | stylesheet_tag }}
 <div class="page-width">
   <h1 class="page-title">Todos los Productos</h1>
-  {% paginate products by 12 %}
+  {% paginate products by 2 %}
     <div class="product-grid">
       {% for product in products %}
         <div class="product-item">
@@ -13,7 +13,10 @@
                 class="product-item__image"
                 loading="lazy">
             </a>
-            <button class="product-item__add-to-cart" aria-label="Añadir al carrito">
+              <button
+              class="product-item__add-to-cart"
+              aria-label="Añadir al carrito"
+              data-product-id="{{ product.id }}">
               <img src="{{ 'icon-add-to-cart.svg' | asset_url }}" alt="Añadir al carrito" class="product-item__add-to-cart-icon">
               <span class="add-to-cart-text">Add</span>
             </button>

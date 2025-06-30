@@ -4,6 +4,88 @@ import type { RenderResult } from '@/renderer-engine/types'
 import type { PageRenderOptions } from '@/renderer-engine/types/template'
 
 /**
+ * Tipo para matchers de rutas
+ */
+type RouteMatcher = {
+  pattern: RegExp
+  handler: (match: RegExpMatchArray) => PageRenderOptions
+}
+
+/**
+ * Matchers declarativos para rutas de tienda
+ */
+const routeMatchers: RouteMatcher[] = [
+  // Homepage
+  {
+    pattern: /^\/$/,
+    handler: () => ({ pageType: 'index' }),
+  },
+
+  // Producto: /products/handle
+  {
+    pattern: /^\/products\/([^\/]+)$/,
+    handler: match => ({
+      pageType: 'product',
+      handle: match[1],
+    }),
+  },
+
+  // Colección: /collections/handle
+  {
+    pattern: /^\/collections\/([^\/]+)$/,
+    handler: match => ({
+      pageType: 'collection',
+      handle: match[1],
+    }),
+  },
+
+  // Página estática: /pages/handle
+  {
+    pattern: /^\/pages\/([^\/]+)$/,
+    handler: match => ({
+      pageType: 'page',
+      handle: match[1],
+    }),
+  },
+
+  // Blog: /blogs/handle
+  {
+    pattern: /^\/blogs\/([^\/]+)$/,
+    handler: match => ({
+      pageType: 'blog',
+      handle: match[1],
+    }),
+  },
+
+  // Rutas exactas
+  {
+    pattern: /^\/search$/,
+    handler: () => ({ pageType: 'search' }),
+  },
+
+  {
+    pattern: /^\/cart$/,
+    handler: () => ({ pageType: 'cart' }),
+  },
+
+  {
+    pattern: /^\/404$/,
+    handler: () => ({ pageType: '404' }),
+  },
+
+  // Casos especiales para compatibilidad
+  {
+    pattern: /^\/collection$/,
+    handler: () => ({ pageType: 'collection' }),
+  },
+
+  {
+    pattern: /^\/products$/,
+    handler: () => ({ pageType: 'product' }),
+  },
+]
+
+/**
  * Factory principal del sistema de renderizado de tiendas
  * Usa el nuevo sistema dinámico unificado
  */
@@ -36,117 +118,72 @@ export class StoreRendererFactory {
       // Usar el renderizador dinámico
       return await this.dynamicRenderer.render(domain, options, searchParams)
     } catch (error) {
-      logger.error(
-        `Error rendering page ${cleanPath} for domain ${domain}`,
-        error,
-        'StoreRendererFactory'
-      )
-
-      // Si es un error tipado de plantilla, renderizar página de error amigable
-      if (error && typeof error === 'object' && 'type' in error) {
-        const templateError = error as any
-        try {
-          return await this.dynamicRenderer.renderError(templateError, domain, cleanPath)
-        } catch (renderError) {
-          logger.error(
-            'Failed to render error page, falling back to throwing error',
-            renderError,
-            'StoreRendererFactory'
-          )
-          throw error // Si falla el renderizado de error, lanzar el error original
-        }
-      }
-
-      // Crear error genérico para otros casos y renderizar página de error
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      const genericError = {
-        type: 'RENDER_ERROR' as const,
-        message: `Failed to render page: ${errorMessage}`,
-        statusCode: 500,
-      }
-
-      try {
-        return await this.dynamicRenderer.renderError(genericError, domain, cleanPath)
-      } catch (renderError) {
-        logger.error(
-          'Failed to render error page for generic error',
-          renderError,
-          'StoreRendererFactory'
-        )
-        throw genericError
-      }
+      return this.handleRenderError(error, domain, cleanPath)
     }
   }
 
   /**
-   * Convierte un path a opciones del renderizador dinámico
+   * Maneja errores de renderizado de forma centralizada
+   */
+  private async handleRenderError(
+    error: unknown,
+    domain: string,
+    path: string
+  ): Promise<RenderResult> {
+    logger.error(
+      `Error rendering page ${path} for domain ${domain}`,
+      error,
+      'StoreRendererFactory'
+    )
+
+    // Si es un error tipado de plantilla, usarlo directamente
+    if (error && typeof error === 'object' && 'type' in error) {
+      const templateError = error as any
+      try {
+        return await this.dynamicRenderer.renderError(templateError, domain, path)
+      } catch (renderError) {
+        logger.error(
+          'Failed to render error page, falling back to throwing error',
+          renderError,
+          'StoreRendererFactory'
+        )
+        throw templateError
+      }
+    }
+
+    // Crear error genérico para otros casos
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const genericError = {
+      type: 'RENDER_ERROR' as const,
+      message: `Failed to render page: ${errorMessage}`,
+      statusCode: 500,
+    }
+
+    try {
+      return await this.dynamicRenderer.renderError(genericError, domain, path)
+    } catch (renderError) {
+      logger.error(
+        'Failed to render error page for generic error',
+        renderError,
+        'StoreRendererFactory'
+      )
+      throw genericError
+    }
+  }
+
+  /**
+   * Convierte un path a opciones usando matchers declarativos
    */
   private pathToRenderOptions(path: string): PageRenderOptions {
-    // Homepage
-    if (path === '/') {
-      return { pageType: 'index' }
-    }
-
-    // Producto: /products/mi-producto
-    const productMatch = path.match(/^\/products\/([^\/]+)$/)
-    if (productMatch) {
-      return {
-        pageType: 'product',
-        handle: productMatch[1],
+    // Buscar primer matcher que coincida
+    for (const { pattern, handler } of routeMatchers) {
+      const match = path.match(pattern)
+      if (match) {
+        return handler(match)
       }
     }
 
-    // Colección: /collections/mi-coleccion
-    const collectionMatch = path.match(/^\/collections\/([^\/]+)$/)
-    if (collectionMatch) {
-      return {
-        pageType: 'collection',
-        handle: collectionMatch[1],
-      }
-    }
-
-    // Página estática: /pages/mi-pagina
-    const pageMatch = path.match(/^\/pages\/([^\/]+)$/)
-    if (pageMatch) {
-      return {
-        pageType: 'page',
-        handle: pageMatch[1],
-      }
-    }
-
-    // Blog: /blogs/mi-blog
-    const blogMatch = path.match(/^\/blogs\/([^\/]+)$/)
-    if (blogMatch) {
-      return {
-        pageType: 'blog',
-        handle: blogMatch[1],
-      }
-    }
-
-    // Búsqueda: /search
-    if (path === '/search') {
-      return { pageType: 'search' }
-    }
-
-    // Cart: /cart
-    if (path === '/cart') {
-      return { pageType: 'cart' }
-    }
-
-    // 404: /404 (para pruebas)
-    if (path === '/404') {
-      return { pageType: '404' }
-    }
-
-    if (path === '/collection') {
-      return { pageType: 'collection' }
-    }
-
-    if (path === '/products') {
-      return { pageType: 'product' }
-    }
-
-    // Fallback a homepage para paths no reconocidos
+    // Fallback para paths no reconocidos
     return { pageType: '404' }
   }
 
@@ -179,7 +216,7 @@ export { domainResolver } from '@/renderer-engine/services/core/domain-resolver'
 export { templateLoader } from '@/renderer-engine/services/templates/template-loader'
 export { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher'
 export { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher'
-export { linkListService } from '@/renderer-engine/services/core/linkList-service'
+export { linkListService } from '@/renderer-engine/services/core/navigation-service'
 export { liquidEngine } from '@/renderer-engine/liquid/engine'
 export { errorRenderer } from '@/renderer-engine/services/errors/error-renderer'
 

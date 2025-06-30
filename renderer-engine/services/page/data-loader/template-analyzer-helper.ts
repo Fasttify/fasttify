@@ -5,95 +5,127 @@ import type { PageRenderOptions } from '@/renderer-engine/types/template'
 import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer'
 
 /**
- * Analiza las plantillas requeridas para la página.
+ * Tipo para cargadores de templates
+ */
+type TemplateLoader = (
+  storeId: string,
+  options: PageRenderOptions
+) => Promise<Record<string, string>>
+
+/**
+ * Mapeo declarativo de tipos de página a paths de templates
+ */
+const templatePaths: Record<string, string> = {
+  index: 'templates/index.json',
+  product: 'templates/product.json',
+  collection: 'templates/collection.json',
+  cart: 'templates/cart.json',
+  page: 'templates/page.json',
+  search: 'templates/search.json',
+  '404': 'templates/404.json',
+}
+
+/**
+ * Cargadores declarativos para diferentes tipos de templates
+ */
+const templateLoaders: Record<string, TemplateLoader> = {
+  layout: async (storeId: string) => {
+    const layout = await templateLoader.loadMainLayout(storeId)
+    return { 'layout/theme.liquid': layout }
+  },
+
+  page: async (storeId: string, options: PageRenderOptions) => {
+    const templatePath = getTemplatePath(options.pageType)
+    const pageTemplate = await templateLoader.loadTemplate(storeId, templatePath)
+    return { [templatePath]: pageTemplate }
+  },
+
+  layoutSections: async (storeId: string, options: PageRenderOptions) => {
+    const layout = await templateLoader.loadMainLayout(storeId)
+    const sectionNames = extractSectionNames(layout)
+    return await loadSections(storeId, sectionNames, 'layout')
+  },
+
+  pageSections: async (storeId: string, options: PageRenderOptions) => {
+    const templatePath = getTemplatePath(options.pageType)
+
+    if (!templatePath.endsWith('.json')) {
+      return {}
+    }
+
+    const pageTemplate = await templateLoader.loadTemplate(storeId, templatePath)
+    const sectionNames = extractPageSectionNames(pageTemplate)
+    return await loadSections(storeId, sectionNames, 'page')
+  },
+}
+
+/**
+ * Analiza las plantillas requeridas para la página usando cargadores declarativos.
  */
 export async function analyzeRequiredTemplates(
   storeId: string,
   options: PageRenderOptions
 ): Promise<TemplateAnalysis> {
   try {
-    const templatePath = getTemplatePath(options.pageType)
-    const layout = await templateLoader.loadMainLayout(storeId)
-    const pageTemplate = await templateLoader.loadTemplate(storeId, templatePath)
-    const sections: Record<string, string> = {}
+    const allTemplates: Record<string, string> = {}
 
-    const layoutSections = extractSectionNames(layout)
-    for (const sectionName of layoutSections) {
+    // Cargar todos los tipos de templates en paralelo
+    const loadPromises = Object.entries(templateLoaders).map(async ([type, loader]) => {
       try {
-        const sectionContent = await templateLoader.loadSection(storeId, sectionName)
-        sections[sectionName] = sectionContent
+        const templates = await loader(storeId, options)
+        Object.assign(allTemplates, templates)
       } catch (error) {
-        logger.warn(`Could not load section ${sectionName}`, error, 'DynamicDataLoader')
+        logger.warn(`Failed to load ${type} templates`, error, 'TemplateAnalyzer')
       }
-    }
-
-    if (templatePath.endsWith('.json')) {
-      try {
-        const templateConfig = JSON.parse(pageTemplate)
-        if (templateConfig.sections) {
-          for (const [sectionId, sectionConfig] of Object.entries(
-            templateConfig.sections
-          )) {
-            const sectionType = (sectionConfig as any).type
-            if (sectionType) {
-              const sectionName = sectionType.includes('/')
-                ? sectionType.split('/').pop()!
-                : sectionType
-              const sectionPath = `${sectionType}.liquid`
-              if (!sections[sectionName]) {
-                try {
-                  const sectionContent = await templateLoader.loadTemplate(
-                    storeId,
-                    sectionPath
-                  )
-                  sections[sectionName] = sectionContent
-                } catch (error) {
-                  logger.warn(
-                    `Could not load page section ${sectionType}`,
-                    error,
-                    'DynamicDataLoader'
-                  )
-                }
-              }
-            }
-          }
-        }
-      } catch (error) {
-        logger.warn(
-          `Error parsing template JSON ${templatePath}`,
-          error,
-          'DynamicDataLoader'
-        )
-      }
-    }
-
-    const analysis = await templateAnalyzer.analyzeTemplateSet(storeId, {
-      'layout/theme.liquid': layout,
-      [templatePath]: pageTemplate,
-      ...sections,
     })
 
+    await Promise.all(loadPromises)
+
+    const analysis = await templateAnalyzer.analyzeTemplateSet(storeId, allTemplates)
+
     logger.debug(
-      `Dynamic analysis completed for ${options.pageType}`,
+      `Template analysis completed for ${options.pageType}`,
       {
         requiredData: Array.from(analysis.requiredData.keys()),
         hasPagination: analysis.hasPagination,
         dependencies: analysis.dependencies.length,
+        templatesLoaded: Object.keys(allTemplates).length,
       },
-      'DynamicDataLoader'
+      'TemplateAnalyzer'
     )
 
     return analysis
   } catch (error) {
-    logger.error('Error analyzing templates', error, 'DynamicDataLoader')
-    return {
-      requiredData: new Map(),
-      hasPagination: false,
-      usedSections: [],
-      liquidObjects: [],
-      dependencies: [],
-    }
+    logger.error('Error analyzing templates', error, 'TemplateAnalyzer')
+    return createEmptyAnalysis()
   }
+}
+
+/**
+ * Carga secciones de forma genérica con manejo de errores.
+ */
+async function loadSections(
+  storeId: string,
+  sectionNames: string[],
+  context: string
+): Promise<Record<string, string>> {
+  const sections: Record<string, string> = {}
+
+  const loadPromises = sectionNames.map(async sectionName => {
+    try {
+      const sectionContent = await templateLoader.loadSection(storeId, sectionName)
+      sections[sectionName] = sectionContent
+    } catch (error) {
+      logger.warn(
+        `Could not load ${context} section ${sectionName}`,
+        error,
+        'TemplateAnalyzer'
+      )
+    }
+  })
+
+  await Promise.all(loadPromises)
+  return sections
 }
 
 /**
@@ -110,18 +142,43 @@ function extractSectionNames(layout: string): string[] {
 }
 
 /**
+ * Extrae nombres de secciones de un template JSON de página.
+ */
+function extractPageSectionNames(pageTemplate: string): string[] {
+  try {
+    const templateConfig = JSON.parse(pageTemplate)
+    if (!templateConfig.sections) return []
+
+    return Object.entries(templateConfig.sections)
+      .map(([sectionId, sectionConfig]) => {
+        const sectionType = (sectionConfig as any).type
+        if (!sectionType) return ''
+
+        return sectionType.includes('/') ? sectionType.split('/').pop()! : sectionType
+      })
+      .filter(Boolean)
+  } catch (error) {
+    logger.warn('Error parsing page template JSON', error, 'TemplateAnalyzer')
+    return []
+  }
+}
+
+/**
  * Obtiene el path de la plantilla según el tipo de página.
  */
 function getTemplatePath(pageType: string): string {
-  const templatePaths: Record<string, string> = {
-    index: 'templates/index.json',
-    product: 'templates/product.json',
-    collection: 'templates/collection.json',
-    cart: 'templates/cart.json',
-    page: 'templates/page.json',
-    search: 'templates/search.json',
-    '404': 'templates/404.json',
-  }
-
   return templatePaths[pageType] || `templates/${pageType}.json`
+}
+
+/**
+ * Crea un análisis vacío para casos de error.
+ */
+function createEmptyAnalysis(): TemplateAnalysis {
+  return {
+    requiredData: new Map(),
+    hasPagination: false,
+    usedSections: [],
+    liquidObjects: [],
+    dependencies: [],
+  }
 }
