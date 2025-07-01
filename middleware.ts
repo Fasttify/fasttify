@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { handleAuthenticationMiddleware } from './middlewares/auth/auth'
-import { handleStoreMiddleware } from './middlewares/store-access/store'
-import { handleStoreAccessMiddleware } from './middlewares/store-access/storeAccess'
-import { handleProductOwnershipMiddleware } from './middlewares/ownership/productOwnership'
-import { handleAuthenticatedRedirectMiddleware } from './middlewares/auth/auth'
-import { handleCollectionOwnershipMiddleware } from './middlewares/ownership/collectionOwnership'
-import { handlePagesOwnershipMiddleware } from './middlewares/ownership/pagesOwnership'
+import { handleAuthenticationMiddleware } from '@/middlewares/auth/auth'
+import { handleStoreMiddleware } from '@/middlewares/store-access/store'
+import { handleStoreAccessMiddleware } from '@/middlewares/store-access/storeAccess'
+import { handleProductOwnershipMiddleware } from '@/middlewares/ownership/productOwnership'
+import { handleAuthenticatedRedirectMiddleware } from '@/middlewares/auth/auth'
+import { handleCollectionOwnershipMiddleware } from '@/middlewares/ownership/collectionOwnership'
+import { handlePagesOwnershipMiddleware } from '@/middlewares/ownership/pagesOwnership'
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname

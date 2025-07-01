@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookiesClient } from '@/utils/AmplifyUtils'
-import { getSession } from '../auth/auth'
+import { getSession } from '@/middlewares/auth/auth'
 
 /**
  * Middleware para verificar que un usuario solo pueda acceder a páginas

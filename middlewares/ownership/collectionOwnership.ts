@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookiesClient } from '@/utils/AmplifyUtils'
-import { getSession } from '../auth/auth'
+import { getSession } from '@/middlewares/auth/auth'
 
 /**
  * Middleware para verificar que un usuario solo pueda acceder a colecciones
@@ -95,14 +95,20 @@ export async function handleCollectionOwnershipMiddleware(request: NextRequest) 
     })
 
     if (!collection) {
-      const redirectUrl = new URL(`/store/${currentStoreId}/products/collections`, request.url)
+      const redirectUrl = new URL(
+        `/store/${currentStoreId}/products/collections`,
+        request.url
+      )
       const response = NextResponse.redirect(redirectUrl)
       response.headers.set('x-redirect-check', 'true')
       return response
     }
 
     if (collection.storeId !== currentStoreId) {
-      const redirectUrl = new URL(`/store/${currentStoreId}/products/collections`, request.url)
+      const redirectUrl = new URL(
+        `/store/${currentStoreId}/products/collections`,
+        request.url
+      )
       const response = NextResponse.redirect(redirectUrl)
       response.headers.set('x-redirect-check', 'true')
       return response

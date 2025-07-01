@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookiesClient } from '@/utils/AmplifyUtils'
-import { getSession } from '../auth/auth'
+import { getSession } from '@/middlewares/auth/auth'
 
 const STORE_LIMITS = {
   Imperial: 5,
@@ -35,7 +35,10 @@ async function checkStoreLimit(userId: string, plan: string) {
   }
 }
 
-export async function handleStoreMiddleware(request: NextRequest, response: NextResponse) {
+export async function handleStoreMiddleware(
+  request: NextRequest,
+  response: NextResponse
+) {
   const session = await getSession(request, response)
   const path = request.nextUrl.pathname
 
@@ -51,7 +54,10 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
     return NextResponse.redirect(new URL('/pricing', request.url))
   }
 
-  const { hasStores, canCreateMore } = await checkStoreLimit(userId as string, userPlan as string)
+  const { hasStores, canCreateMore } = await checkStoreLimit(
+    userId as string,
+    userPlan as string
+  )
 
   if (path === '/first-steps') {
     if (hasStores && !canCreateMore) {

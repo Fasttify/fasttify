@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '../auth/auth'
+import { getSession } from '@/middlewares/auth/auth'
 import { cookiesClient } from '@/utils/AmplifyUtils'
 
 /**
@@ -15,9 +15,9 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
   }
 
   // Verificar plan de suscripción válido ANTES de verificar acceso a tienda
-  const userPlan: string | undefined = session.tokens?.idToken?.payload?.['custom:plan'] as
-    | string
-    | undefined
+  const userPlan: string | undefined = session.tokens?.idToken?.payload?.[
+    'custom:plan'
+  ] as string | undefined
   const allowedPlans = ['Royal', 'Majestic', 'Imperial']
 
   if (!userPlan || !allowedPlans.includes(userPlan)) {
