@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AuthGetCurrentUserServer } from '@/utils/AmplifyUtils'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-import { readFile, readdir } from 'fs/promises'
-import { join } from 'path'
+import {
+  S3Client,
+  CopyObjectCommand,
+  ListObjectsV2Command,
+  ListObjectsV2CommandOutput,
+} from '@aws-sdk/client-s3'
 
 interface TemplateRequest {
   storeId: string
@@ -17,16 +20,13 @@ interface TemplateRequest {
   }
 }
 
-interface TemplateFile {
-  path: string
-  content: string
-  contentType: string
-}
-
 // Configuración de S3
 const s3Client = new S3Client({
   region: process.env.REGION_BUCKET || 'us-east-2',
 })
+
+// Prefijo de la plantilla base en S3
+const BASE_TEMPLATE_PREFIX = 'base-templates/default/'
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,35 +48,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Nota: No verificamos la existencia de la tienda aquí porque puede haber delay
-    // en la propagación de datos después de la creación. La autenticación del usuario
-    // es suficiente para este endpoint que viene del flujo controlado de setup.
+    // 3. Listar todos los objetos de la plantilla base
+    const templateObjects = await listBaseTemplateObjects()
 
-    // 3. Leer plantillas base
-    const templateFiles = await readTemplateFiles()
-
-    // 4. Personalizar plantillas con datos de la tienda
-    const processedTemplates = await processTemplateFiles(templateFiles, {
+    // 4. Copiar cada objeto a la carpeta del usuario con personalización
+    const copyResults = await copyTemplateToUserStore(templateObjects, storeId, {
       storeName,
       domain,
       storeData: storeData || {},
     })
 
-    // 5. Subir plantillas a S3
-    const uploadResults = await uploadTemplatesToS3(storeId, processedTemplates)
-
-    // 6. Generar URLs de las plantillas
-    const templateUrls = generateTemplateUrls(storeId, uploadResults)
+    // 5. Generar URLs de las plantillas
+    const templateUrls = generateTemplateUrls(storeId, copyResults)
 
     return NextResponse.json({
       success: true,
-      message: 'Template files uploaded to S3 successfully',
+      message: 'Template files copied to user store successfully',
       templateUrls,
-      uploadedFiles: uploadResults.length,
-      files: uploadResults,
+      copiedFiles: copyResults.length,
+      files: copyResults,
     })
   } catch (error) {
-    console.error('Error uploading template to S3:', error)
+    console.error('Error copying template to user store:', error)
     return NextResponse.json(
       {
         error: 'Internal server error',
@@ -87,153 +80,93 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Función para leer archivos de plantilla
-async function readTemplateFiles(): Promise<TemplateFile[]> {
-  const templateDir = join(process.cwd(), 'template')
-  const files: TemplateFile[] = []
+// Función para listar todos los objetos de la plantilla base
+async function listBaseTemplateObjects(): Promise<
+  Array<{ key: string; relativePath: string }>
+> {
+  const objects: Array<{ key: string; relativePath: string }> = []
+  let continuationToken: string | undefined = undefined
 
-  async function readDirectory(dir: string, basePath: string = ''): Promise<void> {
-    const entries = await readdir(dir, { withFileTypes: true })
+  do {
+    const command = new ListObjectsV2Command({
+      Bucket: process.env.BUCKET_NAME,
+      Prefix: BASE_TEMPLATE_PREFIX,
+      ContinuationToken: continuationToken,
+    })
 
-    for (const entry of entries) {
-      const fullPath = join(dir, entry.name)
-      const relativePath = join(basePath, entry.name)
+    const response: ListObjectsV2CommandOutput = await s3Client.send(command)
 
-      if (entry.isDirectory()) {
-        await readDirectory(fullPath, relativePath)
-      } else if (entry.isFile()) {
-        const contentType = getContentType(entry.name)
-
-        // Determinar si es un archivo binario o de texto
-        const isBinaryFile =
-          contentType.startsWith('image/') ||
-          contentType.startsWith('font/') ||
-          contentType === 'application/octet-stream'
-
-        let content: string
-
-        if (isBinaryFile) {
-          // Leer archivo binario como Buffer y convertir a base64
-          const buffer = await readFile(fullPath)
-          content = buffer.toString('base64')
-        } else {
-          // Leer archivo de texto como utf-8
-          content = await readFile(fullPath, 'utf-8')
+    if (response.Contents) {
+      for (const object of response.Contents) {
+        if (object.Key && object.Key !== BASE_TEMPLATE_PREFIX) {
+          // Excluir el prefijo mismo
+          const relativePath = object.Key.replace(BASE_TEMPLATE_PREFIX, '')
+          objects.push({
+            key: object.Key,
+            relativePath,
+          })
         }
-
-        files.push({
-          path: relativePath.replace(/\\/g, '/'), // Normalizar path para web
-          content,
-          contentType,
-        })
       }
     }
-  }
 
-  await readDirectory(templateDir)
-  return files
+    continuationToken = response.NextContinuationToken
+  } while (continuationToken)
+
+  return objects
 }
 
-// Función para procesar y personalizar plantillas Liquid
-async function processTemplateFiles(
-  files: TemplateFile[],
+// Función para copiar plantillas al almacenamiento del usuario
+async function copyTemplateToUserStore(
+  templateObjects: Array<{ key: string; relativePath: string }>,
+  storeId: string,
   storeConfig: {
     storeName: string
     domain: string
     storeData: any
   }
-): Promise<TemplateFile[]> {
-  return files.map(file => {
-    let processedContent = file.content
+): Promise<Array<{ key: string; path: string }>> {
+  // Crear un mapa de metadatos para personalización
+  const metadata = {
+    'store-id': storeId,
+    'store-name': sanitizeMetadataValue(storeConfig.storeName),
+    'store-domain': storeConfig.domain,
+    'store-description': sanitizeMetadataValue(storeConfig.storeData.description || ''),
+    'store-currency': storeConfig.storeData.currency || 'USD',
+    'store-theme': storeConfig.storeData.theme || 'modern',
+    'template-type': 'store-template',
+    'upload-time': new Date().toISOString(),
+  }
 
-    // Variables de configuración de la tienda
-    const storeVariables = {
-      'shop.name': storeConfig.storeName,
-      'shop.domain': storeConfig.domain,
-      'shop.description': storeConfig.storeData.description || '',
-      'shop.currency': storeConfig.storeData.currency || 'USD',
-      'shop.money_format': storeConfig.storeData.currency === 'EUR' ? '€{{amount}}' : '${{amount}}',
-      'shop.logo': storeConfig.storeData.logo || '',
-      'shop.banner': storeConfig.storeData.banner || '',
-      'shop.theme': storeConfig.storeData.theme || 'modern',
-      'shop.email': storeConfig.storeData.contactEmail || '',
-      'shop.phone': storeConfig.storeData.contactPhone || '',
-      'shop.address': storeConfig.storeData.storeAddress || '',
-    }
+  const copyPromises = templateObjects.map(async ({ key, relativePath }) => {
+    const targetKey = `templates/${storeId}/${relativePath}`
 
-    // Reemplazar variables de Liquid
-    Object.entries(storeVariables).forEach(([key, value]) => {
-      // Reemplazar tanto {{ shop.name }} como {{shop.name}} (con y sin espacios)
-      const regexWithSpaces = new RegExp(`\\{\\{\\s*${key.replace('.', '\\.')}\\s*\\}\\}`, 'g')
-      processedContent = processedContent.replace(regexWithSpaces, value)
-    })
-
-    // Variables adicionales para compatibilidad
-    processedContent = processedContent
-      .replace(/\{\{storeName\}\}/g, storeConfig.storeName)
-      .replace(/\{\{domain\}\}/g, storeConfig.domain)
-      .replace(/\{\{storeDescription\}\}/g, storeConfig.storeData.description || '')
-
-    return {
-      ...file,
-      content: processedContent,
-    }
-  })
-}
-
-// Función para subir plantillas a S3
-async function uploadTemplatesToS3(
-  storeId: string,
-  files: TemplateFile[]
-): Promise<Array<{ key: string; path: string; size: number }>> {
-  const uploadPromises = files.map(async file => {
-    const key = `templates/${storeId}/${file.path}`
-
-    // Determinar si es un archivo binario
-    const isBinaryFile =
-      file.contentType.startsWith('image/') ||
-      file.contentType.startsWith('font/') ||
-      file.contentType === 'application/octet-stream'
-
-    // Preparar el body según el tipo de archivo
-    const body = isBinaryFile
-      ? Buffer.from(file.content, 'base64') // Convertir de base64 a Buffer
-      : file.content // Mantener como string
-
-    const command = new PutObjectCommand({
+    const command = new CopyObjectCommand({
       Bucket: process.env.BUCKET_NAME,
-      Key: key,
-      Body: body,
-      ContentType: file.contentType,
-      Metadata: {
-        'store-id': storeId,
-        'template-type': 'store-template',
-        'upload-time': new Date().toISOString(),
-      },
+      CopySource: `${process.env.BUCKET_NAME}/${key}`,
+      Key: targetKey,
+      Metadata: metadata,
+      MetadataDirective: 'REPLACE', // Reemplazar metadatos en la copia
     })
 
     await s3Client.send(command)
 
     return {
-      key,
-      path: file.path,
-      size: isBinaryFile
-        ? Buffer.from(file.content, 'base64').length
-        : Buffer.byteLength(file.content, 'utf-8'),
+      key: targetKey,
+      path: relativePath,
     }
   })
 
-  return Promise.all(uploadPromises)
+  return Promise.all(copyPromises)
 }
 
 // Función para generar URLs de plantillas
 function generateTemplateUrls(
   storeId: string,
-  uploadResults: Array<{ key: string; path: string; size: number }>
+  copyResults: Array<{ key: string; path: string }>
 ): Record<string, string> {
   const urls: Record<string, string> = {}
 
-  uploadResults.forEach(({ key, path }) => {
+  copyResults.forEach(({ key, path }) => {
     const baseUrl =
       process.env.CLOUDFRONT_DOMAIN_NAME && process.env.APP_ENV === 'production'
         ? `https://${process.env.CLOUDFRONT_DOMAIN_NAME}`
@@ -245,35 +178,9 @@ function generateTemplateUrls(
   return urls
 }
 
-// Función para determinar content type
-function getContentType(filename: string): string {
-  const ext = filename.toLowerCase().split('.').pop()
-
-  const contentTypes: Record<string, string> = {
-    html: 'text/html',
-    css: 'text/css',
-    js: 'application/javascript',
-    json: 'application/json',
-    liquid: 'application/liquid',
-    txt: 'text/plain',
-    md: 'text/markdown',
-    scss: 'text/scss',
-    sass: 'text/sass',
-    xml: 'application/xml',
-    // Tipos de imagen
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    gif: 'image/gif',
-    svg: 'image/svg+xml',
-    webp: 'image/webp',
-    ico: 'image/x-icon',
-    // Tipos de font
-    woff: 'font/woff',
-    woff2: 'font/woff2',
-    ttf: 'font/ttf',
-    eot: 'application/vnd.ms-fontobject',
-  }
-
-  return contentTypes[ext || ''] || 'application/octet-stream'
+// Función para sanitizar los valores de los metadatos
+function sanitizeMetadataValue(value: string): string {
+  // S3 metadata must be ASCII. This removes non-ASCII characters
+  // to prevent SignatureDoesNotMatch errors.
+  return value.replace(/[^\x00-\x7F]/g, '')
 }

@@ -29,8 +29,137 @@
     </div>
 
     <!-- Contenido del carrito -->
-    <div class="cart-content" data-cart-content>
-      {%- render 'cart-items' -%}
+    <div class="cart-content">
+      {% if cart.item_count == 0 %}
+        <div class="cart-empty">
+          <h3 class="cart-empty-title">Tu carrito está vacío</h3>
+          <p class="cart-empty-text">¿Tienes una cuenta?
+            <a href="/account/login" class="cart-empty-link">Inicia sesión</a>
+            para pagar más rápido.</p>
+          <button
+            type="button"
+            class="cart-continue-shopping"
+            data-cart-close>Seguir comprando</button>
+        </div>
+      {% else %}
+        <!-- Items del carrito -->
+        <div class="cart-items">
+          {% for item in cart.items %}
+            <div
+              class="cart-item"
+              data-item-id="{{ item.id }}"
+              data-product-id="{{ item.product_id }}"
+              data-variant-id="{{ item.variant_id }}">
+              <div class="cart-item-image">
+                <img
+                  src="{{ item.image | img_url: '120x120' }}"
+                  alt="{{ item.title | escape }}"
+                  loading="lazy">
+              </div>
+
+              <div class="cart-item-details">
+                <h4 class="cart-item-title">{{ item.title }}</h4>
+                {% if item.variant_id and item.variant_id != '' %}
+                  <p class="cart-item-variant">Variante: {{ item.variant_id }}</p>
+                {% endif %}
+
+                <div class="cart-item-price">
+                  <span class="cart-item-price-final">{{ item.price | money }}</span>
+                  {% if item.quantity > 1 %}
+                    <span class="cart-item-line-price">
+                      - Total: {{ item.line_price | money }}</span>
+                  {% endif %}
+                </div>
+
+                <!-- Cantidad -->
+                <div class="cart-item-quantity">
+                  <button
+                    type="button"
+                    class="quantity-btn quantity-minus"
+                    data-quantity-minus
+                    data-item-id="{{ item.id }}">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none">
+                      <path
+                        d="M2.5 6H9.5"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round" />
+                    </svg>
+                  </button>
+                  <input
+                    type="number"
+                    value="{{ item.quantity }}"
+                    min="0"
+                    class="quantity-input"
+                    data-item-id="{{ item.id }}"
+                    data-product-id="{{ item.product_id }}"
+                    data-variant-id="{{ item.variant_id }}">
+                  <button
+                    type="button"
+                    class="quantity-btn quantity-plus"
+                    data-quantity-plus
+                    data-item-id="{{ item.id }}">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none">
+                      <path
+                        d="M6 2.5V9.5M2.5 6H9.5"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Remover item -->
+              <button
+                type="button"
+                class="cart-item-remove"
+                data-remove-item
+                data-item-id="{{ item.id }}">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none">
+                  <path
+                    d="M12 4L4 12M4 4L12 12"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Footer del carrito -->
+        <div class="cart-footer">
+          <div class="cart-total">
+            <div class="cart-subtotal">
+              <span>Subtotal ({{ cart.item_count }}
+                {% if cart.item_count == 1 %}artículo{% else %}artículos{% endif %})</span>
+              <span class="cart-total-price">{{ cart.total_price | money }}</span>
+            </div>
+            <p class="cart-shipping-note">Los gastos de envío se calculan en el checkout.</p>
+          </div>
+
+          <div class="cart-actions">
+            <a href="{{ cart_url }}" class="cart-view-btn">Ver carrito completo</a>
+            <button
+              type="button"
+              class="cart-checkout-btn"
+              data-checkout>Finalizar compra</button>
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -39,19 +168,24 @@
 
 {% schema %}
   {
-    "name": "Side Cart",
+    "name": "cart",
     "settings": [
       {
         "type": "color",
         "id": "background",
         "label": "Background",
-        "default": "#FFFFFF"
+        "default": "#F4F4F4"
       },
       {
         "type": "color",
         "id": "text_color",
         "label": "Text",
         "default": "#000000"
+      }
+    ],
+    "presets": [
+      {
+        "name": "cart"
       }
     ]
   }

@@ -254,6 +254,8 @@ export class NavigationFetcher {
       case 'product':
         if (item.productHandle) {
           url = `/products/${item.productHandle}`
+        } else {
+          url = '/products'
         }
         break
 
