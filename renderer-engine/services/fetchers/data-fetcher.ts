@@ -15,20 +15,17 @@ import type {
 
 interface PaginationOptions {
   limit?: number
-  offset?: number
   nextToken?: string
 }
 
 interface ProductsResponse {
   products: ProductContext[]
   nextToken?: string | null
-  totalCount?: number
 }
 
 interface CollectionsResponse {
   collections: CollectionContext[]
-  nextToken?: string
-  totalCount?: number
+  nextToken?: string | null
 }
 
 interface NavigationMenusResponse {
@@ -56,14 +53,20 @@ export class DataFetcher {
   /**
    * Obtiene un producto específico por ID
    */
-  public async getProduct(storeId: string, productId: string): Promise<ProductContext | null> {
+  public async getProduct(
+    storeId: string,
+    productId: string
+  ): Promise<ProductContext | null> {
     return productFetcher.getProduct(storeId, productId)
   }
 
   /**
    * Obtiene productos destacados de una tienda
    */
-  public async getFeaturedProducts(storeId: string, limit: number = 8): Promise<ProductContext[]> {
+  public async getFeaturedProducts(
+    storeId: string,
+    limit: number = 8
+  ): Promise<ProductContext[]> {
     return productFetcher.getFeaturedProducts(storeId, limit)
   }
 
@@ -75,7 +78,7 @@ export class DataFetcher {
   public async getStoreCollections(
     storeId: string,
     options: PaginationOptions = {}
-  ): Promise<CollectionContext[]> {
+  ): Promise<CollectionsResponse> {
     return await collectionFetcher.getStoreCollections(storeId, options)
   }
 
@@ -84,9 +87,10 @@ export class DataFetcher {
    */
   public async getCollection(
     storeId: string,
-    collectionId: string
+    collectionId: string,
+    options: PaginationOptions = {}
   ): Promise<CollectionContext | null> {
-    return collectionFetcher.getCollection(storeId, collectionId)
+    return collectionFetcher.getCollection(storeId, collectionId, options)
   }
 
   // === NAVEGACIÓN ===
@@ -94,7 +98,9 @@ export class DataFetcher {
   /**
    * Obtiene todos los menús de navegación de una tienda
    */
-  public async getStoreNavigationMenus(storeId: string): Promise<NavigationMenusResponse> {
+  public async getStoreNavigationMenus(
+    storeId: string
+  ): Promise<NavigationMenusResponse> {
     return navigationFetcher.getStoreNavigationMenus(storeId)
   }
 

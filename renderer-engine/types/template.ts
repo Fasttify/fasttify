@@ -51,6 +51,7 @@ export interface ShopContext {
   banner?: string
   theme: string
   storeId?: string // Para snippets que necesitan el storeId
+  collections?: CollectionContext[] // Para compatibilidad con Shopify Liquid
 }
 
 export interface PageContext {
@@ -248,5 +249,4 @@ export interface PageRenderOptions {
   productId?: string // ID específico del producto
   collectionId?: string // ID específico de la colección
   searchQuery?: string // Para páginas de búsqueda
-  pageNumber?: number // Para paginación
 }

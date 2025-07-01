@@ -1,25 +1,21 @@
 {
   "sections": {
     "banner": {
-      "type": "banner",
+      "type": "sections/banner",
       "settings": {}
     },
     "video-section": {
-      "type": "video-section",
+      "type": "sections/video-section",
       "settings": {}
     },
     "more-info": {
-      "type": "more-info",
+      "type": "sections/more-info",
       "settings": {}
     },
     "all-collections": {
-      "type": "all-collections",
-      "settings": {}
-    },
-    "all-products": {
-      "type": "all-products",
+      "type": "sections/all-collections",
       "settings": {}
     }
   },
-  "order": ["banner", "video-section", "more-info", "all-collections", "all-products"]
+  "order": ["banner", "video-section", "more-info", "all-collections"]
 }

@@ -31,20 +31,21 @@
 </head>
 
 <body>
- 
 
-  {% section 'header' %}
+
+  {% render 'header' %}
 
   <main id="main" role="main">
     {{ content_for_layout }}
   </main>
 
   {% section 'footer' %}
-  
+
   <!-- Sections -->
   {% section 'cart' %}
   {% section 'newsletter-popup' %}
-  
+
+
   <!-- Scripts -->
   {{ 'newsletter-popup.js' | asset_url | script_tag }}
   {{ 'side-cart.js' | asset_url | script_tag }}

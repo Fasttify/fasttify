@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(cartContext, { status: 200, headers: corsHeaders })
   } catch (error) {
     logger.error('Error in /api/cart GET', error, 'CartAPI')
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unexpected error occurred'
     return NextResponse.json(
       { message: 'Internal Server Error', error: errorMessage },
       { status: 500, headers: corsHeaders }
@@ -89,7 +90,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result.cart, { status: 200, headers: corsHeaders })
   } catch (error) {
     logger.error('Error in /api/cart POST', error, 'CartAPI')
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unexpected error occurred'
     return NextResponse.json(
       { message: 'Internal Server Error', error: errorMessage },
       { status: 500, headers: corsHeaders }
@@ -142,7 +144,8 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json(result.cart, { status: 200, headers: corsHeaders })
   } catch (error) {
     logger.error('Error in /api/cart PATCH', error, 'CartAPI')
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unexpected error occurred'
     return NextResponse.json(
       { message: 'Internal Server Error', error: errorMessage },
       { status: 500, headers: corsHeaders }
@@ -181,7 +184,8 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(result.cart, { status: 200, headers: corsHeaders })
   } catch (error) {
     logger.error('Error in /api/cart DELETE', error, 'CartAPI')
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unexpected error occurred'
     return NextResponse.json(
       { message: 'Internal Server Error', error: errorMessage },
       { status: 500, headers: corsHeaders }

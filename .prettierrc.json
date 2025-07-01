@@ -3,6 +3,14 @@
   "semi": false,
   "trailingComma": "es5",
   "tabWidth": 2,
-  "printWidth": 100,
-  "arrowParens": "avoid"
+  "printWidth": 90,
+  "arrowParens": "avoid",
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "endOfLine": "lf",
+  "quoteProps": "as-needed",
+  "useTabs": false,
+  "proseWrap": "preserve",
+  "htmlWhitespaceSensitivity": "css",
+  "embeddedLanguageFormatting": "auto"
 }

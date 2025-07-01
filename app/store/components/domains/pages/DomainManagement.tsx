@@ -68,7 +68,7 @@ export function DomainManagement() {
     return <Loading />
   }
   return (
-    <Page title="Gestión de Dominios" fullWidth>
+    <Page title="Configuración de Tienda" fullWidth>
       <Layout>
         <Layout.Section>
           <LegacyCard>
@@ -79,10 +79,11 @@ export function DomainManagement() {
                     Configura tu dominio personalizado
                   </Text>
                   <Text as="p" tone="subdued" breakWord>
-                    Vincula un dominio propio o adquiere uno nuevo para darle mayor identidad y
-                    profesionalismo a tu tienda.
+                    Vincula un dominio propio o adquiere uno nuevo para darle mayor
+                    identidad y profesionalismo a tu tienda.
                     <br />
-                    Puedes adquirir uno en cualquier proveedor, o conectar tu dominio existente.
+                    Puedes adquirir uno en cualquier proveedor, o conectar tu dominio
+                    existente.
                   </Text>
                 </LegacyStack.Item>
                 <Box>
@@ -100,7 +101,12 @@ export function DomainManagement() {
                   >
                     <DomainLandingPageIcon width={48} height={48} />
                     <div style={{ position: 'absolute' }}>
-                      <Text variant="headingXl" as="span" fontWeight="semibold" tone="base">
+                      <Text
+                        variant="headingXl"
+                        as="span"
+                        fontWeight="semibold"
+                        tone="base"
+                      >
                         www
                       </Text>
                     </div>
@@ -203,8 +209,8 @@ export function DomainManagement() {
 
                         {customDomainStatus.status === 'failed' && (
                           <Text as="p" tone="critical">
-                            Error en la configuración del dominio. Verifica que el DNS esté
-                            configurado correctamente y vuelve a intentar.
+                            Error en la configuración del dominio. Verifica que el DNS
+                            esté configurado correctamente y vuelve a intentar.
                           </Text>
                         )}
 
@@ -224,7 +230,10 @@ export function DomainManagement() {
                                     </Text>
                                   </Box>
                                   <Text as="p" variant="bodyMd">
-                                    {customDomainStatus.cloudFrontStatus.dnsInstructions.type}
+                                    {
+                                      customDomainStatus.cloudFrontStatus.dnsInstructions
+                                        .type
+                                    }
                                   </Text>
                                 </LegacyStack>
                                 <LegacyStack>
@@ -235,15 +244,18 @@ export function DomainManagement() {
                                   </Box>
                                   <LegacyStack alignment="center">
                                     <Text as="p" variant="bodyMd">
-                                      {customDomainStatus.cloudFrontStatus.dnsInstructions.name}
+                                      {
+                                        customDomainStatus.cloudFrontStatus
+                                          .dnsInstructions.name
+                                      }
                                     </Text>
                                     <Button
                                       size="micro"
                                       icon={ClipboardIcon}
                                       onClick={() =>
                                         navigator.clipboard.writeText(
-                                          customDomainStatus.cloudFrontStatus?.dnsInstructions
-                                            ?.name ?? ''
+                                          customDomainStatus.cloudFrontStatus
+                                            ?.dnsInstructions?.name ?? ''
                                         )
                                       }
                                     />
@@ -257,22 +269,26 @@ export function DomainManagement() {
                                   </Box>
                                   <LegacyStack alignment="center">
                                     <Text as="p" variant="bodyMd">
-                                      {customDomainStatus.cloudFrontStatus.dnsInstructions.value}
+                                      {
+                                        customDomainStatus.cloudFrontStatus
+                                          .dnsInstructions.value
+                                      }
                                     </Text>
                                     <Button
                                       size="micro"
                                       icon={ClipboardIcon}
                                       onClick={() =>
                                         navigator.clipboard.writeText(
-                                          customDomainStatus.cloudFrontStatus?.dnsInstructions
-                                            ?.value ?? ''
+                                          customDomainStatus.cloudFrontStatus
+                                            ?.dnsInstructions?.value ?? ''
                                         )
                                       }
                                     />
                                   </LegacyStack>
                                 </LegacyStack>
                                 <Text as="p" variant="bodySm" tone="subdued">
-                                  Los cambios DNS pueden tardar hasta 48 horas en propagarse.
+                                  Los cambios DNS pueden tardar hasta 48 horas en
+                                  propagarse.
                                 </Text>
                               </LegacyStack>
                             </LegacyCard>

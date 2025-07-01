@@ -1,7 +1,6 @@
 import { cookiesClient } from '@/utils/AmplifyServer'
 import type { Store, TemplateError } from '@/renderer-engine/types'
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
-import { logger } from '@/renderer-engine/lib/logger'
 
 class DomainResolver {
   private static instance: DomainResolver
@@ -16,46 +15,42 @@ class DomainResolver {
   }
 
   /**
-   * Resuelve un dominio a información completa de tienda
-   * @param domain - El dominio completo (ej: "usuario.fasttify.com")
-   * @returns Store completa o null si no se encuentra
+   * Resuelve dominio a store con cache optimizado
    */
   public async resolveDomain(domain: string): Promise<Store | null> {
+    // Fast path: check cache first
+    const cacheKey = `domain_${domain}`
+    const cached = cacheManager.getCached(cacheKey)
+    if (cached !== null) {
+      return cached
+    }
+
     try {
-      // Verificar caché primero
-      const cacheKey = `domain_${domain}`
-      const cached = cacheManager.getCached(cacheKey)
-      if (cached !== null) {
-        return cached
-      }
+      // Query Amplify
+      const { data: stores } =
+        await cookiesClient.models.UserStore.listUserStoreByCustomDomain({
+          customDomain: domain,
+        })
 
-      // Buscar en Amplify por customDomain
-      const { data: stores } = await cookiesClient.models.UserStore.listUserStoreByCustomDomain({
-        customDomain: domain,
-      })
-
-      if (!stores || stores.length === 0) {
-        // Cachear resultado negativo por menos tiempo (5 minutos)
+      if (!stores?.length) {
+        // Cache negative result for 5 minutes
         cacheManager.setCached(cacheKey, null, 5 * 60 * 1000)
         return null
       }
 
-      const store = stores[0] as Store // Debería ser único por dominio
-
-      // Cachear resultado positivo
+      const store = stores[0] as Store
+      // Cache positive result
       cacheManager.setCached(cacheKey, store, cacheManager.DOMAIN_CACHE_TTL)
       return store
-    } catch (error) {
-      logger.error(`Error resolving domain ${domain}`, error, 'DomainResolver')
-
+    } catch {
+      // Cache negative result on error
+      cacheManager.setCached(cacheKey, null, 60 * 1000) // 1 minute
       return null
     }
   }
 
   /**
-   * Resuelve un dominio completo: busca y retorna información completa de la tienda
-   * @param domain - El dominio completo
-   * @returns Store completa o lanza error
+   * Resuelve dominio a store activa o lanza error
    */
   public async resolveStoreByDomain(domain: string): Promise<Store> {
     const store = await this.resolveDomain(domain)
@@ -69,13 +64,12 @@ class DomainResolver {
       throw error
     }
 
-    // Verificar que la tienda esté completada y pagada
-    const isActive = store.storeStatus === true
-    if (!isActive) {
+    // Check if store is active
+    if (!store.storeStatus) {
       const error: TemplateError = {
         type: 'STORE_NOT_ACTIVE',
-        message: `Store is not active or subscription not paid for domain: ${domain}`,
-        statusCode: 402, // Payment Required si no está pagada
+        message: `Store is not active for domain: ${domain}`,
+        statusCode: 402,
       }
       throw error
     }
@@ -84,32 +78,10 @@ class DomainResolver {
   }
 
   /**
-   * Invalida el caché para un dominio específico
-   * @param domain - Dominio a invalidar
+   * Invalida cache para dominio específico
    */
   public invalidateCache(domain: string): void {
     cacheManager.invalidateDomainCache(domain)
-  }
-
-  /**
-   * Limpia todo el caché
-   */
-  public clearCache(): void {
-    cacheManager.clearCache()
-  }
-
-  /**
-   * Limpia entradas expiradas del caché
-   */
-  public cleanExpiredCache(): void {
-    cacheManager.cleanExpiredCache()
-  }
-
-  /**
-   * Obtiene estadísticas del caché para debugging
-   */
-  public getCacheStats(): { total: number; expired: number; active: number } {
-    return cacheManager.getCacheStats()
   }
 }
 

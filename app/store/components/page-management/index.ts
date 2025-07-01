@@ -11,6 +11,7 @@ export { PageForm } from '@/app/store/components/page-management/components/Page
 // Componentes de listado
 export { PageList } from '@/app/store/components/page-management/components/listing/PageList'
 export { PageTableDesktop } from '@/app/store/components/page-management/components/listing/page-table-desktop'
+export { PageListMobile } from '@/app/store/components/page-management/components/listing/page-list-mobile'
 export { PageFilters } from '@/app/store/components/page-management/components/listing/page-filters'
 
 // Hooks

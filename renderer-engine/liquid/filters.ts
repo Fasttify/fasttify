@@ -1,16 +1,18 @@
 // Re-exportar todos los filtros desde sus módulos específicos
-export { baseFilters } from './filters/base-filters'
-export { moneyFilters } from './filters/money-filters'
-export { ecommerceFilters } from './filters/ecommerce-filters'
-export { htmlFilters } from './filters/html-filters'
-export { cartFilters } from './filters/cart-filters'
+export { baseFilters } from '@/renderer-engine/liquid/filters/base-filters'
+export { moneyFilters } from '@/renderer-engine/liquid/filters/money-filters'
+export { ecommerceFilters } from '@/renderer-engine/liquid/filters/ecommerce-filters'
+export { htmlFilters } from '@/renderer-engine/liquid/filters/html-filters'
+export { cartFilters } from '@/renderer-engine/liquid/filters/cart-filters'
+export { dataAccessFilters } from '@/renderer-engine/liquid/filters/data-access-filters'
 
 // Importar todos los filtros para el array principal
-import { baseFilters } from './filters/base-filters'
-import { moneyFilters } from './filters/money-filters'
-import { ecommerceFilters } from './filters/ecommerce-filters'
-import { htmlFilters } from './filters/html-filters'
-import { cartFilters } from './filters/cart-filters'
+import { baseFilters } from '@/renderer-engine/liquid/filters/base-filters'
+import { moneyFilters } from '@/renderer-engine/liquid/filters/money-filters'
+import { ecommerceFilters } from '@/renderer-engine/liquid/filters/ecommerce-filters'
+import { htmlFilters } from '@/renderer-engine/liquid/filters/html-filters'
+import { cartFilters } from '@/renderer-engine/liquid/filters/cart-filters'
+import { dataAccessFilters } from '@/renderer-engine/liquid/filters/data-access-filters'
 
 import type { LiquidFilter } from '@/renderer-engine/types'
 
@@ -23,6 +25,7 @@ export const allFilters: LiquidFilter[] = [
   ...ecommerceFilters,
   ...htmlFilters,
   ...cartFilters,
+  ...dataAccessFilters,
 ]
 
 // Mantener compatibilidad hacia atrás

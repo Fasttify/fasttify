@@ -1,112 +1,128 @@
-import { PageList } from '../components/listing/PageList'
-import { PagesPage } from './PagesPage'
-import { PageForm } from '../components/PageForm'
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/app/store/context/ToastContext'
+import { PageList } from '@/app/store/components/page-management/components/listing/PageList'
+import { PagesPage } from '@/app/store/components/page-management/pages/PagesPage'
+import { PageForm } from '@/app/store/components/page-management/components/PageForm'
 import { Loading } from '@shopify/polaris'
-import { useState, useCallback } from 'react'
-import type { IPage, PageFormValues } from '../types/page-types'
+import { useCallback } from 'react'
+import type { PageFormValues } from '@/app/store/components/page-management/types/page-types'
+import { usePages } from '@/app/store/hooks/data/usePage'
+import { routes } from '@/utils/routes'
 
 interface PageManagerProps {
-  storeId: string
   pageId?: string
   isCreating?: boolean
+  storeId: string
 }
 
-// Hook simulado para páginas (en una implementación real esto vendría de usePages)
-function usePages(storeId: string) {
-  const [pages] = useState<IPage[]>([])
-  const [loading] = useState(false)
-  const [error] = useState<Error | null>(null)
+export function PageManager({ pageId, isCreating = false, storeId }: PageManagerProps) {
+  const router = useRouter()
+  const { showToast } = useToast()
 
-  return {
-    pages,
-    loading,
-    error,
-    deleteMultiplePages: async (ids: string[]) => {
-      console.log('Eliminando páginas:', ids)
-      return true
-    },
-    refreshPages: () => {},
-    deletePage: async (id: string) => {
-      console.log('Eliminando página:', id)
-      return true
-    },
-    savePage: async (data: PageFormValues, pageId?: string) => {
-      console.log('Guardando página:', { data, pageId })
-      return true
-    },
-    getPageById: (id: string): IPage | undefined => {
-      return pages.find(page => page.id === id)
-    },
-  }
-}
-
-export function PageManager({ storeId, pageId, isCreating = false }: PageManagerProps) {
   const {
-    pages,
-    loading,
-    error,
-    deleteMultiplePages,
-    refreshPages,
-    deletePage,
-    savePage,
-    getPageById,
+    useListPagesByStore,
+    useGetPage,
+    useCreatePage,
+    useUpdatePage,
+    useDeletePage,
+    generateSlug,
   } = usePages(storeId)
 
-  // Función para navegar de vuelta a la lista
-  const handleBackToList = useCallback(() => {
-    // En una implementación real, esto sería un router.push() o similar
-    console.log('Navegando de vuelta a la lista de páginas')
-    window.history.back()
-  }, [])
+  const { data: pages = [], isLoading: isLoadingList, error } = useListPagesByStore()
+  const { data: initialPage, isLoading: isLoadingPage } = useGetPage(pageId || '')
 
-  // Función para guardar página
+  const createPageMutation = useCreatePage()
+  const updatePageMutation = useUpdatePage()
+  const deletePageMutation = useDeletePage()
+
+  const handleBackToList = useCallback(() => {
+    router.push(routes.store.setup.pages(storeId))
+  }, [router, storeId])
+
   const handleSavePage = useCallback(
     async (data: PageFormValues): Promise<boolean> => {
       try {
-        const success = await savePage(data, pageId)
-        if (success) {
-          // Navegar de vuelta a la lista después de guardar
-          handleBackToList()
+        if (isCreating) {
+          await createPageMutation.mutateAsync(data)
+          showToast('Página creada con éxito')
+        } else if (pageId) {
+          await updatePageMutation.mutateAsync({ id: pageId, data })
+          showToast('Página actualizada con éxito')
         }
-        return success
-      } catch (error) {
-        console.error('Error al guardar página:', error)
+        handleBackToList()
+        return true
+      } catch (err) {
+        showToast('Error al guardar la página', true)
+        console.error(err)
         return false
       }
     },
-    [savePage, pageId, handleBackToList]
+    [
+      isCreating,
+      pageId,
+      createPageMutation,
+      updatePageMutation,
+      showToast,
+      handleBackToList,
+    ]
   )
 
-  // Si estamos creando o editando una página, mostrar el formulario
-  if (isCreating || pageId) {
-    const initialPage = pageId ? getPageById(pageId) : undefined
+  const handleDeletePage = useCallback(
+    async (id: string) => {
+      try {
+        await deletePageMutation.mutateAsync(id)
+        showToast('Página eliminada con éxito')
+      } catch (err) {
+        showToast('Error al eliminar la página', true)
+        console.error(err)
+      }
+    },
+    [deletePageMutation, showToast]
+  )
 
+  const handleDeleteMultiplePages = useCallback(
+    async (ids: string[]) => {
+      try {
+        await Promise.all(ids.map(id => deletePageMutation.mutateAsync(id)))
+        showToast(`${ids.length} páginas eliminadas con éxito`)
+      } catch (err) {
+        showToast('Error al eliminar las páginas', true)
+        console.error(err)
+      }
+    },
+    [deletePageMutation, showToast]
+  )
+
+  if (isCreating || pageId) {
+    if (isLoadingPage) return <Loading />
     return (
       <PageForm
         storeId={storeId}
-        initialPage={initialPage}
+        initialPage={initialPage || undefined}
         onSave={handleSavePage}
         onCancel={handleBackToList}
-        isEditing={!!pageId && !isCreating}
+        isEditing={!!pageId}
+        generateSlug={generateSlug}
       />
     )
   }
 
-  if (loading) {
+  if (isLoadingList) {
     return <Loading />
   }
 
-  return pages.length === 0 && !loading ? (
-    <PagesPage />
+  return pages.length === 0 && !isLoadingList ? (
+    <PagesPage storeId={storeId} />
   ) : (
     <PageList
       storeId={storeId}
       pages={pages}
-      loading={loading}
+      isLoading={isLoadingList}
       error={error}
-      deleteMultiplePages={deleteMultiplePages}
-      refreshPages={refreshPages}
-      deletePage={deletePage}
+      deleteMultiplePages={handleDeleteMultiplePages}
+      deletePage={handleDeletePage}
     />
   )
 }

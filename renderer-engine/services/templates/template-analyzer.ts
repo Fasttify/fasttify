@@ -1,4 +1,5 @@
 import { logger } from '@/renderer-engine/lib/logger'
+import { LiquidSyntaxDetector } from '@/renderer-engine/services/templates/liquid-syntax-detector'
 
 /**
  * Tipo de datos que pueden ser detectados en una plantilla
@@ -15,6 +16,10 @@ export type DataRequirement =
   | 'page' // {{ page }}
   | 'blog' // {{ blog }}
   | 'pagination' // {% paginate %}
+  | 'specific_collection' // collections['handle'] o collections.handle
+  | 'specific_product' // products['handle'] o product por handle específico
+  | 'products_by_collection' // Productos de una colección específica
+  | 'related_products' // Productos relacionados
 
 /**
  * Opciones de carga para cada tipo de dato
@@ -26,6 +31,9 @@ export interface DataLoadOptions {
   id?: string
   nextToken?: string
   collectionHandle?: string // Para collections.NOMBRE.products
+  handles?: string[] // Para múltiples handles específicos
+  productId?: string // Para productos relacionados
+  category?: string // Para filtrar por categoría
 }
 
 /**
@@ -45,28 +53,6 @@ export interface TemplateAnalysis {
 export class TemplateAnalyzer {
   private static instance: TemplateAnalyzer
 
-  // Regex patterns para detectar objetos Liquid
-  private readonly LIQUID_OBJECT_PATTERNS = {
-    products: /\{\{\s*products\s*[\|\}]/g,
-    collection_products: /collections\.([a-zA-Z0-9_-]+)\.products/g,
-    collections: /\{\{\s*collections\s*[\|\}]/g,
-    product: /\{\{\s*product\./g,
-    collection: /\{\{\s*collection\./g,
-    cart: /\{\{\s*cart\./g,
-    linklists: /\{\{\s*linklists\./g,
-    shop: /\{\{\s*shop\./g,
-    page: /\{\{\s*page\./g,
-    blog: /\{\{\s*blog\./g,
-  }
-
-  // Patterns para detectar tags especiales
-  private readonly TAG_PATTERNS = {
-    paginate: /\{\%\s*paginate\s+([^%]+)\%\}/g,
-    section: /\{\%\s*section\s+['"]([^'"]+)['"]\s*\%\}/g,
-    render: /\{\%\s*render\s+['"]([^'"]+)['"]/g,
-    include: /\{\%\s*include\s+['"]([^'"]+)['"]/g,
-  }
-
   private constructor() {}
 
   public static getInstance(): TemplateAnalyzer {
@@ -79,7 +65,10 @@ export class TemplateAnalyzer {
   /**
    * Analiza una plantilla y detecta qué datos necesita
    */
-  public analyzeTemplate(templateContent: string, templatePath: string): TemplateAnalysis {
+  public analyzeTemplate(
+    templateContent: string,
+    templatePath: string
+  ): TemplateAnalysis {
     const analysis: TemplateAnalysis = {
       requiredData: new Map(),
       hasPagination: false,
@@ -89,14 +78,10 @@ export class TemplateAnalyzer {
     }
 
     try {
-      // Detectar objetos Liquid básicos
-      this.detectLiquidObjects(templateContent, analysis)
-
-      // Detectar paginación
-      this.detectPagination(templateContent, analysis)
-
-      // Detectar secciones y snippets
-      this.detectDependencies(templateContent, analysis)
+      // Usar el detector para poblar el objeto de análisis
+      LiquidSyntaxDetector.detectLiquidObjects(templateContent, analysis)
+      LiquidSyntaxDetector.detectPagination(templateContent, analysis)
+      LiquidSyntaxDetector.detectDependencies(templateContent, analysis)
 
       // Inferir datos adicionales basados en el tipo de plantilla
       this.inferDataFromTemplatePath(templatePath, analysis)
@@ -117,13 +102,16 @@ export class TemplateAnalyzer {
   }
 
   /**
-   * Analiza múltiples plantillas (layout + página + secciones)
+   * Analiza un conjunto de plantillas de forma recursiva, siguiendo las dependencias.
    */
   public async analyzeTemplateSet(
     storeId: string,
-    templates: { layout: string; page: string; sections: Record<string, string> },
-    templatePaths: { layout: string; page: string }
+    initialTemplates: { [path: string]: string }
   ): Promise<TemplateAnalysis> {
+    const { templateLoader } = await import(
+      '@/renderer-engine/services/templates/template-loader'
+    )
+
     const combinedAnalysis: TemplateAnalysis = {
       requiredData: new Map(),
       hasPagination: false,
@@ -132,164 +120,74 @@ export class TemplateAnalyzer {
       dependencies: [],
     }
 
-    // Analizar layout
-    const layoutAnalysis = this.analyzeTemplate(templates.layout, templatePaths.layout)
-    this.mergeAnalysis(combinedAnalysis, layoutAnalysis)
+    const analyzedPaths = new Set<string>()
+    const templatesToAnalyze = new Map<string, string>(Object.entries(initialTemplates))
 
-    // Analizar plantilla de página
-    const pageAnalysis = this.analyzeTemplate(templates.page, templatePaths.page)
-    this.mergeAnalysis(combinedAnalysis, pageAnalysis)
+    while (templatesToAnalyze.size > 0) {
+      const entry = templatesToAnalyze.entries().next().value
+      if (!entry) break
 
-    // Analizar secciones
-    for (const [sectionName, sectionContent] of Object.entries(templates.sections)) {
-      const sectionAnalysis = this.analyzeTemplate(sectionContent, `sections/${sectionName}.liquid`)
-      this.mergeAnalysis(combinedAnalysis, sectionAnalysis)
+      const [path, content] = entry
+      templatesToAnalyze.delete(path)
+
+      if (analyzedPaths.has(path)) {
+        continue
+      }
+      analyzedPaths.add(path)
+
+      const analysis = this.analyzeTemplate(content, path)
+      this.mergeAnalysis(combinedAnalysis, analysis)
+
+      // Añadir nuevas dependencias a la cola para ser analizadas
+      for (const depPath of analysis.dependencies) {
+        if (!analyzedPaths.has(depPath)) {
+          try {
+            const depContent = await templateLoader.loadTemplate(storeId, depPath)
+            templatesToAnalyze.set(depPath, depContent)
+          } catch (error) {
+            logger.warn(
+              `Could not load template dependency: ${depPath}`,
+              error,
+              'TemplateAnalyzer'
+            )
+          }
+        }
+      }
     }
 
     return combinedAnalysis
   }
 
   /**
-   * Detecta objetos Liquid en el contenido
-   */
-  private detectLiquidObjects(content: string, analysis: TemplateAnalysis): void {
-    for (const [objectType, pattern] of Object.entries(this.LIQUID_OBJECT_PATTERNS)) {
-      const matches = content.match(pattern)
-      if (matches && matches.length > 0) {
-        analysis.liquidObjects.push(objectType)
-
-        // Determinar opciones de carga según el contexto
-        const loadOptions = this.determineLoadOptions(objectType as DataRequirement, content)
-        analysis.requiredData.set(objectType as DataRequirement, loadOptions)
-      }
-    }
-  }
-
-  /**
-   * Detecta paginación en el contenido
-   */
-  private detectPagination(content: string, analysis: TemplateAnalysis): void {
-    const paginateMatches = content.match(this.TAG_PATTERNS.paginate)
-    if (paginateMatches && paginateMatches.length > 0) {
-      analysis.hasPagination = true
-
-      // Extraer qué se está paginando
-      for (const match of paginateMatches) {
-        const paginateContent = match.match(/paginate\s+([^\s]+)\s+by\s+(\d+)/i)
-        if (paginateContent) {
-          const paginatedObject = paginateContent[1]
-          const limit = parseInt(paginateContent[2], 10)
-
-          // Agregar el objeto paginado a los requerimientos
-          if (paginatedObject.includes('products')) {
-            analysis.requiredData.set('products', { limit })
-          } else if (paginatedObject.includes('collections')) {
-            analysis.requiredData.set('collections', { limit })
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Detecta dependencias (secciones y snippets)
-   */
-  private detectDependencies(content: string, analysis: TemplateAnalysis): void {
-    // Detectar secciones
-    const sectionMatches = content.match(this.TAG_PATTERNS.section)
-    if (sectionMatches) {
-      for (const match of sectionMatches) {
-        const sectionNameMatch = match.match(/section\s+['"]([^'"]+)['"]/i)
-        if (sectionNameMatch) {
-          analysis.usedSections.push(sectionNameMatch[1])
-          analysis.dependencies.push(`sections/${sectionNameMatch[1]}.liquid`)
-        }
-      }
-    }
-
-    // Detectar snippets (render/include)
-    const renderMatches = content.match(this.TAG_PATTERNS.render) || []
-    const includeMatches = content.match(this.TAG_PATTERNS.include) || []
-
-    for (const match of [...renderMatches, ...includeMatches]) {
-      const snippetNameMatch = match.match(/(?:render|include)\s+['"]([^'"]+)['"]/i)
-      if (snippetNameMatch) {
-        analysis.dependencies.push(`snippets/${snippetNameMatch[1]}.liquid`)
-      }
-    }
-  }
-
-  /**
-   * Determina opciones de carga según el contexto del objeto
-   */
-  private determineLoadOptions(objectType: DataRequirement, content: string): DataLoadOptions {
-    const options: DataLoadOptions = {}
-
-    switch (objectType) {
-      case 'products':
-        // Buscar límites explícitos en filtros
-        const limitMatch = content.match(/products[^}]*limit:\s*(\d+)/i)
-        if (limitMatch) {
-          options.limit = parseInt(limitMatch[1], 10)
-        } else {
-          options.limit = 20
-        }
-        break
-
-      case 'collection_products':
-        // Extraer el nombre de la colección y el límite
-        const collectionMatch = content.match(
-          /collections\.([a-zA-Z0-9_-]+)\.products[^}]*limit:\s*(\d+)/i
-        )
-        if (collectionMatch) {
-          options.collectionHandle = collectionMatch[1]
-          options.limit = parseInt(collectionMatch[2], 10)
-        } else {
-          // Buscar sin límite explícito
-          const collectionOnlyMatch = content.match(/collections\.([a-zA-Z0-9_-]+)\.products/i)
-          if (collectionOnlyMatch) {
-            options.collectionHandle = collectionOnlyMatch[1]
-            options.limit = 8 // Default para productos de colección
-          }
-        }
-        break
-
-      case 'collections':
-        const collectionLimitMatch = content.match(/collections[^}]*limit:\s*(\d+)/i)
-        if (collectionLimitMatch) {
-          options.limit = parseInt(collectionLimitMatch[1], 10)
-        } else {
-          options.limit = 10
-        }
-        break
-
-      case 'product':
-      case 'collection':
-        // Para objetos individuales, el handle/id se determinará en runtime
-        break
-
-      default:
-        break
-    }
-
-    return options
-  }
-
-  /**
    * Infiere datos adicionales basado en el path de la plantilla
    */
-  private inferDataFromTemplatePath(templatePath: string, analysis: TemplateAnalysis): void {
+  private inferDataFromTemplatePath(
+    templatePath: string,
+    analysis: TemplateAnalysis
+  ): void {
     if (templatePath.includes('index')) {
       // Homepage típicamente necesita colecciones (pero no asumimos cuáles)
       if (!analysis.requiredData.has('collections')) {
         analysis.requiredData.set('collections', { limit: 6 })
       }
     } else if (templatePath.includes('product')) {
-      // Página de producto necesita el objeto product
-      analysis.requiredData.set('product', {})
+      // No inferir ciegamente 'product'. Dejar que detectLiquidObjects
+      // y detectPagination hagan su trabajo. Si después de eso no se ha
+      // detectado ni 'product' ni 'products', entonces podemos asumir
+      // que es una página de producto individual.
+      if (
+        !analysis.requiredData.has('product') &&
+        !analysis.requiredData.has('products')
+      ) {
+        analysis.requiredData.set('product', {})
+      }
     } else if (templatePath.includes('collection')) {
-      // Página de colección necesita el objeto collection
-      analysis.requiredData.set('collection', {})
+      // Si es una página de colección, se necesita el objeto `collection`.
+      // Solo se establece un requerimiento por defecto si no existe uno previo
+      // (por ejemplo, de la detección de paginación, que incluye un `limit`).
+      if (!analysis.requiredData.has('collection')) {
+        analysis.requiredData.set('collection', {})
+      }
     } else if (templatePath.includes('cart')) {
       // Página de carrito necesita datos del carrito
       analysis.requiredData.set('cart', {})
@@ -320,12 +218,15 @@ export class TemplateAnalyzer {
       if (!target.requiredData.has(dataType)) {
         target.requiredData.set(dataType, options)
       } else {
-        // Merge options (usar el límite más alto, etc.)
         const existingOptions = target.requiredData.get(dataType)!
-        const mergedOptions = {
-          ...existingOptions,
-          ...options,
-          limit: Math.max(existingOptions.limit || 0, options.limit || 0),
+        const mergedOptions = { ...existingOptions, ...options }
+        const validLimits = [existingOptions.limit, options.limit].filter(
+          (n): n is number => typeof n === 'number' && n > 0
+        )
+        if (validLimits.length > 0) {
+          mergedOptions.limit = Math.min(...validLimits)
+        } else {
+          delete mergedOptions.limit
         }
         target.requiredData.set(dataType, mergedOptions)
       }
@@ -334,7 +235,9 @@ export class TemplateAnalyzer {
     // Combinar otras propiedades
     target.hasPagination = target.hasPagination || source.hasPagination
     target.usedSections = [...new Set([...target.usedSections, ...source.usedSections])]
-    target.liquidObjects = [...new Set([...target.liquidObjects, ...source.liquidObjects])]
+    target.liquidObjects = [
+      ...new Set([...target.liquidObjects, ...source.liquidObjects]),
+    ]
     target.dependencies = [...new Set([...target.dependencies, ...source.dependencies])]
   }
 }

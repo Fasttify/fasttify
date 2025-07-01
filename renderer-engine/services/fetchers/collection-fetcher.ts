@@ -3,7 +3,11 @@ import { cacheManager } from '@/renderer-engine/services/core/cache-manager'
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer'
 import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher'
 import { logger } from '@/renderer-engine/lib/logger'
-import type { CollectionContext, ProductContext, TemplateError } from '@/renderer-engine/types'
+import type {
+  CollectionContext,
+  ProductContext,
+  TemplateError,
+} from '@/renderer-engine/types'
 
 interface PaginationOptions {
   limit?: number
@@ -13,8 +17,7 @@ interface PaginationOptions {
 
 interface CollectionsResponse {
   collections: CollectionContext[]
-  nextToken?: string
-  totalCount?: number
+  nextToken?: string | null
 }
 
 export class CollectionFetcher {
@@ -24,17 +27,17 @@ export class CollectionFetcher {
   public async getStoreCollections(
     storeId: string,
     options: PaginationOptions = {}
-  ): Promise<CollectionContext[]> {
+  ): Promise<CollectionsResponse> {
     try {
       const { limit = 10, nextToken } = options
       const cacheKey = `collections_${storeId}_${limit}_${nextToken || 'first'}`
 
       const cached = cacheManager.getCached(cacheKey)
       if (cached) {
-        return cached as CollectionContext[]
+        return cached as CollectionsResponse
       }
 
-      // Obtener colecciones desde Amplify
+      // Amplify Query
       const response = await cookiesClient.models.Collection.listCollectionByStoreId(
         { storeId },
         {
@@ -44,18 +47,28 @@ export class CollectionFetcher {
       )
 
       if (!response.data) {
-        return []
+        return { collections: [] }
       }
+
       const collections: CollectionContext[] = []
       for (const collection of response.data) {
         const transformedCollection = this.transformCollection(collection, [], null)
         collections.push(transformedCollection)
       }
 
-      cacheManager.setCached(cacheKey, collections, cacheManager.COLLECTION_CACHE_TTL)
-      return collections
+      const result: CollectionsResponse = {
+        collections,
+        nextToken: response.nextToken,
+      }
+
+      cacheManager.setCached(cacheKey, result, cacheManager.COLLECTION_CACHE_TTL)
+      return result
     } catch (error) {
-      logger.error(`Error fetching collections for store ${storeId}`, error, 'CollectionFetcher')
+      logger.error(
+        `Error fetching collections for store ${storeId}`,
+        error,
+        'CollectionFetcher'
+      )
 
       const templateError: TemplateError = {
         type: 'DATA_ERROR',
@@ -98,9 +111,17 @@ export class CollectionFetcher {
         options
       )
 
-      const transformedCollection = this.transformCollection(collection, products, nextToken)
+      const transformedCollection = this.transformCollection(
+        collection,
+        products,
+        nextToken
+      )
 
-      cacheManager.setCached(cacheKey, transformedCollection, cacheManager.COLLECTION_CACHE_TTL)
+      cacheManager.setCached(
+        cacheKey,
+        transformedCollection,
+        cacheManager.COLLECTION_CACHE_TTL
+      )
       return transformedCollection
     } catch (error) {
       logger.error(

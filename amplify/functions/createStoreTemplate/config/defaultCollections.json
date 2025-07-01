@@ -1,30 +1,23 @@
 [
   {
-    "title": "Todos los productos",
-    "description": "Nuestra colección completa de productos disponibles",
-    "slug": "all-products",
-    "isActive": true,
-    "sortOrder": 1
-  },
-  {
     "title": "Productos destacados",
     "description": "Nuestros productos más populares y recomendados",
     "slug": "products-featured",
     "isActive": true,
-    "sortOrder": 2
+    "sortOrder": 1
   },
   {
     "title": "Ofertas especiales",
     "description": "Productos con descuentos y ofertas por tiempo limitado",
     "slug": "special-offers",
     "isActive": true,
-    "sortOrder": 3
+    "sortOrder": 2
   },
   {
     "title": "Nuevos productos",
     "description": "Los últimos productos agregados a nuestra tienda",
     "slug": "new-products",
     "isActive": true,
-    "sortOrder": 4
+    "sortOrder": 3
   }
 ]

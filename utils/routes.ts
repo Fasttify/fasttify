@@ -10,7 +10,8 @@ export const routes = {
       main: (storeId: string) => `/store/${storeId}/products`,
       list: (storeId: string) => `/store/${storeId}/products/inventory  `,
       add: (storeId: string) => `/store/${storeId}/products/new`,
-      edit: (storeId: string, productId: string) => `/store/${storeId}/products/${productId}`,
+      edit: (storeId: string, productId: string) =>
+        `/store/${storeId}/products/${productId}`,
       inventory: (storeId: string) => `/store/${storeId}/products/inventory`,
       collectionsNew: (storeId: string) => `/store/${storeId}/products/collections/new`,
       collections: (storeId: string) => `/store/${storeId}/products/collections`,
@@ -28,14 +29,15 @@ export const routes = {
       explore: (storeId: string) => `/store/${storeId}/products/connect-products`,
       design: (storeId: string) => `/store/${storeId}/setup/design`,
       pages: (storeId: string) => `/store/${storeId}/setup/pages`,
-      domain: (storeId: string) => `/store/${storeId}/setup/domain`,
+      pagesNew: (storeId: string) => `/store/${storeId}/setup/pages/new`,
+      pagesEdit: (storeId: string, pageId: string) =>
+        `/store/${storeId}/setup/pages/${pageId}`,
+      domain: (storeId: string) => `/store/${storeId}/setup/general`,
       apps: (storeId: string) => `/store/${storeId}/setup/apps`,
+      navigation: (storeId: string) => `/store/${storeId}/setup/navigation`,
       shipping: (storeId: string) => `/store/${storeId}/setup/shipping`,
       payments: (storeId: string) => `/store/${storeId}/setup/payments`,
       testOrder: (storeId: string) => `/store/${storeId}/setup/test-order`,
-    },
-    navigation: {
-      main: (storeId: string) => `/store/${storeId}/navigation`,
     },
 
     themes: {

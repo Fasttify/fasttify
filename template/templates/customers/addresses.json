@@ -1,9 +1,0 @@
-{
-  "sections": {
-    "main": {
-      "type": "main-customers-addresses",
-      "settings": {}
-    }
-  },
-  "order": ["main"]
-}

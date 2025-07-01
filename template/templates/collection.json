@@ -1,7 +1,7 @@
 {
   "sections": {
     "collection": {
-      "type": "collection",
+      "type": "sections/collection",
       "settings": {}
     }
   },

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { handleAuthenticationMiddleware } from './middlewares/auth/auth'
-import { handleStoreMiddleware } from './middlewares/store-access/store'
-import { handleStoreAccessMiddleware } from './middlewares/store-access/storeAccess'
-import { handleProductOwnershipMiddleware } from './middlewares/ownership/productOwnership'
-import { handleAuthenticatedRedirectMiddleware } from './middlewares/auth/auth'
-import { handleCollectionOwnershipMiddleware } from './middlewares/ownership/collectionOwnership'
+import { handleAuthenticationMiddleware } from '@/middlewares/auth/auth'
+import { handleStoreMiddleware } from '@/middlewares/store-access/store'
+import { handleStoreAccessMiddleware } from '@/middlewares/store-access/storeAccess'
+import { handleProductOwnershipMiddleware } from '@/middlewares/ownership/productOwnership'
+import { handleAuthenticatedRedirectMiddleware } from '@/middlewares/auth/auth'
+import { handleCollectionOwnershipMiddleware } from '@/middlewares/ownership/collectionOwnership'
+import { handlePagesOwnershipMiddleware } from '@/middlewares/ownership/pagesOwnership'
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -100,7 +101,8 @@ export async function middleware(request: NextRequest) {
     // Validación segura para detectar dominios personalizados
     const isFasttifyDomain =
       cleanHostname === 'fasttify.com' || cleanHostname.endsWith('.fasttify.com')
-    const isLocalhost = cleanHostname === 'localhost' || cleanHostname.startsWith('localhost:')
+    const isLocalhost =
+      cleanHostname === 'localhost' || cleanHostname.startsWith('localhost:')
 
     if (!isFasttifyDomain && !isLocalhost) {
       // Es un dominio personalizado
@@ -129,6 +131,11 @@ export async function middleware(request: NextRequest) {
   ) {
     return handleProductOwnershipMiddleware(request)
   }
+
+  if (path.match(/^\/store\/[^\/]+\/setup\/pages\/[^\/]+$/)) {
+    return handlePagesOwnershipMiddleware(request)
+  }
+
   // verificar propiedad de coleccione especifica
   if (
     path.match(/^\/store\/[^\/]+\/products\/collections\/[^\/]+$/) &&

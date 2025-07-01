@@ -23,6 +23,10 @@ jest.mock('@/middlewares/ownership/collectionOwnership', () => ({
   handleCollectionOwnershipMiddleware: jest.fn(),
 }))
 
+jest.mock('@/middlewares/ownership/pagesOwnership', () => ({
+  handlePagesOwnershipMiddleware: jest.fn(),
+}))
+
 jest.mock('next/server', () => ({
   NextRequest: jest.fn(),
   NextResponse: {

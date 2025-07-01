@@ -9,8 +9,6 @@ export const createDefaultCollections = async (
   owner: string
 ): Promise<string[]> => {
   try {
-    console.log(`Creating default collections for store: ${storeId}`)
-
     const createdCollectionIds: string[] = []
 
     // Crear todas las colecciones definidas en defaultCollections
@@ -28,15 +26,16 @@ export const createDefaultCollections = async (
 
         if (collection.data?.id) {
           createdCollectionIds.push(collection.data.id)
-          console.log(`Collection created: ${collectionConfig.title} (${collection.data.id})`)
         }
       } catch (collectionError) {
-        console.error(`Error creating collection ${collectionConfig.title}:`, collectionError)
+        console.error(
+          `Error creating collection ${collectionConfig.title}:`,
+          collectionError
+        )
         // Continuamos con las demás colecciones aunque una falle
       }
     }
 
-    console.log(`Default collections created successfully. Total: ${createdCollectionIds.length}`)
     return createdCollectionIds
   } catch (error) {
     console.error('Error creating default collections:', error)

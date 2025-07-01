@@ -4,14 +4,14 @@
       {%- if linklists.footer-menu and linklists.footer-menu.links.size > 0 -%}
         <!-- Dividir los enlaces del footer-menu en columnas -->
         {% assign links_per_column = linklists.footer-menu.links.size | divided_by: 4 | ceil %}
-        
+
         {% for i in (0..3) %}
           <div class="footer-column">
             <h4 class="footer-heading">Enlaces {{ i | plus: 1 }}</h4>
             <ul class="footer-links">
               {% assign start_index = i | times: links_per_column %}
               {% assign end_index = start_index | plus: links_per_column | minus: 1 %}
-              
+
               {% for j in (start_index..end_index) %}
                 {% if linklists.footer-menu.links[j] %}
                   <li>
@@ -37,7 +37,7 @@
       {%- endif -%}
     </div>
   </div>
-  
+
   <div class="footer-bottom">
     <div class="footer-container">
       <div class="footer-sec-2">
@@ -60,13 +60,13 @@
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   }
-  
+
   .footer-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
   }
-  
+
   .footer-sec-1 {
     margin-top: 0;
     display: flex;
@@ -75,14 +75,14 @@
     padding: 50px 0 30px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
   }
-  
+
   .footer-column {
     flex: 1;
     min-width: 200px;
     padding: 0 15px;
     margin-bottom: 30px;
   }
-  
+
   .footer-heading {
     font-size: 18px;
     font-weight: 600;
@@ -90,18 +90,18 @@
     text-transform: uppercase;
     letter-spacing: 1px;
   }
-  
+
   .footer-column p {
     margin: 0 0 12px 0;
     opacity: 0.8;
     transition: opacity 0.3s ease;
   }
-  
+
   .footer-column p:hover {
     opacity: 1;
     cursor: pointer;
   }
-  
+
   .footer-sec-1 ul {
     list-style: none;
     padding: 0;
@@ -122,53 +122,53 @@
   .footer-sec-1 a:hover {
     opacity: 1;
   }
-  
+
   .footer-bottom {
     background: rgba(0,0,0,0.2);
   }
-  
+
   .footer-sec-2 {
     display: flex;
     flex-wrap: wrap;
     padding: 20px 0;
   }
-  
+
   .footer-sec-2 p {
     padding: 10px 15px 10px 0;
     margin: 0;
     font-size: 14px;
     opacity: 0.7;
   }
-  
+
   .footer-copyright {
     margin-left: auto;
     display: flex;
     align-items: center;
   }
-  
+
   .footer-copyright p {
     font-size: 14px;
     opacity: 0.7;
   }
-  
+
   @media (max-width: 768px) {
     .footer-sec-1 {
       flex-direction: column;
     }
-    
+
     .footer-column {
       width: 100%;
       margin-bottom: 30px;
     }
-    
+
     .footer-bottom .footer-container {
       flex-direction: column;
     }
-    
+
     .footer-sec-2 {
       justify-content: center;
     }
-    
+
     .footer-copyright {
       margin: 10px auto 0;
     }

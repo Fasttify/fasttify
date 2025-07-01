@@ -1,28 +1,6 @@
-export interface IPage {
-  id: string
-  title: string
-  content: string
-  slug: string
-  metaTitle?: string
-  metaDescription?: string
-  status: 'active' | 'draft' | 'inactive'
-  isVisible: boolean
-  template?: string
-  storeId: string
-  createdAt?: string
-  updatedAt?: string
-}
+import type { Page, CreatePageInput } from '@/app/store/hooks/data/usePage'
 
-export interface PageFormValues {
-  title: string
-  content: string
-  slug: string
-  metaTitle?: string
-  metaDescription?: string
-  status: 'active' | 'draft' | 'inactive'
-  isVisible: boolean
-  template?: string
-}
+export type { Page, CreatePageInput as PageFormValues }
 
 export type SortDirection = 'asc' | 'desc' | null
 export type SortField = 'title' | 'status' | 'slug' | 'createdAt' | 'updatedAt'
@@ -37,10 +15,9 @@ export interface VisibleColumns {
 
 export interface PageListProps {
   storeId: string
-  pages: IPage[]
-  loading: boolean
+  pages: Page[]
+  isLoading: boolean
   error: Error | null
-  deleteMultiplePages: (ids: string[]) => Promise<boolean>
-  refreshPages: () => void
-  deletePage: (id: string) => Promise<boolean>
+  deleteMultiplePages: (ids: string[]) => void
+  deletePage: (id: string) => void
 }

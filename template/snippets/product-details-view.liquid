@@ -1,0 +1,27 @@
+<div class="product-page-container">
+  <div class="product__images">
+    <img src="{{ product.featured_image | img_url: '800x800' }}" alt="{{ product.featured_image.alt | escape }}" class="product__featured-image">
+  </div>
+  <div class="product__info">
+    <h1>{{ product.title }}</h1>
+    <div class="product__price">
+      {{ product.price | money }}
+    </div>
+    <div class="product__description">
+      {{ product.description }}
+    </div>
+
+    {% form 'product', product %}
+      <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+      <button type="submit" class="btn btn-primary">
+        Añadir al carrito
+      </button>
+    {% endform %}
+  </div>
+</div>
+
+<style>
+.product-page-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto; padding: 2rem; }
+.product__featured-image { max-width: 100%; border: 1px solid #eee; }
+.product__price { font-size: 1.5rem; font-weight: bold; margin: 1rem 0; }
+</style>

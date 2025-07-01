@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import type { IPage } from '../types/page-types'
+import type { Page } from '@/app/store/components/page-management/types/page-types'
 
 export function usePageSelection() {
   const [selectedPages, setSelectedPages] = useState<string[]>([])
 
-  const handleSelectAll = (pages: IPage[]) => {
+  const handleSelectAll = (pages: Page[]) => {
     if (selectedPages.length === pages.length) {
       setSelectedPages([])
     } else {

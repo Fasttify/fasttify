@@ -1,5 +1,27 @@
-import type { RenderContext, ShopContext, PageContext, CartContext } from '@/renderer-engine/types'
-import { linkListService } from '@/renderer-engine/services/core/linkList-service'
+import type {
+  RenderContext,
+  ShopContext,
+  PageContext,
+  CartContext,
+} from '@/renderer-engine/types'
+import {
+  flexibleLinkListService,
+  linkListService,
+} from '@/renderer-engine/services/core/navigation-service'
+import { logger } from '@/renderer-engine/lib/logger'
+
+/**
+ * Formatos de moneda soportados
+ */
+const CURRENCY_FORMATS: Record<string, string> = {
+  COP: '${{amount}}',
+  USD: '${{amount}}',
+  EUR: '€{{amount}}',
+  GBP: '£{{amount}}',
+  CAD: '${{amount}} CAD',
+  MXN: '${{amount}} MXN',
+  BRL: 'R${{amount}}',
+}
 
 export class ContextBuilder {
   /**
@@ -12,80 +34,23 @@ export class ContextBuilder {
     storeTemplate?: any,
     cartData?: CartContext
   ): Promise<RenderContext> {
-    // Crear contexto de la tienda (como 'shop' para compatibilidad)
-    const shop: ShopContext = {
-      name: store.storeName,
-      description: store.storeDescription || `Tienda online de ${store.storeName}`,
-      domain: store.customDomain,
-      url: `https://${store.customDomain}`,
-      currency: store.storeCurrency || 'COP',
-      money_format: store.storeCurrency === 'USD' ? '${{amount}}' : '${{amount}}',
-      email: store.contactEmail,
-      phone: store.contactPhone?.toString(),
-      address: store.storeAdress,
-      logo: store.storeLogo,
-      banner: store.storeBanner,
-      theme: store.storeTheme || 'modern',
-      favicon: store.storeFavicon,
-      storeId: store.storeId,
-    }
+    // Construir las partes del contexto
+    const shop = this.createShopContext(store, collections)
+    const page = this.createPageContext(store)
+    const cart = cartData || this.createEmptyCart()
+    const linklists = await this.createLinkLists(store.storeId, storeTemplate)
 
-    // Crear contexto de la página con metafields para PageFly
-    const page: PageContext = {
-      title: store.storeName,
-      url: '/',
-      template: 'index',
-      handle: 'homepage',
-      metafields: {
-        pagefly: {
-          html_meta: '',
-        },
-      },
-    }
-
-    // Usar el carrito pasado como parámetro o crear uno vacío por defecto
-    const cartContext: CartContext = cartData || {
-      id: '',
-      item_count: 0,
-      total_price: 0,
-      items: [],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }
-
-    // Crear linklists para navegación usando el nuevo sistema
-    let linklists
-    try {
-      // Usar el nuevo sistema de NavigationMenu
-      linklists = await linkListService.createLinkListsFromDatabase(store.storeId)
-    } catch (error) {
-      console.warn(
-        `Failed to load navigation menus from database, falling back to template or default:`,
-        error
-      )
-
-      // Fallback a storeTemplate si está disponible
-      if (storeTemplate) {
-        linklists = linkListService.createEmptyLinkLists()
-      } else {
-        // Último fallback a menús vacíos
-        linklists = linkListService.createEmptyLinkLists()
-      }
-    }
-
-    // Crear contexto que incluye tanto 'shop' como 'store' para compatibilidad
-    // y variables de página al nivel raíz como espera el template
     return {
       storeId: store.storeId,
       shop,
-      store: shop,
+      store: shop, // Alias para compatibilidad
       page,
       page_title: store.storeName,
       page_description: store.storeDescription || `Tienda online ${store.storeName}`,
       products: featuredProducts,
       collections,
       linklists,
-      cart: cartContext,
+      cart,
     }
   }
 
@@ -98,14 +63,23 @@ export class ContextBuilder {
     featuredProducts: any[],
     collections: any[]
   ): Promise<RenderContext> {
-    // Crear contexto de la tienda (como 'shop' para compatibilidad)
-    const shop: ShopContext = {
+    return this.createRenderContext(store, featuredProducts, collections)
+  }
+
+  /**
+   * Crea el contexto de la tienda
+   */
+  private createShopContext(store: any, collections: any[]): ShopContext {
+    const currency = store.storeCurrency || 'COP'
+    const moneyFormat = CURRENCY_FORMATS[currency] || '${{amount}}'
+
+    return {
       name: store.storeName,
       description: store.storeDescription || `Tienda online de ${store.storeName}`,
       domain: store.customDomain,
       url: `https://${store.customDomain}`,
-      currency: store.storeCurrency || 'COP',
-      money_format: store.storeCurrency === 'USD' ? '${{amount}}' : '${{amount}}',
+      currency,
+      money_format: moneyFormat,
       email: store.contactEmail,
       phone: store.contactPhone?.toString(),
       address: store.storeAdress,
@@ -114,10 +88,15 @@ export class ContextBuilder {
       theme: store.storeTheme || 'modern',
       favicon: store.storeFavicon,
       storeId: store.storeId,
+      collections,
     }
+  }
 
-    // Crear contexto de la página con metafields para PageFly
-    const page: PageContext = {
+  /**
+   * Crea el contexto de la página
+   */
+  private createPageContext(store: any): PageContext {
+    return {
       title: store.storeName,
       url: '/',
       template: 'index',
@@ -128,9 +107,13 @@ export class ContextBuilder {
         },
       },
     }
+  }
 
-    // Para el método deprecated, crear un carrito vacío
-    const cartContext: CartContext = {
+  /**
+   * Crea un carrito vacío
+   */
+  private createEmptyCart(): CartContext {
+    return {
       id: '',
       item_count: 0,
       total_price: 0,
@@ -138,24 +121,37 @@ export class ContextBuilder {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
+  }
 
-    // Crear linklists para navegación
-    const linklists = await linkListService.createLinkListsFromDatabase(store.storeId)
-
-    // Crear contexto que incluye tanto 'shop' como 'store' para compatibilidad
-    // y variables de página al nivel raíz como espera el template
-    return {
-      storeId: store.storeId,
-      shop,
-      store: shop,
-      page,
-      page_title: store.storeName,
-      page_description: store.storeDescription || `Tienda online ${store.storeName}`,
-      products: featuredProducts,
-      collections,
-      linklists,
-      cart: cartContext,
+  /**
+   * Crea linklists con fallback simple
+   */
+  private async createLinkLists(storeId: string, storeTemplate?: any): Promise<any> {
+    // Intentar cargar desde base de datos
+    try {
+      const linklists = await linkListService.createLinkListsFromDatabase(storeId)
+      if (linklists && Object.keys(linklists).length > 0) {
+        return linklists
+      }
+    } catch (error) {
+      logger.warn('Failed to load navigation menus from database:', error)
     }
+
+    // Fallback a template si está disponible
+    if (storeTemplate) {
+      try {
+        const linklists =
+          flexibleLinkListService.createLinkListsFromTemplate(storeTemplate)
+        if (linklists && Object.keys(linklists).length > 0) {
+          return linklists
+        }
+      } catch (error) {
+        logger.warn('Failed to load navigation menus from template:', error)
+      }
+    }
+
+    // Último fallback: menús vacíos
+    return flexibleLinkListService.createEmptyLinkLists()
   }
 }
 
