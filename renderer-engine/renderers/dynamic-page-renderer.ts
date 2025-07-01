@@ -42,7 +42,6 @@ interface RenderingData {
 const renderingPipeline: RenderStep[] = [
   resolveStoreStep,
   initializeEngineStep,
-  validateStoreStep,
   loadDataStep,
   buildContextStep,
   renderContentStep,
@@ -148,21 +147,6 @@ async function resolveStoreStep(data: RenderingData): Promise<RenderingData> {
  */
 async function initializeEngineStep(data: RenderingData): Promise<RenderingData> {
   liquidEngine.assetCollector.clear()
-  return data
-}
-
-/**
- * Paso 3: Validar que la tienda tenga menús
- */
-async function validateStoreStep(data: RenderingData): Promise<RenderingData> {
-  const hasNavigationMenus = await templateLoader.hasNavigationMenus(data.store!.storeId)
-  if (!hasNavigationMenus) {
-    throw {
-      type: 'TEMPLATE_NOT_FOUND',
-      message: `No templates found for store: ${data.store!.storeId}`,
-      statusCode: 404,
-    }
-  }
   return data
 }
 

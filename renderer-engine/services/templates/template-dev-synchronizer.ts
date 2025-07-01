@@ -184,7 +184,7 @@ export class TemplateDevSynchronizer {
           undefined,
           'TemplateDevSynchronizer'
         )
-        templateLoader.invalidateAllTemplateCache(this.storeId)
+        templateLoader.invalidateTemplateCache(this.storeId, templatePath)
       }
 
       // Registrar cambio reciente

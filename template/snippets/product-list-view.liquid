@@ -1,7 +1,7 @@
  {{ 'list-product.css' | asset_url | stylesheet_tag }}
 <div class="page-width">
   <h1 class="page-title">Todos los Productos</h1>
-  {% paginate products by 2 %}
+  {% paginate products by 12 %}
     <div class="product-grid">
       {% for product in products %}
         <div class="product-item">

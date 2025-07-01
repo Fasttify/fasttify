@@ -37,7 +37,7 @@ export class CollectionFetcher {
         return cached as CollectionsResponse
       }
 
-      // Obtener colecciones desde Amplify
+      // Amplify Query
       const response = await cookiesClient.models.Collection.listCollectionByStoreId(
         { storeId },
         {

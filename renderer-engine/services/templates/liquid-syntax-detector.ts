@@ -55,6 +55,74 @@ const loadOptionsExtractors: Record<
     }
   },
 
+  // Nuevos extractores para acceso específico
+  specific_collection: (content: string) => {
+    const handles: string[] = []
+
+    // Detectar collections['handle'] y collections["handle"]
+    const bracketMatches = content.match(/collections\[['"]([^'"]+)['"]\]/g)
+    if (bracketMatches) {
+      bracketMatches.forEach(match => {
+        const handleMatch = match.match(/collections\[['"]([^'"]+)['"]\]/)
+        if (handleMatch) handles.push(handleMatch[1])
+      })
+    }
+
+    // Detectar collections.handle (acceso directo por propiedad)
+    const dotMatches = content.match(/collections\.([a-zA-Z0-9_-]+)(?!\.\w)/g)
+    if (dotMatches) {
+      dotMatches.forEach(match => {
+        const handleMatch = match.match(/collections\.([a-zA-Z0-9_-]+)/)
+        if (handleMatch && !handles.includes(handleMatch[1])) {
+          handles.push(handleMatch[1])
+        }
+      })
+    }
+
+    return { handles }
+  },
+
+  specific_product: (content: string) => {
+    const handles: string[] = []
+
+    // Detectar products['handle'] y products["handle"]
+    const bracketMatches = content.match(/products\[['"]([^'"]+)['"]\]/g)
+    if (bracketMatches) {
+      bracketMatches.forEach(match => {
+        const handleMatch = match.match(/products\[['"]([^'"]+)['"]\]/)
+        if (handleMatch) handles.push(handleMatch[1])
+      })
+    }
+
+    return { handles }
+  },
+
+  products_by_collection: (content: string) => {
+    const handles: string[] = []
+    const limitMatch = content.match(/limit:\s*(\d+)/i)
+    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 8
+
+    // Extraer handles de colecciones mencionadas para cargar sus productos
+    const collectionRefs = content.match(/collections\.([a-zA-Z0-9_-]+)\.products/g)
+    if (collectionRefs) {
+      collectionRefs.forEach(ref => {
+        const handleMatch = ref.match(/collections\.([a-zA-Z0-9_-]+)/)
+        if (handleMatch && !handles.includes(handleMatch[1])) {
+          handles.push(handleMatch[1])
+        }
+      })
+    }
+
+    return { handles, limit }
+  },
+
+  related_products: (content: string) => {
+    const limitMatch = content.match(/related_products[^}]*limit:\s*(\d+)/i)
+    return {
+      limit: limitMatch ? parseInt(limitMatch[1], 10) : 4,
+    }
+  },
+
   product: () => ({}),
   collection: () => ({}),
   cart: () => ({}),
@@ -80,6 +148,24 @@ const objectDetectors: Record<DataRequirement, ObjectDetector> = {
   collections: {
     pattern: /\{\{\s*collections\s*[\|\}]/g,
     optionsExtractor: loadOptionsExtractors.collections,
+  },
+
+  // Nuevos detectores para acceso específico
+  specific_collection: {
+    pattern: /collections\[['"]([^'"]+)['"]\]|collections\.([a-zA-Z0-9_-]+)(?!\.\w)/g,
+    optionsExtractor: loadOptionsExtractors.specific_collection,
+  },
+  specific_product: {
+    pattern: /products\[['"]([^'"]+)['"]\]/g,
+    optionsExtractor: loadOptionsExtractors.specific_product,
+  },
+  products_by_collection: {
+    pattern: /collections\.([a-zA-Z0-9_-]+)\.products/g,
+    optionsExtractor: loadOptionsExtractors.products_by_collection,
+  },
+  related_products: {
+    pattern: /related_products|product\s*\|\s*related/g,
+    optionsExtractor: loadOptionsExtractors.related_products,
   },
   product: {
     pattern: /\{\{\s*product\./g,

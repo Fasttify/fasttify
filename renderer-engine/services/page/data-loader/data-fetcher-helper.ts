@@ -49,6 +49,123 @@ const dataHandlers: Record<DataRequirement, DataHandler> = {
     return collectionsResult.collections
   },
 
+  // Nuevos handlers para acceso específico por handle
+  specific_collection: async (storeId, options) => {
+    if (!options.handles || options.handles.length === 0) {
+      return {}
+    }
+
+    const specificCollections: Record<string, any> = {}
+
+    // Cargar todas las colecciones primero para buscar por handle
+    const collectionsResult = await dataFetcher.getStoreCollections(storeId)
+
+    // Para cada handle solicitado, buscar la colección correspondiente
+    for (const handle of options.handles) {
+      const collectionRef = collectionsResult.collections.find(
+        c =>
+          c.slug === handle ||
+          c.title.toLowerCase().replace(/\s+/g, '-') === handle ||
+          c.id === handle
+      )
+
+      if (collectionRef) {
+        // Cargar la colección completa con productos
+        const collection = await dataFetcher.getCollection(storeId, collectionRef.id)
+        if (collection) {
+          specificCollections[handle] = collection
+        }
+      }
+    }
+
+    return specificCollections
+  },
+
+  specific_product: async (storeId, options) => {
+    if (!options.handles || options.handles.length === 0) {
+      return {}
+    }
+
+    const specificProducts: Record<string, any> = {}
+
+    // Para cada handle solicitado, buscar el producto
+    for (const handle of options.handles) {
+      const product = await dataFetcher.getProduct(storeId, handle)
+      if (product) {
+        specificProducts[handle] = product
+      }
+    }
+
+    return specificProducts
+  },
+
+  products_by_collection: async (storeId, options) => {
+    if (!options.handles || options.handles.length === 0) {
+      return {}
+    }
+
+    const productsByCollection: Record<string, any[]> = {}
+
+    // Cargar todas las colecciones para buscar por handle
+    const collectionsResult = await dataFetcher.getStoreCollections(storeId)
+
+    for (const handle of options.handles) {
+      const collectionRef = collectionsResult.collections.find(
+        c =>
+          c.slug === handle ||
+          c.title.toLowerCase().replace(/\s+/g, '-') === handle ||
+          c.id === handle
+      )
+
+      if (collectionRef) {
+        const collection = await dataFetcher.getCollection(storeId, collectionRef.id, {
+          limit: options.limit || 8,
+        })
+        if (collection) {
+          productsByCollection[handle] = collection.products
+        }
+      }
+    }
+
+    return productsByCollection
+  },
+
+  related_products: async (storeId, options, pageOptions) => {
+    // Este handler necesita el producto actual del contexto de la página
+    if (!pageOptions.productId && !pageOptions.handle) {
+      return []
+    }
+
+    const currentProduct = await dataFetcher.getProduct(
+      storeId,
+      pageOptions.productId || pageOptions.handle!
+    )
+
+    if (!currentProduct) {
+      return []
+    }
+
+    // Obtener productos de la misma categoría
+    if (currentProduct.category) {
+      const productsResult = await dataFetcher.getStoreProducts(storeId, {
+        limit: (options.limit || 4) + 1, // Uno extra para filtrar el actual
+      })
+
+      return productsResult.products
+        .filter(p => p.id !== currentProduct.id && p.category === currentProduct.category)
+        .slice(0, options.limit || 4)
+    }
+
+    // Fallback: productos aleatorios
+    const productsResult = await dataFetcher.getStoreProducts(storeId, {
+      limit: (options.limit || 4) + 1,
+    })
+
+    return productsResult.products
+      .filter(p => p.id !== currentProduct.id)
+      .slice(0, options.limit || 4)
+  },
+
   product: async (storeId, options, pageOptions) => {
     if (pageOptions.productId || pageOptions.handle) {
       const productId = pageOptions.productId || pageOptions.handle!
@@ -136,6 +253,27 @@ const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
     }
   },
 
+  specific_collection: (data, dataType, loadedData) => {
+    if (!loadedData.collections_map) {
+      loadedData.collections_map = {}
+    }
+    Object.assign(loadedData.collections_map, data)
+  },
+
+  specific_product: (data, dataType, loadedData) => {
+    if (!loadedData.products_map) {
+      loadedData.products_map = {}
+    }
+    Object.assign(loadedData.products_map, data)
+  },
+
+  products_by_collection: (data, dataType, loadedData) => {
+    if (!loadedData.collection_products_map) {
+      loadedData.collection_products_map = {}
+    }
+    Object.assign(loadedData.collection_products_map, data)
+  },
+
   // Para estos tipos, simplemente asignar directamente
   collection_products: (data, dataType, loadedData) => {
     loadedData[dataType] = data
@@ -166,6 +304,10 @@ const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
   },
 
   pagination: (data, dataType, loadedData) => {
+    loadedData[dataType] = data
+  },
+
+  related_products: (data, dataType, loadedData) => {
     loadedData[dataType] = data
   },
 }

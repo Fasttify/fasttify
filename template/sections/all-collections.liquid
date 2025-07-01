@@ -9,9 +9,9 @@
   </div>
 
   <div class="collection-container">
-    {% paginate shop.collections by 4 %}
+    {% paginate collections by 4 %}
       <div class="all-collections-wrapper">
-        {% for collection in shop.collections %}
+        {% for collection in collections %}
           <div class="collection-card">
             <div class="collection-card-inner">
               <div class="collection-image-wrapper">

@@ -15,7 +15,6 @@ import type {
 
 interface PaginationOptions {
   limit?: number
-  offset?: number
   nextToken?: string
 }
 
