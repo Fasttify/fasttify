@@ -22,7 +22,6 @@ export { useProductSelection } from './products/hooks/useProductSelection';
 
 // Utilidades
 export * from './products/utils/displayUtils';
-export * from './products/utils/formUtils';
 
 /**
  * Colecciones
