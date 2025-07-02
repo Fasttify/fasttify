@@ -283,7 +283,7 @@ graph TD
     subgraph "Renderiza Sección 'featured-products'"
         D --> I["Busca 'featured-products' en 'sections'"];
         I --> J{"Carga /sections/product-list.liquid"};
-        J --> K["Aplica 'settings' de index.json];
+        J --> K["Aplica 'settings' de index.json"];
         K --> L["Renderiza HTML y recolecta CSS"];
     end
 
