@@ -100,9 +100,11 @@ const hostname = xOriginalHost ||
 **Servicio** que resuelve dominios a tiendas en base de datos:
 
 ```typescript
-const { data: stores } = await cookiesClient.models.UserStore.listUserStoreByCustomDomain({
-  customDomain: domain,
-})
+const { data: stores } = await cookiesClient.models.UserStore.listUserStoreByCustomDomain(
+  {
+    customDomain: domain,
+  }
+)
 ```
 
 ## Configuración Paso a Paso

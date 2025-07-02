@@ -1,10 +1,10 @@
 # Sistema Dinámico de Análisis de Plantillas
 
-## 🎯 Objetivo
+## Objetivo
 
 Transformar el motor de renderizado de un sistema **hardcodeado** a uno **dinámico e inteligente** que analiza las plantillas Liquid para determinar qué datos cargar, similar a como funciona Shopify.
 
-## 🔄 Antes vs Ahora
+## Antes vs Ahora
 
 ### ❌ **Sistema Anterior (Hardcodeado)**
 
@@ -41,7 +41,7 @@ for (const [dataType, options] of analysis.requiredData) {
 - ✅ Más eficiente
 - ✅ Compatible con Shopify
 
-## 🧠 Cómo Funciona
+## Cómo Funciona
 
 ### 1. **Análisis de Plantillas**
 
@@ -84,7 +84,7 @@ El `TemplateAnalyzer` usa regex patterns para detectar objetos Liquid:
 - ✅ Paginación: `true`
 - ✅ Items por página: `24`
 
-## 📊 Ejemplos de Detección
+## Ejemplos de Detección
 
 ### **Homepage**
 
@@ -164,7 +164,7 @@ El `TemplateAnalyzer` usa regex patterns para detectar objetos Liquid:
 // ✅ NO carga productos ni colecciones innecesariamente
 ```
 
-## 🚀 Uso del Sistema
+## Uso del Sistema
 
 ### **Renderizado Automático**
 
@@ -200,7 +200,7 @@ console.log('Análisis:', result.analysis)
 console.log('Datos cargados:', Object.keys(result))
 ```
 
-## 🎯 Patrones de Detección
+## Patrones de Detección
 
 ### **Objetos Liquid Detectados**
 
@@ -229,7 +229,7 @@ console.log('Datos cargados:', Object.keys(result))
 | `{% render %}`  | `{% render 'card' %}`    | `snippets/card.liquid`   |
 | `{% include %}` | `{% include 'old' %}`    | `snippets/old.liquid`    |
 
-## 📈 Beneficios de Rendimiento
+## Beneficios de Rendimiento
 
 ### **Ejemplo: Página Simple**
 
@@ -254,7 +254,7 @@ console.log('Datos cargados:', Object.keys(result))
 **Antes:** Siempre 8 productos (insuficiente)
 **Ahora:** Detecta y carga 50 productos automáticamente
 
-## 🔧 Configuración Avanzada
+## Configuración Avanzada
 
 ### **Patrones Personalizados**
 
@@ -276,7 +276,7 @@ const customPatterns = {
 'templates/cart.json' → cart
 ```
 
-## 🐛 Debugging
+## Debugging
 
 ### **Logs Automáticos**
 
@@ -302,7 +302,7 @@ console.log({
 })
 ```
 
-## 🎉 Resultado
+## Resultado
 
 El motor ahora es **completamente dinámico** y funciona como Shopify:
 
@@ -311,5 +311,3 @@ El motor ahora es **completamente dinámico** y funciona como Shopify:
 - ✅ **Optimización automática** de performance
 - ✅ **Flexibilidad total** para cualquier plantilla
 - ✅ **Compatibilidad completa** con Liquid de Shopify
-
-¡Ya no más datos hardcodeados! 🚀
