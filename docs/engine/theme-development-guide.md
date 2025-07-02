@@ -199,18 +199,18 @@ Contiene toda la información de un producto específico.
 
 Hemos añadido una serie de filtros a Liquid para facilitar el desarrollo.
 
-| Filtro                   | Descripción                                                      | Ejemplo                    |
-| ------------------------ | ---------------------------------------------------------------- | -------------------------- | -------------------------- | ------------------ |
-| `asset_url`              | Genera la URL para un archivo en la carpeta `assets`.            | `{{ 'theme.css'            | asset_url }}`              |
-| `money`                  | Formatea un número como precio con el símbolo de la moneda.      | `{{ product.price          | money }}`                  |
-| `money_without_currency` | Formatea un número como precio sin el símbolo de la moneda.      | `{{ product.price          | money_without_currency }}` |
-| `img_url`                | Genera una URL optimizada para una imagen.                       | `{{ product.featured_image | img_url: '400x' }}`        |
-| `handleize`              | Convierte un string a un formato "handle" (minúsculas, guiones). | `{{ 'Mi Título'            | handleize }}`              |
-| `date`                   | Formatea una fecha.                                              | `{{ article.published_at   | date: '%d %b, %Y' }}`      |
-| `stylesheet_tag`         | Genera una etiqueta `<link>` para una hoja de estilos.           | `{{ 'theme.css'            | asset_url                  | stylesheet_tag }}` |
-| `script_tag`             | Genera una etiqueta `<script>` para un archivo JavaScript.       | `{{ 'theme.js'             | asset_url                  | script_tag }}`     |
-| `product_url`            | Genera la URL para un producto.                                  | `{{ product                | product_url }}`            |
-| `collection_url`         | Genera la URL para una colección.                                | `{{ collection             | collection_url }}`         |
+| Filtro                   | Descripción                                                      | Ejemplo                     |
+| ------------------------ | ---------------------------------------------------------------- | --------------------------- | --------------------------- | ------------------- |
+| `asset_url`              | Genera la URL para un archivo en la carpeta `assets`.            | ``{{ 'theme.css'            | asset_url }}``              |
+| `money`                  | Formatea un número como precio con el símbolo de la moneda.      | ``{{ product.price          | money }}``                  |
+| `money_without_currency` | Formatea un número como precio sin el símbolo de la moneda.      | ``{{ product.price          | money_without_currency }}`` |
+| `img_url`                | Genera una URL optimizada para una imagen.                       | ``{{ product.featured_image | img_url: '400x' }}``        |
+| `handleize`              | Convierte un string a un formato "handle" (minúsculas, guiones). | ``{{ 'Mi Título'            | handleize }}``              |
+| `date`                   | Formatea una fecha.                                              | ``{{ article.published_at   | date: '%d %b, %Y' }}``      |
+| `stylesheet_tag`         | Genera una etiqueta `<link>` para una hoja de estilos.           | ``{{ 'theme.css'            | asset_url                   | stylesheet_tag }}`` |
+| `script_tag`             | Genera una etiqueta `<script>` para un archivo JavaScript.       | ``{{ 'theme.js'             | asset_url                   | script_tag }}``     |
+| `product_url`            | Genera la URL para un producto.                                  | ``{{ product                | product_url }}``            |
+| `collection_url`         | Genera la URL para una colección.                                | ``{{ collection             | collection_url }}``         |
 
 ## 7. Tags Liquid Personalizados
 
