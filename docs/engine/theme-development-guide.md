@@ -195,27 +195,6 @@ Contiene toda la información de un producto específico.
 | `createdAt`        | `string` | Fecha de creación del producto.      |
 | `updatedAt`        | `string` | Fecha de actualización del producto. |
 
-### `collection` (en `collection.json`)
-
-Contiene la información de una colección y sus productos.
-
-| Propiedad     | Tipo      | Descripción                                          |
-| ------------- | --------- | ---------------------------------------------------- |
-| `id`          | `string`  | ID único de la colección.                            |
-| `title`       | `string`  | Nombre de la colección.                              |
-| `description` | `string`  | Descripción de la colección.                         |
-| `image`       | `string`  | URL de la imagen de la colección.                    |
-| `products`    | `array`   | Array de objetos de producto dentro de la colección. |
-| `url`         | `string`  | URL canónica de la colección.                        |
-| `owner`       | `string`  | ID del propietario de la colección.                  |
-| `sortOrder`   | `string`  | Orden de clasificación de la colección.              |
-| `isActive`    | `boolean` | Indica si la colección está activa.                  |
-| `createdAt`   | `string`  | Fecha de creación de la colección.                   |
-| `updatedAt`   | `string`  | Fecha de actualización de la colección.              |
-| `slug`        | `string`  | Slug de la colección.                                |
-| `nextToken`   | `string`  | Token de la siguiente página.                        |
-| `storeId`     | `string`  | ID de la tienda.                                     |
-
 ## 6. Filtros Liquid Personalizados
 
 Hemos añadido una serie de filtros a Liquid para facilitar el desarrollo.
