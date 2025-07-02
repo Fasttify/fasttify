@@ -269,34 +269,34 @@ Para juntar todo, aquí tienes un diagrama que muestra el flujo de renderizado p
 
 ```mermaid
 graph TD
-    A[Visita a la Homepage] --> B{Motor de Renderizado};
-    B --> C[Lee /templates/index.json];
-    C --> D{Analiza 'order': ["hero", "featured-products"]};
+    A["Visita a la Homepage"] --> B{"Motor de Renderizado"};
+    B --> C["Lee /templates/index.json"];
+    C --> D{"Analiza 'order': &#91;'hero', 'featured-products'&#93;"};
 
     subgraph "Renderiza Sección 'hero'"
-        D --> E[Busca "hero" en "sections"];
-        E --> F{Carga /sections/hero-banner.liquid};
-        F --> G[Aplica 'settings' de index.json];
-        G --> H[Renderiza HTML y recolecta CSS];
+        D --> E["Busca 'hero' en 'sections'"];
+        E --> F{"Carga /sections/hero-banner.liquid"};
+        F --> G["Aplica 'settings' de index.json"];
+        G --> H["Renderiza HTML y recolecta CSS"];
     end
 
     subgraph "Renderiza Sección 'featured-products'"
-        D --> I[Busca "featured-products" en "sections"];
-        I --> J{Carga /sections/product-list.liquid};
-        J --> K[Aplica 'settings' de index.json];
-        K --> L[Renderiza HTML y recolecta CSS];
+        D --> I["Busca 'featured-products' en 'sections'"];
+        I --> J{"Carga /sections/product-list.liquid"};
+        J --> K["Aplica 'settings' de index.json];
+        K --> L["Renderiza HTML y recolecta CSS"];
     end
 
-    H --> M[Contenido HTML Combinado];
+    H --> M["Contenido HTML Combinado"];
     L --> M;
 
-    M --> N{Carga /layout/theme.liquid};
-    N --> O[Inyecta contenido en 'content_for_layout'];
-    H --> P[CSS Recolectado];
+    M --> N{"Carga /layout/theme.liquid"};
+    N --> O["Inyecta contenido en 'content_for_layout'"];
+    H --> P["CSS Recolectado"];
     L --> P;
-    P --> Q[Inyecta CSS en 'content_for_header'];
+    P --> Q["Inyecta CSS en 'content_for_header'"];
 
-    O --> R[Página Final];
+    O --> R["Página Final"];
     Q --> R;
 ```
 
