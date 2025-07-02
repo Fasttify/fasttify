@@ -1,16 +1,7 @@
-import { useState } from 'react'
-import {
-  Card,
-  Thumbnail,
-  Text,
-  BlockStack,
-  Button,
-  ButtonGroup,
-  Box,
-  InlineStack,
-} from '@shopify/polaris'
-import type { S3Image } from '@/app/store/hooks/storage/useS3Images'
-import { ImageSelectorModal } from '@/app/store/components/images-selector'
+import { useState } from 'react';
+import { Card, Thumbnail, Text, BlockStack, Button, ButtonGroup, Box, InlineStack } from '@shopify/polaris';
+import type { S3Image } from '@/app/store/hooks/storage/useS3Images';
+import { ImageSelectorModal } from '@/app/store/components/images-selector';
 
 const ImagePlaceholder = ({ onOpenModal }: { onOpenModal: () => void }) => (
   <Box borderWidth="025" borderColor="border" borderRadius="200" background="bg-surface-secondary">
@@ -23,29 +14,23 @@ const ImagePlaceholder = ({ onOpenModal }: { onOpenModal: () => void }) => (
       </BlockStack>
     </Box>
   </Box>
-)
+);
 
-export function ImageSection({
-  imageUrl,
-  onImageChange,
-}: {
-  imageUrl: string
-  onImageChange: (url: string) => void
-}) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+export function ImageSection({ imageUrl, onImageChange }: { imageUrl: string; onImageChange: (url: string) => void }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleImageSelectFromModal = (selection: S3Image | S3Image[] | null) => {
     if (selection && !Array.isArray(selection)) {
-      onImageChange(selection.url)
+      onImageChange(selection.url);
     }
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   const handleRemoveImage = () => {
-    onImageChange('')
-  }
+    onImageChange('');
+  };
 
-  const openModal = () => setIsModalOpen(true)
+  const openModal = () => setIsModalOpen(true);
 
   return (
     <>
@@ -79,5 +64,5 @@ export function ImageSection({
         initialSelectedImage={imageUrl}
       />
     </>
-  )
+  );
 }

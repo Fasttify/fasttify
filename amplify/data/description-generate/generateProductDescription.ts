@@ -1,23 +1,16 @@
-import type { Schema } from '../resource'
-import {
-  BedrockRuntimeClient,
-  InvokeModelCommand,
-  InvokeModelCommandInput,
-} from '@aws-sdk/client-bedrock-runtime'
+import type { Schema } from '../resource';
+import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput } from '@aws-sdk/client-bedrock-runtime';
 
-const client = new BedrockRuntimeClient()
+const client = new BedrockRuntimeClient();
 
-export const handler: Schema['generateProductDescription']['functionHandler'] = async (
-  event,
-  context
-) => {
-  const { productName, category } = event.arguments
+export const handler: Schema['generateProductDescription']['functionHandler'] = async (event, context) => {
+  const { productName, category } = event.arguments;
 
   // Create a prompt for product description generation
-  const categoryText = category ? ` en la categoría ${category}` : ''
+  const categoryText = category ? ` en la categoría ${category}` : '';
   const prompt = `Genera una descripción de producto atractiva y persuasiva para un producto llamado "${productName}"${categoryText}. 
   La descripción debe tener entre 100-150 palabras, destacar beneficios clave, características principales y casos de uso. 
-  Usa un tono profesional pero amigable. No incluyas precio ni información de envío.`
+  Usa un tono profesional pero amigable. No incluyas precio ni información de envío.`;
 
   // Invoke model
   const input = {
@@ -42,14 +35,14 @@ export const handler: Schema['generateProductDescription']['functionHandler'] = 
       max_tokens: 500,
       temperature: 0.7,
     }),
-  } as InvokeModelCommandInput
+  } as InvokeModelCommandInput;
 
-  const command = new InvokeModelCommand(input)
+  const command = new InvokeModelCommand(input);
 
-  const response = await client.send(command)
+  const response = await client.send(command);
 
   // Parse the response and return the generated description
-  const data = JSON.parse(Buffer.from(response.body).toString())
+  const data = JSON.parse(Buffer.from(response.body).toString());
 
-  return data.content[0].text
-}
+  return data.content[0].text;
+};

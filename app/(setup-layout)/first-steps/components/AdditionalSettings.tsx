@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import Image from 'next/image'
-import { Eye, EyeOff, HelpCircle } from 'lucide-react'
+import { useState } from 'react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import { Eye, EyeOff, HelpCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,38 +11,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@/components/ui/dialog';
 
 export interface WompiConfig {
-  publicKey: string
-  signature: string
+  publicKey: string;
+  signature: string;
 }
 
 export interface Data {
-  wompiConfig: WompiConfig
+  wompiConfig: WompiConfig;
 }
 
 interface AdditionalSettingsProps {
-  data: Data
-  updateData: (data: Partial<Data>) => void
+  data: Data;
+  updateData: (data: Partial<Data>) => void;
   errors?: {
     wompiConfig?: {
-      publicKey?: { _errors?: string[] }
-      signature?: { _errors?: string[] }
-    }
-  }
+      publicKey?: { _errors?: string[] };
+      signature?: { _errors?: string[] };
+    };
+  };
 }
 
-const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
-  data,
-  updateData,
-  errors = {},
-}) => {
-  const [showSignature, setShowSignature] = useState(false)
+const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({ data, updateData, errors = {} }) => {
+  const [showSignature, setShowSignature] = useState(false);
 
   const toggleSignatureVisibility = () => {
-    setShowSignature(!showSignature)
-  }
+    setShowSignature(!showSignature);
+  };
 
   return (
     <div className="w-full max-w-2xl p-6 bg-white rounded-lg">
@@ -53,9 +49,7 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
             <Image src="/icons/logo-wompi.png" alt="wompi" width={100} height={100} />
           </span>
         </h2>
-        <p className="text-gray-600">
-          Ingresa los datos necesarios para integrar el widget de pagos de Wompi.
-        </p>
+        <p className="text-gray-600">Ingresa los datos necesarios para integrar el widget de pagos de Wompi.</p>
       </div>
 
       <div className="mb-6">
@@ -63,8 +57,7 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
           <DialogTrigger asChild>
             <Button
               variant="outline"
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm md:text-base break-words text-wrap max-w-full"
-            >
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm md:text-base break-words text-wrap max-w-full">
               <HelpCircle className="h-4 w-4" />
               ¿No sabes cómo obtener estos datos?
             </Button>
@@ -80,8 +73,7 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
             <div className="space-y-6">
               <div
                 className="relative w-full bg-gray-50 rounded-lg overflow-hidden"
-                style={{ height: '70vh', minHeight: '500px' }}
-              >
+                style={{ height: '70vh', minHeight: '500px' }}>
                 <Image
                   src="/imgs/first-steps/wompi-keys.webp"
                   alt="Captura de pantalla del panel de Wompi"
@@ -109,9 +101,8 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h3 className="font-semibold text-blue-800 mb-2">Nota importante:</h3>
                     <p className="text-sm text-blue-700">
-                      Asegúrate de usar las llaves de producción si estás configurando para un
-                      entorno en vivo. Si tienes problemas para encontrar esta información, contacta
-                      al soporte de Wompi.
+                      Asegúrate de usar las llaves de producción si estás configurando para un entorno en vivo. Si
+                      tienes problemas para encontrar esta información, contacta al soporte de Wompi.
                     </p>
 
                     <div className="mt-4 pt-4 border-t border-blue-200">
@@ -119,16 +110,14 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
                         href="https://comercios.wompi.co/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-                      >
+                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium">
                         Ir al portal de comercios de Wompi
                         <svg
                           className="h-4 w-4"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
+                          xmlns="http://www.w3.org/2000/svg">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -155,7 +144,7 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
             type="text"
             className="w-full p-2 border rounded"
             value={data.wompiConfig.publicKey}
-            onChange={e =>
+            onChange={(e) =>
               updateData({
                 wompiConfig: { ...data.wompiConfig, publicKey: e.target.value },
               })
@@ -163,9 +152,7 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
             placeholder="pub_test_..."
           />
           {errors?.wompiConfig?.publicKey?._errors && (
-            <p className="text-red-600 text-sm">
-              {errors.wompiConfig.publicKey._errors.join(', ')}
-            </p>
+            <p className="text-red-600 text-sm">{errors.wompiConfig.publicKey._errors.join(', ')}</p>
           )}
         </div>
 
@@ -178,7 +165,7 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
               type={showSignature ? 'text' : 'password'}
               className="w-full p-2 border rounded pr-10"
               value={data.wompiConfig.signature}
-              onChange={e =>
+              onChange={(e) =>
                 updateData({
                   wompiConfig: { ...data.wompiConfig, signature: e.target.value },
                 })
@@ -190,16 +177,13 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
               variant="ghost"
               size="sm"
               className="absolute right-2 top-1/2 transform -translate-y-1/2"
-              onClick={toggleSignatureVisibility}
-            >
+              onClick={toggleSignatureVisibility}>
               {showSignature ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               <span className="sr-only">{showSignature ? 'Hide signature' : 'Show signature'}</span>
             </Button>
           </div>
           {errors?.wompiConfig?.signature?._errors && (
-            <p className="text-red-600 text-sm">
-              {errors.wompiConfig.signature._errors.join(', ')}
-            </p>
+            <p className="text-red-600 text-sm">{errors.wompiConfig.signature._errors.join(', ')}</p>
           )}
         </div>
       </div>
@@ -216,7 +200,7 @@ const AdditionalSettings: React.FC<AdditionalSettingsProps> = ({
         </ul>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdditionalSettings
+export default AdditionalSettings;

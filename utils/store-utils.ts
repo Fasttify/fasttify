@@ -10,8 +10,8 @@
  */
 export function getStoreId(params: any, pathname: string): string {
   // Intenta obtener el storeId de los parámetros (podría estar bajo la clave storeId o slug)
-  const storeId = params.storeId || params.slug || extractStoreIdFromPath(pathname)
-  return storeId || ''
+  const storeId = params.storeId || params.slug || extractStoreIdFromPath(pathname);
+  return storeId || '';
 }
 
 /**
@@ -20,6 +20,6 @@ export function getStoreId(params: any, pathname: string): string {
  * @returns El ID de la tienda extraído
  */
 export function extractStoreIdFromPath(path: string): string {
-  const matches = path.match(/\/store\/([^\/]+)/)
-  return matches ? matches[1] : ''
+  const matches = path.match(/\/store\/([^\/]+)/);
+  return matches ? matches[1] : '';
 }

@@ -1,81 +1,67 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useCallback } from 'react'
-import { useForm, useField } from '@shopify/react-form'
-import {
-  Modal,
-  Form,
-  FormLayout,
-  TextField,
-  Banner,
-  Text,
-  LegacyStack,
-  Badge,
-  Box,
-} from '@shopify/polaris'
-import {
-  PaymentGatewayType,
-  PAYMENT_GATEWAYS,
-  createApiKeySchema,
-} from '@/lib/zod-schemas/api-keys'
+import { useState, useEffect, useCallback } from 'react';
+import { useForm, useField } from '@shopify/react-form';
+import { Modal, Form, FormLayout, TextField, Banner, Text, LegacyStack, Badge, Box } from '@shopify/polaris';
+import { PaymentGatewayType, PAYMENT_GATEWAYS, createApiKeySchema } from '@/lib/zod-schemas/api-keys';
 
 type ApiKeyFormValues = {
-  publicKey: string
-  privateKey: string
-}
+  publicKey: string;
+  privateKey: string;
+};
 
 interface ApiKeyModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit?: (data: ApiKeyFormValues & { gateway: PaymentGatewayType }) => Promise<void | boolean>
-  gateway: PaymentGatewayType
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit?: (data: ApiKeyFormValues & { gateway: PaymentGatewayType }) => Promise<void | boolean>;
+  gateway: PaymentGatewayType;
 }
 
 export function ApiKeyModal({ open, onOpenChange, onSubmit, gateway }: ApiKeyModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const gatewayConfig = PAYMENT_GATEWAYS[gateway]
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const gatewayConfig = PAYMENT_GATEWAYS[gateway];
 
   const { fields, submit, dirty, reset, submitErrors } = useForm({
     fields: {
       publicKey: useField(''),
       privateKey: useField(''),
     },
-    onSubmit: async values => {
-      const schema = createApiKeySchema(gateway)
-      const validation = schema.safeParse(values)
+    onSubmit: async (values) => {
+      const schema = createApiKeySchema(gateway);
+      const validation = schema.safeParse(values);
 
       if (!validation.success) {
-        const errors = validation.error.errors.map(err => ({
+        const errors = validation.error.errors.map((err) => ({
           message: err.message,
           field: [err.path[0].toString()],
-        }))
-        return { status: 'fail', errors }
+        }));
+        return { status: 'fail', errors };
       }
 
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
         if (onSubmit) {
-          await onSubmit({ ...validation.data, gateway })
+          await onSubmit({ ...validation.data, gateway });
         }
-        onOpenChange(false)
-        return { status: 'success' }
+        onOpenChange(false);
+        return { status: 'success' };
       } catch (error) {
-        console.error('Error al guardar las claves:', error)
+        console.error('Error al guardar las claves:', error);
         return {
           status: 'fail',
           errors: [{ message: 'Hubo un error al guardar las claves. Inténtalo de nuevo.' }],
-        }
+        };
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     },
-  })
+  });
 
   useEffect(() => {
     if (!open) {
-      reset()
+      reset();
     }
-  }, [open, reset])
+  }, [open, reset]);
 
   const getFieldLabels = useCallback(() => {
     if (gateway === 'wompi') {
@@ -84,17 +70,17 @@ export function ApiKeyModal({ open, onOpenChange, onSubmit, gateway }: ApiKeyMod
         publicKeyHelpText: 'Tu llave pública comienza con "pub_".',
         privateKeyLabel: 'Llave de Eventos',
         privateKeyHelpText: 'La llave para firmar eventos/webhooks.',
-      }
+      };
     }
     return {
       publicKeyLabel: 'Public Key',
       publicKeyHelpText: `Tu Public Key comienza con "APP_USR-".`,
       privateKeyLabel: 'Access Token',
       privateKeyHelpText: `Tu Access Token comienza con "APP_USR-".`,
-    }
-  }, [gateway])
+    };
+  }, [gateway]);
 
-  const fieldLabels = getFieldLabels()
+  const fieldLabels = getFieldLabels();
 
   return (
     <Modal
@@ -113,8 +99,7 @@ export function ApiKeyModal({ open, onOpenChange, onSubmit, gateway }: ApiKeyMod
           onAction: () => onOpenChange(false),
           disabled: isSubmitting,
         },
-      ]}
-    >
+      ]}>
       <Modal.Section>
         <Form onSubmit={submit}>
           <LegacyStack vertical spacing="loose">
@@ -127,8 +112,8 @@ export function ApiKeyModal({ open, onOpenChange, onSubmit, gateway }: ApiKeyMod
             )}
             <Banner title="Almacenamiento seguro de claves" tone="info">
               <p>
-                Tus claves API se utilizan para autenticar solicitudes a la pasarela de pago y se
-                almacenan de forma segura y encriptada.
+                Tus claves API se utilizan para autenticar solicitudes a la pasarela de pago y se almacenan de forma
+                segura y encriptada.
               </p>
             </Banner>
 
@@ -137,8 +122,7 @@ export function ApiKeyModal({ open, onOpenChange, onSubmit, gateway }: ApiKeyMod
               borderColor="border"
               borderRadius="200"
               padding="400"
-              background="bg-surface-secondary"
-            >
+              background="bg-surface-secondary">
               <LegacyStack vertical spacing="baseTight">
                 <LegacyStack distribution="equalSpacing" alignment="center">
                   <Text variant="headingMd" as="h3">
@@ -175,5 +159,5 @@ export function ApiKeyModal({ open, onOpenChange, onSubmit, gateway }: ApiKeyMod
         </Form>
       </Modal.Section>
     </Modal>
-  )
+  );
 }

@@ -1,89 +1,82 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Loader } from '@/components/ui/loader'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { handleConfirmSignUp } from '@/app/(setup-layout)/login/hooks/signUp'
-import { signIn } from 'aws-amplify/auth'
-import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { verificationSchema, type VerificationFormData } from '@/lib/zod-schemas/schemas'
-import { OTPInput, type SlotProps } from 'input-otp'
-import { cn } from '@/lib/utils'
+import { useState } from 'react';
+import { Loader } from '@/components/ui/loader';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { handleConfirmSignUp } from '@/app/(setup-layout)/login/hooks/signUp';
+import { signIn } from 'aws-amplify/auth';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { verificationSchema, type VerificationFormData } from '@/lib/zod-schemas/schemas';
+import { OTPInput, type SlotProps } from 'input-otp';
+import { cn } from '@/lib/utils';
 
 interface VerificationFormProps {
-  email: string
-  password: string
-  onBack: () => void
+  email: string;
+  password: string;
+  onBack: () => void;
 }
 
 export function VerificationForm({ email, password, onBack }: VerificationFormProps) {
-  const [error, setError] = useState('')
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const form = useForm<VerificationFormData>({
     resolver: zodResolver(verificationSchema),
     defaultValues: {
       code: '',
     },
-  })
+  });
 
   const getErrorMessage = (error: any): string => {
     // Manejo por código de error
     if (error.code) {
       switch (error.code) {
         case 'CodeMismatchException':
-          return 'El código ingresado no es válido. Por favor, verifica e intenta nuevamente'
+          return 'El código ingresado no es válido. Por favor, verifica e intenta nuevamente';
         case 'ExpiredCodeException':
-          return 'El código ha expirado. Por favor, solicita un nuevo código'
+          return 'El código ha expirado. Por favor, solicita un nuevo código';
         case 'TooManyRequestsException':
-          return 'Demasiados intentos. Por favor, espera unos minutos antes de intentar nuevamente'
+          return 'Demasiados intentos. Por favor, espera unos minutos antes de intentar nuevamente';
         case 'NotAuthorizedException':
-          return 'No se pudo autorizar la verificación. Por favor, intenta nuevamente'
+          return 'No se pudo autorizar la verificación. Por favor, intenta nuevamente';
         case 'UserNotFoundException':
-          return 'No se encontró el usuario asociado a este correo'
+          return 'No se encontró el usuario asociado a este correo';
         case 'LimitExceededException':
-          return 'Has excedido el límite de intentos permitidos. Por favor, espera unos minutos'
+          return 'Has excedido el límite de intentos permitidos. Por favor, espera unos minutos';
       }
     }
 
     // Manejo por mensaje de error
     switch (error.message) {
       case 'Invalid verification code provided, please try again.':
-        return 'Código de verificación inválido, por favor intenta nuevamente'
+        return 'Código de verificación inválido, por favor intenta nuevamente';
       case 'Attempt limit exceeded, please try after some time.':
-        return 'Límite de intentos excedido, por favor intenta más tarde'
+        return 'Límite de intentos excedido, por favor intenta más tarde';
       case 'User cannot be confirmed. Current status is CONFIRMED':
-        return 'El usuario ya ha sido confirmado anteriormente'
+        return 'El usuario ya ha sido confirmado anteriormente';
       case 'Network error':
-        return 'Error de conexión. Por favor, verifica tu conexión a internet'
+        return 'Error de conexión. Por favor, verifica tu conexión a internet';
       default:
-        return 'Ha ocurrido un error durante la verificación. Por favor, intenta nuevamente'
+        return 'Ha ocurrido un error durante la verificación. Por favor, intenta nuevamente';
     }
-  }
+  };
 
   const onSubmit = async (data: VerificationFormData) => {
-    setIsSubmitted(true)
+    setIsSubmitted(true);
     try {
-      const isCompleted = await handleConfirmSignUp(email, data.code)
+      const isCompleted = await handleConfirmSignUp(email, data.code);
       if (isCompleted) {
         // Iniciar sesión automáticamente
-        await signIn({ username: email, password: password })
-        window.location.href = '/'
+        await signIn({ username: email, password: password });
+        window.location.href = '/';
       }
     } catch (err: any) {
-      setError(getErrorMessage(err))
-      setIsSubmitted(false)
+      setError(getErrorMessage(err));
+      setIsSubmitted(false);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -116,11 +109,7 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
           )}
         />
 
-        <Button
-          type="submit"
-          className="w-full bg-black text-white hover:bg-black/90"
-          disabled={isSubmitted}
-        >
+        <Button type="submit" className="w-full bg-black text-white hover:bg-black/90" disabled={isSubmitted}>
           {isSubmitted ? (
             <>
               <Loader color="white" /> Verificando código
@@ -135,7 +124,7 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
         </Button>
       </form>
     </Form>
-  )
+  );
 }
 
 function Slot(props: SlotProps) {
@@ -144,9 +133,8 @@ function Slot(props: SlotProps) {
       className={cn(
         'flex size-9 items-center justify-center rounded-lg border border-input bg-background font-medium text-foreground shadow-sm shadow-black/5 transition-shadow',
         { 'z-10 border border-ring ring-[3px] ring-ring/20': props.isActive }
-      )}
-    >
+      )}>
       {props.char !== null && <div>{props.char}</div>}
     </div>
-  )
+  );
 }

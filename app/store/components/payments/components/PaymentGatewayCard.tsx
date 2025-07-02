@@ -1,15 +1,12 @@
-import Image from 'next/image'
-import { LegacyStack, Text, Button, Badge } from '@shopify/polaris'
-import { PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
-import {
-  WompiPaymentIcons,
-  MercadoPagoIcons,
-} from '@/app/store/components/payments/components/PaymentMethodIcons'
+import Image from 'next/image';
+import { LegacyStack, Text, Button, Badge } from '@shopify/polaris';
+import { PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { WompiPaymentIcons, MercadoPagoIcons } from '@/app/store/components/payments/components/PaymentMethodIcons';
 
 interface PaymentGatewayCardProps {
-  gateway: PaymentGatewayType
-  isConfigured: boolean
-  onActivate: (gateway: PaymentGatewayType) => void
+  gateway: PaymentGatewayType;
+  isConfigured: boolean;
+  onActivate: (gateway: PaymentGatewayType) => void;
 }
 
 export function PaymentGatewayCard({ gateway, isConfigured, onActivate }: PaymentGatewayCardProps) {
@@ -24,22 +21,16 @@ export function PaymentGatewayCard({ gateway, isConfigured, onActivate }: Paymen
       logo: '/icons/mercadopago-logo.webp',
       PaymentIcons: MercadoPagoIcons,
     },
-  }
+  };
 
-  const config = gatewayConfig[gateway]
+  const config = gatewayConfig[gateway];
 
   return (
     <div className="border border-gray-200 rounded-lg">
       <div className="p-4">
         <LegacyStack distribution="equalSpacing" alignment="center">
           <LegacyStack alignment="center" spacing="loose">
-            <Image
-              src={config.logo}
-              alt={`${config.name} logo`}
-              width={40}
-              height={40}
-              className="object-contain"
-            />
+            <Image src={config.logo} alt={`${config.name} logo`} width={40} height={40} className="object-contain" />
             <LegacyStack vertical spacing="extraTight">
               <LegacyStack alignment="center">
                 <Text variant="headingSm" as="h3">
@@ -68,5 +59,5 @@ export function PaymentGatewayCard({ gateway, isConfigured, onActivate }: Paymen
         </LegacyStack>
       </div>
     </div>
-  )
+  );
 }

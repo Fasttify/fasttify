@@ -1,16 +1,16 @@
-import { useState, useEffect, useMemo } from 'react'
-import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types'
-import type { SortOption } from '@/app/store/components/product-management/collections/types/collection-types'
+import { useState, useEffect, useMemo } from 'react';
+import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types';
+import type { SortOption } from '@/app/store/components/product-management/collections/types/collection-types';
 import {
   filterProducts,
   sortProducts,
-} from '@/app/store/components/product-management/collections/utils/collectionUtils'
+} from '@/app/store/components/product-management/collections/utils/collectionUtils';
 
 interface UseProductSelectionProps {
-  products: IProduct[]
-  selectedProducts: IProduct[]
-  onAddProduct: (product: IProduct) => void
-  onRemoveProduct: (productId: string) => void
+  products: IProduct[];
+  selectedProducts: IProduct[];
+  onAddProduct: (product: IProduct) => void;
+  onRemoveProduct: (productId: string) => void;
 }
 
 export const useProductSelection = ({
@@ -19,55 +19,55 @@ export const useProductSelection = ({
   onAddProduct,
   onRemoveProduct,
 }: UseProductSelectionProps) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [sortOption, setSortOption] = useState<SortOption>('mas-recientes')
-  const [dialogSelectedProducts, setDialogSelectedProducts] = useState<string[]>([])
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOption, setSortOption] = useState<SortOption>('mas-recientes');
+  const [dialogSelectedProducts, setDialogSelectedProducts] = useState<string[]>([]);
 
   // Inicializar productos seleccionados en el diálogo cuando se abre
   useEffect(() => {
     if (isDialogOpen) {
-      setDialogSelectedProducts(selectedProducts.map(p => p.id))
+      setDialogSelectedProducts(selectedProducts.map((p) => p.id));
     }
-  }, [isDialogOpen, selectedProducts])
+  }, [isDialogOpen, selectedProducts]);
 
   // Filtrar y ordenar productos
   const filteredAndSortedProducts = useMemo(() => {
-    const filtered = filterProducts(products, searchTerm)
-    return sortProducts(filtered, sortOption)
-  }, [products, searchTerm, sortOption])
+    const filtered = filterProducts(products, searchTerm);
+    return sortProducts(filtered, sortOption);
+  }, [products, searchTerm, sortOption]);
 
   // Manejar selección de productos en el diálogo
   const handleProductSelect = (selectedIds: string[]) => {
-    setDialogSelectedProducts(selectedIds)
-  }
+    setDialogSelectedProducts(selectedIds);
+  };
 
   // Confirmar selección de productos
   const handleConfirmSelection = () => {
-    const currentSelectedIds = new Set(selectedProducts.map(p => p.id))
+    const currentSelectedIds = new Set(selectedProducts.map((p) => p.id));
 
     // Añadir productos nuevos
-    dialogSelectedProducts.forEach(productId => {
+    dialogSelectedProducts.forEach((productId) => {
       if (!currentSelectedIds.has(productId)) {
-        const product = products.find(p => p.id === productId)
+        const product = products.find((p) => p.id === productId);
         if (product) {
-          onAddProduct(product)
+          onAddProduct(product);
         }
       }
-    })
+    });
 
     // Eliminar productos que ya no están seleccionados
-    selectedProducts.forEach(product => {
+    selectedProducts.forEach((product) => {
       if (!dialogSelectedProducts.includes(product.id)) {
-        onRemoveProduct(product.id)
+        onRemoveProduct(product.id);
       }
-    })
+    });
 
-    setIsDialogOpen(false)
-  }
+    setIsDialogOpen(false);
+  };
 
-  const openDialog = () => setIsDialogOpen(true)
-  const closeDialog = () => setIsDialogOpen(false)
+  const openDialog = () => setIsDialogOpen(true);
+  const closeDialog = () => setIsDialogOpen(false);
 
   return {
     // Estados
@@ -84,5 +84,5 @@ export const useProductSelection = ({
     handleConfirmSelection,
     openDialog,
     closeDialog,
-  }
-}
+  };
+};

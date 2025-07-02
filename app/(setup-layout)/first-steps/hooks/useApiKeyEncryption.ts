@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { post } from 'aws-amplify/api'
+import { useState } from 'react';
+import { post } from 'aws-amplify/api';
 
 /**
  * Hook personalizado para encriptar claves API usando la Lambda de encriptación.
@@ -11,8 +11,8 @@ import { post } from 'aws-amplify/api'
  * - encryptedKey: La clave encriptada resultante
  */
 export function useApiKeyEncryption() {
-  const [isEncrypting, setIsEncrypting] = useState(false)
-  const [encryptedKey, setEncryptedKey] = useState<string | null>(null)
+  const [isEncrypting, setIsEncrypting] = useState(false);
+  const [encryptedKey, setEncryptedKey] = useState<string | null>(null);
 
   /**
    * Encripta una clave API usando la Lambda.
@@ -28,10 +28,10 @@ export function useApiKeyEncryption() {
     keyField?: string,
     storeId?: string
   ): Promise<string | null> => {
-    if (!apiKey || !keyType) return null
+    if (!apiKey || !keyType) return null;
 
-    setIsEncrypting(true)
-    setEncryptedKey(null)
+    setIsEncrypting(true);
+    setEncryptedKey(null);
 
     try {
       const payload = {
@@ -39,7 +39,7 @@ export function useApiKeyEncryption() {
         keyType,
         ...(keyField && { keyField }),
         ...(storeId && { storeId }),
-      }
+      };
 
       const response = await post({
         apiName: 'ApiKeyManagerApi',
@@ -47,24 +47,24 @@ export function useApiKeyEncryption() {
         options: {
           body: payload,
         },
-      })
+      });
 
-      const { body } = await response.response
-      const result = (await body.json()) as { success: boolean; encryptedKey: string }
+      const { body } = await response.response;
+      const result = (await body.json()) as { success: boolean; encryptedKey: string };
 
       if (result.success && result.encryptedKey) {
-        setEncryptedKey(result.encryptedKey)
-        return result.encryptedKey
+        setEncryptedKey(result.encryptedKey);
+        return result.encryptedKey;
       }
 
-      return null
+      return null;
     } catch (error) {
-      console.error('Error encrypting API key:', error)
-      return null
+      console.error('Error encrypting API key:', error);
+      return null;
     } finally {
-      setIsEncrypting(false)
+      setIsEncrypting(false);
     }
-  }
+  };
 
-  return { encryptApiKey, isEncrypting, encryptedKey }
+  return { encryptApiKey, isEncrypting, encryptedKey };
 }

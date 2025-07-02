@@ -1,24 +1,24 @@
-'use client'
+'use client';
 
-import { createContext, useContext, ReactNode, useState, useCallback } from 'react'
-import { Frame, Toast } from '@shopify/polaris'
+import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
+import { Frame, Toast } from '@shopify/polaris';
 
 interface ToastContextType {
-  showToast: (message: string, isError?: boolean) => void
+  showToast: (message: string, isError?: boolean) => void;
 }
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined)
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export const useToast = () => {
-  const context = useContext(ToastContext)
+  const context = useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider')
+    throw new Error('useToast must be used within a ToastProvider');
   }
-  return context
-}
+  return context;
+};
 
 interface ToastProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export const ToastProvider = ({ children }: ToastProviderProps) => {
@@ -26,19 +26,19 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
     message: '',
     isError: false,
     active: false,
-  })
+  });
 
   const showToast = useCallback((message: string, isError = false) => {
-    setToast({ message, isError, active: true })
-  }, [])
+    setToast({ message, isError, active: true });
+  }, []);
 
   const hideToast = useCallback(() => {
-    setToast(prev => ({ ...prev, active: false }))
-  }, [])
+    setToast((prev) => ({ ...prev, active: false }));
+  }, []);
 
   const toastMarkup = toast.active ? (
     <Toast content={toast.message} error={toast.isError} onDismiss={hideToast} />
-  ) : null
+  ) : null;
 
   return (
     <ToastContext.Provider value={{ showToast }}>
@@ -47,5 +47,5 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
         {toastMarkup}
       </Frame>
     </ToastContext.Provider>
-  )
-}
+  );
+};

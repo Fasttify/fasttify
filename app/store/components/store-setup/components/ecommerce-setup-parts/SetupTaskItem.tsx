@@ -1,4 +1,4 @@
-import type { Task } from '@/app/store/components/store-setup/utils/StoreSetup-tasks'
+import type { Task } from '@/app/store/components/store-setup/utils/StoreSetup-tasks';
 import {
   Box,
   Button,
@@ -10,17 +10,17 @@ import {
   Link as PolarisLink,
   BlockStack,
   ButtonGroup,
-} from '@shopify/polaris'
-import { CheckIcon, ExternalIcon, ChevronDownIcon, ChevronUpIcon } from '@shopify/polaris-icons'
-import Image from 'next/image'
+} from '@shopify/polaris';
+import { CheckIcon, ExternalIcon, ChevronDownIcon, ChevronUpIcon } from '@shopify/polaris-icons';
+import Image from 'next/image';
 
 interface SetupTaskItemProps {
-  task: Task
-  storeId: string
-  isExpanded: boolean
-  isUpdating: boolean
-  onToggleExpand: () => void
-  onToggleComplete: (event: React.MouseEvent) => void
+  task: Task;
+  storeId: string;
+  isExpanded: boolean;
+  isUpdating: boolean;
+  onToggleExpand: () => void;
+  onToggleComplete: (event: React.MouseEvent) => void;
 }
 
 export function SetupTaskItem({
@@ -32,9 +32,9 @@ export function SetupTaskItem({
   onToggleComplete,
 }: SetupTaskItemProps) {
   const handleCompleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onToggleComplete(e)
-  }
+    e.stopPropagation();
+    onToggleComplete(e);
+  };
 
   const checkmarkMarkup = (
     <div
@@ -42,34 +42,26 @@ export function SetupTaskItem({
       tabIndex={0}
       className={`h-5 w-5 rounded-full ${task.completed ? 'bg-green-500 border-green-500' : 'border border-gray-300 bg-white'} flex-shrink-0 flex items-center justify-center cursor-pointer`}
       onClick={handleCompleteClick}
-      onKeyDown={e => {
+      onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onToggleComplete(e as unknown as React.MouseEvent)
+          e.preventDefault();
+          onToggleComplete(e as unknown as React.MouseEvent);
         }
       }}
-      aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
-    >
+      aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}>
       {isUpdating ? <Spinner size="small" /> : task.completed && <Icon source={CheckIcon} />}
     </div>
-  )
+  );
 
-  const primaryAction = task.actions?.primary
-  const secondaryAction = task.actions?.secondary
+  const primaryAction = task.actions?.primary;
+  const secondaryAction = task.actions?.secondary;
 
   return (
-    <Box
-      background="bg-surface"
-      borderWidth="025"
-      borderColor="border"
-      borderRadius="200"
-      shadow="200"
-    >
+    <Box background="bg-surface" borderWidth="025" borderColor="border" borderRadius="200" shadow="200">
       <button
         type="button"
         onClick={onToggleExpand}
-        style={{ width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-      >
+        style={{ width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
         <Box padding="400">
           <InlineStack gap="300" blockAlign="center" wrap={false}>
             {checkmarkMarkup}
@@ -86,8 +78,7 @@ export function SetupTaskItem({
       <Collapsible
         open={isExpanded}
         id={`task-content-${task.id}`}
-        transition={{ duration: '300ms', timingFunction: 'ease-in-out' }}
-      >
+        transition={{ duration: '300ms', timingFunction: 'ease-in-out' }}>
         <Box padding="400" paddingBlockStart="0">
           <InlineStack gap="300" blockAlign="start" wrap={false}>
             <Box width="20px" />
@@ -105,23 +96,15 @@ export function SetupTaskItem({
                   {primaryAction && (
                     <Button
                       variant="primary"
-                      url={
-                        primaryAction.getHref && storeId
-                          ? primaryAction.getHref(storeId)
-                          : primaryAction.href
-                      }
-                    >
+                      url={primaryAction.getHref && storeId ? primaryAction.getHref(storeId) : primaryAction.href}>
                       {primaryAction.text}
                     </Button>
                   )}
                   {secondaryAction && (
                     <Button
                       url={
-                        secondaryAction.getHref && storeId
-                          ? secondaryAction.getHref(storeId)
-                          : secondaryAction.href
-                      }
-                    >
+                        secondaryAction.getHref && storeId ? secondaryAction.getHref(storeId) : secondaryAction.href
+                      }>
                       {secondaryAction.text}
                     </Button>
                   )}
@@ -143,5 +126,5 @@ export function SetupTaskItem({
         </Box>
       </Collapsible>
     </Box>
-  )
+  );
 }

@@ -1,13 +1,13 @@
-import { Polar } from '@polar-sh/sdk'
-import { SubscriptionData, PaymentData } from '../types'
+import { Polar } from '@polar-sh/sdk';
+import { SubscriptionData, PaymentData } from '../types';
 
 export class PolarApiService {
-  private polar: Polar
+  private polar: Polar;
 
   constructor(accessToken: string) {
     this.polar = new Polar({
       accessToken,
-    })
+    });
   }
 
   /**
@@ -17,10 +17,10 @@ export class PolarApiService {
     try {
       const response = await this.polar.subscriptions.get({
         id: subscriptionId,
-      })
+      });
 
       if (!response) {
-        throw new Error(`Subscription not found: ${subscriptionId}`)
+        throw new Error(`Subscription not found: ${subscriptionId}`);
       }
 
       const subscription: SubscriptionData = {
@@ -35,12 +35,12 @@ export class PolarApiService {
         cancel_at_period_end: response.cancelAtPeriodEnd,
         amount: response.amount,
         product_id: response.productId || '',
-      }
+      };
 
-      return subscription
+      return subscription;
     } catch (error) {
-      console.error('Error getting subscription data:', error)
-      throw error
+      console.error('Error getting subscription data:', error);
+      throw error;
     }
   }
 
@@ -51,10 +51,10 @@ export class PolarApiService {
     try {
       const response = await this.polar.orders.get({
         id: orderId,
-      })
+      });
 
       if (!response) {
-        throw new Error(`Order not found: ${orderId}`)
+        throw new Error(`Order not found: ${orderId}`);
       }
 
       const order: PaymentData = {
@@ -65,12 +65,12 @@ export class PolarApiService {
         net_amount: response.netAmount,
         subscription_id: response.subscriptionId || undefined,
         customer_id: response.customerId || undefined,
-      }
+      };
 
-      return order
+      return order;
     } catch (error) {
-      console.error('Error getting order data:', error)
-      throw error
+      console.error('Error getting order data:', error);
+      throw error;
     }
   }
 
@@ -78,7 +78,7 @@ export class PolarApiService {
    * Verifica si un pago fue exitoso
    */
   isPaymentSuccessful(paymentData: PaymentData): boolean {
-    const successStatuses = ['completed', 'paid', 'succeeded']
-    return successStatuses.includes(paymentData.status)
+    const successStatuses = ['completed', 'paid', 'succeeded'];
+    return successStatuses.includes(paymentData.status);
   }
 }

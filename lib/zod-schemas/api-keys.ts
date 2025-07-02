@@ -1,5 +1,5 @@
 // src/lib/validation/apiKeys.ts
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const PAYMENT_GATEWAYS = {
   mercadoPago: {
@@ -30,12 +30,12 @@ export const PAYMENT_GATEWAYS = {
     publicKeyLabel: 'Llave Pública',
     privateKeyLabel: 'Firma (Signature)',
   },
-} as const
+} as const;
 
-export type PaymentGatewayType = keyof typeof PAYMENT_GATEWAYS
+export type PaymentGatewayType = keyof typeof PAYMENT_GATEWAYS;
 
 export const createApiKeySchema = (gateway: PaymentGatewayType) => {
-  const config = PAYMENT_GATEWAYS[gateway]
+  const config = PAYMENT_GATEWAYS[gateway];
 
   if (gateway === 'wompi') {
     return z.object({
@@ -52,7 +52,7 @@ export const createApiKeySchema = (gateway: PaymentGatewayType) => {
         .regex(config.privateKeyPattern, {
           message: 'La firma solo puede contener caracteres alfanuméricos, guiones y guiones bajos',
         }),
-    })
+    });
   }
 
   return z.object({
@@ -68,5 +68,5 @@ export const createApiKeySchema = (gateway: PaymentGatewayType) => {
       .regex(config.privateKeyPattern, {
         message: `La clave privada debe comenzar con '${config.privateKeyPrefix}' seguido del formato correcto`,
       }),
-  })
-}
+  });
+};

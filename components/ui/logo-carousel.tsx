@@ -1,53 +1,53 @@
-'use client'
+'use client';
 
-import React, { useCallback, useEffect, useMemo, useState, type SVGProps } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import React, { useCallback, useEffect, useMemo, useState, type SVGProps } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface Logo {
-  name: string
-  id: number
-  img: React.ComponentType<React.SVGProps<SVGSVGElement>>
+  name: string;
+  id: number;
+  img: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 interface LogoColumnProps {
-  logos: Logo[]
-  index: number
-  currentTime: number
+  logos: Logo[];
+  index: number;
+  currentTime: number;
 }
 
 const shuffleArray = <T,>(array: T[]): T[] => {
-  const shuffled = [...array]
+  const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  return shuffled
-}
+  return shuffled;
+};
 
 const distributeLogos = (allLogos: Logo[], columnCount: number): Logo[][] => {
-  const shuffled = shuffleArray(allLogos)
-  const columns: Logo[][] = Array.from({ length: columnCount }, () => [])
+  const shuffled = shuffleArray(allLogos);
+  const columns: Logo[][] = Array.from({ length: columnCount }, () => []);
 
   shuffled.forEach((logo, index) => {
-    columns[index % columnCount].push(logo)
-  })
+    columns[index % columnCount].push(logo);
+  });
 
-  const maxLength = Math.max(...columns.map(col => col.length))
-  columns.forEach(col => {
+  const maxLength = Math.max(...columns.map((col) => col.length));
+  columns.forEach((col) => {
     while (col.length < maxLength) {
-      col.push(shuffled[Math.floor(Math.random() * shuffled.length)])
+      col.push(shuffled[Math.floor(Math.random() * shuffled.length)]);
     }
-  })
+  });
 
-  return columns
-}
+  return columns;
+};
 
 const LogoColumn: React.FC<LogoColumnProps> = React.memo(({ logos, index, currentTime }) => {
-  const cycleInterval = 2000
-  const columnDelay = index * 200
-  const adjustedTime = (currentTime + columnDelay) % (cycleInterval * logos.length)
-  const currentIndex = Math.floor(adjustedTime / cycleInterval)
-  const CurrentLogo = useMemo(() => logos[currentIndex].img, [logos, currentIndex])
+  const cycleInterval = 2000;
+  const columnDelay = index * 200;
+  const adjustedTime = (currentTime + columnDelay) % (cycleInterval * logos.length);
+  const currentIndex = Math.floor(adjustedTime / cycleInterval);
+  const CurrentLogo = useMemo(() => logos[currentIndex].img, [logos, currentIndex]);
 
   return (
     <motion.div
@@ -58,8 +58,7 @@ const LogoColumn: React.FC<LogoColumnProps> = React.memo(({ logos, index, curren
         delay: index * 0.1,
         duration: 0.5,
         ease: 'easeOut',
-      }}
-    >
+      }}>
       <AnimatePresence mode="wait">
         <motion.div
           key={`${logos[currentIndex].id}-${currentIndex}`}
@@ -87,37 +86,36 @@ const LogoColumn: React.FC<LogoColumnProps> = React.memo(({ logos, index, curren
               ease: 'easeIn',
               duration: 0.3,
             },
-          }}
-        >
+          }}>
           <CurrentLogo className="h-20 w-20 max-h-[80%] max-w-[80%] object-contain md:h-32 md:w-32" />
         </motion.div>
       </AnimatePresence>
     </motion.div>
-  )
-})
+  );
+});
 
 interface LogoCarouselProps {
-  columnCount?: number
-  logos: Logo[]
+  columnCount?: number;
+  logos: Logo[];
 }
 
 export function LogoCarousel({ columnCount = 2, logos }: LogoCarouselProps) {
-  const [logoSets, setLogoSets] = useState<Logo[][]>([])
-  const [currentTime, setCurrentTime] = useState(0)
+  const [logoSets, setLogoSets] = useState<Logo[][]>([]);
+  const [currentTime, setCurrentTime] = useState(0);
 
   const updateTime = useCallback(() => {
-    setCurrentTime(prevTime => prevTime + 100)
-  }, [])
+    setCurrentTime((prevTime) => prevTime + 100);
+  }, []);
 
   useEffect(() => {
-    const intervalId = setInterval(updateTime, 100)
-    return () => clearInterval(intervalId)
-  }, [updateTime])
+    const intervalId = setInterval(updateTime, 100);
+    return () => clearInterval(intervalId);
+  }, [updateTime]);
 
   useEffect(() => {
-    const distributedLogos = distributeLogos(logos, columnCount)
-    setLogoSets(distributedLogos)
-  }, [logos, columnCount])
+    const distributedLogos = distributeLogos(logos, columnCount);
+    setLogoSets(distributedLogos);
+  }, [logos, columnCount]);
 
   return (
     <div className="flex space-x-4">
@@ -125,7 +123,7 @@ export function LogoCarousel({ columnCount = 2, logos }: LogoCarouselProps) {
         <LogoColumn key={index} logos={logos} index={index} currentTime={currentTime} />
       ))}
     </div>
-  )
+  );
 }
 
-export { LogoColumn }
+export { LogoColumn };

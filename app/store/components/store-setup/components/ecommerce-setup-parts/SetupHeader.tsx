@@ -1,4 +1,4 @@
-import { BlockStack, Text } from '@shopify/polaris'
+import { BlockStack, Text } from '@shopify/polaris';
 
 export function SetupHeader() {
   return (
@@ -7,9 +7,9 @@ export function SetupHeader() {
         ¡Pon en marcha tu tienda con Fasttify!
       </Text>
       <Text as="p" tone="subdued">
-        Usa esta guía para configurar tu tienda y empezar a vender en minutos. A medida que crezcas,
-        te daremos consejos y recomendaciones para mejorar tu negocio.
+        Usa esta guía para configurar tu tienda y empezar a vender en minutos. A medida que crezcas, te daremos consejos
+        y recomendaciones para mejorar tu negocio.
       </Text>
     </BlockStack>
-  )
+  );
 }

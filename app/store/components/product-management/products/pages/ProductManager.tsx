@@ -1,17 +1,17 @@
-import { useProducts } from '@/app/store/hooks/data/useProducts'
-import { ProductForm } from '@/app/store/components/product-management/products/components/form/ProductForm'
-import { ProductList } from '@/app/store/components/product-management/products/components/listing/ProductList'
-import { ProductsPage } from '@/app/store/components/product-management/products/pages/ProductPage'
-import { Loading } from '@shopify/polaris'
-import { useState } from 'react'
+import { useProducts } from '@/app/store/hooks/data/useProducts';
+import { ProductForm } from '@/app/store/components/product-management/products/components/form/ProductForm';
+import { ProductList } from '@/app/store/components/product-management/products/components/listing/ProductList';
+import { ProductsPage } from '@/app/store/components/product-management/products/pages/ProductPage';
+import { Loading } from '@shopify/polaris';
+import { useState } from 'react';
 
 interface ProductManagerProps {
-  storeId: string
-  productId?: string
+  storeId: string;
+  productId?: string;
 }
 
 export function ProductManager({ storeId, productId }: ProductManagerProps) {
-  const [itemsPerPage, setItemsPerPage] = useState(50)
+  const [itemsPerPage, setItemsPerPage] = useState(50);
 
   const {
     products,
@@ -25,14 +25,14 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
     deleteMultipleProducts,
     refreshProducts,
     deleteProduct,
-  } = useProducts(storeId, { limit: itemsPerPage })
+  } = useProducts(storeId, { limit: itemsPerPage });
 
   if (productId) {
-    return <ProductForm storeId={storeId} productId={productId} />
+    return <ProductForm storeId={storeId} productId={productId} />;
   }
 
   if (loading) {
-    return <Loading />
+    return <Loading />;
   }
 
   return products.length === 0 && !loading ? (
@@ -54,7 +54,7 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
       itemsPerPage={itemsPerPage}
       setItemsPerPage={setItemsPerPage}
     />
-  )
+  );
 }
 
-export default ProductManager
+export default ProductManager;

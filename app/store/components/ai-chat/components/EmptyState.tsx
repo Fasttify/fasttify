@@ -1,11 +1,11 @@
-import { EmptyStateProps } from '@/app/store/components/ai-chat/types/chat-types'
-import { SUGGESTIONS } from '@/app/store/components/ai-chat/constants/chat-constants'
-import { Text, BlockStack, Card, Icon } from '@shopify/polaris'
-import { InfoIcon, StoreIcon, CircleUpIcon } from '@shopify/polaris-icons'
-import Orb from '@/app/store/components/ai-chat/components/Orb'
+import { EmptyStateProps } from '@/app/store/components/ai-chat/types/chat-types';
+import { SUGGESTIONS } from '@/app/store/components/ai-chat/constants/chat-constants';
+import { Text, BlockStack, Card, Icon } from '@shopify/polaris';
+import { InfoIcon, StoreIcon, CircleUpIcon } from '@shopify/polaris-icons';
+import Orb from '@/app/store/components/ai-chat/components/Orb';
 
 export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
-  const suggestionIcons = [InfoIcon, StoreIcon, CircleUpIcon]
+  const suggestionIcons = [InfoIcon, StoreIcon, CircleUpIcon];
 
   return (
     <Card>
@@ -33,8 +33,7 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
             {SUGGESTIONS.map((suggestion, index) => (
               <div
                 onClick={() => onSuggestionClick(suggestion.text)}
-                className="bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 p-3 flex items-center justify-between cursor-pointer"
-              >
+                className="bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 p-3 flex items-center justify-between cursor-pointer">
                 <div className="flex items-center">
                   <Icon source={suggestionIcons[index % suggestionIcons.length]} tone="base" />
                   <span className="text-left ml-3 text-blue-500">{suggestion.text}</span>
@@ -45,5 +44,5 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
         </div>
       </BlockStack>
     </Card>
-  )
+  );
 }

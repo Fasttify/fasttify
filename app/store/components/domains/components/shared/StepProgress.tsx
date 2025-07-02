@@ -1,16 +1,16 @@
-import { LegacyStack, Text, LegacyCard, Icon, Spinner } from '@shopify/polaris'
-import { CheckCircleIcon } from '@shopify/polaris-icons'
+import { LegacyStack, Text, LegacyCard, Icon, Spinner } from '@shopify/polaris';
+import { CheckCircleIcon } from '@shopify/polaris-icons';
 
-type Step = 'input' | 'validation' | 'acm-validation' | 'cloudfront' | 'complete'
+type Step = 'input' | 'validation' | 'acm-validation' | 'cloudfront' | 'complete';
 
 interface StepProgressProps {
-  currentStep: Step
+  currentStep: Step;
 }
 
 interface StepConfig {
-  id: Step
-  label: string
-  description?: string
+  id: Step;
+  label: string;
+  description?: string;
 }
 
 const steps: StepConfig[] = [
@@ -19,26 +19,26 @@ const steps: StepConfig[] = [
   { id: 'acm-validation', label: 'Validación SSL', description: 'Configurar certificado' },
   { id: 'cloudfront', label: 'Conectar dominio', description: 'Vincular tu dominio con la tienda' },
   { id: 'complete', label: 'Completado', description: 'Dominio listo' },
-]
+];
 
 export function StepProgress({ currentStep }: StepProgressProps) {
   const getStepStatus = (step: Step) => {
-    const stepIndex = steps.findIndex(s => s.id === step)
-    const currentIndex = steps.findIndex(s => s.id === currentStep)
+    const stepIndex = steps.findIndex((s) => s.id === step);
+    const currentIndex = steps.findIndex((s) => s.id === currentStep);
 
-    if (stepIndex < currentIndex) return 'completed'
-    if (stepIndex === currentIndex) return 'active'
-    return 'pending'
-  }
+    if (stepIndex < currentIndex) return 'completed';
+    if (stepIndex === currentIndex) return 'active';
+    return 'pending';
+  };
 
   const renderStepIcon = (step: Step) => {
-    const status = getStepStatus(step)
+    const status = getStepStatus(step);
 
     if (status === 'completed') {
-      return <Icon source={CheckCircleIcon} tone="success" />
+      return <Icon source={CheckCircleIcon} tone="success" />;
     }
     if (status === 'active') {
-      return <Spinner size="small" />
+      return <Spinner size="small" />;
     }
     return (
       <div
@@ -50,8 +50,8 @@ export function StepProgress({ currentStep }: StepProgressProps) {
           border: '2px solid #c9cccf',
         }}
       />
-    )
-  }
+    );
+  };
 
   return (
     <LegacyCard sectioned>
@@ -61,8 +61,8 @@ export function StepProgress({ currentStep }: StepProgressProps) {
         </Text>
 
         <LegacyStack vertical spacing="extraTight">
-          {steps.map(step => {
-            const status = getStepStatus(step.id)
+          {steps.map((step) => {
+            const status = getStepStatus(step.id);
             return (
               <LegacyStack key={step.id} alignment="center" spacing="tight">
                 {renderStepIcon(step.id)}
@@ -70,11 +70,8 @@ export function StepProgress({ currentStep }: StepProgressProps) {
                   <Text
                     as="p"
                     variant="bodyMd"
-                    tone={
-                      status === 'completed' ? 'success' : status === 'active' ? 'base' : 'subdued'
-                    }
-                    fontWeight={status === 'active' ? 'semibold' : 'regular'}
-                  >
+                    tone={status === 'completed' ? 'success' : status === 'active' ? 'base' : 'subdued'}
+                    fontWeight={status === 'active' ? 'semibold' : 'regular'}>
                     {step.label}
                   </Text>
                   {step.description && (
@@ -84,10 +81,10 @@ export function StepProgress({ currentStep }: StepProgressProps) {
                   )}
                 </LegacyStack>
               </LegacyStack>
-            )
+            );
           })}
         </LegacyStack>
       </LegacyStack>
     </LegacyCard>
-  )
+  );
 }

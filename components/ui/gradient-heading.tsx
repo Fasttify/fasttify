@@ -1,18 +1,16 @@
-import React from 'react'
-import { Slot } from '@radix-ui/react-slot'
-import { cva, type VariantProps } from 'class-variance-authority'
+import React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils';
 
 const headingVariants = cva('tracking-tight pb-3 bg-clip-text text-transparent', {
   variants: {
     variant: {
-      default:
-        'bg-gradient-to-t from-neutral-700 to-neutral-800 dark:from-stone-200 dark:to-neutral-200',
+      default: 'bg-gradient-to-t from-neutral-700 to-neutral-800 dark:from-stone-200 dark:to-neutral-200',
       pink: 'bg-gradient-to-t from-accent to-accent/90 dark:from-stone-200 dark:to-neutral-200',
       light: 'bg-gradient-to-t from-neutral-200 to-neutral-300',
-      secondary:
-        'bg-gradient-to-t from-neutral-500 to-neutral-600 dark:from-stone-200 dark:to-neutral-200',
+      secondary: 'bg-gradient-to-t from-neutral-500 to-neutral-600 dark:from-stone-200 dark:to-neutral-200',
       black: 'bg-gradient-to-t from-black to-neutral-900',
       gray: 'bg-gradient-to-t from-gray-600 to-gray-500',
     },
@@ -43,30 +41,30 @@ const headingVariants = cva('tracking-tight pb-3 bg-clip-text text-transparent',
     size: 'default',
     weight: 'default',
   },
-})
+});
 
 export interface HeadingProps extends VariantProps<typeof headingVariants> {
-  asChild?: boolean
-  children: React.ReactNode
-  className?: string
+  asChild?: boolean;
+  children: React.ReactNode;
+  className?: string;
 }
 
 const GradientHeading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
   ({ asChild, variant, weight, size, className, children, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'h3' // default to 'h3' if not a child
+    const Comp = asChild ? Slot : 'h3'; // default to 'h3' if not a child
     return (
       <Comp ref={ref} {...props} className={className}>
         <span className={cn(headingVariants({ variant, size, weight }))}>{children}</span>
       </Comp>
-    )
+    );
   }
-)
+);
 
-GradientHeading.displayName = 'GradientHeading'
+GradientHeading.displayName = 'GradientHeading';
 
 // Manually define the variant types
-export type Variant = 'default' | 'pink' | 'light' | 'secondary' | 'black' | 'gray'
-export type Size = 'default' | 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl'
-export type Weight = 'default' | 'thin' | 'base' | 'semi' | 'bold' | 'black' | 'medium'
+export type Variant = 'default' | 'pink' | 'light' | 'secondary' | 'black' | 'gray';
+export type Size = 'default' | 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
+export type Weight = 'default' | 'thin' | 'base' | 'semi' | 'bold' | 'black' | 'medium';
 
-export { GradientHeading, headingVariants }
+export { GradientHeading, headingVariants };

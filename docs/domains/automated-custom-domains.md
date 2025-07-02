@@ -103,12 +103,12 @@ Wizard completamente automatizado con 5 pasos:
 
 ```typescript
 {
-  hasCustomDomain: boolean
-  domain: string | null
-  status: 'pending' | 'active' | 'failed' | null
-  verifiedAt: string | null
-  cloudFrontTenantId: string | null
-  cloudFrontStatus: TenantStatus | null
+  hasCustomDomain: boolean;
+  domain: string | null;
+  status: 'pending' | 'active' | 'failed' | null;
+  verifiedAt: string | null;
+  cloudFrontTenantId: string | null;
+  cloudFrontStatus: TenantStatus | null;
 }
 ```
 
@@ -117,21 +117,21 @@ Wizard completamente automatizado con 5 pasos:
 ```typescript
 // Request
 {
-  customDomain: string
+  customDomain: string;
 }
 
 // Response
 {
-  success: boolean
-  domain: string
-  status: string
-  tenantId: string
-  endpoint: string
+  success: boolean;
+  domain: string;
+  status: string;
+  tenantId: string;
+  endpoint: string;
   verificationInfo: {
-    type: 'CNAME'
-    name: string
-    value: string
-    instructions: string
+    type: 'CNAME';
+    name: string;
+    value: string;
+    instructions: string;
   }
 }
 ```
@@ -140,11 +140,11 @@ Wizard completamente automatizado con 5 pasos:
 
 ```typescript
 {
-  status: 'pending' | 'active' | 'failed'
-  verifiedAt: string | null
-  tenantStatus: TenantStatus
-  dnsStatus: DNSStatus
-  isActive: boolean
+  status: 'pending' | 'active' | 'failed';
+  verifiedAt: string | null;
+  tenantStatus: TenantStatus;
+  dnsStatus: DNSStatus;
+  isActive: boolean;
 }
 ```
 
@@ -152,8 +152,8 @@ Wizard completamente automatizado con 5 pasos:
 
 ```typescript
 {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
 }
 ```
 
@@ -176,13 +176,13 @@ Función para verificación individual o masiva de dominios:
 ```typescript
 // Verificar dominio específico
 {
-  action: 'verify-domain'
-  storeId: string
+  action: 'verify-domain';
+  storeId: string;
 }
 
 // Verificar todos los dominios pendientes
 {
-  action: 'verify-all'
+  action: 'verify-all';
 }
 ```
 

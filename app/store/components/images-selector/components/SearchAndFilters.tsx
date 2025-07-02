@@ -1,9 +1,9 @@
-import { TextField, InlineStack } from '@shopify/polaris'
-import { SearchIcon } from '@shopify/polaris-icons'
+import { TextField, InlineStack } from '@shopify/polaris';
+import { SearchIcon } from '@shopify/polaris-icons';
 
 interface SearchAndFiltersProps {
-  searchTerm: string
-  onSearchChange: (value: string) => void
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
 }
 
 export default function SearchAndFilters({ searchTerm, onSearchChange }: SearchAndFiltersProps) {
@@ -21,5 +21,5 @@ export default function SearchAndFilters({ searchTerm, onSearchChange }: SearchA
         />
       </div>
     </InlineStack>
-  )
+  );
 }

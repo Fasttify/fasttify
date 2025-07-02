@@ -1,15 +1,15 @@
-import { UseFormReturn } from 'react-hook-form'
-import { ProductFormValues } from '@/lib/zod-schemas/product-schema'
-import { BlockStack, Text, ChoiceList } from '@shopify/polaris'
-import { useState } from 'react'
+import { UseFormReturn } from 'react-hook-form';
+import { ProductFormValues } from '@/lib/zod-schemas/product-schema';
+import { BlockStack, Text, ChoiceList } from '@shopify/polaris';
+import { useState } from 'react';
 
 interface PublicationSectionProps {
-  form: UseFormReturn<ProductFormValues>
+  form: UseFormReturn<ProductFormValues>;
 }
 
 export function PublicationSection({ form }: PublicationSectionProps) {
-  const [salesChannel, setSalesChannel] = useState(['online-store'])
-  const [markets, setMarkets] = useState(['colombia-international'])
+  const [salesChannel, setSalesChannel] = useState(['online-store']);
+  const [markets, setMarkets] = useState(['colombia-international']);
 
   return (
     <BlockStack gap="400">
@@ -53,5 +53,5 @@ export function PublicationSection({ form }: PublicationSectionProps) {
         />
       </div>
     </BlockStack>
-  )
+  );
 }

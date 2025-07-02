@@ -1,4 +1,4 @@
-import * as z from 'zod'
+import * as z from 'zod';
 
 export const storeProfileSchema = z.object({
   storeName: z
@@ -21,11 +21,11 @@ export const storeProfileSchema = z.object({
     .string()
     .email({ message: 'Correo electrónico inválido' })
     .max(100, { message: 'Máximo 100 caracteres' })
-    .refine(email => !email || email.endsWith('.co') || email.endsWith('.com'), {
+    .refine((email) => !email || email.endsWith('.co') || email.endsWith('.com'), {
       message: 'Dominio de correo no válido (.com o .co)',
     })
     .optional()
     .or(z.literal('')),
-})
+});
 
-export type StoreProfileFormValues = z.infer<typeof storeProfileSchema>
+export type StoreProfileFormValues = z.infer<typeof storeProfileSchema>;

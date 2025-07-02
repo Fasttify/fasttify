@@ -1,22 +1,22 @@
-import { NextRequest } from 'next/server'
-import { templateDevSynchronizer } from '@/renderer-engine/services/templates/template-dev-synchronizer'
-import { logger } from '@/renderer-engine/lib/logger'
+import { NextRequest } from 'next/server';
+import { templateDevSynchronizer } from '@/renderer-engine/services/templates/template-dev-synchronizer';
+import { logger } from '@/renderer-engine/lib/logger';
 
 // Almacén de conexiones SSE activas
-const activeConnections = new Set<ReadableStreamDefaultController>()
+const activeConnections = new Set<ReadableStreamDefaultController>();
 
 /**
  * Endpoint SSE (Server-Sent Events) para notificaciones en tiempo real
  */
 export async function GET(request: NextRequest) {
   // Configurar cabeceras para SSE
-  const encoder = new TextEncoder()
+  const encoder = new TextEncoder();
 
   // Crear un stream para SSE
   const stream = new ReadableStream({
     start(controller) {
       // Registrar esta conexión
-      activeConnections.add(controller)
+      activeConnections.add(controller);
 
       // Configurar el callback para notificar cuando hay cambios
       if (activeConnections.size === 1) {
@@ -26,42 +26,38 @@ export async function GET(request: NextRequest) {
           const message = JSON.stringify({
             type: 'reload',
             timestamp: Date.now(),
-          })
+          });
 
-          activeConnections.forEach(controller => {
+          activeConnections.forEach((controller) => {
             try {
-              controller.enqueue(encoder.encode(`data: ${message}\n\n`))
+              controller.enqueue(encoder.encode(`data: ${message}\n\n`));
             } catch (error) {
-              logger.error('Error sending SSE message', error, 'SSE')
+              logger.error('Error sending SSE message', error, 'SSE');
             }
-          })
-        })
+          });
+        });
       }
 
       // Enviar un mensaje inicial de conexión
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'connected' })}\n\n`))
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'connected' })}\n\n`));
 
       // Enviar un ping cada 30 segundos para mantener la conexión viva
       const pingInterval = setInterval(() => {
         try {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'ping' })}\n\n`))
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'ping' })}\n\n`));
         } catch (error) {
-          clearInterval(pingInterval)
+          clearInterval(pingInterval);
         }
-      }, 30000)
+      }, 30000);
 
       // Limpiar cuando la conexión se cierra
       request.signal.addEventListener('abort', () => {
-        activeConnections.delete(controller)
-        clearInterval(pingInterval)
-        logger.debug(
-          `[SSE] Client disconnected, remaining: ${activeConnections.size}`,
-          undefined,
-          'SSE'
-        )
-      })
+        activeConnections.delete(controller);
+        clearInterval(pingInterval);
+        logger.debug(`[SSE] Client disconnected, remaining: ${activeConnections.size}`, undefined, 'SSE');
+      });
     },
-  })
+  });
 
   // Devolver la respuesta SSE
   return new Response(stream, {
@@ -71,5 +67,5 @@ export async function GET(request: NextRequest) {
       Connection: 'keep-alive',
       'X-Accel-Buffering': 'no',
     },
-  })
+  });
 }

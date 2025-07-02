@@ -9,22 +9,22 @@ import {
   Box,
   ButtonGroup,
   InlineStack,
-} from '@shopify/polaris'
-import { DeleteIcon, SelectIcon } from '@shopify/polaris-icons'
-import { S3Image } from '@/app/store/hooks/storage/useS3Images'
-import { useState, useCallback } from 'react'
-import { useToast } from '@/app/store/context/ToastContext'
+} from '@shopify/polaris';
+import { DeleteIcon, SelectIcon } from '@shopify/polaris-icons';
+import { S3Image } from '@/app/store/hooks/storage/useS3Images';
+import { useState, useCallback } from 'react';
+import { useToast } from '@/app/store/context/ToastContext';
 
 interface ImageGalleryProps {
-  images: S3Image[]
-  selectedImage: string | string[] | null
-  allowMultipleSelection: boolean
-  loading: boolean
-  error: Error | null
-  searchTerm: string
-  onImageSelect: (image: S3Image) => void
-  onDeleteImage: (key: string) => Promise<void>
-  onDeleteMultiple?: (keys: string[]) => Promise<void>
+  images: S3Image[];
+  selectedImage: string | string[] | null;
+  allowMultipleSelection: boolean;
+  loading: boolean;
+  error: Error | null;
+  searchTerm: string;
+  onImageSelect: (image: S3Image) => void;
+  onDeleteImage: (key: string) => Promise<void>;
+  onDeleteMultiple?: (keys: string[]) => Promise<void>;
 }
 
 export default function ImageGallery({
@@ -38,120 +38,110 @@ export default function ImageGallery({
   onDeleteImage,
   onDeleteMultiple,
 }: ImageGalleryProps) {
-  const [deleteMode, setDeleteMode] = useState(false)
-  const [imagesToDelete, setImagesToDelete] = useState<Set<string>>(new Set())
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteMode, setDeleteMode] = useState(false);
+  const [imagesToDelete, setImagesToDelete] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const { showToast } = useToast()
+  const { showToast } = useToast();
 
   const isSelected = useCallback(
     (image: S3Image) => {
       if (allowMultipleSelection && Array.isArray(selectedImage)) {
-        return selectedImage.includes(image.key)
+        return selectedImage.includes(image.key);
       }
-      return selectedImage === image.key
+      return selectedImage === image.key;
     },
     [allowMultipleSelection, selectedImage]
-  )
+  );
 
-  const isMarkedForDeletion = useCallback(
-    (key: string) => imagesToDelete.has(key),
-    [imagesToDelete]
-  )
+  const isMarkedForDeletion = useCallback((key: string) => imagesToDelete.has(key), [imagesToDelete]);
 
   const toggleDeleteSelection = useCallback(
     (key: string) => {
-      setImagesToDelete(prev => {
-        const newSet = new Set(prev)
+      setImagesToDelete((prev) => {
+        const newSet = new Set(prev);
         if (newSet.has(key)) {
-          newSet.delete(key)
+          newSet.delete(key);
         } else {
           if (newSet.size >= 25) {
-            showToast('Solo puedes seleccionar hasta 25 imágenes para eliminar a la vez', true)
-            return prev
+            showToast('Solo puedes seleccionar hasta 25 imágenes para eliminar a la vez', true);
+            return prev;
           }
-          newSet.add(key)
+          newSet.add(key);
         }
-        return newSet
-      })
+        return newSet;
+      });
     },
     [showToast]
-  )
+  );
 
   const handleDeleteMultiple = useCallback(async () => {
-    if (imagesToDelete.size === 0 || !onDeleteMultiple) return
+    if (imagesToDelete.size === 0 || !onDeleteMultiple) return;
 
     if (imagesToDelete.size > 25) {
-      showToast('Solo puedes eliminar hasta 25 imágenes a la vez', true)
-      return
+      showToast('Solo puedes eliminar hasta 25 imágenes a la vez', true);
+      return;
     }
 
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
-      await onDeleteMultiple(Array.from(imagesToDelete))
-      showToast(`${imagesToDelete.size} imagen(es) eliminada(s) correctamente`, false)
-      setImagesToDelete(new Set())
-      setDeleteMode(false)
+      await onDeleteMultiple(Array.from(imagesToDelete));
+      showToast(`${imagesToDelete.size} imagen(es) eliminada(s) correctamente`, false);
+      setImagesToDelete(new Set());
+      setDeleteMode(false);
     } catch (error) {
-      console.error('Error deleting multiple images:', error)
-      showToast('Error al eliminar las imágenes seleccionadas', true)
+      console.error('Error deleting multiple images:', error);
+      showToast('Error al eliminar las imágenes seleccionadas', true);
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }, [imagesToDelete, onDeleteMultiple, showToast])
+  }, [imagesToDelete, onDeleteMultiple, showToast]);
 
   const cancelDeleteMode = useCallback(() => {
-    setDeleteMode(false)
-    setImagesToDelete(new Set())
-  }, [])
+    setDeleteMode(false);
+    setImagesToDelete(new Set());
+  }, []);
 
   const selectAllForDeletion = useCallback(() => {
-    const availableImages = images.slice(0, 25)
+    const availableImages = images.slice(0, 25);
     if (images.length > 25) {
-      showToast(
-        'Solo se pueden seleccionar las primeras 25 imágenes para eliminación múltiple',
-        true
-      )
+      showToast('Solo se pueden seleccionar las primeras 25 imágenes para eliminación múltiple', true);
     }
-    setImagesToDelete(new Set(availableImages.map(img => img.key)))
-  }, [images, showToast])
+    setImagesToDelete(new Set(availableImages.map((img) => img.key)));
+  }, [images, showToast]);
 
   const deselectAllForDeletion = useCallback(() => {
-    setImagesToDelete(new Set())
-  }, [])
+    setImagesToDelete(new Set());
+  }, []);
 
   if (loading) {
     return (
       <Box padding="400" minHeight="200px">
         <Spinner accessibilityLabel="Cargando imágenes" size="large" />
       </Box>
-    )
+    );
   }
 
   if (error) {
     return (
       <EmptyState
         heading="Error al cargar las imágenes"
-        image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-      >
+        image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
         <p>Hubo un problema al recuperar tus imágenes. Por favor, intenta de nuevo.</p>
       </EmptyState>
-    )
+    );
   }
 
   if (images.length === 0) {
     return (
       <EmptyState
         heading={searchTerm ? 'No se encontraron imágenes' : 'No tienes imágenes'}
-        image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-      >
+        image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
         <p>
-          {searchTerm
-            ? 'Prueba con un término de búsqueda diferente.'
-            : 'Arrastra y suelta archivos para subirlos.'}
+          {searchTerm ? 'Prueba con un término de búsqueda diferente.' : 'Arrastra y suelta archivos para subirlos.'}
         </p>
       </EmptyState>
-    )
+    );
   }
 
   return (
@@ -197,8 +187,7 @@ export default function ImageGallery({
                   tone="critical"
                   onClick={handleDeleteMultiple}
                   disabled={imagesToDelete.size === 0 || isDeleting}
-                  loading={isDeleting}
-                >
+                  loading={isDeleting}>
                   Eliminar {imagesToDelete.size > 0 ? `(${imagesToDelete.size})` : ''}
                 </Button>
               </ButtonGroup>
@@ -208,14 +197,14 @@ export default function ImageGallery({
       )}
 
       <Grid>
-        {images.map(image => (
+        {images.map((image) => (
           <Grid.Cell key={image.key} columnSpan={{ xs: 2, sm: 2, md: 2, lg: 4, xl: 4 }}>
             <div
               onClick={() => {
                 if (deleteMode) {
-                  toggleDeleteSelection(image.key)
+                  toggleDeleteSelection(image.key);
                 } else {
-                  onImageSelect(image)
+                  onImageSelect(image);
                 }
               }}
               style={{
@@ -230,8 +219,7 @@ export default function ImageGallery({
                 outlineOffset: '2px',
                 borderRadius: 'var(--p-border-radius-200)',
                 opacity: deleteMode && isMarkedForDeletion(image.key) ? 0.7 : 1,
-              }}
-            >
+              }}>
               <Card padding="0">
                 <Box position="relative" borderRadius="200">
                   {/* Indicador de selección para eliminación */}
@@ -242,13 +230,10 @@ export default function ImageGallery({
                         top: '8px',
                         left: '8px',
                         zIndex: 2,
-                        backgroundColor: isMarkedForDeletion(image.key)
-                          ? '#d72c0d'
-                          : 'rgba(255,255,255,0.9)',
+                        backgroundColor: isMarkedForDeletion(image.key) ? '#d72c0d' : 'rgba(255,255,255,0.9)',
                         borderRadius: '50%',
                         padding: '4px',
-                      }}
-                    >
+                      }}>
                       <SelectIcon />
                     </div>
                   )}
@@ -257,8 +242,7 @@ export default function ImageGallery({
                   {!deleteMode && (
                     <div
                       style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1 }}
-                      onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                    >
+                      onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                       <Button
                         icon={DeleteIcon}
                         size="slim"
@@ -283,5 +267,5 @@ export default function ImageGallery({
         ))}
       </Grid>
     </Box>
-  )
+  );
 }

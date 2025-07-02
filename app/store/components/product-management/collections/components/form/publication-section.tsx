@@ -1,19 +1,19 @@
-import { Card, ChoiceList, BlockStack, Text, Box } from '@shopify/polaris'
-import { useState } from 'react'
+import { Card, ChoiceList, BlockStack, Text, Box } from '@shopify/polaris';
+import { useState } from 'react';
 
 export function PublicationSection({
   isActive,
   onActiveChange,
 }: {
-  isActive?: boolean
-  onActiveChange: (isActive: boolean) => void
+  isActive?: boolean;
+  onActiveChange: (isActive: boolean) => void;
 }) {
-  const [selected, setSelected] = useState([isActive ? 'active' : 'inactive'])
+  const [selected, setSelected] = useState([isActive ? 'active' : 'inactive']);
 
   const handleChange = (value: string[]) => {
-    setSelected(value)
-    onActiveChange(value[0] === 'active')
-  }
+    setSelected(value);
+    onActiveChange(value[0] === 'active');
+  };
 
   return (
     <Card>
@@ -47,5 +47,5 @@ export function PublicationSection({
         )}
       </BlockStack>
     </Card>
-  )
+  );
 }

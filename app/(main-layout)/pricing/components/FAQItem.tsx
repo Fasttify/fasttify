@@ -1,6 +1,6 @@
 interface FAQItem {
-  question: string
-  answer: string
+  question: string;
+  answer: string;
 }
 
 export const faqItems: FAQItem[] = [
@@ -39,4 +39,4 @@ export const faqItems: FAQItem[] = [
     answer:
       'Puedes cambiar el correo electrónico de tu cuenta desde la página de configuración de tu cuenta. Se enviará una confirmación a tu nueva dirección de correo electrónico.',
   },
-]
+];

@@ -1,34 +1,23 @@
-import { Filters, ChoiceList, Tabs } from '@shopify/polaris'
-import { useState, useCallback } from 'react'
-import React from 'react'
+import { Filters, ChoiceList, Tabs } from '@shopify/polaris';
+import { useState, useCallback } from 'react';
+import React from 'react';
 
 interface PageFiltersProps {
-  searchQuery: string
-  setSearchQuery: (query: string) => void
-  activeTab: string
-  setActiveTab: (tab: string) => void
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-export function PageFilters({
-  searchQuery,
-  setSearchQuery,
-  activeTab,
-  setActiveTab,
-}: PageFiltersProps) {
-  const [visibility, setVisibility] = useState<string[]>()
+export function PageFilters({ searchQuery, setSearchQuery, activeTab, setActiveTab }: PageFiltersProps) {
+  const [visibility, setVisibility] = useState<string[]>();
 
-  const handleVisibilityChange = useCallback(
-    (value: string[]) => setVisibility(value),
-    []
-  )
-  const handleSearchQueryChange = useCallback(
-    (value: string) => setSearchQuery(value),
-    [setSearchQuery]
-  )
+  const handleVisibilityChange = useCallback((value: string[]) => setVisibility(value), []);
+  const handleSearchQueryChange = useCallback((value: string) => setSearchQuery(value), [setSearchQuery]);
   const handleClearAll = useCallback(() => {
-    setVisibility(undefined)
-    setSearchQuery('')
-  }, [setSearchQuery])
+    setVisibility(undefined);
+    setSearchQuery('');
+  }, [setSearchQuery]);
 
   const filters = [
     {
@@ -49,32 +38,28 @@ export function PageFilters({
       ),
       shortcut: true,
     },
-  ]
+  ];
 
-  const appliedFilters = []
+  const appliedFilters = [];
   if (visibility && visibility.length > 0) {
-    const key = 'visibility'
+    const key = 'visibility';
     appliedFilters.push({
       key,
       label: `Visibilidad: ${visibility.join(', ')}`,
       onRemove: () => setVisibility(undefined),
-    })
+    });
   }
 
   const TABS = [
     { id: 'all', content: 'Todas' },
     { id: 'published', content: 'Publicadas' },
     { id: 'draft', content: 'Borrador' },
-  ]
-  const selectedTabIndex = TABS.findIndex(tab => tab.id === activeTab)
+  ];
+  const selectedTabIndex = TABS.findIndex((tab) => tab.id === activeTab);
 
   return (
     <React.Fragment>
-      <Tabs
-        tabs={TABS}
-        selected={selectedTabIndex}
-        onSelect={(index: number) => setActiveTab(TABS[index].id)}
-      />
+      <Tabs tabs={TABS} selected={selectedTabIndex} onSelect={(index: number) => setActiveTab(TABS[index].id)} />
       <div style={{ padding: '16px' }}>
         <Filters
           queryValue={searchQuery}
@@ -87,5 +72,5 @@ export function PageFilters({
         />
       </div>
     </React.Fragment>
-  )
+  );
 }

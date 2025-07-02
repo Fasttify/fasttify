@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import {
   Page,
   Layout,
@@ -12,7 +12,7 @@ import {
   LegacyStack,
   TextField,
   Loading,
-} from '@shopify/polaris'
+} from '@shopify/polaris';
 import {
   SearchIcon,
   GlobeIcon,
@@ -20,52 +20,52 @@ import {
   MarketsIcon,
   DomainLandingPageIcon,
   ClipboardIcon,
-} from '@shopify/polaris-icons'
+} from '@shopify/polaris-icons';
 
-import { ChangeDomainDialog } from '@/app/store/components/domains/components/ChangeDomainDialog'
-import { EditStoreProfileDialog } from '@/app/store/components/domains/components/EditStoreProfileDialog'
-import { AutomatedCustomDomainDialog } from '@/app/store/components/domains/components/AutomatedCustomDomainDialog'
-import { useCustomDomain } from '@/app/store/hooks/api/useCustomDomain'
-import useStoreDataStore from '@/context/core/storeDataStore'
+import { ChangeDomainDialog } from '@/app/store/components/domains/components/ChangeDomainDialog';
+import { EditStoreProfileDialog } from '@/app/store/components/domains/components/EditStoreProfileDialog';
+import { AutomatedCustomDomainDialog } from '@/app/store/components/domains/components/AutomatedCustomDomainDialog';
+import { useCustomDomain } from '@/app/store/hooks/api/useCustomDomain';
+import useStoreDataStore from '@/context/core/storeDataStore';
 
 export function DomainManagement() {
-  const { currentStore, isLoading } = useStoreDataStore()
-  const [openChangeDomainDialog, setOpenChangeDomainDialog] = useState(false)
-  const [openEditProfileDialog, setOpenEditProfileDialog] = useState(false)
-  const [openCustomDomainDialog, setOpenCustomDomainDialog] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
+  const { currentStore, isLoading } = useStoreDataStore();
+  const [openChangeDomainDialog, setOpenChangeDomainDialog] = useState(false);
+  const [openEditProfileDialog, setOpenEditProfileDialog] = useState(false);
+  const [openCustomDomainDialog, setOpenCustomDomainDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const {
     status: customDomainStatus,
     getCustomDomainStatus,
     verifyCustomDomainStatus,
-  } = useCustomDomain(currentStore?.storeId ?? '')
+  } = useCustomDomain(currentStore?.storeId ?? '');
 
   // Cargar estado del dominio personalizado al inicio
-  const [customDomainLoaded, setCustomDomainLoaded] = useState(false)
-  const [isVerifying, setIsVerifying] = useState(false)
+  const [customDomainLoaded, setCustomDomainLoaded] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
     if (currentStore?.storeId && !customDomainLoaded) {
-      getCustomDomainStatus()
-      setCustomDomainLoaded(true)
+      getCustomDomainStatus();
+      setCustomDomainLoaded(true);
     }
-  }, [currentStore?.storeId, customDomainLoaded, getCustomDomainStatus])
+  }, [currentStore?.storeId, customDomainLoaded, getCustomDomainStatus]);
 
   const handleVerifyDomainStatus = async () => {
-    setIsVerifying(true)
+    setIsVerifying(true);
     try {
-      await verifyCustomDomainStatus()
-      await getCustomDomainStatus()
+      await verifyCustomDomainStatus();
+      await getCustomDomainStatus();
     } catch (error) {
-      console.error('Error verifying domain status:', error)
+      console.error('Error verifying domain status:', error);
     } finally {
-      setIsVerifying(false)
+      setIsVerifying(false);
     }
-  }
+  };
 
   if (isLoading) {
-    return <Loading />
+    return <Loading />;
   }
   return (
     <Page title="Configuración de Tienda" fullWidth>
@@ -79,11 +79,10 @@ export function DomainManagement() {
                     Configura tu dominio personalizado
                   </Text>
                   <Text as="p" tone="subdued" breakWord>
-                    Vincula un dominio propio o adquiere uno nuevo para darle mayor
-                    identidad y profesionalismo a tu tienda.
+                    Vincula un dominio propio o adquiere uno nuevo para darle mayor identidad y profesionalismo a tu
+                    tienda.
                     <br />
-                    Puedes adquirir uno en cualquier proveedor, o conectar tu dominio
-                    existente.
+                    Puedes adquirir uno en cualquier proveedor, o conectar tu dominio existente.
                   </Text>
                 </LegacyStack.Item>
                 <Box>
@@ -97,16 +96,10 @@ export function DomainManagement() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       position: 'relative',
-                    }}
-                  >
+                    }}>
                     <DomainLandingPageIcon width={48} height={48} />
                     <div style={{ position: 'absolute' }}>
-                      <Text
-                        variant="headingXl"
-                        as="span"
-                        fontWeight="semibold"
-                        tone="base"
-                      >
+                      <Text variant="headingXl" as="span" fontWeight="semibold" tone="base">
                         www
                       </Text>
                     </div>
@@ -117,9 +110,7 @@ export function DomainManagement() {
             <LegacyCard.Section>
               <ButtonGroup>
                 <Button variant="primary">Comprar dominio</Button>
-                <Button onClick={() => setOpenCustomDomainDialog(true)}>
-                  Conectar dominio existente
-                </Button>
+                <Button onClick={() => setOpenCustomDomainDialog(true)}>Conectar dominio existente</Button>
               </ButtonGroup>
             </LegacyCard.Section>
           </LegacyCard>
@@ -189,8 +180,7 @@ export function DomainManagement() {
                             ? 'warning'
                             : 'critical'
                       }
-                      size="small"
-                    >
+                      size="small">
                       {customDomainStatus.status === 'active'
                         ? 'Activo'
                         : customDomainStatus.status === 'pending'
@@ -209,14 +199,13 @@ export function DomainManagement() {
 
                         {customDomainStatus.status === 'failed' && (
                           <Text as="p" tone="critical">
-                            Error en la configuración del dominio. Verifica que el DNS
-                            esté configurado correctamente y vuelve a intentar.
+                            Error en la configuración del dominio. Verifica que el DNS esté configurado correctamente y
+                            vuelve a intentar.
                           </Text>
                         )}
 
                         {/* Mostrar instrucciones DNS tanto en pending como en failed */}
-                        {(customDomainStatus.status === 'pending' ||
-                          customDomainStatus.status === 'failed') &&
+                        {(customDomainStatus.status === 'pending' || customDomainStatus.status === 'failed') &&
                           customDomainStatus.cloudFrontStatus?.dnsInstructions && (
                             <LegacyCard sectioned>
                               <LegacyStack vertical spacing="tight">
@@ -230,10 +219,7 @@ export function DomainManagement() {
                                     </Text>
                                   </Box>
                                   <Text as="p" variant="bodyMd">
-                                    {
-                                      customDomainStatus.cloudFrontStatus.dnsInstructions
-                                        .type
-                                    }
+                                    {customDomainStatus.cloudFrontStatus.dnsInstructions.type}
                                   </Text>
                                 </LegacyStack>
                                 <LegacyStack>
@@ -244,18 +230,14 @@ export function DomainManagement() {
                                   </Box>
                                   <LegacyStack alignment="center">
                                     <Text as="p" variant="bodyMd">
-                                      {
-                                        customDomainStatus.cloudFrontStatus
-                                          .dnsInstructions.name
-                                      }
+                                      {customDomainStatus.cloudFrontStatus.dnsInstructions.name}
                                     </Text>
                                     <Button
                                       size="micro"
                                       icon={ClipboardIcon}
                                       onClick={() =>
                                         navigator.clipboard.writeText(
-                                          customDomainStatus.cloudFrontStatus
-                                            ?.dnsInstructions?.name ?? ''
+                                          customDomainStatus.cloudFrontStatus?.dnsInstructions?.name ?? ''
                                         )
                                       }
                                     />
@@ -269,37 +251,27 @@ export function DomainManagement() {
                                   </Box>
                                   <LegacyStack alignment="center">
                                     <Text as="p" variant="bodyMd">
-                                      {
-                                        customDomainStatus.cloudFrontStatus
-                                          .dnsInstructions.value
-                                      }
+                                      {customDomainStatus.cloudFrontStatus.dnsInstructions.value}
                                     </Text>
                                     <Button
                                       size="micro"
                                       icon={ClipboardIcon}
                                       onClick={() =>
                                         navigator.clipboard.writeText(
-                                          customDomainStatus.cloudFrontStatus
-                                            ?.dnsInstructions?.value ?? ''
+                                          customDomainStatus.cloudFrontStatus?.dnsInstructions?.value ?? ''
                                         )
                                       }
                                     />
                                   </LegacyStack>
                                 </LegacyStack>
                                 <Text as="p" variant="bodySm" tone="subdued">
-                                  Los cambios DNS pueden tardar hasta 48 horas en
-                                  propagarse.
+                                  Los cambios DNS pueden tardar hasta 48 horas en propagarse.
                                 </Text>
                               </LegacyStack>
                             </LegacyCard>
                           )}
 
-                        <Button
-                          variant="primary"
-                          size="slim"
-                          onClick={handleVerifyDomainStatus}
-                          loading={isVerifying}
-                        >
+                        <Button variant="primary" size="slim" onClick={handleVerifyDomainStatus} loading={isVerifying}>
                           {isVerifying ? 'Verificando...' : 'Verificar Estado'}
                         </Button>
                       </LegacyStack>
@@ -316,9 +288,7 @@ export function DomainManagement() {
                   <LegacyStack vertical spacing="none">
                     <Text as="p">{currentStore?.customDomain}</Text>
                     <Text as="p" tone="subdued">
-                      {customDomainStatus?.hasCustomDomain
-                        ? 'Dominio de respaldo'
-                        : 'Dominio predeterminado'}
+                      {customDomainStatus?.hasCustomDomain ? 'Dominio de respaldo' : 'Dominio predeterminado'}
                     </Text>
                   </LegacyStack>
                 </LegacyStack>
@@ -358,9 +328,9 @@ export function DomainManagement() {
         onOpenChange={setOpenCustomDomainDialog}
         storeId={currentStore?.storeId ?? ''}
         onDomainUpdated={() => {
-          getCustomDomainStatus()
+          getCustomDomainStatus();
         }}
       />
     </Page>
-  )
+  );
 }

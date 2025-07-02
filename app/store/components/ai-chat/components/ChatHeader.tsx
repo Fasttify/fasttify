@@ -1,5 +1,5 @@
-import { Text, InlineStack, Icon } from '@shopify/polaris'
-import { MagicIcon } from '@shopify/polaris-icons'
+import { Text, InlineStack, Icon } from '@shopify/polaris';
+import { MagicIcon } from '@shopify/polaris-icons';
 
 export function ChatHeader() {
   return (
@@ -11,5 +11,5 @@ export function ChatHeader() {
         </Text>
       </InlineStack>
     </InlineStack>
-  )
+  );
 }

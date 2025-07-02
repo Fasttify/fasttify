@@ -1,12 +1,12 @@
-import { useParams } from 'next/navigation'
-import { routes } from '@/utils/routes'
-import { LegacyCard, Text, Button } from '@shopify/polaris'
-import { ProductIcon } from '@shopify/polaris-icons'
-import Image from 'next/image'
+import { useParams } from 'next/navigation';
+import { routes } from '@/utils/routes';
+import { LegacyCard, Text, Button } from '@shopify/polaris';
+import { ProductIcon } from '@shopify/polaris-icons';
+import Image from 'next/image';
 
 export function ProductsPage() {
-  const params = useParams()
-  const storeId = params.slug as string
+  const params = useParams();
+  const storeId = params.slug as string;
 
   return (
     <div className="bg-gray-100 mt-8">
@@ -41,9 +41,9 @@ export function ProductsPage() {
 
           <div className="mt-4 mb-6">
             <Text as="p" tone="subdued">
-              Comienza abasteciendo tu tienda con productos que tus clientes amarán. Haz que los
-              productos de dropshipping o print on demand se envíen directamente del proveedor a tu
-              cliente, y paga solo por lo que vendas.
+              Comienza abasteciendo tu tienda con productos que tus clientes amarán. Haz que los productos de
+              dropshipping o print on demand se envíen directamente del proveedor a tu cliente, y paga solo por lo que
+              vendas.
             </Text>
           </div>
 
@@ -56,5 +56,5 @@ export function ProductsPage() {
         </div>
       </LegacyCard>
     </div>
-  )
+  );
 }

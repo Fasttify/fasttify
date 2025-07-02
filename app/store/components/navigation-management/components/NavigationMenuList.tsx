@@ -1,31 +1,21 @@
-'use client'
+'use client';
 
-import {
-  Card,
-  DataTable,
-  Badge,
-  Button,
-  ButtonGroup,
-  Text,
-  Loading,
-  EmptyState,
-  Banner,
-} from '@shopify/polaris'
-import { useNavigationMenus, generateMenuItemURL } from '@/app/store/hooks/data/useNavigationMenus'
-import { NavigationMenuListProps } from '@/app/store/components/navigation-management/types'
+import { Card, DataTable, Badge, Button, ButtonGroup, Text, Loading, EmptyState, Banner } from '@shopify/polaris';
+import { useNavigationMenus, generateMenuItemURL } from '@/app/store/hooks/data/useNavigationMenus';
+import { NavigationMenuListProps } from '@/app/store/components/navigation-management/types';
 
 /**
  * Componente para mostrar la lista de menús de navegación
  */
 export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: NavigationMenuListProps) {
-  const { useListNavigationMenus, parseMenuData } = useNavigationMenus()
+  const { useListNavigationMenus, parseMenuData } = useNavigationMenus();
 
   // Obtener menús de la tienda
-  const { data: menus = [], isLoading, error } = useListNavigationMenus(storeId)
+  const { data: menus = [], isLoading, error } = useListNavigationMenus(storeId);
 
   // Preparar datos para la tabla
-  const tableRows = menus.map(menu => {
-    const menuItems = parseMenuData((menu.menuData as string) || '[]')
+  const tableRows = menus.map((menu) => {
+    const menuItems = parseMenuData((menu.menuData as string) || '[]');
 
     return [
       <Text key={`name-${menu.id}`} variant="bodyMd" fontWeight="semibold" as="span">
@@ -45,20 +35,12 @@ export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: Naviga
       </Badge>,
       <ButtonGroup key={`actions-${menu.id}`} variant="segmented">
         {onView && (
-          <Button
-            size="micro"
-            onClick={() => onView(menu.id)}
-            accessibilityLabel={`Ver ${menu.name}`}
-          >
+          <Button size="micro" onClick={() => onView(menu.id)} accessibilityLabel={`Ver ${menu.name}`}>
             Ver
           </Button>
         )}
         {onEdit && (
-          <Button
-            size="micro"
-            onClick={() => onEdit(menu.id)}
-            accessibilityLabel={`Editar ${menu.name}`}
-          >
+          <Button size="micro" onClick={() => onEdit(menu.id)} accessibilityLabel={`Editar ${menu.name}`}>
             Editar
           </Button>
         )}
@@ -68,16 +50,15 @@ export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: Naviga
             variant="primary"
             tone="critical"
             onClick={() => onDelete(menu.id)}
-            accessibilityLabel={`Eliminar ${menu.name}`}
-          >
+            accessibilityLabel={`Eliminar ${menu.name}`}>
             Eliminar
           </Button>
         )}
       </ButtonGroup>,
-    ]
-  })
+    ];
+  });
 
-  const tableHeadings = ['Nombre', 'Handle', 'Tipo', 'Elementos', 'Estado', 'Acciones']
+  const tableHeadings = ['Nombre', 'Handle', 'Tipo', 'Elementos', 'Estado', 'Acciones'];
 
   // Estado de carga
   if (isLoading) {
@@ -87,7 +68,7 @@ export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: Naviga
           <Loading />
         </div>
       </Card>
-    )
+    );
   }
 
   // Estado de error
@@ -98,7 +79,7 @@ export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: Naviga
           <p>{error.message}</p>
         </Banner>
       </Card>
-    )
+    );
   }
 
   // Estado vacío
@@ -106,13 +87,10 @@ export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: Naviga
     return (
       <Card>
         <EmptyState heading="No hay menús de navegación" image="/images/empty-navigation.svg">
-          <p>
-            Los menús de navegación ayudan a tus clientes a encontrar productos y páginas
-            importantes en tu tienda.
-          </p>
+          <p>Los menús de navegación ayudan a tus clientes a encontrar productos y páginas importantes en tu tienda.</p>
         </EmptyState>
       </Card>
-    )
+    );
   }
 
   // Tabla con menús
@@ -125,5 +103,5 @@ export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: Naviga
         verticalAlign="middle"
       />
     </Card>
-  )
+  );
 }

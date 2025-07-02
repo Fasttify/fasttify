@@ -1,5 +1,5 @@
-import { logger } from '@/renderer-engine/lib/logger'
-import { LiquidSyntaxDetector } from '@/renderer-engine/services/templates/liquid-syntax-detector'
+import { logger } from '@/renderer-engine/lib/logger';
+import { LiquidSyntaxDetector } from '@/renderer-engine/services/templates/liquid-syntax-detector';
 
 /**
  * Tipo de datos que pueden ser detectados en una plantilla
@@ -19,72 +19,69 @@ export type DataRequirement =
   | 'specific_collection' // collections['handle'] o collections.handle
   | 'specific_product' // products['handle'] o product por handle específico
   | 'products_by_collection' // Productos de una colección específica
-  | 'related_products' // Productos relacionados
+  | 'related_products'; // Productos relacionados
 
 /**
  * Opciones de carga para cada tipo de dato
  */
 export interface DataLoadOptions {
-  limit?: number
-  offset?: number
-  handle?: string
-  id?: string
-  nextToken?: string
-  collectionHandle?: string // Para collections.NOMBRE.products
-  handles?: string[] // Para múltiples handles específicos
-  productId?: string // Para productos relacionados
-  category?: string // Para filtrar por categoría
+  limit?: number;
+  offset?: number;
+  handle?: string;
+  id?: string;
+  nextToken?: string;
+  collectionHandle?: string; // Para collections.NOMBRE.products
+  handles?: string[]; // Para múltiples handles específicos
+  productId?: string; // Para productos relacionados
+  category?: string; // Para filtrar por categoría
 }
 
 /**
  * Resultado del análisis de una plantilla
  */
 export interface TemplateAnalysis {
-  requiredData: Map<DataRequirement, DataLoadOptions>
-  hasPagination: boolean
-  usedSections: string[]
-  liquidObjects: string[]
-  dependencies: string[] // Snippets/secciones que también necesitan análisis
+  requiredData: Map<DataRequirement, DataLoadOptions>;
+  hasPagination: boolean;
+  usedSections: string[];
+  liquidObjects: string[];
+  dependencies: string[]; // Snippets/secciones que también necesitan análisis
 }
 
 /**
  * Analizador de plantillas Liquid para detectar dependencias de datos
  */
 export class TemplateAnalyzer {
-  private static instance: TemplateAnalyzer
+  private static instance: TemplateAnalyzer;
 
   private constructor() {}
 
   public static getInstance(): TemplateAnalyzer {
     if (!TemplateAnalyzer.instance) {
-      TemplateAnalyzer.instance = new TemplateAnalyzer()
+      TemplateAnalyzer.instance = new TemplateAnalyzer();
     }
-    return TemplateAnalyzer.instance
+    return TemplateAnalyzer.instance;
   }
 
   /**
    * Analiza una plantilla y detecta qué datos necesita
    */
-  public analyzeTemplate(
-    templateContent: string,
-    templatePath: string
-  ): TemplateAnalysis {
+  public analyzeTemplate(templateContent: string, templatePath: string): TemplateAnalysis {
     const analysis: TemplateAnalysis = {
       requiredData: new Map(),
       hasPagination: false,
       usedSections: [],
       liquidObjects: [],
       dependencies: [],
-    }
+    };
 
     try {
       // Usar el detector para poblar el objeto de análisis
-      LiquidSyntaxDetector.detectLiquidObjects(templateContent, analysis)
-      LiquidSyntaxDetector.detectPagination(templateContent, analysis)
-      LiquidSyntaxDetector.detectDependencies(templateContent, analysis)
+      LiquidSyntaxDetector.detectLiquidObjects(templateContent, analysis);
+      LiquidSyntaxDetector.detectPagination(templateContent, analysis);
+      LiquidSyntaxDetector.detectDependencies(templateContent, analysis);
 
       // Inferir datos adicionales basados en el tipo de plantilla
-      this.inferDataFromTemplatePath(templatePath, analysis)
+      this.inferDataFromTemplatePath(templatePath, analysis);
 
       logger.debug(
         `Template analysis for ${templatePath}:`,
@@ -93,12 +90,12 @@ export class TemplateAnalyzer {
           dependencies: analysis.dependencies,
         },
         'TemplateAnalyzer'
-      )
+      );
     } catch (error) {
-      logger.error('Error analyzing template', error, 'TemplateAnalyzer')
+      logger.error('Error analyzing template', error, 'TemplateAnalyzer');
     }
 
-    return analysis
+    return analysis;
   }
 
   /**
@@ -108,9 +105,7 @@ export class TemplateAnalyzer {
     storeId: string,
     initialTemplates: { [path: string]: string }
   ): Promise<TemplateAnalysis> {
-    const { templateLoader } = await import(
-      '@/renderer-engine/services/templates/template-loader'
-    )
+    const { templateLoader } = await import('@/renderer-engine/services/templates/template-loader');
 
     const combinedAnalysis: TemplateAnalysis = {
       requiredData: new Map(),
@@ -118,94 +113,84 @@ export class TemplateAnalyzer {
       usedSections: [],
       liquidObjects: [],
       dependencies: [],
-    }
+    };
 
-    const analyzedPaths = new Set<string>()
-    const templatesToAnalyze = new Map<string, string>(Object.entries(initialTemplates))
+    const analyzedPaths = new Set<string>();
+    const templatesToAnalyze = new Map<string, string>(Object.entries(initialTemplates));
 
     while (templatesToAnalyze.size > 0) {
-      const entry = templatesToAnalyze.entries().next().value
-      if (!entry) break
+      const entry = templatesToAnalyze.entries().next().value;
+      if (!entry) break;
 
-      const [path, content] = entry
-      templatesToAnalyze.delete(path)
+      const [path, content] = entry;
+      templatesToAnalyze.delete(path);
 
       if (analyzedPaths.has(path)) {
-        continue
+        continue;
       }
-      analyzedPaths.add(path)
+      analyzedPaths.add(path);
 
-      const analysis = this.analyzeTemplate(content, path)
-      this.mergeAnalysis(combinedAnalysis, analysis)
+      const analysis = this.analyzeTemplate(content, path);
+      this.mergeAnalysis(combinedAnalysis, analysis);
 
       // Añadir nuevas dependencias a la cola para ser analizadas
       for (const depPath of analysis.dependencies) {
         if (!analyzedPaths.has(depPath)) {
           try {
-            const depContent = await templateLoader.loadTemplate(storeId, depPath)
-            templatesToAnalyze.set(depPath, depContent)
+            const depContent = await templateLoader.loadTemplate(storeId, depPath);
+            templatesToAnalyze.set(depPath, depContent);
           } catch (error) {
-            logger.warn(
-              `Could not load template dependency: ${depPath}`,
-              error,
-              'TemplateAnalyzer'
-            )
+            logger.warn(`Could not load template dependency: ${depPath}`, error, 'TemplateAnalyzer');
           }
         }
       }
     }
 
-    return combinedAnalysis
+    return combinedAnalysis;
   }
 
   /**
    * Infiere datos adicionales basado en el path de la plantilla
    */
-  private inferDataFromTemplatePath(
-    templatePath: string,
-    analysis: TemplateAnalysis
-  ): void {
+  private inferDataFromTemplatePath(templatePath: string, analysis: TemplateAnalysis): void {
     if (templatePath.includes('index')) {
       // Homepage típicamente necesita colecciones (pero no asumimos cuáles)
       if (!analysis.requiredData.has('collections')) {
-        analysis.requiredData.set('collections', { limit: 6 })
+        analysis.requiredData.set('collections', { limit: 6 });
       }
     } else if (templatePath.includes('product')) {
       // No inferir ciegamente 'product'. Dejar que detectLiquidObjects
       // y detectPagination hagan su trabajo. Si después de eso no se ha
       // detectado ni 'product' ni 'products', entonces podemos asumir
       // que es una página de producto individual.
-      if (
-        !analysis.requiredData.has('product') &&
-        !analysis.requiredData.has('products')
-      ) {
-        analysis.requiredData.set('product', {})
+      if (!analysis.requiredData.has('product') && !analysis.requiredData.has('products')) {
+        analysis.requiredData.set('product', {});
       }
     } else if (templatePath.includes('collection')) {
       // Si es una página de colección, se necesita el objeto `collection`.
       // Solo se establece un requerimiento por defecto si no existe uno previo
       // (por ejemplo, de la detección de paginación, que incluye un `limit`).
       if (!analysis.requiredData.has('collection')) {
-        analysis.requiredData.set('collection', {})
+        analysis.requiredData.set('collection', {});
       }
     } else if (templatePath.includes('cart')) {
       // Página de carrito necesita datos del carrito
-      analysis.requiredData.set('cart', {})
+      analysis.requiredData.set('cart', {});
     }
 
     // El carrito siempre es necesario para el header
     if (!analysis.requiredData.has('cart')) {
-      analysis.requiredData.set('cart', {})
+      analysis.requiredData.set('cart', {});
     }
 
     // Los linklists siempre son necesarios para navegación
     if (!analysis.requiredData.has('linklists')) {
-      analysis.requiredData.set('linklists', {})
+      analysis.requiredData.set('linklists', {});
     }
 
     // Shop/store info siempre es necesaria
     if (!analysis.requiredData.has('shop')) {
-      analysis.requiredData.set('shop', {})
+      analysis.requiredData.set('shop', {});
     }
   }
 
@@ -216,30 +201,28 @@ export class TemplateAnalyzer {
     // Combinar datos requeridos
     for (const [dataType, options] of source.requiredData) {
       if (!target.requiredData.has(dataType)) {
-        target.requiredData.set(dataType, options)
+        target.requiredData.set(dataType, options);
       } else {
-        const existingOptions = target.requiredData.get(dataType)!
-        const mergedOptions = { ...existingOptions, ...options }
+        const existingOptions = target.requiredData.get(dataType)!;
+        const mergedOptions = { ...existingOptions, ...options };
         const validLimits = [existingOptions.limit, options.limit].filter(
           (n): n is number => typeof n === 'number' && n > 0
-        )
+        );
         if (validLimits.length > 0) {
-          mergedOptions.limit = Math.min(...validLimits)
+          mergedOptions.limit = Math.min(...validLimits);
         } else {
-          delete mergedOptions.limit
+          delete mergedOptions.limit;
         }
-        target.requiredData.set(dataType, mergedOptions)
+        target.requiredData.set(dataType, mergedOptions);
       }
     }
 
     // Combinar otras propiedades
-    target.hasPagination = target.hasPagination || source.hasPagination
-    target.usedSections = [...new Set([...target.usedSections, ...source.usedSections])]
-    target.liquidObjects = [
-      ...new Set([...target.liquidObjects, ...source.liquidObjects]),
-    ]
-    target.dependencies = [...new Set([...target.dependencies, ...source.dependencies])]
+    target.hasPagination = target.hasPagination || source.hasPagination;
+    target.usedSections = [...new Set([...target.usedSections, ...source.usedSections])];
+    target.liquidObjects = [...new Set([...target.liquidObjects, ...source.liquidObjects])];
+    target.dependencies = [...new Set([...target.dependencies, ...source.dependencies])];
   }
 }
 
-export const templateAnalyzer = TemplateAnalyzer.getInstance()
+export const templateAnalyzer = TemplateAnalyzer.getInstance();

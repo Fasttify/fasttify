@@ -1,19 +1,11 @@
-import * as React from 'react'
+import * as React from 'react';
 
 export const Products = (props: React.SVGProps<SVGSVGElement>) => {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      id="Layer_1"
-      data-name="Layer 1"
-      viewBox="0 0 1000 1000"
-      {...props}
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 1000 1000" {...props}>
       <defs>
         <style>
-          {
-            '.cls-1{fill:#6dc8c2}.cls-2{fill:#fff}.cls-4{fill:#ffc1eb}.cls-5{fill:#fb6d6d}.cls-6{fill:#c7b8f8}'
-          }
+          {'.cls-1{fill:#6dc8c2}.cls-2{fill:#fff}.cls-4{fill:#ffc1eb}.cls-5{fill:#fb6d6d}.cls-6{fill:#c7b8f8}'}
         </style>
       </defs>
       <path
@@ -32,20 +24,11 @@ export const Products = (props: React.SVGProps<SVGSVGElement>) => {
       <path d="M389.33 445.51c-10.05 0-19.38-8.1-21.79-19.65-2.72-13 4.35-25.52 15.75-27.91a19.82 19.82 0 0 1 16.19 3.93 25.83 25.83 0 0 1 9.43 15.33 25.8 25.8 0 0 1-2.5 17.82 19.8 19.8 0 0 1-13.26 10.09 19 19 0 0 1-3.82.39Zm-2.19-44a14.86 14.86 0 0 0-3 .32c-9.25 1.93-14.93 12.33-12.66 23.17s11.64 18.09 20.88 16.16a15.81 15.81 0 0 0 10.58-8.12A21.76 21.76 0 0 0 405 418a21.74 21.74 0 0 0-7.93-13 16.36 16.36 0 0 0-9.93-3.45Z" />
       <path d="M408.66 418a2 2 0 0 1-.61-3.9l18.06-5.82a2 2 0 0 1 1.22 3.8l-18.05 5.83a2.21 2.21 0 0 1-.62.09Z" />
       <path d="M417.64 439.34a7 7 0 0 1-5.42-2.35c-2-2.43-1.66-5.76-.71-7.87a8.25 8.25 0 0 1 3.16-3.58l-8.23-22a2 2 0 0 1 3.74-1.4l9.6 25.59-2 .66a4.52 4.52 0 0 0-2.65 2.32c-.36.79-.79 2.57.12 3.65s3 1.4 4.94.15a2 2 0 1 1 2.19 3.34 8.74 8.74 0 0 1-4.74 1.49Z" />
-      <ellipse
-        cx={425.97}
-        cy={327.04}
-        rx={46.82}
-        ry={34.67}
-        transform="rotate(-11.81 425.902 326.998)"
-      />
+      <ellipse cx={425.97} cy={327.04} rx={46.82} ry={34.67} transform="rotate(-11.81 425.902 326.998)" />
       <path d="m510.28 361.11-25.09 6.52a26.61 26.61 0 0 1-32.44-19.06l-5.29-20.36L498.3 315Z" />
       <circle cx={369.4} cy={352.41} r={34.24} />
       <path d="M462.78 398.56a2 2 0 0 1-.74-3.86l37.44-15a2 2 0 1 1 1.48 3.71l-37.44 15a2.11 2.11 0 0 1-.74.15Z" />
-      <path
-        d="m321.4 717.27-8.75 116.86 3.07 28.67h78.83l-9.38-141.45-63.77-4.08z"
-        className="cls-2"
-      />
+      <path d="m321.4 717.27-8.75 116.86 3.07 28.67h78.83l-9.38-141.45-63.77-4.08z" className="cls-2" />
       <path d="M396.69 864.8h-82.77l-3.27-30.64 8.91-119 67.49 4.31Zm-79.17-4h74.89l-9.12-137.57-60-3.84-8.63 114.71Z" />
       <path d="M372.4 528.87a61.17 61.17 0 0 0-9.65 4.94c-22.9 14.44-30.44 41-36.24 66.91-6.16 27.55-15.23 90.93-18.41 140.15 24.84 1.58 53.84 3.17 78.68 4.76Z" />
       <path d="M350.25 627.1H110.44a2 2 0 1 1 0-4h239.81a2 2 0 0 1 0 4Z" />
@@ -99,10 +82,7 @@ export const Products = (props: React.SVGProps<SVGSVGElement>) => {
         d="M663.85 336.12a2 2 0 0 1-1.73-1L643.49 303l-17.75 30.94a2 2 0 1 1-3.47-2l21.2-37 22.11 38.12a2 2 0 0 1-.73 2.73 1.92 1.92 0 0 1-1 .33Z"
         className="cls-5"
       />
-      <path
-        d="M644.25 367a2 2 0 0 1-2-2v-63.9a2 2 0 0 1 4 0V365a2 2 0 0 1-2 2Z"
-        className="cls-5"
-      />
+      <path d="M644.25 367a2 2 0 0 1-2-2v-63.9a2 2 0 0 1 4 0V365a2 2 0 0 1-2 2Z" className="cls-5" />
       <path
         d="m630.45 677.6-245.67 28.45-2.92-34.72 241.44-28.52 7.15 34.79zM647.96 753.93 387.34 783.4l-2.51-37.54 254.92-29.74 8.21 37.81z"
         className="cls-6"
@@ -162,27 +142,15 @@ export const Products = (props: React.SVGProps<SVGSVGElement>) => {
         className="cls-4"
       />
       <circle cx={286.18} cy={362.02} r={9.01} className="cls-2" />
-      <ellipse
-        cx={269.65}
-        cy={425.85}
-        rx={8.75}
-        ry={7.14}
-        transform="rotate(-9.68 269.524 425.688)"
-      />
+      <ellipse cx={269.65} cy={425.85} rx={8.75} ry={7.14} transform="rotate(-9.68 269.524 425.688)" />
       <path d="M258.93 480.67a2 2 0 0 1-1.06-3.69 35.89 35.89 0 0 1 16.78-5.42 36.32 36.32 0 0 1 21 5.29 2 2 0 0 1-2.09 3.41 32.33 32.33 0 0 0-18.67-4.7 31.84 31.84 0 0 0-14.89 4.81 2.05 2.05 0 0 1-1.07.3Z" />
     </svg>
-  )
-}
+  );
+};
 
 export const Inventory = (props: React.SVGProps<SVGSVGElement>) => {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      id="Layer_1"
-      data-name="Layer 1"
-      viewBox="0 0 1000 1000"
-      {...props}
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 1000 1000" {...props}>
       <defs>
         <style>
           {
@@ -254,14 +222,7 @@ export const Inventory = (props: React.SVGProps<SVGSVGElement>) => {
       <path d="M260 415.52a2 2 0 0 1-1.26-.45l-30-24.22a2 2 0 0 1 2.51-3.11l30 24.22a2 2 0 0 1-1.25 3.56ZM384.41 334.71a2 2 0 0 1-2-2v-36.43a2 2 0 0 1 4 0v36.43a2 2 0 0 1-2 2Z" />
       <rect width={31.44} height={99.35} x={345.59} y={690.15} className="cls-3" rx={15.72} />
       <path d="M377 771.29a2 2 0 0 1-2-2v-63.42a2 2 0 0 1 4 0v63.42a2 2 0 0 1-2 2ZM510.84 448.45a2 2 0 0 1-.09-4l103.12-4.21a2 2 0 1 1 .16 4l-103.11 4.22ZM547.27 663.05H491a2 2 0 1 1 0-4h53.43l38.88-106.86a2 2 0 0 1 3.76 1.37Z" />
-      <rect
-        width={10.71}
-        height={41.02}
-        x={528.9}
-        y={208.51}
-        rx={5.36}
-        transform="rotate(-79.52 534.263 229.015)"
-      />
+      <rect width={10.71} height={41.02} x={528.9} y={208.51} rx={5.36} transform="rotate(-79.52 534.263 229.015)" />
       <rect width={127.52} height={127.52} x={709.12} y={244.4} className="cls-2" rx={23.56} />
       <path d="M813.08 373.92h-80.4a25.6 25.6 0 0 1-25.56-25.57V268a25.59 25.59 0 0 1 25.56-25.56h80.4A25.59 25.59 0 0 1 838.64 268v80.39a25.6 25.6 0 0 1-25.56 25.53Zm-80.4-127.52a21.58 21.58 0 0 0-21.56 21.6v80.39a21.59 21.59 0 0 0 21.56 21.57h80.4a21.59 21.59 0 0 0 21.56-21.57V268a21.58 21.58 0 0 0-21.56-21.56Z" />
       <rect width={74.77} height={66.01} x={735.5} y={283.32} className="cls-5" rx={8.72} />
@@ -277,10 +238,7 @@ export const Inventory = (props: React.SVGProps<SVGSVGElement>) => {
         d="M792.8 320.44a2 2 0 0 1-1.73-1l-18.63-32.12-17.75 30.95a2 2 0 0 1-3.47-2l21.2-37 22.11 38.12a2 2 0 0 1-.72 2.73 2 2 0 0 1-1.01.32Z"
         className="cls-6"
       />
-      <path
-        d="M773.2 351.33a2 2 0 0 1-2-2v-63.91a2 2 0 0 1 4 0v63.91a2 2 0 0 1-2 2Z"
-        className="cls-6"
-      />
+      <path d="M773.2 351.33a2 2 0 0 1-2-2v-63.91a2 2 0 0 1 4 0v63.91a2 2 0 0 1-2 2Z" className="cls-6" />
       <rect width={163.93} height={56.44} x={107.89} y={383.2} className="cls-2" rx={28.22} />
       <path d="M243.59 441.64H136.11a30.22 30.22 0 0 1 0-60.44h107.48a30.22 30.22 0 1 1 0 60.44ZM136.11 385.2a26.22 26.22 0 0 0 0 52.44h107.48a26.22 26.22 0 1 0 0-52.44Z" />
       <circle cx={145.19} cy={411.42} r={9.19} className="cls-3" />
@@ -302,22 +260,14 @@ export const Inventory = (props: React.SVGProps<SVGSVGElement>) => {
         className="cls-4"
       />
     </svg>
-  )
-}
+  );
+};
 
 export const Products2 = (props: React.SVGProps<SVGSVGElement>) => {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      id="Layer_1"
-      data-name="Layer 1"
-      viewBox="0 0 1000 1000"
-      {...props}
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 1000 1000" {...props}>
       <defs>
-        <style>
-          {'.cls-2{fill:#6dc8c2}.cls-3{fill:#fb6d6d}.cls-4{fill:#fff}.cls-5{fill:#c7b8f8}'}
-        </style>
+        <style>{'.cls-2{fill:#6dc8c2}.cls-3{fill:#fb6d6d}.cls-4{fill:#fff}.cls-5{fill:#c7b8f8}'}</style>
       </defs>
       <path
         d="M570.57 115.2 85.24 576.8c-34.52 32.83-20.56 90.72 25.14 104.2L752.8 870.51c45.7 13.49 88.85-27.51 77.67-73.87L673.38 145.53c-11.17-46.31-68.29-63.16-102.81-30.33Z"
@@ -406,8 +356,8 @@ export const Products2 = (props: React.SVGProps<SVGSVGElement>) => {
       <ellipse cx={721.71} cy={280.53} rx={23.23} ry={7.26} />
       <path d="M562.59 692.67h-204a2 2 0 0 1 0-4h204a2 2 0 0 1 0 4Z" className="cls-4" />
     </svg>
-  )
-}
+  );
+};
 
 export const Design = (props: React.SVGProps<SVGSVGElement>) => {
   return (
@@ -425,14 +375,7 @@ export const Design = (props: React.SVGProps<SVGSVGElement>) => {
       <g id="Layer_1" data-name="Layer 1">
         <g id="WEB_PAGES" data-name="WEB PAGES">
           <g id="WEB_PAGE" data-name="WEB PAGE">
-            <rect
-              width={2020.98}
-              height={1554.88}
-              x={554.85}
-              y={481.46}
-              className="cls-2"
-              rx={37.12}
-            />
+            <rect width={2020.98} height={1554.88} x={554.85} y={481.46} className="cls-2" rx={37.12} />
             <path
               d="M554.85 597.96h2020.98"
               style={{
@@ -579,8 +522,7 @@ export const Design = (props: React.SVGProps<SVGSVGElement>) => {
             fontSize: 12,
             fontFamily: 'MyriadPro-Regular,Myriad Pro',
           }}
-          transform="translate(1703.95 1493.22)"
-        >
+          transform="translate(1703.95 1493.22)">
           {'faf9f7'}
         </text>
         <g id="BASKET">
@@ -684,10 +626,7 @@ export const Design = (props: React.SVGProps<SVGSVGElement>) => {
             ry={24.17}
             transform="rotate(-48 1200.534 1289.116)"
           />
-          <path
-            d="M1460.59 1408.21h21.39v7.68h-21.39zM1501.46 1408.21h21.39v7.68h-21.39z"
-            className="cls-18"
-          />
+          <path d="M1460.59 1408.21h21.39v7.68h-21.39zM1501.46 1408.21h21.39v7.68h-21.39z" className="cls-18" />
         </g>
         <path
           d="M1597.65 694.92s-73.71-34.58-119.39 37.91c-45.79 72.66 17 105-15.8 142.1-35.49 40.16-80.42 63.68-44 143.26 37.12 81.15-57.54 51.23-37.07 141.57h160.5s69.05-24.17 48.33-83.72-65.12-67.79-23.51-120.33c31.25-39.45 175.42-31.41 188.37-28s68.13 22.29 68.13 22.29 21.94-65.65-9.44-101.81c-39.71-45.74-105.93-12-118-65.69-8.16-36.2-24-78.24-50.32-86.19-28.28-8.54-47.8-1.39-47.8-1.39Z"
@@ -714,10 +653,7 @@ export const Design = (props: React.SVGProps<SVGSVGElement>) => {
           d="M1645.87 810.24s-2.38-8.13-.18-15.47c1.4-4.65 4.65-9 11.51-10.72M1657.2 800.11l-11.51-5.34"
           className="cls-8"
         />
-        <path
-          d="M1746.3 955s-34.38 89.12 20.61 137c17.73 15.43 43.9 1.33 43.9 1.33"
-          className="cls-16"
-        />
+        <path d="M1746.3 955s-34.38 89.12 20.61 137c17.73 15.43 43.9 1.33 43.9 1.33" className="cls-16" />
         <path
           d="M1772.1 1045.4c19.6 62.06 45.59 149.79 45.59 149.79-103.1 5.6-258.54 68.13-277.47 75.88-31.42 7-75.91 32.44-84.46 37.55-8 4.55-20.58 17.16-24.38 22.22-4 5.28-13.31 24.29-13.31 24.29a9.88 9.88 0 0 0 11.94-2.5c3.67-4 9.83-13.64 14.77-18.33-4.48 11.25-8.67 22.87-8.67 22.87s11.11 2.72 25.35-1.88c6.82-2.2 14.36-15.28 22.34-23.89s25.39-4.54 42.82-7.49 29.53-28.51 29.53-28.51l-.24-.42c45.25.75 283.23 2.3 335.07-46.14 31-28.93-9.18-217.34-60.31-300.85-22.49-36.72-56-31.79-71.71-8.41-5.25 7.79-11.52 12.34-11.78 23.37"
           className="cls-16"
@@ -730,10 +666,7 @@ export const Design = (props: React.SVGProps<SVGSVGElement>) => {
           d="M1456.32 1356a1.06 1.06 0 0 1-1.13-1.48c.48-1 11.86-25.73 17.18-29.58 9.09-6.57 20.93-15.2 20.93-15.2l1.24 1.7s-11.85 8.63-20.93 15.21c-4 2.92-13.29 21.74-16.51 28.75a1.06 1.06 0 0 1-.78.6Z"
           className="cls-8"
         />
-        <path
-          d="M1640.88 837s-.21 120.87 65.26 129.6 117.31-34.72 117.31-34.72"
-          className="cls-4"
-        />
+        <path d="M1640.88 837s-.21 120.87 65.26 129.6 117.31-34.72 117.31-34.72" className="cls-4" />
         <path d="m1559.91 816.61-3.54 29.22 12.36 7.21" className="cls-8" />
         <ellipse
           cx={1583.52}
@@ -751,10 +684,7 @@ export const Design = (props: React.SVGProps<SVGSVGElement>) => {
           ry={6.63}
           transform="rotate(-19.34 1539.514 822.333)"
         />
-        <path
-          d="M1567.73 790.91s8.64-10.31 27.26-1.33M1522.06 805.33s4.87-12.56 22.83-7.22"
-          className="cls-8"
-        />
+        <path d="M1567.73 790.91s8.64-10.31 27.26-1.33M1522.06 805.33s4.87-12.56 22.83-7.22" className="cls-8" />
         <path
           d="M1549.1 723.19s28.93-12 38.58 16.63 25.37 52.54 57.08 35.91 18.73-38.24 18.73-38.24"
           className="cls-4"
@@ -794,8 +724,8 @@ export const Design = (props: React.SVGProps<SVGSVGElement>) => {
         <path d="M1568.73 867.85s19.28 3.32 27.92-15.74" className="cls-8" />
       </g>
     </svg>
-  )
-}
+  );
+};
 
 export const Domain = (props: React.SVGProps<SVGSVGElement>) => {
   return (
@@ -806,8 +736,7 @@ export const Domain = (props: React.SVGProps<SVGSVGElement>) => {
       x={0}
       y={0}
       viewBox="0 0 787.9 603.7"
-      {...props}
-    >
+      {...props}>
       <style>
         {
           '.st1{fill:#4b4065}.st4{fill:none;stroke:#b9c6e4;stroke-miterlimit:10}.st5{opacity:.26;enable-background:new}.st5,.st7{fill:#b9c6e4}.st9{fill:#495894}.st12,.st16{fill:none;stroke:#f27932;stroke-miterlimit:10}.st16{stroke:#495894}'
@@ -842,10 +771,7 @@ export const Domain = (props: React.SVGProps<SVGSVGElement>) => {
               strokeMiterlimit: 10,
             }}
           />
-          <path
-            d="M406.7 145.3H570v151.9H406.7zM430.4 274h48.9M430.4 257.2h85M535.1 164.1h25.5"
-            className="st4"
-          />
+          <path d="M406.7 145.3H570v151.9H406.7zM430.4 274h48.9M430.4 257.2h85M535.1 164.1h25.5" className="st4" />
           <path
             d="M457.2 207.8c20.4-7.1 42.8-5.3 61.8 5 3.6-18.5-8.5-36.3-27-39.9-18.5-3.6-36.3 8.5-39.9 27-.4 2.1-.6 4.3-.6 6.5 0 1.2.1 2.4.2 3.6 1.8-.9 3.6-1.6 5.5-2.2z"
             className="st5"
@@ -955,10 +881,7 @@ export const Domain = (props: React.SVGProps<SVGSVGElement>) => {
               strokeMiterlimit: 10,
             }}
           />
-          <path
-            d="m454.9 390.6-35.8-1.5M450 402.4l-33.4 3.4M233.6 416.2l10.8-12.1"
-            className="st16"
-          />
+          <path d="m454.9 390.6-35.8-1.5M450 402.4l-33.4 3.4M233.6 416.2l10.8-12.1" className="st16" />
           <circle
             cx={299.3}
             cy={212.3}
@@ -1005,18 +928,12 @@ export const Domain = (props: React.SVGProps<SVGSVGElement>) => {
         </g>
       </g>
     </svg>
-  )
-}
+  );
+};
 
 export const Name = (props: React.SVGProps<SVGSVGElement>) => {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      id="Layer_1"
-      data-name="Layer 1"
-      viewBox="0 0 1000 1000"
-      {...props}
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 1000 1000" {...props}>
       <defs>
         <style>
           {
@@ -1114,33 +1031,18 @@ export const Name = (props: React.SVGProps<SVGSVGElement>) => {
       <circle cx={113.69} cy={648.94} r={17.52} className="cls-5" />
       <path d="M324.61 397.54c-2-5.46-4.89-12.47-8.95-18.33-3.44-5-7.37-7.1-11.69-6.35a8.54 8.54 0 0 0-6.17 3.86c-3.41 5.47-1.14 15.12 0 19l.15.5-3.81 1.21-.18-.59c-1.59-5.48-3.66-15.65.45-22.24a12.46 12.46 0 0 1 8.88-5.69c5.91-1 11.33 1.74 15.67 8s7.29 13.54 9.41 19.21Z" />
     </svg>
-  )
-}
+  );
+};
 
 export const Shipping = (props: React.SVGProps<SVGSVGElement>) => {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      id="Layer_1"
-      data-name="Layer 1"
-      viewBox="0 0 1000 1000"
-      {...props}
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 1000 1000" {...props}>
       <defs>
         <style>
-          {
-            '.cls-1{fill:#fff}.cls-2{fill:#c7b8f8}.cls-3{fill:#6dc8c2}.cls-4{fill:#ffbb45}.cls-5{fill:#fb6d6d}'
-          }
+          {'.cls-1{fill:#fff}.cls-2{fill:#c7b8f8}.cls-3{fill:#6dc8c2}.cls-4{fill:#ffbb45}.cls-5{fill:#fb6d6d}'}
         </style>
       </defs>
-      <rect
-        width={107.14}
-        height={18.55}
-        x={500.19}
-        y={781.01}
-        rx={4.08}
-        transform="rotate(-5.97 553.838 790.362)"
-      />
+      <rect width={107.14} height={18.55} x={500.19} y={781.01} rx={4.08} transform="rotate(-5.97 553.838 790.362)" />
       <path d="m608.33 722.25-69.17-.45-94 46.31a12.83 12.83 0 0 0-5.89 17.07l171.53-25.46Z" />
       <path
         d="m609.1 760.41-167.64 25.51a12.68 12.68 0 0 0 13.08 7.13l144.12-18.61a12.1 12.1 0 0 0 10.52-12.77Z"
@@ -1189,14 +1091,7 @@ export const Shipping = (props: React.SVGProps<SVGSVGElement>) => {
         className="cls-2"
       />
       <path d="M490 240.5h-58a16.61 16.61 0 0 1-16.61-16.61V200.5a16.37 16.37 0 0 1 16.37-16.37h57.87A19.36 19.36 0 0 1 509 203.49v18a19 19 0 0 1-19 19.01Z" />
-      <rect
-        width={107.14}
-        height={18.55}
-        x={421.46}
-        y={769.04}
-        rx={4.08}
-        transform="rotate(-24.94 474.927 778.21)"
-      />
+      <rect width={107.14} height={18.55} x={421.46} y={769.04} rx={4.08} transform="rotate(-24.94 474.927 778.21)" />
       <path
         d="m516.65 734.08-150.25 78.6a12.69 12.69 0 0 0 14.69 2.5l130.24-64.44a12.1 12.1 0 0 0 5.81-15.5Z"
         className="cls-1"
@@ -1296,10 +1191,7 @@ export const Shipping = (props: React.SVGProps<SVGSVGElement>) => {
         }}
       />
       <path d="M795.72 319.16h-69.23a2 2 0 0 1 0-4h69.23a2 2 0 0 1 0 4Z" className="cls-5" />
-      <path
-        d="M761.15 359.54a2 2 0 0 1-2-2v-63.32a2 2 0 1 1 4 0v63.32a2 2 0 0 1-2 2Z"
-        className="cls-5"
-      />
+      <path d="M761.15 359.54a2 2 0 0 1-2-2v-63.32a2 2 0 1 1 4 0v63.32a2 2 0 0 1-2 2Z" className="cls-5" />
       <path
         d="m759.05 299.77.1-3.28c.77-25.63 8.93-34 15.65-36.52a11.43 11.43 0 0 1 9.41.64 10.87 10.87 0 0 1 5.5 7.1c3.6 15.42-26.42 30-27.7 30.64Zm17.15-36.06c-5.29 2-11.67 8.76-12.9 29.49 9-4.91 24.64-15.49 22.52-24.58a6.81 6.81 0 0 0-3.5-4.49 7.45 7.45 0 0 0-6.12-.42Z"
         className="cls-5"
@@ -1323,8 +1215,8 @@ export const Shipping = (props: React.SVGProps<SVGSVGElement>) => {
       <circle cx={309.64} cy={212.31} r={5.28} className="cls-3" />
       <circle cx={335.29} cy={212.31} r={5.28} className="cls-3" />
     </svg>
-  )
-}
+  );
+};
 
 export const Payments = (props: React.SVGProps<SVGSVGElement>) => {
   return (
@@ -1335,8 +1227,7 @@ export const Payments = (props: React.SVGProps<SVGSVGElement>) => {
       x={0}
       y={0}
       viewBox="0 0 785.6 560.5"
-      {...props}
-    >
+      {...props}>
       <style>
         {
           '.st1{fill:none;stroke:#b9c6e4;stroke-miterlimit:10}.st2{fill:#f7c689}.st4{fill:none;stroke:#fff;stroke-miterlimit:10}.st6{fill:#ed4f2e}.st9{fill:#c2d9f0}.st12,.st13{stroke-miterlimit:10}.st12{fill:none;stroke:#495894;stroke-width:2}.st13{fill:#fff;stroke:#f7c689}'
@@ -1383,13 +1274,7 @@ export const Payments = (props: React.SVGProps<SVGSVGElement>) => {
           fill: '#f27932',
         }}
       />
-      <circle
-        cx={515.7}
-        cy={155.3}
-        r={4.4}
-        className="st2"
-        transform="rotate(-80.781 515.704 155.292)"
-      />
+      <circle cx={515.7} cy={155.3} r={4.4} className="st2" transform="rotate(-80.781 515.704 155.292)" />
       <path d="M403.3 395.2h-54.9v-33.3h68.8z" className="st1" />
       <circle
         cx={457.5}
@@ -1449,5 +1334,5 @@ export const Payments = (props: React.SVGProps<SVGSVGElement>) => {
       />
       <circle cx={679.9} cy={234.3} r={5.6} className="st9" />
     </svg>
-  )
-}
+  );
+};

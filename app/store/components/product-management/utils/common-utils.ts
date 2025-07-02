@@ -1,50 +1,50 @@
-import { IProduct } from '@/app/store/hooks/data/useProducts'
+import { IProduct } from '@/app/store/hooks/data/useProducts';
 
 export function isEmpty(value: string[] | undefined | null): boolean {
   if (!value) {
-    return true
+    return true;
   }
-  return value.length === 0
+  return value.length === 0;
 }
 
 export function formatPrice(price: number | null | undefined): string {
   if (price === null || price === undefined) {
-    return '$0'
+    return '$0';
   }
   return `$${Number(price).toLocaleString('es-CO', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  })}`
+  })}`;
 }
 
 export function getStatusText(status: IProduct['status']) {
   switch (status) {
     case 'active':
-      return 'Activo'
+      return 'Activo';
     case 'draft':
-      return 'Borrador'
+      return 'Borrador';
     case 'archived':
-      return 'Archivado'
+      return 'Archivado';
     case 'pending':
-      return 'Pendiente'
+      return 'Pendiente';
     case 'inactive':
-      return 'Inactivo'
+      return 'Inactivo';
     default:
-      return 'Desconocido'
+      return 'Desconocido';
   }
 }
 
 export function getStatusTone(status: IProduct['status']) {
   switch (status) {
     case 'active':
-      return 'success'
+      return 'success';
     case 'draft':
-      return 'info'
+      return 'info';
     case 'archived':
-      return 'critical'
+      return 'critical';
     case 'pending':
-      return 'warning'
+      return 'warning';
     default:
-      return 'info'
+      return 'info';
   }
 }

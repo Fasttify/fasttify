@@ -1,48 +1,48 @@
-import type { Page } from '@/app/store/hooks/data/usePage'
+import type { Page } from '@/app/store/hooks/data/usePage';
 
 export function getStatusText(status: Page['status']) {
   switch (status) {
     case 'published':
-      return 'Publicada'
+      return 'Publicada';
     case 'draft':
-      return 'Borrador'
+      return 'Borrador';
     default:
-      return status || 'Desconocido'
+      return status || 'Desconocido';
   }
 }
 
 export function getStatusTone(status: Page['status']) {
   switch (status) {
     case 'published':
-      return 'success'
+      return 'success';
     case 'draft':
-      return 'info'
+      return 'info';
     default:
-      return 'info'
+      return 'info';
   }
 }
 
 export function formatDate(dateString?: string): string {
-  if (!dateString) return '-'
+  if (!dateString) return '-';
 
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return date.toLocaleDateString('es-ES', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-  })
+  });
 }
 
 export function formatVisibility(isVisible: boolean): string {
-  return isVisible ? 'Visible' : 'Oculta'
+  return isVisible ? 'Visible' : 'Oculta';
 }
 
 export function getVisibilityTone(isVisible: boolean) {
-  return isVisible ? 'success' : 'critical'
+  return isVisible ? 'success' : 'critical';
 }
 
 export function truncateContent(content: string, maxLength: number = 150): string {
-  if (!content) return ''
-  if (content.length <= maxLength) return content
-  return content.substring(0, maxLength) + '...'
+  if (!content) return '';
+  if (content.length <= maxLength) return content;
+  return content.substring(0, maxLength) + '...';
 }

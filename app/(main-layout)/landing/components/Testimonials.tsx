@@ -1,5 +1,5 @@
-import Image from 'next/image'
-import { Star } from 'lucide-react'
+import Image from 'next/image';
+import { Star } from 'lucide-react';
 
 export function Testimonials() {
   return (
@@ -11,8 +11,8 @@ export function Testimonials() {
             Lo que dicen nuestros usuarios de Fasttify
           </h2>
           <p className="text-gray-600 leading-relaxed">
-            Emprendedores y dueños de tiendas han confiado en Fasttify para llevar sus negocios al
-            siguiente nivel. ¡Descubre sus experiencias!
+            Emprendedores y dueños de tiendas han confiado en Fasttify para llevar sus negocios al siguiente nivel.
+            ¡Descubre sus experiencias!
           </p>
         </div>
 
@@ -32,8 +32,8 @@ export function Testimonials() {
               ))}
             </div>
             <blockquote className="text-xl text-gray-900 font-medium italic">
-              "Fasttify me ha permitido lanzar mi tienda online sin complicaciones. La integración
-              con proveedores y pagos es increíblemente sencilla. ¡Totalmente recomendado!"
+              "Fasttify me ha permitido lanzar mi tienda online sin complicaciones. La integración con proveedores y
+              pagos es increíblemente sencilla. ¡Totalmente recomendado!"
             </blockquote>
             <div>
               <p className="font-medium text-gray-900">María Gómez</p>
@@ -45,15 +45,13 @@ export function Testimonials() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
-              comment:
-                'Configurar mi tienda fue rápido y sin estrés. La automatización me ha ahorrado mucho tiempo.',
+              comment: 'Configurar mi tienda fue rápido y sin estrés. La automatización me ha ahorrado mucho tiempo.',
               name: 'Carlos Pérez',
               role: 'Emprendedor',
               period: 'Usuario por 1 año',
             },
             {
-              comment:
-                'Las herramientas de gestión son súper intuitivas. Ahora manejo mi inventario sin problemas.',
+              comment: 'Las herramientas de gestión son súper intuitivas. Ahora manejo mi inventario sin problemas.',
               name: 'Ana Torres',
               role: 'Vendedora online',
               period: 'Usuario por 8 meses',
@@ -84,5 +82,5 @@ export function Testimonials() {
         </div>
       </div>
     </section>
-  )
+  );
 }

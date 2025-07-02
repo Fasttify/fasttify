@@ -1,16 +1,13 @@
-import { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer'
-import { templateLoader } from '@/renderer-engine/services/templates/template-loader'
-import { logger } from '@/renderer-engine/lib/logger'
-import type { PageRenderOptions } from '@/renderer-engine/types/template'
-import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer'
+import { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer';
+import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
+import { logger } from '@/renderer-engine/lib/logger';
+import type { PageRenderOptions } from '@/renderer-engine/types/template';
+import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
 
 /**
  * Tipo para cargadores de templates
  */
-type TemplateLoader = (
-  storeId: string,
-  options: PageRenderOptions
-) => Promise<Record<string, string>>
+type TemplateLoader = (storeId: string, options: PageRenderOptions) => Promise<Record<string, string>>;
 
 /**
  * Mapeo declarativo de tipos de página a paths de templates
@@ -23,65 +20,62 @@ const templatePaths: Record<string, string> = {
   page: 'templates/page.json',
   search: 'templates/search.json',
   '404': 'templates/404.json',
-}
+};
 
 /**
  * Cargadores declarativos para diferentes tipos de templates
  */
 const templateLoaders: Record<string, TemplateLoader> = {
   layout: async (storeId: string) => {
-    const layout = await templateLoader.loadMainLayout(storeId)
-    return { 'layout/theme.liquid': layout }
+    const layout = await templateLoader.loadMainLayout(storeId);
+    return { 'layout/theme.liquid': layout };
   },
 
   page: async (storeId: string, options: PageRenderOptions) => {
-    const templatePath = getTemplatePath(options.pageType)
-    const pageTemplate = await templateLoader.loadTemplate(storeId, templatePath)
-    return { [templatePath]: pageTemplate }
+    const templatePath = getTemplatePath(options.pageType);
+    const pageTemplate = await templateLoader.loadTemplate(storeId, templatePath);
+    return { [templatePath]: pageTemplate };
   },
 
   layoutSections: async (storeId: string, options: PageRenderOptions) => {
-    const layout = await templateLoader.loadMainLayout(storeId)
-    const sectionNames = extractSectionNames(layout)
-    return await loadSections(storeId, sectionNames, 'layout')
+    const layout = await templateLoader.loadMainLayout(storeId);
+    const sectionNames = extractSectionNames(layout);
+    return await loadSections(storeId, sectionNames, 'layout');
   },
 
   pageSections: async (storeId: string, options: PageRenderOptions) => {
-    const templatePath = getTemplatePath(options.pageType)
+    const templatePath = getTemplatePath(options.pageType);
 
     if (!templatePath.endsWith('.json')) {
-      return {}
+      return {};
     }
 
-    const pageTemplate = await templateLoader.loadTemplate(storeId, templatePath)
-    const sectionNames = extractPageSectionNames(pageTemplate)
-    return await loadSections(storeId, sectionNames, 'page')
+    const pageTemplate = await templateLoader.loadTemplate(storeId, templatePath);
+    const sectionNames = extractPageSectionNames(pageTemplate);
+    return await loadSections(storeId, sectionNames, 'page');
   },
-}
+};
 
 /**
  * Analiza las plantillas requeridas para la página usando cargadores declarativos.
  */
-export async function analyzeRequiredTemplates(
-  storeId: string,
-  options: PageRenderOptions
-): Promise<TemplateAnalysis> {
+export async function analyzeRequiredTemplates(storeId: string, options: PageRenderOptions): Promise<TemplateAnalysis> {
   try {
-    const allTemplates: Record<string, string> = {}
+    const allTemplates: Record<string, string> = {};
 
     // Cargar todos los tipos de templates en paralelo
     const loadPromises = Object.entries(templateLoaders).map(async ([type, loader]) => {
       try {
-        const templates = await loader(storeId, options)
-        Object.assign(allTemplates, templates)
+        const templates = await loader(storeId, options);
+        Object.assign(allTemplates, templates);
       } catch (error) {
-        logger.warn(`Failed to load ${type} templates`, error, 'TemplateAnalyzer')
+        logger.warn(`Failed to load ${type} templates`, error, 'TemplateAnalyzer');
       }
-    })
+    });
 
-    await Promise.all(loadPromises)
+    await Promise.all(loadPromises);
 
-    const analysis = await templateAnalyzer.analyzeTemplateSet(storeId, allTemplates)
+    const analysis = await templateAnalyzer.analyzeTemplateSet(storeId, allTemplates);
 
     logger.debug(
       `Template analysis completed for ${options.pageType}`,
@@ -92,53 +86,45 @@ export async function analyzeRequiredTemplates(
         templatesLoaded: Object.keys(allTemplates).length,
       },
       'TemplateAnalyzer'
-    )
+    );
 
-    return analysis
+    return analysis;
   } catch (error) {
-    logger.error('Error analyzing templates', error, 'TemplateAnalyzer')
-    return createEmptyAnalysis()
+    logger.error('Error analyzing templates', error, 'TemplateAnalyzer');
+    return createEmptyAnalysis();
   }
 }
 
 /**
  * Carga secciones de forma genérica con manejo de errores.
  */
-async function loadSections(
-  storeId: string,
-  sectionNames: string[],
-  context: string
-): Promise<Record<string, string>> {
-  const sections: Record<string, string> = {}
+async function loadSections(storeId: string, sectionNames: string[], context: string): Promise<Record<string, string>> {
+  const sections: Record<string, string> = {};
 
-  const loadPromises = sectionNames.map(async sectionName => {
+  const loadPromises = sectionNames.map(async (sectionName) => {
     try {
-      const sectionContent = await templateLoader.loadSection(storeId, sectionName)
-      sections[sectionName] = sectionContent
+      const sectionContent = await templateLoader.loadSection(storeId, sectionName);
+      sections[sectionName] = sectionContent;
     } catch (error) {
-      logger.warn(
-        `Could not load ${context} section ${sectionName}`,
-        error,
-        'TemplateAnalyzer'
-      )
+      logger.warn(`Could not load ${context} section ${sectionName}`, error, 'TemplateAnalyzer');
     }
-  })
+  });
 
-  await Promise.all(loadPromises)
-  return sections
+  await Promise.all(loadPromises);
+  return sections;
 }
 
 /**
  * Extrae nombres de secciones del layout.
  */
 function extractSectionNames(layout: string): string[] {
-  const sectionMatches = layout.match(/\{\%\s*section\s+['"]([^'"]+)['"]\s*\%\}/g) || []
+  const sectionMatches = layout.match(/\{\%\s*section\s+['"]([^'"]+)['"]\s*\%\}/g) || [];
   return sectionMatches
-    .map(match => {
-      const nameMatch = match.match(/section\s+['"]([^'"]+)['"]/i)
-      return nameMatch ? nameMatch[1] : ''
+    .map((match) => {
+      const nameMatch = match.match(/section\s+['"]([^'"]+)['"]/i);
+      return nameMatch ? nameMatch[1] : '';
     })
-    .filter(Boolean)
+    .filter(Boolean);
 }
 
 /**
@@ -146,20 +132,20 @@ function extractSectionNames(layout: string): string[] {
  */
 function extractPageSectionNames(pageTemplate: string): string[] {
   try {
-    const templateConfig = JSON.parse(pageTemplate)
-    if (!templateConfig.sections) return []
+    const templateConfig = JSON.parse(pageTemplate);
+    if (!templateConfig.sections) return [];
 
     return Object.entries(templateConfig.sections)
       .map(([sectionId, sectionConfig]) => {
-        const sectionType = (sectionConfig as any).type
-        if (!sectionType) return ''
+        const sectionType = (sectionConfig as any).type;
+        if (!sectionType) return '';
 
-        return sectionType.includes('/') ? sectionType.split('/').pop()! : sectionType
+        return sectionType.includes('/') ? sectionType.split('/').pop()! : sectionType;
       })
-      .filter(Boolean)
+      .filter(Boolean);
   } catch (error) {
-    logger.warn('Error parsing page template JSON', error, 'TemplateAnalyzer')
-    return []
+    logger.warn('Error parsing page template JSON', error, 'TemplateAnalyzer');
+    return [];
   }
 }
 
@@ -167,7 +153,7 @@ function extractPageSectionNames(pageTemplate: string): string[] {
  * Obtiene el path de la plantilla según el tipo de página.
  */
 function getTemplatePath(pageType: string): string {
-  return templatePaths[pageType] || `templates/${pageType}.json`
+  return templatePaths[pageType] || `templates/${pageType}.json`;
 }
 
 /**
@@ -180,5 +166,5 @@ function createEmptyAnalysis(): TemplateAnalysis {
     usedSections: [],
     liquidObjects: [],
     dependencies: [],
-  }
+  };
 }

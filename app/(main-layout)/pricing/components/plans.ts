@@ -55,4 +55,4 @@ export const plans = [
     buttonText: 'Suscribirse ahora',
     className: 'bg-white',
   },
-]
+];

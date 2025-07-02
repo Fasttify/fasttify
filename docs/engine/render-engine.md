@@ -85,16 +85,16 @@ Información global de la tienda, disponible en todas las plantillas:
 
 ```typescript
 interface ShopContext {
-  name: string // Nombre de la tienda
-  description: string // Descripción SEO
-  domain: string // Dominio (ej: mitienda.com)
-  url: string // URL completa (https://...)
-  currency: string // Código moneda (COP, USD)
-  money_format: string // Formato precios (${{amount}})
-  logo?: string // URL del logo
-  banner?: string // URL del banner
-  email?: string // Email de contacto
-  phone?: string // Teléfono
+  name: string; // Nombre de la tienda
+  description: string; // Descripción SEO
+  domain: string; // Dominio (ej: mitienda.com)
+  url: string; // URL completa (https://...)
+  currency: string; // Código moneda (COP, USD)
+  money_format: string; // Formato precios (${{amount}})
+  logo?: string; // URL del logo
+  banner?: string; // URL del banner
+  email?: string; // Email de contacto
+  phone?: string; // Teléfono
 }
 ```
 
@@ -518,18 +518,18 @@ Los menús se configuran en la base de datos y se transforman automáticamente:
 ```typescript
 // Estructura interna
 interface NavigationMenu {
-  id: string
-  name: string
-  handle: string // 'main-menu', 'footer-menu'
-  isMain: boolean
-  menuData: NavigationMenuItem[]
+  id: string;
+  name: string;
+  handle: string; // 'main-menu', 'footer-menu'
+  isMain: boolean;
+  menuData: NavigationMenuItem[];
 }
 
 // Se transforma a formato Shopify
 interface LinkList {
-  title: string
-  handle: string
-  links: LinkListItem[]
+  title: string;
+  handle: string;
+  links: LinkListItem[];
 }
 ```
 
@@ -602,13 +602,13 @@ DOMAIN_CACHE_TTL: 30 minutos
 
 ```typescript
 // Invalidar por tienda
-cacheManager.invalidateStoreCache(storeId)
+cacheManager.invalidateStoreCache(storeId);
 
 // Invalidar producto específico
-cacheManager.invalidateProductCache(storeId, productId)
+cacheManager.invalidateProductCache(storeId, productId);
 
 // Invalidar template específico
-cacheManager.invalidateTemplateCache(templatePath)
+cacheManager.invalidateTemplateCache(templatePath);
 ```
 
 ---

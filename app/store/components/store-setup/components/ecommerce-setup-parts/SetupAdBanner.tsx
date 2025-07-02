@@ -1,15 +1,15 @@
-import { Banner } from '@shopify/polaris'
-import { useState } from 'react'
+import { Banner } from '@shopify/polaris';
+import { useState } from 'react';
 
 interface SetupAdBannerProps {
-  onActionClick: () => void
+  onActionClick: () => void;
 }
 
 export function SetupAdBanner({ onActionClick }: SetupAdBannerProps) {
-  const [visible, setVisible] = useState(true)
+  const [visible, setVisible] = useState(true);
 
   if (!visible) {
-    return null
+    return null;
   }
 
   return (
@@ -19,5 +19,5 @@ export function SetupAdBanner({ onActionClick }: SetupAdBannerProps) {
       onDismiss={() => setVisible(false)}
       action={{ content: 'Ver planes', onAction: onActionClick }}
     />
-  )
+  );
 }

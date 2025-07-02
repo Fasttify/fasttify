@@ -1,4 +1,4 @@
-import { IProduct } from '@/app/store/hooks/data/useProducts'
+import { IProduct } from '@/app/store/hooks/data/useProducts';
 
 /**
  * Exporta los datos de productos a un archivo CSV
@@ -8,8 +8,8 @@ import { IProduct } from '@/app/store/hooks/data/useProducts'
  */
 export const exportProductsToCSV = (products: IProduct[], fileName: string): boolean => {
   if (!products || products.length === 0) {
-    console.error('There are no products to export')
-    return false
+    console.error('There are no products to export');
+    return false;
   }
 
   try {
@@ -32,28 +32,28 @@ export const exportProductsToCSV = (products: IProduct[], fileName: string): boo
       'Imágenes',
       'Atributos',
       'Variantes',
-    ].join(',')
+    ].join(',');
 
     // Procesa cada producto en una fila CSV
-    const rows = products.map(product => {
+    const rows = products.map((product) => {
       /**
        * Escapa valores de texto para prevenir problemas con el formato CSV
        * @param value Valor a escapar
        * @returns Valor escapado para formato CSV
        */
       const escapeCsvValue = (value: any): string => {
-        if (value === undefined || value === null) return ''
+        if (value === undefined || value === null) return '';
 
         // Convierte a string si no lo es
-        const strValue = typeof value === 'string' ? value : String(value)
+        const strValue = typeof value === 'string' ? value : String(value);
 
         // Si el valor contiene comas, comillas o saltos de línea, lo envuelve en comillas
         if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
           // Reemplaza comillas dobles con dos comillas dobles
-          return `"${strValue.replace(/"/g, '""')}"`
+          return `"${strValue.replace(/"/g, '""')}"`;
         }
-        return strValue
-      }
+        return strValue;
+      };
 
       /**
        * Convierte un objeto o array a formato JSON y lo escapa para CSV
@@ -61,27 +61,27 @@ export const exportProductsToCSV = (products: IProduct[], fileName: string): boo
        * @returns String JSON escapado
        */
       const objectToJsonString = (value: any): string => {
-        if (!value) return ''
+        if (!value) return '';
         try {
-          return escapeCsvValue(JSON.stringify(value))
+          return escapeCsvValue(JSON.stringify(value));
         } catch (e) {
-          return ''
+          return '';
         }
-      }
+      };
 
       // Prepara los datos de etiquetas
       const tagsString = Array.isArray(product.tags)
         ? product.tags.join(', ')
         : typeof product.tags === 'string'
           ? product.tags
-          : ''
+          : '';
 
       // Prepara los datos de imágenes
       const imagesString = Array.isArray(product.images)
-        ? product.images.map(img => img.url).join(', ')
+        ? product.images.map((img) => img.url).join(', ')
         : typeof product.images === 'string'
           ? product.images
-          : ''
+          : '';
 
       return [
         escapeCsvValue(product.id),
@@ -101,32 +101,32 @@ export const exportProductsToCSV = (products: IProduct[], fileName: string): boo
         escapeCsvValue(imagesString),
         objectToJsonString(product.attributes),
         objectToJsonString(product.variants),
-      ].join(',')
-    })
+      ].join(',');
+    });
 
     // Combina encabezados y filas
-    const csvContent = [headers, ...rows].join('\n')
+    const csvContent = [headers, ...rows].join('\n');
 
     // Crea un Blob con el contenido CSV
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 
     // Crea un enlace de descarga y activa la descarga
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.setAttribute('href', url)
-    link.setAttribute('download', fileName)
-    document.body.appendChild(link)
-    link.click()
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
 
     // Limpieza
     setTimeout(() => {
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-    }, 100)
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 100);
 
-    return true
+    return true;
   } catch (error) {
-    console.error('Error exporting products to CSV:', error)
-    return false
+    console.error('Error exporting products to CSV:', error);
+    return false;
   }
-}
+};

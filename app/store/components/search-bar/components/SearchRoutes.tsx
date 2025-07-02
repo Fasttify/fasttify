@@ -8,22 +8,22 @@ import {
   CreditCard,
   Truck,
   Globe,
-} from 'lucide-react'
-import { LucideIcon } from 'lucide-react'
-import { routes } from '@/utils/routes'
+} from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
+import { routes } from '@/utils/routes';
 
 // Definir la interfaz para las rutas de búsqueda
 export interface SearchRoute {
-  path: string
-  label: string
-  icon?: LucideIcon
-  section?: string
-  keywords?: string[]
+  path: string;
+  label: string;
+  icon?: LucideIcon;
+  section?: string;
+  keywords?: string[];
 }
 
 // Función para generar las rutas de búsqueda basadas en el storeId
 export function generateSearchRoutes(storeId: string): SearchRoute[] {
-  if (!storeId) return []
+  if (!storeId) return [];
 
   return [
     // Dashboard
@@ -157,5 +157,5 @@ export function generateSearchRoutes(storeId: string): SearchRoute[] {
       section: 'Configuración',
       keywords: ['cobros', 'métodos de pago', 'transacciones'],
     },
-  ]
+  ];
 }

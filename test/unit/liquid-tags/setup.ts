@@ -1,5 +1,5 @@
-import { Liquid } from 'liquidjs'
-import type { RenderContext } from '@/renderer-engine/types/template'
+import { Liquid } from 'liquidjs';
+import type { RenderContext } from '@/renderer-engine/types/template';
 
 // Crear contexto de prueba simple
 export const createTestContext = (customData: Partial<RenderContext> = {}): RenderContext => {
@@ -78,21 +78,21 @@ export const createTestContext = (customData: Partial<RenderContext> = {}): Rend
     page_title: 'Test Page',
     page_description: 'Test page description',
     ...customData,
-  }
-}
+  };
+};
 
 // Crear instancia de Liquid para testing
 export const createTestLiquid = (): Liquid => {
   const liquid = new Liquid({
     root: './template',
     extname: '.liquid',
-  })
-  return liquid
-}
+  });
+  return liquid;
+};
 
 // Mock para TemplateLoader
 export const mockTemplateLoader = {
   loadTemplate: jest.fn().mockResolvedValue('<div>Mock Template</div>'),
   hasTemplates: jest.fn().mockResolvedValue(true),
   loadMainLayout: jest.fn().mockResolvedValue('<html><body>{{ content_for_layout }}</body></html>'),
-}
+};

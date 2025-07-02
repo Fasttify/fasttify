@@ -1,4 +1,4 @@
-import { defineFunction, secret } from '@aws-amplify/backend'
+import { defineFunction, secret } from '@aws-amplify/backend';
 
 export const planScheduler = defineFunction({
   timeoutSeconds: 120,
@@ -9,4 +9,4 @@ export const planScheduler = defineFunction({
   environment: {
     USER_POOL_ID: secret('USER_POOL_ID'),
   },
-})
+});

@@ -1,108 +1,94 @@
-import {
-  IndexTable,
-  Text,
-  Thumbnail,
-  TextField,
-  Button,
-  Link,
-  ButtonGroup,
-  Toast,
-} from '@shopify/polaris'
-import { ImageIcon } from '@shopify/polaris-icons'
-import { useState } from 'react'
-import { getStoreId } from '@/utils/store-utils'
-import { useParams, usePathname } from 'next/navigation'
-import { routes } from '@/utils/routes'
-import { useProducts } from '@/app/store/hooks/data/useProducts'
+import { IndexTable, Text, Thumbnail, TextField, Button, Link, ButtonGroup, Toast } from '@shopify/polaris';
+import { ImageIcon } from '@shopify/polaris-icons';
+import { useState } from 'react';
+import { getStoreId } from '@/utils/store-utils';
+import { useParams, usePathname } from 'next/navigation';
+import { routes } from '@/utils/routes';
+import { useProducts } from '@/app/store/hooks/data/useProducts';
 
 export interface InventoryRowProps {
-  id: string
-  name: string
-  sku: string
-  unavailable: number
-  committed: number
-  available: number
-  inStock: number
+  id: string;
+  name: string;
+  sku: string;
+  unavailable: number;
+  committed: number;
+  available: number;
+  inStock: number;
   images?:
     | Array<{
-        url: string
-        alt?: string
+        url: string;
+        alt?: string;
       }>
-    | string
+    | string;
 }
 
 interface InventoryTableProps {
-  data: InventoryRowProps[]
+  data: InventoryRowProps[];
 }
 
 export default function InventoryTable({ data }: InventoryTableProps) {
-  const pathname = usePathname()
-  const params = useParams()
-  const storeId = getStoreId(params, pathname)
-  const { updateProduct } = useProducts(storeId)
+  const pathname = usePathname();
+  const params = useParams();
+  const storeId = getStoreId(params, pathname);
+  const { updateProduct } = useProducts(storeId);
 
-  const [selectedResources, setSelectedResources] = useState<string[]>([])
-  const [editingRows, setEditingRows] = useState<{ [key: string]: number }>({})
-  const [showToast, setShowToast] = useState(false)
-  const [toastMessage, setToastMessage] = useState('')
+  const [selectedResources, setSelectedResources] = useState<string[]>([]);
+  const [editingRows, setEditingRows] = useState<{ [key: string]: number }>({});
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   const resourceName = {
     singular: 'producto',
     plural: 'productos',
-  }
+  };
 
   const handleStockUpdate = async (productId: string, newStock: number) => {
     try {
       await updateProduct({
         id: productId,
         quantity: newStock,
-      })
-      setToastMessage('Inventario actualizado correctamente')
-      setShowToast(true)
+      });
+      setToastMessage('Inventario actualizado correctamente');
+      setShowToast(true);
 
       // Remove from editing state
-      const newEditingRows = { ...editingRows }
-      delete newEditingRows[productId]
-      setEditingRows(newEditingRows)
+      const newEditingRows = { ...editingRows };
+      delete newEditingRows[productId];
+      setEditingRows(newEditingRows);
     } catch (error) {
-      setToastMessage('Error al actualizar el inventario')
-      setShowToast(true)
+      setToastMessage('Error al actualizar el inventario');
+      setShowToast(true);
     }
-  }
+  };
 
   const handleStockChange = (productId: string, value: string) => {
-    const numValue = parseInt(value) || 0
+    const numValue = parseInt(value) || 0;
     setEditingRows({
       ...editingRows,
       [productId]: numValue,
-    })
-  }
+    });
+  };
 
   const getImageUrl = (images: InventoryRowProps['images']) => {
-    if (!images) return null
+    if (!images) return null;
     if (typeof images === 'string') {
       try {
-        const parsed = JSON.parse(images)
-        return parsed[0]?.url || null
+        const parsed = JSON.parse(images);
+        return parsed[0]?.url || null;
       } catch {
-        return null
+        return null;
       }
     }
-    return Array.isArray(images) && images.length > 0 ? images[0].url : null
-  }
+    return Array.isArray(images) && images.length > 0 ? images[0].url : null;
+  };
 
   const rowMarkup = data.map((item, index) => {
-    const imageUrl = getImageUrl(item.images)
-    const currentStock = editingRows[item.id] !== undefined ? editingRows[item.id] : item.inStock
-    const isEditing = editingRows[item.id] !== undefined
+    const imageUrl = getImageUrl(item.images);
+    const currentStock = editingRows[item.id] !== undefined ? editingRows[item.id] : item.inStock;
+    const isEditing = editingRows[item.id] !== undefined;
 
     return (
-      <IndexTable.Row
-        id={item.id}
-        key={item.id}
-        position={index}
-        selected={selectedResources.includes(item.id)}
-      >
+      <IndexTable.Row id={item.id} key={item.id} position={index} selected={selectedResources.includes(item.id)}>
         <IndexTable.Cell>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {imageUrl ? (
@@ -117,8 +103,7 @@ export default function InventoryTable({ data }: InventoryTableProps) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                }}
-              >
+                }}>
                 <ImageIcon />
               </div>
             )}
@@ -156,7 +141,7 @@ export default function InventoryTable({ data }: InventoryTableProps) {
             <div style={{ width: '80px' }}>
               <TextField
                 value={currentStock.toString()}
-                onChange={value => handleStockChange(item.id, value)}
+                onChange={(value) => handleStockChange(item.id, value)}
                 type="number"
                 autoComplete="off"
                 label=""
@@ -171,11 +156,10 @@ export default function InventoryTable({ data }: InventoryTableProps) {
                 <Button
                   size="micro"
                   onClick={() => {
-                    const newEditingRows = { ...editingRows }
-                    delete newEditingRows[item.id]
-                    setEditingRows(newEditingRows)
-                  }}
-                >
+                    const newEditingRows = { ...editingRows };
+                    delete newEditingRows[item.id];
+                    setEditingRows(newEditingRows);
+                  }}>
                   Cancelar
                 </Button>
               </ButtonGroup>
@@ -183,12 +167,10 @@ export default function InventoryTable({ data }: InventoryTableProps) {
           </div>
         </IndexTable.Cell>
       </IndexTable.Row>
-    )
-  })
+    );
+  });
 
-  const toastMarkup = showToast ? (
-    <Toast content={toastMessage} onDismiss={() => setShowToast(false)} />
-  ) : null
+  const toastMarkup = showToast ? <Toast content={toastMessage} onDismiss={() => setShowToast(false)} /> : null;
 
   return (
     <>
@@ -199,21 +181,21 @@ export default function InventoryTable({ data }: InventoryTableProps) {
         onSelectionChange={(selectionType, toggleType, selection) => {
           if (selectionType === 'all') {
             if (toggleType) {
-              setSelectedResources(data.map(item => item.id))
+              setSelectedResources(data.map((item) => item.id));
             } else {
-              setSelectedResources([])
+              setSelectedResources([]);
             }
           } else if (selectionType === 'page') {
             if (toggleType) {
-              setSelectedResources(data.map(item => item.id))
+              setSelectedResources(data.map((item) => item.id));
             } else {
-              setSelectedResources([])
+              setSelectedResources([]);
             }
           } else if (typeof selection === 'string') {
             if (toggleType) {
-              setSelectedResources(prev => [...prev, selection])
+              setSelectedResources((prev) => [...prev, selection]);
             } else {
-              setSelectedResources(prev => prev.filter(id => id !== selection))
+              setSelectedResources((prev) => prev.filter((id) => id !== selection));
             }
           }
         }}
@@ -225,11 +207,10 @@ export default function InventoryTable({ data }: InventoryTableProps) {
           { title: 'Disponible', id: 'available' },
           { title: 'En existencia', id: 'stock' },
         ]}
-        selectable
-      >
+        selectable>
         {rowMarkup}
       </IndexTable>
       {toastMarkup}
     </>
-  )
+  );
 }

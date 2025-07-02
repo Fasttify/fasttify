@@ -1,4 +1,4 @@
-import { defineFunction, secret } from '@aws-amplify/backend'
+import { defineFunction, secret } from '@aws-amplify/backend';
 
 export const storeImages = defineFunction({
   name: 'storeImages',
@@ -10,4 +10,4 @@ export const storeImages = defineFunction({
     CLOUDFRONT_DOMAIN_NAME: secret('CLOUDFRONT_DOMAIN_NAME'),
     APP_ENV: secret('APP_ENV'),
   },
-})
+});

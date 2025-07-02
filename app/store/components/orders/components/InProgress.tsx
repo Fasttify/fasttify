@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import { LegacyCard, Text, Button, Box, LegacyStack } from '@shopify/polaris'
-import { PackageIcon } from '@shopify/polaris-icons'
-import { Icons } from '@/app/store/icons'
-import Link from 'next/link'
+import { LegacyCard, Text, Button, Box, LegacyStack } from '@shopify/polaris';
+import { PackageIcon } from '@shopify/polaris-icons';
+import { Icons } from '@/app/store/icons';
+import Link from 'next/link';
 
 export function InProgress() {
   return (
@@ -28,8 +28,7 @@ export function InProgress() {
             gap: '1.5rem',
             textAlign: 'center',
             padding: '2rem 0',
-          }}
-        >
+          }}>
           <Box background="bg-surface-secondary" padding="600" borderRadius="full">
             <Icons.Shipping width={200} height={200} />
           </Box>
@@ -38,8 +37,8 @@ export function InProgress() {
               Gestiona tus pedidos en proceso
             </Text>
             <Text as="p" variant="bodyMd" tone="subdued">
-              Aquí puedes hacer seguimiento a los pedidos en proceso, verificar su estado y
-              asegurarte de que se completen correctamente.
+              Aquí puedes hacer seguimiento a los pedidos en proceso, verificar su estado y asegurarte de que se
+              completen correctamente.
             </Text>
           </LegacyStack>
           <Link href="/pedidos">
@@ -48,5 +47,5 @@ export function InProgress() {
         </div>
       </LegacyCard>
     </div>
-  )
+  );
 }

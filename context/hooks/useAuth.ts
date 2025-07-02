@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
-import { fetchAuthSession } from 'aws-amplify/auth'
-import useAuthStore from '@/context/core/userStore'
+import { useEffect } from 'react';
+import { fetchAuthSession } from 'aws-amplify/auth';
+import useAuthStore from '@/context/core/userStore';
 
 /**
  * Hook personalizado para manejar la autenticación del usuario.
@@ -19,7 +19,7 @@ import useAuthStore from '@/context/core/userStore'
  * ```
  */
 export const useAuth = () => {
-  const { user, setUser, clearUser, setLoading } = useAuthStore()
+  const { user, setUser, clearUser, setLoading } = useAuthStore();
 
   useEffect(() => {
     /**
@@ -29,68 +29,50 @@ export const useAuth = () => {
      */
     const checkUser = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         // Obtener la sesión actual del usuario
-        const session = await fetchAuthSession({ forceRefresh: true })
+        const session = await fetchAuthSession({ forceRefresh: true });
 
         // Verificar si hay una sesión válida con tokens
         if (session && session.tokens) {
           // Obtener los atributos del usuario desde el token ID
-          const userAttributes = session.tokens.idToken?.payload || {}
+          const userAttributes = session.tokens.idToken?.payload || {};
 
           const newUser = {
-            nickName:
-              typeof userAttributes.nickname === 'string' ? userAttributes.nickname : undefined,
+            nickName: typeof userAttributes.nickname === 'string' ? userAttributes.nickname : undefined,
             email: typeof userAttributes.email === 'string' ? userAttributes.email : '',
-            picture:
-              typeof userAttributes.picture === 'string' ? userAttributes.picture : undefined,
+            picture: typeof userAttributes.picture === 'string' ? userAttributes.picture : undefined,
             preferredUsername:
-              typeof userAttributes.preferred_username === 'string'
-                ? userAttributes.preferred_username
-                : '',
-            plan:
-              typeof userAttributes['custom:plan'] === 'string'
-                ? userAttributes['custom:plan']
-                : undefined,
-            bio:
-              typeof userAttributes['custom:bio'] === 'string'
-                ? userAttributes['custom:bio']
-                : undefined,
-            phone:
-              typeof userAttributes['custom:phone'] === 'string'
-                ? userAttributes['custom:phone']
-                : undefined,
+              typeof userAttributes.preferred_username === 'string' ? userAttributes.preferred_username : '',
+            plan: typeof userAttributes['custom:plan'] === 'string' ? userAttributes['custom:plan'] : undefined,
+            bio: typeof userAttributes['custom:bio'] === 'string' ? userAttributes['custom:bio'] : undefined,
+            phone: typeof userAttributes['custom:phone'] === 'string' ? userAttributes['custom:phone'] : undefined,
 
-            identities: Array.isArray(userAttributes.identities)
-              ? userAttributes.identities
-              : undefined,
+            identities: Array.isArray(userAttributes.identities) ? userAttributes.identities : undefined,
 
-            cognitoUsername:
-              typeof userAttributes.sub === 'string' ? userAttributes.sub : undefined,
+            cognitoUsername: typeof userAttributes.sub === 'string' ? userAttributes.sub : undefined,
 
             userId:
-              typeof userAttributes['cognito:username'] === 'string'
-                ? userAttributes['cognito:username']
-                : undefined,
-          }
-          setUser(newUser)
+              typeof userAttributes['cognito:username'] === 'string' ? userAttributes['cognito:username'] : undefined,
+          };
+          setUser(newUser);
         } else {
-          clearUser()
+          clearUser();
         }
       } catch (error) {
-        console.error('Error getting user:', error)
-        clearUser()
+        console.error('Error getting user:', error);
+        clearUser();
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     if (!user) {
-      checkUser()
+      checkUser();
     } else {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [setUser, clearUser, user, setLoading])
+  }, [setUser, clearUser, user, setLoading]);
 
-  return {}
-}
+  return {};
+};

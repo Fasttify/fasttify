@@ -1,10 +1,10 @@
 export interface DNSStatus {
-  isConfigured: boolean
-  hasError: boolean
-  currentValue?: string
-  expectedValue: string
-  error?: string
-  recordType?: 'CNAME' | 'A' | 'NONE'
+  isConfigured: boolean;
+  hasError: boolean;
+  currentValue?: string;
+  expectedValue: string;
+  error?: string;
+  recordType?: 'CNAME' | 'A' | 'NONE';
 }
 
 /**
@@ -25,48 +25,48 @@ export class DNSVerifier {
     /^99\.86\./,
     /^204\.246\./,
     /^205\.251\./,
-  ]
+  ];
 
   /**
    * Verificar configuración DNS de un dominio para CloudFront
    */
   async verifyDNS(domain: string, expectedEndpoint?: string): Promise<DNSStatus> {
     try {
-      const dns = require('dns').promises
+      const dns = require('dns').promises;
 
       // Primero intentar resolver CNAME
       try {
-        const cnameRecords = await dns.resolveCname(domain)
-        const currentValue = cnameRecords[0]
+        const cnameRecords = await dns.resolveCname(domain);
+        const currentValue = cnameRecords[0];
 
         if (expectedEndpoint) {
           // Verificar si apunta al endpoint específico
-          const isConfigured = currentValue === expectedEndpoint
+          const isConfigured = currentValue === expectedEndpoint;
           return {
             isConfigured,
             hasError: false,
             currentValue,
             expectedValue: expectedEndpoint,
             recordType: 'CNAME',
-          }
+          };
         } else {
           // Verificar si apunta a cualquier endpoint de CloudFront
-          const isCloudFrontEndpoint = /\.cloudfront\.net$/.test(currentValue)
+          const isCloudFrontEndpoint = /\.cloudfront\.net$/.test(currentValue);
           return {
             isConfigured: isCloudFrontEndpoint,
             hasError: false,
             currentValue,
             expectedValue: 'TENANT_ENDPOINT.cloudfront.net',
             recordType: 'CNAME',
-          }
+          };
         }
       } catch (cnameError) {
         // Si no hay CNAME, verificar registros A
         try {
-          const aRecords = await dns.resolve4(domain)
+          const aRecords = await dns.resolve4(domain);
           const pointsToCloudFront = aRecords.some((ip: string) =>
-            this.CLOUDFRONT_IP_PATTERNS.some(pattern => pattern.test(ip))
-          )
+            this.CLOUDFRONT_IP_PATTERNS.some((pattern) => pattern.test(ip))
+          );
 
           return {
             isConfigured: pointsToCloudFront,
@@ -74,7 +74,7 @@ export class DNSVerifier {
             currentValue: aRecords.join(', '),
             expectedValue: expectedEndpoint || 'CNAME to TENANT_ENDPOINT.cloudfront.net',
             recordType: 'A',
-          }
+          };
         } catch (aError) {
           return {
             isConfigured: false,
@@ -82,18 +82,18 @@ export class DNSVerifier {
             expectedValue: expectedEndpoint || 'CNAME to TENANT_ENDPOINT.cloudfront.net',
             error: 'Domain does not resolve',
             recordType: 'NONE',
-          }
+          };
         }
       }
     } catch (error) {
-      console.error('Error verifying DNS:', error)
+      console.error('Error verifying DNS:', error);
       return {
         isConfigured: false,
         hasError: true,
         expectedValue: expectedEndpoint || 'CNAME to TENANT_ENDPOINT.cloudfront.net',
         error: error instanceof Error ? error.message : 'Unknown DNS error',
         recordType: 'NONE',
-      }
+      };
     }
   }
 
@@ -118,7 +118,7 @@ export class DNSVerifier {
  Verificar configuración:
    • Comando: dig CNAME ${domain}
    • Resultado esperado: ${endpoint}
-    `.trim()
+    `.trim();
   }
 
   /**
@@ -127,15 +127,15 @@ export class DNSVerifier {
   async verifyMultipleDomains(
     domains: Array<{ domain: string; expectedEndpoint?: string }>
   ): Promise<Record<string, DNSStatus>> {
-    const results: Record<string, DNSStatus> = {}
+    const results: Record<string, DNSStatus> = {};
 
     const verificationPromises = domains.map(async ({ domain, expectedEndpoint }) => {
-      const result = await this.verifyDNS(domain, expectedEndpoint)
-      results[domain] = result
-    })
+      const result = await this.verifyDNS(domain, expectedEndpoint);
+      results[domain] = result;
+    });
 
-    await Promise.all(verificationPromises)
-    return results
+    await Promise.all(verificationPromises);
+    return results;
   }
 
   /**
@@ -143,10 +143,10 @@ export class DNSVerifier {
    */
   async isDomainReadyForCloudFront(domain: string): Promise<boolean> {
     try {
-      const status = await this.verifyDNS(domain)
-      return status.isConfigured && !status.hasError
+      const status = await this.verifyDNS(domain);
+      return status.isConfigured && !status.hasError;
     } catch {
-      return false
+      return false;
     }
   }
 
@@ -155,21 +155,21 @@ export class DNSVerifier {
    */
   async getDNSRecordType(domain: string): Promise<'CNAME' | 'A' | 'NONE'> {
     try {
-      const dns = require('dns').promises
+      const dns = require('dns').promises;
 
       try {
-        await dns.resolveCname(domain)
-        return 'CNAME'
+        await dns.resolveCname(domain);
+        return 'CNAME';
       } catch {
         try {
-          await dns.resolve4(domain)
-          return 'A'
+          await dns.resolve4(domain);
+          return 'A';
         } catch {
-          return 'NONE'
+          return 'NONE';
         }
       }
     } catch {
-      return 'NONE'
+      return 'NONE';
     }
   }
 
@@ -177,28 +177,25 @@ export class DNSVerifier {
    * Generar diagnóstico completo de DNS
    */
   async generateDNSDiagnostic(domain: string, expectedEndpoint?: string): Promise<string> {
-    const status = await this.verifyDNS(domain, expectedEndpoint)
-    const recordType = await this.getDNSRecordType(domain)
+    const status = await this.verifyDNS(domain, expectedEndpoint);
+    const recordType = await this.getDNSRecordType(domain);
 
-    let diagnostic = `🔍 Diagnóstico DNS para ${domain}:\n\n`
+    let diagnostic = `🔍 Diagnóstico DNS para ${domain}:\n\n`;
 
-    diagnostic += `📊 Estado actual:\n`
-    diagnostic += `   • Configurado correctamente: ${status.isConfigured ? '✅ Sí' : '❌ No'}\n`
-    diagnostic += `   • Tipo de registro: ${recordType}\n`
-    diagnostic += `   • Valor actual: ${status.currentValue || 'No encontrado'}\n`
-    diagnostic += `   • Valor esperado: ${status.expectedValue}\n\n`
+    diagnostic += `📊 Estado actual:\n`;
+    diagnostic += `   • Configurado correctamente: ${status.isConfigured ? '✅ Sí' : '❌ No'}\n`;
+    diagnostic += `   • Tipo de registro: ${recordType}\n`;
+    diagnostic += `   • Valor actual: ${status.currentValue || 'No encontrado'}\n`;
+    diagnostic += `   • Valor esperado: ${status.expectedValue}\n\n`;
 
     if (status.hasError) {
-      diagnostic += `❌ Error: ${status.error}\n\n`
+      diagnostic += `❌ Error: ${status.error}\n\n`;
     }
 
     if (!status.isConfigured) {
-      diagnostic += this.generateDNSInstructions(
-        domain,
-        expectedEndpoint || 'ENDPOINT.cloudfront.net'
-      )
+      diagnostic += this.generateDNSInstructions(domain, expectedEndpoint || 'ENDPOINT.cloudfront.net');
     }
 
-    return diagnostic
+    return diagnostic;
   }
 }

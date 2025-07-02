@@ -1,74 +1,72 @@
-import { useState } from 'react'
-import { generateClient } from 'aws-amplify/data'
-import type { Schema } from '@/amplify/data/resource'
-import useUserStore from '@/context/core/userStore'
+import { useState } from 'react';
+import { generateClient } from 'aws-amplify/data';
+import type { Schema } from '@/amplify/data/resource';
+import useUserStore from '@/context/core/userStore';
 
 const client = generateClient<Schema>({
   authMode: 'userPool',
-})
+});
 
 // Definición del input para UserStore
-export type UserStore = Schema['UserStore']['type']
+export type UserStore = Schema['UserStore']['type'];
 
 // Tipo para pasarelas de pago
-export type PaymentGatewayType = 'mercadoPago' | 'wompi'
+export type PaymentGatewayType = 'mercadoPago' | 'wompi';
 
 // Tipo para configuración de pasarela
 export interface PaymentGatewayConfig {
-  publicKey: string
-  privateKey: string
-  isActive: boolean
-  createdAt: string
+  publicKey: string;
+  privateKey: string;
+  isActive: boolean;
+  createdAt: string;
 }
 
 // Tipos para respuestas de inicialización
 export interface StoreInitializationResult {
-  success: boolean
-  message: string
-  collections?: string[]
-  menus?: string[]
+  success: boolean;
+  message: string;
+  collections?: string[];
+  menus?: string[];
 }
 
 // Tipos para menús de navegación
-export type NavigationMenu = Schema['NavigationMenu']['type']
+export type NavigationMenu = Schema['NavigationMenu']['type'];
 
 // Tipos para items de menú (ahora son objetos JavaScript, no registros de BD)
 export interface MenuItem {
-  label: string
-  url: string
-  type: 'internal' | 'external' | 'page' | 'collection' | 'product'
-  isVisible: boolean
-  target?: '_blank' | '_self'
-  sortOrder: number
+  label: string;
+  url: string;
+  type: 'internal' | 'external' | 'page' | 'collection' | 'product';
+  isVisible: boolean;
+  target?: '_blank' | '_self';
+  sortOrder: number;
 }
 
 export const useUserStoreData = () => {
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<any>(null)
-  const { user } = useUserStore()
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<any>(null);
+  const { user } = useUserStore();
 
   /**
    * Función auxiliar que ejecuta una operación y gestiona loading y error.
    */
-  const performOperation = async <T>(
-    operation: () => Promise<{ data: T; errors?: any[] }>
-  ): Promise<T | null> => {
-    setLoading(true)
-    setError(null)
+  const performOperation = async <T>(operation: () => Promise<{ data: T; errors?: any[] }>): Promise<T | null> => {
+    setLoading(true);
+    setError(null);
     try {
-      const result = await operation()
+      const result = await operation();
       if (result.errors && result.errors.length > 0) {
-        setError(result.errors)
-        return null
+        setError(result.errors);
+        return null;
       }
-      return result.data
+      return result.data;
     } catch (err) {
-      setError(err)
-      return null
+      setError(err);
+      return null;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   /**
    * Obtiene la información de pasarelas de pago configuradas
@@ -79,18 +77,18 @@ export const useUserStoreData = () => {
   const getStorePaymentInfo = async (
     storeId: string
   ): Promise<{
-    configuredGateways: PaymentGatewayType[]
+    configuredGateways: PaymentGatewayType[];
   }> => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       if (!user?.userId) {
-        setError('User not authenticated')
-        return { configuredGateways: [] }
+        setError('User not authenticated');
+        return { configuredGateways: [] };
       }
 
-      const configuredGateways: PaymentGatewayType[] = []
+      const configuredGateways: PaymentGatewayType[] = [];
 
       // Verificamos si existe configuración de Wompi
       const wompiResult = await client.models.UserStore.listUserStoreByUserId(
@@ -104,7 +102,7 @@ export const useUserStoreData = () => {
           },
           selectionSet: ['storeId'],
         }
-      )
+      );
 
       // Verificamos si existe configuración de MercadoPago
       const mercadoPagoResult = await client.models.UserStore.listUserStoreByUserId(
@@ -118,27 +116,27 @@ export const useUserStoreData = () => {
           },
           selectionSet: ['storeId'],
         }
-      )
+      );
 
       // Agregamos las pasarelas configuradas al array
       if (wompiResult.data && wompiResult.data.length > 0) {
-        configuredGateways.push('wompi')
+        configuredGateways.push('wompi');
       }
 
       if (mercadoPagoResult.data && mercadoPagoResult.data.length > 0) {
-        configuredGateways.push('mercadoPago')
+        configuredGateways.push('mercadoPago');
       }
 
       return {
         configuredGateways,
-      }
+      };
     } catch (err) {
-      setError(err)
-      return { configuredGateways: [] }
+      setError(err);
+      return { configuredGateways: [] };
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   /**
    * Configura una pasarela de pago para una tienda específica.
@@ -150,8 +148,8 @@ export const useUserStoreData = () => {
     convertToJson: boolean = false
   ): Promise<boolean> => {
     if (!storeId || !user?.userId) {
-      setError('Store ID or User ID not provided')
-      return false
+      setError('Store ID or User ID not provided');
+      return false;
     }
 
     try {
@@ -166,23 +164,21 @@ export const useUserStoreData = () => {
           },
           selectionSet: ['storeId'],
         }
-      )
+      );
 
       if (!existingStoreResult.data || existingStoreResult.data.length === 0) {
-        setError('Store not found')
-        return false
+        setError('Store not found');
+        return false;
       }
 
       // Convertir a JSON si es necesario
-      const configValue = convertToJson ? JSON.stringify(config) : config
+      const configValue = convertToJson ? JSON.stringify(config) : config;
 
       // El payload de update NO debe incluir el identificador (storeId)
       // Solo los campos que queremos actualizar
       const updatePayload = {
-        ...(gateway === 'mercadoPago'
-          ? { mercadoPagoConfig: configValue }
-          : { wompiConfig: configValue }),
-      }
+        ...(gateway === 'mercadoPago' ? { mercadoPagoConfig: configValue } : { wompiConfig: configValue }),
+      };
 
       // Para el update, necesitamos pasar el identificador por separado
       const result = await performOperation(() =>
@@ -190,23 +186,21 @@ export const useUserStoreData = () => {
           storeId: storeId, // Este es el identificador
           ...updatePayload, // Estos son los campos a actualizar
         })
-      )
+      );
 
-      return result !== null
+      return result !== null;
     } catch (err) {
-      setError(err)
-      return false
+      setError(err);
+      return false;
     }
-  }
+  };
 
   /**
    * Crea una tienda (UserStore) en la base de datos.
    */
-  const createUserStore = async (
-    storeInput: Omit<Schema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>
-  ) => {
-    return performOperation(() => client.models.UserStore.create(storeInput))
-  }
+  const createUserStore = async (storeInput: Omit<Schema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>) => {
+    return performOperation(() => client.models.UserStore.create(storeInput));
+  };
 
   /**
    * Actualiza los datos de una tienda.
@@ -214,15 +208,15 @@ export const useUserStoreData = () => {
   const updateUserStore = async (
     storeInput: Omit<Partial<UserStore>, 'id' | 'createdAt' | 'updatedAt'> & { storeId: string }
   ) => {
-    return performOperation(() => client.models.UserStore.update(storeInput))
-  }
+    return performOperation(() => client.models.UserStore.update(storeInput));
+  };
 
   /**
    * Elimina una tienda a partir de su 'storeId'.
    */
   const deleteUserStore = async (storeId: string) => {
-    return performOperation(() => client.models.UserStore.delete({ storeId }))
-  }
+    return performOperation(() => client.models.UserStore.delete({ storeId }));
+  };
 
   /**
    * Inicializa los datos por defecto para una nueva tienda.
@@ -230,8 +224,8 @@ export const useUserStoreData = () => {
    */
   const initializeStoreTemplate = async (storeId: string, domain: string) => {
     if (!storeId || !domain) {
-      setError('Store ID and domain are required')
-      return null
+      setError('Store ID and domain are required');
+      return null;
     }
 
     return performOperation(() =>
@@ -239,16 +233,16 @@ export const useUserStoreData = () => {
         storeId,
         domain,
       })
-    )
-  }
+    );
+  };
 
   /**
    * Obtiene los menús de navegación de una tienda específica.
    */
   const getStoreMenus = async (storeId: string, domain: string) => {
     if (!storeId || !domain) {
-      setError('Store ID and domain are required')
-      return null
+      setError('Store ID and domain are required');
+      return null;
     }
 
     return performOperation(() =>
@@ -259,8 +253,8 @@ export const useUserStoreData = () => {
         },
         selectionSet: ['id', 'name', 'handle', 'isMain', 'isActive', 'domain', 'menuData'],
       })
-    )
-  }
+    );
+  };
 
   /**
    * Función completa para crear una tienda con todos sus datos iniciales.
@@ -270,34 +264,34 @@ export const useUserStoreData = () => {
     storeInput: Omit<Schema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>
   ) => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       // Primero crear la tienda
-      const storeResult = await performOperation(() => client.models.UserStore.create(storeInput))
+      const storeResult = await performOperation(() => client.models.UserStore.create(storeInput));
 
       if (!storeResult) {
-        throw new Error('Failed to create store')
+        throw new Error('Failed to create store');
       }
 
       // Luego inicializar los datos por defecto (colecciones y menús)
       // Priorizar customDomain, luego generar dominio fasttify si no existe
-      const domain = storeInput.customDomain || `${storeInput.storeName}.fasttify.com`
+      const domain = storeInput.customDomain || `${storeInput.storeName}.fasttify.com`;
 
-      const templateResult = await initializeStoreTemplate(storeInput.storeId, domain)
+      const templateResult = await initializeStoreTemplate(storeInput.storeId, domain);
 
       return {
         store: storeResult,
         template: templateResult,
         success: true,
-      }
+      };
     } catch (err) {
-      setError(err)
-      return null
+      setError(err);
+      return null;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return {
     loading,
@@ -310,5 +304,5 @@ export const useUserStoreData = () => {
     initializeStoreTemplate,
     getStoreMenus,
     createStoreWithTemplate,
-  }
-}
+  };
+};

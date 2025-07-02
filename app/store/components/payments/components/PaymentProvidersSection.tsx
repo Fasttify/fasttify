@@ -1,6 +1,6 @@
-import { Card, Text, LegacyStack, Link, Box, BlockStack } from '@shopify/polaris'
-import { WompiGuide } from '@/app/store/components/payments/components/WompiGuide'
-import { MercadoPagoGuide } from '@/app/store/components/payments/components/MercadoPagoGuide'
+import { Card, Text, LegacyStack, Link, Box, BlockStack } from '@shopify/polaris';
+import { WompiGuide } from '@/app/store/components/payments/components/WompiGuide';
+import { MercadoPagoGuide } from '@/app/store/components/payments/components/MercadoPagoGuide';
 
 export function PaymentProvidersSection() {
   return (
@@ -11,9 +11,8 @@ export function PaymentProvidersSection() {
             Pasarelas de Pago
           </Text>
           <Text as="p" tone="subdued">
-            Configura las pasarelas de pago para aceptar transacciones en tu tienda. Se pueden
-            aplicar tarifas según el proveedor seleccionado. <Link url="#">Selecciona un plan</Link>
-            .
+            Configura las pasarelas de pago para aceptar transacciones en tu tienda. Se pueden aplicar tarifas según el
+            proveedor seleccionado. <Link url="#">Selecciona un plan</Link>.
           </Text>
         </BlockStack>
       </Box>
@@ -24,5 +23,5 @@ export function PaymentProvidersSection() {
         </LegacyStack>
       </Box>
     </Card>
-  )
+  );
 }

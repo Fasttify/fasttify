@@ -1,5 +1,5 @@
-import { Text } from '@shopify/polaris'
-import { ProductIcon } from '@shopify/polaris-icons'
+import { Text } from '@shopify/polaris';
+import { ProductIcon } from '@shopify/polaris-icons';
 
 export default function InventoryHeader() {
   return (
@@ -14,5 +14,5 @@ export default function InventoryHeader() {
         Administra y controla el stock de tus productos en tiempo real.
       </Text>
     </div>
-  )
+  );
 }

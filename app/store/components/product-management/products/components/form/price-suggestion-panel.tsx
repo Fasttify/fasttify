@@ -1,28 +1,18 @@
-import {
-  BlockStack,
-  InlineStack,
-  Text,
-  Tooltip,
-  Badge,
-  Grid,
-  ButtonGroup,
-  Button,
-  Card,
-} from '@shopify/polaris'
-import { QuestionCircleIcon } from '@shopify/polaris-icons'
-import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/ai-generate-button'
-import type { PriceSuggestionResult } from '@/app/store/components/product-management/products/hooks/usePriceSuggestion'
-import type { UseFormReturn } from 'react-hook-form'
-import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
-import { formatPrice } from '@/app/store/components/product-management/utils/productUtils'
+import { BlockStack, InlineStack, Text, Tooltip, Badge, Grid, ButtonGroup, Button, Card } from '@shopify/polaris';
+import { QuestionCircleIcon } from '@shopify/polaris-icons';
+import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/ai-generate-button';
+import type { PriceSuggestionResult } from '@/app/store/components/product-management/products/hooks/usePriceSuggestion';
+import type { UseFormReturn } from 'react-hook-form';
+import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
+import { formatPrice } from '@/app/store/components/product-management/utils/productUtils';
 
 interface PriceSuggestionPanelProps {
-  form: UseFormReturn<ProductFormValues>
-  isGeneratingPrice: boolean
-  displayResult: PriceSuggestionResult | null
-  onGeneratePrice: () => Promise<void>
-  onAcceptPrice: () => void
-  onRejectPrice: () => void
+  form: UseFormReturn<ProductFormValues>;
+  isGeneratingPrice: boolean;
+  displayResult: PriceSuggestionResult | null;
+  onGeneratePrice: () => Promise<void>;
+  onAcceptPrice: () => void;
+  onRejectPrice: () => void;
 }
 
 export function PriceSuggestionPanel({
@@ -35,22 +25,13 @@ export function PriceSuggestionPanel({
   const confidenceMarkup = displayResult ? (
     <Badge
       tone={
-        displayResult.confidence === 'high'
-          ? 'success'
-          : displayResult.confidence === 'medium'
-            ? 'info'
-            : 'attention'
-      }
-    >
+        displayResult.confidence === 'high' ? 'success' : displayResult.confidence === 'medium' ? 'info' : 'attention'
+      }>
       {`Confianza: ${
-        displayResult.confidence === 'high'
-          ? 'Alta'
-          : displayResult.confidence === 'medium'
-            ? 'Media'
-            : 'Baja'
+        displayResult.confidence === 'high' ? 'Alta' : displayResult.confidence === 'medium' ? 'Media' : 'Baja'
       }`}
     </Badge>
-  ) : null
+  ) : null;
 
   return (
     <BlockStack gap="400">
@@ -60,18 +41,10 @@ export function PriceSuggestionPanel({
             Sugerencia de Precio con IA
           </Text>
           <Tooltip content="Use un nombre de producto descriptivo y una categoría adecuada para obtener mejores sugerencias.">
-            <Button
-              icon={QuestionCircleIcon}
-              variant="plain"
-              accessibilityLabel="Más información sobre precios"
-            />
+            <Button icon={QuestionCircleIcon} variant="plain" accessibilityLabel="Más información sobre precios" />
           </Tooltip>
         </InlineStack>
-        <AIGenerateButton
-          onClick={onGeneratePrice}
-          isLoading={isGeneratingPrice}
-          isDisabled={!!displayResult}
-        />
+        <AIGenerateButton onClick={onGeneratePrice} isLoading={isGeneratingPrice} isDisabled={!!displayResult} />
       </InlineStack>
 
       {displayResult && (
@@ -139,5 +112,5 @@ export function PriceSuggestionPanel({
         </Card>
       )}
     </BlockStack>
-  )
+  );
 }

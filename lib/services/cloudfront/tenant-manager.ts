@@ -6,55 +6,55 @@ import {
   ListDistributionTenantsCommand,
   GetConnectionGroupCommand,
   DomainResult,
-} from '@aws-sdk/client-cloudfront'
-import { SecureLogger } from '@/lib/utils/secure-logger'
+} from '@aws-sdk/client-cloudfront';
+import { SecureLogger } from '@/lib/utils/secure-logger';
 
 export interface CreateTenantParams {
-  tenantName: string
-  domain: string
-  origin: string
-  certificateArn?: string
+  tenantName: string;
+  domain: string;
+  origin: string;
+  certificateArn?: string;
 }
 
 export interface TenantResult {
-  success: boolean
-  tenantId?: string
-  endpoint?: DomainResult[]
-  error?: string
+  success: boolean;
+  tenantId?: string;
+  endpoint?: DomainResult[];
+  error?: string;
 }
 
 export interface TenantStatus {
-  isActive: boolean
-  hasError: boolean
-  status: string
-  endpoint: string
+  isActive: boolean;
+  hasError: boolean;
+  status: string;
+  endpoint: string;
   dnsInstructions: {
-    type: string
-    name: string
-    value: string
-    instructions: string
-  }
+    type: string;
+    name: string;
+    value: string;
+    instructions: string;
+  };
 }
 
 export interface TenantInfo {
-  id: string
-  domain: string
-  status: string
-  endpoint?: string
+  id: string;
+  domain: string;
+  status: string;
+  endpoint?: string;
 }
 
 /**
  * Servicio especializado en gestión de tenants de CloudFront Multi-Tenant
  */
 export class CloudFrontTenantManager {
-  private cloudFrontClient: CloudFrontClient
-  private multiTenantDistributionId: string
+  private cloudFrontClient: CloudFrontClient;
+  private multiTenantDistributionId: string;
 
   constructor() {
     this.cloudFrontClient = new CloudFrontClient({
       region: 'us-east-1',
-    })
-    this.multiTenantDistributionId = process.env.CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID || ''
+    });
+    this.multiTenantDistributionId = process.env.CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID || '';
   }
 
   /**
@@ -67,7 +67,7 @@ export class CloudFrontTenantManager {
         DistributionId: this.multiTenantDistributionId,
         Name: params.tenantName,
         Domains: [{ Domain: params.domain }],
-      }
+      };
 
       // Si tenemos un certificado, lo pasamos en Customizations
       if (params.certificateArn) {
@@ -75,22 +75,20 @@ export class CloudFrontTenantManager {
           Certificate: {
             Arn: params.certificateArn,
           },
-        }
+        };
       }
 
-      const command = new CreateDistributionTenantCommand(commandParams)
+      const command = new CreateDistributionTenantCommand(commandParams);
 
-      const result = await this.cloudFrontClient.send(command)
+      const result = await this.cloudFrontClient.send(command);
 
       if (result.DistributionTenant) {
         // Obtener el endpoint correcto del Connection Group
-        let cloudFrontEndpoint: DomainResult[] = []
+        let cloudFrontEndpoint: DomainResult[] = [];
         if (result.DistributionTenant.ConnectionGroupId) {
-          const connectionEndpoint = await this.getConnectionGroupEndpoint(
-            result.DistributionTenant.ConnectionGroupId
-          )
+          const connectionEndpoint = await this.getConnectionGroupEndpoint(result.DistributionTenant.ConnectionGroupId);
           if (connectionEndpoint) {
-            cloudFrontEndpoint = [{ Domain: connectionEndpoint } as DomainResult]
+            cloudFrontEndpoint = [{ Domain: connectionEndpoint } as DomainResult];
           }
         }
 
@@ -98,19 +96,19 @@ export class CloudFrontTenantManager {
           success: true,
           tenantId: result.DistributionTenant.Id,
           endpoint: cloudFrontEndpoint,
-        }
+        };
       } else {
         return {
           success: false,
           error: 'Failed to create tenant - no response data',
-        }
+        };
       }
     } catch (error) {
-      SecureLogger.error('Error creating CloudFront tenant:', error)
+      SecureLogger.error('Error creating CloudFront tenant:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-      }
+      };
     }
   }
 
@@ -121,21 +119,21 @@ export class CloudFrontTenantManager {
     try {
       const command = new GetConnectionGroupCommand({
         Identifier: connectionGroupId,
-      } as any)
+      } as any);
 
-      const result = await this.cloudFrontClient.send(command)
-      const connectionGroup = result.ConnectionGroup
+      const result = await this.cloudFrontClient.send(command);
+      const connectionGroup = result.ConnectionGroup;
 
       if (!connectionGroup) {
-        return null
+        return null;
       }
 
       // El endpoint está en el campo RoutingEndpoint del Connection Group
-      const connectionGroupAny = connectionGroup as any
-      return connectionGroupAny.RoutingEndpoint || null
+      const connectionGroupAny = connectionGroup as any;
+      return connectionGroupAny.RoutingEndpoint || null;
     } catch (error) {
-      SecureLogger.error('Error getting connection group endpoint:', error)
-      return null
+      SecureLogger.error('Error getting connection group endpoint:', error);
+      return null;
     }
   }
 
@@ -146,25 +144,25 @@ export class CloudFrontTenantManager {
     try {
       const command = new GetDistributionTenantCommand({
         Identifier: tenantId,
-      } as any)
+      } as any);
 
-      const result = await this.cloudFrontClient.send(command)
-      const tenant = result.DistributionTenant
+      const result = await this.cloudFrontClient.send(command);
+      const tenant = result.DistributionTenant;
 
       if (!tenant) {
-        throw new Error('Tenant not found')
+        throw new Error('Tenant not found');
       }
 
-      const isActive = tenant.Enabled && tenant.Status === 'Deployed'
-      const domain = tenant.Domains?.[0]?.Domain || ''
+      const isActive = tenant.Enabled && tenant.Status === 'Deployed';
+      const domain = tenant.Domains?.[0]?.Domain || '';
 
       // Obtener el endpoint real del Connection Group
-      let cloudFrontEndpoint = ''
+      let cloudFrontEndpoint = '';
       if (tenant.ConnectionGroupId) {
-        const connectionEndpoint = await this.getConnectionGroupEndpoint(tenant.ConnectionGroupId)
-        cloudFrontEndpoint = connectionEndpoint || 'ENDPOINT_NOT_AVAILABLE'
+        const connectionEndpoint = await this.getConnectionGroupEndpoint(tenant.ConnectionGroupId);
+        cloudFrontEndpoint = connectionEndpoint || 'ENDPOINT_NOT_AVAILABLE';
       } else {
-        cloudFrontEndpoint = 'NO_CONNECTION_GROUP'
+        cloudFrontEndpoint = 'NO_CONNECTION_GROUP';
       }
 
       return {
@@ -178,9 +176,9 @@ export class CloudFrontTenantManager {
           value: cloudFrontEndpoint,
           instructions: `Configure a CNAME record for ${domain} pointing to ${cloudFrontEndpoint}`,
         },
-      }
+      };
     } catch (error) {
-      SecureLogger.error('Error getting tenant status:', error)
+      SecureLogger.error('Error getting tenant status:', error);
       return {
         isActive: false,
         hasError: true,
@@ -192,7 +190,7 @@ export class CloudFrontTenantManager {
           value: '',
           instructions: 'Error retrieving DNS instructions',
         },
-      }
+      };
     }
   }
 
@@ -204,13 +202,13 @@ export class CloudFrontTenantManager {
       const command = new DeleteDistributionTenantCommand({
         Id: tenantId,
         IfMatch: '*', // Requerido por la API
-      })
+      });
 
-      await this.cloudFrontClient.send(command)
-      return true
+      await this.cloudFrontClient.send(command);
+      return true;
     } catch (error) {
-      SecureLogger.secureLog('error', 'Error deleting CloudFront tenant %s:', tenantId, error)
-      return false
+      SecureLogger.secureLog('error', 'Error deleting CloudFront tenant %s:', tenantId, error);
+      return false;
     }
   }
 
@@ -221,19 +219,19 @@ export class CloudFrontTenantManager {
     try {
       const command = new ListDistributionTenantsCommand({
         DistributionId: this.multiTenantDistributionId,
-      } as any)
+      } as any);
 
-      const result = await this.cloudFrontClient.send(command)
+      const result = await this.cloudFrontClient.send(command);
 
       return (result.DistributionTenantList || []).map((tenant: any) => ({
         id: tenant.Id || '',
         domain: tenant.Domains?.[0]?.Domain || '',
         status: tenant.Status || 'Unknown',
         endpoint: tenant.Domains?.[0]?.Domain || '',
-      }))
+      }));
     } catch (error) {
-      SecureLogger.error('Error listing tenants:', error)
-      return []
+      SecureLogger.error('Error listing tenants:', error);
+      return [];
     }
   }
 
@@ -243,23 +241,19 @@ export class CloudFrontTenantManager {
   async updateTenant(tenantId: string, config: Partial<CreateTenantParams>): Promise<boolean> {
     try {
       // Obtener configuración actual
-      const currentStatus = await this.getTenantStatus(tenantId)
+      const currentStatus = await this.getTenantStatus(tenantId);
 
       if (currentStatus.hasError) {
-        SecureLogger.secureLog(
-          'error',
-          'Cannot update tenant %s - current status has error',
-          tenantId
-        )
-        return false
+        SecureLogger.secureLog('error', 'Cannot update tenant %s - current status has error', tenantId);
+        return false;
       }
 
       // CloudFront Multi-Tenant tiene limitaciones en updates
       // Por ahora solo logeamos la solicitud
-      return true
+      return true;
     } catch (error) {
-      SecureLogger.secureLog('error', 'Error updating tenant %s:', tenantId, error)
-      return false
+      SecureLogger.secureLog('error', 'Error updating tenant %s:', tenantId, error);
+      return false;
     }
   }
 
@@ -267,13 +261,13 @@ export class CloudFrontTenantManager {
    * Verificar si la distribución Multi-Tenant está configurada
    */
   async isMultiTenantConfigured(): Promise<boolean> {
-    return !!this.multiTenantDistributionId
+    return !!this.multiTenantDistributionId;
   }
 
   /**
    * Obtener ID de la distribución Multi-Tenant
    */
   getMultiTenantDistributionId(): string {
-    return this.multiTenantDistributionId
+    return this.multiTenantDistributionId;
   }
 }

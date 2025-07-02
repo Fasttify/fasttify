@@ -1,6 +1,6 @@
-import { PaymentProcessor } from '../types'
-import { PolarApiService } from './polar-api'
-import { CognitoUserService } from './user-service'
+import { PaymentProcessor } from '../types';
+import { PolarApiService } from './polar-api';
+import { CognitoUserService } from './user-service';
 
 export class PolarPaymentProcessor implements PaymentProcessor {
   constructor(
@@ -13,7 +13,7 @@ export class PolarPaymentProcessor implements PaymentProcessor {
    */
   async processSubscriptionUpdate(subscriptionId: string): Promise<void> {
     try {
-      const subscriptionData = await this.polarApiService.getSubscription(subscriptionId)
+      const subscriptionData = await this.polarApiService.getSubscription(subscriptionId);
 
       // Manejar cancelación de suscripción
       if (
@@ -21,31 +21,31 @@ export class PolarPaymentProcessor implements PaymentProcessor {
         subscriptionData.status === 'incomplete_expired' ||
         subscriptionData.status === 'unpaid'
       ) {
-        const userId = subscriptionData.external_reference
+        const userId = subscriptionData.external_reference;
 
         if (!userId) {
-          console.error('No user id found in external_reference')
-          return
+          console.error('No user id found in external_reference');
+          return;
         }
 
-        await this.userService.downgradeUser(userId)
+        await this.userService.downgradeUser(userId);
       }
       // Manejar actualización de suscripción
       else if (subscriptionData.status === 'active') {
-        const userId = subscriptionData.external_reference
+        const userId = subscriptionData.external_reference;
 
         if (!userId) {
-          console.error('No user id found in external_reference')
-          return
+          console.error('No user id found in external_reference');
+          return;
         }
 
-        const planName = this.getPlanFromProductId(subscriptionData.product_id)
+        const planName = this.getPlanFromProductId(subscriptionData.product_id);
 
-        await this.userService.updateUserPlan(userId, planName)
+        await this.userService.updateUserPlan(userId, planName);
       }
     } catch (error) {
-      console.error('Error processing subscription update:', error)
-      throw error
+      console.error('Error processing subscription update:', error);
+      throw error;
     }
   }
 
@@ -60,8 +60,8 @@ export class PolarPaymentProcessor implements PaymentProcessor {
       '149c6595-1611-477d-b0b4-61700d33c069': 'Majestic',
       '3a85e94a-7deb-4f94-8aa4-99a972406f0f': 'Imperial',
       // Añadir más mapeos según sea necesario
-    }
+    };
 
-    return productMap[productId]
+    return productMap[productId];
   }
 }

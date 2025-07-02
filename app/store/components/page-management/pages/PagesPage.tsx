@@ -1,6 +1,6 @@
-import { Text, EmptyState, LegacyCard } from '@shopify/polaris'
-import { PageIcon } from '@shopify/polaris-icons'
-import { routes } from '@/utils/routes'
+import { Text, EmptyState, LegacyCard } from '@shopify/polaris';
+import { PageIcon } from '@shopify/polaris-icons';
+import { routes } from '@/utils/routes';
 
 export function PagesPage({ storeId }: { storeId: string }) {
   return (
@@ -12,8 +12,7 @@ export function PagesPage({ storeId }: { storeId: string }) {
             Páginas
           </Text>
           <Text as="p" variant="bodySm" tone="subdued">
-            Crea y gestiona páginas adicionales para tu tienda como "Acerca de",
-            "Contacto", políticas, etc.
+            Crea y gestiona páginas adicionales para tu tienda como "Acerca de", "Contacto", políticas, etc.
           </Text>
         </div>
       </div>
@@ -29,15 +28,13 @@ export function PagesPage({ storeId }: { storeId: string }) {
             content: 'Ver plantillas',
             onAction: () => console.log('Ver plantillas'),
           }}
-          image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-        >
+          image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
           <p>
-            Añade páginas importantes como "Acerca de nosotros", "Política de privacidad",
-            "Términos de servicio" y más para proporcionar información esencial a tus
-            clientes.
+            Añade páginas importantes como "Acerca de nosotros", "Política de privacidad", "Términos de servicio" y más
+            para proporcionar información esencial a tus clientes.
           </p>
         </EmptyState>
       </LegacyCard>
     </div>
-  )
+  );
 }

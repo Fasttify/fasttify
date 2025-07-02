@@ -372,4 +372,4 @@ export const welcomeEmail = `
 </body>
 
 </html>
-`
+`;

@@ -1,15 +1,15 @@
-import { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-renderer'
-import { logger } from '@/renderer-engine/lib/logger'
-import type { RenderResult } from '@/renderer-engine/types'
-import type { PageRenderOptions } from '@/renderer-engine/types/template'
+import { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-renderer';
+import { logger } from '@/renderer-engine/lib/logger';
+import type { RenderResult } from '@/renderer-engine/types';
+import type { PageRenderOptions } from '@/renderer-engine/types/template';
 
 /**
  * Tipo para matchers de rutas
  */
 type RouteMatcher = {
-  pattern: RegExp
-  handler: (match: RegExpMatchArray) => PageRenderOptions
-}
+  pattern: RegExp;
+  handler: (match: RegExpMatchArray) => PageRenderOptions;
+};
 
 /**
  * Matchers declarativos para rutas de tienda
@@ -24,7 +24,7 @@ const routeMatchers: RouteMatcher[] = [
   // Producto: /products/handle
   {
     pattern: /^\/products\/([^\/]+)$/,
-    handler: match => ({
+    handler: (match) => ({
       pageType: 'product',
       handle: match[1],
     }),
@@ -33,7 +33,7 @@ const routeMatchers: RouteMatcher[] = [
   // Colección: /collections/handle
   {
     pattern: /^\/collections\/([^\/]+)$/,
-    handler: match => ({
+    handler: (match) => ({
       pageType: 'collection',
       handle: match[1],
     }),
@@ -42,7 +42,7 @@ const routeMatchers: RouteMatcher[] = [
   // Página estática: /pages/handle
   {
     pattern: /^\/pages\/([^\/]+)$/,
-    handler: match => ({
+    handler: (match) => ({
       pageType: 'page',
       handle: match[1],
     }),
@@ -51,7 +51,7 @@ const routeMatchers: RouteMatcher[] = [
   // Blog: /blogs/handle
   {
     pattern: /^\/blogs\/([^\/]+)$/,
-    handler: match => ({
+    handler: (match) => ({
       pageType: 'blog',
       handle: match[1],
     }),
@@ -83,17 +83,17 @@ const routeMatchers: RouteMatcher[] = [
     pattern: /^\/products$/,
     handler: () => ({ pageType: 'product' }),
   },
-]
+];
 
 /**
  * Factory principal del sistema de renderizado de tiendas
  * Usa el nuevo sistema dinámico unificado
  */
 export class StoreRendererFactory {
-  private dynamicRenderer: DynamicPageRenderer
+  private dynamicRenderer: DynamicPageRenderer;
 
   constructor() {
-    this.dynamicRenderer = new DynamicPageRenderer()
+    this.dynamicRenderer = new DynamicPageRenderer();
   }
 
   /**
@@ -109,65 +109,53 @@ export class StoreRendererFactory {
     searchParams: Record<string, string> = {}
   ): Promise<RenderResult> {
     // Limpiar path
-    const cleanPath = path.startsWith('/') ? path : `/${path}`
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
     try {
       // Convertir path a opciones del renderizador dinámico
-      const options = this.pathToRenderOptions(cleanPath)
+      const options = this.pathToRenderOptions(cleanPath);
 
       // Usar el renderizador dinámico
-      return await this.dynamicRenderer.render(domain, options, searchParams)
+      return await this.dynamicRenderer.render(domain, options, searchParams);
     } catch (error) {
-      return this.handleRenderError(error, domain, cleanPath)
+      return this.handleRenderError(error, domain, cleanPath);
     }
   }
 
   /**
    * Maneja errores de renderizado de forma centralizada
    */
-  private async handleRenderError(
-    error: unknown,
-    domain: string,
-    path: string
-  ): Promise<RenderResult> {
-    logger.error(
-      `Error rendering page ${path} for domain ${domain}`,
-      error,
-      'StoreRendererFactory'
-    )
+  private async handleRenderError(error: unknown, domain: string, path: string): Promise<RenderResult> {
+    logger.error(`Error rendering page ${path} for domain ${domain}`, error, 'StoreRendererFactory');
 
     // Si es un error tipado de plantilla, usarlo directamente
     if (error && typeof error === 'object' && 'type' in error) {
-      const templateError = error as any
+      const templateError = error as any;
       try {
-        return await this.dynamicRenderer.renderError(templateError, domain, path)
+        return await this.dynamicRenderer.renderError(templateError, domain, path);
       } catch (renderError) {
         logger.error(
           'Failed to render error page, falling back to throwing error',
           renderError,
           'StoreRendererFactory'
-        )
-        throw templateError
+        );
+        throw templateError;
       }
     }
 
     // Crear error genérico para otros casos
-    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorMessage = error instanceof Error ? error.message : String(error);
     const genericError = {
       type: 'RENDER_ERROR' as const,
       message: `Failed to render page: ${errorMessage}`,
       statusCode: 500,
-    }
+    };
 
     try {
-      return await this.dynamicRenderer.renderError(genericError, domain, path)
+      return await this.dynamicRenderer.renderError(genericError, domain, path);
     } catch (renderError) {
-      logger.error(
-        'Failed to render error page for generic error',
-        renderError,
-        'StoreRendererFactory'
-      )
-      throw genericError
+      logger.error('Failed to render error page for generic error', renderError, 'StoreRendererFactory');
+      throw genericError;
     }
   }
 
@@ -177,14 +165,14 @@ export class StoreRendererFactory {
   private pathToRenderOptions(path: string): PageRenderOptions {
     // Buscar primer matcher que coincida
     for (const { pattern, handler } of routeMatchers) {
-      const match = path.match(pattern)
+      const match = path.match(pattern);
       if (match) {
-        return handler(match)
+        return handler(match);
       }
     }
 
     // Fallback para paths no reconocidos
-    return { pageType: '404' }
+    return { pageType: '404' };
   }
 
   /**
@@ -195,39 +183,39 @@ export class StoreRendererFactory {
   public async canRenderStore(domain: string): Promise<boolean> {
     try {
       // Intentar renderizar homepage para verificar configuración
-      await this.dynamicRenderer.render(domain, { pageType: 'index' })
-      return true
+      await this.dynamicRenderer.render(domain, { pageType: 'index' });
+      return true;
     } catch (error) {
-      logger.warn(`Store ${domain} cannot be rendered`, error, 'StoreRendererFactory')
-      return false
+      logger.warn(`Store ${domain} cannot be rendered`, error, 'StoreRendererFactory');
+      return false;
     }
   }
 }
 
 // Exportar instancia singleton
-export const storeRenderer = new StoreRendererFactory()
+export const storeRenderer = new StoreRendererFactory();
 
 // Exportar tipos para uso externo
-export type { RenderResult } from '@/renderer-engine/types'
-export { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-renderer'
+export type { RenderResult } from '@/renderer-engine/types';
+export { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-renderer';
 
 // Exportar servicios para uso avanzado
-export { domainResolver } from '@/renderer-engine/services/core/domain-resolver'
-export { templateLoader } from '@/renderer-engine/services/templates/template-loader'
-export { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher'
-export { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher'
-export { linkListService } from '@/renderer-engine/services/core/navigation-service'
-export { liquidEngine } from '@/renderer-engine/liquid/engine'
-export { errorRenderer } from '@/renderer-engine/services/errors/error-renderer'
+export { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
+export { templateLoader } from '@/renderer-engine/services/templates/template-loader';
+export { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
+export { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher';
+export { linkListService } from '@/renderer-engine/services/core/navigation-service';
+export { liquidEngine } from '@/renderer-engine/liquid/engine';
+export { errorRenderer } from '@/renderer-engine/services/errors/error-renderer';
 
 // Exportar nuevos servicios dinámicos
-export { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer'
-export { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader'
+export { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer';
+export { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader';
 
 // Exportar tipos del sistema dinámico
 export type {
   DataRequirement,
   DataLoadOptions,
   TemplateAnalysis,
-} from '@/renderer-engine/services/templates/template-analyzer'
-export type { DynamicLoadResult } from '@/renderer-engine/services/page/dynamic-data-loader'
+} from '@/renderer-engine/services/templates/template-analyzer';
+export type { DynamicLoadResult } from '@/renderer-engine/services/page/dynamic-data-loader';

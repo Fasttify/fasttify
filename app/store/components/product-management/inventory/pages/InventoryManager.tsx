@@ -1,9 +1,9 @@
-import { useProducts } from '@/app/store/hooks/data/useProducts'
-import { InventoryTracking } from '@/app/store/components/product-management/inventory/pages/InventoryTracking'
-import { InventoryPage } from '@/app/store/components/product-management/inventory/pages/InventoryPage'
-import { Loading } from '@shopify/polaris'
+import { useProducts } from '@/app/store/hooks/data/useProducts';
+import { InventoryTracking } from '@/app/store/components/product-management/inventory/pages/InventoryTracking';
+import { InventoryPage } from '@/app/store/components/product-management/inventory/pages/InventoryPage';
+import { Loading } from '@shopify/polaris';
 interface InventoryManagerProps {
-  storeId: string
+  storeId: string;
 }
 
 export function InventoryManager({ storeId }: InventoryManagerProps) {
@@ -17,23 +17,23 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
     previousPage,
     currentPage,
     refreshProducts,
-  } = useProducts(storeId)
+  } = useProducts(storeId);
 
   // Transformar los productos al formato de inventario
-  const inventoryData = products.map(product => {
-    let images: { url: string; alt?: string }[] | undefined
+  const inventoryData = products.map((product) => {
+    let images: { url: string; alt?: string }[] | undefined;
 
     if (typeof product.images === 'string') {
       try {
-        const parsedImages = JSON.parse(product.images)
+        const parsedImages = JSON.parse(product.images);
         if (Array.isArray(parsedImages)) {
-          images = parsedImages
+          images = parsedImages;
         }
       } catch (e) {
-        images = undefined
+        images = undefined;
       }
     } else if (Array.isArray(product.images)) {
-      images = product.images.map(img => (typeof img === 'string' ? { url: img } : img))
+      images = product.images.map((img) => (typeof img === 'string' ? { url: img } : img));
     }
 
     return {
@@ -45,11 +45,11 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
       committed: 0,
       available: product.quantity || 0,
       inStock: product.quantity || 0,
-    }
-  })
+    };
+  });
 
   if (loading) {
-    return <Loading />
+    return <Loading />;
   }
 
   return inventoryData.length === 0 ? (
@@ -66,7 +66,7 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
       refreshInventory={refreshProducts}
       currentPage={currentPage}
     />
-  )
+  );
 }
 
-export default InventoryManager
+export default InventoryManager;

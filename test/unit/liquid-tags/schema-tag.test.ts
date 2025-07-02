@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach } from '@jest/globals'
-import { Liquid } from 'liquidjs'
-import { SchemaTag } from '@/renderer-engine/liquid/tags/schema-tag'
-import { createTestContext, createTestLiquid } from './setup'
+import { describe, it, expect, beforeEach } from '@jest/globals';
+import { Liquid } from 'liquidjs';
+import { SchemaTag } from '@/renderer-engine/liquid/tags/schema-tag';
+import { createTestContext, createTestLiquid } from './setup';
 
 describe('SchemaTag', () => {
-  let liquid: Liquid
+  let liquid: Liquid;
 
   beforeEach(() => {
-    liquid = createTestLiquid()
-    liquid.registerTag('schema', SchemaTag)
-  })
+    liquid = createTestLiquid();
+    liquid.registerTag('schema', SchemaTag);
+  });
 
   it('should render basic schema with valid JSON', async () => {
     const template = `
@@ -25,27 +25,27 @@ describe('SchemaTag', () => {
         ]
       }
       {% endschema %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
     // Schema tag no produce output HTML visible, pero no debe fallar
-    expect(result).toBeDefined()
-    expect(result.length).toBeGreaterThanOrEqual(0)
-  })
+    expect(result).toBeDefined();
+    expect(result.length).toBeGreaterThanOrEqual(0);
+  });
 
   it('should handle empty schema', async () => {
     const template = `
       {% schema %}
       {% endschema %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toBeDefined()
-  })
+    expect(result).toBeDefined();
+  });
 
   it('should handle complex schema structure', async () => {
     const template = `
@@ -81,13 +81,13 @@ describe('SchemaTag', () => {
         ]
       }
       {% endschema %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toBeDefined()
-  })
+    expect(result).toBeDefined();
+  });
 
   it('should handle schema with liquid variables', async () => {
     const template = `
@@ -97,13 +97,13 @@ describe('SchemaTag', () => {
         "settings": []
       }
       {% endschema %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toBeDefined()
-  })
+    expect(result).toBeDefined();
+  });
 
   it('should handle invalid JSON gracefully', async () => {
     const template = `
@@ -113,14 +113,14 @@ describe('SchemaTag', () => {
         "missing_comma": true
       }
       {% endschema %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toBeDefined()
+    expect(result).toBeDefined();
     // Should not throw error
-  })
+  });
 
   it('should require endschema tag', async () => {
     const template = `
@@ -128,14 +128,12 @@ describe('SchemaTag', () => {
       {
         "name": "Missing end tag"
       }
-    `
+    `;
 
-    const context = createTestContext()
+    const context = createTestContext();
 
-    await expect(liquid.parseAndRender(template, context)).rejects.toThrow(
-      'tag {% schema %} not closed'
-    )
-  })
+    await expect(liquid.parseAndRender(template, context)).rejects.toThrow('tag {% schema %} not closed');
+  });
 
   it('should handle schema with presets', async () => {
     const template = `
@@ -161,13 +159,13 @@ describe('SchemaTag', () => {
         ]
       }
       {% endschema %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toBeDefined()
-  })
+    expect(result).toBeDefined();
+  });
 
   it('should handle nested objects and arrays in schema', async () => {
     const template = `
@@ -192,11 +190,11 @@ describe('SchemaTag', () => {
         ]
       }
       {% endschema %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toBeDefined()
-  })
-})
+    expect(result).toBeDefined();
+  });
+});

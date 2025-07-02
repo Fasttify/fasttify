@@ -1,32 +1,32 @@
-'use client'
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   MetricLineChart,
   DistributionPieChart,
   ConversionFunnel,
-} from '@/app/store/components/statistics/components/ChartComponents'
+} from '@/app/store/components/statistics/components/ChartComponents';
 
 interface MetricCardProps {
-  title: string
-  value: number | string
-  data: any
-  color: string
-  valueFormatter?: (value: number) => string
-  metricName: string
-  prefix?: string
-  suffix?: string
+  title: string;
+  value: number | string;
+  data: any;
+  color: string;
+  valueFormatter?: (value: number) => string;
+  metricName: string;
+  prefix?: string;
+  suffix?: string;
 }
 
 interface DistributionCardProps {
-  title: string
-  data: any
+  title: string;
+  data: any;
 }
 
 interface ConversionCardProps {
-  title: string
-  rate: number
-  conversionData: any
+  title: string;
+  rate: number;
+  conversionData: any;
 }
 
 export function MetricCard({
@@ -50,15 +50,10 @@ export function MetricCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
-        <MetricLineChart
-          data={data}
-          color={color}
-          valueFormatter={valueFormatter}
-          metricName={metricName}
-        />
+        <MetricLineChart data={data} color={color} valueFormatter={valueFormatter} metricName={metricName} />
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function DistributionCard({ title, data }: DistributionCardProps) {
@@ -71,7 +66,7 @@ export function DistributionCard({ title, data }: DistributionCardProps) {
         <DistributionPieChart data={data} />
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function ConversionCard({ title, rate, conversionData }: ConversionCardProps) {
@@ -85,5 +80,5 @@ export function ConversionCard({ title, rate, conversionData }: ConversionCardPr
         <ConversionFunnel data={conversionData} />
       </CardContent>
     </Card>
-  )
+  );
 }

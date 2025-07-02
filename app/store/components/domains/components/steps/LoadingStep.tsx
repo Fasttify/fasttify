@@ -1,8 +1,8 @@
-import { LegacyStack, Spinner, Text } from '@shopify/polaris'
+import { LegacyStack, Spinner, Text } from '@shopify/polaris';
 
 interface LoadingStepProps {
-  title: string
-  description: string
+  title: string;
+  description: string;
 }
 
 export function LoadingStep({ title, description }: LoadingStepProps) {
@@ -16,5 +16,5 @@ export function LoadingStep({ title, description }: LoadingStepProps) {
         {description}
       </Text>
     </LegacyStack>
-  )
+  );
 }

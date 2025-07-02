@@ -1,76 +1,76 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Page, Layout, Card, Button, Text, Modal } from '@shopify/polaris'
-import { PlusIcon } from '@shopify/polaris-icons'
-import { NavigationMenuList } from '@/app/store/components/navigation-management/components/NavigationMenuList'
-import { NavigationMenuForm } from '@/app/store/components/navigation-management/components/NavigationMenuForm'
-import { NavigationManagerProps } from '@/app/store/components/navigation-management/types'
-import { useNavigationMenus } from '@/app/store/hooks/data/useNavigationMenus'
-import { useCurrentStore } from '@/app/store/hooks/data/useStoreFromZustand'
-import { useToast } from '@/app/store/context/ToastContext'
+import { useState } from 'react';
+import { Page, Layout, Card, Button, Text, Modal } from '@shopify/polaris';
+import { PlusIcon } from '@shopify/polaris-icons';
+import { NavigationMenuList } from '@/app/store/components/navigation-management/components/NavigationMenuList';
+import { NavigationMenuForm } from '@/app/store/components/navigation-management/components/NavigationMenuForm';
+import { NavigationManagerProps } from '@/app/store/components/navigation-management/types';
+import { useNavigationMenus } from '@/app/store/hooks/data/useNavigationMenus';
+import { useCurrentStore } from '@/app/store/hooks/data/useStoreFromZustand';
+import { useToast } from '@/app/store/context/ToastContext';
 
 /**
  * Componente principal para la gestión de menús de navegación
  */
 export function NavigationManager({ storeId }: NavigationManagerProps) {
   // Usar hook específico que solo obtiene el store actual
-  const store = useCurrentStore()
-  const { useDeleteNavigationMenu } = useNavigationMenus()
-  const { showToast } = useToast()
+  const store = useCurrentStore();
+  const { useDeleteNavigationMenu } = useNavigationMenus();
+  const { showToast } = useToast();
 
   // Estados del componente
-  const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Obtener dominio de la tienda
-  const domain = store?.customDomain || `${store?.storeName}.fasttify.com`
+  const domain = store?.customDomain || `${store?.storeName}.fasttify.com`;
 
   // Mutación para eliminar
-  const deleteMenuMutation = useDeleteNavigationMenu()
+  const deleteMenuMutation = useDeleteNavigationMenu();
 
   // Funciones para manejar acciones
   const handleCreateMenu = () => {
-    setShowCreateModal(true)
-  }
+    setShowCreateModal(true);
+  };
 
   const handleEditMenu = (menuId: string) => {
-    setSelectedMenuId(menuId)
-    setShowEditModal(true)
-  }
+    setSelectedMenuId(menuId);
+    setShowEditModal(true);
+  };
 
   const handleDeleteMenu = (menuId: string) => {
-    setSelectedMenuId(menuId)
-    setShowDeleteModal(true)
-  }
+    setSelectedMenuId(menuId);
+    setShowDeleteModal(true);
+  };
 
   const confirmDelete = async () => {
-    if (!selectedMenuId) return
+    if (!selectedMenuId) return;
 
     try {
-      await deleteMenuMutation.mutateAsync(selectedMenuId)
-      showToast('Menú eliminado exitosamente')
-      setShowDeleteModal(false)
-      setSelectedMenuId(null)
+      await deleteMenuMutation.mutateAsync(selectedMenuId);
+      showToast('Menú eliminado exitosamente');
+      setShowDeleteModal(false);
+      setSelectedMenuId(null);
     } catch (error) {
-      showToast('Error al eliminar el menú', true)
+      showToast('Error al eliminar el menú', true);
     }
-  }
+  };
 
   const handleFormSuccess = (message: string) => {
-    showToast(message)
-    setShowCreateModal(false)
-    setShowEditModal(false)
-    setSelectedMenuId(null)
-  }
+    showToast(message);
+    setShowCreateModal(false);
+    setShowEditModal(false);
+    setSelectedMenuId(null);
+  };
 
   const handleModalClose = () => {
-    setShowCreateModal(false)
-    setShowEditModal(false)
-    setSelectedMenuId(null)
-  }
+    setShowCreateModal(false);
+    setShowEditModal(false);
+    setSelectedMenuId(null);
+  };
 
   return (
     <Page title="Navegación" subtitle="Gestiona los menús de navegación de tu tienda" fullWidth>
@@ -91,22 +91,13 @@ export function NavigationManager({ storeId }: NavigationManagerProps) {
               </Button>
             </div>
 
-            <NavigationMenuList
-              storeId={storeId}
-              onEdit={handleEditMenu}
-              onDelete={handleDeleteMenu}
-            />
+            <NavigationMenuList storeId={storeId} onEdit={handleEditMenu} onDelete={handleDeleteMenu} />
           </Card>
         </Layout.Section>
       </Layout>
 
       {/* Modal para crear menú */}
-      <Modal
-        open={showCreateModal}
-        onClose={handleModalClose}
-        title="Crear nuevo menú"
-        size="large"
-      >
+      <Modal open={showCreateModal} onClose={handleModalClose} title="Crear nuevo menú" size="large">
         <Modal.Section>
           <NavigationMenuForm
             storeId={storeId}
@@ -148,8 +139,7 @@ export function NavigationManager({ storeId }: NavigationManagerProps) {
             content: 'Cancelar',
             onAction: () => setShowDeleteModal(false),
           },
-        ]}
-      >
+        ]}>
         <Modal.Section>
           <Text variant="bodyMd" as="p">
             ¿Estás seguro de que quieres eliminar este menú? Esta acción no se puede deshacer.
@@ -157,5 +147,5 @@ export function NavigationManager({ storeId }: NavigationManagerProps) {
         </Modal.Section>
       </Modal>
     </Page>
-  )
+  );
 }

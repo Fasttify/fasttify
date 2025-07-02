@@ -1,48 +1,35 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, Controller } from 'react-hook-form'
-import {
-  Page,
-  Layout,
-  Card,
-  Form,
-  ContextualSaveBar,
-  BlockStack,
-  Select,
-  Text,
-} from '@shopify/polaris'
-import { useToast } from '@/app/store/context/ToastContext'
-import {
-  productFormSchema,
-  type ProductFormValues,
-  defaultValues,
-} from '@/lib/zod-schemas/product-schema'
-import { useProducts } from '@/app/store/hooks/data/useProducts'
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller } from 'react-hook-form';
+import { Page, Layout, Card, Form, ContextualSaveBar, BlockStack, Select, Text } from '@shopify/polaris';
+import { useToast } from '@/app/store/context/ToastContext';
+import { productFormSchema, type ProductFormValues, defaultValues } from '@/lib/zod-schemas/product-schema';
+import { useProducts } from '@/app/store/hooks/data/useProducts';
 import {
   mapProductToFormValues,
   prepareProductData,
   handleProductUpdate,
   handleProductCreate,
-} from '@/app/store/components/product-management/utils/productUtils'
-import { BasicInfoSection } from '@/app/store/components/product-management/products/components/form/basic-info-section'
-import { PricingInventorySection } from '@/app/store/components/product-management/products/components/form/pricing-inventory-section'
-import { ImageUpload } from '@/app/store/components/product-management/products/components/form/ImageUpload'
-import { AttributesForm } from '@/app/store/components/product-management/products/components/form/AttributesForm'
-import { PublicationSection } from '@/app/store/components/product-management/products/components/form/publication-section'
-import { Loading } from '@shopify/polaris'
+} from '@/app/store/components/product-management/utils/productUtils';
+import { BasicInfoSection } from '@/app/store/components/product-management/products/components/form/basic-info-section';
+import { PricingInventorySection } from '@/app/store/components/product-management/products/components/form/pricing-inventory-section';
+import { ImageUpload } from '@/app/store/components/product-management/products/components/form/ImageUpload';
+import { AttributesForm } from '@/app/store/components/product-management/products/components/form/AttributesForm';
+import { PublicationSection } from '@/app/store/components/product-management/products/components/form/publication-section';
+import { Loading } from '@shopify/polaris';
 interface ProductFormProps {
-  storeId: string
-  productId?: string
+  storeId: string;
+  productId?: string;
 }
 
 const normalizeStatus = (status: any): 'draft' | 'pending' | 'active' | 'inactive' => {
-  const validStatuses = ['draft', 'pending', 'active', 'inactive'] as const
-  if (!status || status === '') return 'draft'
-  return validStatuses.includes(status) ? status : 'draft'
-}
+  const validStatuses = ['draft', 'pending', 'active', 'inactive'] as const;
+  if (!status || status === '') return 'draft';
+  return validStatuses.includes(status) ? status : 'draft';
+};
 
 function ProductLoadingState() {
   return (
@@ -52,91 +39,90 @@ function ProductLoadingState() {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '400px',
-      }}
-    >
+      }}>
       <Loading />
     </div>
-  )
+  );
 }
 
 export function ProductForm({ storeId, productId }: ProductFormProps) {
-  const router = useRouter()
-  const { showToast } = useToast()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isLoadingProduct, setIsLoadingProduct] = useState(!!productId)
+  const router = useRouter();
+  const { showToast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingProduct, setIsLoadingProduct] = useState(!!productId);
 
   const { createProduct, updateProduct, fetchProduct } = useProducts(storeId, {
     skipInitialFetch: true,
-  })
+  });
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues,
     mode: 'onChange',
-  })
+  });
 
   const {
     formState: { isDirty },
-  } = form
+  } = form;
 
   useEffect(() => {
     if (!productId) {
-      setIsLoadingProduct(false)
-      return
+      setIsLoadingProduct(false);
+      return;
     }
 
     const loadProduct = async () => {
       try {
-        const product = await fetchProduct(productId)
+        const product = await fetchProduct(productId);
         if (product) {
-          const formValues = mapProductToFormValues(product)
-          formValues.status = normalizeStatus(formValues.status)
-          formValues.category = formValues.category || ''
-          form.reset(formValues)
+          const formValues = mapProductToFormValues(product);
+          formValues.status = normalizeStatus(formValues.status);
+          formValues.category = formValues.category || '';
+          form.reset(formValues);
         }
       } catch (error) {
-        console.error('Error loading product:', error)
-        showToast('No se pudo cargar el producto. Por favor, inténtelo de nuevo.', true)
+        console.error('Error loading product:', error);
+        showToast('No se pudo cargar el producto. Por favor, inténtelo de nuevo.', true);
       } finally {
-        setIsLoadingProduct(false)
+        setIsLoadingProduct(false);
       }
-    }
+    };
 
-    loadProduct()
-  }, [productId, fetchProduct, form, showToast])
+    loadProduct();
+  }, [productId, fetchProduct, form, showToast]);
 
   const handleSave = useCallback(async () => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const isValid = await form.trigger()
+      const isValid = await form.trigger();
       if (!isValid) {
-        showToast('Por favor, complete todos los campos requeridos.', true)
-        throw new Error('Validation failed')
+        showToast('Por favor, complete todos los campos requeridos.', true);
+        throw new Error('Validation failed');
       }
-      const data = form.getValues()
-      const basicProductData = prepareProductData(data, storeId)
+      const data = form.getValues();
+      const basicProductData = prepareProductData(data, storeId);
       const result = productId
         ? await handleProductUpdate(basicProductData, productId, storeId, updateProduct)
-        : await handleProductCreate(basicProductData, createProduct)
+        : await handleProductCreate(basicProductData, createProduct);
 
       if (result) {
-        form.reset(form.getValues()) // Resets dirty state
-        showToast(`Producto ${productId ? 'actualizado' : 'creado'} con éxito.`)
-        router.push(`/store/${storeId}/products`)
+        form.reset(form.getValues()); // Resets dirty state
+        showToast(`Producto ${productId ? 'actualizado' : 'creado'} con éxito.`);
+        router.push(`/store/${storeId}/products`);
       } else {
-        throw new Error(productId ? 'Error al actualizar producto' : 'Error al crear producto')
+        throw new Error(productId ? 'Error al actualizar producto' : 'Error al crear producto');
       }
     } catch (error) {
       if (!(error instanceof Error && error.message === 'Validation failed')) {
-        showToast('Ha ocurrido un error al guardar el producto.', true)
+        showToast('Ha ocurrido un error al guardar el producto.', true);
       }
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }, [form, storeId, productId, updateProduct, createProduct, router, showToast])
+  }, [form, storeId, productId, updateProduct, createProduct, router, showToast]);
 
   if (isLoadingProduct) {
-    return <ProductLoadingState />
+    return <ProductLoadingState />;
   }
 
   const categoryOptions = [
@@ -148,14 +134,14 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     { label: 'Otros', value: 'Otros' },
     { label: 'Todas las categorías', value: 'Todas las categorías' },
     { label: 'No categorizado', value: 'No categorizado' },
-  ]
+  ];
 
   const statusOptions = [
     { label: 'Borrador', value: 'draft' },
     { label: 'Pendiente', value: 'pending' },
     { label: 'Activo', value: 'active' },
     { label: 'Inactivo', value: 'inactive' },
-  ]
+  ];
 
   return (
     <Page
@@ -169,8 +155,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
         onAction: handleSave,
         loading: isSubmitting,
         disabled: !isDirty,
-      }}
-    >
+      }}>
       <Form onSubmit={handleSave}>
         {isDirty && (
           <ContextualSaveBar
@@ -199,11 +184,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                     name="images"
                     control={form.control}
                     render={({ field }) => (
-                      <ImageUpload
-                        storeId={storeId}
-                        value={field.value ?? []}
-                        onChange={field.onChange}
-                      />
+                      <ImageUpload storeId={storeId} value={field.value ?? []} onChange={field.onChange} />
                     )}
                   />
                 </BlockStack>
@@ -213,9 +194,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                 <Controller
                   name="attributes"
                   control={form.control}
-                  render={({ field }) => (
-                    <AttributesForm value={field.value ?? []} onChange={field.onChange} />
-                  )}
+                  render={({ field }) => <AttributesForm value={field.value ?? []} onChange={field.onChange} />}
                 />
               </Card>
             </BlockStack>
@@ -269,5 +248,5 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
         </Layout>
       </Form>
     </Page>
-  )
+  );
 }

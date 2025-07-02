@@ -1,27 +1,27 @@
-import { useRouter, useParams, usePathname } from 'next/navigation'
-import { Page, Layout, ContextualSaveBar, BlockStack, Card, Text, Loading } from '@shopify/polaris'
-import { useCollections } from '@/app/store/hooks/data/useCollections'
-import { getStoreId } from '@/utils/store-utils'
-import { useCollectionForm } from '@/app/store/components/product-management/utils/collection-form-utils'
-import { CollectionContent } from '@/app/store/components/product-management/collections/components/form/CollectionContent'
-import { CollectionSidebar } from '@/app/store/components/product-management/collections/components/form/CollectionSidebar'
-import { configureAmplify } from '@/lib/amplify-config'
-import { routes } from '@/utils/routes'
-import useUserStore from '@/context/core/userStore'
-import useStoreDataStore from '@/context/core/storeDataStore'
+import { useRouter, useParams, usePathname } from 'next/navigation';
+import { Page, Layout, ContextualSaveBar, BlockStack, Card, Text, Loading } from '@shopify/polaris';
+import { useCollections } from '@/app/store/hooks/data/useCollections';
+import { getStoreId } from '@/utils/store-utils';
+import { useCollectionForm } from '@/app/store/components/product-management/utils/collection-form-utils';
+import { CollectionContent } from '@/app/store/components/product-management/collections/components/form/CollectionContent';
+import { CollectionSidebar } from '@/app/store/components/product-management/collections/components/form/CollectionSidebar';
+import { configureAmplify } from '@/lib/amplify-config';
+import { routes } from '@/utils/routes';
+import useUserStore from '@/context/core/userStore';
+import useStoreDataStore from '@/context/core/storeDataStore';
 
-configureAmplify()
+configureAmplify();
 
 export function FormPage() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const params = useParams()
-  const storeId = getStoreId(params, pathname)
-  const { currentStore } = useStoreDataStore()
-  const { user } = useUserStore()
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams();
+  const storeId = getStoreId(params, pathname);
+  const { currentStore } = useStoreDataStore();
+  const { user } = useUserStore();
 
-  const collectionId = (params?.collectionId as string) || (params?.id as string)
-  const isEditing = !!collectionId
+  const collectionId = (params?.collectionId as string) || (params?.id as string);
+  const isEditing = !!collectionId;
 
   const {
     useGetCollection,
@@ -30,10 +30,9 @@ export function FormPage() {
     useDeleteCollection,
     addProductToCollection,
     removeProductFromCollection,
-  } = useCollections()
+  } = useCollections();
 
-  const { data: collectionData, isLoading: isLoadingCollectionData } =
-    useGetCollection(collectionId)
+  const { data: collectionData, isLoading: isLoadingCollectionData } = useGetCollection(collectionId);
 
   const {
     title,
@@ -66,10 +65,10 @@ export function FormPage() {
     useDeleteCollection,
     addProductToCollection,
     removeProductFromCollection,
-  })
+  });
 
-  const pageTitle = isEditing ? 'Editar colección' : 'Nueva colección'
-  const customDomain = currentStore?.customDomain || ''
+  const pageTitle = isEditing ? 'Editar colección' : 'Nueva colección';
+  const customDomain = currentStore?.customDomain || '';
 
   const secondaryActions = isEditing
     ? [
@@ -80,7 +79,7 @@ export function FormPage() {
           disabled: isSubmitting,
         },
       ]
-    : []
+    : [];
 
   const saveBarMarkup = hasUnsavedChanges ? (
     <ContextualSaveBar
@@ -93,10 +92,10 @@ export function FormPage() {
         onAction: handleDiscardChanges,
       }}
     />
-  ) : null
+  ) : null;
 
   if (isLoadingCollectionData && !isSubmitting) {
-    return <Loading />
+    return <Loading />;
   }
 
   return (
@@ -112,8 +111,7 @@ export function FormPage() {
         loading: isSubmitting,
         disabled: !hasUnsavedChanges,
       }}
-      secondaryActions={secondaryActions}
-    >
+      secondaryActions={secondaryActions}>
       {saveBarMarkup}
       <Layout>
         <Layout.Section>
@@ -157,5 +155,5 @@ export function FormPage() {
         </Layout.Section>
       </Layout>
     </Page>
-  )
+  );
 }

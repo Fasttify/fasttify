@@ -1,40 +1,29 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff } from 'lucide-react'
-import { Loader } from '@/components/ui/loader'
-import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
-import { signInSchema, type SignInFormData } from '@/lib/zod-schemas/schemas'
-import { useAuth } from '@/app/(setup-layout)/login/hooks/SignIn'
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeOff } from 'lucide-react';
+import { Loader } from '@/components/ui/loader';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { signInSchema, type SignInFormData } from '@/lib/zod-schemas/schemas';
+import { useAuth } from '@/app/(setup-layout)/login/hooks/SignIn';
 
 interface SignInFormProps {
-  onForgotPassword: () => void
-  onVerificationNeeded: (email: string, password: string) => void
-  redirectPath?: string
+  onForgotPassword: () => void;
+  onVerificationNeeded: (email: string, password: string) => void;
+  redirectPath?: string;
 }
 
-export function SignInForm({
-  onForgotPassword,
-  onVerificationNeeded,
-  redirectPath = '/',
-}: SignInFormProps) {
-  const [showPassword, setShowPassword] = useState(false)
+export function SignInForm({ onForgotPassword, onVerificationNeeded, redirectPath = '/' }: SignInFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading, error, clearError } = useAuth({
     redirectPath,
     onVerificationNeeded,
-  })
+  });
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -43,20 +32,20 @@ export function SignInForm({
       password: '',
       rememberMe: false,
     },
-  })
+  });
 
   const handleSubmit = async (data: SignInFormData) => {
     try {
-      await login(data.email, data.password)
+      await login(data.email, data.password);
       // Si el login es exitoso, la redirección la maneja el hook useAuth
     } catch (err) {
       // Los errores ya los maneja el hook useAuth
       form.setError('root', {
         type: 'manual',
         message: 'Error al iniciar sesión',
-      })
+      });
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -72,9 +61,9 @@ export function SignInForm({
                 <Input
                   placeholder="correo@ejemplo.com"
                   {...field}
-                  onChange={e => {
-                    field.onChange(e)
-                    clearError()
+                  onChange={(e) => {
+                    field.onChange(e);
+                    clearError();
                   }}
                 />
               </FormControl>
@@ -93,11 +82,10 @@ export function SignInForm({
                   type="button"
                   variant="link"
                   className="px-0 font-normal text-gray-600 underline"
-                  onClick={e => {
-                    e.preventDefault()
-                    onForgotPassword()
-                  }}
-                >
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onForgotPassword();
+                  }}>
                   ¿Olvidaste tu contraseña?
                 </Button>
               </div>
@@ -107,9 +95,9 @@ export function SignInForm({
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Ingresa tu contraseña"
                     {...field}
-                    onChange={e => {
-                      field.onChange(e)
-                      clearError()
+                    onChange={(e) => {
+                      field.onChange(e);
+                      clearError();
                     }}
                   />
                   <Button
@@ -117,8 +105,7 @@ export function SignInForm({
                     variant="ghost"
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
+                    onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
                       <EyeOff className="h-4 w-4 text-gray-600" />
                     ) : (
@@ -146,8 +133,7 @@ export function SignInForm({
         <Button
           type="submit"
           className="w-full bg-black text-white hover:bg-black/90 flex items-center justify-center"
-          disabled={isLoading}
-        >
+          disabled={isLoading}>
           {isLoading ? (
             <>
               <Loader color="white" />
@@ -159,5 +145,5 @@ export function SignInForm({
         </Button>
       </form>
     </Form>
-  )
+  );
 }

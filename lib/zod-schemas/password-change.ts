@@ -1,4 +1,4 @@
-import * as z from 'zod'
+import * as z from 'zod';
 
 export const passwordSchema = z
   .object({
@@ -12,9 +12,9 @@ export const passwordSchema = z
       ),
     confirmPassword: z.string().min(1, 'Confirma tu nueva contraseña'),
   })
-  .refine(data => data.newPassword === data.confirmPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
-  })
+  });
 
-export type PasswordFormValues = z.infer<typeof passwordSchema>
+export type PasswordFormValues = z.infer<typeof passwordSchema>;

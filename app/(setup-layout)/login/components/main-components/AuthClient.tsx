@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import { AuthForm } from '@/app/(setup-layout)/login/components/main-components/AuthForm'
-import ImageSlider from '@/app/(setup-layout)/login/components/main-components/ImageSlider'
+import { AuthForm } from '@/app/(setup-layout)/login/components/main-components/AuthForm';
+import ImageSlider from '@/app/(setup-layout)/login/components/main-components/ImageSlider';
 
 const LoginPage = () => {
   return (
@@ -13,7 +13,7 @@ const LoginPage = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

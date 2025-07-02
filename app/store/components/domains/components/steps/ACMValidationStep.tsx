@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import { useState, useCallback } from 'react'
-import { LegacyCard, Text, Button, LegacyStack, Banner, Box, Badge } from '@shopify/polaris'
-import { ClipboardIcon, RefreshIcon } from '@shopify/polaris-icons'
+import { useState, useCallback } from 'react';
+import { LegacyCard, Text, Button, LegacyStack, Banner, Box, Badge } from '@shopify/polaris';
+import { ClipboardIcon, RefreshIcon } from '@shopify/polaris-icons';
 
 interface ACMValidationStepProps {
-  domain: string
-  certificateArn: string
+  domain: string;
+  certificateArn: string;
   acmValidationRecords: Array<{
-    name: string
-    value: string
-    type: string
-  }>
-  onContinue: () => void
-  onBack: () => void
-  onVerifyACM: (certificateArn: string) => Promise<{ success: boolean; data?: any; error?: string }>
-  isLoading: boolean
-  isCertificateReady: boolean
-  copyToClipboard: (text: string) => void
+    name: string;
+    value: string;
+    type: string;
+  }>;
+  onContinue: () => void;
+  onBack: () => void;
+  onVerifyACM: (certificateArn: string) => Promise<{ success: boolean; data?: any; error?: string }>;
+  isLoading: boolean;
+  isCertificateReady: boolean;
+  copyToClipboard: (text: string) => void;
 }
 
 export function ACMValidationStep({
@@ -31,20 +31,18 @@ export function ACMValidationStep({
   isCertificateReady,
   copyToClipboard,
 }: ACMValidationStepProps) {
-  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>(
-    'pending'
-  )
+  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>('pending');
 
   const handleVerifyACM = useCallback(async () => {
-    const result = await onVerifyACM(certificateArn)
+    const result = await onVerifyACM(certificateArn);
 
     if (result.success && result.data?.isReady) {
-      setVerificationStatus('success')
-      setTimeout(() => onContinue(), 1500)
+      setVerificationStatus('success');
+      setTimeout(() => onContinue(), 1500);
     } else {
-      setVerificationStatus('error')
+      setVerificationStatus('error');
     }
-  }, [certificateArn, onVerifyACM, onContinue])
+  }, [certificateArn, onVerifyACM, onContinue]);
 
   return (
     <LegacyStack vertical spacing="extraLoose">
@@ -170,11 +168,10 @@ export function ACMValidationStep({
         <Button
           variant="primary"
           onClick={onContinue}
-          disabled={!isCertificateReady && verificationStatus !== 'success'}
-        >
+          disabled={!isCertificateReady && verificationStatus !== 'success'}>
           Continuar
         </Button>
       </LegacyStack>
     </LegacyStack>
-  )
+  );
 }

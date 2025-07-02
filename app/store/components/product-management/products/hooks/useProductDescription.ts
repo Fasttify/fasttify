@@ -3,14 +3,14 @@
  * Proporciona funcionalidades para solicitar descripciones basadas en el nombre
  * y categoría del producto.
  */
-import { useState, useCallback } from 'react'
-import { generateClient } from 'aws-amplify/api'
-import type { Schema } from '@/amplify/data/resource'
+import { useState, useCallback } from 'react';
+import { generateClient } from 'aws-amplify/api';
+import type { Schema } from '@/amplify/data/resource';
 
 /**
  * Cliente generado para interactuar con la API de Amplify.
  */
-const client = generateClient<Schema>()
+const client = generateClient<Schema>();
 
 /**
  * Hook personalizado que gestiona la generación de descripciones de productos con IA.
@@ -22,19 +22,19 @@ export function useProductDescription() {
    * Estado para almacenar la descripción generada.
    * @type {string}
    */
-  const [description, setDescription] = useState<string>('')
+  const [description, setDescription] = useState<string>('');
 
   /**
    * Estado para controlar si hay una operación de generación en curso.
    * @type {boolean}
    */
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
 
   /**
    * Estado para almacenar errores que puedan ocurrir durante la generación.
    * @type {Error | null}
    */
-  const [error, setError] = useState<Error | null>(null)
+  const [error, setError] = useState<Error | null>(null);
 
   /**
    * Función para generar una descripción de producto con IA.
@@ -46,36 +46,36 @@ export function useProductDescription() {
    */
   const generateDescription = useCallback(
     async ({ productName, category }: { productName: string; category?: string }) => {
-      setLoading(true)
-      setError(null)
-      setDescription('')
+      setLoading(true);
+      setError(null);
+      setDescription('');
 
       try {
         // Llamar al endpoint de generación de descripciones
         const { data, errors } = await client.queries.generateProductDescription({
           productName,
           category,
-        })
+        });
 
         if (errors) {
-          throw new Error(errors[0]?.message || 'Error in generating description')
+          throw new Error(errors[0]?.message || 'Error in generating description');
         } else if (data) {
-          setDescription(data)
-          return data
+          setDescription(data);
+          return data;
         } else {
-          throw new Error('No response was received from the service')
+          throw new Error('No response was received from the service');
         }
       } catch (err: any) {
-        console.error('Error generating description:', err)
-        const errorMessage = err.message || 'Unknown error'
-        setError(new Error(errorMessage))
-        throw new Error(errorMessage)
+        console.error('Error generating description:', err);
+        const errorMessage = err.message || 'Unknown error';
+        setError(new Error(errorMessage));
+        throw new Error(errorMessage);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
     []
-  )
+  );
 
   /**
    * Función para reiniciar el estado del hook.
@@ -83,9 +83,9 @@ export function useProductDescription() {
    * @returns {void}
    */
   const reset = useCallback(() => {
-    setDescription('')
-    setError(null)
-  }, [])
+    setDescription('');
+    setError(null);
+  }, []);
 
   return {
     description, // Descripción generada
@@ -93,5 +93,5 @@ export function useProductDescription() {
     error, // Error actual, si existe
     generateDescription, // Función para generar una descripción
     reset, // Función para reiniciar el estado
-  }
+  };
 }

@@ -15,7 +15,7 @@ export class DataTransformer {
       .replace(/[ç]/g, 'c')
       .replace(/[^a-z0-9]/g, '-')
       .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
+      .replace(/^-|-$/g, '');
   }
 
   /**
@@ -27,24 +27,24 @@ export class DataTransformer {
       currency: 'COP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount)
+    }).format(amount);
   }
 
   /**
    * Transforma array de imágenes desde JSON string o array
    */
   public static transformImages(images: any, productName: string): any[] {
-    let imagesArray = []
+    let imagesArray = [];
     if (images) {
       if (typeof images === 'string') {
         try {
-          imagesArray = JSON.parse(images)
+          imagesArray = JSON.parse(images);
         } catch (error) {
-          console.warn('Error parsing product images JSON:', error)
-          imagesArray = []
+          console.warn('Error parsing product images JSON:', error);
+          imagesArray = [];
         }
       } else if (Array.isArray(images)) {
-        imagesArray = images
+        imagesArray = images;
       }
     }
 
@@ -53,24 +53,24 @@ export class DataTransformer {
           url: img.url || img.src || '',
           alt: img.altText || img.alt || productName || '',
         }))
-      : []
+      : [];
   }
 
   /**
    * Transforma array de variantes desde JSON string o array
    */
   public static transformVariants(variants: any, basePrice: number): any[] {
-    let variantsArray = []
+    let variantsArray = [];
     if (variants) {
       if (typeof variants === 'string') {
         try {
-          variantsArray = JSON.parse(variants)
+          variantsArray = JSON.parse(variants);
         } catch (error) {
-          console.warn('Error parsing product variants JSON:', error)
-          variantsArray = []
+          console.warn('Error parsing product variants JSON:', error);
+          variantsArray = [];
         }
       } else if (Array.isArray(variants)) {
-        variantsArray = variants
+        variantsArray = variants;
       }
     }
 
@@ -82,24 +82,24 @@ export class DataTransformer {
           available: (variant.quantity || variant.stock || 0) > 0,
           sku: variant.sku,
         }))
-      : []
+      : [];
   }
 
   /**
    * Transforma array de atributos
    */
   public static transformAttributes(attributes: any): any[] {
-    let attributesArray = []
+    let attributesArray = [];
     if (attributes) {
       if (typeof attributes === 'string') {
         try {
-          attributesArray = JSON.parse(attributes)
+          attributesArray = JSON.parse(attributes);
         } catch (error) {
-          console.warn('Error parsing product attributes JSON:', error)
-          attributesArray = []
+          console.warn('Error parsing product attributes JSON:', error);
+          attributesArray = [];
         }
       } else if (Array.isArray(attributes)) {
-        attributesArray = attributes
+        attributesArray = attributes;
       }
     }
 
@@ -108,8 +108,8 @@ export class DataTransformer {
           name: attribute.name,
           values: attribute.values,
         }))
-      : []
+      : [];
   }
 }
 
-export const dataTransformer = DataTransformer
+export const dataTransformer = DataTransformer;

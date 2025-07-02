@@ -1,4 +1,4 @@
-import { updateUserAttributes } from 'aws-amplify/auth'
+import { updateUserAttributes } from 'aws-amplify/auth';
 
 export async function updateToPremiumPlan() {
   try {
@@ -6,10 +6,10 @@ export async function updateToPremiumPlan() {
       userAttributes: {
         'custom:plan': 'premium',
       },
-    })
-    return true
+    });
+    return true;
   } catch (error) {
-    console.error('Error updating plan:', error)
-    throw error
+    console.error('Error updating plan:', error);
+    throw error;
   }
 }

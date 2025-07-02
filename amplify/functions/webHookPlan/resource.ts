@@ -1,4 +1,4 @@
-import { defineFunction, secret } from '@aws-amplify/backend'
+import { defineFunction, secret } from '@aws-amplify/backend';
 
 export const webHookPlan = defineFunction({
   name: 'hookPlan',
@@ -9,4 +9,4 @@ export const webHookPlan = defineFunction({
     POLAR_WEBHOOK_SECRET: secret('POLAR_WEBHOOK_SECRET'),
     USER_POOL_ID: secret('USER_POOL_ID'),
   },
-})
+});

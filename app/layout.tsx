@@ -1,18 +1,18 @@
-import type { Metadata } from 'next'
-import { ReactQueryProvider } from '@/utils/ReactQueryProvider'
-import ConfigureAmplifyClientSide from '@/utils/ConfigureAmplify'
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
+import type { Metadata } from 'next';
+import { ReactQueryProvider } from '@/utils/ReactQueryProvider';
+import ConfigureAmplifyClientSide from '@/utils/ConfigureAmplify';
+import { Amplify } from 'aws-amplify';
+import outputs from '@/amplify_outputs.json';
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
+Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
 Amplify.configure({
   ...existingConfig,
   API: {
     ...existingConfig.API,
     REST: outputs.custom.APIs,
   },
-})
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.fasttify.com'),
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/icons/fast@4x.webp',
   },
-}
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -54,5 +54,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <ConfigureAmplifyClientSide />
       {children}
     </ReactQueryProvider>
-  )
+  );
 }

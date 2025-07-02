@@ -1,18 +1,18 @@
-import type { UseFormReturn } from 'react-hook-form'
-import { FormLayout, TextField, BlockStack, Divider, Grid, Text } from '@shopify/polaris'
-import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
-import { useState } from 'react'
-import { useToast } from '@/app/store/context/ToastContext'
+import type { UseFormReturn } from 'react-hook-form';
+import { FormLayout, TextField, BlockStack, Divider, Grid, Text } from '@shopify/polaris';
+import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
+import { useState } from 'react';
+import { useToast } from '@/app/store/context/ToastContext';
 import {
   usePriceSuggestion,
   type PriceSuggestionResult,
-} from '@/app/store/components/product-management/products/hooks/usePriceSuggestion'
-import { PriceSuggestionPanel } from '@/app/store/components/product-management/products/components/form/price-suggestion-panel'
-import { Controller } from 'react-hook-form'
-import { PriceField } from './PriceField'
+} from '@/app/store/components/product-management/products/hooks/usePriceSuggestion';
+import { PriceSuggestionPanel } from '@/app/store/components/product-management/products/components/form/price-suggestion-panel';
+import { Controller } from 'react-hook-form';
+import { PriceField } from './PriceField';
 
 interface PricingInventorySectionProps {
-  form: UseFormReturn<ProductFormValues>
+  form: UseFormReturn<ProductFormValues>;
 }
 
 export function PricingInventorySection({ form }: PricingInventorySectionProps) {
@@ -21,100 +21,93 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
     loading: isGeneratingPrice,
     result: priceResult,
     reset: resetPriceSuggestion,
-  } = usePriceSuggestion()
+  } = usePriceSuggestion();
 
-  const [localPriceResult, setLocalPriceResult] = useState<PriceSuggestionResult | null>(null)
-  const { showToast } = useToast()
+  const [localPriceResult, setLocalPriceResult] = useState<PriceSuggestionResult | null>(null);
+  const { showToast } = useToast();
 
-  const displayResult = localPriceResult || priceResult
+  const displayResult = localPriceResult || priceResult;
 
   const handleGeneratePrice = async () => {
-    const productName = form.getValues('name')
-    const category = form.getValues('category')
+    const productName = form.getValues('name');
+    const category = form.getValues('category');
 
     if (!productName) {
-      showToast('Por favor, ingrese un nombre de producto primero.', true)
-      return
+      showToast('Por favor, ingrese un nombre de producto primero.', true);
+      return;
     }
 
     try {
       const rawResult = await generatePriceSuggestion({
         productName,
         category: category || undefined,
-      })
+      });
 
-      let parsedResult
+      let parsedResult;
       if (typeof rawResult === 'string') {
         try {
-          parsedResult = JSON.parse(rawResult)
+          parsedResult = JSON.parse(rawResult);
 
-          setLocalPriceResult(parsedResult)
+          setLocalPriceResult(parsedResult);
         } catch (parseError) {
-          console.error('Error parsing result:', parseError)
-          throw new Error('The response format is invalid')
+          console.error('Error parsing result:', parseError);
+          throw new Error('The response format is invalid');
         }
       } else {
-        parsedResult = rawResult
+        parsedResult = rawResult;
 
         if (parsedResult) {
-          setLocalPriceResult(parsedResult)
+          setLocalPriceResult(parsedResult);
         }
       }
 
       if (parsedResult) {
-        showToast('Se ha generado una sugerencia de precio basada en el mercado.')
+        showToast('Se ha generado una sugerencia de precio basada en el mercado.');
 
         // Si tenemos un costo por artículo, podemos calcular el margen
-        const costPerItem = form.getValues('costPerItem')
+        const costPerItem = form.getValues('costPerItem');
         if (costPerItem && parsedResult.suggestedPrice > 0) {
-          const margin =
-            ((parsedResult.suggestedPrice - costPerItem) / parsedResult.suggestedPrice) * 100
+          const margin = ((parsedResult.suggestedPrice - costPerItem) / parsedResult.suggestedPrice) * 100;
           if (margin < 10) {
-            showToast(
-              `El margen calculado es de ${margin.toFixed(1)}%, que es menor al 10% recomendado.`
-            )
+            showToast(`El margen calculado es de ${margin.toFixed(1)}%, que es menor al 10% recomendado.`);
           }
         }
       } else {
-        console.warn('No valid result was received from the API')
+        console.warn('No valid result was received from the API');
       }
     } catch (error) {
-      console.error('Error generating price suggestion:', error)
-      showToast('No se pudo generar la sugerencia de precio. Inténtelo de nuevo más tarde.', true)
+      console.error('Error generating price suggestion:', error);
+      showToast('No se pudo generar la sugerencia de precio. Inténtelo de nuevo más tarde.', true);
     }
-  }
+  };
 
   const acceptPrice = () => {
-    const resultToUse = localPriceResult || priceResult
+    const resultToUse = localPriceResult || priceResult;
 
     if (resultToUse) {
       form.setValue('price', resultToUse.suggestedPrice || 0, {
         shouldDirty: true,
         shouldTouch: true,
-      })
+      });
 
-      if (
-        resultToUse.maxPrice &&
-        resultToUse.suggestedPrice &&
-        resultToUse.maxPrice > resultToUse.suggestedPrice
-      ) {
+      if (resultToUse.maxPrice && resultToUse.suggestedPrice && resultToUse.maxPrice > resultToUse.suggestedPrice) {
         form.setValue('compareAtPrice', resultToUse.maxPrice, {
           shouldDirty: true,
           shouldTouch: true,
-        })
+        });
       }
 
-      showToast('El precio sugerido ha sido aplicado al producto.')
-      resetPriceSuggestion()
-      setLocalPriceResult(null)
+      showToast('El precio sugerido ha sido aplicado al producto.');
+      resetPriceSuggestion();
+      setLocalPriceResult(null);
     }
-  }
+  };
 
   const rejectPrice = () => {
-    resetPriceSuggestion()
-    setLocalPriceResult(null)
-    showToast('La sugerencia de precio ha sido descartada.')
-  }
+    resetPriceSuggestion();
+    setLocalPriceResult(null);
+    showToast('La sugerencia de precio ha sido descartada.');
+  };
 
   return (
     <BlockStack gap="400">
@@ -228,5 +221,5 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
         )}
       />
     </BlockStack>
-  )
+  );
 }

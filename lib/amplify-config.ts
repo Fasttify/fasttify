@@ -1,7 +1,7 @@
-import { Amplify } from 'aws-amplify'
-import outputs from '@/amplify_outputs.json'
+import { Amplify } from 'aws-amplify';
+import outputs from '@/amplify_outputs.json';
 
-let isConfigured = false
+let isConfigured = false;
 
 /**
  * Configuración global de Amplify
@@ -9,26 +9,26 @@ let isConfigured = false
  */
 export function configureAmplify() {
   if (isConfigured) {
-    return
+    return;
   }
 
   try {
     // Configuración inicial
-    Amplify.configure(outputs)
+    Amplify.configure(outputs);
 
     // Configuración avanzada con APIs REST personalizadas
-    const existingConfig = Amplify.getConfig()
+    const existingConfig = Amplify.getConfig();
     Amplify.configure({
       ...existingConfig,
       API: {
         ...existingConfig.API,
         REST: outputs.custom?.APIs || {},
       },
-    })
+    });
 
-    isConfigured = true
+    isConfigured = true;
   } catch (error) {
-    console.error(' Error at configureAmplify:', error)
+    console.error(' Error at configureAmplify:', error);
   }
 }
 
@@ -37,14 +37,14 @@ export function configureAmplify() {
  */
 export function configureAmplifySSR() {
   if (isConfigured) {
-    return
+    return;
   }
 
   try {
-    Amplify.configure(outputs, { ssr: true })
-    isConfigured = true
+    Amplify.configure(outputs, { ssr: true });
+    isConfigured = true;
   } catch (error) {
-    console.error('Error at configureAmplifySSR:', error)
+    console.error('Error at configureAmplifySSR:', error);
   }
 }
 
@@ -52,9 +52,9 @@ export function configureAmplifySSR() {
  * Forzar reconfiguración
  */
 export function reconfigureAmplify() {
-  isConfigured = false
-  configureAmplify()
+  isConfigured = false;
+  configureAmplify();
 }
 
 // Re-exportar Amplify configurado
-export { Amplify }
+export { Amplify };

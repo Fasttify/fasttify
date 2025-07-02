@@ -1,34 +1,31 @@
-import { liquidEngine } from '@/renderer-engine/liquid/engine'
-import type { TemplateError, RenderResult, ShopContext } from '@/renderer-engine/types'
-import { logger } from '@/renderer-engine/lib/logger'
+import { liquidEngine } from '@/renderer-engine/liquid/engine';
+import type { TemplateError, RenderResult, ShopContext } from '@/renderer-engine/types';
+import { logger } from '@/renderer-engine/lib/logger';
 
 export interface ErrorRenderOptions {
-  storeId?: string
-  domain: string
-  path?: string
-  store?: ShopContext
+  storeId?: string;
+  domain: string;
+  path?: string;
+  store?: ShopContext;
 }
 
 export class ErrorRenderer {
   /**
    * Renderiza una página de error amigable usando templates Liquid
    */
-  public async renderError(
-    error: TemplateError,
-    options: ErrorRenderOptions
-  ): Promise<RenderResult> {
+  public async renderError(error: TemplateError, options: ErrorRenderOptions): Promise<RenderResult> {
     try {
       // Crear contexto básico para el error
-      const context = this.createErrorContext(error, options)
+      const context = this.createErrorContext(error, options);
 
       // Seleccionar template según el tipo de error
-      const template = this.getErrorTemplate(error.type)
+      const template = this.getErrorTemplate(error.type);
 
       // Renderizar el error con Liquid
-      const html = await liquidEngine.render(template, context, `error_${error.type}`)
+      const html = await liquidEngine.render(template, context, `error_${error.type}`);
 
-      const storeName = this.extractStoreName(options.domain)
-      const title = this.getErrorTitle(error.type, storeName)
+      const storeName = this.extractStoreName(options.domain);
+      const title = this.getErrorTitle(error.type, storeName);
 
       return {
         html,
@@ -52,11 +49,11 @@ export class ErrorRenderer {
         },
         cacheKey: `error_${error.type}_${Date.now()}`,
         cacheTTL: 0, // No cachear errores
-      }
+      };
     } catch (renderError) {
       // Si falla el renderizado de error, devolver HTML básico
-      logger.error('Error rendering error page', renderError, 'ErrorRenderer')
-      return this.getFallbackErrorPage(error, options)
+      logger.error('Error rendering error page', renderError, 'ErrorRenderer');
+      return this.getFallbackErrorPage(error, options);
     }
   }
 
@@ -64,7 +61,7 @@ export class ErrorRenderer {
    * Crea el contexto para renderizar errores
    */
   private createErrorContext(error: TemplateError, options: ErrorRenderOptions) {
-    const storeName = this.extractStoreName(options.domain)
+    const storeName = this.extractStoreName(options.domain);
 
     return {
       error: {
@@ -90,7 +87,7 @@ export class ErrorRenderer {
         show_breadcrumbs: false,
         show_navigation: false,
       },
-    }
+    };
   }
 
   /**
@@ -103,9 +100,9 @@ export class ErrorRenderer {
       RENDER_ERROR: this.getRenderErrorTemplate(),
       DATA_ERROR: this.getDataErrorTemplate(),
       STORE_NOT_ACTIVE: this.getStoreNotActiveTemplate(),
-    }
+    };
 
-    return templates[errorType] || templates.RENDER_ERROR
+    return templates[errorType] || templates.RENDER_ERROR;
   }
 
   /**
@@ -337,7 +334,7 @@ export class ErrorRenderer {
   </div>
 </body>
 </html>
-    `
+    `;
   }
 
   /**
@@ -575,7 +572,7 @@ export class ErrorRenderer {
   </div>
 </body>
 </html>
-    `
+    `;
   }
 
   /**
@@ -813,7 +810,7 @@ export class ErrorRenderer {
   </div>
 </body>
 </html>
-    `
+    `;
   }
 
   /**
@@ -1051,7 +1048,7 @@ export class ErrorRenderer {
   </div>
 </body>
 </html>
-    `
+    `;
   }
 
   private getStoreNotActiveTemplate(): string {
@@ -1286,7 +1283,7 @@ export class ErrorRenderer {
   </div>
 </body>
 </html> 
-    `
+    `;
   }
 
   /**
@@ -1296,14 +1293,12 @@ export class ErrorRenderer {
     const messages = {
       STORE_NOT_FOUND: 'Lo sentimos, la tienda que buscas no existe o ha sido desactivada.',
       TEMPLATE_NOT_FOUND: 'Esta tienda está siendo configurada y estará disponible pronto.',
-      RENDER_ERROR:
-        'Experimentamos un problema técnico temporal. Nuestro equipo ya está trabajando en solucionarlo.',
-      DATA_ERROR:
-        'Hubo un problema al cargar los datos de la tienda. Inténtalo de nuevo en unos momentos.',
+      RENDER_ERROR: 'Experimentamos un problema técnico temporal. Nuestro equipo ya está trabajando en solucionarlo.',
+      DATA_ERROR: 'Hubo un problema al cargar los datos de la tienda. Inténtalo de nuevo en unos momentos.',
       STORE_NOT_ACTIVE: 'La tienda que buscas no está activa o no está pagada.',
-    }
+    };
 
-    return messages[errorType] || 'Se produjo un error inesperado.'
+    return messages[errorType] || 'Se produjo un error inesperado.';
   }
 
   /**
@@ -1336,16 +1331,16 @@ export class ErrorRenderer {
         'Contactar al propietario de la tienda si crees que debería estar activa',
         'Explorar otras tiendas en Fasttify',
       ],
-    }
+    };
 
-    return suggestions[errorType] || ['Intentar de nuevo más tarde']
+    return suggestions[errorType] || ['Intentar de nuevo más tarde'];
   }
 
   /**
    * Obtiene títulos para cada tipo de error
    */
   private getErrorTitle(errorType: TemplateError['type'], storeName?: string): string {
-    const storeNamePart = storeName ? ` | ${storeName}` : ''
+    const storeNamePart = storeName ? ` | ${storeName}` : '';
 
     const titles = {
       STORE_NOT_FOUND: `Tienda No Encontrada${storeNamePart} - Fasttify`,
@@ -1353,9 +1348,9 @@ export class ErrorRenderer {
       RENDER_ERROR: `${storeName || 'Tienda'} - Error Temporal - Fasttify`,
       DATA_ERROR: `${storeName || 'Tienda'} - Error de Conexión - Fasttify`,
       STORE_NOT_ACTIVE: `${storeName || 'Tienda'} No Activa - Fasttify`,
-    }
+    };
 
-    return titles[errorType] || `${storeName || 'Tienda'} - Error - Fasttify`
+    return titles[errorType] || `${storeName || 'Tienda'} - Error - Fasttify`;
   }
 
   /**
@@ -1365,13 +1360,12 @@ export class ErrorRenderer {
     const descriptions = {
       STORE_NOT_FOUND: 'La tienda que buscas no existe o no está disponible en este momento.',
       TEMPLATE_NOT_FOUND: 'Esta tienda está siendo configurada y estará disponible pronto.',
-      RENDER_ERROR:
-        'Se produjo un error técnico temporal. Nuestro equipo está trabajando para solucionarlo.',
+      RENDER_ERROR: 'Se produjo un error técnico temporal. Nuestro equipo está trabajando para solucionarlo.',
       DATA_ERROR: 'Hubo un problema al cargar los datos. Inténtalo de nuevo en unos momentos.',
       STORE_NOT_ACTIVE: 'La tienda que buscas no está activa o no está pagada.',
-    }
+    };
 
-    return descriptions[errorType] || 'Se produjo un error inesperado.'
+    return descriptions[errorType] || 'Se produjo un error inesperado.';
   }
 
   /**
@@ -1381,14 +1375,14 @@ export class ErrorRenderer {
     // Si es un dominio personalizado (tienda.com, etc), usar el nombre del dominio
     if (domain.includes('.') && !domain.endsWith('.fasttify.com')) {
       // Para dominios personalizados, usar todo el dominio sin el TLD
-      const withoutTLD = domain.split('.').slice(0, -1).join('.')
-      return withoutTLD.charAt(0).toUpperCase() + withoutTLD.slice(1)
+      const withoutTLD = domain.split('.').slice(0, -1).join('.');
+      return withoutTLD.charAt(0).toUpperCase() + withoutTLD.slice(1);
     }
 
     // Para subdominios de fasttify.com, usar solo la primera parte
-    const parts = domain.split('.')
-    const storeName = parts[0] || domain
-    return storeName.charAt(0).toUpperCase() + storeName.slice(1)
+    const parts = domain.split('.');
+    const storeName = parts[0] || domain;
+    return storeName.charAt(0).toUpperCase() + storeName.slice(1);
   }
 
   /**
@@ -1427,7 +1421,7 @@ export class ErrorRenderer {
   </div>
 </body>
 </html>
-    `
+    `;
 
     return {
       html,
@@ -1450,9 +1444,9 @@ export class ErrorRenderer {
       },
       cacheKey: `fallback_error_${Date.now()}`,
       cacheTTL: 0,
-    }
+    };
   }
 }
 
 // Exportar instancia singleton
-export const errorRenderer = new ErrorRenderer()
+export const errorRenderer = new ErrorRenderer();

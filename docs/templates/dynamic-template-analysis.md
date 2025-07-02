@@ -1,17 +1,17 @@
 # Sistema Dinámico de Análisis de Plantillas
 
-## 🎯 Objetivo
+## Objetivo
 
 Transformar el motor de renderizado de un sistema **hardcodeado** a uno **dinámico e inteligente** que analiza las plantillas Liquid para determinar qué datos cargar, similar a como funciona Shopify.
 
-## 🔄 Antes vs Ahora
+## Antes vs Ahora
 
 ### ❌ **Sistema Anterior (Hardcodeado)**
 
 ```typescript
 // SIEMPRE cargaba los mismos datos, usara la plantilla o no
-const featuredProducts = await dataFetcher.getFeaturedProducts(storeId, 8) // ← Fijo: 8
-const collections = await dataFetcher.getStoreCollections(storeId, { limit: 6 }) // ← Fijo: 6
+const featuredProducts = await dataFetcher.getFeaturedProducts(storeId, 8); // ← Fijo: 8
+const collections = await dataFetcher.getStoreCollections(storeId, { limit: 6 }); // ← Fijo: 6
 ```
 
 **Problemas:**
@@ -25,11 +25,11 @@ const collections = await dataFetcher.getStoreCollections(storeId, { limit: 6 })
 
 ```typescript
 // 1. Analiza la plantilla para detectar qué necesita
-const analysis = await templateAnalyzer.analyzeTemplate(template, path)
+const analysis = await templateAnalyzer.analyzeTemplate(template, path);
 
 // 2. Solo carga lo que detectó
 for (const [dataType, options] of analysis.requiredData) {
-  await loadSpecificData(dataType, options) // ← Carga solo lo necesario
+  await loadSpecificData(dataType, options); // ← Carga solo lo necesario
 }
 ```
 
@@ -41,7 +41,7 @@ for (const [dataType, options] of analysis.requiredData) {
 - ✅ Más eficiente
 - ✅ Compatible con Shopify
 
-## 🧠 Cómo Funciona
+## Cómo Funciona
 
 ### 1. **Análisis de Plantillas**
 
@@ -84,7 +84,7 @@ El `TemplateAnalyzer` usa regex patterns para detectar objetos Liquid:
 - ✅ Paginación: `true`
 - ✅ Items por página: `24`
 
-## 📊 Ejemplos de Detección
+## Ejemplos de Detección
 
 ### **Homepage**
 
@@ -164,43 +164,43 @@ El `TemplateAnalyzer` usa regex patterns para detectar objetos Liquid:
 // ✅ NO carga productos ni colecciones innecesariamente
 ```
 
-## 🚀 Uso del Sistema
+## Uso del Sistema
 
 ### **Renderizado Automático**
 
 ```typescript
-import { storeRenderer } from '@/renderer-engine'
+import { storeRenderer } from '@/renderer-engine';
 
 // El sistema analiza automáticamente y carga solo lo necesario
-const result = await storeRenderer.renderPage('mitienda.fasttify.com', '/')
+const result = await storeRenderer.renderPage('mitienda.fasttify.com', '/');
 ```
 
 ### **Análisis Manual**
 
 ```typescript
-import { templateAnalyzer } from '@/renderer-engine'
+import { templateAnalyzer } from '@/renderer-engine';
 
-const template = `{% for product in products limit: 20 %}`
-const analysis = templateAnalyzer.analyzeTemplate(template, 'custom.liquid')
+const template = `{% for product in products limit: 20 %}`;
+const analysis = templateAnalyzer.analyzeTemplate(template, 'custom.liquid');
 
-console.log('Datos necesarios:', Array.from(analysis.requiredData.keys()))
+console.log('Datos necesarios:', Array.from(analysis.requiredData.keys()));
 // Output: ['products', 'cart', 'shop']
 ```
 
 ### **Carga Dinámica de Datos**
 
 ```typescript
-import { dynamicDataLoader } from '@/renderer-engine'
+import { dynamicDataLoader } from '@/renderer-engine';
 
 const result = await dynamicDataLoader.loadDynamicData('store123', {
   pageType: 'index',
-})
+});
 
-console.log('Análisis:', result.analysis)
-console.log('Datos cargados:', Object.keys(result))
+console.log('Análisis:', result.analysis);
+console.log('Datos cargados:', Object.keys(result));
 ```
 
-## 🎯 Patrones de Detección
+## Patrones de Detección
 
 ### **Objetos Liquid Detectados**
 
@@ -229,7 +229,7 @@ console.log('Datos cargados:', Object.keys(result))
 | `{% render %}`  | `{% render 'card' %}`    | `snippets/card.liquid`   |
 | `{% include %}` | `{% include 'old' %}`    | `snippets/old.liquid`    |
 
-## 📈 Beneficios de Rendimiento
+## Beneficios de Rendimiento
 
 ### **Ejemplo: Página Simple**
 
@@ -254,7 +254,7 @@ console.log('Datos cargados:', Object.keys(result))
 **Antes:** Siempre 8 productos (insuficiente)
 **Ahora:** Detecta y carga 50 productos automáticamente
 
-## 🔧 Configuración Avanzada
+## Configuración Avanzada
 
 ### **Patrones Personalizados**
 
@@ -263,7 +263,7 @@ console.log('Datos cargados:', Object.keys(result))
 const customPatterns = {
   blog: /\{\{\s*blog\./g,
   articles: /\{\{\s*articles\s*[\|\}]/g,
-}
+};
 ```
 
 ### **Opciones de Inferencia**
@@ -276,7 +276,7 @@ const customPatterns = {
 'templates/cart.json' → cart
 ```
 
-## 🐛 Debugging
+## Debugging
 
 ### **Logs Automáticos**
 
@@ -293,16 +293,16 @@ const customPatterns = {
 ### **Análisis Detallado**
 
 ```typescript
-const analysis = await templateAnalyzer.analyzeTemplate(template, path)
+const analysis = await templateAnalyzer.analyzeTemplate(template, path);
 console.log({
   requiredData: Array.from(analysis.requiredData.entries()),
   hasPagination: analysis.hasPagination,
   usedSections: analysis.usedSections,
   dependencies: analysis.dependencies,
-})
+});
 ```
 
-## 🎉 Resultado
+## Resultado
 
 El motor ahora es **completamente dinámico** y funciona como Shopify:
 
@@ -311,5 +311,3 @@ El motor ahora es **completamente dinámico** y funciona como Shopify:
 - ✅ **Optimización automática** de performance
 - ✅ **Flexibilidad total** para cualquier plantilla
 - ✅ **Compatibilidad completa** con Liquid de Shopify
-
-¡Ya no más datos hardcodeados! 🚀

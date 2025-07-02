@@ -1,19 +1,16 @@
-import { Card, Text, LegacyStack, Box, BlockStack } from '@shopify/polaris'
-import { PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
-import { PaymentGatewayCard } from '@/app/store/components/payments/components/PaymentGatewayCard'
+import { Card, Text, LegacyStack, Box, BlockStack } from '@shopify/polaris';
+import { PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { PaymentGatewayCard } from '@/app/store/components/payments/components/PaymentGatewayCard';
 
 interface PaymentMethodsSectionProps {
-  configuredGateways: PaymentGatewayType[]
-  onOpenModal: (gateway: PaymentGatewayType) => void
+  configuredGateways: PaymentGatewayType[];
+  onOpenModal: (gateway: PaymentGatewayType) => void;
 }
 
-export function PaymentMethodsSection({
-  configuredGateways,
-  onOpenModal,
-}: PaymentMethodsSectionProps) {
+export function PaymentMethodsSection({ configuredGateways, onOpenModal }: PaymentMethodsSectionProps) {
   const isGatewayConfigured = (gateway: PaymentGatewayType) => {
-    return configuredGateways.includes(gateway)
-  }
+    return configuredGateways.includes(gateway);
+  };
 
   return (
     <Card>
@@ -30,11 +27,7 @@ export function PaymentMethodsSection({
 
       <Box padding="400">
         <LegacyStack vertical spacing="loose">
-          <PaymentGatewayCard
-            gateway="wompi"
-            isConfigured={isGatewayConfigured('wompi')}
-            onActivate={onOpenModal}
-          />
+          <PaymentGatewayCard gateway="wompi" isConfigured={isGatewayConfigured('wompi')} onActivate={onOpenModal} />
           <PaymentGatewayCard
             gateway="mercadoPago"
             isConfigured={isGatewayConfigured('mercadoPago')}
@@ -43,5 +36,5 @@ export function PaymentMethodsSection({
         </LegacyStack>
       </Box>
     </Card>
-  )
+  );
 }

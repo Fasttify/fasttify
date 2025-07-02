@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const productFormSchema = z.object({
   name: z.string().min(2, {
@@ -8,7 +8,7 @@ export const productFormSchema = z.object({
     message: 'La descripción del producto debe tener al menos 10 caracteres.',
   }),
   price: z.preprocess(
-    val => (val === '' || val === null ? undefined : val),
+    (val) => (val === '' || val === null ? undefined : val),
     z.coerce
       .number({
         invalid_type_error: 'El precio debe ser un número válido.',
@@ -21,7 +21,7 @@ export const productFormSchema = z.object({
       .nullable()
   ),
   compareAtPrice: z.preprocess(
-    val => (val === '' || val === null ? undefined : val),
+    (val) => (val === '' || val === null ? undefined : val),
     z.coerce
       .number({
         invalid_type_error: 'El precio de comparación debe ser un número válido.',
@@ -33,7 +33,7 @@ export const productFormSchema = z.object({
       .nullable()
   ),
   costPerItem: z.preprocess(
-    val => (val === '' || val === null ? undefined : val),
+    (val) => (val === '' || val === null ? undefined : val),
     z.coerce
       .number({
         invalid_type_error: 'El costo por artículo debe ser un número válido.',
@@ -47,7 +47,7 @@ export const productFormSchema = z.object({
   sku: z.string().optional(),
   barcode: z.string().optional(),
   quantity: z.preprocess(
-    val => (val === '' ? 0 : val),
+    (val) => (val === '' ? 0 : val),
     z.coerce
       .number({
         invalid_type_error: 'La cantidad debe ser un número válido.',
@@ -96,9 +96,9 @@ export const productFormSchema = z.object({
   creationDate: z.date().optional(),
   lastModifiedDate: z.date().optional(),
   status: z.enum(['active', 'inactive', 'pending', 'draft']).default('draft'),
-})
+});
 
-export type ProductFormValues = z.infer<typeof productFormSchema>
+export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 export const defaultValues: Partial<ProductFormValues> = {
   name: '',
@@ -117,4 +117,4 @@ export const defaultValues: Partial<ProductFormValues> = {
   creationDate: new Date(),
   lastModifiedDate: new Date(),
   status: 'draft',
-}
+};

@@ -1,16 +1,16 @@
 export type Asset = {
-  content: string
-  id: string
-}
+  content: string;
+  id: string;
+};
 
 /**
  * Colecta los contenidos de las etiquetas {% style %} y {% javascript %}
  * durante el renderizado de Liquid para inyectarlos en el layout principal.
  */
 export class AssetCollector {
-  private cssAssets: Asset[] = []
-  private jsAssets: Asset[] = []
-  private readonly uniqueIds: Set<string> = new Set()
+  private cssAssets: Asset[] = [];
+  private jsAssets: Asset[] = [];
+  private readonly uniqueIds: Set<string> = new Set();
 
   /**
    * Agrega contenido CSS al colector.
@@ -18,10 +18,10 @@ export class AssetCollector {
    * @param sectionId - Un ID único para la sección o el asset para evitar duplicados.
    */
   public addCss(content: string, sectionId: string): void {
-    const uniqueId = `css-${sectionId}`
+    const uniqueId = `css-${sectionId}`;
     if (!this.uniqueIds.has(uniqueId)) {
-      this.cssAssets.push({ content, id: uniqueId })
-      this.uniqueIds.add(uniqueId)
+      this.cssAssets.push({ content, id: uniqueId });
+      this.uniqueIds.add(uniqueId);
     }
   }
 
@@ -31,10 +31,10 @@ export class AssetCollector {
    * @param sectionId - Un ID único para la sección o el asset para evitar duplicados.
    */
   public addJs(content: string, sectionId: string): void {
-    const uniqueId = `js-${sectionId}`
+    const uniqueId = `js-${sectionId}`;
     if (!this.uniqueIds.has(uniqueId)) {
-      this.jsAssets.push({ content, id: uniqueId })
-      this.uniqueIds.add(uniqueId)
+      this.jsAssets.push({ content, id: uniqueId });
+      this.uniqueIds.add(uniqueId);
     }
   }
 
@@ -43,8 +43,11 @@ export class AssetCollector {
    * @returns Una cadena de texto con todo el CSS.
    */
   public getCombinedCss(): string {
-    if (this.cssAssets.length === 0) return ''
-    return this.cssAssets.map(asset => asset.content).join('\n')
+    if (this.cssAssets.length === 0) {
+      return '';
+    }
+    const combined = this.cssAssets.map((asset) => asset.content).join('\n');
+    return combined;
   }
 
   /**
@@ -52,16 +55,19 @@ export class AssetCollector {
    * @returns Una cadena de texto con todo el JS.
    */
   public getCombinedJs(): string {
-    if (this.jsAssets.length === 0) return ''
-    return this.jsAssets.map(asset => asset.content).join('\n')
+    if (this.jsAssets.length === 0) {
+      return '';
+    }
+    const combined = this.jsAssets.map((asset) => asset.content).join('\n');
+    return combined;
   }
 
   /**
    * Limpia todos los assets recolectados para un nuevo renderizado.
    */
   public clear(): void {
-    this.cssAssets = []
-    this.jsAssets = []
-    this.uniqueIds.clear()
+    this.cssAssets = [];
+    this.jsAssets = [];
+    this.uniqueIds.clear();
   }
 }

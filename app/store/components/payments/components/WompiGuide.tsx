@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import { useState, ReactNode } from 'react'
-import { Modal, Button, Text, LegacyStack, Link, Divider, Box, Icon } from '@shopify/polaris'
-import { ExternalIcon } from '@shopify/polaris-icons'
+import { useState, ReactNode } from 'react';
+import { Modal, Button, Text, LegacyStack, Link, Divider, Box, Icon } from '@shopify/polaris';
+import { ExternalIcon } from '@shopify/polaris-icons';
 
 interface WompiGuideProps {
-  trigger?: ReactNode
+  trigger?: ReactNode;
 }
 
 const GuideSection = ({ title, items }: { title: string; items: ReactNode[] }) => (
@@ -23,17 +23,17 @@ const GuideSection = ({ title, items }: { title: string; items: ReactNode[] }) =
       </ul>
     </Box>
   </LegacyStack>
-)
+);
 
 export function WompiGuide({ trigger }: WompiGuideProps) {
-  const [open, setOpen] = useState(false)
-  const toggleModal = () => setOpen(prev => !prev)
+  const [open, setOpen] = useState(false);
+  const toggleModal = () => setOpen((prev) => !prev);
 
   const activator = trigger ? (
     <div onClick={toggleModal}>{trigger}</div>
   ) : (
     <Button onClick={toggleModal}>Guía de Activación de Wompi</Button>
-  )
+  );
 
   const sections = [
     {
@@ -71,13 +71,13 @@ export function WompiGuide({ trigger }: WompiGuideProps) {
         'Realiza una transacción de prueba con una tarjeta real de bajo valor.',
       ],
     },
-  ]
+  ];
 
   const resources = [
     { text: 'Documentación oficial de Wompi', url: 'https://docs.wompi.co/' },
     { text: 'Blog de Wompi con tutoriales', url: 'https://wompi.co/blog' },
     { text: 'Soporte técnico de Wompi', url: 'https://wompi.co/contacto' },
-  ]
+  ];
 
   return (
     <>
@@ -86,8 +86,7 @@ export function WompiGuide({ trigger }: WompiGuideProps) {
         open={open}
         onClose={toggleModal}
         title="Guía de Activación de Wompi"
-        secondaryActions={[{ content: 'Cerrar', onAction: toggleModal }]}
-      >
+        secondaryActions={[{ content: 'Cerrar', onAction: toggleModal }]}>
         <Modal.Section>
           <LegacyStack vertical spacing="loose">
             <Text as="p" tone="subdued">
@@ -102,7 +101,7 @@ export function WompiGuide({ trigger }: WompiGuideProps) {
             <Divider />
             <GuideSection
               title="Recursos adicionales"
-              items={resources.map(resource => (
+              items={resources.map((resource) => (
                 <Link url={resource.url} target="_blank">
                   <LegacyStack alignment="center" spacing="extraTight">
                     <Text as="span">{resource.text}</Text>
@@ -115,5 +114,5 @@ export function WompiGuide({ trigger }: WompiGuideProps) {
         </Modal.Section>
       </Modal>
     </>
-  )
+  );
 }

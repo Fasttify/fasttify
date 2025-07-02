@@ -1,5 +1,5 @@
-import { IProduct } from '@/app/store/hooks/data/useProducts'
-import { ProductFormValues } from '@/lib/zod-schemas/product-schema'
+import { IProduct } from '@/app/store/hooks/data/useProducts';
+import { ProductFormValues } from '@/lib/zod-schemas/product-schema';
 
 /**
  * Mapea un producto a los valores del formulario
@@ -18,18 +18,11 @@ export function mapProductToFormValues(product: IProduct): Partial<ProductFormVa
     quantity: product.quantity ?? undefined,
     category: product.category ?? undefined,
     images: typeof product.images === 'string' ? JSON.parse(product.images) : product.images,
-    attributes:
-      typeof product.attributes === 'string' ? JSON.parse(product.attributes) : product.attributes,
-    variants:
-      typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants,
+    attributes: typeof product.attributes === 'string' ? JSON.parse(product.attributes) : product.attributes,
+    variants: typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants,
     tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
-    status: (product.status ?? undefined) as
-      | 'active'
-      | 'draft'
-      | 'inactive'
-      | 'pending'
-      | undefined,
-  }
+    status: (product.status ?? undefined) as 'active' | 'draft' | 'inactive' | 'pending' | undefined,
+  };
 }
 
 /**
@@ -51,15 +44,15 @@ export function prepareProductData(data: ProductFormValues, storeId: string): Re
     quantity: data.quantity,
     category: data.category,
     status: data.status,
-  }
+  };
 
   // Convertimos los campos complejos a strings JSON
-  basicProductData.images = JSON.stringify(data.images || [])
-  basicProductData.attributes = JSON.stringify(data.attributes || [])
-  basicProductData.variants = JSON.stringify(data.variants || [])
-  basicProductData.tags = JSON.stringify(data.tags || [])
+  basicProductData.images = JSON.stringify(data.images || []);
+  basicProductData.attributes = JSON.stringify(data.attributes || []);
+  basicProductData.variants = JSON.stringify(data.variants || []);
+  basicProductData.tags = JSON.stringify(data.tags || []);
 
-  return basicProductData
+  return basicProductData;
 }
 
 /**
@@ -77,8 +70,8 @@ export async function handleProductUpdate(
   updateProductFn: (data: any) => Promise<IProduct | null>
 ): Promise<IProduct | null> {
   if (!productId) {
-    console.error('Cannot update product: No product ID provided')
-    throw new Error('No se proporcionó un ID de producto')
+    console.error('Cannot update product: No product ID provided');
+    throw new Error('No se proporcionó un ID de producto');
   }
 
   try {
@@ -86,18 +79,18 @@ export async function handleProductUpdate(
       id: productId,
       ...productData,
       storeId: storeId,
-    })
+    });
 
     if (!result) {
-      console.error('Product update failed: No data returned')
-      throw new Error('No se recibió respuesta al actualizar el producto')
+      console.error('Product update failed: No data returned');
+      throw new Error('No se recibió respuesta al actualizar el producto');
     }
 
-    return result
+    return result;
   } catch (error) {
-    console.error('Error in handleProductUpdate:', error)
+    console.error('Error in handleProductUpdate:', error);
 
-    throw error
+    throw error;
   }
 }
 
@@ -112,17 +105,17 @@ export async function handleProductCreate(
   createProductFn: (data: any) => Promise<IProduct | null>
 ): Promise<IProduct | null> {
   try {
-    const result = await createProductFn(productData)
+    const result = await createProductFn(productData);
 
     if (result) {
-      return result
+      return result;
     }
 
-    throw new Error('The product could not be created')
+    throw new Error('The product could not be created');
   } catch (error) {
-    console.error('Error in handleProductCreate:', error)
+    console.error('Error in handleProductCreate:', error);
 
-    throw error
+    throw error;
   }
 }
 
@@ -133,10 +126,10 @@ export async function handleProductCreate(
  */
 export function formatPrice(price: number | null | undefined): string {
   if (price === null || price === undefined) {
-    return '$0'
+    return '$0';
   }
   return `$${Number(price).toLocaleString('es-CO', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  })}`
+  })}`;
 }

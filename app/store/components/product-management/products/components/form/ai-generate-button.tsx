@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import { Button } from '@shopify/polaris'
-import { MagicIcon } from '@shopify/polaris-icons'
+import { Button } from '@shopify/polaris';
+import { MagicIcon } from '@shopify/polaris-icons';
 
 interface AIGenerateButtonProps {
-  onClick: () => void
-  isLoading: boolean
-  isDisabled?: boolean
-  label?: string
+  onClick: () => void;
+  isLoading: boolean;
+  isDisabled?: boolean;
+  label?: string;
 }
 
 export function AIGenerateButton({
@@ -20,5 +20,5 @@ export function AIGenerateButton({
     <Button onClick={onClick} loading={isLoading} disabled={isDisabled} icon={MagicIcon}>
       {label}
     </Button>
-  )
+  );
 }

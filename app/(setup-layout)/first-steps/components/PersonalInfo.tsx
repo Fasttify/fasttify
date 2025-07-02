@@ -1,26 +1,20 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { InfoIcon } from 'lucide-react'
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InfoIcon } from 'lucide-react';
 
 interface Data {
-  fullName: string
-  email: string
-  phone: string
-  documentType: string
-  documentNumber: string
+  fullName: string;
+  email: string;
+  phone: string;
+  documentType: string;
+  documentNumber: string;
 }
 
 interface PersonalInfoProps {
-  data: Data
-  updateData: (data: Partial<Data>) => void
-  errors?: Record<string, string[]>
+  data: Data;
+  updateData: (data: Partial<Data>) => void;
+  errors?: Record<string, string[]>;
 }
 
 const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = {} }) => {
@@ -33,9 +27,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
           <div className="flex items-start">
             <InfoIcon className="h-5 w-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0" />
             <p className="text-sm text-blue-700">
-              Recopilamos estos datos para asegurar que los pagos lleguen correctamente a tu nombre.
-              Tu información es esencial para procesar las transacciones de manera segura y
-              eficiente.
+              Recopilamos estos datos para asegurar que los pagos lleguen correctamente a tu nombre. Tu información es
+              esencial para procesar las transacciones de manera segura y eficiente.
             </p>
           </div>
         </div>
@@ -48,12 +41,10 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
             <Input
               id="fullName"
               value={data.fullName}
-              onChange={e => updateData({ fullName: e.target.value })}
+              onChange={(e) => updateData({ fullName: e.target.value })}
               placeholder="Ej: Juan Pérez"
             />
-            {errors.fullName && (
-              <p className="text-red-600 text-sm">{errors.fullName.join(', ')}</p>
-            )}
+            {errors.fullName && <p className="text-red-600 text-sm">{errors.fullName.join(', ')}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Correo electrónico</Label>
@@ -61,7 +52,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
               id="email"
               type="email"
               value={data.email}
-              onChange={e => updateData({ email: e.target.value })}
+              onChange={(e) => updateData({ email: e.target.value })}
               placeholder="Ej: juan@ejemplo.com"
             />
             {errors.email && <p className="text-red-600 text-sm">{errors.email.join(', ')}</p>}
@@ -74,17 +65,14 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
               id="phone"
               type="tel"
               value={data.phone}
-              onChange={e => updateData({ phone: e.target.value })}
+              onChange={(e) => updateData({ phone: e.target.value })}
               placeholder="Ej: +1234567890"
             />
             {errors.phone && <p className="text-red-600 text-sm">{errors.phone.join(', ')}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="documentType">Tipo de documento</Label>
-            <Select
-              value={data.documentType}
-              onValueChange={value => updateData({ documentType: value })}
-            >
+            <Select value={data.documentType} onValueChange={(value) => updateData({ documentType: value })}>
               <SelectTrigger id="documentType" className="focus:ring-0 focus:outline-none">
                 <SelectValue placeholder="Selecciona el tipo de documento" />
               </SelectTrigger>
@@ -98,9 +86,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
                 <SelectItem value="RG">Carteira de Identidade / Registro Geral</SelectItem>
               </SelectContent>
             </Select>
-            {errors.documentType && (
-              <p className="text-red-600 text-sm">{errors.documentType.join(', ')}</p>
-            )}
+            {errors.documentType && <p className="text-red-600 text-sm">{errors.documentType.join(', ')}</p>}
           </div>
         </div>
         <div className="space-y-2">
@@ -108,16 +94,14 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ data, updateData, errors = 
           <Input
             id="documentNumber"
             value={data.documentNumber}
-            onChange={e => updateData({ documentNumber: e.target.value })}
+            onChange={(e) => updateData({ documentNumber: e.target.value })}
             placeholder="Ej: 1234567890"
           />
-          {errors.documentNumber && (
-            <p className="text-red-600 text-sm">{errors.documentNumber.join(', ')}</p>
-          )}
+          {errors.documentNumber && <p className="text-red-600 text-sm">{errors.documentNumber.join(', ')}</p>}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PersonalInfo
+export default PersonalInfo;

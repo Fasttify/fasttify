@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { Download, Rocket, TrendingUp, Trophy, Users, Package, Star } from 'lucide-react'
+import { Button } from '@/components/ui/button';
+import { Download, Rocket, TrendingUp, Trophy, Users, Package, Star } from 'lucide-react';
 
 export function DropshippingIntro() {
   const features = [
@@ -21,7 +21,7 @@ export function DropshippingIntro() {
       description:
         'Con nuestra solución integral, puedes ofrecer a tus clientes productos de alta calidad y un proceso de compra rápido y seguro, logrando una experiencia de usuario excepcional.',
     },
-  ]
+  ];
 
   const stats = [
     {
@@ -39,7 +39,7 @@ export function DropshippingIntro() {
       value: '1200+',
       label: 'Reseñas',
     },
-  ]
+  ];
 
   return (
     <section>
@@ -49,8 +49,8 @@ export function DropshippingIntro() {
             Emprende tu negocio de dropshipping hoy mismo
           </h2>
           <p className="text-lg text-gray-600 leading-relaxed">
-            Miles de emprendedores y empresas de todos los tamaños han generado millones de dólares
-            con nuestro sistema de ecommerce, creando tiendas exitosas en línea sin inventarios.
+            Miles de emprendedores y empresas de todos los tamaños han generado millones de dólares con nuestro sistema
+            de ecommerce, creando tiendas exitosas en línea sin inventarios.
           </p>
         </div>
 
@@ -69,12 +69,10 @@ export function DropshippingIntro() {
         <div className="bg-white rounded-2xl overflow-hidden mb-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
             <div className="space-y-6">
-              <h3 className="text-2xl font-medium text-black">
-                Dueño de tu negocio, posee tu futuro
-              </h3>
+              <h3 className="text-2xl font-medium text-black">Dueño de tu negocio, posee tu futuro</h3>
               <p className="text-gray-600">
-                Visualiza en tiempo real todas las compras registradas en nuestra plataforma. Cada
-                compra se actualiza automáticamente.
+                Visualiza en tiempo real todas las compras registradas en nuestra plataforma. Cada compra se actualiza
+                automáticamente.
               </p>
               <Button variant="outline">
                 Descargar Aplicación
@@ -95,5 +93,5 @@ export function DropshippingIntro() {
         </div>
       </div>
     </section>
-  )
+  );
 }

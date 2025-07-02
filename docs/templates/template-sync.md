@@ -66,13 +66,13 @@ await fetch('/api/stores/template-dev', {
     localDir: '/ruta/a/plantillas',
   }),
   credentials: 'include', // Importante: envía cookies de sesión
-})
+});
 
 // Verificar estado
 const status = await fetch('/api/stores/template-dev', {
   method: 'GET',
   credentials: 'include',
-}).then(r => r.json())
+}).then((r) => r.json());
 
 // Detener sincronización
 await fetch('/api/stores/template-dev', {
@@ -80,7 +80,7 @@ await fetch('/api/stores/template-dev', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ action: 'stop' }),
   credentials: 'include',
-})
+});
 ```
 
 ## Estructura de directorios recomendada

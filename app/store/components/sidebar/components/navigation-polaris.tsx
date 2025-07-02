@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { Navigation } from '@shopify/polaris'
+import { Navigation } from '@shopify/polaris';
 import {
   HomeIcon,
   ProductIcon,
@@ -9,15 +9,15 @@ import {
   SettingsIcon,
   PersonIcon,
   ContentIcon,
-} from '@shopify/polaris-icons'
-import { usePathname } from 'next/navigation'
+} from '@shopify/polaris-icons';
+import { usePathname } from 'next/navigation';
 
 interface NavigationPolarisProps {
-  storeId: string
+  storeId: string;
 }
 
 export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <Navigation location={pathname}>
@@ -27,9 +27,7 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             url: `/store/${storeId}/dashboard`,
             label: 'Dashboard',
             icon: HomeIcon,
-            selected:
-              pathname === `/store/${storeId}/dashboard` ||
-              pathname.includes('/dashboard'),
+            selected: pathname === `/store/${storeId}/dashboard` || pathname.includes('/dashboard'),
             subNavigationItems: [
               {
                 url: `/store/${storeId}/dashboard/statistics`,
@@ -162,5 +160,5 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
         separator
       />
     </Navigation>
-  )
+  );
 }

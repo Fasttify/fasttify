@@ -60,9 +60,9 @@ Base de datos (Amplify Data)
 **Función**:
 
 ```javascript
-exports.handler = async event => {
-  const request = event.Records[0].cf.request
-  const headers = request.headers
+exports.handler = async (event) => {
+  const request = event.Records[0].cf.request;
+  const headers = request.headers;
 
   // Preservar el dominio original
   headers['x-original-host'] = [
@@ -70,7 +70,7 @@ exports.handler = async event => {
       key: 'x-original-host',
       value: headers.host[0].value,
     },
-  ]
+  ];
 
   // Reemplazar con dominio de Amplify
   headers.host = [
@@ -78,10 +78,10 @@ exports.handler = async event => {
       key: 'Host',
       value: 'fasttify.com',
     },
-  ]
+  ];
 
-  return request
-}
+  return request;
+};
 ```
 
 ### 4. Middleware Next.js
@@ -102,7 +102,7 @@ const hostname = xOriginalHost ||
 ```typescript
 const { data: stores } = await cookiesClient.models.UserStore.listUserStoreByCustomDomain({
   customDomain: domain,
-})
+});
 ```
 
 ## Configuración Paso a Paso
@@ -190,7 +190,7 @@ await client.models.UserStore.update({
   storeId: 'tu-store-id',
   customDomain: 'kingsdev.tech',
   customDomainStatus: 'active',
-})
+});
 ```
 
 ## Flujo de Request
@@ -247,7 +247,7 @@ console.log('🔗 Headers debug:', {
   'x-original-host': xOriginalHost,
   hostname: hostname,
   path: path,
-})
+});
 ```
 
 ## Agregar Nuevos Dominios
@@ -273,7 +273,7 @@ await client.models.UserStore.update({
   storeId: 'store-del-cliente',
   customDomain: 'mitienda.com',
   customDomainStatus: 'pending',
-})
+});
 ```
 
 ### 4. Verificar

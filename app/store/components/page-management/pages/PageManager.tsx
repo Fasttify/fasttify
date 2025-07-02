@@ -1,102 +1,89 @@
-'use client'
+'use client';
 
-import { useRouter } from 'next/navigation'
-import { useToast } from '@/app/store/context/ToastContext'
-import { PageList } from '@/app/store/components/page-management/components/listing/PageList'
-import { PagesPage } from '@/app/store/components/page-management/pages/PagesPage'
-import { PageForm } from '@/app/store/components/page-management/components/PageForm'
-import { Loading } from '@shopify/polaris'
-import { useCallback } from 'react'
-import type { PageFormValues } from '@/app/store/components/page-management/types/page-types'
-import { usePages } from '@/app/store/hooks/data/usePage'
-import { routes } from '@/utils/routes'
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/app/store/context/ToastContext';
+import { PageList } from '@/app/store/components/page-management/components/listing/PageList';
+import { PagesPage } from '@/app/store/components/page-management/pages/PagesPage';
+import { PageForm } from '@/app/store/components/page-management/components/PageForm';
+import { Loading } from '@shopify/polaris';
+import { useCallback } from 'react';
+import type { PageFormValues } from '@/app/store/components/page-management/types/page-types';
+import { usePages } from '@/app/store/hooks/data/usePage';
+import { routes } from '@/utils/routes';
 
 interface PageManagerProps {
-  pageId?: string
-  isCreating?: boolean
-  storeId: string
+  pageId?: string;
+  isCreating?: boolean;
+  storeId: string;
 }
 
 export function PageManager({ pageId, isCreating = false, storeId }: PageManagerProps) {
-  const router = useRouter()
-  const { showToast } = useToast()
+  const router = useRouter();
+  const { showToast } = useToast();
 
-  const {
-    useListPagesByStore,
-    useGetPage,
-    useCreatePage,
-    useUpdatePage,
-    useDeletePage,
-    generateSlug,
-  } = usePages(storeId)
+  const { useListPagesByStore, useGetPage, useCreatePage, useUpdatePage, useDeletePage, generateSlug } =
+    usePages(storeId);
 
-  const { data: pages = [], isLoading: isLoadingList, error } = useListPagesByStore()
-  const { data: initialPage, isLoading: isLoadingPage } = useGetPage(pageId || '')
+  const { data: pages = [], isLoading: isLoadingList, error } = useListPagesByStore();
+  const { data: initialPage, isLoading: isLoadingPage } = useGetPage(pageId || '');
 
-  const createPageMutation = useCreatePage()
-  const updatePageMutation = useUpdatePage()
-  const deletePageMutation = useDeletePage()
+  const createPageMutation = useCreatePage();
+  const updatePageMutation = useUpdatePage();
+  const deletePageMutation = useDeletePage();
 
   const handleBackToList = useCallback(() => {
-    router.push(routes.store.setup.pages(storeId))
-  }, [router, storeId])
+    router.push(routes.store.setup.pages(storeId));
+  }, [router, storeId]);
 
   const handleSavePage = useCallback(
     async (data: PageFormValues): Promise<boolean> => {
       try {
         if (isCreating) {
-          await createPageMutation.mutateAsync(data)
-          showToast('Página creada con éxito')
+          await createPageMutation.mutateAsync(data);
+          showToast('Página creada con éxito');
         } else if (pageId) {
-          await updatePageMutation.mutateAsync({ id: pageId, data })
-          showToast('Página actualizada con éxito')
+          await updatePageMutation.mutateAsync({ id: pageId, data });
+          showToast('Página actualizada con éxito');
         }
-        handleBackToList()
-        return true
+        handleBackToList();
+        return true;
       } catch (err) {
-        showToast('Error al guardar la página', true)
-        console.error(err)
-        return false
+        showToast('Error al guardar la página', true);
+        console.error(err);
+        return false;
       }
     },
-    [
-      isCreating,
-      pageId,
-      createPageMutation,
-      updatePageMutation,
-      showToast,
-      handleBackToList,
-    ]
-  )
+    [isCreating, pageId, createPageMutation, updatePageMutation, showToast, handleBackToList]
+  );
 
   const handleDeletePage = useCallback(
     async (id: string) => {
       try {
-        await deletePageMutation.mutateAsync(id)
-        showToast('Página eliminada con éxito')
+        await deletePageMutation.mutateAsync(id);
+        showToast('Página eliminada con éxito');
       } catch (err) {
-        showToast('Error al eliminar la página', true)
-        console.error(err)
+        showToast('Error al eliminar la página', true);
+        console.error(err);
       }
     },
     [deletePageMutation, showToast]
-  )
+  );
 
   const handleDeleteMultiplePages = useCallback(
     async (ids: string[]) => {
       try {
-        await Promise.all(ids.map(id => deletePageMutation.mutateAsync(id)))
-        showToast(`${ids.length} páginas eliminadas con éxito`)
+        await Promise.all(ids.map((id) => deletePageMutation.mutateAsync(id)));
+        showToast(`${ids.length} páginas eliminadas con éxito`);
       } catch (err) {
-        showToast('Error al eliminar las páginas', true)
-        console.error(err)
+        showToast('Error al eliminar las páginas', true);
+        console.error(err);
       }
     },
     [deletePageMutation, showToast]
-  )
+  );
 
   if (isCreating || pageId) {
-    if (isLoadingPage) return <Loading />
+    if (isLoadingPage) return <Loading />;
     return (
       <PageForm
         storeId={storeId}
@@ -106,11 +93,11 @@ export function PageManager({ pageId, isCreating = false, storeId }: PageManager
         isEditing={!!pageId}
         generateSlug={generateSlug}
       />
-    )
+    );
   }
 
   if (isLoadingList) {
-    return <Loading />
+    return <Loading />;
   }
 
   return pages.length === 0 && !isLoadingList ? (
@@ -124,7 +111,7 @@ export function PageManager({ pageId, isCreating = false, storeId }: PageManager
       deleteMultiplePages={handleDeleteMultiplePages}
       deletePage={handleDeletePage}
     />
-  )
+  );
 }
 
-export default PageManager
+export default PageManager;

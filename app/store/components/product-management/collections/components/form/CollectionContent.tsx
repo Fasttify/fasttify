@@ -1,18 +1,18 @@
-import { Card, TextField, BlockStack, Text } from '@shopify/polaris'
-import { DescriptionEditor } from '@/app/store/components/product-management/collections/components/form/description-editor'
-import { ProductSection } from '@/app/store/components/product-management/collections/components/form/product-section'
-import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types'
+import { Card, TextField, BlockStack, Text } from '@shopify/polaris';
+import { DescriptionEditor } from '@/app/store/components/product-management/collections/components/form/description-editor';
+import { ProductSection } from '@/app/store/components/product-management/collections/components/form/product-section';
+import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types';
 
 interface CollectionContentProps {
-  title: string
-  description: string
-  slug: string
-  selectedProducts: IProduct[]
-  currentStoreCustomDomain?: string
-  onTitleChange: (value: string) => void
-  onDescriptionChange: (value: string) => void
-  onAddProduct: (product: IProduct) => void
-  onRemoveProduct: (productId: string) => void
+  title: string;
+  description: string;
+  slug: string;
+  selectedProducts: IProduct[];
+  currentStoreCustomDomain?: string;
+  onTitleChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
+  onAddProduct: (product: IProduct) => void;
+  onRemoveProduct: (productId: string) => void;
 }
 
 export function CollectionContent({
@@ -55,5 +55,5 @@ export function CollectionContent({
         </BlockStack>
       </Card>
     </BlockStack>
-  )
+  );
 }

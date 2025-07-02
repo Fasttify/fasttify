@@ -1,36 +1,36 @@
-import { Button } from '@/components/ui/button'
-import { ThemeCard } from '@/app/themes/components/ThemeCard'
-import { TestimonialSlider } from '@/app/themes/components/TestimonialSlider'
-import { popularThemes, newThemes } from '@/app/themes/data/themesData'
-import { ArrowLeft, ArrowUp } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button';
+import { ThemeCard } from '@/app/themes/components/ThemeCard';
+import { TestimonialSlider } from '@/app/themes/components/TestimonialSlider';
+import { popularThemes, newThemes } from '@/app/themes/data/themesData';
+import { ArrowLeft, ArrowUp } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export function Home() {
-  const router = useRouter()
-  const [showScrollTop, setShowScrollTop] = useState(false)
+  const router = useRouter();
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       // Show button when user scrolls down 300px
       if (window.scrollY > 300) {
-        setShowScrollTop(true)
+        setShowScrollTop(true);
       } else {
-        setShowScrollTop(false)
+        setShowScrollTop(false);
       }
-    }
+    };
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Function to scroll back to top
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth',
-    })
-  }
+    });
+  };
 
   return (
     <main className="min-h-screen">
@@ -39,8 +39,7 @@ export function Home() {
         <Button
           variant="ghost"
           className="flex items-center gap-2 mb-4 hover:bg-gray-100"
-          onClick={() => router.back()}
-        >
+          onClick={() => router.back()}>
           <ArrowLeft size={16} />
           Volver atrás
         </Button>
@@ -52,8 +51,7 @@ export function Home() {
           variant="outline"
           className="fixed bottom-6 right-6 z-50 rounded-full p-3 shadow-md bg-white hover:bg-gray-100"
           onClick={scrollToTop}
-          aria-label="Volver arriba"
-        >
+          aria-label="Volver arriba">
           <ArrowUp size={20} />
         </Button>
       )}
@@ -70,9 +68,7 @@ export function Home() {
                 Explora diseños optimizados para vender más y personalízalos a tu gusto.
               </p>
             </div>
-            <Button className="rounded-full bg-black text-white hover:bg-black/90">
-              Descubrir plantillas
-            </Button>
+            <Button className="rounded-full bg-black text-white hover:bg-black/90">Descubrir plantillas</Button>
           </div>
         </div>
       </section>
@@ -128,35 +124,26 @@ export function Home() {
         <div className="container px-4 md:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
-              <h2 className="text-3xl font-bold tracking-tighter mb-6">
-                Potencia tu tienda con Fasttify
-              </h2>
+              <h2 className="text-3xl font-bold tracking-tighter mb-6">Potencia tu tienda con Fasttify</h2>
             </div>
             <div className="space-y-6">
               <div>
                 <h3 className="font-semibold text-lg">
-                  Diseños optimizados{' '}
-                  <span className="text-muted-foreground">— rápidos, seguros y adaptables</span>
+                  Diseños optimizados <span className="text-muted-foreground">— rápidos, seguros y adaptables</span>
                 </h3>
-                <p className="text-muted-foreground underline">
-                  proceso de pago de mejor conversión del mundo
-                </p>
+                <p className="text-muted-foreground underline">proceso de pago de mejor conversión del mundo</p>
               </div>
               <div>
                 <h3 className="font-semibold text-lg">
                   Todo lo esencial{' '}
-                  <span className="text-muted-foreground">
-                    —recomendaciones de productos, reseñas, descuentos y
-                  </span>
+                  <span className="text-muted-foreground">—recomendaciones de productos, reseñas, descuentos y</span>
                 </h3>
                 <p className="text-muted-foreground underline">mucho más</p>
               </div>
               <div>
                 <h3 className="font-semibold text-lg">
                   Herramientas avanzadas{' '}
-                  <span className="text-muted-foreground">
-                    — asistencia experta cuando la necesites
-                  </span>
+                  <span className="text-muted-foreground">— asistencia experta cuando la necesites</span>
                 </h3>
                 <p className="text-muted-foreground underline">actualizaciones gratis</p>
               </div>
@@ -169,9 +156,7 @@ export function Home() {
       <section className="w-full py-12">
         <div className="container px-4 md:px-6">
           <div className="mb-10">
-            <h2 className="text-3xl font-bold tracking-tighter">
-              Cientos de temas, millones de comerciantes
-            </h2>
+            <h2 className="text-3xl font-bold tracking-tighter">Cientos de temas, millones de comerciantes</h2>
             <p className="text-muted-foreground mt-2">
               Los temas de Shopify se ajustan a cualquier tipo y tamaño de negocio, incluido el tuyo
             </p>
@@ -185,5 +170,5 @@ export function Home() {
         </div>
       </section>
     </main>
-  )
+  );
 }

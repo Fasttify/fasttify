@@ -1,14 +1,14 @@
-import { BlockStack, Text } from '@shopify/polaris'
-import { SetupTaskItem } from './SetupTaskItem'
-import type { Task } from '@/app/store/components/store-setup/utils/StoreSetup-tasks'
+import { BlockStack, Text } from '@shopify/polaris';
+import { SetupTaskItem } from './SetupTaskItem';
+import type { Task } from '@/app/store/components/store-setup/utils/StoreSetup-tasks';
 
 interface SetupTaskListProps {
-  tasks: Task[]
-  storeId: string
-  expandedTaskId: string
-  updatingTaskId: number | null
-  onToggleExpand: (taskId: string) => void
-  onToggleComplete: (taskId: number, event: React.MouseEvent) => void
+  tasks: Task[];
+  storeId: string;
+  expandedTaskId: string;
+  updatingTaskId: number | null;
+  onToggleExpand: (taskId: string) => void;
+  onToggleComplete: (taskId: number, event: React.MouseEvent) => void;
 }
 
 export function SetupTaskList({
@@ -30,7 +30,7 @@ export function SetupTaskList({
         </Text>
       </div>
       <BlockStack gap="200">
-        {tasks.map(task => (
+        {tasks.map((task) => (
           <SetupTaskItem
             key={task.id}
             task={task}
@@ -38,10 +38,10 @@ export function SetupTaskList({
             isExpanded={expandedTaskId === `task-${task.id}`}
             isUpdating={updatingTaskId === task.id}
             onToggleExpand={() => onToggleExpand(`task-${task.id}`)}
-            onToggleComplete={event => onToggleComplete(task.id, event)}
+            onToggleComplete={(event) => onToggleComplete(task.id, event)}
           />
         ))}
       </BlockStack>
     </BlockStack>
-  )
+  );
 }

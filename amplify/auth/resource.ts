@@ -1,8 +1,8 @@
-import { defineAuth, secret } from '@aws-amplify/backend'
-import { customMessage } from './custom-message/resource'
-import { webHookPlan } from '../functions/webHookPlan/resource'
-import { postConfirmation } from './post-confirmation/resource'
-import { planScheduler } from '../functions/planScheduler/resource'
+import { defineAuth, secret } from '@aws-amplify/backend';
+import { customMessage } from './custom-message/resource';
+import { webHookPlan } from '../functions/webHookPlan/resource';
+import { postConfirmation } from './post-confirmation/resource';
+import { planScheduler } from '../functions/planScheduler/resource';
 
 /**
  * Define and configure your auth resource
@@ -30,11 +30,7 @@ export const auth = defineAuth({
         },
       },
 
-      callbackUrls: [
-        'http://localhost:3000',
-        'https://www.dev.fasttify.com/',
-        'https://www.fasttify.com/',
-      ],
+      callbackUrls: ['http://localhost:3000', 'https://www.dev.fasttify.com/', 'https://www.fasttify.com/'],
       logoutUrls: [
         'http://localhost:3000/login',
         'https://www.dev.fasttify.com/login',
@@ -86,9 +82,9 @@ export const auth = defineAuth({
     },
   },
 
-  access: allow => [
+  access: (allow) => [
     allow.resource(webHookPlan).to(['updateUserAttributes', 'getUser']),
     allow.resource(planScheduler).to(['updateUserAttributes', 'getUser']),
     allow.resource(postConfirmation).to(['updateUserAttributes', 'getUser']),
   ],
-})
+});

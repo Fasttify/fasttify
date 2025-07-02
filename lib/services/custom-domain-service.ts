@@ -1,40 +1,36 @@
-import { CertificateManager } from '@/lib/services/ssl/certificate-manager'
-import { DomainValidator, DomainValidationResult } from '@/lib/services/domain/domain-validator'
-import {
-  CloudFrontTenantManager,
-  CreateTenantParams,
-  TenantStatus,
-} from '@/lib/services/cloudfront/tenant-manager'
-import { DNSVerifier, DNSStatus } from '@/lib/services/cloudfront/dns-verifier'
-import { SecureLogger } from '@/lib/utils/secure-logger'
+import { CertificateManager } from '@/lib/services/ssl/certificate-manager';
+import { DomainValidator, DomainValidationResult } from '@/lib/services/domain/domain-validator';
+import { CloudFrontTenantManager, CreateTenantParams, TenantStatus } from '@/lib/services/cloudfront/tenant-manager';
+import { DNSVerifier, DNSStatus } from '@/lib/services/cloudfront/dns-verifier';
+import { SecureLogger } from '@/lib/utils/secure-logger';
 
 export interface CustomDomainSetupResult {
-  success: boolean
-  error?: string
-  domain?: string
-  tenantId?: string
-  endpoint?: string
-  certificateArn?: string
+  success: boolean;
+  error?: string;
+  domain?: string;
+  tenantId?: string;
+  endpoint?: string;
+  certificateArn?: string;
   dnsInstructions?: {
-    type: string
-    name: string
-    value: string
-    instructions: string
-  }
+    type: string;
+    name: string;
+    value: string;
+    instructions: string;
+  };
 }
 
 export interface CustomDomainVerificationResult {
-  success: boolean
-  error?: string
-  method?: 'dns' | 'http'
-  certificateArn?: string
-  certificateStatus?: 'ISSUED' | 'PENDING_VALIDATION' | 'FAILED'
-  needsACMValidation?: boolean
+  success: boolean;
+  error?: string;
+  method?: 'dns' | 'http';
+  certificateArn?: string;
+  certificateStatus?: 'ISSUED' | 'PENDING_VALIDATION' | 'FAILED';
+  needsACMValidation?: boolean;
   acmValidationRecords?: Array<{
-    name: string
-    value: string
-    type: string
-  }>
+    name: string;
+    value: string;
+    type: string;
+  }>;
 }
 
 /**
@@ -47,54 +43,48 @@ export interface CustomDomainVerificationResult {
  * - Verificación DNS
  */
 export class CustomDomainService {
-  private certificateManager: CertificateManager
-  private domainValidator: DomainValidator
-  private tenantManager: CloudFrontTenantManager
-  private dnsVerifier: DNSVerifier
+  private certificateManager: CertificateManager;
+  private domainValidator: DomainValidator;
+  private tenantManager: CloudFrontTenantManager;
+  private dnsVerifier: DNSVerifier;
 
   constructor() {
-    this.certificateManager = new CertificateManager()
-    this.domainValidator = new DomainValidator()
-    this.tenantManager = new CloudFrontTenantManager()
-    this.dnsVerifier = new DNSVerifier()
+    this.certificateManager = new CertificateManager();
+    this.domainValidator = new DomainValidator();
+    this.tenantManager = new CloudFrontTenantManager();
+    this.dnsVerifier = new DNSVerifier();
   }
 
   /**
    * Generar token de validación para un dominio
    */
   async generateDomainValidationToken(domain: string): Promise<DomainValidationResult> {
-    return this.domainValidator.initiateDomainValidation(domain)
+    return this.domainValidator.initiateDomainValidation(domain);
   }
 
   /**
    * Verificar validación completa de dominio y preparar certificado SSL
    */
-  async verifyDomainValidation(
-    domain: string,
-    validationToken: string
-  ): Promise<CustomDomainVerificationResult> {
+  async verifyDomainValidation(domain: string, validationToken: string): Promise<CustomDomainVerificationResult> {
     try {
       // Paso 1: Verificar propiedad del dominio
-      const domainValidation = await this.domainValidator.verifyDomainValidation(
-        domain,
-        validationToken
-      )
+      const domainValidation = await this.domainValidator.verifyDomainValidation(domain, validationToken);
 
       if (!domainValidation.success) {
         return {
           success: false,
           error: domainValidation.error,
-        }
+        };
       }
 
       // Paso 2: Obtener o crear certificado SSL
-      const certificateResult = await this.certificateManager.ensureCertificate(domain)
+      const certificateResult = await this.certificateManager.ensureCertificate(domain);
 
       if (!certificateResult.success) {
         return {
           success: false,
           error: certificateResult.error || 'Failed to ensure SSL certificate',
-        }
+        };
       }
 
       return {
@@ -104,12 +94,12 @@ export class CustomDomainService {
         certificateStatus: certificateResult.needsValidation ? 'PENDING_VALIDATION' : 'ISSUED',
         needsACMValidation: certificateResult.needsValidation,
         acmValidationRecords: certificateResult.validationRecords,
-      }
+      };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Error verifying domain',
-      }
+      };
     }
   }
 
@@ -127,41 +117,41 @@ export class CustomDomainService {
         return {
           success: false,
           error: 'Domain must be validated before creating tenant',
-        }
+        };
       }
 
       // Verificar certificado SSL
-      const certificateResult = await this.certificateManager.ensureCertificate(domain)
+      const certificateResult = await this.certificateManager.ensureCertificate(domain);
 
       if (!certificateResult.success || !certificateResult.certificateArn) {
         return {
           success: false,
           error: 'Failed to ensure SSL certificate for domain',
-        }
+        };
       }
 
       // Crear tenant en CloudFront
-      const tenantName = this.domainValidator.generateTenantName(domain, storeId)
+      const tenantName = this.domainValidator.generateTenantName(domain, storeId);
 
       const tenantParams: CreateTenantParams = {
         tenantName,
         domain,
         origin,
         certificateArn: certificateResult.certificateArn,
-      }
+      };
 
-      const tenantResult = await this.tenantManager.createTenant(tenantParams)
+      const tenantResult = await this.tenantManager.createTenant(tenantParams);
 
       if (!tenantResult.success) {
         return {
           success: false,
           error: tenantResult.error,
-        }
+        };
       }
 
       // Generar instrucciones DNS
-      const endpoint = tenantResult.endpoint?.[0]?.Domain || ''
-      const dnsInstructions = this.dnsVerifier.generateDNSInstructions(domain, endpoint)
+      const endpoint = tenantResult.endpoint?.[0]?.Domain || '';
+      const dnsInstructions = this.dnsVerifier.generateDNSInstructions(domain, endpoint);
 
       return {
         success: true,
@@ -175,13 +165,13 @@ export class CustomDomainService {
           value: endpoint,
           instructions: dnsInstructions,
         },
-      }
+      };
     } catch (error) {
-      SecureLogger.secureLog('error', 'Error setting up custom domain for %s:', domain, error)
+      SecureLogger.secureLog('error', 'Error setting up custom domain for %s:', domain, error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-      }
+      };
     }
   }
 
@@ -189,14 +179,14 @@ export class CustomDomainService {
    * Obtener estado de dominio personalizado
    */
   async getCustomDomainStatus(tenantId: string): Promise<TenantStatus> {
-    return this.tenantManager.getTenantStatus(tenantId)
+    return this.tenantManager.getTenantStatus(tenantId);
   }
 
   /**
    * Verificar configuración DNS de dominio
    */
   async verifyDNSConfiguration(domain: string, expectedEndpoint?: string): Promise<DNSStatus> {
-    return this.dnsVerifier.verifyDNS(domain, expectedEndpoint)
+    return this.dnsVerifier.verifyDNS(domain, expectedEndpoint);
   }
 
   /**
@@ -204,10 +194,10 @@ export class CustomDomainService {
    */
   async deleteCustomDomain(tenantId: string): Promise<boolean> {
     try {
-      return await this.tenantManager.deleteTenant(tenantId)
+      return await this.tenantManager.deleteTenant(tenantId);
     } catch (error) {
-      SecureLogger.error('Error deleting custom domain:', error)
-      throw error
+      SecureLogger.error('Error deleting custom domain:', error);
+      throw error;
     }
   }
 
@@ -215,34 +205,34 @@ export class CustomDomainService {
    * Listar todos los dominios personalizados
    */
   async listCustomDomains() {
-    return this.tenantManager.listTenants()
+    return this.tenantManager.listTenants();
   }
 
   /**
    * Verificar si certificado está listo
    */
   async isCertificateReady(certificateArn: string): Promise<boolean> {
-    return this.certificateManager.isCertificateReady(certificateArn)
+    return this.certificateManager.isCertificateReady(certificateArn);
   }
 
   /**
    * Generar diagnóstico completo de dominio
    */
   async generateDomainDiagnostic(domain: string, expectedEndpoint?: string): Promise<string> {
-    return this.dnsVerifier.generateDNSDiagnostic(domain, expectedEndpoint)
+    return this.dnsVerifier.generateDNSDiagnostic(domain, expectedEndpoint);
   }
 
   /**
    * Validar reglas de dominio (formato, prohibiciones)
    */
   validateDomainRules(domain: string): { valid: boolean; error?: string } {
-    return this.domainValidator.validateDomainRules(domain)
+    return this.domainValidator.validateDomainRules(domain);
   }
 
   /**
    * Verificar si el sistema está configurado correctamente
    */
   async isSystemConfigured(): Promise<boolean> {
-    return this.tenantManager.isMultiTenantConfigured()
+    return this.tenantManager.isMultiTenantConfigured();
   }
 }

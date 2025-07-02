@@ -10,8 +10,7 @@ export const routes = {
       main: (storeId: string) => `/store/${storeId}/products`,
       list: (storeId: string) => `/store/${storeId}/products/inventory  `,
       add: (storeId: string) => `/store/${storeId}/products/new`,
-      edit: (storeId: string, productId: string) =>
-        `/store/${storeId}/products/${productId}`,
+      edit: (storeId: string, productId: string) => `/store/${storeId}/products/${productId}`,
       inventory: (storeId: string) => `/store/${storeId}/products/inventory`,
       collectionsNew: (storeId: string) => `/store/${storeId}/products/collections/new`,
       collections: (storeId: string) => `/store/${storeId}/products/collections`,
@@ -30,8 +29,7 @@ export const routes = {
       design: (storeId: string) => `/store/${storeId}/setup/design`,
       pages: (storeId: string) => `/store/${storeId}/setup/pages`,
       pagesNew: (storeId: string) => `/store/${storeId}/setup/pages/new`,
-      pagesEdit: (storeId: string, pageId: string) =>
-        `/store/${storeId}/setup/pages/${pageId}`,
+      pagesEdit: (storeId: string, pageId: string) => `/store/${storeId}/setup/pages/${pageId}`,
       domain: (storeId: string) => `/store/${storeId}/setup/general`,
       apps: (storeId: string) => `/store/${storeId}/setup/apps`,
       navigation: (storeId: string) => `/store/${storeId}/setup/navigation`,
@@ -54,7 +52,7 @@ export const routes = {
   auth: {
     login: '/login',
   },
-} as const
+} as const;
 
 // Función para obtener rutas con seguridad de tipos
 export function getRoute<T extends keyof typeof routes>(
@@ -62,9 +60,9 @@ export function getRoute<T extends keyof typeof routes>(
   subsection: keyof (typeof routes)[T],
   ...params: any[]
 ): string {
-  const route = routes[section][subsection]
+  const route = routes[section][subsection];
   if (typeof route === 'function') {
-    return route(...params)
+    return route(...params);
   }
-  return route as string
+  return route as string;
 }

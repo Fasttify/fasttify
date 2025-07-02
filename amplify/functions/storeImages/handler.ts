@@ -1,8 +1,8 @@
-import { APIGatewayEvent, APIGatewayResponse } from './types/types'
-import { ImageController } from './services/image-controller'
+import { APIGatewayEvent, APIGatewayResponse } from './types/types';
+import { ImageController } from './services/image-controller';
 
 // Instancia única del controlador para reutilización
-const imageController = new ImageController()
+const imageController = new ImageController();
 
 /**
  * Handler principal de la Lambda function para manejo de imágenes
@@ -19,19 +19,19 @@ export const handler = async (event: APIGatewayEvent): Promise<APIGatewayRespons
     httpMethod: event.httpMethod,
     hasBody: !!event.body,
     timestamp: new Date().toISOString(),
-  })
+  });
 
   try {
     // Manejar solicitudes OPTIONS para CORS preflight
     if (event.httpMethod === 'OPTIONS') {
-      const origin = event.headers?.origin || event.headers?.Origin
-      return imageController.handleOptions(origin)
+      const origin = event.headers?.origin || event.headers?.Origin;
+      return imageController.handleOptions(origin);
     }
 
     // Procesar la solicitud principal
-    return await imageController.processRequest(event)
+    return await imageController.processRequest(event);
   } catch (error) {
-    console.error('Unhandled error in handler:', error)
+    console.error('Unhandled error in handler:', error);
 
     // Respuesta de emergencia en caso de fallo catastrófico
     return {
@@ -43,6 +43,6 @@ export const handler = async (event: APIGatewayEvent): Promise<APIGatewayRespons
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       },
-    }
+    };
   }
-}
+};

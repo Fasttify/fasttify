@@ -1,18 +1,18 @@
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
-import { welcomeEmail } from './templates/welcome-email'
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import { welcomeEmail } from './templates/welcome-email';
 
-const sesClient = new SESClient()
+const sesClient = new SESClient();
 
 /**
  * Función para reemplazar placeholders en el template con los valores proporcionados.
  */
 function replacePlaceholders(template: string, replacements: Record<string, string>): string {
-  let result = template
+  let result = template;
   for (const [key, value] of Object.entries(replacements)) {
-    const regex = new RegExp(`{{${key}}}`, 'g')
-    result = result.replace(regex, value)
+    const regex = new RegExp(`{{${key}}}`, 'g');
+    result = result.replace(regex, value);
   }
-  return result
+  return result;
 }
 
 /**
@@ -28,15 +28,15 @@ export async function sendWelcomeEmail(email: string, trialEndDate: Date): Promi
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-    })
+    });
 
     const replacements = {
       trialEndDate: formattedDate,
       currentYear: new Date().getFullYear().toString(),
-    }
+    };
 
     // Genera el contenido HTML final reemplazando los placeholders
-    const htmlContent = replacePlaceholders(welcomeEmail, replacements)
+    const htmlContent = replacePlaceholders(welcomeEmail, replacements);
 
     // Configura los parámetros para SES (solo HTML)
     const params = {
@@ -56,15 +56,15 @@ export async function sendWelcomeEmail(email: string, trialEndDate: Date): Promi
         },
       },
       Source: 'no-reply@fasttify.com',
-    }
+    };
 
     // Envía el correo
-    const command = new SendEmailCommand(params)
-    await sesClient.send(command)
-    console.log(`Email de bienvenida enviado a ${email}`)
-    return true
+    const command = new SendEmailCommand(params);
+    await sesClient.send(command);
+    console.log(`Email de bienvenida enviado a ${email}`);
+    return true;
   } catch (error) {
-    console.error('Error al enviar email de bienvenida:', error)
-    return false
+    console.error('Error al enviar email de bienvenida:', error);
+    return false;
   }
 }

@@ -1,14 +1,14 @@
-import { getStoreId } from '@/utils/store-utils'
-import { useParams, usePathname, useRouter } from 'next/navigation'
-import { routes } from '@/utils/routes'
-import { LegacyCard, Text, Button, EmptyState } from '@shopify/polaris'
-import { InventoryIcon } from '@shopify/polaris-icons'
+import { getStoreId } from '@/utils/store-utils';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { routes } from '@/utils/routes';
+import { LegacyCard, Text, Button, EmptyState } from '@shopify/polaris';
+import { InventoryIcon } from '@shopify/polaris-icons';
 
 export function InventoryPage() {
-  const pathname = usePathname()
-  const params = useParams()
-  const router = useRouter()
-  const storeId = getStoreId(params, pathname)
+  const pathname = usePathname();
+  const params = useParams();
+  const router = useRouter();
+  const storeId = getStoreId(params, pathname);
 
   return (
     <div className="bg-gray-100 mt-8">
@@ -43,12 +43,10 @@ export function InventoryPage() {
             content: 'Aprender más sobre inventario',
             url: '#',
           }}
-          image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-        >
+          image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
           <p>
-            Cuando habilites el seguimiento de inventario en tus productos, podrás ver y ajustar sus
-            recuentos de inventario aquí. Mantén control total sobre tu stock y evita quedarte sin
-            productos.
+            Cuando habilites el seguimiento de inventario en tus productos, podrás ver y ajustar sus recuentos de
+            inventario aquí. Mantén control total sobre tu stock y evita quedarte sin productos.
           </p>
         </EmptyState>
       </LegacyCard>
@@ -60,5 +58,5 @@ export function InventoryPage() {
         </Text>
       </div>
     </div>
-  )
+  );
 }

@@ -1,24 +1,24 @@
-import { routes } from '@/utils/routes'
+import { routes } from '@/utils/routes';
 
 export interface Task {
-  id: number
-  title: string
-  description: string
-  learnMoreLink?: string
+  id: number;
+  title: string;
+  description: string;
+  learnMoreLink?: string;
   actions?: {
     primary?: {
-      text: string
-      href?: string
-      getHref?: (storeId: string) => string
-    }
+      text: string;
+      href?: string;
+      getHref?: (storeId: string) => string;
+    };
     secondary?: {
-      text: string
-      href?: string
-      getHref?: (storeId: string) => string
-    }
-  }
-  imageUrl?: string
-  completed: boolean
+      text: string;
+      href?: string;
+      getHref?: (storeId: string) => string;
+    };
+  };
+  imageUrl?: string;
+  completed: boolean;
 }
 
 // Default store setup tasks
@@ -77,8 +77,7 @@ export const defaultStoreTasks: Task[] = [
   {
     id: 4,
     title: 'Elige un nombre para tu tienda',
-    description:
-      'Define el nombre de tu negocio que aparecerá en tu tienda, facturas y comunicaciones con clientes.',
+    description: 'Define el nombre de tu negocio que aparecerá en tu tienda, facturas y comunicaciones con clientes.',
     actions: {
       primary: {
         text: 'Editar nombre',
@@ -91,8 +90,7 @@ export const defaultStoreTasks: Task[] = [
   {
     id: 5,
     title: 'Define tus tarifas de envío',
-    description:
-      'Configura las zonas de envío, métodos y tarifas para que tus clientes puedan recibir sus productos.',
+    description: 'Configura las zonas de envío, métodos y tarifas para que tus clientes puedan recibir sus productos.',
     learnMoreLink: '#',
     actions: {
       primary: {
@@ -106,23 +104,20 @@ export const defaultStoreTasks: Task[] = [
   {
     id: 6,
     title: 'Habilita los métodos de pago',
-    description:
-      'Conecta pasarelas de pago para que tus clientes puedan completar sus compras con diferentes métodos.',
+    description: 'Conecta pasarelas de pago para que tus clientes puedan completar sus compras con diferentes métodos.',
     actions: {
       primary: {
         text: 'Configurar pagos',
         getHref: (storeId: string) => routes.store.setup.payments(storeId),
       },
     },
-    imageUrl:
-      'https://images.unsplash.com/vector-1739891945507-20fd57d98b67?q=80&w=2360&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/vector-1739891945507-20fd57d98b67?q=80&w=2360&auto=format&fit=crop',
     completed: false,
   },
   {
     id: 7,
     title: 'Realiza una compra de prueba',
-    description:
-      'Verifica que todo funcione correctamente realizando una compra de prueba en tu tienda.',
+    description: 'Verifica que todo funcione correctamente realizando una compra de prueba en tu tienda.',
     learnMoreLink: '#',
     actions: {
       primary: {
@@ -133,4 +128,4 @@ export const defaultStoreTasks: Task[] = [
     imageUrl: '/svgs/test.svg',
     completed: false,
   },
-]
+];

@@ -1,38 +1,38 @@
-import { useState } from 'react'
-import { post } from 'aws-amplify/api'
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Amplify } from 'aws-amplify'
-import useUserStore from '@/context/core/userStore'
-import outputs from '@/amplify_outputs.json'
+import { useState } from 'react';
+import { post } from 'aws-amplify/api';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Amplify } from 'aws-amplify';
+import useUserStore from '@/context/core/userStore';
+import outputs from '@/amplify_outputs.json';
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
+Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
 Amplify.configure({
   ...existingConfig,
   API: {
     ...existingConfig.API,
     REST: outputs.custom.APIs,
   },
-})
+});
 
 export function PaymentSettings() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useUserStore()
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useUserStore();
 
-  const cognitoUsername = user?.userId
-  const userEmail = user?.email
-  const userName = user?.nickName
+  const cognitoUsername = user?.userId;
+  const userEmail = user?.email;
+  const userName = user?.nickName;
 
   const handleRedirectToPolarsh = async () => {
     if (!cognitoUsername || !userEmail || !userName) {
-      console.error('User information is incomplete.')
-      return
+      console.error('User information is incomplete.');
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const defaultPlanId = '149c6595-1611-477d-b0b4-61700d33c069'
+      const defaultPlanId = '149c6595-1611-477d-b0b4-61700d33c069';
 
       const response = await post({
         apiName: 'SubscriptionApi',
@@ -47,35 +47,31 @@ export function PaymentSettings() {
             },
           },
         },
-      })
-      const { body } = await response.response
-      const responseUrl = (await body.json()) as { checkoutUrl?: string }
+      });
+      const { body } = await response.response;
+      const responseUrl = (await body.json()) as { checkoutUrl?: string };
       if (responseUrl && responseUrl.checkoutUrl) {
-        window.location.href = responseUrl.checkoutUrl
+        window.location.href = responseUrl.checkoutUrl;
       } else {
-        console.warn('No checkout URL received.')
+        console.warn('No checkout URL received.');
       }
     } catch (error) {
-      console.error('Error redirecting to Polarsh:', error)
+      console.error('Error redirecting to Polarsh:', error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-8 px-4 pt-4 pb-4 min-h-screen flex flex-col justify-start">
       <div>
         <h2 className="text-2xl font-bold">Suscripción</h2>
-        <p className="text-gray-500 mt-2">
-          Gestiona tu plan de suscripción directamente en Polarsh.
-        </p>
+        <p className="text-gray-500 mt-2">Gestiona tu plan de suscripción directamente en Polarsh.</p>
       </div>
 
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle className="text-xl font-semibold text-gray-800">
-            Gestionar Suscripción
-          </CardTitle>
+          <CardTitle className="text-xl font-semibold text-gray-800">Gestionar Suscripción</CardTitle>
           <CardDescription className="text-gray-600">
             Haz clic para ser redirigido al panel de Polarsh y administrar tu plan.
           </CardDescription>
@@ -87,5 +83,5 @@ export function PaymentSettings() {
         </div>
       </Card>
     </div>
-  )
+  );
 }

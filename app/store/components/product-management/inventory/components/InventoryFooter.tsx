@@ -1,4 +1,4 @@
-import { Text, Link } from '@shopify/polaris'
+import { Text, Link } from '@shopify/polaris';
 
 export default function InventoryFooter() {
   return (
@@ -7,5 +7,5 @@ export default function InventoryFooter() {
         Más información sobre <Link url="#">gestionar el inventario</Link>
       </Text>
     </div>
-  )
+  );
 }

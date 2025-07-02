@@ -1,16 +1,12 @@
-import type { Schema } from '../resource'
-import {
-  BedrockRuntimeClient,
-  InvokeModelCommand,
-  InvokeModelCommandInput,
-} from '@aws-sdk/client-bedrock-runtime'
+import type { Schema } from '../resource';
+import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput } from '@aws-sdk/client-bedrock-runtime';
 
 // initialize bedrock runtime client
-const client = new BedrockRuntimeClient()
+const client = new BedrockRuntimeClient();
 
 export const handler: Schema['generateHaiku']['functionHandler'] = async (event, context) => {
   // User prompt
-  const prompt = event.arguments.prompt
+  const prompt = event.arguments.prompt;
 
   // Invoke model
   const input = {
@@ -35,14 +31,14 @@ export const handler: Schema['generateHaiku']['functionHandler'] = async (event,
       max_tokens: 2000,
       temperature: 0.5,
     }),
-  } as InvokeModelCommandInput
+  } as InvokeModelCommandInput;
 
-  const command = new InvokeModelCommand(input)
+  const command = new InvokeModelCommand(input);
 
-  const response = await client.send(command)
+  const response = await client.send(command);
 
   // Parse the response and return the generated haiku
-  const data = JSON.parse(Buffer.from(response.body).toString())
+  const data = JSON.parse(Buffer.from(response.body).toString());
 
-  return data.content[0].text
-}
+  return data.content[0].text;
+};

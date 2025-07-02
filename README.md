@@ -15,7 +15,7 @@
 Fasttify es una **plataforma SaaS avanzada** que permite a emprendedores crear, personalizar y gestionar tiendas de e-commerce con un enfoque en dropshipping y comercio digital. Construida con **Next.js 15**, **AWS Amplify Gen2** y un **motor de plantillas Liquid personalizado**, combina la flexibilidad del desarrollo moderno con la potencia de un sistema multi-tenant empresarial.
 
 > [!WARNING]
->   PROYECTO EN DESARROLLO ACTIVO
+> PROYECTO EN DESARROLLO ACTIVO
 > **Fasttify se encuentra actualmente en fase de desarrollo beta.** Aunque muchas funcionalidades están operativas, el proyecto puede contener bugs, funciones incompletas y cambios frecuentes en la API.
 >
 > **Recomendaciones:**
@@ -417,12 +417,12 @@ export class PolarPaymentProcessor {
 ```typescript
 // Dashboard principal con métricas en tiempo real
 interface StoreDashboard {
-  totalOrders: number
-  revenue: number
-  topProducts: Product[]
-  recentOrders: Order[]
-  trafficStats: AnalyticsData
-  conversionRate: number
+  totalOrders: number;
+  revenue: number;
+  topProducts: Product[];
+  recentOrders: Order[];
+  trafficStats: AnalyticsData;
+  conversionRate: number;
 }
 ```
 
@@ -446,19 +446,15 @@ export const useStoreMetrics = (storeId: string) => {
     queryKey: ['store-metrics', storeId],
     queryFn: () => fetchStoreMetrics(storeId),
     refetchInterval: 30000, // Actualización cada 30s
-  })
-}
+  });
+};
 
 // Integración con nueva pasarela de pago
-export const configurePaymentGateway = async (
-  storeId: string,
-  gateway: PaymentGatewayType,
-  config: PaymentConfig
-) => {
+export const configurePaymentGateway = async (storeId: string, gateway: PaymentGatewayType, config: PaymentConfig) => {
   // Encriptación automática de API keys
   // Validación de configuración
   // Actualización en base de datos
-}
+};
 ```
 
 ---
@@ -515,7 +511,7 @@ const fashionStore = {
   },
   payments: ['wompi', 'mercadoPago'],
   shipping: 'colombia-nationwide',
-}
+};
 ```
 
 ### **2. Dropshipping Electrónicos**
@@ -529,7 +525,7 @@ const techStore = {
     categories: ['smartphones', 'laptops', 'accesorios'],
   },
   targeting: 'colombia-urban',
-}
+};
 ```
 
 ### **3. Tienda Local con Delivery**
@@ -542,7 +538,7 @@ const localStore = {
     zones: ['chapinero', 'zona-rosa', 'chicó'],
     methods: ['delivery-propio', 'rappi', 'uber-eats'],
   },
-}
+};
 ```
 
 ---

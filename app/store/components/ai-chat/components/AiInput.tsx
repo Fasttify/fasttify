@@ -1,19 +1,19 @@
-'use client'
+'use client';
 
-import { Send } from 'lucide-react'
-import { useState } from 'react'
-import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
-import { useAutoResizeTextarea } from '@/hooks/ui/use-auto-resize-textare'
+import { Send } from 'lucide-react';
+import { useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
+import { useAutoResizeTextarea } from '@/hooks/ui/use-auto-resize-textare';
 
 interface AIInputWithSearchProps {
-  id?: string
-  placeholder?: string
-  minHeight?: number
-  maxHeight?: number
-  onSubmit?: (value: string, withSearch: boolean) => void
-  onFileSelect?: (file: File) => void
-  className?: string
+  id?: string;
+  placeholder?: string;
+  minHeight?: number;
+  maxHeight?: number;
+  onSubmit?: (value: string, withSearch: boolean) => void;
+  onFileSelect?: (file: File) => void;
+  className?: string;
 }
 
 export function AIInputWithSearch({
@@ -25,20 +25,20 @@ export function AIInputWithSearch({
   onFileSelect,
   className,
 }: AIInputWithSearchProps) {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState('');
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight,
     maxHeight,
-  })
-  const [showSearch, setShowSearch] = useState(true)
+  });
+  const [showSearch, setShowSearch] = useState(true);
 
   const handleSubmit = () => {
     if (value.trim()) {
-      onSubmit?.(value, showSearch)
-      setValue('')
-      adjustHeight(true)
+      onSubmit?.(value, showSearch);
+      setValue('');
+      adjustHeight(true);
     }
-  }
+  };
 
   return (
     <div className={cn('w-full py-4', className)}>
@@ -51,15 +51,15 @@ export function AIInputWithSearch({
               placeholder={placeholder}
               className="w-full rounded-xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white placeholder:text-black/70 dark:placeholder:text-white/70 resize-none focus-visible:ring-0 leading-[1.2]"
               ref={textareaRef}
-              onKeyDown={e => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  handleSubmit()
+                  e.preventDefault();
+                  handleSubmit();
                 }
               }}
-              onChange={e => {
-                setValue(e.target.value)
-                adjustHeight()
+              onChange={(e) => {
+                setValue(e.target.value);
+                adjustHeight();
               }}
             />
           </div>
@@ -74,8 +74,7 @@ export function AIInputWithSearch({
                   value
                     ? 'bg-sky-500/15 text-sky-500'
                     : 'bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'
-                )}
-              >
+                )}>
                 <Send className="w-4 h-4" />
               </button>
             </div>
@@ -83,5 +82,5 @@ export function AIInputWithSearch({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { SalesDashboard } from '@/app/store/components/statistics/components/SalesDashboard'
-import { configureAmplify } from '@/lib/amplify-config'
+import { SalesDashboard } from '@/app/store/components/statistics/components/SalesDashboard';
+import { configureAmplify } from '@/lib/amplify-config';
 
-configureAmplify()
+configureAmplify();
 
 export default function GeneralStatistics() {
-  return <SalesDashboard />
+  return <SalesDashboard />;
 }

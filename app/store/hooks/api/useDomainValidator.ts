@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react'
-import { get } from 'aws-amplify/api'
+import { useState, useCallback } from 'react';
+import { get } from 'aws-amplify/api';
 
 /**
  * Hook personalizado para validar la disponibilidad de un dominio.
@@ -11,8 +11,8 @@ import { get } from 'aws-amplify/api'
  * - exists: Estado que indica si el dominio ya existe
  */
 export function useDomainValidator() {
-  const [isChecking, setIsChecking] = useState(false)
-  const [exists, setExists] = useState(false)
+  const [isChecking, setIsChecking] = useState(false);
+  const [exists, setExists] = useState(false);
 
   /**
    * Verifica si un dominio está disponible.
@@ -20,8 +20,8 @@ export function useDomainValidator() {
    * @returns {Promise<void>}
    */
   const checkDomain = useCallback(async (domain: string) => {
-    if (!domain) return
-    setIsChecking(true)
+    if (!domain) return;
+    setIsChecking(true);
 
     try {
       // Usar el nombre correcto de la API según backend.ts
@@ -33,20 +33,20 @@ export function useDomainValidator() {
             domainName: `${domain}.fasttify.com`, // Añadir el sufijo .fasttify.com
           },
         },
-      })
+      });
 
-      const { body } = await response.response
-      const responseDomainCheck = (await body.json()) as { exists: boolean; available: boolean }
+      const { body } = await response.response;
+      const responseDomainCheck = (await body.json()) as { exists: boolean; available: boolean };
 
-      setExists(responseDomainCheck?.exists || false)
+      setExists(responseDomainCheck?.exists || false);
     } catch (error) {
-      console.error('Error checking domain availability:', error)
+      console.error('Error checking domain availability:', error);
       // En caso de error, asumimos que el dominio no existe para evitar bloquear al usuario
-      setExists(false)
+      setExists(false);
     } finally {
-      setIsChecking(false)
+      setIsChecking(false);
     }
-  }, [])
+  }, []);
 
-  return { checkDomain, isChecking, exists }
+  return { checkDomain, isChecking, exists };
 }

@@ -4,15 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
   <!-- SEO -->
   {% if page_description %}
   <meta name="description" content="{{ page_description | escape }}">
   {% endif %}
-
   <!-- Favicon -->
   <link rel="icon" href="{{ shop.favicon | img_url: '32x32' }}">
-
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +41,6 @@
   <!-- Sections -->
   {% section 'cart' %}
   {% section 'newsletter-popup' %}
-
 
   <!-- Scripts -->
   {{ 'newsletter-popup.js' | asset_url | script_tag }}

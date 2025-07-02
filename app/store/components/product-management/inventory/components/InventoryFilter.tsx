@@ -1,9 +1,9 @@
-import { Button, ButtonGroup, TextField } from '@shopify/polaris'
-import { SearchIcon } from '@shopify/polaris-icons'
+import { Button, ButtonGroup, TextField } from '@shopify/polaris';
+import { SearchIcon } from '@shopify/polaris-icons';
 
 interface InventoryFilterProps {
-  searchQuery: string
-  setSearchQuery: (value: string) => void
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
 }
 
 export default function InventoryFilter({ searchQuery, setSearchQuery }: InventoryFilterProps) {
@@ -25,5 +25,5 @@ export default function InventoryFilter({ searchQuery, setSearchQuery }: Invento
         <Button>Filtros</Button>
       </ButtonGroup>
     </div>
-  )
+  );
 }

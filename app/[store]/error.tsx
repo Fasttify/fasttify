@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
 interface ErrorProps {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }
 
 export default function StoreError({ error, reset }: ErrorProps) {
@@ -122,8 +122,7 @@ export default function StoreError({ error, reset }: ErrorProps) {
           <div className="error-icon">🚧</div>
           <h1 className="error-title">¡Oops! Algo salió mal</h1>
           <p className="error-message">
-            Experimentamos un problema técnico temporal. Nuestro equipo ya está trabajando en
-            solucionarlo.
+            Experimentamos un problema técnico temporal. Nuestro equipo ya está trabajando en solucionarlo.
           </p>
 
           <div className="suggestions">
@@ -139,10 +138,7 @@ export default function StoreError({ error, reset }: ErrorProps) {
             <button onClick={reset} className="action-button">
               Intentar de nuevo
             </button>
-            <button
-              onClick={() => (window.location.href = '/')}
-              className="action-button secondary"
-            >
+            <button onClick={() => (window.location.href = '/')} className="action-button secondary">
               Ir al inicio
             </button>
           </div>
@@ -159,5 +155,5 @@ export default function StoreError({ error, reset }: ErrorProps) {
         </div>
       </body>
     </html>
-  )
+  );
 }
