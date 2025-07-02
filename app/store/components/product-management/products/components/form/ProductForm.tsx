@@ -1,25 +1,27 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
-import { Page, Layout, Card, Form, ContextualSaveBar, BlockStack, Select, Text } from '@shopify/polaris';
-import { useToast } from '@/app/store/context/ToastContext';
-import { productFormSchema, type ProductFormValues, defaultValues } from '@/lib/zod-schemas/product-schema';
-import { useProducts } from '@/app/store/hooks/data/useProducts';
+import { AttributesForm } from '@/app/store/components/product-management/products/components/form/AttributesForm';
+import { BasicInfoSection } from '@/app/store/components/product-management/products/components/form/BasicInfoSection';
+import { CollectionSelector } from '@/app/store/components/product-management/products/components/form/CollectionSelector';
+import { ImageUpload } from '@/app/store/components/product-management/products/components/form/ImageUpload';
+import { PricingInventorySection } from '@/app/store/components/product-management/products/components/form/PricingSection';
+import { PublicationSection } from '@/app/store/components/product-management/products/components/form/PublicationSection';
 import {
+  handleProductCreate,
+  handleProductUpdate,
   mapProductToFormValues,
   prepareProductData,
-  handleProductUpdate,
-  handleProductCreate,
 } from '@/app/store/components/product-management/utils/productUtils';
-import { BasicInfoSection } from '@/app/store/components/product-management/products/components/form/basic-info-section';
-import { PricingInventorySection } from '@/app/store/components/product-management/products/components/form/pricing-inventory-section';
-import { ImageUpload } from '@/app/store/components/product-management/products/components/form/ImageUpload';
-import { AttributesForm } from '@/app/store/components/product-management/products/components/form/AttributesForm';
-import { PublicationSection } from '@/app/store/components/product-management/products/components/form/publication-section';
-import { Loading } from '@shopify/polaris';
+import { useToast } from '@/app/store/context/ToastContext';
+import { useProducts } from '@/app/store/hooks/data/useProducts';
+import { defaultValues, productFormSchema, type ProductFormValues } from '@/lib/zod-schemas/product-schema';
+import { routes } from '@/utils/routes';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { BlockStack, Card, ContextualSaveBar, Form, Layout, Loading, Page, Select, Text } from '@shopify/polaris';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+
 interface ProductFormProps {
   storeId: string;
   productId?: string;
@@ -106,9 +108,9 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
         : await handleProductCreate(basicProductData, createProduct);
 
       if (result) {
-        form.reset(form.getValues()); // Resets dirty state
+        form.reset(form.getValues());
         showToast(`Producto ${productId ? 'actualizado' : 'creado'} con éxito.`);
-        router.push(`/store/${storeId}/products`);
+        router.push(routes.store.products.main(storeId));
       } else {
         throw new Error(productId ? 'Error al actualizar producto' : 'Error al crear producto');
       }
@@ -147,7 +149,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     <Page
       backAction={{
         content: 'Productos',
-        onAction: () => router.push(`/store/${storeId}/products`),
+        onAction: () => router.push(routes.store.products.main(storeId)),
       }}
       title={productId ? 'Editar producto' : 'Añadir producto'}
       primaryAction={{
@@ -237,6 +239,24 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                         options={categoryOptions}
                         onChange={field.onChange}
                         value={field.value}
+                      />
+                    )}
+                  />
+                </BlockStack>
+              </Card>
+              <Card>
+                <BlockStack gap="400">
+                  <Text as="h2" variant="headingMd">
+                    Colección
+                  </Text>
+                  <Controller
+                    name="collectionId"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <CollectionSelector
+                        value={field.value}
+                        onChange={field.onChange}
+                        error={fieldState.error?.message}
                       />
                     )}
                   />

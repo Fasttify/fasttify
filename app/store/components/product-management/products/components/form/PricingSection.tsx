@@ -7,7 +7,7 @@ import {
   usePriceSuggestion,
   type PriceSuggestionResult,
 } from '@/app/store/components/product-management/products/hooks/usePriceSuggestion';
-import { PriceSuggestionPanel } from '@/app/store/components/product-management/products/components/form/price-suggestion-panel';
+import { PriceSuggestionPanel } from '@/app/store/components/product-management/products/components/form/PriceSuggestion';
 import { Controller } from 'react-hook-form';
 import { PriceField } from './PriceField';
 

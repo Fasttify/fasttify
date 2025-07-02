@@ -95,7 +95,8 @@ export const productFormSchema = z.object({
   tags: z.array(z.string()).optional(),
   creationDate: z.date().optional(),
   lastModifiedDate: z.date().optional(),
-  status: z.enum(['active', 'inactive', 'pending', 'draft']).default('draft'),
+  status: z.enum(['draft', 'pending', 'active', 'inactive']).default('draft'),
+  collectionId: z.string().optional().nullable(),
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -117,4 +118,5 @@ export const defaultValues: Partial<ProductFormValues> = {
   creationDate: new Date(),
   lastModifiedDate: new Date(),
   status: 'draft',
+  collectionId: undefined,
 };

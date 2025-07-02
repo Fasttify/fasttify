@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import '@shopify/polaris/build/esm/styles.css';
-import { AppProvider } from '@shopify/polaris';
-import esTranslations from '@shopify/polaris/locales/es.json';
-import { getStoreId } from '@/utils/store-utils';
-import { useParams, usePathname } from 'next/navigation';
-import { useStore } from '@/app/store/hooks/data/useStore';
-import { PolarisLayout } from '@/app/store/components/sidebar/components/polaris-layout';
-import { Amplify } from 'aws-amplify';
+import { PolarisLayout } from '@/app/store/components/sidebar/components/PolarisLayout';
 import { ToastProvider } from '@/app/store/context/ToastContext';
+import { useStore } from '@/app/store/hooks/data/useStore';
+import { getStoreId } from '@/utils/store-utils';
+import { AppProvider } from '@shopify/polaris';
+import '@shopify/polaris/build/esm/styles.css';
+import esTranslations from '@shopify/polaris/locales/es.json';
+import { Amplify } from 'aws-amplify';
+import { useParams, usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 import outputs from '@/amplify_outputs.json';
 

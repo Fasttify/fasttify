@@ -1,21 +1,21 @@
-import {
-  Modal,
-  TextField,
-  ResourceList,
-  ResourceItem,
-  Thumbnail,
-  Text,
-  Spinner,
-  EmptyState,
-  Box,
-} from '@shopify/polaris';
-import { SearchIcon } from '@shopify/polaris-icons';
 import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types';
 import {
-  getProductImageUrl,
   formatPrice,
+  getProductImageUrl,
 } from '@/app/store/components/product-management/collections/utils/collectionUtils';
-import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/product-pagination';
+import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/ProductPagination';
+import {
+  Box,
+  EmptyState,
+  Modal,
+  ResourceItem,
+  ResourceList,
+  Spinner,
+  Text,
+  TextField,
+  Thumbnail,
+} from '@shopify/polaris';
+import { SearchIcon } from '@shopify/polaris-icons';
 
 interface ProductSelectionDialogProps {
   isOpen: boolean;

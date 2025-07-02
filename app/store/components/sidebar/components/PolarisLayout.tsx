@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { Frame, AppProvider } from '@shopify/polaris';
-import { TopBarPolaris } from '@/app/store/components/sidebar/components/top-bar-polaris';
-import { NavigationPolaris } from '@/app/store/components/sidebar/components/navigation-polaris';
+import { NavigationPolaris } from '@/app/store/components/sidebar/components/NavigationPolaris';
+import { TopBarPolaris } from '@/app/store/components/sidebar/components/TopBarPolaris';
 import { PageTransition } from '@/components/ui/page-transition';
+import { AppProvider, Frame } from '@shopify/polaris';
 import translations from '@shopify/polaris/locales/es.json';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface PolarisLayoutProps {
   children: React.ReactNode;

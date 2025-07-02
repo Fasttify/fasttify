@@ -21,7 +21,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      - name: Configurar Node.js
+      - name: Configure Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20

@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Button, ButtonGroup, Select, Box, InlineStack } from '@shopify/polaris';
+import { Box, Button, ButtonGroup, InlineStack, Select } from '@shopify/polaris';
 import { TextBoldIcon, TextItalicIcon, TextUnderlineIcon } from '@shopify/polaris-icons';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export function DescriptionEditor({
   initialValue = '',
@@ -9,20 +9,22 @@ export function DescriptionEditor({
   initialValue?: string;
   onChange: (content: string) => void;
 }) {
-  const [editorContent, setEditorContent] = useState(initialValue);
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
 
+  // Sincroniza el editor con el valor inicial o cuando cambie externamente
   useEffect(() => {
-    if (editorRef.current && initialValue) {
+    if (editorRef.current && editorRef.current.innerHTML !== initialValue) {
       editorRef.current.innerHTML = initialValue;
-      setEditorContent(initialValue);
     }
   }, [initialValue]);
 
   const handleSelectionChange = useCallback(() => {
+    // No hacer nada si el editor no está enfocado para evitar actualizaciones innecesarias
+    if (document.activeElement !== editorRef.current) return;
+
     setIsBold(document.queryCommandState('bold'));
     setIsItalic(document.queryCommandState('italic'));
     setIsUnderline(document.queryCommandState('underline'));
@@ -36,14 +38,17 @@ export function DescriptionEditor({
   }, [handleSelectionChange]);
 
   const handleExecCommand = (command: string) => {
-    document.execCommand(command);
-    editorRef.current?.focus();
+    if (editorRef.current) {
+      editorRef.current.focus();
+      document.execCommand(command);
+    }
     handleSelectionChange();
   };
 
-  const updateContent = (content: string) => {
-    setEditorContent(content);
-    onChange(content);
+  const handleBlur = () => {
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
   };
 
   const handleFormat = (command: 'bold' | 'italic' | 'underline') => {
@@ -87,12 +92,8 @@ export function DescriptionEditor({
         ref={editorRef}
         className="p-3 min-h-[120px] focus:outline-none"
         contentEditable={true}
-        onInput={(e) => {
-          const target = e.target as HTMLDivElement;
-          const content = target.innerHTML;
-          updateContent(content);
-        }}
-        onBlur={() => handleSelectionChange()}
+        onBlur={handleBlur} // Actualiza el estado del padre solo al perder el foco
+        onFocus={handleSelectionChange} // Actualiza el estado de los botones al enfocar
         style={{
           width: '100%',
           lineHeight: '1.5',

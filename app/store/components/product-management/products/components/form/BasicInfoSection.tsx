@@ -1,11 +1,11 @@
-import type { UseFormReturn } from 'react-hook-form';
-import { FormLayout, TextField, BlockStack, ButtonGroup, Button, Banner, Text } from '@shopify/polaris';
-import { useState } from 'react';
-import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
+import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/AiGenerate';
 import { useProductDescription } from '@/app/store/components/product-management/products/hooks/useProductDescription';
-import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/ai-generate-button';
-import { Controller } from 'react-hook-form';
 import { useToast } from '@/app/store/context/ToastContext';
+import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
+import { Banner, BlockStack, Button, ButtonGroup, FormLayout, Text, TextField } from '@shopify/polaris';
+import { useState } from 'react';
+import type { UseFormReturn } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 
 interface BasicInfoSectionProps {
   form: UseFormReturn<ProductFormValues>;
