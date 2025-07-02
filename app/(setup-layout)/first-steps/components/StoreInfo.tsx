@@ -1,67 +1,56 @@
-import { cn } from '@/lib/utils'
-import { useEffect, useState } from 'react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator'
-import { configureAmplify } from '@/lib/amplify-config'
+import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator';
+import { configureAmplify } from '@/lib/amplify-config';
 
-configureAmplify()
+configureAmplify();
 
 interface StoreData {
-  storeName: string
-  description: string
-  location: string
-  category: string
+  storeName: string;
+  description: string;
+  location: string;
+  category: string;
 }
 
 interface StoreInfoProps {
-  data: StoreData
-  updateData: (data: Partial<StoreData>) => void
-  errors?: Record<string, string[]>
-  onValidationChange?: (isValid: boolean) => void
+  data: StoreData;
+  updateData: (data: Partial<StoreData>) => void;
+  errors?: Record<string, string[]>;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
-import { Check, Loader2 } from 'lucide-react'
+import { Check, Loader2 } from 'lucide-react';
 
-const StoreInfo: React.FC<StoreInfoProps> = ({
-  data,
-  updateData,
-  errors = {},
-  onValidationChange,
-}) => {
-  const { checkStoreName, isChecking, exists } = useStoreNameValidator()
-  const [isValid, setIsValid] = useState(false)
-  const [hasBeenValidated, setHasBeenValidated] = useState(false)
+const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, onValidationChange }) => {
+  const { checkStoreName, isChecking, exists } = useStoreNameValidator();
+  const [isValid, setIsValid] = useState(false);
+  const [hasBeenValidated, setHasBeenValidated] = useState(false);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (data.storeName) {
-        checkStoreName(data.storeName)
-        setHasBeenValidated(true)
+        checkStoreName(data.storeName);
+        setHasBeenValidated(true);
       } else {
-        setHasBeenValidated(false)
+        setHasBeenValidated(false);
       }
-    }, 500)
+    }, 500);
 
     return () => {
-      clearTimeout(timeoutId)
+      clearTimeout(timeoutId);
       if (data.storeName !== '' && hasBeenValidated) {
-        setHasBeenValidated(false)
+        setHasBeenValidated(false);
       }
-    }
-  }, [data.storeName])
+    };
+  }, [data.storeName]);
 
   useEffect(() => {
-    onValidationChange?.(!exists && !!data.storeName && hasBeenValidated)
-  }, [exists, data.storeName, hasBeenValidated, onValidationChange])
+    onValidationChange?.(!exists && !!data.storeName && hasBeenValidated);
+  }, [exists, data.storeName, hasBeenValidated, onValidationChange]);
 
   useEffect(() => {
     const isFormValid =
@@ -71,10 +60,10 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
       !!data.location &&
       !!data.category &&
       !isChecking &&
-      hasBeenValidated
+      hasBeenValidated;
 
-    setIsValid(isFormValid)
-    onValidationChange?.(isFormValid)
+    setIsValid(isFormValid);
+    onValidationChange?.(isFormValid);
   }, [
     exists,
     data.storeName,
@@ -84,7 +73,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
     isChecking,
     hasBeenValidated,
     onValidationChange,
-  ])
+  ]);
 
   const categories = [
     'Ropa y Accesorios',
@@ -93,7 +82,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
     'Alimentos y Bebidas',
     'Arte y Artesanías',
     'Otros',
-  ]
+  ];
 
   return (
     <div className="w-full max-w-2xl p-6 bg-white rounded-lg">
@@ -109,9 +98,9 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
             <Input
               id="storeName"
               value={data.storeName}
-              onChange={e => {
-                updateData({ storeName: e.target.value })
-                setHasBeenValidated(false)
+              onChange={(e) => {
+                updateData({ storeName: e.target.value });
+                setHasBeenValidated(false);
               }}
               placeholder="Ej: Mi Tienda Genial"
               className={cn(
@@ -139,9 +128,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
           {!isChecking && !exists && data.storeName && hasBeenValidated && (
             <p className="text-green-600 text-sm">¡Este nombre está disponible!</p>
           )}
-          {errors.storeName && (
-            <p className="text-red-600 text-sm">{errors.storeName.join(', ')}</p>
-          )}
+          {errors.storeName && <p className="text-red-600 text-sm">{errors.storeName.join(', ')}</p>}
         </div>
 
         <div className="space-y-2">
@@ -149,13 +136,11 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
           <Textarea
             id="description"
             value={data.description}
-            onChange={e => updateData({ description: e.target.value })}
+            onChange={(e) => updateData({ description: e.target.value })}
             placeholder="Describe tu tienda en pocas palabras..."
             rows={3}
           />
-          {errors.description && (
-            <p className="text-red-600 text-sm">{errors.description.join(', ')}</p>
-          )}
+          {errors.description && <p className="text-red-600 text-sm">{errors.description.join(', ')}</p>}
         </div>
 
         <div className="space-y-2">
@@ -163,7 +148,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
           <Input
             id="location"
             value={data.location}
-            onChange={e => updateData({ location: e.target.value })}
+            onChange={(e) => updateData({ location: e.target.value })}
             placeholder="Ej: Ciudad, País"
           />
           {errors.location && <p className="text-red-600 text-sm">{errors.location.join(', ')}</p>}
@@ -171,12 +156,12 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor="category">Categoría</Label>
-          <Select value={data.category} onValueChange={value => updateData({ category: value })}>
+          <Select value={data.category} onValueChange={(value) => updateData({ category: value })}>
             <SelectTrigger id="category" className="focus:ring-0 focus:outline-none">
               <SelectValue placeholder="Selecciona una categoría" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map(category => (
+              {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
                 </SelectItem>
@@ -187,7 +172,7 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default StoreInfo
+export default StoreInfo;

@@ -8,33 +8,33 @@ import {
   Spinner,
   EmptyState,
   Box,
-} from '@shopify/polaris'
-import { SearchIcon } from '@shopify/polaris-icons'
-import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types'
+} from '@shopify/polaris';
+import { SearchIcon } from '@shopify/polaris-icons';
+import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types';
 import {
   getProductImageUrl,
   formatPrice,
-} from '@/app/store/components/product-management/collections/utils/collectionUtils'
-import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/product-pagination'
+} from '@/app/store/components/product-management/collections/utils/collectionUtils';
+import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/product-pagination';
 
 interface ProductSelectionDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  searchTerm: string
-  onSearchChange: (value: string) => void
-  products: IProduct[]
-  selectedProductIds: string[]
-  onProductSelect: (productId: string[]) => void
-  onConfirm: () => void
-  loading: boolean
+  isOpen: boolean;
+  onClose: () => void;
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
+  products: IProduct[];
+  selectedProductIds: string[];
+  onProductSelect: (productId: string[]) => void;
+  onConfirm: () => void;
+  loading: boolean;
   // Propiedades de paginación
-  currentPage: number
-  itemsPerPage: number
-  setItemsPerPage: (value: number) => void
-  hasNextPage: boolean
-  hasPreviousPage: boolean
-  nextPage: () => void
-  previousPage: () => void
+  currentPage: number;
+  itemsPerPage: number;
+  setItemsPerPage: (value: number) => void;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  nextPage: () => void;
+  previousPage: () => void;
 }
 
 export function ProductSelectionDialog({
@@ -72,8 +72,7 @@ export function ProductSelectionDialog({
           content: 'Cancelar',
           onAction: onClose,
         },
-      ]}
-    >
+      ]}>
       <Modal.Section>
         <TextField
           label="Buscar productos"
@@ -97,10 +96,10 @@ export function ProductSelectionDialog({
             selectedItems={selectedProductIds}
             onSelectionChange={onProductSelect}
             selectable
-            renderItem={item => {
-              const { id, name, price } = item
-              const imageUrl = getProductImageUrl(item)
-              const media = <Thumbnail source={imageUrl || ''} alt={name} />
+            renderItem={(item) => {
+              const { id, name, price } = item;
+              const imageUrl = getProductImageUrl(item);
+              const media = <Thumbnail source={imageUrl || ''} alt={name} />;
 
               return (
                 <ResourceItem
@@ -108,21 +107,19 @@ export function ProductSelectionDialog({
                   media={media}
                   accessibilityLabel={`Ver detalles de ${name}`}
                   onClick={() => {
-                    onProductSelect([id])
-                  }}
-                >
+                    onProductSelect([id]);
+                  }}>
                   <Text variant="bodyMd" fontWeight="bold" as="h3">
                     {name}
                   </Text>
                   <div>{formatPrice(price)}</div>
                 </ResourceItem>
-              )
+              );
             }}
             emptyState={
               <EmptyState
                 heading="No se encontraron productos"
-                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-              >
+                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
                 <p>Prueba con un término de búsqueda diferente.</p>
               </EmptyState>
             }
@@ -146,5 +143,5 @@ export function ProductSelectionDialog({
         </Modal.Section>
       )}
     </Modal>
-  )
+  );
 }

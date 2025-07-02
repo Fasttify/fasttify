@@ -1,21 +1,21 @@
-import { debounce } from 'lodash'
-import { Dispatch, SetStateAction } from 'react'
-import { StoreProfileFormValues } from '@/lib/zod-schemas/store-profile-schema'
-import { UseFormReturn } from 'react-hook-form'
+import { debounce } from 'lodash';
+import { Dispatch, SetStateAction } from 'react';
+import { StoreProfileFormValues } from '@/lib/zod-schemas/store-profile-schema';
+import { UseFormReturn } from 'react-hook-form';
 
 // Types for validation state
 export interface StoreNameValidationState {
-  originalStoreName: string
-  nameChanged: boolean
-  isStoreNameValid: boolean
-  setNameChanged: Dispatch<SetStateAction<boolean>>
-  setIsStoreNameValid: Dispatch<SetStateAction<boolean>>
+  originalStoreName: string;
+  nameChanged: boolean;
+  isStoreNameValid: boolean;
+  setNameChanged: Dispatch<SetStateAction<boolean>>;
+  setIsStoreNameValid: Dispatch<SetStateAction<boolean>>;
 }
 
 // Types for store name validation
 export interface StoreNameValidatorProps {
-  checkStoreName: (name: string) => Promise<void>
-  exists: boolean
+  checkStoreName: (name: string) => Promise<void>;
+  exists: boolean;
 }
 
 /**
@@ -25,26 +25,26 @@ export const createStoreNameValidator = (
   validationState: StoreNameValidationState,
   validatorProps: StoreNameValidatorProps
 ) => {
-  const { originalStoreName, setNameChanged, setIsStoreNameValid } = validationState
-  const { checkStoreName, exists } = validatorProps
+  const { originalStoreName, setNameChanged, setIsStoreNameValid } = validationState;
+  const { checkStoreName, exists } = validatorProps;
 
   return debounce(async (name: string) => {
     if (name !== originalStoreName) {
-      setNameChanged(true)
+      setNameChanged(true);
 
       if (name.length >= 3) {
-        await checkStoreName(name)
+        await checkStoreName(name);
 
-        setIsStoreNameValid(!exists)
+        setIsStoreNameValid(!exists);
       } else {
-        setIsStoreNameValid(false)
+        setIsStoreNameValid(false);
       }
     } else if (name === originalStoreName) {
-      setNameChanged(false)
-      setIsStoreNameValid(true)
+      setNameChanged(false);
+      setIsStoreNameValid(true);
     }
-  }, 1000)
-}
+  }, 1000);
+};
 
 /**
  * Handles immediate validation on store name change
@@ -54,19 +54,19 @@ export const handleStoreNameChange = (
   validationState: StoreNameValidationState,
   debouncedCheckStoreName: (name: string) => void
 ) => {
-  const { originalStoreName, setNameChanged, setIsStoreNameValid } = validationState
-  const value = e.target.value
+  const { originalStoreName, setNameChanged, setIsStoreNameValid } = validationState;
+  const value = e.target.value;
 
   if (value !== originalStoreName) {
-    setNameChanged(true)
-    setIsStoreNameValid(false)
+    setNameChanged(true);
+    setIsStoreNameValid(false);
   } else {
-    setNameChanged(false)
-    setIsStoreNameValid(true)
+    setNameChanged(false);
+    setIsStoreNameValid(true);
   }
 
-  debouncedCheckStoreName(value)
-}
+  debouncedCheckStoreName(value);
+};
 
 /**
  * Determines if the submit button should be disabled
@@ -78,8 +78,8 @@ export const isSubmitButtonDisabled = (
   isChecking: boolean,
   isStoreNameValid: boolean
 ) => {
-  return isUpdating || isSubmitting || (nameChanged && (isChecking || !isStoreNameValid))
-}
+  return isUpdating || isSubmitting || (nameChanged && (isChecking || !isStoreNameValid));
+};
 
 /**
  * Handles form submission for store profile updates
@@ -90,16 +90,16 @@ export const handleStoreProfileSubmit = async (
   validationState: StoreNameValidationState,
   updateUserStore: (data: any) => Promise<any>
 ) => {
-  const { nameChanged, isStoreNameValid } = validationState
+  const { nameChanged, isStoreNameValid } = validationState;
 
   if (nameChanged && !isStoreNameValid) {
-    console.error('Store name is already in use or invalid')
-    return false
+    console.error('Store name is already in use or invalid');
+    return false;
   }
 
   if (!storeId) {
-    console.error('Store ID not available')
-    return false
+    console.error('Store ID not available');
+    return false;
   }
 
   try {
@@ -108,14 +108,14 @@ export const handleStoreProfileSubmit = async (
       storeName: data.storeName.trim(),
       contactEmail: data.storeEmail?.trim() || '',
       contactPhone: Number(data.storePhone?.trim()) || 0,
-    })
+    });
 
-    return !!result
+    return !!result;
   } catch (error) {
-    console.error('Error updating store information:', error)
-    return false
+    console.error('Error updating store information:', error);
+    return false;
   }
-}
+};
 /**
  * Initializes form with store data when dialog opens
  */
@@ -128,14 +128,14 @@ export const initializeStoreProfileForm = (
   setIsStoreNameValid: Dispatch<SetStateAction<boolean>>
 ) => {
   if (open) {
-    const storeName = initialData.storeName || ''
-    setOriginalStoreName(storeName)
-    setNameChanged(false)
-    setIsStoreNameValid(true)
+    const storeName = initialData.storeName || '';
+    setOriginalStoreName(storeName);
+    setNameChanged(false);
+    setIsStoreNameValid(true);
     form.reset({
       storeName,
       storePhone: initialData.contactPhone || '',
       storeEmail: initialData.contactEmail || '',
-    })
+    });
   }
-}
+};

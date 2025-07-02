@@ -1,18 +1,18 @@
-import { useState, useCallback } from 'react'
-import { TopBar, Badge, Icon } from '@shopify/polaris'
-import { NotificationIcon } from '@shopify/polaris-icons'
+import { useState, useCallback } from 'react';
+import { TopBar, Badge, Icon } from '@shopify/polaris';
+import { NotificationIcon } from '@shopify/polaris-icons';
 
 export type Notification = {
-  id: string
-  title: string
-  description: string
-  timestamp: Date
-  read: boolean
-}
+  id: string;
+  title: string;
+  description: string;
+  timestamp: Date;
+  read: boolean;
+};
 
 interface NotificationPopoverProps {
-  notifications?: Notification[]
-  onNotificationsChange?: (notifications: Notification[]) => void
+  notifications?: Notification[];
+  onNotificationsChange?: (notifications: Notification[]) => void;
 }
 
 const dummyNotifications: Notification[] = [
@@ -37,34 +37,34 @@ const dummyNotifications: Notification[] = [
     timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     read: true,
   },
-]
+];
 
 export const NotificationPopover = ({
   notifications: initialNotifications = dummyNotifications,
   onNotificationsChange,
 }: NotificationPopoverProps) => {
-  const [popoverActive, setPopoverActive] = useState(false)
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications)
+  const [popoverActive, setPopoverActive] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
 
-  const togglePopoverActive = useCallback(() => setPopoverActive(active => !active), [])
+  const togglePopoverActive = useCallback(() => setPopoverActive((active) => !active), []);
 
   const markAsRead = (id: string) => {
-    const updatedNotifications = notifications.map(n => (n.id === id ? { ...n, read: true } : n))
-    setNotifications(updatedNotifications)
-    onNotificationsChange?.(updatedNotifications)
-  }
+    const updatedNotifications = notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
+    setNotifications(updatedNotifications);
+    onNotificationsChange?.(updatedNotifications);
+  };
 
   const markAllAsRead = () => {
-    const updatedNotifications = notifications.map(n => ({
+    const updatedNotifications = notifications.map((n) => ({
       ...n,
       read: true,
-    }))
-    setNotifications(updatedNotifications)
-    onNotificationsChange?.(updatedNotifications)
-    setPopoverActive(false)
-  }
+    }));
+    setNotifications(updatedNotifications);
+    onNotificationsChange?.(updatedNotifications);
+    setPopoverActive(false);
+  };
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <TopBar.Menu
@@ -78,8 +78,7 @@ export const NotificationPopover = ({
                 top: '-9px',
                 right: '0px',
                 transform: 'translate(25%, -25%)',
-              }}
-            >
+              }}>
               <Badge tone="critical-strong">{unreadCount.toString()}</Badge>
             </div>
           )}
@@ -92,14 +91,10 @@ export const NotificationPopover = ({
         {
           items:
             notifications.length > 0
-              ? notifications.map(notification => ({
+              ? notifications.map((notification) => ({
                   content: notification.title,
                   helpText: notification.description,
-                  prefix: !notification.read ? (
-                    <Badge tone="info-strong"> </Badge>
-                  ) : (
-                    <div style={{ width: '21px' }} />
-                  ),
+                  prefix: !notification.read ? <Badge tone="info-strong"> </Badge> : <div style={{ width: '21px' }} />,
                   onAction: () => markAsRead(notification.id),
                 }))
               : [
@@ -120,5 +115,5 @@ export const NotificationPopover = ({
         },
       ]}
     />
-  )
-}
+  );
+};

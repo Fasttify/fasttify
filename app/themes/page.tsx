@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import { Home } from '@/app/themes/components/Home'
+import { Home } from '@/app/themes/components/Home';
 
 export default function ThemesPage() {
-  return <Home />
+  return <Home />;
 }

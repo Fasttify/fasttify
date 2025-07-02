@@ -1,24 +1,11 @@
-'use client'
+'use client';
 
-import { useState, useCallback } from 'react'
-import {
-  Button,
-  Card,
-  TextField,
-  Select,
-  Checkbox,
-  Text,
-  ResourceList,
-  ResourceItem,
-} from '@shopify/polaris'
-import { PlusIcon, DeleteIcon } from '@shopify/polaris-icons'
-import { MenuItem, generateMenuItemURL } from '@/app/store/hooks/data/useNavigationMenus'
-import {
-  MenuItemFormProps,
-  MENU_ITEM_TYPES,
-  TARGET_OPTIONS,
-} from '@/app/store/components/navigation-management/types'
-import { validateMenuItems } from '@/lib/zod-schemas/navigation'
+import { useState, useCallback } from 'react';
+import { Button, Card, TextField, Select, Checkbox, Text, ResourceList, ResourceItem } from '@shopify/polaris';
+import { PlusIcon, DeleteIcon } from '@shopify/polaris-icons';
+import { MenuItem, generateMenuItemURL } from '@/app/store/hooks/data/useNavigationMenus';
+import { MenuItemFormProps, MENU_ITEM_TYPES, TARGET_OPTIONS } from '@/app/store/components/navigation-management/types';
+import { validateMenuItems } from '@/lib/zod-schemas/navigation';
 
 /**
  * Componente para gestionar los elementos de un menú
@@ -29,29 +16,29 @@ export function MenuItemForm({
   disabled = false,
   itemErrors: externalItemErrors = {},
 }: MenuItemFormProps) {
-  const [editingIndex, setEditingIndex] = useState<number | null>(null)
-  const [localItemErrors, setLocalItemErrors] = useState<Record<number, Record<string, string>>>({})
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [localItemErrors, setLocalItemErrors] = useState<Record<number, Record<string, string>>>({});
 
   // Combinar errores externos (de Zod) con errores locales
   const getAllItemErrors = useCallback(() => {
-    const combined: Record<number, Record<string, string>> = {}
+    const combined: Record<number, Record<string, string>> = {};
 
     // Primero agregar errores locales
-    Object.keys(localItemErrors).forEach(key => {
-      const index = parseInt(key)
-      combined[index] = { ...localItemErrors[index] }
-    })
+    Object.keys(localItemErrors).forEach((key) => {
+      const index = parseInt(key);
+      combined[index] = { ...localItemErrors[index] };
+    });
 
     // Luego sobrescribir con errores externos (tienen prioridad)
-    Object.keys(externalItemErrors).forEach(key => {
-      const index = parseInt(key)
-      combined[index] = { ...combined[index], ...externalItemErrors[index] }
-    })
+    Object.keys(externalItemErrors).forEach((key) => {
+      const index = parseInt(key);
+      combined[index] = { ...combined[index], ...externalItemErrors[index] };
+    });
 
-    return combined
-  }, [localItemErrors, externalItemErrors])
+    return combined;
+  }, [localItemErrors, externalItemErrors]);
 
-  const allItemErrors = getAllItemErrors()
+  const allItemErrors = getAllItemErrors();
 
   // Agregar nuevo elemento
   const addItem = () => {
@@ -62,56 +49,56 @@ export function MenuItemForm({
       target: '_self',
       sortOrder: items.length + 1,
       url: '', // Por defecto para tipo internal
-    }
-    onChange([...items, newItem])
-    setEditingIndex(items.length) // Editar el nuevo elemento
-  }
+    };
+    onChange([...items, newItem]);
+    setEditingIndex(items.length); // Editar el nuevo elemento
+  };
 
   // Actualizar elemento con validación
   const updateItem = (index: number, updatedItem: MenuItem) => {
-    const newItems = [...items]
-    newItems[index] = updatedItem
+    const newItems = [...items];
+    newItems[index] = updatedItem;
 
     // Validación individual del item usando Zod
     try {
       // Validar solo el item actual con todos los campos
-      validateMenuItems([updatedItem])
+      validateMenuItems([updatedItem]);
 
       // Limpiar errores si la validación es exitosa
-      setLocalItemErrors(prev => {
-        const newErrors = { ...prev }
-        delete newErrors[index]
-        return newErrors
-      })
+      setLocalItemErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[index];
+        return newErrors;
+      });
     } catch (error: any) {
       // Mostrar errores específicos del item
       if (error.issues) {
-        const fieldErrors: Record<string, string> = {}
+        const fieldErrors: Record<string, string> = {};
         error.issues.forEach((issue: any) => {
-          const field = issue.path[1] || issue.path[0] // path[1] porque es un array
-          fieldErrors[field] = issue.message
-        })
-        setLocalItemErrors(prev => ({
+          const field = issue.path[1] || issue.path[0]; // path[1] porque es un array
+          fieldErrors[field] = issue.message;
+        });
+        setLocalItemErrors((prev) => ({
           ...prev,
           [index]: fieldErrors,
-        }))
+        }));
       }
     }
 
-    onChange(newItems)
-  }
+    onChange(newItems);
+  };
 
   // Eliminar elemento
   const removeItem = (index: number) => {
-    const newItems = items.filter((_, i) => i !== index)
+    const newItems = items.filter((_, i) => i !== index);
     // Reordenar sortOrder
     const reorderedItems = newItems.map((item, i) => ({
       ...item,
       sortOrder: i + 1,
-    }))
-    onChange(reorderedItems)
-    setEditingIndex(null)
-  }
+    }));
+    onChange(reorderedItems);
+    setEditingIndex(null);
+  };
 
   // Estado vacío
   if (items.length === 0) {
@@ -131,7 +118,7 @@ export function MenuItemForm({
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -145,11 +132,7 @@ export function MenuItemForm({
           originalIndex: index,
         }))}
         renderItem={(item, id, index) => (
-          <ResourceItem
-            key={item.id}
-            id={item.id}
-            onClick={() => !disabled && setEditingIndex(item.originalIndex)}
-          >
+          <ResourceItem key={item.id} id={item.id} onClick={() => !disabled && setEditingIndex(item.originalIndex)}>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-3">
                 <div>
@@ -187,7 +170,7 @@ export function MenuItemForm({
                     <TextField
                       label="Etiqueta"
                       value={item.label}
-                      onChange={value => updateItem(item.originalIndex, { ...item, label: value })}
+                      onChange={(value) => updateItem(item.originalIndex, { ...item, label: value })}
                       placeholder="Nombre del elemento"
                       autoComplete="off"
                       disabled={disabled}
@@ -199,7 +182,7 @@ export function MenuItemForm({
                       label="Tipo"
                       options={MENU_ITEM_TYPES}
                       value={item.type}
-                      onChange={value => {
+                      onChange={(value) => {
                         // Crear nuevo item limpiando todos los campos específicos
                         const newItem: MenuItem = {
                           label: item.label,
@@ -207,26 +190,26 @@ export function MenuItemForm({
                           isVisible: item.isVisible,
                           target: item.target,
                           sortOrder: item.sortOrder,
-                        }
+                        };
 
                         // Agregar solo el campo necesario según el tipo
                         switch (value) {
                           case 'internal':
                           case 'external':
-                            newItem.url = item.url || ''
-                            break
+                            newItem.url = item.url || '';
+                            break;
                           case 'page':
-                            newItem.pageHandle = item.pageHandle || ''
-                            break
+                            newItem.pageHandle = item.pageHandle || '';
+                            break;
                           case 'collection':
-                            newItem.collectionHandle = item.collectionHandle || ''
-                            break
+                            newItem.collectionHandle = item.collectionHandle || '';
+                            break;
                           case 'product':
-                            newItem.productHandle = item.productHandle || ''
-                            break
+                            newItem.productHandle = item.productHandle || '';
+                            break;
                         }
 
-                        updateItem(item.originalIndex, newItem)
+                        updateItem(item.originalIndex, newItem);
                       }}
                       disabled={disabled}
                     />
@@ -238,11 +221,9 @@ export function MenuItemForm({
                       <TextField
                         label={item.type === 'internal' ? 'URL interna' : 'URL externa'}
                         value={item.url || ''}
-                        onChange={value => updateItem(item.originalIndex, { ...item, url: value })}
+                        onChange={(value) => updateItem(item.originalIndex, { ...item, url: value })}
                         placeholder={
-                          item.type === 'internal'
-                            ? '/productos, /pages/contacto'
-                            : 'https://facebook.com/mitienda'
+                          item.type === 'internal' ? '/productos, /pages/contacto' : 'https://facebook.com/mitienda'
                         }
                         helpText={
                           item.type === 'internal'
@@ -260,9 +241,7 @@ export function MenuItemForm({
                       <TextField
                         label="Handle de la página"
                         value={item.pageHandle || ''}
-                        onChange={value =>
-                          updateItem(item.originalIndex, { ...item, pageHandle: value })
-                        }
+                        onChange={(value) => updateItem(item.originalIndex, { ...item, pageHandle: value })}
                         placeholder="sobre-nosotros"
                         helpText="Solo el nombre de la página (se generará /pages/nombre-pagina)"
                         autoComplete="off"
@@ -276,9 +255,7 @@ export function MenuItemForm({
                       <TextField
                         label="Handle de la colección (opcional)"
                         value={item.collectionHandle || ''}
-                        onChange={value =>
-                          updateItem(item.originalIndex, { ...item, collectionHandle: value })
-                        }
+                        onChange={(value) => updateItem(item.originalIndex, { ...item, collectionHandle: value })}
                         placeholder="ropa-hombre"
                         helpText="Nombre específico de la colección. Deja vacío para enlazar a todas las colecciones (/collections)"
                         autoComplete="off"
@@ -291,9 +268,7 @@ export function MenuItemForm({
                       <TextField
                         label="Handle del producto (opcional)"
                         value={item.productHandle || ''}
-                        onChange={value =>
-                          updateItem(item.originalIndex, { ...item, productHandle: value })
-                        }
+                        onChange={(value) => updateItem(item.originalIndex, { ...item, productHandle: value })}
                         placeholder="iphone-15-pro"
                         helpText="Nombre específico del producto. Deja vacío para enlazar a todos los productos (/products)"
                         autoComplete="off"
@@ -335,7 +310,7 @@ export function MenuItemForm({
                       label="Destino"
                       options={TARGET_OPTIONS}
                       value={item.target || '_self'}
-                      onChange={value =>
+                      onChange={(value) =>
                         updateItem(item.originalIndex, {
                           ...item,
                           target: value as MenuItem['target'],
@@ -348,9 +323,7 @@ export function MenuItemForm({
                       <Checkbox
                         label="Visible en el menú"
                         checked={item.isVisible}
-                        onChange={checked =>
-                          updateItem(item.originalIndex, { ...item, isVisible: checked })
-                        }
+                        onChange={(checked) => updateItem(item.originalIndex, { ...item, isVisible: checked })}
                         disabled={disabled}
                       />
                     </div>
@@ -375,5 +348,5 @@ export function MenuItemForm({
         </Button>
       </div>
     </div>
-  )
+  );
 }

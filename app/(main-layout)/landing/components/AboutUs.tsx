@@ -1,6 +1,6 @@
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { Rocket, CreditCard, Package } from 'lucide-react'
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Rocket, CreditCard, Package } from 'lucide-react';
 
 export function AboutUs() {
   return (
@@ -14,9 +14,8 @@ export function AboutUs() {
             con tecnología y facilidad.
           </h2>
           <p className="text-gray-600 leading-relaxed">
-            Fasttify nace con el propósito de ayudar a emprendedores a lanzar y gestionar sus
-            tiendas online de manera rápida y eficiente, eliminando las barreras técnicas y
-            optimizando la experiencia de compra.
+            Fasttify nace con el propósito de ayudar a emprendedores a lanzar y gestionar sus tiendas online de manera
+            rápida y eficiente, eliminando las barreras técnicas y optimizando la experiencia de compra.
           </p>
         </div>
 
@@ -31,17 +30,14 @@ export function AboutUs() {
           </div>
 
           <div className="space-y-6">
-            <h3 className="text-2xl font-medium text-black">
-              Construye, escala y vende sin límites.
-            </h3>
+            <h3 className="text-2xl font-medium text-black">Construye, escala y vende sin límites.</h3>
             <p className="text-gray-600 leading-relaxed">
-              Con Fasttify, cualquier persona puede crear su propio negocio de dropshipping sin
-              necesidad de conocimientos técnicos. Nuestra plataforma ofrece herramientas
-              automatizadas, integración con múltiples proveedores y pasarelas de pago seguras.
+              Con Fasttify, cualquier persona puede crear su propio negocio de dropshipping sin necesidad de
+              conocimientos técnicos. Nuestra plataforma ofrece herramientas automatizadas, integración con múltiples
+              proveedores y pasarelas de pago seguras.
             </p>
             <p className="text-gray-600 leading-relaxed">
-              Nos encargamos de la tecnología para que puedas enfocarte en lo más importante: hacer
-              crecer tu negocio.
+              Nos encargamos de la tecnología para que puedas enfocarte en lo más importante: hacer crecer tu negocio.
             </p>
             <Button variant="outline" className="mt-4">
               Conoce nuestra historia
@@ -55,30 +51,24 @@ export function AboutUs() {
               <Rocket className="w-10 h-10" />
             </div>
             <h4 className="text-xl font-medium text-black">Crecimiento acelerado</h4>
-            <p className="text-gray-600">
-              Herramientas diseñadas para escalar tu negocio rápidamente.
-            </p>
+            <p className="text-gray-600">Herramientas diseñadas para escalar tu negocio rápidamente.</p>
           </div>
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
               <CreditCard className="w-10 h-10" />
             </div>
             <h4 className="text-xl font-medium text-black">Pagos seguros</h4>
-            <p className="text-gray-600">
-              Integración con Mercado Pago y PayU para transacciones confiables.
-            </p>
+            <p className="text-gray-600">Integración con Mercado Pago y PayU para transacciones confiables.</p>
           </div>
           <div className="text-center space-y-4">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
               <Package className="w-10 h-10" />
             </div>
             <h4 className="text-xl font-medium text-black">Gestión simplificada</h4>
-            <p className="text-gray-600">
-              Logística y proveedores gestionados desde una sola plataforma.
-            </p>
+            <p className="text-gray-600">Logística y proveedores gestionados desde una sola plataforma.</p>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

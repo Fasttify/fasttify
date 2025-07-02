@@ -1,11 +1,10 @@
-import * as z from 'zod'
+import * as z from 'zod';
 
-const colombianPhoneRegex =
-  /^(?:\+57|0057|57)?[ -]?(?:3[0-9]{2}|60[1-8])[ -]?[0-9]{3}[ -]?[0-9]{4}$/
-const documentNumberRegex = /^[0-9]{6,12}$/
-const allowedDocumentTypes = ['CC', 'CE', 'NIT', 'TI', 'PP', 'DNI', 'RG'] as const
+const colombianPhoneRegex = /^(?:\+57|0057|57)?[ -]?(?:3[0-9]{2}|60[1-8])[ -]?[0-9]{3}[ -]?[0-9]{4}$/;
+const documentNumberRegex = /^[0-9]{6,12}$/;
+const allowedDocumentTypes = ['CC', 'CE', 'NIT', 'TI', 'PP', 'DNI', 'RG'] as const;
 
-const wompiKeyRegex = /^(pub_test|pub_prod|prod)_[a-zA-Z0-9]{16,}$/
+const wompiKeyRegex = /^(pub_test|pub_prod|prod)_[a-zA-Z0-9]{16,}$/;
 
 export const wompiConfigSchema = z.object({
   publicKey: z
@@ -21,11 +20,11 @@ export const wompiConfigSchema = z.object({
     .regex(/^[a-zA-Z0-9_-]+$/, {
       message: 'La firma solo puede contener caracteres alfanuméricos, guiones y guiones bajos',
     }),
-})
+});
 
 export const additionalSettingsSchema = z.object({
   wompiConfig: wompiConfigSchema,
-})
+});
 
 // Schema para Información Personal
 export const personalInfoSchema = z
@@ -37,13 +36,13 @@ export const personalInfoSchema = z
       .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, {
         message: 'Solo se permiten letras y espacios',
       })
-      .transform(str => str.trim().replace(/\s+/g, ' ')),
+      .transform((str) => str.trim().replace(/\s+/g, ' ')),
 
     email: z
       .string()
       .email({ message: 'Correo electrónico inválido' })
       .max(100, { message: 'Máximo 100 caracteres' })
-      .refine(email => email.endsWith('.co') || email.endsWith('.com'), {
+      .refine((email) => email.endsWith('.co') || email.endsWith('.com'), {
         message: 'Dominio de correo no válido (.com o .co)',
       }),
 
@@ -52,7 +51,7 @@ export const personalInfoSchema = z
       .regex(colombianPhoneRegex, {
         message: 'Número telefónico colombiano inválido',
       })
-      .transform(num => num.replace(/[^0-9]/g, '')),
+      .transform((num) => num.replace(/[^0-9]/g, '')),
 
     documentType: z.enum(allowedDocumentTypes, {
       errorMap: () => ({ message: 'Tipo de documento no válido' }),
@@ -63,18 +62,17 @@ export const personalInfoSchema = z
     }),
   })
   .refine(
-    data => {
-      const { documentType, documentNumber } = data
-      if (documentType === 'CC' && documentNumber.length !== 8 && documentNumber.length !== 10)
-        return false
-      if (documentType === 'NIT' && documentNumber.length < 9) return false
-      return true
+    (data) => {
+      const { documentType, documentNumber } = data;
+      if (documentType === 'CC' && documentNumber.length !== 8 && documentNumber.length !== 10) return false;
+      if (documentType === 'NIT' && documentNumber.length < 9) return false;
+      return true;
     },
     {
       message: 'Longitud incorrecta para este tipo de documento',
       path: ['documentNumber'], // Indica a Zod dónde mostrar el error
     }
-  )
+  );
 // Schema para la Tienda
 export const storeInfoSchema = z.object({
   storeName: z
@@ -97,7 +95,7 @@ export const storeInfoSchema = z.object({
     .string()
     .min(1, { message: 'Requerido' })
     .refine(
-      val =>
+      (val) =>
         [
           'Ropa y Accesorios',
           'Electrónica',
@@ -110,4 +108,4 @@ export const storeInfoSchema = z.object({
         message: 'Categoría no válida',
       }
     ),
-})
+});

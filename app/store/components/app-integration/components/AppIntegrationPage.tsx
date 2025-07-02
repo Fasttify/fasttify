@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Page, Card, Text, Button, InlineGrid, Box, Badge, BlockStack } from '@shopify/polaris'
-import Image from 'next/image'
-import { ConnectModal } from '@/app/store/components/app-integration/components/ConnectModal'
-import useStoreDataStore from '@/context/core/storeDataStore'
+import { useState } from 'react';
+import { Page, Card, Text, Button, InlineGrid, Box, Badge, BlockStack } from '@shopify/polaris';
+import Image from 'next/image';
+import { ConnectModal } from '@/app/store/components/app-integration/components/ConnectModal';
+import useStoreDataStore from '@/context/core/storeDataStore';
 
 export function AppIntegrationPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const { hasMasterShopApiKey } = useStoreDataStore()
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { hasMasterShopApiKey } = useStoreDataStore();
 
   const masterShopCard = (
     <Card>
@@ -20,15 +20,9 @@ export function AppIntegrationPage() {
             justifyContent: 'center',
             background: 'var(--p-color-bg-surface-secondary)',
             padding: 'var(--p-space-600)',
-          }}
-        >
+          }}>
           <div style={{ position: 'relative', height: '12rem', width: '12rem' }}>
-            <Image
-              src="/icons/mastershop-logo.png"
-              alt="Master Shop Logo"
-              fill
-              style={{ objectFit: 'contain' }}
-            />
+            <Image src="/icons/mastershop-logo.png" alt="Master Shop Logo" fill style={{ objectFit: 'contain' }} />
           </div>
         </div>
         <Box padding="600">
@@ -41,8 +35,8 @@ export function AppIntegrationPage() {
                 <Badge tone="success">Popular</Badge>
               </InlineGrid>
               <Text as="p" tone="subdued">
-                Importa productos directamente desde Master Shop a tu tienda Fasttify. Sincroniza
-                inventario, precios y detalles de productos automáticamente.
+                Importa productos directamente desde Master Shop a tu tienda Fasttify. Sincroniza inventario, precios y
+                detalles de productos automáticamente.
               </Text>
             </BlockStack>
             <InlineGrid gap="200">
@@ -54,8 +48,7 @@ export function AppIntegrationPage() {
               <Button
                 variant={hasMasterShopApiKey ? 'primary' : 'primary'}
                 onClick={() => setIsModalOpen(true)}
-                disabled={hasMasterShopApiKey}
-              >
+                disabled={hasMasterShopApiKey}>
                 {hasMasterShopApiKey ? 'Conectado' : 'Conectar'}
               </Button>
             </Box>
@@ -63,9 +56,9 @@ export function AppIntegrationPage() {
         </Box>
       </InlineGrid>
     </Card>
-  )
+  );
 
-  const comingSoonCards = [1, 2, 3].map(i => (
+  const comingSoonCards = [1, 2, 3].map((i) => (
     <Card key={i}>
       <Box padding="400">
         <BlockStack gap="400">
@@ -78,8 +71,7 @@ export function AppIntegrationPage() {
                 width: '2.5rem',
                 borderRadius: 'var(--p-border-radius-100)',
                 background: 'var(--p-color-bg-surface-secondary)',
-              }}
-            >
+              }}>
               <Image
                 src={`/placeholder.svg?height=40&width=40`}
                 alt={`App ${i} Logo`}
@@ -98,14 +90,13 @@ export function AppIntegrationPage() {
         </BlockStack>
       </Box>
     </Card>
-  ))
+  ));
 
   return (
     <>
       <Page
         title="Apps & Integraciones"
-        subtitle="Conecta tu tienda con aplicaciones externas para importar productos y expandir tu negocio."
-      >
+        subtitle="Conecta tu tienda con aplicaciones externas para importar productos y expandir tu negocio.">
         <BlockStack gap="800">
           <BlockStack gap="400">
             <Text variant="headingLg" as="h2">
@@ -121,5 +112,5 @@ export function AppIntegrationPage() {
       </Page>
       <ConnectModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </>
-  )
+  );
 }

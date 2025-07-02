@@ -1,25 +1,25 @@
-import { LegacyStack, Text, Banner, Button, Icon } from '@shopify/polaris'
-import { CheckCircleIcon } from '@shopify/polaris-icons'
+import { LegacyStack, Text, Banner, Button, Icon } from '@shopify/polaris';
+import { CheckCircleIcon } from '@shopify/polaris-icons';
 
 interface CompletionStepProps {
-  domain: string
-  method?: 'dns' | 'http' | 'cloudfront'
-  onClose: () => void
+  domain: string;
+  method?: 'dns' | 'http' | 'cloudfront';
+  onClose: () => void;
 }
 
 export function CompletionStep({ domain, method, onClose }: CompletionStepProps) {
   const getMethodText = () => {
     switch (method) {
       case 'dns':
-        return 'validación DNS TXT'
+        return 'validación DNS TXT';
       case 'http':
-        return 'archivo HTTP'
+        return 'archivo HTTP';
       case 'cloudfront':
-        return 'CloudFront Multi-Tenant'
+        return 'CloudFront Multi-Tenant';
       default:
-        return 'configuración automática'
+        return 'configuración automática';
     }
-  }
+  };
 
   return (
     <LegacyStack vertical spacing="loose" alignment="center">
@@ -28,14 +28,13 @@ export function CompletionStep({ domain, method, onClose }: CompletionStepProps)
         ¡Dominio preparado exitosamente!
       </Text>
       <Text as="p" tone="subdued" alignment="center">
-        Tu dominio personalizado {domain} está configurado con SSL automático mediante{' '}
-        {getMethodText()}.
+        Tu dominio personalizado {domain} está configurado con SSL automático mediante {getMethodText()}.
       </Text>
 
       <Banner tone="warning">
         <p>
-          <strong>Paso final:</strong> Configura tu DNS para que el dominio apunte a CloudFront.
-          Encontrarás las instrucciones detalladas en la página de gestión de dominios.
+          <strong>Paso final:</strong> Configura tu DNS para que el dominio apunte a CloudFront. Encontrarás las
+          instrucciones detalladas en la página de gestión de dominios.
         </p>
       </Banner>
 
@@ -49,5 +48,5 @@ export function CompletionStep({ domain, method, onClose }: CompletionStepProps)
         </Button>
       </LegacyStack>
     </LegacyStack>
-  )
+  );
 }

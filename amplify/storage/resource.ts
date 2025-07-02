@@ -1,4 +1,4 @@
-import { defineStorage } from '@aws-amplify/backend'
+import { defineStorage } from '@aws-amplify/backend';
 
 /**
  * Configuración de almacenamiento para almacenar archivos en S3
@@ -7,7 +7,7 @@ import { defineStorage } from '@aws-amplify/backend'
 export const storage = defineStorage({
   name: 'fasttifyAssets',
   isDefault: true,
-  access: allow => ({
+  access: (allow) => ({
     'profile-pictures/{entity_id}/*': [
       allow.guest.to(['read']),
       allow.authenticated.to(['read', 'write']),
@@ -23,14 +23,11 @@ export const storage = defineStorage({
       allow.authenticated.to(['read', 'write']),
       allow.entity('identity').to(['read', 'write', 'delete']),
     ],
-    'templates/{entity_id}/*': [
-      allow.guest.to(['read']),
-      allow.authenticated.to(['read', 'write']),
-    ],
+    'templates/{entity_id}/*': [allow.guest.to(['read']), allow.authenticated.to(['read', 'write'])],
     'picture-submissions/*': [
       allow.guest.to(['read']),
       allow.authenticated.to(['read', 'write']),
       allow.entity('identity').to(['delete']),
     ],
   }),
-})
+});

@@ -1,26 +1,26 @@
-import { LegacyCard, EmptyState, Spinner, Page, Layout, Button } from '@shopify/polaris'
-import InventoryHeader from '@/app/store/components/product-management/inventory/components/InventoryHeader'
-import InventoryFilter from '@/app/store/components/product-management/inventory/components/InventoryFilter'
-import InventoryActions from '@/app/store/components/product-management/inventory/components/InventoryActions'
-import InventoryTable from '@/app/store/components/product-management/inventory/components/InventoryTable'
-import InventoryFooter from '@/app/store/components/product-management/inventory/components/InventoryFooter'
-import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/product-pagination'
-import { InventoryRowProps } from '@/app/store/components/product-management/inventory/components/InventoryTable'
-import { routes } from '@/utils/routes'
-import { getStoreId } from '@/utils/store-utils'
-import { useParams, usePathname, useRouter } from 'next/navigation'
-import { useState, useMemo } from 'react'
+import { LegacyCard, EmptyState, Spinner, Page, Layout, Button } from '@shopify/polaris';
+import InventoryHeader from '@/app/store/components/product-management/inventory/components/InventoryHeader';
+import InventoryFilter from '@/app/store/components/product-management/inventory/components/InventoryFilter';
+import InventoryActions from '@/app/store/components/product-management/inventory/components/InventoryActions';
+import InventoryTable from '@/app/store/components/product-management/inventory/components/InventoryTable';
+import InventoryFooter from '@/app/store/components/product-management/inventory/components/InventoryFooter';
+import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/product-pagination';
+import { InventoryRowProps } from '@/app/store/components/product-management/inventory/components/InventoryTable';
+import { routes } from '@/utils/routes';
+import { getStoreId } from '@/utils/store-utils';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { useState, useMemo } from 'react';
 
 interface InventoryTrackingProps {
-  data: InventoryRowProps[]
-  loading: boolean
-  error: Error | null
-  hasNextPage: boolean
-  hasPreviousPage: boolean
-  nextPage: () => void
-  previousPage: () => void
-  refreshInventory: () => void
-  currentPage: number
+  data: InventoryRowProps[];
+  loading: boolean;
+  error: Error | null;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  nextPage: () => void;
+  previousPage: () => void;
+  refreshInventory: () => void;
+  currentPage: number;
 }
 
 export function InventoryTracking({
@@ -33,28 +33,28 @@ export function InventoryTracking({
   previousPage,
   currentPage,
 }: InventoryTrackingProps) {
-  const pathname = usePathname()
-  const params = useParams()
-  const router = useRouter()
-  const storeId = getStoreId(params, pathname)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
-  const [searchQuery, setSearchQuery] = useState('')
+  const pathname = usePathname();
+  const params = useParams();
+  const router = useRouter();
+  const storeId = getStoreId(params, pathname);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredData = useMemo(() => {
-    if (!searchQuery) return data
+    if (!searchQuery) return data;
     return data.filter(
-      item =>
+      (item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.sku?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }, [data, searchQuery])
+    );
+  }, [data, searchQuery]);
 
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
         <Spinner accessibilityLabel="Cargando inventario" size="large" />
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -63,12 +63,11 @@ export function InventoryTracking({
         <EmptyState
           heading="Error al cargar el inventario"
           image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-          fullWidth
-        >
+          fullWidth>
           <p>Ha ocurrido un error al cargar los datos del inventario.</p>
         </EmptyState>
       </LegacyCard>
-    )
+    );
   }
 
   if (data.length === 0) {
@@ -83,19 +82,15 @@ export function InventoryTracking({
           <EmptyState
             heading="Sin productos en inventario"
             image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-            fullWidth
-          >
+            fullWidth>
             <p>No hay productos disponibles en el inventario.</p>
-            <Button
-              variant="primary"
-              onClick={() => router.push(routes.store.products.main(storeId))}
-            >
+            <Button variant="primary" onClick={() => router.push(routes.store.products.main(storeId))}>
               Ir a productos
             </Button>
           </EmptyState>
         </LegacyCard>
       </>
-    )
+    );
   }
 
   return (
@@ -109,8 +104,7 @@ export function InventoryTracking({
           marginBottom: '20px',
           flexWrap: 'wrap',
           gap: '16px',
-        }}
-      >
+        }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <InventoryHeader />
         </div>
@@ -144,5 +138,5 @@ export function InventoryTracking({
         </LegacyCard.Section>
       </LegacyCard>
     </div>
-  )
+  );
 }

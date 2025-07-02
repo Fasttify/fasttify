@@ -1,19 +1,14 @@
-import Image from 'next/image'
-import { BlockStack, InlineStack, Text, List, Icon, Box } from '@shopify/polaris'
-import { CheckCircleIcon } from '@shopify/polaris-icons'
-import { BENEFITS } from '@/app/store/components/app-integration/constants/connectModal'
+import Image from 'next/image';
+import { BlockStack, InlineStack, Text, List, Icon, Box } from '@shopify/polaris';
+import { CheckCircleIcon } from '@shopify/polaris-icons';
+import { BENEFITS } from '@/app/store/components/app-integration/constants/connectModal';
 
 export function IntroStep() {
   return (
     <BlockStack gap="400">
       <InlineStack gap="400" align="center" blockAlign="center">
         <div style={{ position: 'relative', height: '4rem', width: '4rem' }}>
-          <Image
-            src="/svgs/mastershop-svg.svg"
-            alt="Master Shop Logo"
-            fill
-            style={{ objectFit: 'contain' }}
-          />
+          <Image src="/svgs/mastershop-svg.svg" alt="Master Shop Logo" fill style={{ objectFit: 'contain' }} />
         </div>
         <BlockStack gap="050">
           <Text variant="headingMd" as="h3">
@@ -25,13 +20,7 @@ export function IntroStep() {
         </BlockStack>
       </InlineStack>
 
-      <Box
-        borderWidth="025"
-        borderColor="border"
-        borderRadius="200"
-        padding="400"
-        background="bg-surface-secondary"
-      >
+      <Box borderWidth="025" borderColor="border" borderRadius="200" padding="400" background="bg-surface-secondary">
         <BlockStack gap="200">
           <Text variant="headingSm" as="h4">
             Beneficios de la integración:
@@ -49,5 +38,5 @@ export function IntroStep() {
         </BlockStack>
       </Box>
     </BlockStack>
-  )
+  );
 }

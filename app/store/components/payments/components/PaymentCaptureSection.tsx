@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { useState, useCallback } from 'react'
-import { Card, ChoiceList, Text, Link, BlockStack, Box } from '@shopify/polaris'
+import { useState, useCallback } from 'react';
+import { Card, ChoiceList, Text, Link, BlockStack, Box } from '@shopify/polaris';
 
 export function PaymentCaptureSection() {
-  const [selected, setSelected] = useState(['automatic'])
+  const [selected, setSelected] = useState(['automatic']);
 
-  const handleChange = useCallback((value: string[]) => setSelected(value), [])
+  const handleChange = useCallback((value: string[]) => setSelected(value), []);
 
   const choices = [
     {
@@ -24,7 +24,7 @@ export function PaymentCaptureSection() {
       value: 'manual',
       helpText: 'Se autoriza el pago al finalizar la compra y debe capturarse manualmente.',
     },
-  ]
+  ];
 
   return (
     <Card>
@@ -43,5 +43,5 @@ export function PaymentCaptureSection() {
         </BlockStack>
       </Box>
     </Card>
-  )
+  );
 }

@@ -1,54 +1,51 @@
-import { CheckIcon } from '@shopify/polaris-icons'
-import { Modal, Text, Button, Box, Card, InlineStack, Badge, BlockStack } from '@shopify/polaris'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useToast } from '@/app/store/context/ToastContext'
-import { plans } from '@/app/(main-layout)/pricing/components/plans'
-import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem'
-import { Amplify } from 'aws-amplify'
-import { post } from 'aws-amplify/api'
-import useUserStore from '@/context/core/userStore'
-import outputs from '@/amplify_outputs.json'
+import { CheckIcon } from '@shopify/polaris-icons';
+import { Modal, Text, Button, Box, Card, InlineStack, Badge, BlockStack } from '@shopify/polaris';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/app/store/context/ToastContext';
+import { plans } from '@/app/(main-layout)/pricing/components/plans';
+import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem';
+import { Amplify } from 'aws-amplify';
+import { post } from 'aws-amplify/api';
+import useUserStore from '@/context/core/userStore';
+import outputs from '@/amplify_outputs.json';
 
-Amplify.configure(outputs)
-const existingConfig = Amplify.getConfig()
+Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
 Amplify.configure({
   ...existingConfig,
   API: {
     ...existingConfig.API,
     REST: outputs.custom.APIs,
   },
-})
+});
 
 interface PricingDrawerProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
-  const { user } = useUserStore()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { showToast } = useToast()
-  const [isClient, setIsClient] = useState(false)
+  const { user } = useUserStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showToast } = useToast();
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true)
-  }, [])
+    setIsClient(true);
+  }, []);
 
   const handleClose = () => {
-    onOpenChange(false)
-  }
+    onOpenChange(false);
+  };
 
   return (
     <>
       <Modal open={open} onClose={handleClose} title="Elige tu plan" size="large">
         <Modal.Section>
           <Box padding="400">
-            <div
-              className="grid gap-8 md:grid-cols-3 grid-rows-1"
-              style={{ gridAutoRows: '520px' }}
-            >
-              {plans.map(plan => (
+            <div className="grid gap-8 md:grid-cols-3 grid-rows-1" style={{ gridAutoRows: '520px' }}>
+              {plans.map((plan) => (
                 <PlanCard
                   key={plan.name}
                   polarId={plan.polarId}
@@ -103,22 +100,22 @@ export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
         </Modal.Section>
       </Modal>
     </>
-  )
+  );
 }
 
 interface PlanCardProps {
-  polarId: string
-  title: string
-  description: string
-  price: string
-  features: string[]
-  buttonText: string
-  isPopular?: boolean
-  user: any
-  setIsSubmitting: (value: boolean) => void
-  addToast: (message: string, isError?: boolean) => void
-  isClient: boolean
-  isSubmitting: boolean
+  polarId: string;
+  title: string;
+  description: string;
+  price: string;
+  features: string[];
+  buttonText: string;
+  isPopular?: boolean;
+  user: any;
+  setIsSubmitting: (value: boolean) => void;
+  addToast: (message: string, isError?: boolean) => void;
+  isClient: boolean;
+  isSubmitting: boolean;
 }
 
 function PlanCard({
@@ -135,25 +132,25 @@ function PlanCard({
   isClient,
   isSubmitting,
 }: PlanCardProps) {
-  const router = useRouter()
+  const router = useRouter();
   // Format price with thousand separator
-  const formattedPrice = parseInt(price).toLocaleString('es-CO')
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false)
+  const formattedPrice = parseInt(price).toLocaleString('es-CO');
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   // Usar userId en lugar de cognitoUsername para mantener consistencia
-  const userId = user?.userId
-  const userEmail = user?.email
-  const userName = user?.nickName
-  const hasActivePlan = user && user.plan ? user.plan === title : false
+  const userId = user?.userId;
+  const userEmail = user?.email;
+  const userName = user?.nickName;
+  const hasActivePlan = user && user.plan ? user.plan === title : false;
 
   const handleSubscribe = async () => {
     if (!user) {
-      router.push('/login')
-      return
+      router.push('/login');
+      return;
     }
 
-    setIsButtonDisabled(true)
-    setIsSubmitting(true)
+    setIsButtonDisabled(true);
+    setIsSubmitting(true);
     try {
       const restOperation = post({
         apiName: 'SubscriptionApi',
@@ -168,23 +165,23 @@ function PlanCard({
             },
           },
         },
-      })
+      });
 
-      const { body } = await restOperation.response
-      const response: any = await body.json()
+      const { body } = await restOperation.response;
+      const response: any = await body.json();
 
       if (response.checkoutUrl) {
-        window.location.href = response.checkoutUrl
+        window.location.href = response.checkoutUrl;
       } else {
-        throw new Error('No se recibió URL de checkout')
+        throw new Error('No se recibió URL de checkout');
       }
     } catch (error) {
-      console.error('Error al suscribirse:', error)
-      addToast('Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.', true)
-      setIsSubmitting(false)
-      setIsButtonDisabled(false)
+      console.error('Error al suscribirse:', error);
+      addToast('Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.', true);
+      setIsSubmitting(false);
+      setIsButtonDisabled(false);
     }
-  }
+  };
 
   return (
     <div className={`relative h-full ${isPopular ? 'transform scale-105' : ''}`}>
@@ -196,10 +193,7 @@ function PlanCard({
       )}
 
       <Card>
-        <div
-          className="h-full p-6 flex flex-col justify-between"
-          style={{ minHeight: '480px', height: '480px' }}
-        >
+        <div className="h-full p-6 flex flex-col justify-between" style={{ minHeight: '480px', height: '480px' }}>
           {/* Header Section */}
           <div className="text-center mb-8">
             <Text variant="headingLg" as="h3" alignment="center">
@@ -253,17 +247,12 @@ function PlanCard({
               size="large"
               disabled={!isClient || isButtonDisabled || hasActivePlan || isSubmitting}
               onClick={handleSubscribe}
-              loading={isButtonDisabled || isSubmitting}
-            >
-              {hasActivePlan
-                ? 'Plan activo'
-                : isButtonDisabled || isSubmitting
-                  ? 'Procesando...'
-                  : buttonText}
+              loading={isButtonDisabled || isSubmitting}>
+              {hasActivePlan ? 'Plan activo' : isButtonDisabled || isSubmitting ? 'Procesando...' : buttonText}
             </Button>
           </div>
         </div>
       </Card>
     </div>
-  )
+  );
 }

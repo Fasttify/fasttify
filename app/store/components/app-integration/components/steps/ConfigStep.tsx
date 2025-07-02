@@ -1,24 +1,15 @@
-import {
-  ChoiceList,
-  TextField,
-  Banner,
-  Spinner,
-  BlockStack,
-  Text,
-  Button,
-  InlineStack,
-} from '@shopify/polaris'
-import { ExternalIcon } from '@shopify/polaris-icons'
-import { Option, Status } from '@/app/store/components/app-integration/constants/connectModal'
+import { ChoiceList, TextField, Banner, Spinner, BlockStack, Text, Button, InlineStack } from '@shopify/polaris';
+import { ExternalIcon } from '@shopify/polaris-icons';
+import { Option, Status } from '@/app/store/components/app-integration/constants/connectModal';
 
 interface ConfigStepProps {
-  option: Option
-  onOptionChange: (option: Option) => void
-  apiKey: string
-  onApiKeyChange: (apiKey: string) => void
-  status: Status
-  errorMessage: string
-  updateLoading: boolean
+  option: Option;
+  onOptionChange: (option: Option) => void;
+  apiKey: string;
+  onApiKeyChange: (apiKey: string) => void;
+  status: Status;
+  errorMessage: string;
+  updateLoading: boolean;
 }
 
 export function ConfigStep({
@@ -63,7 +54,7 @@ export function ConfigStep({
           </div>
         ),
     },
-  ]
+  ];
 
   return (
     <BlockStack gap="500">
@@ -90,5 +81,5 @@ export function ConfigStep({
         </Banner>
       )}
     </BlockStack>
-  )
+  );
 }

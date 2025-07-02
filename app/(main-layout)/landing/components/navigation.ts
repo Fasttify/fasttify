@@ -1,15 +1,15 @@
 export interface NavItem {
-  label: string
+  label: string;
   highlight: {
-    title: string
-    description: string
-    subtitle: string
-  }
+    title: string;
+    description: string;
+    subtitle: string;
+  };
   content: {
-    title: string
-    href: string
-    description: string
-  }[]
+    title: string;
+    href: string;
+    description: string;
+  }[];
 }
 
 export const navItems: NavItem[] = [
@@ -58,4 +58,4 @@ export const navItems: NavItem[] = [
       },
     ],
   },
-]
+];

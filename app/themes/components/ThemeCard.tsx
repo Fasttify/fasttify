@@ -1,22 +1,22 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import Image from 'next/image'
-import { Eye, ThumbsUp, Check } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { useState } from 'react';
+import Image from 'next/image';
+import { Eye, ThumbsUp, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface ThemeCardProps {
-  name: string
-  price: string
-  rating?: number
-  reviews?: number
-  imageSrc: string
-  colors?: string[]
-  isNew?: boolean
-  showColors?: boolean
-  onUseDesign?: () => void
-  onPreview?: () => void
+  name: string;
+  price: string;
+  rating?: number;
+  reviews?: number;
+  imageSrc: string;
+  colors?: string[];
+  isNew?: boolean;
+  showColors?: boolean;
+  onUseDesign?: () => void;
+  onPreview?: () => void;
 }
 
 export function ThemeCard({
@@ -31,14 +31,13 @@ export function ThemeCard({
   onUseDesign = () => console.log('Use design clicked'),
   onPreview = () => console.log('Preview clicked'),
 }: ThemeCardProps) {
-  const [isHovering, setIsHovering] = useState(false)
+  const [isHovering, setIsHovering] = useState(false);
 
   return (
     <div
       className="flex flex-col gap-4 relative"
       onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-    >
+      onMouseLeave={() => setIsHovering(false)}>
       <div className="overflow-hidden rounded-lg border relative">
         <Image
           src={imageSrc || '/placeholder.svg'}
@@ -56,27 +55,24 @@ export function ThemeCard({
           className={cn(
             'absolute inset-0 flex flex-col items-center justify-center gap-3 transition-opacity duration-300',
             isHovering ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          )}
-        >
+          )}>
           <Button
-            onClick={e => {
-              e.preventDefault()
-              onUseDesign()
+            onClick={(e) => {
+              e.preventDefault();
+              onUseDesign();
             }}
-            className="w-[80%] max-w-[200px] bg-black text-white hover:bg-black/9"
-          >
+            className="w-[80%] max-w-[200px] bg-black text-white hover:bg-black/9">
             <Check className="mr-2 h-4 w-4" />
             Usar diseño
           </Button>
 
           <Button
             variant="secondary"
-            onClick={e => {
-              e.preventDefault()
-              onPreview()
+            onClick={(e) => {
+              e.preventDefault();
+              onPreview();
             }}
-            className="w-[80%] max-w-[200px]"
-          >
+            className="w-[80%] max-w-[200px]">
             <Eye className="mr-2 h-4 w-4" />
             Vista previa
           </Button>
@@ -112,5 +108,5 @@ export function ThemeCard({
         {isNew && <div className="text-sm text-blue-600">Nuevo</div>}
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import {
   LineChart,
@@ -11,31 +11,31 @@ import {
   PieChart,
   Pie,
   Cell,
-} from 'recharts'
+} from 'recharts';
 
 interface MetricLineChartProps {
-  data: any[]
-  color?: string
-  valueKey?: string
-  previousValueKey?: string
-  valueFormatter?: (value: number) => string
-  metricName?: string
+  data: any[];
+  color?: string;
+  valueKey?: string;
+  previousValueKey?: string;
+  valueFormatter?: (value: number) => string;
+  metricName?: string;
 }
 
 interface DistributionPieChartProps {
-  data: any[]
-  dataKey?: string
-  nameKey?: string
+  data: any[];
+  dataKey?: string;
+  nameKey?: string;
 }
 
 interface ConversionDataItem {
-  stage: string
-  rate: number
-  sessions: number
+  stage: string;
+  rate: number;
+  sessions: number;
 }
 
 interface ConversionFunnelProps {
-  data: ConversionDataItem[]
+  data: ConversionDataItem[];
 }
 
 export function MetricLineChart({
@@ -50,32 +50,14 @@ export function MetricLineChart({
     <ResponsiveContainer width="100%" height={200}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
-        <XAxis
-          dataKey="date"
-          tick={{ fontSize: 12 }}
-          tickLine={false}
-          axisLine={false}
-          interval="preserveStartEnd"
-        />
-        <YAxis
-          tick={{ fontSize: 12 }}
-          tickLine={false}
-          axisLine={false}
-          tickFormatter={valueFormatter}
-        />
+        <XAxis dataKey="date" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+        <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={valueFormatter} />
         <Tooltip
-          formatter={value => [valueFormatter(Number(value)), metricName]}
-          labelFormatter={label => `Date: ${label}`}
+          formatter={(value) => [valueFormatter(Number(value)), metricName]}
+          labelFormatter={(label) => `Date: ${label}`}
           wrapperClassName="rounded-xl"
         />
-        <Line
-          type="monotone"
-          dataKey={valueKey}
-          stroke={color}
-          strokeWidth={2}
-          dot={false}
-          activeDot={{ r: 6 }}
-        />
+        <Line type="monotone" dataKey={valueKey} stroke={color} strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
         <Line
           type="monotone"
           dataKey={previousValueKey}
@@ -87,15 +69,11 @@ export function MetricLineChart({
         />
       </LineChart>
     </ResponsiveContainer>
-  )
+  );
 }
 
-export function DistributionPieChart({
-  data,
-  dataKey = 'value',
-  nameKey = 'name',
-}: DistributionPieChartProps) {
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d']
+export function DistributionPieChart({ data, dataKey = 'value', nameKey = 'name' }: DistributionPieChartProps) {
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
   return (
     <ResponsiveContainer width="100%" height={200}>
@@ -108,19 +86,15 @@ export function DistributionPieChart({
           outerRadius={80}
           fill="#8884d8"
           dataKey={dataKey}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-        >
+          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        <Tooltip
-          formatter={value => [`$${Number(value).toFixed(2)}`, 'Revenue']}
-          wrapperClassName="rounded-xl"
-        />
+        <Tooltip formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Revenue']} wrapperClassName="rounded-xl" />
       </PieChart>
     </ResponsiveContainer>
-  )
+  );
 }
 
 export function ConversionFunnel({ data }: ConversionFunnelProps) {
@@ -141,5 +115,5 @@ export function ConversionFunnel({ data }: ConversionFunnelProps) {
         </div>
       ))}
     </div>
-  )
+  );
 }

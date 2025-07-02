@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { Pencil, BadgeCheck } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { EditProfileDialog } from '@/app/(main-layout)/account-settings/components/EditProfileDialog'
+import { useState } from 'react';
+import { Pencil, BadgeCheck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { EditProfileDialog } from '@/app/(main-layout)/account-settings/components/EditProfileDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,51 +11,51 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { deleteUser } from 'aws-amplify/auth'
-import { useRouter } from 'next/navigation'
-import { LoadingIndicator } from '@/components/ui/loading-indicator'
-import { UserAvatar } from '@/app/(main-layout)/account-settings/components/UserAvatar'
-import { ChangePasswordDialog } from '@/app/(main-layout)/account-settings/components/ChangePasswordDialog'
-import { ChangeEmailDialog } from '@/app/(main-layout)/account-settings/components/ChangeEmailDialog'
-import useUserStore from '@/context/core/userStore'
-import CustomToolTip from '@/components/ui/custom-tooltip'
-import { configureAmplify } from '@/lib/amplify-config'
+} from '@/components/ui/alert-dialog';
+import { deleteUser } from 'aws-amplify/auth';
+import { useRouter } from 'next/navigation';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { UserAvatar } from '@/app/(main-layout)/account-settings/components/UserAvatar';
+import { ChangePasswordDialog } from '@/app/(main-layout)/account-settings/components/ChangePasswordDialog';
+import { ChangeEmailDialog } from '@/app/(main-layout)/account-settings/components/ChangeEmailDialog';
+import useUserStore from '@/context/core/userStore';
+import CustomToolTip from '@/components/ui/custom-tooltip';
+import { configureAmplify } from '@/lib/amplify-config';
 
-configureAmplify()
+configureAmplify();
 
 export function AccountSettings() {
-  const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false)
-  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
-  const [isChangeEmailOpen, setIsChangeEmailOpen] = useState(false)
-  const { user, loading } = useUserStore()
-  const router = useRouter()
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isChangeEmailOpen, setIsChangeEmailOpen] = useState(false);
+  const { user, loading } = useUserStore();
+  const router = useRouter();
 
-  const isGoogleUser = user?.identities
+  const isGoogleUser = user?.identities;
 
   async function handleDeleteUser() {
     try {
-      await deleteUser()
-      router.push('/login')
-      setIsDeleteAccountOpen(false)
+      await deleteUser();
+      router.push('/login');
+      setIsDeleteAccountOpen(false);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
   // Obtén el nombre completo del usuario
-  const fullName = user?.nickName
+  const fullName = user?.nickName;
 
   // Separa el nombre en partes
-  const nameParts = fullName ? fullName.split(' ') : []
-  const firstName = nameParts[0] || ''
-  const lastName = nameParts[nameParts.length - 1] || ''
+  const nameParts = fullName ? fullName.split(' ') : [];
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts[nameParts.length - 1] || '';
 
   // Verifica si el usuario ha iniciado sesión con Google
 
   if (loading) {
-    return <LoadingIndicator text="Recuperando perfil..." />
+    return <LoadingIndicator text="Recuperando perfil..." />;
   }
 
   return (
@@ -80,8 +80,7 @@ export function AccountSettings() {
             size="sm"
             className="gap-2"
             onClick={() => setIsProfileOpen(true)}
-            disabled={!!isGoogleUser}
-          >
+            disabled={!!isGoogleUser}>
             <Pencil className="h-4 w-4" /> Editar
           </Button>
         </div>
@@ -95,8 +94,7 @@ export function AccountSettings() {
             size="sm"
             className="gap-2"
             onClick={() => setIsProfileOpen(true)}
-            disabled={!!isGoogleUser}
-          >
+            disabled={!!isGoogleUser}>
             <Pencil className="h-4 w-4" /> Editar
           </Button>
         </div>
@@ -127,12 +125,7 @@ export function AccountSettings() {
           <div className="mt-4 rounded-lg border p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 48 48"
-                  width="24px"
-                  height="24px"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
                   <path
                     fill="#FFC107"
                     d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
@@ -152,9 +145,7 @@ export function AccountSettings() {
                 </svg>
                 <div>
                   <p className="font-medium">Google</p>
-                  <p className="text-sm text-gray-600">
-                    Has iniciado sesión con tu cuenta de Google
-                  </p>
+                  <p className="text-sm text-gray-600">Has iniciado sesión con tu cuenta de Google</p>
                 </div>
               </div>
             </div>
@@ -180,8 +171,7 @@ export function AccountSettings() {
               size="sm"
               className="gap-2"
               onClick={() => setIsChangeEmailOpen(true)}
-              disabled={!!isGoogleUser}
-            >
+              disabled={!!isGoogleUser}>
               Cambiar correo
             </Button>
           </div>
@@ -193,17 +183,14 @@ export function AccountSettings() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Contraseña</p>
-              <p className="text-sm text-gray-600">
-                Cambia tu contraseña regularmente para mantener tu cuenta segura
-              </p>
+              <p className="text-sm text-gray-600">Cambia tu contraseña regularmente para mantener tu cuenta segura</p>
             </div>
             <Button
               variant="outline"
               size="sm"
               className="gap-2"
               onClick={() => setIsChangePasswordOpen(true)}
-              disabled={!!isGoogleUser}
-            >
+              disabled={!!isGoogleUser}>
               Cambiar contraseña
             </Button>
           </div>
@@ -218,8 +205,7 @@ export function AccountSettings() {
         <Button
           variant="outline"
           className="mt-4 text-red-500 hover:text-red-500"
-          onClick={() => setIsDeleteAccountOpen(true)}
-        >
+          onClick={() => setIsDeleteAccountOpen(true)}>
           Eliminar mi cuenta
         </Button>
       </div>
@@ -231,8 +217,8 @@ export function AccountSettings() {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-600">
-              Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta y removerá
-              tus datos de nuestros servidores.
+              Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta y removerá tus datos de
+              nuestros servidores.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -249,5 +235,5 @@ export function AccountSettings() {
         currentEmail={user?.email || ''}
       />
     </div>
-  )
+  );
 }

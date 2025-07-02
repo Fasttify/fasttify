@@ -1,4 +1,4 @@
-import { signUp, confirmSignUp } from 'aws-amplify/auth'
+import { signUp, confirmSignUp } from 'aws-amplify/auth';
 
 export async function handleSignUp(email: string, password: string, nickName: string) {
   try {
@@ -11,16 +11,16 @@ export async function handleSignUp(email: string, password: string, nickName: st
           nickname: nickName,
         },
       },
-    })
+    });
 
     return {
       isSignUpComplete,
       userId,
       nextStep,
-    }
+    };
   } catch (error) {
-    console.error('Error signing up:', error)
-    throw error
+    console.error('Error signing up:', error);
+    throw error;
   }
 }
 
@@ -29,11 +29,11 @@ export async function handleConfirmSignUp(email: string, code: string) {
     const { isSignUpComplete } = await confirmSignUp({
       username: email,
       confirmationCode: code,
-    })
+    });
 
-    return isSignUpComplete
+    return isSignUpComplete;
   } catch (error) {
-    console.error('Error confirming sign up:', error)
-    throw error
+    console.error('Error confirming sign up:', error);
+    throw error;
   }
 }

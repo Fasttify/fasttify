@@ -1,25 +1,15 @@
-import { useState } from 'react'
-import {
-  Text,
-  LegacyStack,
-  Button,
-  Banner,
-  LegacyCard,
-  Collapsible,
-  List,
-  Box,
-  Badge,
-} from '@shopify/polaris'
-import { ClipboardIcon } from '@shopify/polaris-icons'
+import { useState } from 'react';
+import { Text, LegacyStack, Button, Banner, LegacyCard, Collapsible, List, Box, Badge } from '@shopify/polaris';
+import { ClipboardIcon } from '@shopify/polaris-icons';
 
 interface DomainValidationStepProps {
-  domain: string
-  instructions: string
-  validationToken: string
-  onValidate: () => void
-  onSkip: () => void
-  isValidating: boolean
-  copyToClipboard: (text: string) => void
+  domain: string;
+  instructions: string;
+  validationToken: string;
+  onValidate: () => void;
+  onSkip: () => void;
+  isValidating: boolean;
+  copyToClipboard: (text: string) => void;
 }
 
 export function DomainValidationStep({
@@ -30,14 +20,14 @@ export function DomainValidationStep({
   isValidating,
   copyToClipboard,
 }: DomainValidationStepProps) {
-  const [showDetails, setShowDetails] = useState(false)
+  const [showDetails, setShowDetails] = useState(false);
 
   return (
     <LegacyStack vertical spacing="loose">
       <Banner title="Validación de Dominio Requerida" tone="warning">
         <p>
-          Para usar tu dominio personalizado, necesitas demostrar que tienes control sobre él. Elige
-          una de las opciones siguientes.
+          Para usar tu dominio personalizado, necesitas demostrar que tienes control sobre él. Elige una de las opciones
+          siguientes.
         </p>
       </Banner>
 
@@ -89,11 +79,7 @@ export function DomainValidationStep({
                   <Text as="p" variant="bodyMd" fontWeight="medium">
                     {validationToken}
                   </Text>
-                  <Button
-                    size="micro"
-                    icon={ClipboardIcon}
-                    onClick={() => copyToClipboard(validationToken)}
-                  />
+                  <Button size="micro" icon={ClipboardIcon} onClick={() => copyToClipboard(validationToken)} />
                 </LegacyStack>
               </LegacyStack>
 
@@ -126,9 +112,7 @@ export function DomainValidationStep({
                   <Button
                     size="micro"
                     icon={ClipboardIcon}
-                    onClick={() =>
-                      copyToClipboard(`http://${domain}/.well-known/fasttify-validation.txt`)
-                    }
+                    onClick={() => copyToClipboard(`http://${domain}/.well-known/fasttify-validation.txt`)}
                   />
                 </LegacyStack>
               </LegacyStack>
@@ -143,11 +127,7 @@ export function DomainValidationStep({
                   <Text as="p" variant="bodyMd" fontWeight="medium">
                     {validationToken}
                   </Text>
-                  <Button
-                    size="micro"
-                    icon={ClipboardIcon}
-                    onClick={() => copyToClipboard(validationToken)}
-                  />
+                  <Button size="micro" icon={ClipboardIcon} onClick={() => copyToClipboard(validationToken)} />
                 </LegacyStack>
               </LegacyStack>
             </LegacyStack>
@@ -155,11 +135,7 @@ export function DomainValidationStep({
         </LegacyStack>
       </LegacyCard>
 
-      <Button
-        onClick={() => setShowDetails(!showDetails)}
-        disclosure={showDetails ? 'up' : 'down'}
-        fullWidth
-      >
+      <Button onClick={() => setShowDetails(!showDetails)} disclosure={showDetails ? 'up' : 'down'} fullWidth>
         Instrucciones detalladas por proveedor DNS
       </Button>
 
@@ -172,20 +148,20 @@ export function DomainValidationStep({
 
             <List type="bullet">
               <List.Item>
-                <strong>Cloudflare:</strong> DNS → Records → Add record → Type: TXT, Name:{' '}
-                _fasttify-validation.{domain}, Content: {validationToken}
+                <strong>Cloudflare:</strong> DNS → Records → Add record → Type: TXT, Name: _fasttify-validation.{domain}
+                , Content: {validationToken}
               </List.Item>
               <List.Item>
-                <strong>GoDaddy:</strong> Domain Management → DNS → Add → Type: TXT, Host:{' '}
+                <strong>GoDaddy:</strong> Domain Management → DNS → Add → Type: TXT, Host: _fasttify-validation, Value:{' '}
+                {validationToken}
+              </List.Item>
+              <List.Item>
+                <strong>Namecheap:</strong> Domain List → Manage → Advanced DNS → Add New Record → Type: TXT, Host:
                 _fasttify-validation, Value: {validationToken}
               </List.Item>
               <List.Item>
-                <strong>Namecheap:</strong> Domain List → Manage → Advanced DNS → Add New Record →
-                Type: TXT, Host: _fasttify-validation, Value: {validationToken}
-              </List.Item>
-              <List.Item>
-                <strong>Route53:</strong> Hosted Zone → Create Record → Type: TXT, Name:{' '}
-                _fasttify-validation.{domain}, Value: {validationToken}
+                <strong>Route53:</strong> Hosted Zone → Create Record → Type: TXT, Name: _fasttify-validation.{domain},
+                Value: {validationToken}
               </List.Item>
             </List>
           </LegacyStack>
@@ -194,8 +170,7 @@ export function DomainValidationStep({
 
       <Banner tone="warning">
         <p>
-          <strong>El token expira en 24 horas.</strong> Una vez configurado, haz clic en "Verificar
-          Dominio".
+          <strong>El token expira en 24 horas.</strong> Una vez configurado, haz clic en "Verificar Dominio".
         </p>
       </Banner>
 
@@ -206,5 +181,5 @@ export function DomainValidationStep({
         </Button>
       </LegacyStack>
     </LegacyStack>
-  )
+  );
 }

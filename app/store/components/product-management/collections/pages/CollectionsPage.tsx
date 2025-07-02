@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { getStoreId } from '@/utils/store-utils'
-import { useParams, usePathname, useRouter } from 'next/navigation'
-import { configureAmplify } from '@/lib/amplify-config'
-import { useCollections } from '@/app/store/hooks/data/useCollections'
-import { routes } from '@/utils/routes'
+import { useState } from 'react';
+import { getStoreId } from '@/utils/store-utils';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { configureAmplify } from '@/lib/amplify-config';
+import { useCollections } from '@/app/store/hooks/data/useCollections';
+import { routes } from '@/utils/routes';
 import {
   LegacyCard,
   IndexTable,
@@ -19,19 +19,19 @@ import {
   ResourceItem,
   Spinner,
   Link,
-} from '@shopify/polaris'
-import { FileIcon, ProductIcon } from '@shopify/polaris-icons'
+} from '@shopify/polaris';
+import { FileIcon, ProductIcon } from '@shopify/polaris-icons';
 
-configureAmplify()
+configureAmplify();
 
-type FilterType = 'all' | 'active' | 'inactive'
+type FilterType = 'all' | 'active' | 'inactive';
 
 // Skeleton component for the collections table using Polaris
 function CollectionsTableSkeleton() {
   const resourceName = {
     singular: 'colección',
     plural: 'colecciones',
-  }
+  };
 
   return (
     <LegacyCard>
@@ -58,46 +58,46 @@ function CollectionsTableSkeleton() {
         )}
       />
     </LegacyCard>
-  )
+  );
 }
 
 export function CollectionsPage() {
-  const pathname = usePathname()
-  const params = useParams()
-  const router = useRouter()
-  const storeId = getStoreId(params, pathname)
+  const pathname = usePathname();
+  const params = useParams();
+  const router = useRouter();
+  const storeId = getStoreId(params, pathname);
 
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedResources, setSelectedResources] = useState<string[]>([])
+  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedResources, setSelectedResources] = useState<string[]>([]);
 
-  const { useListCollections } = useCollections()
-  const { data: collections, isLoading, error } = useListCollections(storeId)
+  const { useListCollections } = useCollections();
+  const { data: collections, isLoading, error } = useListCollections(storeId);
 
   // Filtrar colecciones según el tab activo y el término de búsqueda
-  const filteredCollections = collections?.filter(collection => {
+  const filteredCollections = collections?.filter((collection) => {
     if (activeFilter === 'all') {
     } else if (activeFilter === 'active' && !collection.isActive) {
-      return false
+      return false;
     } else if (activeFilter === 'inactive' && collection.isActive) {
-      return false
+      return false;
     }
 
     // Filtrar por término de búsqueda
     if (searchTerm && !collection.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return false
+      return false;
     }
 
-    return true
-  })
+    return true;
+  });
 
   // Manejar cambio de filtro y búsqueda
   const handleFilterChange = (filter: FilterType, search?: string) => {
-    setActiveFilter(filter)
+    setActiveFilter(filter);
     if (search !== undefined) {
-      setSearchTerm(search)
+      setSearchTerm(search);
     }
-  }
+  };
 
   // Tabs configuration
   const tabs = [
@@ -116,12 +116,12 @@ export function CollectionsPage() {
       content: 'Inactivas',
       panelID: 'inactive-collections',
     },
-  ]
+  ];
 
   const resourceName = {
     singular: 'colección',
     plural: 'colecciones',
-  }
+  };
 
   const rowMarkup = filteredCollections?.map((collection, index) => (
     <IndexTable.Row
@@ -130,9 +130,8 @@ export function CollectionsPage() {
       position={index}
       selected={selectedResources.includes(collection.id)}
       onClick={() => {
-        router.push(routes.store.products.collectionsEdit(storeId, collection.id))
-      }}
-    >
+        router.push(routes.store.products.collectionsEdit(storeId, collection.id));
+      }}>
       <IndexTable.Cell>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <FileIcon className="w-5 h-5" />
@@ -157,12 +156,10 @@ export function CollectionsPage() {
         </Text>
       </IndexTable.Cell>
       <IndexTable.Cell>
-        <Badge tone={collection.isActive ? 'success' : 'critical'}>
-          {collection.isActive ? 'Activa' : 'Borrador'}
-        </Badge>
+        <Badge tone={collection.isActive ? 'success' : 'critical'}>{collection.isActive ? 'Activa' : 'Borrador'}</Badge>
       </IndexTable.Cell>
     </IndexTable.Row>
-  ))
+  ));
 
   return (
     <div className="bg-gray-100 mt-8">
@@ -180,10 +177,7 @@ export function CollectionsPage() {
           </Text>
         </div>
 
-        <Button
-          variant="primary"
-          onClick={() => router.push(routes.store.products.collectionsNew(storeId))}
-        >
+        <Button variant="primary" onClick={() => router.push(routes.store.products.collectionsNew(storeId))}>
           Crear colección
         </Button>
       </div>
@@ -192,10 +186,10 @@ export function CollectionsPage() {
       <LegacyCard>
         <Tabs
           tabs={tabs}
-          selected={tabs.findIndex(tab => tab.id === activeFilter)}
-          onSelect={selectedTabIndex => {
-            const selectedTab = tabs[selectedTabIndex]
-            handleFilterChange(selectedTab.id as FilterType)
+          selected={tabs.findIndex((tab) => tab.id === activeFilter)}
+          onSelect={(selectedTabIndex) => {
+            const selectedTab = tabs[selectedTabIndex];
+            handleFilterChange(selectedTab.id as FilterType);
           }}
         />
 
@@ -219,8 +213,7 @@ export function CollectionsPage() {
             <EmptyState
               fullWidth
               heading="Error al cargar colecciones"
-              image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-            >
+              image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
               <p>No se pudieron cargar las colecciones. Por favor, intenta de nuevo.</p>
             </EmptyState>
           </div>
@@ -228,35 +221,30 @@ export function CollectionsPage() {
           <IndexTable
             resourceName={resourceName}
             itemCount={filteredCollections.length}
-            headings={[
-              { title: 'Título' },
-              { title: 'Productos' },
-              { title: 'Condiciones del producto' },
-            ]}
+            headings={[{ title: 'Título' }, { title: 'Productos' }, { title: 'Condiciones del producto' }]}
             selectedItemsCount={selectedResources.length}
             onSelectionChange={(selectionType, toggleType, selection) => {
               if (selectionType === 'all') {
                 if (toggleType) {
-                  setSelectedResources(filteredCollections?.map(c => c.id) || [])
+                  setSelectedResources(filteredCollections?.map((c) => c.id) || []);
                 } else {
-                  setSelectedResources([])
+                  setSelectedResources([]);
                 }
               } else if (selectionType === 'page') {
                 if (toggleType) {
-                  setSelectedResources(filteredCollections?.map(c => c.id) || [])
+                  setSelectedResources(filteredCollections?.map((c) => c.id) || []);
                 } else {
-                  setSelectedResources([])
+                  setSelectedResources([]);
                 }
               } else if (typeof selection === 'string') {
                 if (toggleType) {
-                  setSelectedResources(prev => [...prev, selection])
+                  setSelectedResources((prev) => [...prev, selection]);
                 } else {
-                  setSelectedResources(prev => prev.filter(id => id !== selection))
+                  setSelectedResources((prev) => prev.filter((id) => id !== selection));
                 }
               }
             }}
-            selectable
-          >
+            selectable>
             {rowMarkup}
           </IndexTable>
         ) : (
@@ -268,8 +256,7 @@ export function CollectionsPage() {
                 content: 'Crear colección',
                 onAction: () => router.push(routes.store.products.collectionsNew(storeId)),
               }}
-              image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-            >
+              image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
               <p>Crea tu primera colección para organizar tus productos.</p>
             </EmptyState>
           </div>
@@ -283,5 +270,5 @@ export function CollectionsPage() {
         </Text>
       </div>
     </div>
-  )
+  );
 }

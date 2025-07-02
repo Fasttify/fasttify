@@ -1,9 +1,9 @@
-import { StoreSelector } from '@/app/(setup-layout)/my-store/components/StoreSelector'
-import { BackgroundGradientAnimation } from '@/app/(setup-layout)/first-steps/components/BackgroundGradientAnimation'
+import { StoreSelector } from '@/app/(setup-layout)/my-store/components/StoreSelector';
+import { BackgroundGradientAnimation } from '@/app/(setup-layout)/first-steps/components/BackgroundGradientAnimation';
 
 export const metadata = {
   title: 'Selecciona tu tienda ',
-}
+};
 
 export default function MyStorePage() {
   return (
@@ -15,5 +15,5 @@ export default function MyStorePage() {
         <StoreSelector />
       </div>
     </div>
-  )
+  );
 }

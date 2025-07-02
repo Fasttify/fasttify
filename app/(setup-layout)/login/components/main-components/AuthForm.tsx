@@ -1,21 +1,21 @@
-'use client'
+'use client';
 
-import Image from 'next/image'
-import { useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { SignInForm } from '@/app/(setup-layout)/login/components/sing-in/SignInForm'
-import { SignUpForm } from '@/app/(setup-layout)/login/components/sing-up/SignUpForm'
-import { ForgotPasswordForm } from '@/app/(setup-layout)/login/components/forgot-password/ForgotPasswordForm'
-import { VerificationForm } from '@/app/(setup-layout)/login/components/verification-form/VerificationForm'
-import { signInWithRedirect } from 'aws-amplify/auth'
+import Image from 'next/image';
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { SignInForm } from '@/app/(setup-layout)/login/components/sing-in/SignInForm';
+import { SignUpForm } from '@/app/(setup-layout)/login/components/sing-up/SignUpForm';
+import { ForgotPasswordForm } from '@/app/(setup-layout)/login/components/forgot-password/ForgotPasswordForm';
+import { VerificationForm } from '@/app/(setup-layout)/login/components/verification-form/VerificationForm';
+import { signInWithRedirect } from 'aws-amplify/auth';
 
-type AuthState = 'signin' | 'signup' | 'forgot-password' | 'verification'
+type AuthState = 'signin' | 'signup' | 'forgot-password' | 'verification';
 
 export function AuthForm() {
-  const [authState, setAuthState] = useState<AuthState>('signin')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [authState, setAuthState] = useState<AuthState>('signin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const renderForm = useCallback(() => {
     switch (authState) {
@@ -23,47 +23,41 @@ export function AuthForm() {
         return (
           <SignInForm
             onForgotPassword={() => {
-              setAuthState('forgot-password')
+              setAuthState('forgot-password');
             }}
             onVerificationNeeded={(email, password) => {
-              setEmail(email)
-              setPassword(password)
-              setAuthState('verification')
+              setEmail(email);
+              setPassword(password);
+              setAuthState('verification');
             }}
           />
-        )
+        );
       case 'signup':
         return (
           <SignUpForm
             onVerificationNeeded={(email, password) => {
-              setEmail(email)
-              setPassword(password)
-              setAuthState('verification')
+              setEmail(email);
+              setPassword(password);
+              setAuthState('verification');
             }}
           />
-        )
+        );
       case 'forgot-password':
-        return <ForgotPasswordForm onBack={() => setAuthState('signin')} />
+        return <ForgotPasswordForm onBack={() => setAuthState('signin')} />;
       case 'verification':
-        return (
-          <VerificationForm
-            email={email}
-            password={password}
-            onBack={() => setAuthState('signup')}
-          />
-        )
+        return <VerificationForm email={email} password={password} onBack={() => setAuthState('signup')} />;
     }
-  }, [authState, email, password])
+  }, [authState, email, password]);
 
   const handleLoginClick = async () => {
     try {
       await signInWithRedirect({
         provider: 'Google',
-      })
+      });
     } catch (error) {
-      console.error('Error during sign-in:', error)
+      console.error('Error during sign-in:', error);
     }
-  }
+  };
 
   return (
     <div className="container relative  flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-1 lg:px-0 ">
@@ -71,13 +65,7 @@ export function AuthForm() {
         <div className="flex flex-col items-center space-y-1 text-center">
           <div className="flex items-center gap-2">
             <Image src="/icons/fast@4x.webp" alt="Logo" width={30} height={30} className="mb-6" />
-            <Image
-              src="/icons/fastletras@4x.webp"
-              alt="Logo"
-              width={90}
-              height={90}
-              className="mb-6"
-            />
+            <Image src="/icons/fastletras@4x.webp" alt="Logo" width={90} height={90} className="mb-6" />
           </div>
 
           <motion.h1
@@ -86,8 +74,7 @@ export function AuthForm() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="text-3xl font-semibold leading-tight"
-          >
+            className="text-3xl font-semibold leading-tight">
             {authState === 'signin'
               ? 'Bienvenido de nuevo'
               : authState === 'signup'
@@ -113,8 +100,7 @@ export function AuthForm() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-          >
+            transition={{ duration: 0.3 }}>
             {renderForm()}
           </motion.div>
         </AnimatePresence>
@@ -157,22 +143,14 @@ export function AuthForm() {
               {authState === 'signin' ? (
                 <>
                   ¿No tienes una cuenta?{' '}
-                  <button
-                    type="button"
-                    className="underline"
-                    onClick={() => setAuthState('signup')}
-                  >
+                  <button type="button" className="underline" onClick={() => setAuthState('signup')}>
                     Regístrate
                   </button>
                 </>
               ) : (
                 <>
                   ¿Ya tienes una cuenta?{' '}
-                  <button
-                    type="button"
-                    className="underline"
-                    onClick={() => setAuthState('signin')}
-                  >
+                  <button type="button" className="underline" onClick={() => setAuthState('signin')}>
                     Inicia sesión
                   </button>
                 </>
@@ -182,5 +160,5 @@ export function AuthForm() {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -848,7 +848,7 @@ const renderingPipeline: RenderStep[] = [
   renderContentStep, // 5. Renderiza secciones
   renderLayoutStep, // 6. Aplica layout principal
   generateMetadataStep, // 7. Genera metadata SEO
-]
+];
 ```
 
 #### **`AssetCollector` - Recolector de CSS/JS**
@@ -857,10 +857,10 @@ Recolecta y combina todos los assets de las secciones:
 
 ```typescript
 // Cada vez que se renderiza una sección con {% style %}
-assetCollector.addCss(processedCSS, sectionId)
+assetCollector.addCss(processedCSS, sectionId);
 
 // Al final del renderizado
-const combinedCSS = assetCollector.getCombinedCss()
+const combinedCSS = assetCollector.getCombinedCss();
 // Se inyecta en <head> vía content_for_header
 ```
 
@@ -870,13 +870,13 @@ Procesa todo el Liquid con extensiones personalizadas:
 
 ```typescript
 // Registra tags personalizados
-this.liquid.registerTag('style', StyleTag)
-this.liquid.registerTag('javascript', JavaScriptTag)
-this.liquid.registerTag('section', SectionTag)
+this.liquid.registerTag('style', StyleTag);
+this.liquid.registerTag('javascript', JavaScriptTag);
+this.liquid.registerTag('section', SectionTag);
 
 // Registra filtros personalizados
-this.liquid.registerFilter('money', moneyFilter)
-this.liquid.registerFilter('asset_url', assetUrlFilter)
+this.liquid.registerFilter('money', moneyFilter);
+this.liquid.registerFilter('asset_url', assetUrlFilter);
 ```
 
 ### 9.2. Flujo de Datos Detallado
@@ -897,12 +897,7 @@ Análisis: ¿Qué secciones y datos necesito?
 
 ```javascript
 // El motor determina qué datos necesita y los carga en paralelo
-Promise.all([
-  loadProduct(productId),
-  loadRelatedProducts(productId),
-  loadStoreMenus(storeId),
-  loadLayout(storeId),
-])
+Promise.all([loadProduct(productId), loadRelatedProducts(productId), loadStoreMenus(storeId), loadLayout(storeId)]);
 ```
 
 #### **Paso 3: Construcción de Contexto**
@@ -915,7 +910,7 @@ const context = {
   collections: collectionsData,
   linklists: menuData,
   // + datos específicos de la página
-}
+};
 ```
 
 #### **Paso 4: Renderizado de Secciones**
@@ -923,10 +918,10 @@ const context = {
 ```javascript
 // Para cada sección en el template JSON
 for (const sectionId of templateConfig.order) {
-  const sectionConfig = templateConfig.sections[sectionId]
+  const sectionConfig = templateConfig.sections[sectionId];
 
   // 1. Cargar archivo .liquid de la sección
-  const sectionTemplate = await loadTemplate(sectionConfig.type)
+  const sectionTemplate = await loadTemplate(sectionConfig.type);
 
   // 2. Renderizar con contexto + settings específicos
   const renderedHTML = await liquidEngine.render(sectionTemplate, {
@@ -935,7 +930,7 @@ for (const sectionId of templateConfig.order) {
       id: sectionId,
       settings: sectionConfig.settings,
     },
-  })
+  });
 
   // 3. Durante el renderizado, {% style %} y {% javascript %}
   //    automáticamente agregan CSS/JS al AssetCollector
@@ -946,17 +941,17 @@ for (const sectionId of templateConfig.order) {
 
 ```javascript
 // Combinar todo el contenido renderizado
-const pageContent = renderedSections.join('\n')
+const pageContent = renderedSections.join('\n');
 
 // Renderizar layout principal
 const finalHTML = await liquidEngine.render(layoutTemplate, {
   ...context,
   content_for_layout: pageContent,
   content_for_header: generateHeaders(),
-})
+});
 
 // Inyectar assets recolectados
-const htmlWithAssets = injectAssets(finalHTML, assetCollector)
+const htmlWithAssets = injectAssets(finalHTML, assetCollector);
 ```
 
 ### 9.3. Debugging del Motor
@@ -981,23 +976,23 @@ El motor incluye logging detallado en cada paso. Puedes seguir el proceso comple
 
 ```javascript
 // Verificar en buildContextStep
-console.log('Context data:', Object.keys(context))
+console.log('Context data:', Object.keys(context));
 ```
 
 **2. ¿No se inyecta el CSS?**
 
 ```javascript
 // Verificar en AssetCollector
-console.log('CSS assets collected:', assetCollector.cssAssets.length)
-console.log('Combined CSS length:', assetCollector.getCombinedCss().length)
+console.log('CSS assets collected:', assetCollector.cssAssets.length);
+console.log('Combined CSS length:', assetCollector.getCombinedCss().length);
 ```
 
 **3. ¿No funciona una sección?**
 
 ```javascript
 // Verificar el JSON del template
-console.log('Template config:', templateConfig)
-console.log('Section order:', templateConfig.order)
+console.log('Template config:', templateConfig);
+console.log('Section order:', templateConfig.order);
 ```
 
 ### 9.4. Variables de Inyección Automática
@@ -1044,10 +1039,10 @@ El motor inyecta automáticamente estas variables en todos los templates:
 <!-- JavaScript combinado de todas las secciones -->
 <script data-fasttify-assets="true">
   // JS de section 1
-  const banner = document.getElementById('banner-abc123')
+  const banner = document.getElementById('banner-abc123');
 
   // JS de section 2
-  const productGrid = document.querySelector('.product-grid')
+  const productGrid = document.querySelector('.product-grid');
 
   // etc...
 </script>
@@ -1084,9 +1079,9 @@ Si necesitas agregar funcionalidad personalizada:
 export const customFilter: LiquidFilter = {
   name: 'my_custom_filter',
   filter: (input: string) => {
-    return input.toUpperCase()
+    return input.toUpperCase();
   },
-}
+};
 ```
 
 #### **Nueva Tag Liquid:**
@@ -1096,7 +1091,7 @@ export const customFilter: LiquidFilter = {
 export class CustomTag extends Tag {
   *render(ctx: Context): Generator<any, void, unknown> {
     // Tu lógica aquí
-    return `<div>Custom content</div>`
+    return `<div>Custom content</div>`;
   }
 }
 ```
@@ -1108,9 +1103,9 @@ export class CustomTag extends Tag {
 export const customDataFetcher = {
   async loadCustomData(storeId: string) {
     // Tu lógica de carga de datos
-    return customData
+    return customData;
   },
-}
+};
 ```
 
 Con esta comprensión del motor interno, puedes debuggear problemas eficientemente y extender la funcionalidad según las necesidades de tu proyecto.

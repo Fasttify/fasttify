@@ -1,4 +1,4 @@
-import { defineFunction, secret } from '@aws-amplify/backend'
+import { defineFunction, secret } from '@aws-amplify/backend';
 
 export const apiKeyManager = defineFunction({
   name: 'apiKeyManager',
@@ -6,4 +6,4 @@ export const apiKeyManager = defineFunction({
   environment: {
     ENCRYPTION_KEY: secret('ENCRYPTION_KEY'),
   },
-})
+});

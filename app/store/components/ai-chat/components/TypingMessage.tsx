@@ -1,11 +1,11 @@
-import { Text, Icon } from '@shopify/polaris'
-import { ChatIcon } from '@shopify/polaris-icons'
-import { cn } from '@/lib/utils'
+import { Text, Icon } from '@shopify/polaris';
+import { ChatIcon } from '@shopify/polaris-icons';
+import { cn } from '@/lib/utils';
 
 interface TypingMessageProps {
-  content: string
-  type: 'user' | 'ai'
-  id: string
+  content: string;
+  type: 'user' | 'ai';
+  id: string;
 }
 
 export function TypingMessage({ content, type, id }: TypingMessageProps) {
@@ -26,15 +26,12 @@ export function TypingMessage({ content, type, id }: TypingMessageProps) {
       width: 'max-w-[95%]',
       icon: ChatIcon,
     },
-  }
+  };
 
-  const currentStyle = messageStyles[type]
+  const currentStyle = messageStyles[type];
 
   return (
-    <div
-      data-message-id={id}
-      className={cn('flex w-full py-2 px-4', currentStyle.container, 'animate-fade-in')}
-    >
+    <div data-message-id={id} className={cn('flex w-full py-2 px-4', currentStyle.container, 'animate-fade-in')}>
       <div
         className={cn(
           'p-4 transition-all duration-300 ease-in-out',
@@ -42,8 +39,7 @@ export function TypingMessage({ content, type, id }: TypingMessageProps) {
           currentStyle.borderRadius,
           currentStyle.width,
           'w-full'
-        )}
-      >
+        )}>
         <div className="flex items-start space-x-3">
           {currentStyle.icon && (
             <div className="mt-1">
@@ -55,8 +51,7 @@ export function TypingMessage({ content, type, id }: TypingMessageProps) {
               'flex-grow break-words whitespace-pre-wrap',
               currentStyle.textColor,
               type === 'ai' && 'text-base'
-            )}
-          >
+            )}>
             <Text variant="bodyMd" as="p">
               {content}
             </Text>
@@ -64,5 +59,5 @@ export function TypingMessage({ content, type, id }: TypingMessageProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

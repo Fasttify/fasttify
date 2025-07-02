@@ -1,14 +1,6 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import {
-  Globe,
-  Facebook,
-  Twitter,
-  Youtube,
-  Instagram,
-  Linkedin,
-  TwitterIcon as TikTok,
-} from 'lucide-react'
+import Image from 'next/image';
+import Link from 'next/link';
+import { Globe, Facebook, Twitter, Youtube, Instagram, Linkedin, TwitterIcon as TikTok } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -17,13 +9,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Logo Column */}
           <div className="mb-8 md:mb-0">
-            <Image
-              src="/icons/fasttify-white.webp"
-              alt="Fasttify"
-              width={80}
-              height={80}
-              className="mb-6"
-            />
+            <Image src="/icons/fasttify-white.webp" alt="Fasttify" width={80} height={80} className="mb-6" />
           </div>
 
           {/* Fasttify Column */}
@@ -158,5 +144,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

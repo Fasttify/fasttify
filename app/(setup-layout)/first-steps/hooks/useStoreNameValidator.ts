@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { get } from 'aws-amplify/api'
+import { useState } from 'react';
+import { get } from 'aws-amplify/api';
 
 /**
  * Hook personalizado para validar la disponibilidad del nombre de una tienda.
@@ -23,8 +23,8 @@ import { get } from 'aws-amplify/api'
  * ```
  */
 export function useStoreNameValidator() {
-  const [isChecking, setIsChecking] = useState(false)
-  const [exists, setExists] = useState(false)
+  const [isChecking, setIsChecking] = useState(false);
+  const [exists, setExists] = useState(false);
 
   /**
    * Verifica si un nombre de tienda está disponible.
@@ -32,8 +32,8 @@ export function useStoreNameValidator() {
    * @returns {Promise<void>}
    */
   const checkStoreName = async (name: string) => {
-    if (!name) return
-    setIsChecking(true)
+    if (!name) return;
+    setIsChecking(true);
     try {
       const response = await get({
         apiName: 'CheckStoreNameApi',
@@ -43,18 +43,18 @@ export function useStoreNameValidator() {
             storeName: name,
           },
         },
-      })
+      });
 
-      const { body } = await response.response
-      const responseExistStore = (await body.json()) as { exists: boolean }
+      const { body } = await response.response;
+      const responseExistStore = (await body.json()) as { exists: boolean };
 
-      setExists(responseExistStore?.exists)
+      setExists(responseExistStore?.exists);
     } catch (error) {
-      console.error('Error checking store name:', error)
+      console.error('Error checking store name:', error);
     } finally {
-      setIsChecking(false)
+      setIsChecking(false);
     }
-  }
+  };
 
-  return { checkStoreName, isChecking, exists }
+  return { checkStoreName, isChecking, exists };
 }

@@ -1,21 +1,16 @@
-import { Card, Select, BlockStack } from '@shopify/polaris'
-import { PublicationSection } from '@/app/store/components/product-management/collections/components/form/publication-section'
-import { ImageSection } from '@/app/store/components/product-management/collections/components/form/image-section'
+import { Card, Select, BlockStack } from '@shopify/polaris';
+import { PublicationSection } from '@/app/store/components/product-management/collections/components/form/publication-section';
+import { ImageSection } from '@/app/store/components/product-management/collections/components/form/image-section';
 
 interface CollectionSidebarProps {
-  isActive: boolean
-  imageUrl: string
-  onActiveChange: (value: boolean) => void
-  onImageChange: (url: string) => void
+  isActive: boolean;
+  imageUrl: string;
+  onActiveChange: (value: boolean) => void;
+  onImageChange: (url: string) => void;
 }
 
-export function CollectionSidebar({
-  isActive,
-  imageUrl,
-  onActiveChange,
-  onImageChange,
-}: CollectionSidebarProps) {
-  const templateOptions = [{ label: 'Colección predeterminada', value: 'default' }]
+export function CollectionSidebar({ isActive, imageUrl, onActiveChange, onImageChange }: CollectionSidebarProps) {
+  const templateOptions = [{ label: 'Colección predeterminada', value: 'default' }];
 
   return (
     <BlockStack gap="200">
@@ -34,5 +29,5 @@ export function CollectionSidebar({
         />
       </Card>
     </BlockStack>
-  )
+  );
 }

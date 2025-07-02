@@ -1,19 +1,12 @@
-import type { Schema } from '../resource'
-import {
-  BedrockRuntimeClient,
-  InvokeModelCommand,
-  InvokeModelCommandInput,
-} from '@aws-sdk/client-bedrock-runtime'
+import type { Schema } from '../resource';
+import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput } from '@aws-sdk/client-bedrock-runtime';
 
 // Initialize bedrock runtime client
-const client = new BedrockRuntimeClient()
+const client = new BedrockRuntimeClient();
 
-export const handler: Schema['generatePriceSuggestion']['functionHandler'] = async (
-  event,
-  context
-) => {
+export const handler: Schema['generatePriceSuggestion']['functionHandler'] = async (event, context) => {
   // Get product details from arguments
-  const { productName, category } = event.arguments
+  const { productName, category } = event.arguments;
 
   try {
     // Prepare the prompt for the AI model - simplified for more reliable parsing
@@ -36,7 +29,7 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta (sin texto ad
   "confidence": "[high|medium|low]",
   "explanation": "[breve análisis]",
 }
-`
+`;
 
     // Prepare the input for the model
     const input = {
@@ -61,41 +54,39 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta (sin texto ad
         max_tokens: 1000,
         temperature: 0.2,
       }),
-    } as InvokeModelCommandInput
+    } as InvokeModelCommandInput;
 
     // Invoke the model
-    const command = new InvokeModelCommand(input)
-    const response = await client.send(command)
-    const data = JSON.parse(Buffer.from(response.body).toString())
+    const command = new InvokeModelCommand(input);
+    const response = await client.send(command);
+    const data = JSON.parse(Buffer.from(response.body).toString());
 
     // Extract the response text
-    const responseText = data.content[0].text.trim()
+    const responseText = data.content[0].text.trim();
 
     // Try to parse the JSON directly first
     try {
       // Remove any markdown code block syntax if present
-      let jsonString = responseText
+      let jsonString = responseText;
       if (responseText.includes('```json')) {
-        jsonString = responseText.replace(/```json\n|\n```/g, '')
+        jsonString = responseText.replace(/```json\n|\n```/g, '');
       } else if (responseText.includes('```')) {
-        jsonString = responseText.replace(/```\n|\n```/g, '')
+        jsonString = responseText.replace(/```\n|\n```/g, '');
       }
 
       // Parse the JSON
-      const result = JSON.parse(jsonString)
+      const result = JSON.parse(jsonString);
 
       // Return a standardized response
       return {
         suggestedPrice: typeof result.suggestedPrice === 'number' ? result.suggestedPrice : 100000,
         minPrice: typeof result.minPrice === 'number' ? result.minPrice : 90000,
         maxPrice: typeof result.maxPrice === 'number' ? result.maxPrice : 120000,
-        confidence: ['high', 'medium', 'low'].includes(result.confidence)
-          ? result.confidence
-          : 'low',
+        confidence: ['high', 'medium', 'low'].includes(result.confidence) ? result.confidence : 'low',
         explanation: result.explanation || 'Precio basado en análisis de mercado colombiano.',
-      }
+      };
     } catch (error) {
-      console.error('Error parsing AI response:', error, 'Response:', responseText)
+      console.error('Error parsing AI response:', error, 'Response:', responseText);
 
       // Fallback response
       return {
@@ -103,12 +94,11 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta (sin texto ad
         minPrice: 90000,
         maxPrice: 120000,
         confidence: 'low',
-        explanation:
-          'No pudimos analizar este producto específicamente. Este es un precio estimado genérico.',
-      }
+        explanation: 'No pudimos analizar este producto específicamente. Este es un precio estimado genérico.',
+      };
     }
   } catch (error) {
-    console.error('Error generating price suggestion:', error)
+    console.error('Error generating price suggestion:', error);
 
     // Return a fallback response instead of throwing an error
     return {
@@ -116,8 +106,7 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta (sin texto ad
       minPrice: 90000,
       maxPrice: 120000,
       confidence: 'low',
-      explanation:
-        'Ocurrió un error al generar la sugerencia de precio. Este es un precio estimado genérico.',
-    }
+      explanation: 'Ocurrió un error al generar la sugerencia de precio. Este es un precio estimado genérico.',
+    };
   }
-}
+};

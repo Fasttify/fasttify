@@ -1,34 +1,21 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { passwordSchema, PasswordFormValues } from '@/lib/zod-schemas/password-change'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import usePasswordManagement from '@/app/(main-layout)/account-settings/hooks/usePasswordManagement'
-import { Eye, EyeOff } from 'lucide-react'
-import { Loader } from '@/components/ui/loader'
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { passwordSchema, PasswordFormValues } from '@/lib/zod-schemas/password-change';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import usePasswordManagement from '@/app/(main-layout)/account-settings/hooks/usePasswordManagement';
+import { Eye, EyeOff } from 'lucide-react';
+import { Loader } from '@/components/ui/loader';
 
-export function ChangePasswordDialog({
-  open,
-  onOpenChange,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}) {
-  const { updateUserPassword, loading, error: hookError, success } = usePasswordManagement()
+export function ChangePasswordDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const { updateUserPassword, loading, error: hookError, success } = usePasswordManagement();
 
-  const [showOldPassword, setShowOldPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
@@ -37,19 +24,19 @@ export function ChangePasswordDialog({
       newPassword: '',
       confirmPassword: '',
     },
-  })
+  });
 
   const onSubmit = async (values: PasswordFormValues) => {
     try {
-      await updateUserPassword(values.oldPassword, values.newPassword)
-      form.reset()
+      await updateUserPassword(values.oldPassword, values.newPassword);
+      form.reset();
       if (success) {
-        setTimeout(() => onOpenChange(false), 2000)
+        setTimeout(() => onOpenChange(false), 2000);
       }
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }
+  };
 
   const PasswordInput = ({ field, show, setShow, placeholder }: any) => (
     <div className="relative">
@@ -59,12 +46,11 @@ export function ChangePasswordDialog({
         variant="ghost"
         size="sm"
         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-        onClick={() => setShow(!show)}
-      >
+        onClick={() => setShow(!show)}>
         {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </Button>
     </div>
-  )
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -129,16 +115,10 @@ export function ChangePasswordDialog({
               )}
             />
             {hookError && (
-              <p className="text-sm text-red-600">
-                Error al cambiar la contraseña. Por favor, inténtalo de nuevo.
-              </p>
+              <p className="text-sm text-red-600">Error al cambiar la contraseña. Por favor, inténtalo de nuevo.</p>
             )}
             {success && <p className="text-sm text-green-600">Contraseña cambiada exitosamente.</p>}
-            <Button
-              type="submit"
-              className="w-full flex items-center justify-center"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full flex items-center justify-center" disabled={loading}>
               {loading ? (
                 <span className="flex items-center gap-2">
                   <Loader color="white" />
@@ -152,5 +132,5 @@ export function ChangePasswordDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

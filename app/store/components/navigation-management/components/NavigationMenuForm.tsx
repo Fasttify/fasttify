@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react';
 import {
   Form,
   FormLayout,
@@ -13,53 +13,35 @@ import {
   Divider,
   Banner,
   Spinner,
-} from '@shopify/polaris'
-import {
-  useNavigationMenus,
-  NavigationMenuInput,
-  MenuItem,
-} from '@/app/store/hooks/data/useNavigationMenus'
-import {
-  NavigationMenuFormProps,
-  MenuFormState,
-} from '@/app/store/components/navigation-management/types'
-import { MenuItemForm } from '@/app/store/components/navigation-management/components/MenuItemForm'
-import { validateNavigationMenu, validateUpdateNavigationMenu } from '@/lib/zod-schemas/navigation'
-import { useToast } from '@/app/store/context/ToastContext'
+} from '@shopify/polaris';
+import { useNavigationMenus, NavigationMenuInput, MenuItem } from '@/app/store/hooks/data/useNavigationMenus';
+import { NavigationMenuFormProps, MenuFormState } from '@/app/store/components/navigation-management/types';
+import { MenuItemForm } from '@/app/store/components/navigation-management/components/MenuItemForm';
+import { validateNavigationMenu, validateUpdateNavigationMenu } from '@/lib/zod-schemas/navigation';
+import { useToast } from '@/app/store/context/ToastContext';
 
 /**
  * Formulario para crear y editar menús de navegación
  */
-export function NavigationMenuForm({
-  storeId,
-  domain,
-  menuId,
-  onSuccess,
-  onCancel,
-}: NavigationMenuFormProps) {
-  const {
-    useGetNavigationMenu,
-    useCreateNavigationMenu,
-    useUpdateNavigationMenu,
-    parseMenuData,
-    generateHandle,
-  } = useNavigationMenus()
-  const { showToast } = useToast()
+export function NavigationMenuForm({ storeId, domain, menuId, onSuccess, onCancel }: NavigationMenuFormProps) {
+  const { useGetNavigationMenu, useCreateNavigationMenu, useUpdateNavigationMenu, parseMenuData, generateHandle } =
+    useNavigationMenus();
+  const { showToast } = useToast();
 
   // Memoizar funciones para evitar re-renders
   const memoizedGenerateHandle = useCallback(
     (name: string) => {
-      return generateHandle(name)
+      return generateHandle(name);
     },
     [generateHandle]
-  )
+  );
 
   const memoizedParseMenuData = useCallback(
     (menuDataString: string) => {
-      return parseMenuData(menuDataString)
+      return parseMenuData(menuDataString);
     },
     [parseMenuData]
-  )
+  );
 
   // Estado del formulario
   const [formState, setFormState] = useState<MenuFormState>({
@@ -71,47 +53,47 @@ export function NavigationMenuForm({
     isSubmitting: false,
     errors: {},
     menuItemErrors: {},
-  })
+  });
 
   // Obtener datos del menú si estamos en modo edición
-  const { data: existingMenu, isLoading: isLoadingMenu } = useGetNavigationMenu(menuId || '')
+  const { data: existingMenu, isLoading: isLoadingMenu } = useGetNavigationMenu(menuId || '');
 
   // Mutaciones
-  const createMenuMutation = useCreateNavigationMenu()
-  const updateMenuMutation = useUpdateNavigationMenu()
+  const createMenuMutation = useCreateNavigationMenu();
+  const updateMenuMutation = useUpdateNavigationMenu();
 
   // Cargar datos existentes si estamos editando
   useEffect(() => {
     if (existingMenu) {
-      const menuItems = memoizedParseMenuData((existingMenu.menuData as string) || '[]')
-      setFormState(prev => ({
+      const menuItems = memoizedParseMenuData((existingMenu.menuData as string) || '[]');
+      setFormState((prev) => ({
         ...prev,
         name: existingMenu.name,
         handle: existingMenu.handle,
         isMain: existingMenu.isMain,
         isActive: existingMenu.isActive,
         menuItems,
-      }))
+      }));
     }
-  }, [existingMenu, memoizedParseMenuData])
+  }, [existingMenu, memoizedParseMenuData]);
 
   // Generar handle automáticamente cuando cambia el nombre
   useEffect(() => {
     if (formState.name && !menuId) {
       // Solo auto-generar en modo creación
-      const newHandle = memoizedGenerateHandle(formState.name)
-      setFormState(prev => {
+      const newHandle = memoizedGenerateHandle(formState.name);
+      setFormState((prev) => {
         // Solo actualizar si el handle realmente cambió para evitar bucles
         if (prev.handle !== newHandle) {
           return {
             ...prev,
             handle: newHandle,
-          }
+          };
         }
-        return prev
-      })
+        return prev;
+      });
     }
-  }, [formState.name, menuId, memoizedGenerateHandle])
+  }, [formState.name, menuId, memoizedGenerateHandle]);
 
   // Validar formulario usando Zod
   const validateForm = useCallback((): boolean => {
@@ -124,55 +106,55 @@ export function NavigationMenuForm({
         menuData: formState.menuItems,
         storeId,
         domain,
-      }
+      };
 
       if (menuId) {
-        validateUpdateNavigationMenu({ id: menuId, ...menuData })
+        validateUpdateNavigationMenu({ id: menuId, ...menuData });
       } else {
-        validateNavigationMenu(menuData)
+        validateNavigationMenu(menuData);
       }
 
-      setFormState(prev => ({ ...prev, errors: {}, menuItemErrors: {} }))
-      return true
+      setFormState((prev) => ({ ...prev, errors: {}, menuItemErrors: {} }));
+      return true;
     } catch (error: any) {
       // Zod usa 'issues' no 'errors'
       if (error.issues) {
-        const zodErrors: Record<string, string> = {}
-        const menuItemErrors: Record<number, Record<string, string>> = {}
+        const zodErrors: Record<string, string> = {};
+        const menuItemErrors: Record<number, Record<string, string>> = {};
 
         error.issues.forEach((issue: any) => {
-          const path = issue.path
+          const path = issue.path;
 
           // Si el error es de un menuItem (path: ['menuData', index, field])
           if (path[0] === 'menuData' && typeof path[1] === 'number') {
-            const itemIndex = path[1]
-            const fieldName = path[2]
+            const itemIndex = path[1];
+            const fieldName = path[2];
 
             if (!menuItemErrors[itemIndex]) {
-              menuItemErrors[itemIndex] = {}
+              menuItemErrors[itemIndex] = {};
             }
-            menuItemErrors[itemIndex][fieldName] = issue.message
+            menuItemErrors[itemIndex][fieldName] = issue.message;
           } else {
             // Error de campo principal
-            const field = path.join('.')
-            zodErrors[field] = issue.message
+            const field = path.join('.');
+            zodErrors[field] = issue.message;
           }
-        })
+        });
 
-        setFormState(prev => ({
+        setFormState((prev) => ({
           ...prev,
           errors: zodErrors,
           menuItemErrors: menuItemErrors,
-        }))
+        }));
       } else {
         // Error genérico si no es de Zod
 
-        setFormState(prev => ({
+        setFormState((prev) => ({
           ...prev,
           errors: { general: error.message || 'Error de validación' },
-        }))
+        }));
       }
-      return false
+      return false;
     }
   }, [
     formState.name,
@@ -185,32 +167,32 @@ export function NavigationMenuForm({
     menuId,
     validateNavigationMenu,
     validateUpdateNavigationMenu,
-  ])
+  ]);
 
   // Manejar cambios en campos de texto
   const handleFieldChange = useCallback(
     (field: keyof MenuFormState) => (value: string | boolean) => {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         [field]: value,
         errors: { ...prev.errors, [field]: '' }, // Limpiar error del campo
-      }))
+      }));
     },
     []
-  )
+  );
 
   // Manejar cambios en items del menú
   const handleMenuItemsChange = useCallback((items: MenuItem[]) => {
-    setFormState(prev => ({ ...prev, menuItems: items }))
-  }, [])
+    setFormState((prev) => ({ ...prev, menuItems: items }));
+  }, []);
 
   // Enviar formulario
   const handleSubmit = async () => {
     if (!validateForm()) {
-      return
+      return;
     }
 
-    setFormState(prev => ({ ...prev, isSubmitting: true }))
+    setFormState((prev) => ({ ...prev, isSubmitting: true }));
 
     try {
       const menuData: NavigationMenuInput = {
@@ -222,36 +204,35 @@ export function NavigationMenuForm({
         isActive: formState.isActive,
         menuData: formState.menuItems,
         owner: '', // Se asignará en el hook
-      }
+      };
 
       if (menuId) {
         // Modo edición
         await updateMenuMutation.mutateAsync({
           id: menuId,
           data: menuData,
-        })
-        onSuccess('Menú actualizado exitosamente')
+        });
+        onSuccess('Menú actualizado exitosamente');
       } else {
         // Modo creación
-        await createMenuMutation.mutateAsync(menuData)
-        onSuccess('Menú creado exitosamente')
+        await createMenuMutation.mutateAsync(menuData);
+        onSuccess('Menú creado exitosamente');
       }
     } catch (error: any) {
-      console.error('Error saving menu:', error)
+      console.error('Error saving menu:', error);
 
       // Mostrar error específico usando toast
-      const errorMessage =
-        error?.message || 'Error al guardar el menú. Por favor, inténtalo de nuevo.'
-      showToast(errorMessage, true)
+      const errorMessage = error?.message || 'Error al guardar el menú. Por favor, inténtalo de nuevo.';
+      showToast(errorMessage, true);
 
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         errors: { general: errorMessage },
-      }))
+      }));
     } finally {
-      setFormState(prev => ({ ...prev, isSubmitting: false }))
+      setFormState((prev) => ({ ...prev, isSubmitting: false }));
     }
-  }
+  };
 
   // Mostrar loading si estamos cargando datos existentes
   if (isLoadingMenu && menuId) {
@@ -264,7 +245,7 @@ export function NavigationMenuForm({
           </Text>
         </div>
       </Card>
-    )
+    );
   }
 
   return (
@@ -352,13 +333,12 @@ export function NavigationMenuForm({
               variant="primary"
               loading={formState.isSubmitting}
               onClick={handleSubmit}
-              disabled={!formState.name.trim()}
-            >
+              disabled={!formState.name.trim()}>
               {menuId ? 'Actualizar menú' : 'Crear menú'}
             </Button>
           </ButtonGroup>
         </div>
       </FormLayout>
     </Form>
-  )
+  );
 }

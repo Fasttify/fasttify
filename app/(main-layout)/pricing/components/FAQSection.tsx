@@ -1,20 +1,15 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
-import { cn } from '@/lib/utils'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { cn } from '@/lib/utils';
 
 interface FAQItem {
-  question: string
-  answer: string
+  question: string;
+  answer: string;
 }
 
 interface FAQSectionProps {
-  title?: string
-  subtitle?: string
-  items: FAQItem[]
+  title?: string;
+  subtitle?: string;
+  items: FAQItem[];
 }
 
 export function FAQSection({
@@ -35,18 +30,13 @@ export function FAQSection({
           <AccordionItem
             key={index}
             value={`item-${index + 1}`}
-            className={cn(
-              'border-b border-b-slate-200 last:border-none py-4',
-              'data-[state=open]:pb-6'
-            )}
-          >
+            className={cn('border-b border-b-slate-200 last:border-none py-4', 'data-[state=open]:pb-6')}>
             <AccordionTrigger
               className={cn(
                 'text-xl font-normal hover:no-underline',
                 '[&[data-state=open]>div]:font-medium',
                 'transition-all duration-200'
-              )}
-            >
+              )}>
               {item.question}
             </AccordionTrigger>
             <AccordionContent className="text-gray-600 text-base">{item.answer}</AccordionContent>
@@ -54,5 +44,5 @@ export function FAQSection({
         ))}
       </Accordion>
     </div>
-  )
+  );
 }

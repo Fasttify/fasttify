@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { post } from 'aws-amplify/api'
+import { useState } from 'react';
+import { post } from 'aws-amplify/api';
 
 /**
  * Hook personalizado para descifrar claves API usando la Lambda de encriptación.
@@ -11,8 +11,8 @@ import { post } from 'aws-amplify/api'
  * - decryptedKey: La clave descifrada resultante
  */
 export function useApiKeyDecryption() {
-  const [isDecrypting, setIsDecrypting] = useState(false)
-  const [decryptedKey, setDecryptedKey] = useState<string | null>(null)
+  const [isDecrypting, setIsDecrypting] = useState(false);
+  const [decryptedKey, setDecryptedKey] = useState<string | null>(null);
 
   /**
    * Descifra una clave API usando la Lambda.
@@ -20,16 +20,16 @@ export function useApiKeyDecryption() {
    * @returns {Promise<string | null>} La clave descifrada o null si hay error
    */
   const decryptApiKey = async (encryptedKey: string): Promise<string | null> => {
-    if (!encryptedKey) return null
+    if (!encryptedKey) return null;
 
-    setIsDecrypting(true)
-    setDecryptedKey(null)
+    setIsDecrypting(true);
+    setDecryptedKey(null);
 
     try {
       const payload = {
         operation: 'decrypt',
         encryptedKey,
-      }
+      };
 
       const response = await post({
         apiName: 'ApiKeyManagerApi',
@@ -37,24 +37,24 @@ export function useApiKeyDecryption() {
         options: {
           body: payload,
         },
-      })
+      });
 
-      const { body } = await response.response
-      const result = (await body.json()) as { success: boolean; decryptedKey: string }
+      const { body } = await response.response;
+      const result = (await body.json()) as { success: boolean; decryptedKey: string };
 
       if (result.success && result.decryptedKey) {
-        setDecryptedKey(result.decryptedKey)
-        return result.decryptedKey
+        setDecryptedKey(result.decryptedKey);
+        return result.decryptedKey;
       }
 
-      return null
+      return null;
     } catch (error) {
-      console.error('Error decrypting API key:', error)
-      return null
+      console.error('Error decrypting API key:', error);
+      return null;
     } finally {
-      setIsDecrypting(false)
+      setIsDecrypting(false);
     }
-  }
+  };
 
-  return { decryptApiKey, isDecrypting, decryptedKey }
+  return { decryptApiKey, isDecrypting, decryptedKey };
 }

@@ -1,14 +1,14 @@
-import { Pagination, Select, Text } from '@shopify/polaris'
+import { Pagination, Select, Text } from '@shopify/polaris';
 
 interface ProductPaginationProps {
-  currentPage: number
-  itemsPerPage: number
-  setItemsPerPage: (value: number) => void
-  onNext: () => void
-  onPrevious: () => void
-  hasNextPage: boolean
-  hasPreviousPage: boolean
-  currentItemsCount: number
+  currentPage: number;
+  itemsPerPage: number;
+  setItemsPerPage: (value: number) => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  currentItemsCount: number;
 }
 
 export function ProductPagination({
@@ -24,10 +24,10 @@ export function ProductPagination({
   const itemsPerPageOptions = [
     { label: '50', value: '50' },
     { label: '100', value: '100' },
-  ]
+  ];
 
-  const startItem = (currentPage - 1) * itemsPerPage + 1
-  const endItem = startItem + currentItemsCount - 1
+  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const endItem = startItem + currentItemsCount - 1;
 
   return (
     <div
@@ -36,8 +36,7 @@ export function ProductPagination({
         flexDirection: 'column',
         gap: '16px',
         alignItems: 'center',
-      }}
-    >
+      }}>
       {/* Items info and per-page selector */}
       <div
         style={{
@@ -47,8 +46,7 @@ export function ProductPagination({
           gap: '16px',
           flexWrap: 'wrap',
           justifyContent: 'center',
-        }}
-      >
+        }}>
         {currentItemsCount > 0 && (
           <Text variant="bodySm" as="p" tone="subdued">
             Mostrando productos del {startItem} al {endItem}
@@ -64,7 +62,7 @@ export function ProductPagination({
               labelHidden
               options={itemsPerPageOptions}
               value={itemsPerPage.toString()}
-              onChange={value => setItemsPerPage(Number.parseInt(value))}
+              onChange={(value) => setItemsPerPage(Number.parseInt(value))}
             />
           </div>
         </div>
@@ -79,5 +77,5 @@ export function ProductPagination({
         label={`Página ${currentPage}`}
       />
     </div>
-  )
+  );
 }

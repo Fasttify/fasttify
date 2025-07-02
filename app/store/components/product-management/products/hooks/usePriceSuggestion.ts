@@ -3,24 +3,24 @@
  * Proporciona funcionalidades para solicitar precios recomendados basados en el nombre
  * y categoría del producto.
  */
-import { useState, useCallback } from 'react'
-import { generateClient } from 'aws-amplify/api'
-import type { Schema } from '@/amplify/data/resource'
+import { useState, useCallback } from 'react';
+import { generateClient } from 'aws-amplify/api';
+import type { Schema } from '@/amplify/data/resource';
 
 /**
  * Cliente generado para interactuar con la API de Amplify.
  */
-const client = generateClient<Schema>()
+const client = generateClient<Schema>();
 
 /**
  * Interfaz para los resultados de la sugerencia de precios.
  */
 export interface PriceSuggestionResult {
-  suggestedPrice: number
-  minPrice: number
-  maxPrice: number
-  confidence: 'high' | 'medium' | 'low'
-  explanation: string
+  suggestedPrice: number;
+  minPrice: number;
+  maxPrice: number;
+  confidence: 'high' | 'medium' | 'low';
+  explanation: string;
 }
 
 /**
@@ -33,19 +33,19 @@ export function usePriceSuggestion() {
    * Estado para almacenar el resultado de la sugerencia de precios.
    * @type {PriceSuggestionResult | null}
    */
-  const [result, setResult] = useState<PriceSuggestionResult | null>(null)
+  const [result, setResult] = useState<PriceSuggestionResult | null>(null);
 
   /**
    * Estado para controlar si hay una operación de generación en curso.
    * @type {boolean}
    */
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
 
   /**
    * Estado para almacenar errores que puedan ocurrir durante la generación.
    * @type {Error | null}
    */
-  const [error, setError] = useState<Error | null>(null)
+  const [error, setError] = useState<Error | null>(null);
 
   /**
    * Función para generar una sugerencia de precio con IA.
@@ -57,36 +57,36 @@ export function usePriceSuggestion() {
    */
   const generatePriceSuggestion = useCallback(
     async ({ productName, category }: { productName: string; category?: string }) => {
-      setLoading(true)
-      setError(null)
-      setResult(null)
+      setLoading(true);
+      setError(null);
+      setResult(null);
 
       try {
         // Llamar al endpoint de generación de sugerencias de precios
         const { data, errors } = await client.queries.generatePriceSuggestion({
           productName,
           category,
-        })
+        });
 
         if (errors) {
-          throw new Error(errors[0]?.message || 'Error generating price suggestion')
+          throw new Error(errors[0]?.message || 'Error generating price suggestion');
         } else if (data) {
-          setResult(data as PriceSuggestionResult)
-          return data as PriceSuggestionResult
+          setResult(data as PriceSuggestionResult);
+          return data as PriceSuggestionResult;
         } else {
-          throw new Error('No response was received from the service')
+          throw new Error('No response was received from the service');
         }
       } catch (err: any) {
-        console.error('Error generating price suggestion:', err)
-        const errorMessage = err.message || 'Unknown error'
-        setError(new Error(errorMessage))
-        throw new Error(errorMessage)
+        console.error('Error generating price suggestion:', err);
+        const errorMessage = err.message || 'Unknown error';
+        setError(new Error(errorMessage));
+        throw new Error(errorMessage);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
     []
-  )
+  );
 
   /**
    * Función para reiniciar el estado del hook.
@@ -94,9 +94,9 @@ export function usePriceSuggestion() {
    * @returns {void}
    */
   const reset = useCallback(() => {
-    setResult(null)
-    setError(null)
-  }, [])
+    setResult(null);
+    setError(null);
+  }, []);
 
   return {
     result, // Resultado de la sugerencia de precio
@@ -104,5 +104,5 @@ export function usePriceSuggestion() {
     error, // Error actual, si existe
     generatePriceSuggestion, // Función para generar una sugerencia de precio
     reset, // Función para reiniciar el estado
-  }
+  };
 }

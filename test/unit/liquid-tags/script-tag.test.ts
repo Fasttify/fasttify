@@ -1,31 +1,31 @@
-import { describe, it, expect, beforeEach } from '@jest/globals'
-import { Liquid } from 'liquidjs'
-import { ScriptTag } from '@/renderer-engine/liquid/tags/script-tag'
-import { createTestContext, createTestLiquid } from './setup'
+import { describe, it, expect, beforeEach } from '@jest/globals';
+import { Liquid } from 'liquidjs';
+import { ScriptTag } from '@/renderer-engine/liquid/tags/script-tag';
+import { createTestContext, createTestLiquid } from './setup';
 
 describe('ScriptTag', () => {
-  let liquid: Liquid
+  let liquid: Liquid;
 
   beforeEach(() => {
-    liquid = createTestLiquid()
-    liquid.registerTag('script', ScriptTag)
-  })
+    liquid = createTestLiquid();
+    liquid.registerTag('script', ScriptTag);
+  });
 
   it('should render basic JavaScript without variables', async () => {
     const template = `
       {% script %}
       console.log('Hello World');
       {% endscript %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toContain('<script')
-    expect(result).toContain('</script>')
+    expect(result).toContain('<script');
+    expect(result).toContain('</script>');
     // El contenido puede estar procesado diferente, pero debe renderizar algo
-    expect(result.length).toBeGreaterThan(10)
-  })
+    expect(result.length).toBeGreaterThan(10);
+  });
 
   it('should process Liquid variables in JavaScript', async () => {
     const template = `
@@ -33,28 +33,28 @@ describe('ScriptTag', () => {
       const storeName = '{{ shop.name }}';
       console.log('Store:', storeName);
       {% endscript %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toContain('<script')
-    expect(result).toContain('Test Store')
-    expect(result).toContain('</script>')
-  })
+    expect(result).toContain('<script');
+    expect(result).toContain('Test Store');
+    expect(result).toContain('</script>');
+  });
 
   it('should handle empty script tag', async () => {
     const template = `
       {% script %}
       {% endscript %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toContain('<script>')
-    expect(result).toContain('</script>')
-  })
+    expect(result).toContain('<script>');
+    expect(result).toContain('</script>');
+  });
 
   it('should handle complex JavaScript with multiple variables', async () => {
     const template = `
@@ -66,17 +66,17 @@ describe('ScriptTag', () => {
       };
       console.log('Shop data:', shop);
       {% endscript %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toContain('<script')
-    expect(result).toContain('Test Store')
-    expect(result).toContain('USD')
-    expect(result).toContain('1')
-    expect(result).toContain('</script>')
-  })
+    expect(result).toContain('<script');
+    expect(result).toContain('Test Store');
+    expect(result).toContain('USD');
+    expect(result).toContain('1');
+    expect(result).toContain('</script>');
+  });
 
   it('should handle JavaScript with special characters and quotes', async () => {
     const template = `
@@ -84,13 +84,13 @@ describe('ScriptTag', () => {
       const message = "Welcome to {{ shop.name | replace: ' ', '-' }}!";
       alert(message);
       {% endscript %}
-    `
+    `;
 
-    const context = createTestContext()
-    const result = await liquid.parseAndRender(template, context)
+    const context = createTestContext();
+    const result = await liquid.parseAndRender(template, context);
 
-    expect(result).toContain('<script')
-    expect(result).toContain('Test-Store')
-    expect(result).toContain('</script>')
-  })
-})
+    expect(result).toContain('<script');
+    expect(result).toContain('Test-Store');
+    expect(result).toContain('</script>');
+  });
+});

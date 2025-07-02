@@ -1,62 +1,54 @@
-import type { UseFormReturn } from 'react-hook-form'
-import {
-  FormLayout,
-  TextField,
-  BlockStack,
-  ButtonGroup,
-  Button,
-  Banner,
-  Text,
-} from '@shopify/polaris'
-import { useState } from 'react'
-import type { ProductFormValues } from '@/lib/zod-schemas/product-schema'
-import { useProductDescription } from '@/app/store/components/product-management/products/hooks/useProductDescription'
-import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/ai-generate-button'
-import { Controller } from 'react-hook-form'
-import { useToast } from '@/app/store/context/ToastContext'
+import type { UseFormReturn } from 'react-hook-form';
+import { FormLayout, TextField, BlockStack, ButtonGroup, Button, Banner, Text } from '@shopify/polaris';
+import { useState } from 'react';
+import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
+import { useProductDescription } from '@/app/store/components/product-management/products/hooks/useProductDescription';
+import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/ai-generate-button';
+import { Controller } from 'react-hook-form';
+import { useToast } from '@/app/store/context/ToastContext';
 
 interface BasicInfoSectionProps {
-  form: UseFormReturn<ProductFormValues>
+  form: UseFormReturn<ProductFormValues>;
 }
 
 export function BasicInfoSection({ form }: BasicInfoSectionProps) {
-  const { generateDescription, loading: isGeneratingDescription } = useProductDescription()
-  const [previewDescription, setPreviewDescription] = useState<string | null>(null)
-  const { showToast } = useToast()
+  const { generateDescription, loading: isGeneratingDescription } = useProductDescription();
+  const [previewDescription, setPreviewDescription] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const handleGenerateDescription = async () => {
-    const productName = form.getValues('name')
-    const category = form.getValues('category')
+    const productName = form.getValues('name');
+    const category = form.getValues('category');
 
     if (!productName) {
-      showToast('Por favor, ingrese un nombre de producto primero.', true)
-      return
+      showToast('Por favor, ingrese un nombre de producto primero.', true);
+      return;
     }
 
     try {
       const description = await generateDescription({
         productName,
         category: category || undefined,
-      })
-      setPreviewDescription(description)
+      });
+      setPreviewDescription(description);
     } catch (error) {
-      console.error('Error al generar descripción:', error)
-      showToast('No se pudo generar la descripción. Inténtelo de nuevo más tarde.', true)
+      console.error('Error al generar descripción:', error);
+      showToast('No se pudo generar la descripción. Inténtelo de nuevo más tarde.', true);
     }
-  }
+  };
 
   const acceptDescription = () => {
     if (previewDescription) {
-      form.setValue('description', previewDescription, { shouldDirty: true, shouldTouch: true })
-      showToast('La descripción generada ha sido aplicada al producto.')
-      setPreviewDescription(null)
+      form.setValue('description', previewDescription, { shouldDirty: true, shouldTouch: true });
+      showToast('La descripción generada ha sido aplicada al producto.');
+      setPreviewDescription(null);
     }
-  }
+  };
 
   const rejectDescription = () => {
-    setPreviewDescription(null)
-    showToast('La descripción generada ha sido descartada.')
-  }
+    setPreviewDescription(null);
+    showToast('La descripción generada ha sido descartada.');
+  };
 
   return (
     <BlockStack gap="400">
@@ -130,15 +122,15 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
                 label="Fecha de Creación"
                 type="date"
                 value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
-                onChange={dateString => {
+                onChange={(dateString) => {
                   if (!dateString) {
-                    field.onChange(null)
-                    return
+                    field.onChange(null);
+                    return;
                   }
                   // Adjust for timezone to prevent off-by-one-day errors
-                  const date = new Date(dateString)
-                  const userTimezoneOffset = date.getTimezoneOffset() * 60000
-                  field.onChange(new Date(date.getTime() + userTimezoneOffset))
+                  const date = new Date(dateString);
+                  const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+                  field.onChange(new Date(date.getTime() + userTimezoneOffset));
                 }}
                 onBlur={field.onBlur}
                 name={field.name}
@@ -170,5 +162,5 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
         </FormLayout.Group>
       </FormLayout>
     </BlockStack>
-  )
+  );
 }

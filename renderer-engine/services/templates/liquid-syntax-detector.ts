@@ -2,125 +2,118 @@ import type {
   TemplateAnalysis,
   DataRequirement,
   DataLoadOptions,
-} from '@/renderer-engine/services/templates/template-analyzer'
+} from '@/renderer-engine/services/templates/template-analyzer';
 
 /**
  * Tipo para detectores de objetos Liquid
  */
 type ObjectDetector = {
-  pattern: RegExp
-  optionsExtractor: (content: string) => DataLoadOptions
-}
+  pattern: RegExp;
+  optionsExtractor: (content: string) => DataLoadOptions;
+};
 
 /**
  * Tipo para detectores de paginación
  */
-type PaginationHandler = (match: string, analysis: TemplateAnalysis) => void
+type PaginationHandler = (match: string, analysis: TemplateAnalysis) => void;
 
 /**
  * Extractores de opciones declarativos para cada tipo de datos
  */
-const loadOptionsExtractors: Record<
-  DataRequirement,
-  (content: string) => DataLoadOptions
-> = {
+const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLoadOptions> = {
   products: (content: string) => {
-    const limitMatch = content.match(/products[^}]*limit:\s*(\d+)/i)
+    const limitMatch = content.match(/products[^}]*limit:\s*(\d+)/i);
     return {
       limit: limitMatch ? parseInt(limitMatch[1], 10) : 20,
-    }
+    };
   },
 
   collection_products: (content: string) => {
-    const collectionMatch = content.match(
-      /collections\.([a-zA-Z0-9_-]+)\.products[^}]*limit:\s*(\d+)/i
-    )
+    const collectionMatch = content.match(/collections\.([a-zA-Z0-9_-]+)\.products[^}]*limit:\s*(\d+)/i);
     if (collectionMatch) {
       return {
         collectionHandle: collectionMatch[1],
         limit: parseInt(collectionMatch[2], 10),
-      }
+      };
     }
 
-    const collectionOnlyMatch = content.match(/collections\.([a-zA-Z0-9_-]+)\.products/i)
-    return collectionOnlyMatch
-      ? { collectionHandle: collectionOnlyMatch[1], limit: 8 }
-      : { limit: 8 }
+    const collectionOnlyMatch = content.match(/collections\.([a-zA-Z0-9_-]+)\.products/i);
+    return collectionOnlyMatch ? { collectionHandle: collectionOnlyMatch[1], limit: 8 } : { limit: 8 };
   },
 
   collections: (content: string) => {
-    const limitMatch = content.match(/collections[^}]*limit:\s*(\d+)/i)
+    const limitMatch = content.match(/collections[^}]*limit:\s*(\d+)/i);
     return {
       limit: limitMatch ? parseInt(limitMatch[1], 10) : 10,
-    }
+    };
   },
 
   // Nuevos extractores para acceso específico
   specific_collection: (content: string) => {
-    const handles: string[] = []
+    const handles: string[] = [];
 
     // Detectar collections['handle'] y collections["handle"]
-    const bracketMatches = content.match(/collections\[['"]([^'"]+)['"]\]/g)
+    const bracketMatches = content.match(/collections\[['"]([^'"]+)['"]\]/g);
     if (bracketMatches) {
-      bracketMatches.forEach(match => {
-        const handleMatch = match.match(/collections\[['"]([^'"]+)['"]\]/)
-        if (handleMatch) handles.push(handleMatch[1])
-      })
+      bracketMatches.forEach((match) => {
+        const handleMatch = match.match(/collections\[['"]([^'"]+)['"]\]/);
+        if (handleMatch) handles.push(handleMatch[1]);
+      });
     }
 
     // Detectar collections.handle (acceso directo por propiedad)
-    const dotMatches = content.match(/collections\.([a-zA-Z0-9_-]+)(?!\.\w)/g)
+    const dotMatches = content.match(/collections\.([a-zA-Z0-9_-]+)(?!\.\w)/g);
     if (dotMatches) {
-      dotMatches.forEach(match => {
-        const handleMatch = match.match(/collections\.([a-zA-Z0-9_-]+)/)
+      dotMatches.forEach((match) => {
+        const handleMatch = match.match(/collections\.([a-zA-Z0-9_-]+)/);
         if (handleMatch && !handles.includes(handleMatch[1])) {
-          handles.push(handleMatch[1])
+          handles.push(handleMatch[1]);
         }
-      })
+      });
     }
 
-    return { handles }
+    return { handles };
   },
 
   specific_product: (content: string) => {
-    const handles: string[] = []
+    const handles: string[] = [];
 
     // Detectar products['handle'] y products["handle"]
-    const bracketMatches = content.match(/products\[['"]([^'"]+)['"]\]/g)
+    const bracketMatches = content.match(/products\[['"]([^'"]+)['"]\]/g);
     if (bracketMatches) {
-      bracketMatches.forEach(match => {
-        const handleMatch = match.match(/products\[['"]([^'"]+)['"]\]/)
-        if (handleMatch) handles.push(handleMatch[1])
-      })
+      bracketMatches.forEach((match) => {
+        const handleMatch = match.match(/products\[['"]([^'"]+)['"]\]/);
+        if (handleMatch) handles.push(handleMatch[1]);
+      });
     }
 
-    return { handles }
+    return { handles };
   },
 
   products_by_collection: (content: string) => {
-    const handles: string[] = []
-    const limitMatch = content.match(/limit:\s*(\d+)/i)
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 8
+    const handles: string[] = [];
+    const limitMatch = content.match(/limit:\s*(\d+)/i);
+    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 8;
 
     // Extraer handles de colecciones mencionadas para cargar sus productos
-    const collectionRefs = content.match(/collections\.([a-zA-Z0-9_-]+)\.products/g)
+    const collectionRefs = content.match(/collections\.([a-zA-Z0-9_-]+)\.products/g);
     if (collectionRefs) {
-      collectionRefs.forEach(ref => {
-        const handleMatch = ref.match(/collections\.([a-zA-Z0-9_-]+)/)
+      collectionRefs.forEach((ref) => {
+        const handleMatch = ref.match(/collections\.([a-zA-Z0-9_-]+)/);
         if (handleMatch && !handles.includes(handleMatch[1])) {
-          handles.push(handleMatch[1])
+          handles.push(handleMatch[1]);
         }
-      })
+      });
     }
 
-    return { handles, limit }
+    return { handles, limit };
   },
 
   related_products: (content: string) => {
-    const limitMatch = content.match(/related_products[^}]*limit:\s*(\d+)/i)
+    const limitMatch = content.match(/related_products[^}]*limit:\s*(\d+)/i);
     return {
       limit: limitMatch ? parseInt(limitMatch[1], 10) : 4,
-    }
+    };
   },
 
   product: () => ({}),
@@ -131,7 +124,7 @@ const loadOptionsExtractors: Record<
   page: () => ({}),
   blog: () => ({}),
   pagination: () => ({}),
-}
+};
 
 /**
  * Detectores de objetos Liquid declarativos
@@ -199,30 +192,30 @@ const objectDetectors: Record<DataRequirement, ObjectDetector> = {
     pattern: /\{\%\s*paginate/g,
     optionsExtractor: loadOptionsExtractors.pagination,
   },
-}
+};
 
 /**
  * Handlers para diferentes tipos de paginación
  */
 const paginationHandlers: Record<string, PaginationHandler> = {
   'collection.products': (match: string, analysis: TemplateAnalysis) => {
-    const limitMatch = match.match(/by\s+(\d+)/i)
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 20
-    analysis.requiredData.set('collection', { limit })
+    const limitMatch = match.match(/by\s+(\d+)/i);
+    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 20;
+    analysis.requiredData.set('collection', { limit });
   },
 
   products: (match: string, analysis: TemplateAnalysis) => {
-    const limitMatch = match.match(/by\s+(\d+)/i)
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 20
-    analysis.requiredData.set('products', { limit })
+    const limitMatch = match.match(/by\s+(\d+)/i);
+    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 20;
+    analysis.requiredData.set('products', { limit });
   },
 
   collections: (match: string, analysis: TemplateAnalysis) => {
-    const limitMatch = match.match(/by\s+(\d+)/i)
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 10
-    analysis.requiredData.set('collections', { limit })
+    const limitMatch = match.match(/by\s+(\d+)/i);
+    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 10;
+    analysis.requiredData.set('collections', { limit });
   },
-}
+};
 
 export class LiquidSyntaxDetector {
   private static readonly TAG_PATTERNS = {
@@ -230,78 +223,69 @@ export class LiquidSyntaxDetector {
     section: /\{\%\s*section\s+['"]([^'"]+)['"]\s*\%\}/g,
     render: /\{\%\s*render\s+['"]([^'"]+)['"]/g,
     include: /\{\%\s*include\s+['"]([^'"]+)['"]/g,
-  }
+  };
 
   public static detectLiquidObjects(content: string, analysis: TemplateAnalysis): void {
     for (const [objectType, detector] of Object.entries(objectDetectors)) {
-      const matches = content.match(detector.pattern)
+      const matches = content.match(detector.pattern);
       if (matches && matches.length > 0) {
-        analysis.liquidObjects.push(objectType)
-        const loadOptions = detector.optionsExtractor(content)
-        analysis.requiredData.set(objectType as DataRequirement, loadOptions)
+        analysis.liquidObjects.push(objectType);
+        const loadOptions = detector.optionsExtractor(content);
+        analysis.requiredData.set(objectType as DataRequirement, loadOptions);
       }
     }
   }
 
   public static detectPagination(content: string, analysis: TemplateAnalysis): void {
-    const paginateMatches = content.match(this.TAG_PATTERNS.paginate)
-    if (!paginateMatches?.length) return
+    const paginateMatches = content.match(this.TAG_PATTERNS.paginate);
+    if (!paginateMatches?.length) return;
 
-    analysis.hasPagination = true
+    analysis.hasPagination = true;
 
     for (const match of paginateMatches) {
-      const paginateContent = match.match(/paginate\s+([^\s]+)\s+by\s+(\d+)/i)
-      if (!paginateContent) continue
+      const paginateContent = match.match(/paginate\s+([^\s]+)\s+by\s+(\d+)/i);
+      if (!paginateContent) continue;
 
-      const paginatedObject = paginateContent[1]
+      const paginatedObject = paginateContent[1];
 
       // Buscar handler específico para el tipo de objeto paginado
-      const handlerKey = Object.keys(paginationHandlers).find(key =>
-        paginatedObject.includes(key)
-      )
+      const handlerKey = Object.keys(paginationHandlers).find((key) => paginatedObject.includes(key));
 
       if (handlerKey) {
-        paginationHandlers[handlerKey](match, analysis)
+        paginationHandlers[handlerKey](match, analysis);
       }
     }
   }
 
   public static detectDependencies(content: string, analysis: TemplateAnalysis): void {
     // Detectar secciones
-    this.extractMatches(content, this.TAG_PATTERNS.section, match => {
-      const sectionName = this.extractName(match, /section\s+['"]([^'"]+)['"]/i)
+    this.extractMatches(content, this.TAG_PATTERNS.section, (match) => {
+      const sectionName = this.extractName(match, /section\s+['"]([^'"]+)['"]/i);
       if (sectionName) {
-        analysis.usedSections.push(sectionName)
-        analysis.dependencies.push(`sections/${sectionName}.liquid`)
+        analysis.usedSections.push(sectionName);
+        analysis.dependencies.push(`sections/${sectionName}.liquid`);
       }
-    })
+    });
 
     // Detectar snippets (render e include)
-    const snippetPatterns = [this.TAG_PATTERNS.render, this.TAG_PATTERNS.include]
+    const snippetPatterns = [this.TAG_PATTERNS.render, this.TAG_PATTERNS.include];
     for (const pattern of snippetPatterns) {
-      this.extractMatches(content, pattern, match => {
-        const snippetName = this.extractName(
-          match,
-          /(?:render|include)\s+['"]([^'"]+)['"]/i
-        )
+      this.extractMatches(content, pattern, (match) => {
+        const snippetName = this.extractName(match, /(?:render|include)\s+['"]([^'"]+)['"]/i);
         if (snippetName) {
-          analysis.dependencies.push(`snippets/${snippetName}.liquid`)
+          analysis.dependencies.push(`snippets/${snippetName}.liquid`);
         }
-      })
+      });
     }
   }
 
   /**
    * Utilidad para extraer matches y procesarlos
    */
-  private static extractMatches(
-    content: string,
-    pattern: RegExp,
-    processor: (match: string) => void
-  ): void {
-    const matches = content.match(pattern)
+  private static extractMatches(content: string, pattern: RegExp, processor: (match: string) => void): void {
+    const matches = content.match(pattern);
     if (matches) {
-      matches.forEach(processor)
+      matches.forEach(processor);
     }
   }
 
@@ -309,7 +293,7 @@ export class LiquidSyntaxDetector {
    * Utilidad para extraer nombres de matches
    */
   private static extractName(match: string, pattern: RegExp): string | null {
-    const nameMatch = match.match(pattern)
-    return nameMatch ? nameMatch[1] : null
+    const nameMatch = match.match(pattern);
+    return nameMatch ? nameMatch[1] : null;
   }
 }

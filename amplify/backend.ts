@@ -1,30 +1,30 @@
-import { defineBackend } from '@aws-amplify/backend'
-import { auth } from './auth/resource'
-import { storage } from './storage/resource'
-import { createSubscription } from './functions/createSubscription/resource'
-import { webHookPlan } from './functions/webHookPlan/resource'
-import { planScheduler } from './functions/planScheduler/resource'
-import { checkStoreName } from './functions/checkStoreName/resource'
-import { checkStoreDomain } from './functions/checkStoreDomain/resource'
-import { postConfirmation } from './auth/post-confirmation/resource'
-import { apiKeyManager } from './functions/LambdaEncryptKeys/resource'
-import { storeImages } from './functions/storeImages/resource'
+import { defineBackend } from '@aws-amplify/backend';
+import { auth } from './auth/resource';
+import { storage } from './storage/resource';
+import { createSubscription } from './functions/createSubscription/resource';
+import { webHookPlan } from './functions/webHookPlan/resource';
+import { planScheduler } from './functions/planScheduler/resource';
+import { checkStoreName } from './functions/checkStoreName/resource';
+import { checkStoreDomain } from './functions/checkStoreDomain/resource';
+import { postConfirmation } from './auth/post-confirmation/resource';
+import { apiKeyManager } from './functions/LambdaEncryptKeys/resource';
+import { storeImages } from './functions/storeImages/resource';
 import {
   data,
   generateHaikuFunction,
   generateProductDescriptionFunction,
   generatePriceSuggestionFunction,
-} from './data/resource'
-import { Stack } from 'aws-cdk-lib'
-import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway'
-import { Policy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam'
+} from './data/resource';
+import { Stack } from 'aws-cdk-lib';
+import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { Policy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 
 /**
  * Detección simple de entorno
  */
-const isProduction = process.env.APP_ENV === 'production'
+const isProduction = process.env.APP_ENV === 'production';
 
-const stageName = isProduction ? 'prod' : 'dev'
+const stageName = isProduction ? 'prod' : 'dev';
 
 /**
  * Configuración de CORS según entorno
@@ -33,13 +33,7 @@ const corsConfig = isProduction
   ? {
       allowOrigins: ['https://fasttify.com', 'https://www.fasttify.com'],
       allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowHeaders: [
-        'Content-Type',
-        'X-Amz-Date',
-        'Authorization',
-        'X-Api-Key',
-        'X-Amz-Security-Token',
-      ],
+      allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
       allowCredentials: true,
     }
   : {
@@ -47,7 +41,7 @@ const corsConfig = isProduction
       allowMethods: Cors.ALL_METHODS,
       allowHeaders: Cors.DEFAULT_HEADERS,
       allowCredentials: false,
-    }
+    };
 
 /**
  * Configuración base de deployment
@@ -60,10 +54,10 @@ const deployConfig = {
       burstLimit: 2000,
     },
   }),
-}
+};
 
-console.log(`🚀 Configurando backend para: ${isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}`)
-console.log(`📋 Stage: ${stageName}`)
+console.log(`🚀 Configurando backend para: ${isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}`);
+console.log(`📋 Stage: ${stageName}`);
 
 /**
  * Definición del backend con sus respectivos recursos.
@@ -83,7 +77,7 @@ const backend = defineBackend({
   generateProductDescriptionFunction,
   generatePriceSuggestionFunction,
   storeImages,
-})
+});
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
   new PolicyStatement({
@@ -101,7 +95,7 @@ backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
       'arn:aws:bedrock:*:*:application-inference-profile/*',
     ],
   })
-)
+);
 
 backend.generateProductDescriptionFunction.resources.lambda.addToRolePolicy(
   new PolicyStatement({
@@ -119,7 +113,7 @@ backend.generateProductDescriptionFunction.resources.lambda.addToRolePolicy(
       'arn:aws:bedrock:*:*:application-inference-profile/*',
     ],
   })
-)
+);
 
 backend.generatePriceSuggestionFunction.resources.lambda.addToRolePolicy(
   new PolicyStatement({
@@ -137,27 +131,24 @@ backend.generatePriceSuggestionFunction.resources.lambda.addToRolePolicy(
       'arn:aws:bedrock:*:*:application-inference-profile/*',
     ],
   })
-)
+);
 
 backend.postConfirmation.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
     resources: ['*'],
   })
-)
+);
 
 backend.storeImages.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     effect: Effect.ALLOW,
     actions: ['s3:ListBucket', 's3:GetObject', 's3:PutObject', 's3:DeleteObject'],
-    resources: [
-      backend.storage.resources.bucket.bucketArn,
-      `${backend.storage.resources.bucket.bucketArn}/*`,
-    ],
+    resources: [backend.storage.resources.bucket.bucketArn, `${backend.storage.resources.bucket.bucketArn}/*`],
   })
-)
+);
 
-const apiStack = backend.createStack('api-stack')
+const apiStack = backend.createStack('api-stack');
 
 /**
  *
@@ -169,17 +160,15 @@ const subscriptionApi = new RestApi(apiStack, 'SubscriptionApi', {
   deploy: true,
   deployOptions: deployConfig,
   defaultCorsPreflightOptions: corsConfig,
-})
+});
 
-const createSubscriptionIntegration = new LambdaIntegration(
-  backend.createSubscription.resources.lambda
-)
+const createSubscriptionIntegration = new LambdaIntegration(backend.createSubscription.resources.lambda);
 
 const subscribeResource = subscriptionApi.root.addResource('subscribe', {
   defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
-})
+});
 
-subscribeResource.addMethod('POST', createSubscriptionIntegration)
+subscribeResource.addMethod('POST', createSubscriptionIntegration);
 
 /**
  *
@@ -191,15 +180,15 @@ const webHookApi = new RestApi(apiStack, 'WebHookApi', {
   deploy: true,
   deployOptions: deployConfig,
   defaultCorsPreflightOptions: corsConfig,
-})
+});
 
-const webHookPlanIntegration = new LambdaIntegration(backend.webHookPlan.resources.lambda)
+const webHookPlanIntegration = new LambdaIntegration(backend.webHookPlan.resources.lambda);
 
 const webhookResource = webHookApi.root.addResource('webhook', {
   defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
-})
+});
 
-webhookResource.addMethod('POST', webHookPlanIntegration)
+webhookResource.addMethod('POST', webHookPlanIntegration);
 
 /**
  *
@@ -211,14 +200,14 @@ const checkStoreNameApi = new RestApi(apiStack, 'CheckStoreNameApi', {
   deploy: true,
   deployOptions: deployConfig,
   defaultCorsPreflightOptions: corsConfig,
-})
-const checkStoreNameIntegration = new LambdaIntegration(backend.checkStoreName.resources.lambda)
+});
+const checkStoreNameIntegration = new LambdaIntegration(backend.checkStoreName.resources.lambda);
 
 const checkStoreNameResource = checkStoreNameApi.root.addResource('check-store-name', {
   defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
-})
+});
 
-checkStoreNameResource.addMethod('GET', checkStoreNameIntegration)
+checkStoreNameResource.addMethod('GET', checkStoreNameIntegration);
 
 /**
  *
@@ -230,14 +219,14 @@ const checkStoreDomainApi = new RestApi(apiStack, 'CheckStoreDomainApi', {
   deploy: true,
   deployOptions: deployConfig,
   defaultCorsPreflightOptions: corsConfig,
-})
-const checkStoreDomainIntegration = new LambdaIntegration(backend.checkStoreDomain.resources.lambda)
+});
+const checkStoreDomainIntegration = new LambdaIntegration(backend.checkStoreDomain.resources.lambda);
 
 const checkStoreDomainResource = checkStoreDomainApi.root.addResource('check-store-domain', {
   defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
-})
+});
 
-checkStoreDomainResource.addMethod('GET', checkStoreDomainIntegration)
+checkStoreDomainResource.addMethod('GET', checkStoreDomainIntegration);
 
 /**
  *
@@ -249,12 +238,12 @@ const apiKeyManagerApi = new RestApi(apiStack, 'ApiKeyManagerApi', {
   deploy: true,
   deployOptions: deployConfig,
   defaultCorsPreflightOptions: corsConfig,
-})
+});
 
-const apiKeyManagerIntegration = new LambdaIntegration(backend.apiKeyManager.resources.lambda)
+const apiKeyManagerIntegration = new LambdaIntegration(backend.apiKeyManager.resources.lambda);
 
-const apiKeyManagerResource = apiKeyManagerApi.root.addResource('api-keys')
-apiKeyManagerResource.addMethod('POST', apiKeyManagerIntegration)
+const apiKeyManagerResource = apiKeyManagerApi.root.addResource('api-keys');
+apiKeyManagerResource.addMethod('POST', apiKeyManagerIntegration);
 
 /**
  *
@@ -267,11 +256,11 @@ const storeImagesApi = new RestApi(apiStack, 'StoreImagesApi', {
   deploy: true,
   deployOptions: deployConfig,
   defaultCorsPreflightOptions: corsConfig,
-})
-const storeImagesIntegration = new LambdaIntegration(backend.storeImages.resources.lambda)
-const storeImagesResource = storeImagesApi.root.addResource('store-images')
+});
+const storeImagesIntegration = new LambdaIntegration(backend.storeImages.resources.lambda);
+const storeImagesResource = storeImagesApi.root.addResource('store-images');
 
-storeImagesResource.addMethod('POST', storeImagesIntegration)
+storeImagesResource.addMethod('POST', storeImagesIntegration);
 
 /**
  *
@@ -292,11 +281,11 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
       ],
     }),
   ],
-})
+});
 
 // Adjuntar la política a los roles autenticados y no autenticados
-backend.auth.resources.authenticatedUserIamRole.attachInlinePolicy(apiRestPolicy)
-backend.auth.resources.unauthenticatedUserIamRole.attachInlinePolicy(apiRestPolicy)
+backend.auth.resources.authenticatedUserIamRole.attachInlinePolicy(apiRestPolicy);
+backend.auth.resources.unauthenticatedUserIamRole.attachInlinePolicy(apiRestPolicy);
 
 /**
  *
@@ -348,4 +337,4 @@ backend.addOutput({
       },
     },
   },
-})
+});

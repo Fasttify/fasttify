@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import { useState, ReactNode } from 'react'
-import { Modal, Button, Text, LegacyStack, Link, Divider, Box, Icon } from '@shopify/polaris'
-import { ExternalIcon } from '@shopify/polaris-icons'
+import { useState, ReactNode } from 'react';
+import { Modal, Button, Text, LegacyStack, Link, Divider, Box, Icon } from '@shopify/polaris';
+import { ExternalIcon } from '@shopify/polaris-icons';
 
 interface MercadoPagoGuideProps {
-  trigger?: ReactNode
+  trigger?: ReactNode;
 }
 
 const GuideSection = ({ title, items }: { title: string; items: ReactNode[] }) => (
@@ -23,17 +23,17 @@ const GuideSection = ({ title, items }: { title: string; items: ReactNode[] }) =
       </ul>
     </Box>
   </LegacyStack>
-)
+);
 
 export function MercadoPagoGuide({ trigger }: MercadoPagoGuideProps) {
-  const [open, setOpen] = useState(false)
-  const toggleModal = () => setOpen(prev => !prev)
+  const [open, setOpen] = useState(false);
+  const toggleModal = () => setOpen((prev) => !prev);
 
   const activator = trigger ? (
     <div onClick={toggleModal}>{trigger}</div>
   ) : (
     <Button onClick={toggleModal}>Guía de Activación Mercado Pago</Button>
-  )
+  );
 
   const sections = [
     {
@@ -70,7 +70,7 @@ export function MercadoPagoGuide({ trigger }: MercadoPagoGuideProps) {
         'Realiza una transacción de prueba con una tarjeta real de bajo valor.',
       ],
     },
-  ]
+  ];
 
   const resources = [
     {
@@ -82,7 +82,7 @@ export function MercadoPagoGuide({ trigger }: MercadoPagoGuideProps) {
       url: 'https://www.mercadopago.com.ar/developers/es',
     },
     { text: 'Centro de ayuda y soporte', url: 'https://www.mercadopago.com.ar/ayuda' },
-  ]
+  ];
 
   return (
     <>
@@ -91,8 +91,7 @@ export function MercadoPagoGuide({ trigger }: MercadoPagoGuideProps) {
         open={open}
         onClose={toggleModal}
         title="Guía de Activación - Mercado Pago"
-        secondaryActions={[{ content: 'Cerrar', onAction: toggleModal }]}
-      >
+        secondaryActions={[{ content: 'Cerrar', onAction: toggleModal }]}>
         <Modal.Section>
           <LegacyStack vertical spacing="loose">
             <Text as="p" tone="subdued">
@@ -107,7 +106,7 @@ export function MercadoPagoGuide({ trigger }: MercadoPagoGuideProps) {
             <Divider />
             <GuideSection
               title="Recursos adicionales"
-              items={resources.map(resource => (
+              items={resources.map((resource) => (
                 <Link url={resource.url} target="_blank">
                   <LegacyStack alignment="center" spacing="extraTight">
                     <Text as="span">{resource.text}</Text>
@@ -120,5 +119,5 @@ export function MercadoPagoGuide({ trigger }: MercadoPagoGuideProps) {
         </Modal.Section>
       </Modal>
     </>
-  )
+  );
 }

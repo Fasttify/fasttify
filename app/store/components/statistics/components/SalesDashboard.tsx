@@ -1,61 +1,51 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { CalendarIcon } from 'lucide-react'
-import { format } from 'date-fns'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-  MetricCard,
-  DistributionCard,
-  ConversionCard,
-} from '@/app/store/components/statistics/components/MetricCards'
+import { useState, useEffect } from 'react';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Checkbox } from '@/components/ui/checkbox';
+import { MetricCard, DistributionCard, ConversionCard } from '@/app/store/components/statistics/components/MetricCards';
 
 // Data generation utilities
 const generateDailyData = (days = 30, baseValue = 1000, variance = 200) => {
   return Array.from({ length: days }).map((_, i) => {
-    const date = new Date()
-    date.setDate(date.getDate() - (days - i - 1))
+    const date = new Date();
+    date.setDate(date.getDate() - (days - i - 1));
 
     return {
       date: format(date, 'MMM dd'),
       value: Math.max(0, baseValue + Math.random() * variance * 2 - variance),
       previousValue: Math.max(0, baseValue * 0.9 + Math.random() * variance * 2 - variance),
-    }
-  })
-}
+    };
+  });
+};
 
 export function SalesDashboard() {
-  const [isClient, setIsClient] = useState(false)
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true)
-  }, [])
+    setIsClient(true);
+  }, []);
 
   // State management
   const [dateRange, setDateRange] = useState({
     from: new Date(new Date().setDate(new Date().getDate() - 7)),
     to: new Date(),
-  })
-  const [compareWith, setCompareWith] = useState('yesterday')
-  const [timeframe, setTimeframe] = useState('daily')
-  const [autoRefresh, setAutoRefresh] = useState(false)
+  });
+  const [compareWith, setCompareWith] = useState('yesterday');
+  const [timeframe, setTimeframe] = useState('daily');
+  const [autoRefresh, setAutoRefresh] = useState(false);
 
   // Generate sample data
-  const salesData = generateDailyData(30, 5000, 1000)
-  const ordersData = generateDailyData(30, 120, 30)
-  const aovData = generateDailyData(30, 42, 8)
-  const sessionsData = generateDailyData(30, 500, 100)
+  const salesData = generateDailyData(30, 5000, 1000);
+  const ordersData = generateDailyData(30, 120, 30);
+  const aovData = generateDailyData(30, 42, 8);
+  const sessionsData = generateDailyData(30, 500, 100);
 
   const channelData = [
     { name: 'Direct', value: 4000 },
@@ -64,31 +54,31 @@ export function SalesDashboard() {
     { name: 'Social', value: 1500 },
     { name: 'Email', value: 1000 },
     { name: 'Referral', value: 500 },
-  ]
+  ];
 
   const conversionData = [
     { stage: 'Added to Cart', sessions: 320, rate: 64 },
     { stage: 'Reached Checkout', sessions: 240, rate: 48 },
     { stage: 'Completed Purchase', sessions: 120, rate: 24 },
-  ]
+  ];
 
   // Calculate totals
-  const totalRevenue = salesData.reduce((sum, item) => sum + item.value, 0).toFixed(2)
-  const totalOrders = ordersData.reduce((sum, item) => sum + item.value, 0).toFixed(0)
-  const averageOrderValue = (Number(totalRevenue) / Number(totalOrders)).toFixed(2)
-  const totalSessions = sessionsData.reduce((sum, item) => sum + item.value, 0).toFixed(0)
-  const conversionRate = ((Number(totalOrders) / Number(totalSessions)) * 100).toFixed(2)
+  const totalRevenue = salesData.reduce((sum, item) => sum + item.value, 0).toFixed(2);
+  const totalOrders = ordersData.reduce((sum, item) => sum + item.value, 0).toFixed(0);
+  const averageOrderValue = (Number(totalRevenue) / Number(totalOrders)).toFixed(2);
+  const totalSessions = sessionsData.reduce((sum, item) => sum + item.value, 0).toFixed(0);
+  const conversionRate = ((Number(totalOrders) / Number(totalSessions)) * 100).toFixed(2);
 
   // Format date range for display
   const formatDateRange = () => {
     if (dateRange.from && dateRange.to) {
-      return `${format(dateRange.from, 'MMM dd, yyyy')} - ${format(dateRange.to, 'MMM dd, yyyy')}`
+      return `${format(dateRange.from, 'MMM dd, yyyy')} - ${format(dateRange.to, 'MMM dd, yyyy')}`;
     }
-    return 'Select date range'
-  }
+    return 'Select date range';
+  };
 
   if (!isClient) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   return (
@@ -109,8 +99,7 @@ export function SalesDashboard() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="lucide lucide-maximize-2"
-            >
+              className="lucide lucide-maximize-2">
               <polyline points="15 3 21 3 21 9" />
               <polyline points="9 21 3 21 3 15" />
               <line x1="21" y1="3" x2="14" y2="10" />
@@ -129,11 +118,7 @@ export function SalesDashboard() {
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-[240px] justify-start text-left font-normal"
-                >
+                <Button variant="outline" size="sm" className="w-[240px] justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {formatDateRange()}
                 </Button>
@@ -144,9 +129,9 @@ export function SalesDashboard() {
                   mode="range"
                   defaultMonth={dateRange.from}
                   selected={dateRange}
-                  onSelect={range => {
+                  onSelect={(range) => {
                     if (range?.from && range?.to) {
-                      setDateRange({ from: range.from, to: range.to })
+                      setDateRange({ from: range.from, to: range.to });
                     }
                   }}
                   numberOfMonths={2}
@@ -176,8 +161,7 @@ export function SalesDashboard() {
               />
               <label
                 htmlFor="autoRefresh"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Actualización automática
               </label>
             </div>
@@ -199,7 +183,7 @@ export function SalesDashboard() {
               value={totalRevenue}
               data={salesData}
               color="#0088FE"
-              valueFormatter={value => `$${value.toFixed(2)}`}
+              valueFormatter={(value) => `$${value.toFixed(2)}`}
               metricName="Ganancia"
               prefix="$"
             />
@@ -213,7 +197,7 @@ export function SalesDashboard() {
               value={totalSessions}
               data={sessionsData}
               color="#00C49F"
-              valueFormatter={value => value.toFixed(0)}
+              valueFormatter={(value) => value.toFixed(0)}
               metricName="Sesiones"
             />
 
@@ -230,7 +214,7 @@ export function SalesDashboard() {
               value={totalOrders}
               data={ordersData}
               color="#FFBB28"
-              valueFormatter={value => value.toFixed(0)}
+              valueFormatter={(value) => value.toFixed(0)}
               metricName="Órdenes"
             />
 
@@ -240,7 +224,7 @@ export function SalesDashboard() {
               value={averageOrderValue}
               data={aovData}
               color="#FF8042"
-              valueFormatter={value => `$${value.toFixed(2)}`}
+              valueFormatter={(value) => `$${value.toFixed(2)}`}
               metricName="AOV"
               prefix="$"
             />
@@ -248,5 +232,5 @@ export function SalesDashboard() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

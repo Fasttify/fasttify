@@ -1,56 +1,45 @@
-import { useState } from 'react'
-import {
-  Card,
-  BlockStack,
-  Text,
-  Button,
-  DropZone,
-  Thumbnail,
-  LegacyStack,
-  TextField,
-} from '@shopify/polaris'
-import ImageSelectorModal from '@/app/store/components/images-selector/components/image-selector-modal'
+import { useState } from 'react';
+import { Card, BlockStack, Text, Button, DropZone, Thumbnail, LegacyStack, TextField } from '@shopify/polaris';
+import ImageSelectorModal from '@/app/store/components/images-selector/components/image-selector-modal';
 
 interface ImageFile {
-  url: string
-  alt?: string
+  url: string;
+  alt?: string;
 }
 
 interface ImageUploadProps {
-  value: ImageFile[]
-  onChange: (value: ImageFile[]) => void
-  storeId: string
+  value: ImageFile[];
+  onChange: (value: ImageFile[]) => void;
+  storeId: string;
 }
 
 export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDropZoneDrop = () => {
-    setIsModalOpen(true)
-  }
+    setIsModalOpen(true);
+  };
 
   const removeImage = (index: number) => {
-    const newImages = [...value]
-    newImages.splice(index, 1)
-    onChange(newImages)
-  }
+    const newImages = [...value];
+    newImages.splice(index, 1);
+    onChange(newImages);
+  };
 
   const updateAltText = (index: number, alt: string) => {
-    const newImages = [...value]
-    newImages[index].alt = alt
-    onChange(newImages)
-  }
+    const newImages = [...value];
+    newImages[index].alt = alt;
+    onChange(newImages);
+  };
 
   const handleSelectImages = (selectedImages: any) => {
-    const imagesToAdd: ImageFile[] = (
-      Array.isArray(selectedImages) ? selectedImages : [selectedImages]
-    ).map(img => ({
+    const imagesToAdd: ImageFile[] = (Array.isArray(selectedImages) ? selectedImages : [selectedImages]).map((img) => ({
       url: img.url,
       alt: img.filename || '',
-    }))
-    onChange([...value, ...imagesToAdd])
-    setIsModalOpen(false)
-  }
+    }));
+    onChange([...value, ...imagesToAdd]);
+    setIsModalOpen(false);
+  };
 
   return (
     <>
@@ -69,17 +58,13 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
             {value.map((image, index) => (
               <Card key={index}>
                 <BlockStack gap="200" inlineAlign="center">
-                  <Thumbnail
-                    source={image.url || ''}
-                    alt={image.alt || 'Imagen de producto'}
-                    size="large"
-                  />
+                  <Thumbnail source={image.url || ''} alt={image.alt || 'Imagen de producto'} size="large" />
                   <div style={{ flexGrow: 1 }}>
                     <TextField
                       label="Texto alternativo"
                       labelHidden
                       value={image.alt || ''}
-                      onChange={alt => updateAltText(index, alt)}
+                      onChange={(alt) => updateAltText(index, alt)}
                       autoComplete="off"
                     />
                   </div>
@@ -101,5 +86,5 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
         initialSelectedImage={value.length > 0 ? value[0].url : null}
       />
     </>
-  )
+  );
 }

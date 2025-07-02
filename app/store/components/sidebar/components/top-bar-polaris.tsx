@@ -1,88 +1,88 @@
-'use client'
+'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react'
-import { TopBar, ActionList, SkeletonThumbnail, SkeletonBodyText } from '@shopify/polaris'
-import { ExitIcon } from '@shopify/polaris-icons'
-import { useRouter } from 'next/navigation'
-import { generateSearchRoutes } from '@/app/store/components/search-bar/components/SearchRoutes'
-import { useAuth } from '@/context/hooks/useAuth'
-import useStoreDataStore from '@/context/core/storeDataStore'
-import useUserStore from '@/context/core/userStore'
-import { ChatTrigger } from '@/app/store/components/ai-chat/components/ChatTrigger'
-import { NotificationPopover } from '@/app/store/components/notifications/components/NotificationPopover'
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { TopBar, ActionList, SkeletonThumbnail, SkeletonBodyText } from '@shopify/polaris';
+import { ExitIcon } from '@shopify/polaris-icons';
+import { useRouter } from 'next/navigation';
+import { generateSearchRoutes } from '@/app/store/components/search-bar/components/SearchRoutes';
+import { useAuth } from '@/context/hooks/useAuth';
+import useStoreDataStore from '@/context/core/storeDataStore';
+import useUserStore from '@/context/core/userStore';
+import { ChatTrigger } from '@/app/store/components/ai-chat/components/ChatTrigger';
+import { NotificationPopover } from '@/app/store/components/notifications/components/NotificationPopover';
 
 interface TopBarPolarisProps {
-  storeId: string
-  onNavigationToggle?: () => void
+  storeId: string;
+  onNavigationToggle?: () => void;
 }
 
 export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProps) {
-  const router = useRouter()
-  const { user, loading } = useUserStore()
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-  const [isSearchActive, setIsSearchActive] = useState(false)
-  const [searchValue, setSearchValue] = useState('')
-  const [isClient, setIsClient] = useState(false)
-  const { clearStore, currentStore } = useStoreDataStore()
-  const storeName = currentStore?.storeName
-  const userPicture = user?.picture
+  const router = useRouter();
+  const { user, loading } = useUserStore();
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [isClient, setIsClient] = useState(false);
+  const { clearStore, currentStore } = useStoreDataStore();
+  const storeName = currentStore?.storeName;
+  const userPicture = user?.picture;
 
-  useAuth()
+  useAuth();
 
   useEffect(() => {
-    setIsClient(true)
-  }, [])
+    setIsClient(true);
+  }, []);
 
   const handleChangeStore = async () => {
-    await clearStore()
-    router.push('/my-store')
-  }
+    await clearStore();
+    router.push('/my-store');
+  };
 
   // Generar rutas de búsqueda usando la función existente
   const searchRoutes = useMemo(() => {
-    return storeId ? generateSearchRoutes(storeId) : []
-  }, [storeId])
+    return storeId ? generateSearchRoutes(storeId) : [];
+  }, [storeId]);
 
   // Filtrar rutas basado en el texto de búsqueda
   const filteredRoutes = useMemo(() => {
-    if (!searchValue) return searchRoutes.slice(0, 8) // Mostrar las primeras 8 rutas por defecto
+    if (!searchValue) return searchRoutes.slice(0, 8); // Mostrar las primeras 8 rutas por defecto
 
     return searchRoutes
-      .filter(route => {
+      .filter((route) => {
         return (
           route.label.toLowerCase().includes(searchValue.toLowerCase()) ||
           route.path.toLowerCase().includes(searchValue.toLowerCase()) ||
-          route.keywords?.some(keyword => keyword.toLowerCase().includes(searchValue.toLowerCase()))
-        )
+          route.keywords?.some((keyword) => keyword.toLowerCase().includes(searchValue.toLowerCase()))
+        );
       })
-      .slice(0, 8) // Limitar a 8 resultados
-  }, [searchValue, searchRoutes])
+      .slice(0, 8); // Limitar a 8 resultados
+  }, [searchValue, searchRoutes]);
 
   // Callbacks para TopBar
-  const toggleIsUserMenuOpen = useCallback(() => setIsUserMenuOpen(prev => !prev), [])
+  const toggleIsUserMenuOpen = useCallback(() => setIsUserMenuOpen((prev) => !prev), []);
 
   const handleSearchResultsDismiss = useCallback(() => {
-    setIsSearchActive(false)
-    setSearchValue('')
-  }, [])
+    setIsSearchActive(false);
+    setSearchValue('');
+  }, []);
 
   const handleSearchChange = useCallback((value: string) => {
-    setSearchValue(value)
-    setIsSearchActive(value.length > 0)
-  }, [])
+    setSearchValue(value);
+    setIsSearchActive(value.length > 0);
+  }, []);
 
   const handleNavigationToggle = useCallback(() => {
-    onNavigationToggle?.()
-  }, [onNavigationToggle])
+    onNavigationToggle?.();
+  }, [onNavigationToggle]);
 
   // Manejar selección de resultado de búsqueda
   const handleSearchResultSelect = useCallback(
     (path: string) => {
-      router.push(path)
-      handleSearchResultsDismiss()
+      router.push(path);
+      handleSearchResultsDismiss();
     },
     [router, handleSearchResultsDismiss]
-  )
+  );
 
   // User Menu - Con estado de carga e hidratación
   const userMenuMarkup =
@@ -93,8 +93,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
           alignItems: 'center',
           gap: 'var(--p-space-200)',
           padding: 'var(--p-space-200)',
-        }}
-      >
+        }}>
         <SkeletonThumbnail size="small" />
         <div style={{ width: '120px' }}>
           <SkeletonBodyText lines={2} />
@@ -128,7 +127,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
         onToggle={toggleIsUserMenuOpen}
         avatar={userPicture || ''}
       />
-    )
+    );
 
   // Search Field - Con estado de carga y hidratación
   const searchFieldMarkup = (
@@ -138,7 +137,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
       placeholder={!isClient || loading ? 'Cargando...' : 'Buscar rutas y páginas... '}
       showFocusBorder
     />
-  )
+  );
 
   // Search Results - Con estado de carga y hidratación
   const searchResultsMarkup =
@@ -154,13 +153,13 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
       />
     ) : (
       <ActionList
-        items={filteredRoutes.map(route => ({
+        items={filteredRoutes.map((route) => ({
           content: route.label,
           onAction: () => handleSearchResultSelect(route.path),
           suffix: route.section,
         }))}
       />
-    )
+    );
 
   // Secondary Menu con acciones personalizadas integradas
   const secondaryMenuMarkup = (
@@ -171,7 +170,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
 
       {/* Menú de ayuda */}
     </div>
-  )
+  );
 
   return (
     <TopBar
@@ -184,5 +183,5 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
       onSearchResultsDismiss={handleSearchResultsDismiss}
       onNavigationToggle={handleNavigationToggle}
     />
-  )
+  );
 }

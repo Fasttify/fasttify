@@ -1,39 +1,27 @@
-import { useEffect, useState, useCallback } from 'react'
-import {
-  Modal,
-  Form,
-  FormLayout,
-  TextField,
-  LegacyStack,
-  Text,
-  Spinner,
-  Link,
-} from '@shopify/polaris'
-import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData'
-import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, Controller } from 'react-hook-form'
-import {
-  storeProfileSchema,
-  type StoreProfileFormValues,
-} from '@/lib/zod-schemas/store-profile-schema'
+import { useEffect, useState, useCallback } from 'react';
+import { Modal, Form, FormLayout, TextField, LegacyStack, Text, Spinner, Link } from '@shopify/polaris';
+import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller } from 'react-hook-form';
+import { storeProfileSchema, type StoreProfileFormValues } from '@/lib/zod-schemas/store-profile-schema';
 import {
   createStoreNameValidator,
   handleStoreProfileSubmit,
   type StoreNameValidationState,
-} from '@/app/store/components/domains/utils/storeProfileUtils'
-import { useToast } from '@/app/store/context/ToastContext'
+} from '@/app/store/components/domains/utils/storeProfileUtils';
+import { useToast } from '@/app/store/context/ToastContext';
 
 interface EditStoreProfileDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  storeId: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  storeId: string;
   initialData: {
-    storeName?: string
-    contactEmail?: string
-    contactPhone?: string
-  }
-  onProfileUpdated?: () => void
+    storeName?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+  };
+  onProfileUpdated?: () => void;
 }
 
 export function EditStoreProfileDialog({
@@ -43,12 +31,12 @@ export function EditStoreProfileDialog({
   initialData,
   onProfileUpdated,
 }: EditStoreProfileDialogProps) {
-  const { updateUserStore, loading: isUpdating } = useUserStoreData()
-  const { checkStoreName, isChecking, exists } = useStoreNameValidator()
-  const { showToast } = useToast()
-  const [originalStoreName, setOriginalStoreName] = useState('')
-  const [nameChanged, setNameChanged] = useState(false)
-  const [isStoreNameValid, setIsStoreNameValid] = useState(true)
+  const { updateUserStore, loading: isUpdating } = useUserStoreData();
+  const { checkStoreName, isChecking, exists } = useStoreNameValidator();
+  const { showToast } = useToast();
+  const [originalStoreName, setOriginalStoreName] = useState('');
+  const [nameChanged, setNameChanged] = useState(false);
+  const [isStoreNameValid, setIsStoreNameValid] = useState(true);
 
   const {
     control,
@@ -63,7 +51,7 @@ export function EditStoreProfileDialog({
       storePhone: '',
       storeEmail: '',
     },
-  })
+  });
 
   const validationState: StoreNameValidationState = {
     originalStoreName,
@@ -71,7 +59,7 @@ export function EditStoreProfileDialog({
     isStoreNameValid,
     setNameChanged,
     setIsStoreNameValid,
-  }
+  };
 
   useEffect(() => {
     if (open) {
@@ -79,59 +67,59 @@ export function EditStoreProfileDialog({
         storeName: initialData.storeName || '',
         storePhone: initialData.contactPhone || '',
         storeEmail: initialData.contactEmail || '',
-      }
-      reset(defaultValues)
-      setOriginalStoreName(defaultValues.storeName)
-      setNameChanged(false)
-      setIsStoreNameValid(true)
+      };
+      reset(defaultValues);
+      setOriginalStoreName(defaultValues.storeName);
+      setNameChanged(false);
+      setIsStoreNameValid(true);
     }
-  }, [open, initialData, reset])
+  }, [open, initialData, reset]);
 
-  const debouncedCheckStoreName = useCallback(
-    createStoreNameValidator(validationState, { checkStoreName, exists }),
-    [validationState, checkStoreName, exists]
-  )
+  const debouncedCheckStoreName = useCallback(createStoreNameValidator(validationState, { checkStoreName, exists }), [
+    validationState,
+    checkStoreName,
+    exists,
+  ]);
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name === 'storeName' && value.storeName !== undefined) {
         if (value.storeName !== originalStoreName) {
-          setNameChanged(true)
-          setIsStoreNameValid(false)
-          debouncedCheckStoreName(value.storeName)
+          setNameChanged(true);
+          setIsStoreNameValid(false);
+          debouncedCheckStoreName(value.storeName);
         } else {
-          setNameChanged(false)
-          setIsStoreNameValid(true)
+          setNameChanged(false);
+          setIsStoreNameValid(true);
         }
       }
-    })
-    return () => subscription.unsubscribe()
-  }, [watch, originalStoreName, debouncedCheckStoreName])
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, originalStoreName, debouncedCheckStoreName]);
 
   useEffect(() => {
-    if (nameChanged) setIsStoreNameValid(!exists)
-  }, [exists, nameChanged])
+    if (nameChanged) setIsStoreNameValid(!exists);
+  }, [exists, nameChanged]);
 
   const handleSuccess = () => {
-    onOpenChange(false)
-    showToast('Perfil de la tienda actualizado con éxito')
+    onOpenChange(false);
+    showToast('Perfil de la tienda actualizado con éxito');
     if (onProfileUpdated) {
-      onProfileUpdated()
+      onProfileUpdated();
     }
-  }
+  };
 
   const onSubmit = async (data: StoreProfileFormValues) => {
-    const success = await handleStoreProfileSubmit(data, storeId, validationState, updateUserStore)
+    const success = await handleStoreProfileSubmit(data, storeId, validationState, updateUserStore);
 
     if (success) {
-      handleSuccess()
+      handleSuccess();
     } else {
-      showToast('Error al actualizar el perfil. Inténtalo de nuevo.', true)
+      showToast('Error al actualizar el perfil. Inténtalo de nuevo.', true);
     }
-  }
+  };
 
-  const isSubmitDisabled =
-    isUpdating || isSubmitting || (nameChanged && (isChecking || !isStoreNameValid))
+  const isSubmitDisabled = isUpdating || isSubmitting || (nameChanged && (isChecking || !isStoreNameValid));
 
   const renderStoreNameHelpText = () => {
     if (isChecking && nameChanged) {
@@ -140,13 +128,13 @@ export function EditStoreProfileDialog({
           <Spinner size="small" />
           <Text as="span">Verificando disponibilidad...</Text>
         </LegacyStack>
-      )
+      );
     }
     if (exists && nameChanged) {
-      return 'Este nombre de tienda ya está en uso'
+      return 'Este nombre de tienda ya está en uso';
     }
-    return 'Aparece en tu sitio web'
-  }
+    return 'Aparece en tu sitio web';
+  };
 
   return (
     <Modal
@@ -159,8 +147,7 @@ export function EditStoreProfileDialog({
         loading: isUpdating || isSubmitting,
         disabled: isSubmitDisabled,
       }}
-      secondaryActions={[{ content: 'Cancelar', onAction: () => onOpenChange(false) }]}
-    >
+      secondaryActions={[{ content: 'Cancelar', onAction: () => onOpenChange(false) }]}>
       <Modal.Section>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Text as="p" tone="subdued">
@@ -204,8 +191,8 @@ export function EditStoreProfileDialog({
                   error={errors.storeEmail?.message}
                   helpText={
                     <span>
-                      Recibe mensajes sobre tu tienda. Para el correo electrónico del remitente, ve
-                      a <Link url="#">configuración de notificaciones</Link>.
+                      Recibe mensajes sobre tu tienda. Para el correo electrónico del remitente, ve a{' '}
+                      <Link url="#">configuración de notificaciones</Link>.
                     </span>
                   }
                   autoComplete="email"
@@ -216,5 +203,5 @@ export function EditStoreProfileDialog({
         </Form>
       </Modal.Section>
     </Modal>
-  )
+  );
 }

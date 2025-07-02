@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Loader } from '@/components/ui/loader'
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Loader } from '@/components/ui/loader';
 import {
   Dialog,
   DialogContent,
@@ -8,31 +8,31 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { useUserAttributes } from '@/app/(main-layout)/account-settings/hooks/useUserAttributes'
-import { emailSchema, verificationCodeSchema } from '@/lib/zod-schemas/email-change'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { useToast } from '@/hooks/ui/use-toasts'
-import { Toast } from '@/components/ui/toasts'
-import type { z } from 'zod'
-import { OTPInput, type SlotProps } from 'input-otp'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { useUserAttributes } from '@/app/(main-layout)/account-settings/hooks/useUserAttributes';
+import { emailSchema, verificationCodeSchema } from '@/lib/zod-schemas/email-change';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { useToast } from '@/hooks/ui/use-toasts';
+import { Toast } from '@/components/ui/toasts';
+import type { z } from 'zod';
+import { OTPInput, type SlotProps } from 'input-otp';
+import { cn } from '@/lib/utils';
 
 interface ChangeEmailDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  currentEmail: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  currentEmail: string;
 }
 
-type EmailFormData = z.infer<typeof emailSchema>
-type VerificationFormData = z.infer<typeof verificationCodeSchema>
+type EmailFormData = z.infer<typeof emailSchema>;
+type VerificationFormData = z.infer<typeof verificationCodeSchema>;
 
 export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEmailDialogProps) {
-  const [requiresVerification, setRequiresVerification] = useState(false)
-  const { updateAttributes, confirmAttribute, loading } = useUserAttributes()
-  const { toasts, addToast, removeToast } = useToast()
+  const [requiresVerification, setRequiresVerification] = useState(false);
+  const { updateAttributes, confirmAttribute, loading } = useUserAttributes();
+  const { toasts, addToast, removeToast } = useToast();
 
   const {
     register: registerEmail,
@@ -41,7 +41,7 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
     reset: resetEmail,
   } = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
-  })
+  });
 
   const {
     handleSubmit: handleSubmitVerification,
@@ -50,81 +50,75 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
     setValue: setVerificationValue,
   } = useForm<VerificationFormData>({
     resolver: zodResolver(verificationCodeSchema),
-  })
+  });
 
   const onSubmitEmail = async (data: EmailFormData) => {
     if (data.email.trim().toLowerCase() === currentEmail.trim().toLowerCase()) {
-      addToast('No puedes usar tu mismo correo actual', 'error')
-      return
+      addToast('No puedes usar tu mismo correo actual', 'error');
+      return;
     }
     try {
-      const updateResult = await updateAttributes({ email: data.email })
+      const updateResult = await updateAttributes({ email: data.email });
 
-      resetEmail()
+      resetEmail();
 
       if (updateResult.email.nextStep.updateAttributeStep === 'CONFIRM_ATTRIBUTE_WITH_CODE') {
-        setRequiresVerification(true)
+        setRequiresVerification(true);
       }
     } catch (err) {
-      handleError(err)
+      handleError(err);
     }
-  }
+  };
 
   const onSubmitVerification = async (data: VerificationFormData) => {
     try {
       await confirmAttribute({
         userAttributeKey: 'email',
         confirmationCode: data.verificationCode,
-      })
+      });
 
-      addToast('Tu correo electrónico ha sido actualizado exitosamente.', 'success')
-      onOpenChange(false)
+      addToast('Tu correo electrónico ha sido actualizado exitosamente.', 'success');
+      onOpenChange(false);
 
-      resetVerification()
+      resetVerification();
     } catch (err) {
-      let errorCode = ''
-      let errorMessage = ''
+      let errorCode = '';
+      let errorMessage = '';
       if (err && typeof err === 'object') {
-        errorCode = (err as any).code || ''
-        errorMessage = (err as any).message || ''
+        errorCode = (err as any).code || '';
+        errorMessage = (err as any).message || '';
       } else {
-        errorMessage = String(err)
+        errorMessage = String(err);
       }
 
-      if (
-        errorCode === 'CodeMismatchException' ||
-        errorMessage.includes('Invalid verification code')
-      ) {
-        addToast('El código es incorrecto, inténtalo de nuevo', 'error')
-        return
+      if (errorCode === 'CodeMismatchException' || errorMessage.includes('Invalid verification code')) {
+        addToast('El código es incorrecto, inténtalo de nuevo', 'error');
+        return;
       }
-      if (
-        errorCode === 'LimitExceededException' ||
-        errorMessage.includes('Attempt limit exceeded')
-      ) {
-        addToast('Has excedido el límite de intentos, por favor intenta más tarde', 'error')
-        return
+      if (errorCode === 'LimitExceededException' || errorMessage.includes('Attempt limit exceeded')) {
+        addToast('Has excedido el límite de intentos, por favor intenta más tarde', 'error');
+        return;
       }
-      handleError(err)
+      handleError(err);
     }
-  }
+  };
 
   const handleError = (err: unknown) => {
-    console.error('Error detallado:', err)
-    let errorMessage = 'Hubo un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.'
+    console.error('Error detallado:', err);
+    let errorMessage = 'Hubo un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.';
     if (err instanceof Error) {
-      errorMessage = err.message
+      errorMessage = err.message;
     }
-    addToast(errorMessage, 'error')
-  }
+    addToast(errorMessage, 'error');
+  };
 
   useEffect(() => {
     if (!open) {
-      resetEmail()
-      resetVerification()
-      setRequiresVerification(false)
+      resetEmail();
+      resetVerification();
+      setRequiresVerification(false);
     }
-  }, [open, resetEmail, resetVerification])
+  }, [open, resetEmail, resetVerification]);
 
   return (
     <>
@@ -141,9 +135,7 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
           {!requiresVerification ? (
             <form onSubmit={handleSubmitEmail(onSubmitEmail)} className="space-y-4">
               <Input placeholder="email@gmail.com" {...registerEmail('email')} />
-              {emailErrors.email && (
-                <p className="text-sm text-red-500">{emailErrors.email.message}</p>
-              )}
+              {emailErrors.email && <p className="text-sm text-red-500">{emailErrors.email.message}</p>}
               <DialogFooter>
                 <Button type="submit" disabled={loading}>
                   {loading ? (
@@ -162,7 +154,7 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
               <OTPInput
                 maxLength={6}
                 containerClassName="flex items-center justify-center gap-2 has-[:disabled]:opacity-50"
-                onChange={value => setVerificationValue('verificationCode', value)}
+                onChange={(value) => setVerificationValue('verificationCode', value)}
                 render={({ slots }) => (
                   <div className="flex gap-2">
                     {slots.map((slot, idx) => (
@@ -172,16 +164,10 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
                 )}
               />
               {verificationErrors.verificationCode && (
-                <p className="text-sm text-red-500">
-                  {verificationErrors.verificationCode.message}
-                </p>
+                <p className="text-sm text-red-500">{verificationErrors.verificationCode.message}</p>
               )}
               <DialogFooter>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="flex items-center justify-center"
-                >
+                <Button type="submit" disabled={loading} className="flex items-center justify-center">
                   {loading ? (
                     <span className="flex items-center gap-2">
                       <Loader color="white" />
@@ -198,7 +184,7 @@ export function ChangeEmailDialog({ open, onOpenChange, currentEmail }: ChangeEm
       </Dialog>
       <Toast toasts={toasts} removeToast={removeToast} />
     </>
-  )
+  );
 }
 
 function Slot(props: SlotProps) {
@@ -207,9 +193,8 @@ function Slot(props: SlotProps) {
       className={cn(
         'flex size-9 items-center justify-center rounded-lg border border-input bg-background font-medium text-foreground shadow-sm shadow-black/5 transition-shadow',
         { 'z-10 border border-ring ring-[3px] ring-ring/20': props.isActive }
-      )}
-    >
+      )}>
       {props.char !== null && <div>{props.char}</div>}
     </div>
-  )
+  );
 }

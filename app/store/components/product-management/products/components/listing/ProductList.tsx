@@ -1,23 +1,23 @@
-import { useRouter } from 'next/navigation'
-import { routes } from '@/utils/routes'
-import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris'
-import { handleExportProducts } from '@/app/store/components/product-management/utils/product-utils'
+import { useRouter } from 'next/navigation';
+import { routes } from '@/utils/routes';
+import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
+import { handleExportProducts } from '@/app/store/components/product-management/utils/product-utils';
 
 // Hooks
-import { useProductFilters } from '@/app/store/components/product-management/products/hooks/useProductFilters'
-import { useProductSelection } from '@/app/store/components/product-management/products/hooks/useProductSelection'
+import { useProductFilters } from '@/app/store/components/product-management/products/hooks/useProductFilters';
+import { useProductSelection } from '@/app/store/components/product-management/products/hooks/useProductSelection';
 
 // Components
-import { ProductFilters } from '@/app/store/components/product-management/products/components/listing/product-filters'
-import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/product-pagination'
-import { ProductTableDesktop } from '@/app/store/components/product-management/products/components/listing/product-table-desktop'
-import { ProductCardMobile } from '@/app/store/components/product-management/products/components/listing/product-card-mobile'
-import { ProductEmptyState } from '@/app/store/components/product-management/products/components/listing/product-empty-state'
-import { ProductIcon } from '@shopify/polaris-icons'
-import { useToast } from '@/app/store/context/ToastContext'
+import { ProductFilters } from '@/app/store/components/product-management/products/components/listing/product-filters';
+import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/product-pagination';
+import { ProductTableDesktop } from '@/app/store/components/product-management/products/components/listing/product-table-desktop';
+import { ProductCardMobile } from '@/app/store/components/product-management/products/components/listing/product-card-mobile';
+import { ProductEmptyState } from '@/app/store/components/product-management/products/components/listing/product-empty-state';
+import { ProductIcon } from '@shopify/polaris-icons';
+import { useToast } from '@/app/store/context/ToastContext';
 
 // Types
-import type { ProductListProps } from '@/app/store/components/product-management/products/types/product-types'
+import type { ProductListProps } from '@/app/store/components/product-management/products/types/product-types';
 
 export function ProductList({
   storeId,
@@ -33,58 +33,50 @@ export function ProductList({
   itemsPerPage,
   setItemsPerPage,
 }: ProductListProps) {
-  const router = useRouter()
-  const { showToast } = useToast()
+  const router = useRouter();
+  const { showToast } = useToast();
   // Hooks para manejar diferentes aspectos de la tabla
-  const { setSelectedProducts } = useProductSelection()
-  const {
-    activeTab,
-    setActiveTab,
-    searchQuery,
-    setSearchQuery,
-    sortedProducts,
-    toggleSort,
-    sortDirection,
-    sortField,
-  } = useProductFilters(products)
+  const { setSelectedProducts } = useProductSelection();
+  const { activeTab, setActiveTab, searchQuery, setSearchQuery, sortedProducts, toggleSort, sortDirection, sortField } =
+    useProductFilters(products);
 
   // Funciones de navegación y acciones
   const handleAddProduct = () => {
-    router.push(routes.store.products.add(storeId))
-  }
+    router.push(routes.store.products.add(storeId));
+  };
 
   const handleEditProduct = (id: string) => {
-    router.push(routes.store.products.edit(storeId, id))
-  }
+    router.push(routes.store.products.edit(storeId, id));
+  };
 
   const handleDeleteProduct = async (id: string) => {
     if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-      const success = await deleteProduct(id)
+      const success = await deleteProduct(id);
       if (success) {
-        showToast('Producto eliminado correctamente')
-        setSelectedProducts(prev => prev.filter(productId => productId !== id))
+        showToast('Producto eliminado correctamente');
+        setSelectedProducts((prev) => prev.filter((productId) => productId !== id));
       } else {
-        showToast('Error al eliminar el producto')
+        showToast('Error al eliminar el producto');
       }
     }
-  }
+  };
 
   const handleDeleteSelected = async (selectedIds: string[]) => {
-    if (selectedIds.length === 0) return
+    if (selectedIds.length === 0) return;
 
     if (confirm(`¿Estás seguro de que deseas eliminar ${selectedIds.length} productos?`)) {
-      const success = await deleteMultipleProducts(selectedIds)
+      const success = await deleteMultipleProducts(selectedIds);
       if (success) {
-        showToast(`${selectedIds.length} productos eliminados correctamente`)
-        setSelectedProducts([])
+        showToast(`${selectedIds.length} productos eliminados correctamente`);
+        setSelectedProducts([]);
       } else {
-        showToast(`Error al eliminar algunos productos`)
+        showToast(`Error al eliminar algunos productos`);
       }
     }
-  }
+  };
 
   if (error) {
-    return <ProductEmptyState handleAddProduct={handleAddProduct} error={error} />
+    return <ProductEmptyState handleAddProduct={handleAddProduct} error={error} />;
   }
 
   return (
@@ -97,8 +89,7 @@ export function ProductList({
           marginBottom: '20px',
           flexWrap: 'wrap',
           gap: '16px',
-        }}
-      >
+        }}>
         <div className=" flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <ProductIcon width={20} height={20} />
@@ -177,5 +168,5 @@ export function ProductList({
         </Box>
       </LegacyCard>
     </div>
-  )
+  );
 }

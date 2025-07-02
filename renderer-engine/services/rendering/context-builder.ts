@@ -1,14 +1,6 @@
-import type {
-  RenderContext,
-  ShopContext,
-  PageContext,
-  CartContext,
-} from '@/renderer-engine/types'
-import {
-  flexibleLinkListService,
-  linkListService,
-} from '@/renderer-engine/services/core/navigation-service'
-import { logger } from '@/renderer-engine/lib/logger'
+import type { RenderContext, ShopContext, PageContext, CartContext } from '@/renderer-engine/types';
+import { flexibleLinkListService, linkListService } from '@/renderer-engine/services/core/navigation-service';
+import { logger } from '@/renderer-engine/lib/logger';
 
 /**
  * Formatos de moneda soportados
@@ -21,7 +13,7 @@ const CURRENCY_FORMATS: Record<string, string> = {
   CAD: '${{amount}} CAD',
   MXN: '${{amount}} MXN',
   BRL: 'R${{amount}}',
-}
+};
 
 export class ContextBuilder {
   /**
@@ -35,10 +27,10 @@ export class ContextBuilder {
     cartData?: CartContext
   ): Promise<RenderContext> {
     // Construir las partes del contexto
-    const shop = this.createShopContext(store, collections)
-    const page = this.createPageContext(store)
-    const cart = cartData || this.createEmptyCart()
-    const linklists = await this.createLinkLists(store.storeId, storeTemplate)
+    const shop = this.createShopContext(store, collections);
+    const page = this.createPageContext(store);
+    const cart = cartData || this.createEmptyCart();
+    const linklists = await this.createLinkLists(store.storeId, storeTemplate);
 
     return {
       storeId: store.storeId,
@@ -51,7 +43,7 @@ export class ContextBuilder {
       collections,
       linklists,
       cart,
-    }
+    };
   }
 
   /**
@@ -63,15 +55,15 @@ export class ContextBuilder {
     featuredProducts: any[],
     collections: any[]
   ): Promise<RenderContext> {
-    return this.createRenderContext(store, featuredProducts, collections)
+    return this.createRenderContext(store, featuredProducts, collections);
   }
 
   /**
    * Crea el contexto de la tienda
    */
   private createShopContext(store: any, collections: any[]): ShopContext {
-    const currency = store.storeCurrency || 'COP'
-    const moneyFormat = CURRENCY_FORMATS[currency] || '${{amount}}'
+    const currency = store.storeCurrency || 'COP';
+    const moneyFormat = CURRENCY_FORMATS[currency] || '${{amount}}';
 
     return {
       name: store.storeName,
@@ -89,7 +81,7 @@ export class ContextBuilder {
       favicon: store.storeFavicon,
       storeId: store.storeId,
       collections,
-    }
+    };
   }
 
   /**
@@ -106,7 +98,7 @@ export class ContextBuilder {
           html_meta: '',
         },
       },
-    }
+    };
   }
 
   /**
@@ -120,7 +112,7 @@ export class ContextBuilder {
       items: [],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    }
+    };
   }
 
   /**
@@ -129,30 +121,29 @@ export class ContextBuilder {
   private async createLinkLists(storeId: string, storeTemplate?: any): Promise<any> {
     // Intentar cargar desde base de datos
     try {
-      const linklists = await linkListService.createLinkListsFromDatabase(storeId)
+      const linklists = await linkListService.createLinkListsFromDatabase(storeId);
       if (linklists && Object.keys(linklists).length > 0) {
-        return linklists
+        return linklists;
       }
     } catch (error) {
-      logger.warn('Failed to load navigation menus from database:', error)
+      logger.warn('Failed to load navigation menus from database:', error);
     }
 
     // Fallback a template si está disponible
     if (storeTemplate) {
       try {
-        const linklists =
-          flexibleLinkListService.createLinkListsFromTemplate(storeTemplate)
+        const linklists = flexibleLinkListService.createLinkListsFromTemplate(storeTemplate);
         if (linklists && Object.keys(linklists).length > 0) {
-          return linklists
+          return linklists;
         }
       } catch (error) {
-        logger.warn('Failed to load navigation menus from template:', error)
+        logger.warn('Failed to load navigation menus from template:', error);
       }
     }
 
     // Último fallback: menús vacíos
-    return flexibleLinkListService.createEmptyLinkLists()
+    return flexibleLinkListService.createEmptyLinkLists();
   }
 }
 
-export const contextBuilder = new ContextBuilder()
+export const contextBuilder = new ContextBuilder();

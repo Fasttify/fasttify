@@ -1,66 +1,52 @@
-import { useRouter } from 'next/navigation'
-import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris'
+import { useRouter } from 'next/navigation';
+import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
 
 // Hooks
-import { usePageFilters } from '@/app/store/components/page-management/hooks/usePageFilters'
-import { usePageSelection } from '@/app/store/components/page-management/hooks/usePageSelection'
-import { routes } from '@/utils/routes'
+import { usePageFilters } from '@/app/store/components/page-management/hooks/usePageFilters';
+import { usePageSelection } from '@/app/store/components/page-management/hooks/usePageSelection';
+import { routes } from '@/utils/routes';
 
 // Components
-import { PageFilters } from '@/app/store/components/page-management/components/listing/page-filters'
-import { PageTableDesktop } from '@/app/store/components/page-management/components/listing/page-table-desktop'
-import { PageListMobile } from '@/app/store/components/page-management/components/listing/page-list-mobile'
-import { PageIcon } from '@shopify/polaris-icons'
+import { PageFilters } from '@/app/store/components/page-management/components/listing/page-filters';
+import { PageTableDesktop } from '@/app/store/components/page-management/components/listing/page-table-desktop';
+import { PageListMobile } from '@/app/store/components/page-management/components/listing/page-list-mobile';
+import { PageIcon } from '@shopify/polaris-icons';
 
 // Types
-import type { PageListProps } from '@/app/store/components/page-management/types/page-types'
+import type { PageListProps } from '@/app/store/components/page-management/types/page-types';
 
-export function PageList({
-  storeId,
-  pages,
-  error,
-  deleteMultiplePages,
-  deletePage,
-}: PageListProps) {
-  const router = useRouter()
+export function PageList({ storeId, pages, error, deleteMultiplePages, deletePage }: PageListProps) {
+  const router = useRouter();
 
   // Hooks para manejar diferentes aspectos de la tabla
-  const { setSelectedPages } = usePageSelection()
-  const {
-    activeTab,
-    setActiveTab,
-    searchQuery,
-    setSearchQuery,
-    sortedPages,
-    toggleSort,
-    sortDirection,
-    sortField,
-  } = usePageFilters(pages)
+  const { setSelectedPages } = usePageSelection();
+  const { activeTab, setActiveTab, searchQuery, setSearchQuery, sortedPages, toggleSort, sortDirection, sortField } =
+    usePageFilters(pages);
 
   // Funciones de navegación y acciones
   const handleAddPage = () => {
-    router.push(routes.store.setup.pagesNew(storeId))
-  }
+    router.push(routes.store.setup.pagesNew(storeId));
+  };
 
   const handleEditPage = (id: string) => {
-    router.push(routes.store.setup.pagesEdit(storeId, id))
-  }
+    router.push(routes.store.setup.pagesEdit(storeId, id));
+  };
 
   const handleDeletePage = (id: string) => {
     if (confirm('¿Estás seguro de que deseas eliminar esta página?')) {
-      deletePage(id)
-      setSelectedPages(prev => prev.filter(pageId => pageId !== id))
+      deletePage(id);
+      setSelectedPages((prev) => prev.filter((pageId) => pageId !== id));
     }
-  }
+  };
 
   const handleDeleteSelected = (selectedIds: string[]) => {
-    if (selectedIds.length === 0) return
+    if (selectedIds.length === 0) return;
 
     if (confirm(`¿Estás seguro de que deseas eliminar ${selectedIds.length} páginas?`)) {
-      deleteMultiplePages(selectedIds)
-      setSelectedPages([])
+      deleteMultiplePages(selectedIds);
+      setSelectedPages([]);
     }
-  }
+  };
 
   if (error) {
     return (
@@ -75,7 +61,7 @@ export function PageList({
           </Box>
         </LegacyCard>
       </div>
-    )
+    );
   }
 
   return (
@@ -88,8 +74,7 @@ export function PageList({
           marginBottom: '20px',
           flexWrap: 'wrap',
           gap: '16px',
-        }}
-      >
+        }}>
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <PageIcon width={20} height={20} />
@@ -133,11 +118,7 @@ export function PageList({
           sortField={sortField ?? 'title'}
         />
 
-        <PageListMobile
-          pages={sortedPages}
-          handleEditPage={handleEditPage}
-          handleDeletePage={handleDeletePage}
-        />
+        <PageListMobile pages={sortedPages} handleEditPage={handleEditPage} handleDeletePage={handleDeletePage} />
 
         {/* Información adicional en lugar de paginación */}
         <Box padding="400" background="bg-surface">
@@ -149,5 +130,5 @@ export function PageList({
         </Box>
       </LegacyCard>
     </div>
-  )
+  );
 }
