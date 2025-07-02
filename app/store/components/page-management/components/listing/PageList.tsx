@@ -1,5 +1,5 @@
-import { useRouter } from 'next/navigation';
 import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
+import { useRouter } from 'next/navigation';
 
 // Hooks
 import { usePageFilters } from '@/app/store/components/page-management/hooks/usePageFilters';
@@ -7,9 +7,9 @@ import { usePageSelection } from '@/app/store/components/page-management/hooks/u
 import { routes } from '@/utils/routes';
 
 // Components
-import { PageFilters } from '@/app/store/components/page-management/components/listing/page-filters';
-import { PageTableDesktop } from '@/app/store/components/page-management/components/listing/page-table-desktop';
-import { PageListMobile } from '@/app/store/components/page-management/components/listing/page-list-mobile';
+import { PageFilters } from '@/app/store/components/page-management/components/listing/PageFilters';
+import { PageListMobile } from '@/app/store/components/page-management/components/listing/PageListMobile';
+import { PageTableDesktop } from '@/app/store/components/page-management/components/listing/PageTableDesktop';
 import { PageIcon } from '@shopify/polaris-icons';
 
 // Types

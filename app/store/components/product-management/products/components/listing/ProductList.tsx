@@ -1,20 +1,20 @@
-import { useRouter } from 'next/navigation';
+import { handleExportProducts } from '@/app/store/components/product-management/utils/product-utils';
 import { routes } from '@/utils/routes';
 import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
-import { handleExportProducts } from '@/app/store/components/product-management/utils/product-utils';
+import { useRouter } from 'next/navigation';
 
 // Hooks
 import { useProductFilters } from '@/app/store/components/product-management/products/hooks/useProductFilters';
 import { useProductSelection } from '@/app/store/components/product-management/products/hooks/useProductSelection';
 
 // Components
-import { ProductFilters } from '@/app/store/components/product-management/products/components/listing/product-filters';
-import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/product-pagination';
-import { ProductTableDesktop } from '@/app/store/components/product-management/products/components/listing/product-table-desktop';
-import { ProductCardMobile } from '@/app/store/components/product-management/products/components/listing/product-card-mobile';
-import { ProductEmptyState } from '@/app/store/components/product-management/products/components/listing/product-empty-state';
-import { ProductIcon } from '@shopify/polaris-icons';
+import { ProductCardMobile } from '@/app/store/components/product-management/products/components/listing/ProductCardMobile';
+import { ProductEmptyState } from '@/app/store/components/product-management/products/components/listing/ProductEmtyState';
+import { ProductFilters } from '@/app/store/components/product-management/products/components/listing/ProductFilters';
+import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/ProductPagination';
+import { ProductTableDesktop } from '@/app/store/components/product-management/products/components/listing/ProductTableDesktop';
 import { useToast } from '@/app/store/context/ToastContext';
+import { ProductIcon } from '@shopify/polaris-icons';
 
 // Types
 import type { ProductListProps } from '@/app/store/components/product-management/products/types/product-types';

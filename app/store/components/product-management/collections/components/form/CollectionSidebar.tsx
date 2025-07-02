@@ -1,6 +1,6 @@
 import { Card, Select, BlockStack } from '@shopify/polaris';
-import { PublicationSection } from '@/app/store/components/product-management/collections/components/form/publication-section';
-import { ImageSection } from '@/app/store/components/product-management/collections/components/form/image-section';
+import { PublicationSection } from '@/app/store/components/product-management/collections/components/form/PublicationSection';
+import { ImageSection } from '@/app/store/components/product-management/collections/components/form/ImageSection';
 
 interface CollectionSidebarProps {
   isActive: boolean;

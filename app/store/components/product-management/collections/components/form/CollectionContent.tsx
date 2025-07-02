@@ -1,6 +1,6 @@
 import { Card, TextField, BlockStack, Text } from '@shopify/polaris';
-import { DescriptionEditor } from '@/app/store/components/product-management/collections/components/form/description-editor';
-import { ProductSection } from '@/app/store/components/product-management/collections/components/form/product-section';
+import { DescriptionEditor } from '@/app/store/components/product-management/collections/components/form/DescriptionEditor';
+import { ProductSection } from '@/app/store/components/product-management/collections/components/form/ProductSection';
 import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types';
 
 interface CollectionContentProps {

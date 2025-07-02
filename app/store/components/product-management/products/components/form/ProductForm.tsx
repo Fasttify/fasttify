@@ -1,11 +1,11 @@
 'use client';
 
 import { AttributesForm } from '@/app/store/components/product-management/products/components/form/AttributesForm';
-import { BasicInfoSection } from '@/app/store/components/product-management/products/components/form/basic-info-section';
+import { BasicInfoSection } from '@/app/store/components/product-management/products/components/form/BasicInfoSection';
 import { CollectionSelector } from '@/app/store/components/product-management/products/components/form/CollectionSelector';
 import { ImageUpload } from '@/app/store/components/product-management/products/components/form/ImageUpload';
-import { PricingInventorySection } from '@/app/store/components/product-management/products/components/form/pricing-inventory-section';
-import { PublicationSection } from '@/app/store/components/product-management/products/components/form/publication-section';
+import { PricingInventorySection } from '@/app/store/components/product-management/products/components/form/PricingSection';
+import { PublicationSection } from '@/app/store/components/product-management/products/components/form/PublicationSection';
 import {
   handleProductCreate,
   handleProductUpdate,

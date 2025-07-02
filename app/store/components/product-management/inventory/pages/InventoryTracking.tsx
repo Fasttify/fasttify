@@ -1,15 +1,16 @@
-import { LegacyCard, EmptyState, Spinner, Page, Layout, Button } from '@shopify/polaris';
-import InventoryHeader from '@/app/store/components/product-management/inventory/components/InventoryHeader';
-import InventoryFilter from '@/app/store/components/product-management/inventory/components/InventoryFilter';
 import InventoryActions from '@/app/store/components/product-management/inventory/components/InventoryActions';
-import InventoryTable from '@/app/store/components/product-management/inventory/components/InventoryTable';
+import InventoryFilter from '@/app/store/components/product-management/inventory/components/InventoryFilter';
 import InventoryFooter from '@/app/store/components/product-management/inventory/components/InventoryFooter';
-import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/product-pagination';
-import { InventoryRowProps } from '@/app/store/components/product-management/inventory/components/InventoryTable';
+import InventoryHeader from '@/app/store/components/product-management/inventory/components/InventoryHeader';
+import InventoryTable, {
+  InventoryRowProps,
+} from '@/app/store/components/product-management/inventory/components/InventoryTable';
+import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/ProductPagination';
 import { routes } from '@/utils/routes';
 import { getStoreId } from '@/utils/store-utils';
+import { Button, EmptyState, LegacyCard, Spinner } from '@shopify/polaris';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 interface InventoryTrackingProps {
   data: InventoryRowProps[];

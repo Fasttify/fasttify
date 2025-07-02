@@ -1,6 +1,6 @@
+import ImageSelectorModal from '@/app/store/components/images-selector/components/ImageSelectorModal';
+import { BlockStack, Button, Card, DropZone, LegacyStack, Text, TextField, Thumbnail } from '@shopify/polaris';
 import { useState } from 'react';
-import { Card, BlockStack, Text, Button, DropZone, Thumbnail, LegacyStack, TextField } from '@shopify/polaris';
-import ImageSelectorModal from '@/app/store/components/images-selector/components/image-selector-modal';
 
 interface ImageFile {
   url: string;

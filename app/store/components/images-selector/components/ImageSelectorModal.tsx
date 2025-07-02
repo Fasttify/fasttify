@@ -1,9 +1,9 @@
-import { useState, useCallback, useMemo } from 'react';
-import { Modal, BlockStack, Spinner, Box, Banner, ProgressBar, Text } from '@shopify/polaris';
-import { useS3ImagesWithOperations } from '@/app/store/hooks/storage/useS3ImagesWithOperations';
-import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import ImageGallery from '@/app/store/components/images-selector/components/ImageGallery';
+import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import { useToast } from '@/app/store/context/ToastContext';
+import { useS3ImagesWithOperations } from '@/app/store/hooks/storage/useS3ImagesWithOperations';
+import { Banner, BlockStack, Box, Modal, ProgressBar, Spinner, Text } from '@shopify/polaris';
+import { useCallback, useMemo, useState } from 'react';
 
 // Hooks
 import { useImageSelection } from '@/app/store/components/images-selector/hooks/useImageSelection';
@@ -222,9 +222,11 @@ export default function ImageSelectorModal({
             />
 
             {loadingMore && (
-              <Box paddingBlockStart="400">
-                <Spinner accessibilityLabel="Cargando más imágenes" />
-              </Box>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <Box paddingBlockStart="400">
+                  <Spinner accessibilityLabel="Cargando más imágenes" size="small" />
+                </Box>
+              </div>
             )}
           </BlockStack>
         </Modal.Section>

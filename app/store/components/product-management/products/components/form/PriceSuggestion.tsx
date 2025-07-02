@@ -1,10 +1,10 @@
-import { BlockStack, InlineStack, Text, Tooltip, Badge, Grid, ButtonGroup, Button, Card } from '@shopify/polaris';
-import { QuestionCircleIcon } from '@shopify/polaris-icons';
-import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/ai-generate-button';
+import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/AiGenerate';
 import type { PriceSuggestionResult } from '@/app/store/components/product-management/products/hooks/usePriceSuggestion';
-import type { UseFormReturn } from 'react-hook-form';
-import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
 import { formatPrice } from '@/app/store/components/product-management/utils/productUtils';
+import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
+import { Badge, BlockStack, Button, ButtonGroup, Card, Grid, InlineStack, Text, Tooltip } from '@shopify/polaris';
+import { QuestionCircleIcon } from '@shopify/polaris-icons';
+import type { UseFormReturn } from 'react-hook-form';
 
 interface PriceSuggestionPanelProps {
   form: UseFormReturn<ProductFormValues>;
