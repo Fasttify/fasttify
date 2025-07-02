@@ -1,5 +1,5 @@
-import { Suspense } from 'react';
 import { NavigationManager } from '@/app/store/components/navigation-management';
+import { Suspense } from 'react';
 
 interface NavigationPageProps {
   params: Promise<{
@@ -13,7 +13,7 @@ interface NavigationPageProps {
 export default async function NavigationPage({ params }: NavigationPageProps) {
   const { slug } = await params;
   return (
-    <Suspense fallback={<div>Cargando gestión de navegación...</div>}>
+    <Suspense>
       <NavigationManager storeId={slug} />
     </Suspense>
   );

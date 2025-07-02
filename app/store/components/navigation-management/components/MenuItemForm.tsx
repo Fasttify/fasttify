@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Button, Card, TextField, Select, Checkbox, Text, ResourceList, ResourceItem } from '@shopify/polaris';
-import { PlusIcon, DeleteIcon } from '@shopify/polaris-icons';
+import { CollectionSelector } from '@/app/store/components/navigation-management/components/CollectionSelector';
+import { HelpTooltip } from '@/app/store/components/navigation-management/components/HelpTooltip';
+import { MENU_ITEM_TYPES, MenuItemFormProps, TARGET_OPTIONS } from '@/app/store/components/navigation-management/types';
 import { MenuItem, generateMenuItemURL } from '@/app/store/hooks/data/useNavigationMenus';
-import { MenuItemFormProps, MENU_ITEM_TYPES, TARGET_OPTIONS } from '@/app/store/components/navigation-management/types';
 import { validateMenuItems } from '@/lib/zod-schemas/navigation';
+import { Button, Card, Checkbox, ResourceItem, ResourceList, Select, Text, TextField } from '@shopify/polaris';
+import { DeleteIcon, PlusIcon } from '@shopify/polaris-icons';
+import { useCallback, useState } from 'react';
 
 /**
  * Componente para gestionar los elementos de un menú
@@ -168,7 +170,12 @@ export function MenuItemForm({
                   {/* Fila 1: Etiqueta y Tipo */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextField
-                      label="Etiqueta"
+                      label={
+                        <>
+                          Etiqueta
+                          <HelpTooltip content="El texto que los visitantes verán en el menú de navegación." />
+                        </>
+                      }
                       value={item.label}
                       onChange={(value) => updateItem(item.originalIndex, { ...item, label: value })}
                       placeholder="Nombre del elemento"
@@ -179,7 +186,12 @@ export function MenuItemForm({
                     />
 
                     <Select
-                      label="Tipo"
+                      label={
+                        <>
+                          Tipo
+                          <HelpTooltip content="Define a qué tipo de contenido enlazará este elemento del menú." />
+                        </>
+                      }
                       options={MENU_ITEM_TYPES}
                       value={item.type}
                       onChange={(value) => {
@@ -219,7 +231,12 @@ export function MenuItemForm({
                   <div>
                     {(item.type === 'internal' || item.type === 'external') && (
                       <TextField
-                        label={item.type === 'internal' ? 'URL interna' : 'URL externa'}
+                        label={
+                          <>
+                            {item.type === 'internal' ? 'URL interna' : 'URL externa'}
+                            <HelpTooltip content="Para URL interna, usa un camino relativo (ej: /contacto). Para externa, la URL completa (ej: https://ejemplo.com)." />
+                          </>
+                        }
                         value={item.url || ''}
                         onChange={(value) => updateItem(item.originalIndex, { ...item, url: value })}
                         placeholder={
@@ -239,7 +256,12 @@ export function MenuItemForm({
 
                     {item.type === 'page' && (
                       <TextField
-                        label="Handle de la página"
+                        label={
+                          <>
+                            Handle de la página
+                            <HelpTooltip content="El identificador único de la página que creaste. Por ejemplo, si tu página es 'Sobre Nosotros', el handle podría ser 'sobre-nosotros'." />
+                          </>
+                        }
                         value={item.pageHandle || ''}
                         onChange={(value) => updateItem(item.originalIndex, { ...item, pageHandle: value })}
                         placeholder="sobre-nosotros"
@@ -252,21 +274,24 @@ export function MenuItemForm({
                     )}
 
                     {item.type === 'collection' && (
-                      <TextField
-                        label="Handle de la colección (opcional)"
+                      <CollectionSelector
+                        label="Colección"
                         value={item.collectionHandle || ''}
                         onChange={(value) => updateItem(item.originalIndex, { ...item, collectionHandle: value })}
-                        placeholder="ropa-hombre"
-                        helpText="Nombre específico de la colección. Deja vacío para enlazar a todas las colecciones (/collections)"
-                        autoComplete="off"
                         disabled={disabled}
                         error={allItemErrors[item.originalIndex]?.collectionHandle}
+                        helpText="Selecciona una colección. Para enlazar a todas, elige 'Todas las colecciones'."
                       />
                     )}
 
                     {item.type === 'product' && (
                       <TextField
-                        label="Handle del producto (opcional)"
+                        label={
+                          <>
+                            Handle del producto (opcional)
+                            <HelpTooltip content="El identificador único del producto. Déjalo vacío para enlazar a la página de todos los productos." />
+                          </>
+                        }
                         value={item.productHandle || ''}
                         onChange={(value) => updateItem(item.originalIndex, { ...item, productHandle: value })}
                         placeholder="iphone-15-pro"
@@ -307,7 +332,12 @@ export function MenuItemForm({
                   {/* Fila 4: Opciones adicionales */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Select
-                      label="Destino"
+                      label={
+                        <>
+                          Destino
+                          <HelpTooltip content="Define si el enlace se abrirá en la misma pestaña ('Misma ventana') o en una nueva ('Nueva ventana')." />
+                        </>
+                      }
                       options={TARGET_OPTIONS}
                       value={item.target || '_self'}
                       onChange={(value) =>
@@ -321,7 +351,12 @@ export function MenuItemForm({
 
                     <div className="flex items-center">
                       <Checkbox
-                        label="Visible en el menú"
+                        label={
+                          <>
+                            Visible en el menú
+                            <HelpTooltip content="Desmarca esta opción para ocultar temporalmente este elemento del menú sin eliminarlo." />
+                          </>
+                        }
                         checked={item.isVisible}
                         onChange={(checked) => updateItem(item.originalIndex, { ...item, isVisible: checked })}
                         disabled={disabled}
