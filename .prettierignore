@@ -8,7 +8,7 @@ out
 .next
 
 
-# Amplify 
+# Amplify
 
 .amplify
 # Git
@@ -16,6 +16,7 @@ out
 
 # Configuración y dependencias
 package-lock.json
+template
 pnpm-lock.yaml
 yarn.lock
 amplify_outputs.json
@@ -28,7 +29,7 @@ amplify_outputs.json
 .cache
 .vscode
 
-# Archivos 
+# Archivos
 next.config.js
 package.json
 postcss.config.mjs

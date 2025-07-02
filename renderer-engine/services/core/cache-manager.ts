@@ -23,8 +23,7 @@ export class CacheManager {
 
   private constructor() {
     // Determinar si estamos en modo desarrollo
-    this.isDevelopment =
-      process.env.APP_ENV === 'development' || process.env.NODE_ENV === 'development'
+    this.isDevelopment = process.env.APP_ENV === 'development'
   }
 
   public static getInstance(): CacheManager {

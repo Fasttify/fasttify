@@ -1,5 +1,11 @@
 // Store types
-export type { Store, StoreTemplate, StoreConfig, TemplateFiles, DomainResolution } from './store'
+export type {
+  Store,
+  StoreTemplate,
+  StoreConfig,
+  TemplateFiles,
+  DomainResolution,
+} from '@/renderer-engine/types/store'
 
 // Product types
 export type {
@@ -12,7 +18,7 @@ export type {
   LiquidProductImage,
   LiquidProductVariant,
   LiquidCollection,
-} from './product'
+} from '@/renderer-engine/types/product'
 
 // Template types
 export type {
@@ -29,7 +35,7 @@ export type {
   SchemaData,
   TemplateError,
   TemplateData,
-} from './template'
+} from '@/renderer-engine/types/template'
 
 // Liquid types
 export type {
@@ -50,7 +56,7 @@ export type {
   RenderTag,
   StyleTag,
   JavaScriptTag,
-} from './liquid'
+} from '@/renderer-engine/types/liquid'
 
 // Cart types
 export type {
@@ -60,4 +66,4 @@ export type {
   AddToCartRequest,
   UpdateCartRequest,
   CartResponse,
-} from './cart'
+} from '@/renderer-engine/types/cart'
