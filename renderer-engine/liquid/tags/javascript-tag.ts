@@ -44,7 +44,7 @@ export class JavaScriptTag extends Tag {
           const htmlToken = token as any
           const tokenContent = htmlToken.input
             ? htmlToken.input.substring(htmlToken.begin, htmlToken.end)
-            : ''
+            : htmlToken.content || ''
           content += tokenContent
         } else if (token.kind === TokenKind.Output) {
           // Reconstruir la expresión de output
@@ -67,7 +67,7 @@ export class JavaScriptTag extends Tag {
     const assetCollector = (this.liquid.options.globals as any)._assetCollector as
       | AssetCollector
       | undefined
-    const sectionId = ctx.get(['section', 'id']) as string | undefined
+    const sectionId = ctx.getSync(['section', 'id']) as string | undefined
 
     if (!assetCollector || !this.jsContent.trim()) {
       return
@@ -76,10 +76,12 @@ export class JavaScriptTag extends Tag {
     try {
       const template = this.liquid.parse(this.jsContent)
       const processedJS = (yield this.liquid.render(template, ctx.getAll())) as string
-      const uniqueId = sectionId || `javascript-${Math.random().toString(36).substring(2, 9)}`
+      const uniqueId =
+        sectionId || `javascript-${Math.random().toString(36).substring(2, 9)}`
+
       assetCollector.addJs(processedJS, uniqueId)
     } catch (error) {
-      logger.error('Error processing JavaScript in javascript tag', error, 'JavaScriptTag')
+      logger.error('Error processing JavaScript in javascript tag', error)
     }
   }
 
@@ -94,14 +96,14 @@ export class JavaScriptTag extends Tag {
 // Section: ${sectionType} (${sectionId})
 (function() {
   'use strict';
-  
+
   // Variables de contexto disponibles
   var section = {
     id: '${sectionId}',
     type: '${sectionType}',
     settings: ${JSON.stringify({})}
   };
-  
+
   // Código del usuario
   ${js}
 })();`
@@ -141,32 +143,32 @@ export class SectionScriptHelper {
 <script type="text/javascript" data-section-id="${sectionId}">
 (function() {
   'use strict';
-  
+
   var sectionId = '${sectionId}';
   var sectionSettings = ${JSON.stringify(settings)};
-  
+
   // Utilidades de sección
   function getSectionElement() {
     return document.querySelector('[data-section-id="' + sectionId + '"]');
   }
-  
+
   function on(event, selector, callback) {
     var element = typeof selector === 'string' ? getSectionElement().querySelector(selector) : selector;
     if (element) {
       element.addEventListener(event, callback);
     }
   }
-  
+
   // Código de la sección
   ${code}
-  
+
   // Auto-inicializar cuando el DOM esté listo
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
-  
+
   function init() {
     // El código ya se ejecutó arriba
   }

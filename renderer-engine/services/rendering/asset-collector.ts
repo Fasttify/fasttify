@@ -43,8 +43,11 @@ export class AssetCollector {
    * @returns Una cadena de texto con todo el CSS.
    */
   public getCombinedCss(): string {
-    if (this.cssAssets.length === 0) return ''
-    return this.cssAssets.map(asset => asset.content).join('\n')
+    if (this.cssAssets.length === 0) {
+      return ''
+    }
+    const combined = this.cssAssets.map(asset => asset.content).join('\n')
+    return combined
   }
 
   /**
@@ -52,8 +55,11 @@ export class AssetCollector {
    * @returns Una cadena de texto con todo el JS.
    */
   public getCombinedJs(): string {
-    if (this.jsAssets.length === 0) return ''
-    return this.jsAssets.map(asset => asset.content).join('\n')
+    if (this.jsAssets.length === 0) {
+      return ''
+    }
+    const combined = this.jsAssets.map(asset => asset.content).join('\n')
+    return combined
   }
 
   /**

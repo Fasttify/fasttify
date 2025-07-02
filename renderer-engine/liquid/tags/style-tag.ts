@@ -44,7 +44,7 @@ export class StyleTag extends Tag {
           const htmlToken = token as any
           const tokenContent = htmlToken.input
             ? htmlToken.input.substring(htmlToken.begin, htmlToken.end)
-            : ''
+            : htmlToken.content || ''
           content += tokenContent
         } else if (token.kind === TokenKind.Output) {
           // Reconstruir la expresión de output
@@ -61,6 +61,11 @@ export class StyleTag extends Tag {
     }
 
     this.cssContent = content.trim()
+
+    // Debug logging
+    if (this.cssContent) {
+      logger.debug(`Parsed CSS content: ${this.cssContent.substring(0, 100)}...`)
+    }
   }
 
   *render(ctx: Context): Generator<any, void, unknown> {
@@ -77,8 +82,10 @@ export class StyleTag extends Tag {
       const template = this.liquid.parse(this.cssContent)
       const processedCSS = (yield this.liquid.render(template, ctx.getAll())) as string
       const uniqueId = sectionId || `style-${Math.random().toString(36).substring(2, 9)}`
-      const optimizedCSS = this.optimizeCSS(processedCSS)
-      assetCollector.addCss(optimizedCSS, uniqueId)
+      // Temporalmente sin optimización para debugging
+      const finalCSS = processedCSS.trim()
+
+      assetCollector.addCss(finalCSS, uniqueId)
     } catch (error) {
       logger.error('Error processing CSS in style tag', error, 'StyleTag')
     }
@@ -180,7 +187,8 @@ export class StylesheetTag extends Tag {
     try {
       const template = this.liquid.parse(this.cssContent)
       const processedCSS = (yield this.liquid.render(template, ctx.getAll())) as string
-      const uniqueId = sectionId || `stylesheet-${Math.random().toString(36).substring(2, 9)}`
+      const uniqueId =
+        sectionId || `stylesheet-${Math.random().toString(36).substring(2, 9)}`
       assetCollector.addCss(processedCSS, uniqueId)
     } catch (error) {
       logger.error('Error processing CSS in stylesheet tag', error, 'StylesheetTag')

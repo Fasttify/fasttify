@@ -55,6 +55,7 @@ class LiquidEngine {
           money_format: '${{amount}}',
           timezone: 'America/Bogota',
         },
+        _assetCollector: this.assetCollector,
       },
       context: {
         _assetCollector: this.assetCollector,
