@@ -1,11 +1,11 @@
 import { type ClientSchema, a, defineData, defineFunction } from '@aws-amplify/backend';
 import { postConfirmation } from '../auth/post-confirmation/resource';
-import { webHookPlan } from '../functions/webHookPlan/resource';
-import { planScheduler } from '../functions/planScheduler/resource';
-import { checkStoreName } from '../functions/checkStoreName/resource';
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource';
-import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource';
+import { checkStoreName } from '../functions/checkStoreName/resource';
 import { createStoreTemplate } from '../functions/createStoreTemplate/resource';
+import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource';
+import { planScheduler } from '../functions/planScheduler/resource';
+import { webHookPlan } from '../functions/webHookPlan/resource';
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0';
 

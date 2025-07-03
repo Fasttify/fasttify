@@ -1,11 +1,8 @@
-import { useState, useRef } from 'react';
-import { ImagePlus } from 'lucide-react';
+import { useUpdateProfilePicture } from '@/app/(main-layout)/account-settings/hooks/useUpdateProfilePicture';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { useUpdateProfilePicture } from '@/app/(main-layout)/account-settings/hooks/useUpdateProfilePicture';
-import { configureAmplify } from '@/lib/amplify-config';
-
-configureAmplify();
+import { ImagePlus } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 interface UserAvatarProps {
   imageUrl?: string;

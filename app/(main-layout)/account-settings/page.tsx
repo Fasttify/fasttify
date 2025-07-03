@@ -1,14 +1,14 @@
 'use client';
 
-import { Sidebar } from '@/app/(main-layout)/account-settings/components/SideBar';
+import outputs from '@/amplify_outputs.json';
 import { AccountSettings } from '@/app/(main-layout)/account-settings/components/AccountSettings';
-import { PaymentSettings } from '@/app/(main-layout)/account-settings/components/PaymentSettings';
 import { ActiveSessions } from '@/app/(main-layout)/account-settings/components/ActiveSessions';
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { PaymentSettings } from '@/app/(main-layout)/account-settings/components/PaymentSettings';
+import { Sidebar } from '@/app/(main-layout)/account-settings/components/SideBar';
 import useUserStore from '@/context/core/userStore';
 import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify_outputs.json';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 Amplify.configure(outputs);
 const existingConfig = Amplify.getConfig();

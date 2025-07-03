@@ -1,11 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Menu, ChevronDown } from 'lucide-react';
+import { navItems } from '@/app/(main-layout)/landing/components/navigation';
+import { UserMenu } from '@/app/(main-layout)/landing/components/UserMenu';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,16 +11,16 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
+import useUserStore from '@/context/core/userStore';
 import { useAuth } from '@/context/hooks/useAuth';
 import { signOut } from 'aws-amplify/auth';
+import { ChevronDown, Menu } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { UserMenu } from '@/app/(main-layout)/landing/components/UserMenu';
-import { Skeleton } from '@/components/ui/skeleton';
-import { navItems } from '@/app/(main-layout)/landing/components/navigation';
-import useUserStore from '@/context/core/userStore';
-import { configureAmplify } from '@/lib/amplify-config';
-
-configureAmplify();
+import { useEffect, useState } from 'react';
 
 export function Navbar() {
   const { user, loading, clearUser } = useUserStore();

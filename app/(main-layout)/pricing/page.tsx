@@ -1,14 +1,14 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { PricingCard } from '@/app/(main-layout)/pricing/components/PricingCard';
+import outputs from '@/amplify_outputs.json';
 import { Footer } from '@/app/(main-layout)/landing/components/Footer';
-import { FAQSection } from '@/app/(main-layout)/pricing/components/FAQSection';
 import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem';
+import { FAQSection } from '@/app/(main-layout)/pricing/components/FAQSection';
 import { FeatureComparison } from '@/app/(main-layout)/pricing/components/FeatureComparison';
 import { plans } from '@/app/(main-layout)/pricing/components/plans';
+import { PricingCard } from '@/app/(main-layout)/pricing/components/PricingCard';
 import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify_outputs.json';
+import { motion } from 'framer-motion';
 
 Amplify.configure(outputs);
 const existingConfig = Amplify.getConfig();
