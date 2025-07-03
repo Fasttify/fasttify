@@ -161,7 +161,7 @@ export function Navbar() {
                     <Menu className="h-10 w-10 text-black" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <SheetContent side="bottom" className="w-[1200px] sm:w-[900px]">
                   <div className="flex flex-col h-full">
                     <div className="flex items-center justify-between py-4">
                       <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>

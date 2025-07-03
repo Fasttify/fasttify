@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { gsap, type TimelineMax } from 'gsap';
+import React from 'react';
 
 interface MenuItemProps {
   link?: string;

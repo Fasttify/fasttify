@@ -1,6 +1,12 @@
+import {
+  GlobeFilledIcon,
+  LogoFacebookIcon,
+  LogoInstagramIcon,
+  LogoXIcon,
+  LogoYoutubeIcon,
+} from '@shopify/polaris-icons';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Globe, Facebook, Twitter, Youtube, Instagram, Linkedin, TwitterIcon as TikTok } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -93,7 +99,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm hover:text-gray-300">
+                <Link href="/pricing" className="text-sm hover:text-gray-300">
                   Planes de Suscripción
                 </Link>
               </li>
@@ -107,38 +113,32 @@ export function Footer() {
         <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
             <button className="flex items-center text-sm">
-              <Globe className="h-4 w-4 mr-2" />
+              <GlobeFilledIcon className="h-6 w-6 mr-2" fill="white" />
               Colombia
             </button>
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 mb-4 md:mb-0">
-            <Link href="#" className="text-sm hover:text-gray-300">
+            <Link href="/terms" className="text-sm hover:text-gray-300">
               Términos del servicio
             </Link>
-            <Link href="#" className="text-sm hover:text-gray-300">
+            <Link href="/terms" className="text-sm hover:text-gray-300">
               Política de privacidad
             </Link>
           </div>
 
           <div className="flex space-x-4">
             <Link href="#" aria-label="Facebook">
-              <Facebook className="h-5 w-5" />
+              <LogoFacebookIcon fill="white" className="h-6 w-6" />
             </Link>
             <Link href="#" aria-label="Twitter">
-              <Twitter className="h-5 w-5" />
+              <LogoXIcon fill="white" className="h-6 w-6" />
             </Link>
             <Link href="#" aria-label="YouTube">
-              <Youtube className="h-5 w-5" />
+              <LogoYoutubeIcon fill="white" className="h-6 w-6" />
             </Link>
             <Link href="#" aria-label="Instagram">
-              <Instagram className="h-5 w-5" />
-            </Link>
-            <Link href="#" aria-label="TikTok">
-              <TikTok className="h-5 w-5" />
-            </Link>
-            <Link href="#" aria-label="LinkedIn">
-              <Linkedin className="h-5 w-5" />
+              <LogoInstagramIcon fill="white" className="h-6 w-6" />
             </Link>
           </div>
         </div>

@@ -97,10 +97,10 @@ export function PricingCard({ plan }: PricingCardProps) {
       if (response && response.checkoutUrl) {
         window.location.href = response.checkoutUrl;
       } else {
-        throw new Error('No se recibió URL de checkout');
+        throw new Error('Url not found');
       }
     } catch (error) {
-      console.error('Error al suscribirse:', error);
+      console.error('Error processing subscription:', error);
       addToast('Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.', 'error');
       setIsSubmitting(false);
     }
@@ -173,7 +173,7 @@ export function PricingCard({ plan }: PricingCardProps) {
                 : 'bg-primary text-white hover:bg-primary-dark'
             }`}
             onClick={handleSubscribe}
-            disabled={isSubmitting}>
+            disabled={isSubmitting || hasActivePlan}>
             {hasActivePlan ? 'Plan activo' : isSubmitting ? 'Procesando...' : plan.buttonText}
           </Button>
         </div>
