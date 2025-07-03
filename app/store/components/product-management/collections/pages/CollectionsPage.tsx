@@ -1,28 +1,25 @@
-import { useState } from 'react';
-import { getStoreId } from '@/utils/store-utils';
-import { useParams, usePathname, useRouter } from 'next/navigation';
-import { configureAmplify } from '@/lib/amplify-config';
 import { useCollections } from '@/app/store/hooks/data/useCollections';
 import { routes } from '@/utils/routes';
+import { getStoreId } from '@/utils/store-utils';
 import {
-  LegacyCard,
-  IndexTable,
-  Text,
   Badge,
+  Button,
   EmptyState,
+  Filters,
+  IndexTable,
+  LegacyCard,
+  Link,
+  ResourceItem,
+  ResourceList,
   SkeletonBodyText,
   SkeletonDisplayText,
-  Tabs,
-  Filters,
-  Button,
-  ResourceList,
-  ResourceItem,
   Spinner,
-  Link,
+  Tabs,
+  Text,
 } from '@shopify/polaris';
 import { FileIcon, ProductIcon } from '@shopify/polaris-icons';
-
-configureAmplify();
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 type FilterType = 'all' | 'active' | 'inactive';
 

@@ -1,16 +1,13 @@
-import { useRouter, useParams, usePathname } from 'next/navigation';
-import { Page, Layout, ContextualSaveBar, BlockStack, Card, Text, Loading } from '@shopify/polaris';
-import { useCollections } from '@/app/store/hooks/data/useCollections';
-import { getStoreId } from '@/utils/store-utils';
-import { useCollectionForm } from '@/app/store/components/product-management/utils/collection-form-utils';
 import { CollectionContent } from '@/app/store/components/product-management/collections/components/form/CollectionContent';
 import { CollectionSidebar } from '@/app/store/components/product-management/collections/components/form/CollectionSidebar';
-import { configureAmplify } from '@/lib/amplify-config';
-import { routes } from '@/utils/routes';
-import useUserStore from '@/context/core/userStore';
+import { useCollectionForm } from '@/app/store/components/product-management/utils/collection-form-utils';
+import { useCollections } from '@/app/store/hooks/data/useCollections';
 import useStoreDataStore from '@/context/core/storeDataStore';
-
-configureAmplify();
+import useUserStore from '@/context/core/userStore';
+import { routes } from '@/utils/routes';
+import { getStoreId } from '@/utils/store-utils';
+import { BlockStack, Card, ContextualSaveBar, Layout, Loading, Page, Text } from '@shopify/polaris';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 
 export function FormPage() {
   const router = useRouter();

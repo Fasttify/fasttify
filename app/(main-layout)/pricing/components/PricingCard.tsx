@@ -1,17 +1,26 @@
-import { useState, useEffect } from 'react';
+import outputs from '@/amplify_outputs.json';
+import { Button } from '@/components/ui/button';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { Toast } from '@/components/ui/toasts';
+import useUserStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
+import { useToast } from '@/hooks/ui/use-toasts';
+import { Amplify } from 'aws-amplify';
+import { post } from 'aws-amplify/api';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { post } from 'aws-amplify/api';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/ui/use-toasts';
-import { Toast } from '@/components/ui/toasts';
-import { useAuth } from '@/context/hooks/useAuth';
-import useUserStore from '@/context/core/userStore';
-import { configureAmplify } from '@/lib/amplify-config';
+import { useEffect, useState } from 'react';
 
-configureAmplify();
+Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+});
 
 interface PricingCardProps {
   plan: {

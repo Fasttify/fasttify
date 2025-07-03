@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Pencil, BadgeCheck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChangeEmailDialog } from '@/app/(main-layout)/account-settings/components/ChangeEmailDialog';
+import { ChangePasswordDialog } from '@/app/(main-layout)/account-settings/components/ChangePasswordDialog';
 import { EditProfileDialog } from '@/app/(main-layout)/account-settings/components/EditProfileDialog';
+import { UserAvatar } from '@/app/(main-layout)/account-settings/components/UserAvatar';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,17 +12,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { deleteUser } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import { UserAvatar } from '@/app/(main-layout)/account-settings/components/UserAvatar';
-import { ChangePasswordDialog } from '@/app/(main-layout)/account-settings/components/ChangePasswordDialog';
-import { ChangeEmailDialog } from '@/app/(main-layout)/account-settings/components/ChangeEmailDialog';
-import useUserStore from '@/context/core/userStore';
+import { Button } from '@/components/ui/button';
 import CustomToolTip from '@/components/ui/custom-tooltip';
-import { configureAmplify } from '@/lib/amplify-config';
-
-configureAmplify();
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import useUserStore from '@/context/core/userStore';
+import { deleteUser } from 'aws-amplify/auth';
+import { BadgeCheck, Pencil } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export function AccountSettings() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
