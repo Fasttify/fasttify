@@ -1,16 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Modal, Form, FormLayout, TextField, LegacyStack, Text, Spinner, Link } from '@shopify/polaris';
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
-import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
-import { storeProfileSchema, type StoreProfileFormValues } from '@/lib/zod-schemas/store-profile-schema';
-import {
-  createStoreNameValidator,
-  handleStoreProfileSubmit,
-  type StoreNameValidationState,
-} from '@/app/store/components/domains/utils/storeProfileUtils';
+import { HelpTooltip } from '@/app/store/components/navigation-management/components/HelpTooltip';
 import { useToast } from '@/app/store/context/ToastContext';
+import { storeProfileSchema, type StoreProfileFormValues } from '@/lib/zod-schemas/store-profile-schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormLayout, Link, Modal, Text, TextField } from '@shopify/polaris';
+import { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
 interface EditStoreProfileDialogProps {
   open: boolean;
@@ -20,6 +15,8 @@ interface EditStoreProfileDialogProps {
     storeName?: string;
     contactEmail?: string;
     contactPhone?: string;
+    storeAdress?: string;
+    storeDescription?: string;
   };
   onProfileUpdated?: () => void;
 }
@@ -32,17 +29,12 @@ export function EditStoreProfileDialog({
   onProfileUpdated,
 }: EditStoreProfileDialogProps) {
   const { updateUserStore, loading: isUpdating } = useUserStoreData();
-  const { checkStoreName, isChecking, exists } = useStoreNameValidator();
   const { showToast } = useToast();
-  const [originalStoreName, setOriginalStoreName] = useState('');
-  const [nameChanged, setNameChanged] = useState(false);
-  const [isStoreNameValid, setIsStoreNameValid] = useState(true);
 
   const {
     control,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
     reset,
   } = useForm<StoreProfileFormValues>({
     resolver: zodResolver(storeProfileSchema),
@@ -50,16 +42,10 @@ export function EditStoreProfileDialog({
       storeName: '',
       storePhone: '',
       storeEmail: '',
+      storeAdress: '',
+      storeDescription: '',
     },
   });
-
-  const validationState: StoreNameValidationState = {
-    originalStoreName,
-    nameChanged,
-    isStoreNameValid,
-    setNameChanged,
-    setIsStoreNameValid,
-  };
 
   useEffect(() => {
     if (open) {
@@ -67,39 +53,12 @@ export function EditStoreProfileDialog({
         storeName: initialData.storeName || '',
         storePhone: initialData.contactPhone || '',
         storeEmail: initialData.contactEmail || '',
+        storeAdress: initialData.storeAdress || '',
+        storeDescription: initialData.storeDescription || '',
       };
       reset(defaultValues);
-      setOriginalStoreName(defaultValues.storeName);
-      setNameChanged(false);
-      setIsStoreNameValid(true);
     }
   }, [open, initialData, reset]);
-
-  const debouncedCheckStoreName = useCallback(createStoreNameValidator(validationState, { checkStoreName, exists }), [
-    validationState,
-    checkStoreName,
-    exists,
-  ]);
-
-  useEffect(() => {
-    const subscription = watch((value, { name }) => {
-      if (name === 'storeName' && value.storeName !== undefined) {
-        if (value.storeName !== originalStoreName) {
-          setNameChanged(true);
-          setIsStoreNameValid(false);
-          debouncedCheckStoreName(value.storeName);
-        } else {
-          setNameChanged(false);
-          setIsStoreNameValid(true);
-        }
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, originalStoreName, debouncedCheckStoreName]);
-
-  useEffect(() => {
-    if (nameChanged) setIsStoreNameValid(!exists);
-  }, [exists, nameChanged]);
 
   const handleSuccess = () => {
     onOpenChange(false);
@@ -110,37 +69,44 @@ export function EditStoreProfileDialog({
   };
 
   const onSubmit = async (data: StoreProfileFormValues) => {
-    const success = await handleStoreProfileSubmit(data, storeId, validationState, updateUserStore);
+    if (!storeId) {
+      showToast('Error: No se encontró el ID de la tienda.', true);
+      return;
+    }
 
-    if (success) {
-      handleSuccess();
-    } else {
+    try {
+      const result = await updateUserStore({
+        storeId: storeId,
+        storeName: data.storeName,
+        contactEmail: data.storeEmail,
+        contactPhone: data.storePhone,
+        storeAdress: data.storeAdress,
+        storeDescription: data.storeDescription,
+      });
+
+      if (result) {
+        handleSuccess();
+      } else {
+        showToast('Error al actualizar el perfil. Inténtalo de nuevo.', true);
+      }
+    } catch (error) {
+      console.error('Error updating store information:', error);
       showToast('Error al actualizar el perfil. Inténtalo de nuevo.', true);
     }
   };
 
-  const isSubmitDisabled = isUpdating || isSubmitting || (nameChanged && (isChecking || !isStoreNameValid));
-
-  const renderStoreNameHelpText = () => {
-    if (isChecking && nameChanged) {
-      return (
-        <LegacyStack spacing="tight" alignment="center">
-          <Spinner size="small" />
-          <Text as="span">Verificando disponibilidad...</Text>
-        </LegacyStack>
-      );
-    }
-    if (exists && nameChanged) {
-      return 'Este nombre de tienda ya está en uso';
-    }
-    return 'Aparece en tu sitio web';
-  };
+  const isSubmitDisabled = !isDirty || isUpdating || isSubmitting;
 
   return (
     <Modal
       open={open}
       onClose={() => onOpenChange(false)}
-      title="Editar perfil"
+      title={
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          Editar perfil{' '}
+          <HelpTooltip content="Estos datos ayudaran a mejorar el SEO de tu tienda. No uses tu información personal." />
+        </div>
+      }
       primaryAction={{
         content: 'Guardar cambios',
         onAction: handleSubmit(onSubmit),
@@ -161,8 +127,7 @@ export function EditStoreProfileDialog({
                 <TextField
                   label="Nombre de la tienda"
                   {...field}
-                  error={errors.storeName?.message || (exists && nameChanged)}
-                  helpText={renderStoreNameHelpText()}
+                  error={errors.storeName?.message}
                   autoComplete="off"
                 />
               )}
@@ -177,6 +142,19 @@ export function EditStoreProfileDialog({
                   {...field}
                   error={errors.storePhone?.message}
                   autoComplete="tel"
+                />
+              )}
+            />
+            <Controller
+              name="storeAdress"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Dirección de la tienda"
+                  type="text"
+                  {...field}
+                  error={errors.storeAdress?.message}
+                  autoComplete="address-line1"
                 />
               )}
             />
@@ -196,6 +174,20 @@ export function EditStoreProfileDialog({
                     </span>
                   }
                   autoComplete="email"
+                />
+              )}
+            />
+            <Controller
+              name="storeDescription"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Descripción de la tienda"
+                  type="text"
+                  {...field}
+                  error={errors.storeDescription?.message}
+                  autoComplete="off"
+                  multiline={6}
                 />
               )}
             />

@@ -26,6 +26,9 @@ export const storeProfileSchema = z.object({
     })
     .optional()
     .or(z.literal('')),
+
+  storeAdress: z.string().optional(),
+  storeDescription: z.string().optional(),
 });
 
 export type StoreProfileFormValues = z.infer<typeof storeProfileSchema>;

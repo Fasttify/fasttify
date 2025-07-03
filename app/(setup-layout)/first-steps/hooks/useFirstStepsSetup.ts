@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
-import { useApiKeyEncryption } from '@/app/(setup-layout)/first-steps/hooks/useApiKeyEncryption';
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
-import { v4 as uuidv4 } from 'uuid';
-import { routes } from '@/utils/routes';
-import { personalInfoSchema, storeInfoSchema, additionalSettingsSchema } from '@/lib/zod-schemas/first-step';
-import { useTemplateUpload } from '@/app/(setup-layout)/first-steps/hooks/useTemplateUpload';
 import sellingOptionsData from '@/app/(setup-layout)/first-steps/data/selling-options.json';
+import { useApiKeyEncryption } from '@/app/(setup-layout)/first-steps/hooks/useApiKeyEncryption';
+import { useTemplateUpload } from '@/app/(setup-layout)/first-steps/hooks/useTemplateUpload';
+import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import { additionalSettingsSchema, personalInfoSchema, storeInfoSchema } from '@/lib/zod-schemas/first-step';
+import { routes } from '@/utils/routes';
+import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export const useFirstStepsSetup = () => {
   const [step, setStep] = useState(1);
@@ -105,7 +105,7 @@ export const useFirstStepsSetup = () => {
           storeStatus: true,
           storeAdress: formData.location,
           contactEmail: formData.email,
-          contactPhone: parseInt(formData.phone),
+          contactPhone: formData.phone,
           contactName: formData.fullName,
           customDomain:
             formData.customDomain || `${formData.storeName.toLowerCase().replace(/\s+/g, '-')}.fasttify.com`,
@@ -139,7 +139,6 @@ export const useFirstStepsSetup = () => {
             });
 
             if (templateResult) {
-              console.log('templateResult:', templateResult);
             } else {
               console.warn('Error uploading template');
             }
@@ -199,7 +198,6 @@ export const useFirstStepsSetup = () => {
         });
 
         if (templateResult) {
-          console.log('templateResult:', templateResult);
         } else {
           console.warn('Error uploading template');
         }

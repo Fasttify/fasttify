@@ -1,11 +1,8 @@
-import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
-import { Check, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 interface StoreData {
   storeName: string;
@@ -22,54 +19,10 @@ interface StoreInfoProps {
 }
 
 const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, onValidationChange }) => {
-  const { checkStoreName, isChecking, exists } = useStoreNameValidator();
-  const [isValid, setIsValid] = useState(false);
-  const [hasBeenValidated, setHasBeenValidated] = useState(false);
-
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (data.storeName) {
-        checkStoreName(data.storeName);
-        setHasBeenValidated(true);
-      } else {
-        setHasBeenValidated(false);
-      }
-    }, 500);
-
-    return () => {
-      clearTimeout(timeoutId);
-      if (data.storeName !== '' && hasBeenValidated) {
-        setHasBeenValidated(false);
-      }
-    };
-  }, [data.storeName]);
-
-  useEffect(() => {
-    onValidationChange?.(!exists && !!data.storeName && hasBeenValidated);
-  }, [exists, data.storeName, hasBeenValidated, onValidationChange]);
-
-  useEffect(() => {
-    const isFormValid =
-      !exists &&
-      !!data.storeName &&
-      !!data.description &&
-      !!data.location &&
-      !!data.category &&
-      !isChecking &&
-      hasBeenValidated;
-
-    setIsValid(isFormValid);
+    const isFormValid = !!data.storeName && !!data.description && !!data.location && !!data.category;
     onValidationChange?.(isFormValid);
-  }, [
-    exists,
-    data.storeName,
-    data.description,
-    data.location,
-    data.category,
-    isChecking,
-    hasBeenValidated,
-    onValidationChange,
-  ]);
+  }, [data.storeName, data.description, data.location, data.category, onValidationChange]);
 
   const categories = [
     'Ropa y Accesorios',
@@ -77,6 +30,13 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, on
     'Hogar y Jardín',
     'Alimentos y Bebidas',
     'Arte y Artesanías',
+    'Servicios',
+    'Salud y Belleza',
+    'Automotriz',
+    'Tecnología',
+    'Juguetes y Juegos',
+    'Libros y Literatura',
+    'Herramientas y Equipos',
     'Otros',
   ];
 
@@ -90,40 +50,12 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, on
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="storeName">Nombre de la tienda</Label>
-          <div className="relative">
-            <Input
-              id="storeName"
-              value={data.storeName}
-              onChange={(e) => {
-                updateData({ storeName: e.target.value });
-                setHasBeenValidated(false);
-              }}
-              placeholder="Ej: Mi Tienda Genial"
-              className={cn(
-                'pr-10',
-                exists ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-              )}
-            />
-            {data.storeName && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                {isChecking ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
-                ) : exists ? null : hasBeenValidated ? (
-                  <Check className="h-4 w-4 text-green-500" />
-                ) : null}
-              </div>
-            )}
-          </div>
-
-          {isChecking && <p className="text-gray-500 text-sm">Verificando disponibilidad...</p>}
-          {exists && (
-            <p className="text-red-600 text-sm">
-              Este nombre ya está en uso. Por favor, elige otro nombre para tu tienda.
-            </p>
-          )}
-          {!isChecking && !exists && data.storeName && hasBeenValidated && (
-            <p className="text-green-600 text-sm">¡Este nombre está disponible!</p>
-          )}
+          <Input
+            id="storeName"
+            value={data.storeName}
+            onChange={(e) => updateData({ storeName: e.target.value })}
+            placeholder="Ej: Mi Tienda Genial"
+          />
           {errors.storeName && <p className="text-red-600 text-sm">{errors.storeName.join(', ')}</p>}
         </div>
 

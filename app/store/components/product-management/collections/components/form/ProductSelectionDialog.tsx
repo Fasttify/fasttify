@@ -86,8 +86,8 @@ export function ProductSelectionDialog({
       </Modal.Section>
       <Modal.Section>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            <Spinner accessibilityLabel="Cargando productos" size="large" />
+          <div style={{ textAlign: 'center', padding: '20px', display: 'flex', justifyContent: 'center' }}>
+            <Spinner accessibilityLabel="Cargando productos" size="small" />
           </div>
         ) : (
           <ResourceList
