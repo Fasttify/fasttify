@@ -1,4 +1,4 @@
-import type { RenderResult, OpenGraphData, SchemaData } from '@/renderer-engine/types';
+import type { OpenGraphData, RenderResult, SchemaData } from '@/renderer-engine/types';
 
 export class MetadataGenerator {
   /**
@@ -11,7 +11,12 @@ export class MetadataGenerator {
     const description =
       store.storeDescription || `Descubre los mejores productos en ${store.storeName}. Compra online con envío seguro.`;
     const url = `https://${domain}`;
-    const image = store.storeLogo || store.storeBanner;
+    let image = store.storeLogo || store.storeBanner;
+
+    // Asegurarnos de que la URL de la imagen sea siempre absoluta
+    if (image && image.startsWith('/')) {
+      image = `${url}${image}`;
+    }
 
     const openGraph: OpenGraphData = {
       title,
@@ -75,10 +80,10 @@ export class MetadataGenerator {
 
       // Generar una sola etiqueta de favicon con múltiples atributos
       headContent.push(
-        `<link 
-          rel="icon" 
-          type="${mimeType}" 
-          href="${faviconUrl}" 
+        `<link
+          rel="icon"
+          type="${mimeType}"
+          href="${faviconUrl}"
           sizes="16x16 32x32 48x48 180x180"
         >`
       );
