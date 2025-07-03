@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Sheet, Scrollable, Box, Button } from '@shopify/polaris';
-import { XIcon } from '@shopify/polaris-icons';
-import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll';
 import { AIInputWithSearch } from '@/app/store/components/ai-chat/components/AiInput';
-import { useMediaQuery } from '@/hooks/ui/use-media-query';
 import { ChatHeader } from '@/app/store/components/ai-chat/components/ChatHeader';
 import { EmptyState } from '@/app/store/components/ai-chat/components/EmptyState';
 import { MessageList } from '@/app/store/components/ai-chat/components/MessageList';
+import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll';
 import { RefinedAIAssistantSheetProps } from '@/app/store/components/ai-chat/types/chat-types';
+import { useMediaQuery } from '@/hooks/ui/use-media-query';
+import { Box, Button, Scrollable, Sheet } from '@shopify/polaris';
+import { XIcon } from '@shopify/polaris-icons';
+import { useCallback, useEffect, useRef } from 'react';
 
 export function RefinedAIAssistantSheet({
   open,

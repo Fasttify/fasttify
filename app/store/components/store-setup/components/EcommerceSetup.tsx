@@ -1,22 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useParams, usePathname } from 'next/navigation';
-import { Page, LegacyCard, BlockStack, Box, Loading } from '@shopify/polaris';
 import type { Task } from '@/app/store/components/store-setup/utils/StoreSetup-tasks';
 import { defaultStoreTasks } from '@/app/store/components/store-setup/utils/StoreSetup-tasks';
+import { BlockStack, Box, LegacyCard, Loading, Page } from '@shopify/polaris';
+import { useParams, usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import { getStoreId } from '@/utils/store-utils';
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
 import { PricingDrawer } from '@/app/store/components/store-setup/components/PricingDrawer';
-import { configureAmplify } from '@/lib/amplify-config';
 import useStoreDataStore from '@/context/core/storeDataStore';
+import { getStoreId } from '@/utils/store-utils';
 
 // Import new components
 import { SetupAdBanner } from '@/app/store/components/store-setup/components/ecommerce-setup-parts/SetupAdBanner';
 import { SetupHeader } from '@/app/store/components/store-setup/components/ecommerce-setup-parts/SetupHeader';
 import { SetupProgress } from '@/app/store/components/store-setup/components/ecommerce-setup-parts/SetupProgress';
 import { SetupTaskList } from '@/app/store/components/store-setup/components/ecommerce-setup-parts/SetupTaskList';
-
-configureAmplify();
 
 export function EcommerceSetup() {
   const [tasks, setTasks] = useState<Task[]>(defaultStoreTasks);

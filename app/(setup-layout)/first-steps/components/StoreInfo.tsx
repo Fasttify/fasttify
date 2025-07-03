@@ -1,13 +1,11 @@
-import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useStoreNameValidator } from '@/app/(setup-layout)/first-steps/hooks/useStoreNameValidator';
-import { configureAmplify } from '@/lib/amplify-config';
-
-configureAmplify();
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
+import { Check, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface StoreData {
   storeName: string;
@@ -22,8 +20,6 @@ interface StoreInfoProps {
   errors?: Record<string, string[]>;
   onValidationChange?: (isValid: boolean) => void;
 }
-
-import { Check, Loader2 } from 'lucide-react';
 
 const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, onValidationChange }) => {
   const { checkStoreName, isChecking, exists } = useStoreNameValidator();
