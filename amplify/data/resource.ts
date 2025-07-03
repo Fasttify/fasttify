@@ -76,7 +76,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('profileOwner').to(['create']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         profileOwner: a
@@ -84,7 +83,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('profileOwner').to(['create']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
       })
@@ -130,7 +128,6 @@ const schema = a
             allow.ownerDefinedIn('userId').to(['create', 'read', 'delete']),
             allow.authenticated().to(['create', 'read']),
             allow.publicApiKey().to(['read']),
-            allow.guest().to(['read']),
           ]),
         storeId: a
           .string()
@@ -139,7 +136,6 @@ const schema = a
             allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
             allow.authenticated().to(['create', 'read']),
             allow.publicApiKey().to(['read']),
-            allow.guest().to(['read']),
           ]),
         storeName: a
           .string()
@@ -148,7 +144,6 @@ const schema = a
             allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
             allow.authenticated().to(['create', 'read', 'update']),
             allow.publicApiKey().to(['read']),
-            allow.guest().to(['read']),
           ]),
         storeDescription: a.string(),
         storeLogo: a.string(),
@@ -180,7 +175,6 @@ const schema = a
             allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
             allow.authenticated().to(['create', 'read', 'update']),
             allow.publicApiKey().to(['read']),
-            allow.guest().to(['read']),
           ]),
         onboardingData: a.json(),
       })
@@ -189,7 +183,6 @@ const schema = a
       .authorization((allow) => [
         allow.authenticated().to(['read', 'update', 'delete', 'create']),
         allow.publicApiKey().to(['read']),
-        allow.guest().to(['read']),
         allow.ownerDefinedIn('userId').to(['read', 'update', 'delete', 'create']),
       ]),
 
@@ -200,7 +193,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         storeId: a
@@ -208,7 +200,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         name: a
@@ -216,7 +207,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         description: a.string(),
@@ -242,14 +232,12 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
       })
       .secondaryIndexes((index) => [index('storeId'), index('collectionId')])
       .authorization((allow) => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
-        allow.guest().to(['read']),
         allow.publicApiKey().to(['read']),
       ]),
 
@@ -260,7 +248,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         title: a
@@ -268,7 +255,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         description: a.string(),
@@ -279,7 +265,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         sortOrder: a.integer(),
@@ -288,7 +273,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         products: a.hasMany('Product', 'collectionId'),
@@ -296,7 +280,6 @@ const schema = a
       .secondaryIndexes((index) => [index('storeId'), index('title'), index('slug')])
       .authorization((allow) => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
-        allow.guest().to(['read']),
         allow.publicApiKey().to(['read']),
       ]),
 
@@ -307,7 +290,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         storeId: a
@@ -315,7 +297,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         domain: a
@@ -323,7 +304,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         name: a
@@ -331,7 +311,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         handle: a
@@ -339,7 +318,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         isMain: a
@@ -347,7 +325,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         isActive: a
@@ -355,7 +332,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         menuData: a
@@ -363,7 +339,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         owner: a
@@ -371,14 +346,12 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
       })
       .secondaryIndexes((index) => [index('storeId'), index('handle'), index('domain')])
       .authorization((allow) => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
-        allow.guest().to(['read']),
         allow.publicApiKey().to(['read']),
       ]),
 
@@ -389,7 +362,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         storeId: a
@@ -397,7 +369,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         title: a
@@ -405,7 +376,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         content: a
@@ -413,7 +383,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         slug: a
@@ -421,7 +390,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         metaTitle: a.string(),
@@ -431,7 +399,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         isVisible: a
@@ -439,7 +406,6 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
         template: a.string(),
@@ -448,14 +414,12 @@ const schema = a
           .required()
           .authorization((allow) => [
             allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
-            allow.guest().to(['read']),
             allow.publicApiKey().to(['read']),
           ]),
       })
       .secondaryIndexes((index) => [index('storeId'), index('slug'), index('status')])
       .authorization((allow) => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
-        allow.guest().to(['read']),
         allow.publicApiKey().to(['read']),
       ]),
 
