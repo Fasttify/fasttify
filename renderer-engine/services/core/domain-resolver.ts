@@ -1,6 +1,6 @@
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
-import type { Store, TemplateError } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/AmplifyServer';
+import type { Store, TemplateError } from '@/renderer-engine/types';
+import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 
 class DomainResolver {
   private static instance: DomainResolver;
@@ -37,7 +37,7 @@ class DomainResolver {
         return null;
       }
 
-      const store = stores as unknown as Store;
+      const store = stores[0] as unknown as Store;
       // Cache positive result
       cacheManager.setCached(cacheKey, store, cacheManager.DOMAIN_CACHE_TTL);
       return store;

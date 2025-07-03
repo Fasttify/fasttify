@@ -1,15 +1,14 @@
 'use client';
 
-import { ArrowRight, Store, User, Settings, InfoIcon } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { BackgroundGradientAnimation } from '@/app/(setup-layout)/first-steps/components/BackgroundGradientAnimation';
 import { MultiStepLoader } from '@/app/(setup-layout)/first-steps/components/MultiStepLoader';
-import Image from 'next/image';
 import PersonalInfo from '@/app/(setup-layout)/first-steps/components/PersonalInfo';
 import StoreInfo from '@/app/(setup-layout)/first-steps/components/StoreInfo';
-import AdditionalSettings from '@/app/(setup-layout)/first-steps/components/AdditionalSettings';
 import { useFirstStepsSetup } from '@/app/(setup-layout)/first-steps/hooks/useFirstStepsSetup';
+import { Button } from '@/components/ui/button';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, InfoIcon, Store, User } from 'lucide-react';
+import Image from 'next/image';
 
 export default function FirstStepsPage() {
   const {
@@ -20,7 +19,7 @@ export default function FirstStepsPage() {
     formData,
     validationErrors,
     saving,
-    loading,
+    uploadingTemplate,
     updateFormData,
     options,
     nextStep,
@@ -29,15 +28,15 @@ export default function FirstStepsPage() {
     handleStepValidation,
   } = useFirstStepsSetup();
 
-  if (loading || saving) {
+  if (uploadingTemplate || saving) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <MultiStepLoader
           loadingStates={[
-            { text: 'Creando tu tienda' },
-            { text: 'Configurando template engine' },
-            { text: 'Preparando tu tienda online' },
-            { text: '¡Listo para usar!' },
+            { text: 'Creando tu tienda...' },
+            { text: 'Configurando el motor de plantillas...' },
+            { text: 'Preparando todo para ti...' },
+            { text: '¡Listo para empezar!' },
           ]}
           loading={true}
         />
@@ -53,20 +52,19 @@ export default function FirstStepsPage() {
             <div className="mb-8">
               <h1 className="text-2xl font-semibold text-gray-900 mb-2">¿Dónde quieres vender con Fasttify?</h1>
               <p className="text-gray-600">
-                Configuraremos todo para que puedas empezar a vender sin complicaciones en los canales que elijas.
+                Configuraremos todo para que puedas empezar a vender sin complicaciones donde elijas.
               </p>
               <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
                 <div className="flex items-start">
                   <InfoIcon className="h-5 w-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0" />
                   <p className="text-sm text-blue-700">
-                    <span className="font-medium">¿Con prisa?</span> Puedes usar la opción de
+                    <span className="font-medium">¿Tienes prisa?</span> Usa la
                     <button
                       onClick={handleQuickSetup}
                       className="mx-1 font-medium text-blue-600 underline hover:text-blue-800">
                       configuración rápida
                     </button>
-                    para crear tu tienda al instante con un nombre temporal. No te preocupes, podrás personalizar todos
-                    los detalles más adelante.
+                    y crea tu tienda al instante. Podrás personalizarla más tarde.
                   </p>
                 </div>
               </div>
@@ -129,12 +127,6 @@ export default function FirstStepsPage() {
             />
           </StepWrapper>
         );
-      case 4:
-        return (
-          <StepWrapper key="step4">
-            <AdditionalSettings data={formData} updateData={updateFormData} errors={validationErrors} />
-          </StepWrapper>
-        );
       default:
         return null;
     }
@@ -152,31 +144,32 @@ export default function FirstStepsPage() {
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-3xl bg-[#ffff] bg-opacity-90 backdrop-blur-sm rounded-[2rem] border shadow p-8 relative">
-          {/* Progress Header */}
+          className="w-full max-w-3xl bg-white  backdrop-blur-sm rounded-3xl border shadow-lg p-8 relative">
           {step > 1 && (
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center space-x-2">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                    step >= 2 ? 'bg-blue-500 text-white' : 'bg-white'
+                  }`}>
                   <User size={20} />
                 </div>
-                <div className="h-1 w-12 bg-gray-200">
-                  <div className={`h-full bg-blue-500 transition-all duration-300 ${step >= 3 ? 'w-full' : 'w-0'}`} />
+                <div className="h-1 w-12 bg-white rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-blue-500"
+                    initial={{ width: '0%' }}
+                    animate={{ width: step >= 3 ? '100%' : '0%' }}
+                    transition={{ duration: 0.3 }}
+                  />
                 </div>
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                    step >= 3 ? 'bg-blue-500 text-white' : 'bg-white'
+                  }`}>
                   <Store size={20} />
                 </div>
-                <div className="h-1 w-12 bg-gray-200">
-                  <div className={`h-full bg-blue-500 transition-all duration-300 ${step >= 4 ? 'w-full' : 'w-0'}`} />
-                </div>
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 4 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
-                  <Settings size={20} />
-                </div>
               </div>
-              <span className="text-sm text-gray-500 sm:ml-0 ml-4">Paso {step} de 4</span>
+              <span className="text-sm font-medium text-gray-500">Paso {step} de 3</span>
             </div>
           )}
 
@@ -190,20 +183,20 @@ export default function FirstStepsPage() {
                 onClick={handleQuickSetup}
                 disabled={saving}
                 className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                No necesito ayuda con la configuración →
+                No necesito ayuda →
               </button>
             ) : (
-              <button onClick={prevStep} className="text-gray-600 hover:text-gray-900 transition-colors">
+              <Button variant="ghost" onClick={prevStep} disabled={saving}>
                 Atrás
-              </button>
+              </Button>
             )}
             <Button
               variant="ghost"
               onClick={nextStep}
               disabled={(step === 1 && !selectedOption) || (step === 3 && !isStepValid) || saving}
-              className="px-0 py-2 rounded-lg flex items-center space-x-2">
-              <span>{step === 4 ? (saving ? 'Guardando...' : 'Finalizar') : 'Siguiente'}</span>
-              <ArrowRight size={16} />
+              className="rounded-lg">
+              {saving ? 'Creando tienda...' : step === 3 ? 'Finalizar y crear tienda' : 'Siguiente'}
+              <ArrowRight size={16} className="ml-2" />
             </Button>
           </div>
         </motion.div>
@@ -217,7 +210,7 @@ const StepWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     initial={{ x: 300, opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: -300, opacity: 0 }}
-    transition={{ type: 'tween', stiffness: 260, damping: 20 }}>
+    transition={{ type: 'tween', ease: 'easeInOut', duration: 0.4 }}>
     {children}
   </motion.div>
 );

@@ -20,9 +20,9 @@ interface StoreInfoProps {
 
 const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, onValidationChange }) => {
   useEffect(() => {
-    const isFormValid = !!data.storeName && !!data.description && !!data.location && !!data.category;
+    const isFormValid = !!data.storeName;
     onValidationChange?.(isFormValid);
-  }, [data.storeName, data.description, data.location, data.category, onValidationChange]);
+  }, [data.storeName, onValidationChange]);
 
   const categories = [
     'Ropa y Accesorios',
@@ -44,7 +44,9 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, on
     <div className="w-full max-w-2xl p-6 bg-white rounded-lg">
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Datos de la Tienda</h2>
-        <p className="text-gray-600">Configura los detalles de tu tienda</p>
+        <p className="text-gray-600">
+          Define el nombre de tu tienda. Los demás datos son opcionales y podrás completarlos más tarde.
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -60,7 +62,9 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, on
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Descripción</Label>
+          <Label htmlFor="description">
+            Descripción <span className="text-gray-500">(Opcional)</span>
+          </Label>
           <Textarea
             id="description"
             value={data.description}
@@ -72,7 +76,9 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, on
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="location">Ubicación fisica de tu Tienda</Label>
+          <Label htmlFor="location">
+            Ubicación <span className="text-gray-500">(Opcional)</span>
+          </Label>
           <Input
             id="location"
             value={data.location}
@@ -83,7 +89,9 @@ const StoreInfo: React.FC<StoreInfoProps> = ({ data, updateData, errors = {}, on
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="category">Categoría</Label>
+          <Label htmlFor="category">
+            Categoría <span className="text-gray-500">(Opcional)</span>
+          </Label>
           <Select value={data.category} onValueChange={(value) => updateData({ category: value })}>
             <SelectTrigger id="category" className="focus:ring-0 focus:outline-none">
               <SelectValue placeholder="Selecciona una categoría" />
