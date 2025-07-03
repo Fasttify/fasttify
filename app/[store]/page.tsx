@@ -1,8 +1,8 @@
+import { storeRenderer } from '@/renderer-engine';
+import { logger } from '@/renderer-engine/lib/logger';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
-import { storeRenderer } from '@/renderer-engine';
-import { logger } from '@/renderer-engine/lib/logger';
 
 // Forzar renderizado dinámico para acceder a variables de entorno en runtime
 export const dynamic = 'force-dynamic';
@@ -76,31 +76,31 @@ function DevAutoReloadScript() {
             // Crear conexión SSE para recargas automáticas
             function connectSSE() {
               const eventSource = new EventSource('/api/stores/template-dev/ws');
-              
+
               eventSource.onopen = function() {
                 console.log('[Template Dev] Conectado al servidor de desarrollo');
               };
-              
+
               eventSource.onmessage = function(event) {
                 const data = JSON.parse(event.data);
-                
+
                 if (data.type === 'reload') {
                   console.log('[Template Dev] Cambios detectados, recargando página...');
                   window.location.reload();
                 }
-                
+
                 if (data.type === 'connected') {
                   console.log('[Template Dev] Conexión SSE establecida');
                 }
               };
-              
+
               eventSource.onerror = function() {
                 console.log('[Template Dev] Error en la conexión, reconectando en 3s...');
                 eventSource.close();
                 setTimeout(connectSSE, 3000);
               };
             }
-            
+
             // Iniciar conexión solo si estamos en desarrollo
             if (window.location.hostname === 'localhost' || window.location.hostname.includes('dev')) {
               connectSSE();

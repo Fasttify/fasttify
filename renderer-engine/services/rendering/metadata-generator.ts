@@ -11,12 +11,7 @@ export class MetadataGenerator {
     const description =
       store.storeDescription || `Descubre los mejores productos en ${store.storeName}. Compra online con envío seguro.`;
     const url = `https://${domain}`;
-    let image = store.storeLogo || store.storeBanner;
-
-    // Asegurarnos de que la URL de la imagen sea siempre absoluta
-    if (image && image.startsWith('/')) {
-      image = `${url}${image}`;
-    }
+    const image = store.storeLogo || store.storeBanner;
 
     const openGraph: OpenGraphData = {
       title,
