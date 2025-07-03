@@ -1,23 +1,22 @@
 import { defineBackend } from '@aws-amplify/backend';
-import { auth } from './auth/resource';
-import { storage } from './storage/resource';
-import { createSubscription } from './functions/createSubscription/resource';
-import { webHookPlan } from './functions/webHookPlan/resource';
-import { planScheduler } from './functions/planScheduler/resource';
-import { checkStoreName } from './functions/checkStoreName/resource';
-import { checkStoreDomain } from './functions/checkStoreDomain/resource';
+import { Stack } from 'aws-cdk-lib';
+import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { postConfirmation } from './auth/post-confirmation/resource';
-import { apiKeyManager } from './functions/LambdaEncryptKeys/resource';
-import { storeImages } from './functions/storeImages/resource';
+import { auth } from './auth/resource';
 import {
   data,
   generateHaikuFunction,
-  generateProductDescriptionFunction,
   generatePriceSuggestionFunction,
+  generateProductDescriptionFunction,
 } from './data/resource';
-import { Stack } from 'aws-cdk-lib';
-import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
-import { Policy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
+import { checkStoreDomain } from './functions/checkStoreDomain/resource';
+import { createSubscription } from './functions/createSubscription/resource';
+import { apiKeyManager } from './functions/LambdaEncryptKeys/resource';
+import { planScheduler } from './functions/planScheduler/resource';
+import { storeImages } from './functions/storeImages/resource';
+import { webHookPlan } from './functions/webHookPlan/resource';
+import { storage } from './storage/resource';
 
 /**
  * Detección simple de entorno
@@ -69,7 +68,6 @@ const backend = defineBackend({
   createSubscription,
   webHookPlan,
   planScheduler,
-  checkStoreName,
   postConfirmation,
   generateHaikuFunction,
   checkStoreDomain,
@@ -192,25 +190,6 @@ webhookResource.addMethod('POST', webHookPlanIntegration);
 
 /**
  *
- * API para Validar Nombre de Tienda
- *
- */
-const checkStoreNameApi = new RestApi(apiStack, 'CheckStoreNameApi', {
-  restApiName: `CheckStoreNameApi-${stageName}`,
-  deploy: true,
-  deployOptions: deployConfig,
-  defaultCorsPreflightOptions: corsConfig,
-});
-const checkStoreNameIntegration = new LambdaIntegration(backend.checkStoreName.resources.lambda);
-
-const checkStoreNameResource = checkStoreNameApi.root.addResource('check-store-name', {
-  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
-});
-
-checkStoreNameResource.addMethod('GET', checkStoreNameIntegration);
-
-/**
- *
  * API para Validar Disponibilidad de Dominio
  *
  */
@@ -274,7 +253,6 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
       resources: [
         `${subscriptionApi.arnForExecuteApi('*', '/subscribe', stageName)}`,
         `${webHookApi.arnForExecuteApi('*', '/webhook', stageName)}`,
-        `${checkStoreNameApi.arnForExecuteApi('*', '/check-store-name', stageName)}`,
         `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', stageName)}`,
         `${apiKeyManagerApi.arnForExecuteApi('*', '/api-keys', stageName)}`,
         `${storeImagesApi.arnForExecuteApi('*', '/store-images', stageName)}`,
@@ -309,12 +287,6 @@ backend.addOutput({
         endpoint: webHookApi.url,
         region: Stack.of(webHookApi).region,
         apiName: webHookApi.restApiName,
-        stage: stageName,
-      },
-      CheckStoreNameApi: {
-        endpoint: checkStoreNameApi.url,
-        region: Stack.of(checkStoreNameApi).region,
-        apiName: checkStoreNameApi.restApiName,
         stage: stageName,
       },
       CheckStoreDomainApi: {

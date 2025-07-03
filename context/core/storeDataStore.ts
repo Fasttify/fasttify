@@ -77,6 +77,8 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
             'storeFavicon',
             'storeTheme',
             'onboardingData',
+            'storeAdress',
+            'storeDescription',
           ],
         }
       );
@@ -171,6 +173,8 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
         'storeFavicon',
         'storeTheme',
         'onboardingData',
+        'storeAdress',
+        'storeDescription',
       ],
     }).subscribe({
       next: ({ items, isSynced }) => {

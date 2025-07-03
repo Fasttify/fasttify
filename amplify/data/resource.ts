@@ -1,7 +1,6 @@
 import { type ClientSchema, a, defineData, defineFunction } from '@aws-amplify/backend';
 import { postConfirmation } from '../auth/post-confirmation/resource';
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource';
-import { checkStoreName } from '../functions/checkStoreName/resource';
 import { createStoreTemplate } from '../functions/createStoreTemplate/resource';
 import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource';
 import { planScheduler } from '../functions/planScheduler/resource';
@@ -156,7 +155,7 @@ const schema = a
         storePolicy: a.string(),
         storeAdress: a.string(),
         contactEmail: a.string(),
-        contactPhone: a.float(),
+        contactPhone: a.string(),
         contactName: a.string(),
         conctactIdentification: a.string(),
         contactIdentificationType: a.string(),
@@ -654,7 +653,6 @@ const schema = a
     allow.resource(postConfirmation),
     allow.resource(webHookPlan),
     allow.resource(planScheduler),
-    allow.resource(checkStoreName),
     allow.resource(checkStoreDomain),
     allow.resource(apiKeyManager),
     allow.resource(createStoreTemplate),

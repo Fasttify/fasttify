@@ -1,30 +1,30 @@
-import { useState, useEffect } from 'react';
 import {
-  Page,
+  Badge,
+  Box,
+  Button,
+  ButtonGroup,
+  Icon,
   Layout,
   LegacyCard,
-  Text,
-  ButtonGroup,
-  Button,
-  Box,
-  Badge,
-  Icon,
   LegacyStack,
-  TextField,
   Loading,
+  Page,
+  Text,
+  TextField,
 } from '@shopify/polaris';
 import {
-  SearchIcon,
-  GlobeIcon,
-  StoreIcon,
-  MarketsIcon,
-  DomainLandingPageIcon,
   ClipboardIcon,
+  DomainLandingPageIcon,
+  GlobeIcon,
+  MarketsIcon,
+  SearchIcon,
+  StoreIcon,
 } from '@shopify/polaris-icons';
+import { useEffect, useState } from 'react';
 
+import { AutomatedCustomDomainDialog } from '@/app/store/components/domains/components/AutomatedCustomDomainDialog';
 import { ChangeDomainDialog } from '@/app/store/components/domains/components/ChangeDomainDialog';
 import { EditStoreProfileDialog } from '@/app/store/components/domains/components/EditStoreProfileDialog';
-import { AutomatedCustomDomainDialog } from '@/app/store/components/domains/components/AutomatedCustomDomainDialog';
 import { useCustomDomain } from '@/app/store/hooks/api/useCustomDomain';
 import useStoreDataStore from '@/context/core/storeDataStore';
 
@@ -319,7 +319,9 @@ export function DomainManagement() {
         initialData={{
           storeName: currentStore?.storeName,
           contactEmail: currentStore?.contactEmail ?? '',
-          contactPhone: currentStore?.contactPhone?.toString() ?? '',
+          contactPhone: currentStore?.contactPhone ?? '',
+          storeAdress: currentStore?.storeAdress ?? '',
+          storeDescription: currentStore?.storeDescription ?? '',
         }}
       />
 
