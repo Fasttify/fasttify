@@ -1,7 +1,8 @@
-import { Trophy, Store, Share2, BarChart3, AppWindowIcon as Apps } from 'lucide-react';
+import FlowingMenu from '@/components/ui/reactbits/FlowingMenu';
 import SpotlightCard from '@/components/ui/reactbits/SpotlightCard';
 import { Separator } from '@/components/ui/separator';
-import FlowingMenu from '@/components/ui/reactbits/FlowingMenu';
+import { LockIcon, PaymentIcon, ShieldCheckMarkIcon } from '@shopify/polaris-icons';
+import { AppWindowIcon as Apps, BarChart3, Share2, Store, Trophy } from 'lucide-react';
 
 const demoItems = [
   {
@@ -91,7 +92,9 @@ export function FeatureComparison() {
         <div className="p-6 text-black">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-full bg-blue-50">
-              <span className="block w-6 h-6 text-blue-500">🔒</span>
+              <span className="block w-8 h-8 text-blue-500">
+                <LockIcon />
+              </span>
             </div>
             <h3 className="text-lg font-normal">Seguridad y protección de datos</h3>
           </div>
@@ -100,7 +103,9 @@ export function FeatureComparison() {
         <div className="p-6 text-black">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-full bg-blue-50">
-              <span className="block w-6 h-6 text-blue-500">🔄</span>
+              <span className="block w-8 h-8 text-blue-500 ">
+                <PaymentIcon />
+              </span>
             </div>
             <h3 className="text-lg font-normal">Pagos seguros y confiables</h3>
           </div>
@@ -109,7 +114,9 @@ export function FeatureComparison() {
         <div className="p-6 text-black">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-full bg-blue-50">
-              <span className="block w-6 h-6 text-blue-500">🛡️</span>
+              <span className="block w-8 h-8 text-blue-500">
+                <ShieldCheckMarkIcon />
+              </span>
             </div>
             <h3 className="text-lg font-normal">Infraestructura robusta y escalable</h3>
           </div>

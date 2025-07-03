@@ -23,7 +23,7 @@ Amplify.configure({
 export default function PricingPage() {
   return (
     <>
-      <div className="min-h-screen p-8">
+      <div className="min-h-screen p-8 md:mt-16">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-12"

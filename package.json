@@ -59,7 +59,6 @@
     "gsap": "^3.12.7",
     "input-otp": "^1.4.2",
     "liquidjs": "^10.21.1",
-    "lottie-react": "^2.4.1",
     "lucide-react": "^0.471.2",
     "motion": "^11.18.2",
     "next": "^15.3.2",

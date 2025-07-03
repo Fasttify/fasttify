@@ -1,6 +1,6 @@
-import { cookiesClient } from '@/utils/AmplifyServer';
-import type { Store, TemplateError } from '@/renderer-engine/types';
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import type { Store, TemplateError } from '@/renderer-engine/types';
+import { cookiesClient } from '@/utils/AmplifyServer';
 
 class DomainResolver {
   private static instance: DomainResolver;

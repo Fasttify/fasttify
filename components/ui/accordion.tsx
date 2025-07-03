@@ -1,6 +1,6 @@
-import * as React from 'react';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
-import { ChevronDown } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
+import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -10,7 +10,7 @@ const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item ref={ref} className={cn('border-b', className)} {...props} />
+  <AccordionPrimitive.Item ref={ref} className={cn('border-b border-white/20', className)} {...props} />
 ));
 AccordionItem.displayName = 'AccordionItem';
 
@@ -22,12 +22,15 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        'flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline text-left [&[data-state=open]>svg]:rotate-180',
+        'group flex w-full flex-1 items-center justify-between py-8 text-left text-2xl font-medium text-black transition-all',
         className
       )}
       {...props}>
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
+      <div className="relative ml-4 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white">
+        <Plus className="h-5 w-5 scale-100 text-black transition-transform duration-300 group-data-[state=open]:scale-0" />
+        <Minus className="absolute h-5 w-5 scale-0 text-black transition-transform duration-300 group-data-[state=open]:scale-100" />
+      </div>
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));
@@ -37,13 +40,18 @@ const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
+  // NOTE: For the intended dark theme, place this Accordion component inside a container with a dark background, e.g., <div className="bg-black">
   <AccordionPrimitive.Content
     ref={ref}
-    className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    className={cn(
+      'overflow-hidden text-lg text-gray-300 transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down',
+      'data-[state=open]:duration-500 data-[state=open]:ease-in-out',
+      className
+    )}
     {...props}>
-    <div className={cn('pb-4 pt-0', className)}>{children}</div>
+    <div className={cn('pb-8 pt-2 pr-12', className)}>{children}</div>
   </AccordionPrimitive.Content>
 ));
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;
 
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };
+export { Accordion, AccordionContent, AccordionItem, AccordionTrigger };
