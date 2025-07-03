@@ -1,18 +1,6 @@
-import type { Metadata } from 'next';
-import { ReactQueryProvider } from '@/utils/ReactQueryProvider';
 import ConfigureAmplifyClientSide from '@/utils/ConfigureAmplify';
-import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify_outputs.json';
-
-Amplify.configure(outputs);
-const existingConfig = Amplify.getConfig();
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-});
+import { ReactQueryProvider } from '@/utils/ReactQueryProvider';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.fasttify.com'),
