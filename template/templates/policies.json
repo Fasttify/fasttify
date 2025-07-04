@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "policies": {
+      "type": "sections/policy",
+      "settings": {}
+    }
+  },
+  "order": ["policies"]
+} 

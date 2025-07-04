@@ -1,10 +1,10 @@
+import type { PageSummary } from '@/app/store/components/page-management/types/page-types';
+import { getStatusText, getStatusTone } from '@/app/store/components/page-management/utils/page-utils';
 import { Badge, BlockStack, Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
-import { EditIcon, DeleteIcon } from '@shopify/polaris-icons';
-import type { Page } from '@/app/store/components/page-management/types/page-types';
-import { getStatusText, getStatusTone, truncateContent } from '@/app/store/components/page-management/utils/page-utils';
+import { DeleteIcon, EditIcon } from '@shopify/polaris-icons';
 
 interface PageListMobileProps {
-  pages: Page[];
+  pages: PageSummary[];
   handleEditPage: (id: string) => void;
   handleDeletePage: (id: string) => void;
 }
@@ -26,9 +26,6 @@ export function PageListMobile({ pages, handleEditPage, handleDeletePage }: Page
                   <div>
                     <Text as="h3" variant="bodyMd" fontWeight="semibold">
                       {page.title}
-                    </Text>
-                    <Text as="p" variant="bodySm" tone="subdued">
-                      {truncateContent(page.content || '', 50)}
                     </Text>
                   </div>
                   <ButtonGroup>

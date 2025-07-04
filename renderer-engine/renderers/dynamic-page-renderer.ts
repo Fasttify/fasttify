@@ -1,14 +1,14 @@
-import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
-import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
-import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
+import { logger } from '@/renderer-engine/lib/logger';
 import { liquidEngine } from '@/renderer-engine/liquid/engine';
+import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
+import { errorRenderer } from '@/renderer-engine/services/errors/error-renderer';
+import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
+import { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader';
+import { pageConfig } from '@/renderer-engine/services/page/page-config';
 import { contextBuilder } from '@/renderer-engine/services/rendering/context-builder';
 import { metadataGenerator } from '@/renderer-engine/services/rendering/metadata-generator';
 import { sectionRenderer } from '@/renderer-engine/services/rendering/section-renderer';
-import { errorRenderer } from '@/renderer-engine/services/errors/error-renderer';
-import { pageConfig } from '@/renderer-engine/services/page/page-config';
-import { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader';
-import { logger } from '@/renderer-engine/lib/logger';
+import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import type { RenderResult, ShopContext, TemplateError } from '@/renderer-engine/types';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
 

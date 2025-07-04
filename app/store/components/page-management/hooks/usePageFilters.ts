@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
-import type { Page, SortDirection, SortField } from '@/app/store/components/page-management/types/page-types';
+import type { PageSummary, SortDirection, SortField } from '@/app/store/components/page-management/types/page-types';
+import { useMemo, useState } from 'react';
 
-export function usePageFilters(pages: Page[]) {
+export function usePageFilters(pages: PageSummary[]) {
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField | null>(null);
@@ -17,8 +17,7 @@ export function usePageFilters(pages: Page[]) {
         if (!searchQuery) return true;
         return (
           page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          page.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (page.content && page.content.toLowerCase().includes(searchQuery.toLowerCase()))
+          page.slug.toLowerCase().includes(searchQuery.toLowerCase())
         );
       });
   }, [pages, activeTab, searchQuery]);
@@ -45,10 +44,6 @@ export function usePageFilters(pages: Page[]) {
         case 'createdAt':
           valueA = new Date(a.createdAt || 0).getTime();
           valueB = new Date(b.createdAt || 0).getTime();
-          break;
-        case 'updatedAt':
-          valueA = new Date(a.updatedAt || 0).getTime();
-          valueB = new Date(b.updatedAt || 0).getTime();
           break;
         default:
           return 0;

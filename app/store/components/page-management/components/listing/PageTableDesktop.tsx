@@ -1,26 +1,25 @@
+import type { PageSummary, SortField, VisibleColumns } from '@/app/store/components/page-management/types/page-types';
 import {
-  IndexTable,
-  LegacyCard,
-  useIndexResourceState,
-  Text,
+  formatDate,
+  formatVisibility,
+  getStatusText,
+  getStatusTone,
+  getVisibilityTone,
+} from '@/app/store/components/page-management/utils/page-utils';
+import {
   Badge,
   Button,
   ButtonGroup,
+  IndexTable,
+  LegacyCard,
   Link as PolarisLink,
+  Text,
+  useIndexResourceState,
 } from '@shopify/polaris';
-import { EditIcon, DeleteIcon, PageIcon } from '@shopify/polaris-icons';
-import type { Page, SortField, VisibleColumns } from '@/app/store/components/page-management/types/page-types';
-import {
-  getStatusText,
-  getStatusTone,
-  formatDate,
-  formatVisibility,
-  getVisibilityTone,
-  truncateContent,
-} from '@/app/store/components/page-management/utils/page-utils';
+import { DeleteIcon, EditIcon, PageIcon } from '@shopify/polaris-icons';
 
 interface PageTableDesktopProps {
-  pages: Page[];
+  pages: PageSummary[];
   handleEditPage: (id: string) => void;
   handleDeletePage: (id: string) => void;
   handleDeleteSelected: (selectedIds: string[]) => void;
@@ -54,7 +53,7 @@ export function PageTableDesktop({
     },
   ];
 
-  const rowMarkup = pages.map(({ id, title, slug, status, isVisible, content, createdAt }, index) => {
+  const rowMarkup = pages.map(({ id, title, slug, status, isVisible, createdAt }, index) => {
     return (
       <IndexTable.Row id={id} key={id} selected={selectedResources.includes(id)} position={index}>
         <IndexTable.Cell>
@@ -66,11 +65,6 @@ export function PageTableDesktop({
                   {title}
                 </Text>
               </PolarisLink>
-              <div>
-                <Text variant="bodySm" tone="subdued" as="p">
-                  {truncateContent(content || '')}
-                </Text>
-              </div>
             </div>
           </div>
         </IndexTable.Cell>

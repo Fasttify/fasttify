@@ -1,63 +1,66 @@
 // Store types
-export type { Store, StoreTemplate, StoreConfig, TemplateFiles, DomainResolution } from '@/renderer-engine/types/store';
+export type { DomainResolution, Store, StoreConfig, StoreTemplate, TemplateFiles } from '@/renderer-engine/types/store';
 
 // Product types
 export type {
-  Product,
-  ProductImage,
-  ProductVariant,
   Collection,
   CollectionProduct,
+  LiquidCollection,
   LiquidProduct,
   LiquidProductImage,
   LiquidProductVariant,
-  LiquidCollection,
+  Product,
+  ProductImage,
+  ProductVariant,
 } from '@/renderer-engine/types/product';
+
+// Page types
+export type { Page } from '@/renderer-engine/types/page';
 
 // Template types
 export type {
-  TemplateFile,
-  TemplateCache,
-  RenderContext,
-  ShopContext,
-  PageContext,
-  ProductContext,
   CollectionContext,
-  PaginationContext,
-  RenderResult,
   OpenGraphData,
+  PageContext,
+  PaginationContext,
+  ProductContext,
+  RenderContext,
+  RenderResult,
   SchemaData,
-  TemplateError,
+  ShopContext,
+  TemplateCache,
   TemplateData,
+  TemplateError,
+  TemplateFile,
 } from '@/renderer-engine/types/template';
 
 // Liquid types
 export type {
+  CommentTag,
+  CompiledTemplate,
+  DateFilter,
+  ImageFilter,
+  JavaScriptTag,
+  LiquidContext,
   LiquidEngineConfig,
   LiquidFilter,
   LiquidTag,
-  LiquidContext,
-  CompiledTemplate,
   MoneyFilter,
-  ImageFilter,
-  UrlFilter,
-  DateFilter,
-  ProductFormTag,
   PaginateTag,
-  CommentTag,
+  ProductFormTag,
+  RenderTag,
   ScriptTag,
   SectionTag,
-  RenderTag,
   StyleTag,
-  JavaScriptTag,
+  UrlFilter,
 } from '@/renderer-engine/types/liquid';
 
 // Cart types
 export type {
-  Cart,
-  CartItem,
-  CartContext,
   AddToCartRequest,
-  UpdateCartRequest,
+  Cart,
+  CartContext,
+  CartItem,
   CartResponse,
+  UpdateCartRequest,
 } from '@/renderer-engine/types/cart';

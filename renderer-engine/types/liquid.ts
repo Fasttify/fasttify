@@ -1,4 +1,4 @@
-import { Liquid, FS } from 'liquidjs';
+import { FS, Liquid } from 'liquidjs';
 
 export interface LiquidEngineConfig {
   cache: boolean;

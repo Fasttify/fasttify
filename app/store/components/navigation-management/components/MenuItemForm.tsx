@@ -2,8 +2,12 @@
 
 import { CollectionSelector } from '@/app/store/components/navigation-management/components/CollectionSelector';
 import { HelpTooltip } from '@/app/store/components/navigation-management/components/HelpTooltip';
+import { PageSelector } from '@/app/store/components/navigation-management/components/PageSelector';
 import { MENU_ITEM_TYPES, MenuItemFormProps, TARGET_OPTIONS } from '@/app/store/components/navigation-management/types';
+import { useCollections } from '@/app/store/hooks/data/useCollections';
 import { MenuItem, generateMenuItemURL } from '@/app/store/hooks/data/useNavigationMenus';
+import { usePages } from '@/app/store/hooks/data/usePage';
+import useStoreDataStore from '@/context/core/storeDataStore';
 import { validateMenuItems } from '@/lib/zod-schemas/navigation';
 import { Button, Card, Checkbox, ResourceItem, ResourceList, Select, Text, TextField } from '@shopify/polaris';
 import { DeleteIcon, PlusIcon } from '@shopify/polaris-icons';
@@ -20,6 +24,13 @@ export function MenuItemForm({
 }: MenuItemFormProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [localItemErrors, setLocalItemErrors] = useState<Record<number, Record<string, string>>>({});
+
+  // Hooks para obtener datos
+  const currentStore = useStoreDataStore((state) => state.currentStore);
+  const { useListCollectionSummaries } = useCollections();
+  const { useListPageSummaries } = usePages(currentStore?.storeId || '');
+  const { data: collections } = useListCollectionSummaries(currentStore?.storeId);
+  const { data: pages } = useListPageSummaries();
 
   // Combinar errores externos (de Zod) con errores locales
   const getAllItemErrors = useCallback(() => {
@@ -195,31 +206,21 @@ export function MenuItemForm({
                       options={MENU_ITEM_TYPES}
                       value={item.type}
                       onChange={(value) => {
-                        // Crear nuevo item limpiando todos los campos específicos
                         const newItem: MenuItem = {
-                          label: item.label,
+                          ...item,
                           type: value as MenuItem['type'],
-                          isVisible: item.isVisible,
-                          target: item.target,
-                          sortOrder: item.sortOrder,
+                          url: '',
+                          pageHandle: undefined,
+                          collectionHandle: undefined,
+                          productHandle: undefined,
                         };
 
-                        // Agregar solo el campo necesario según el tipo
-                        switch (value) {
-                          case 'internal':
-                          case 'external':
-                            newItem.url = item.url || '';
-                            break;
-                          case 'page':
-                            newItem.pageHandle = item.pageHandle || '';
-                            break;
-                          case 'collection':
-                            newItem.collectionHandle = item.collectionHandle || '';
-                            break;
-                          case 'product':
-                            newItem.productHandle = item.productHandle || '';
-                            break;
-                        }
+                        // Limpiar errores para los campos que ya no existen
+                        const newErrors = { ...localItemErrors[item.originalIndex] };
+                        delete newErrors.url;
+                        delete newErrors.pageSlug;
+                        delete newErrors.collectionSlug;
+                        setLocalItemErrors((prev) => ({ ...prev, [item.originalIndex]: newErrors }));
 
                         updateItem(item.originalIndex, newItem);
                       }}
@@ -227,26 +228,19 @@ export function MenuItemForm({
                     />
                   </div>
 
-                  {/* Fila 2: Campo específico según el tipo */}
-                  <div>
-                    {(item.type === 'internal' || item.type === 'external') && (
+                  {/* Fila 2: Contenido dinámico según el tipo */}
+                  <div className="w-full">
+                    {item.type === 'internal' && (
                       <TextField
                         label={
                           <>
-                            {item.type === 'internal' ? 'URL interna' : 'URL externa'}
-                            <HelpTooltip content="Para URL interna, usa un camino relativo (ej: /contacto). Para externa, la URL completa (ej: https://ejemplo.com)." />
+                            Enlace interno
+                            <HelpTooltip content="URL relativa dentro de tu tienda. Por ejemplo: /products/mi-producto" />
                           </>
                         }
                         value={item.url || ''}
                         onChange={(value) => updateItem(item.originalIndex, { ...item, url: value })}
-                        placeholder={
-                          item.type === 'internal' ? '/productos, /pages/contacto' : 'https://facebook.com/mitienda'
-                        }
-                        helpText={
-                          item.type === 'internal'
-                            ? 'URL dentro de tu tienda, debe comenzar con /'
-                            : 'URL completa con https://'
-                        }
+                        placeholder="/contacto"
                         autoComplete="off"
                         disabled={disabled}
                         error={allItemErrors[item.originalIndex]?.url}
@@ -255,32 +249,38 @@ export function MenuItemForm({
                     )}
 
                     {item.type === 'page' && (
-                      <TextField
-                        label={
-                          <>
-                            Handle de la página
-                            <HelpTooltip content="El identificador único de la página que creaste. Por ejemplo, si tu página es 'Sobre Nosotros', el handle podría ser 'sobre-nosotros'." />
-                          </>
-                        }
+                      <PageSelector
                         value={item.pageHandle || ''}
-                        onChange={(value) => updateItem(item.originalIndex, { ...item, pageHandle: value })}
-                        placeholder="sobre-nosotros"
-                        helpText="Solo el nombre de la página (se generará /pages/nombre-pagina)"
-                        autoComplete="off"
+                        onChange={(value) => {
+                          const selectedPage = pages?.find((p) => p.slug === value);
+                          const previousPage = pages?.find((p) => p.slug === item.pageHandle);
+                          let newLabel = item.label;
+
+                          if (!item.label || (previousPage && item.label === previousPage.title)) {
+                            newLabel = selectedPage?.title || '';
+                          }
+                          updateItem(item.originalIndex, { ...item, pageHandle: value, label: newLabel });
+                        }}
                         disabled={disabled}
                         error={allItemErrors[item.originalIndex]?.pageHandle}
-                        requiredIndicator
                       />
                     )}
 
                     {item.type === 'collection' && (
                       <CollectionSelector
-                        label="Colección"
                         value={item.collectionHandle || ''}
-                        onChange={(value) => updateItem(item.originalIndex, { ...item, collectionHandle: value })}
+                        onChange={(value) => {
+                          const selectedCollection = collections?.find((c) => c.slug === value);
+                          const previousCollection = collections?.find((c) => c.slug === item.collectionHandle);
+                          let newLabel = item.label;
+
+                          if (!item.label || (previousCollection && item.label === previousCollection.title)) {
+                            newLabel = selectedCollection?.title || '';
+                          }
+                          updateItem(item.originalIndex, { ...item, collectionHandle: value, label: newLabel });
+                        }}
                         disabled={disabled}
                         error={allItemErrors[item.originalIndex]?.collectionHandle}
-                        helpText="Selecciona una colección. Para enlazar a todas, elige 'Todas las colecciones'."
                       />
                     )}
 

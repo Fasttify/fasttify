@@ -1,0 +1,11 @@
+
+
+
+<!-- Página actual (en template page.liquid) -->
+{% if page %}
+  {{ page.title }}
+  {{ page.content }}
+
+{% else  %}
+  {% section 'main-404' %}
+{% endif %}

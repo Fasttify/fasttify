@@ -1,8 +1,8 @@
 'use client';
 
-import { Card, DataTable, Badge, Button, ButtonGroup, Text, Loading, EmptyState, Banner } from '@shopify/polaris';
-import { useNavigationMenus, generateMenuItemURL } from '@/app/store/hooks/data/useNavigationMenus';
 import { NavigationMenuListProps } from '@/app/store/components/navigation-management/types';
+import { useNavigationMenus } from '@/app/store/hooks/data/useNavigationMenus';
+import { Badge, Banner, Button, ButtonGroup, Card, DataTable, EmptyState, Loading, Text } from '@shopify/polaris';
 
 /**
  * Componente para mostrar la lista de menús de navegación
@@ -15,7 +15,7 @@ export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: Naviga
 
   // Preparar datos para la tabla
   const tableRows = menus.map((menu) => {
-    const menuItems = parseMenuData((menu.menuData as string) || '[]');
+    const menuItems = parseMenuData((menu as unknown as string) || '[]');
 
     return [
       <Text key={`name-${menu.id}`} variant="bodyMd" fontWeight="semibold" as="span">
@@ -27,9 +27,7 @@ export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: Naviga
       <Badge key={`type-${menu.id}`} tone={menu.isMain ? 'success' : 'info'}>
         {menu.isMain ? 'Principal' : 'Secundario'}
       </Badge>,
-      <Text key={`items-${menu.id}`} variant="bodyMd" as="span">
-        {menuItems.length} elementos
-      </Text>,
+
       <Badge key={`status-${menu.id}`} tone={menu.isActive ? 'success' : 'critical'}>
         {menu.isActive ? 'Activo' : 'Inactivo'}
       </Badge>,
@@ -58,7 +56,7 @@ export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: Naviga
     ];
   });
 
-  const tableHeadings = ['Nombre', 'Handle', 'Tipo', 'Elementos', 'Estado', 'Acciones'];
+  const tableHeadings = ['Nombre', 'Handle', 'Tipo', 'Estado', 'Acciones'];
 
   // Estado de carga
   if (isLoading) {

@@ -1,16 +1,18 @@
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
-import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher';
+import { cartFetcher } from '@/renderer-engine/services/fetchers/cart-fetcher';
 import { collectionFetcher } from '@/renderer-engine/services/fetchers/collection-fetcher';
 import { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher';
-import { cartFetcher } from '@/renderer-engine/services/fetchers/cart-fetcher';
+import { pageFetcher } from '@/renderer-engine/services/fetchers/page-fetcher';
+import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher';
 import type {
-  ProductContext,
-  CollectionContext,
+  AddToCartRequest,
   Cart,
   CartContext,
-  AddToCartRequest,
-  UpdateCartRequest,
   CartResponse,
+  CollectionContext,
+  PageContext,
+  ProductContext,
+  UpdateCartRequest,
 } from '@/renderer-engine/types';
 
 interface PaginationOptions {
@@ -32,6 +34,11 @@ interface NavigationMenusResponse {
   menus: any[];
   mainMenu?: any;
   footerMenu?: any;
+}
+
+interface PagesResponse {
+  pages: PageContext[];
+  nextToken?: string | null;
 }
 
 /**
@@ -88,6 +95,36 @@ export class DataFetcher {
    */
   public async getStoreNavigationMenus(storeId: string): Promise<NavigationMenusResponse> {
     return navigationFetcher.getStoreNavigationMenus(storeId);
+  }
+
+  // === PÁGINAS ===
+
+  /**
+   * Obtiene páginas de una tienda con paginación
+   */
+  public async getStorePages(storeId: string, options: PaginationOptions = {}): Promise<PagesResponse> {
+    return pageFetcher.getStorePages(storeId, options);
+  }
+
+  /**
+   * Obtiene una página específica por ID
+   */
+  public async getPage(storeId: string, pageId: string): Promise<PageContext | null> {
+    return pageFetcher.getPage(storeId, pageId);
+  }
+
+  /**
+   * Obtiene una página específica por slug
+   */
+  public async getPageBySlug(storeId: string, slug: string): Promise<PageContext | null> {
+    return pageFetcher.getPageBySlug(storeId, slug);
+  }
+
+  /**
+   * Obtiene páginas visibles de una tienda
+   */
+  public async getVisibleStorePages(storeId: string, options: PaginationOptions = {}): Promise<PagesResponse> {
+    return pageFetcher.getVisibleStorePages(storeId, options);
   }
 
   // === CARRITO ===

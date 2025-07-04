@@ -1,7 +1,7 @@
 import type {
-  TemplateAnalysis,
-  DataRequirement,
   DataLoadOptions,
+  DataRequirement,
+  TemplateAnalysis,
 } from '@/renderer-engine/services/templates/template-analyzer';
 
 /**
@@ -116,12 +116,69 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
     };
   },
 
+  specific_page: (content: string) => {
+    const handles: string[] = [];
+
+    // Detectar pages['handle'] y pages["handle"]
+    const bracketMatches = content.match(/pages\[['"]([^'"]+)['"]\]/g);
+    if (bracketMatches) {
+      bracketMatches.forEach((match) => {
+        const handleMatch = match.match(/pages\[['"]([^'"]+)['"]\]/);
+        if (handleMatch) handles.push(handleMatch[1]);
+      });
+    }
+
+    // Detectar pages.handle (acceso directo por propiedad)
+    const dotMatches = content.match(/pages\.([a-zA-Z0-9_-]+)(?!\.\w)/g);
+    if (dotMatches) {
+      dotMatches.forEach((match) => {
+        const handleMatch = match.match(/pages\.([a-zA-Z0-9_-]+)/);
+        if (handleMatch && !handles.includes(handleMatch[1])) {
+          handles.push(handleMatch[1]);
+        }
+      });
+    }
+
+    return { handles };
+  },
+
+  pages: (content: string) => {
+    const limitMatch = content.match(/pages[^}]*limit:\s*(\d+)/i);
+    return {
+      limit: limitMatch ? parseInt(limitMatch[1], 10) : 10,
+    };
+  },
+
   product: () => ({}),
   collection: () => ({}),
   cart: () => ({}),
   linklists: () => ({}),
   shop: () => ({}),
-  page: () => ({}),
+  page: (content: string) => {
+    const handles: string[] = [];
+
+    // Detectar pages['handle'] y pages["handle"]
+    const bracketMatches = content.match(/pages\[['"]([^'"]+)['"]\]/g);
+    if (bracketMatches) {
+      bracketMatches.forEach((match) => {
+        const handleMatch = match.match(/pages\[['"]([^'"]+)['"]\]/);
+        if (handleMatch) handles.push(handleMatch[1]);
+      });
+    }
+
+    // Detectar pages.handle (acceso directo por propiedad)
+    const dotMatches = content.match(/pages\.([a-zA-Z0-9_-]+)(?!\.\w)/g);
+    if (dotMatches) {
+      dotMatches.forEach((match) => {
+        const handleMatch = match.match(/pages\.([a-zA-Z0-9_-]+)/);
+        if (handleMatch && !handles.includes(handleMatch[1])) {
+          handles.push(handleMatch[1]);
+        }
+      });
+    }
+
+    return handles.length > 0 ? { handles } : {};
+  },
   blog: () => ({}),
   pagination: () => ({}),
 };
@@ -179,6 +236,14 @@ const objectDetectors: Record<DataRequirement, ObjectDetector> = {
   shop: {
     pattern: /\{\{\s*shop\./g,
     optionsExtractor: loadOptionsExtractors.shop,
+  },
+  specific_page: {
+    pattern: /pages\[['"]([^'"]+)['"]\]|pages\.([a-zA-Z0-9_-]+)(?!\.\w)/g,
+    optionsExtractor: loadOptionsExtractors.specific_page,
+  },
+  pages: {
+    pattern: /\{\{\s*pages\s*[\|\}]/g,
+    optionsExtractor: loadOptionsExtractors.pages,
   },
   page: {
     pattern: /\{\{\s*page\./g,

@@ -1,11 +1,11 @@
-import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 import { logger } from '@/renderer-engine/lib/logger';
-import type { PageRenderOptions } from '@/renderer-engine/types/template';
+import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 import type {
-  DataRequirement,
   DataLoadOptions,
+  DataRequirement,
   TemplateAnalysis,
 } from '@/renderer-engine/services/templates/template-analyzer';
+import type { PageRenderOptions } from '@/renderer-engine/types/template';
 
 /**
  * Tipo para las funciones handlers de datos
@@ -187,8 +187,36 @@ const dataHandlers: Record<DataRequirement, DataHandler> = {
     return null;
   },
 
+  specific_page: async (storeId, options) => {
+    if (!options.handles || options.handles.length === 0) {
+      return {};
+    }
+
+    const specificPages: Record<string, any> = {};
+
+    // Para cada handle solicitado, buscar la página
+    for (const handle of options.handles) {
+      const page = await dataFetcher.getPageBySlug(storeId, handle);
+      if (page) {
+        specificPages[handle] = page;
+      }
+    }
+
+    return specificPages;
+  },
+
+  pages: async (storeId, options) => {
+    const pagesResult = await dataFetcher.getVisibleStorePages(storeId, {
+      limit: options.limit || 10,
+      nextToken: options.nextToken,
+    });
+    return pagesResult.pages;
+  },
+
   page: async (storeId, options, pageOptions) => {
-    // Handler para páginas estáticas, podría implementarse según necesidades
+    if (pageOptions.handle) {
+      return await dataFetcher.getPageBySlug(storeId, pageOptions.handle);
+    }
     return null;
   },
 
@@ -292,6 +320,23 @@ const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
 
   related_products: (data, dataType, loadedData) => {
     loadedData[dataType] = data;
+  },
+
+  specific_page: (data, dataType, loadedData) => {
+    if (!loadedData.pages_map) {
+      loadedData.pages_map = {};
+    }
+    Object.assign(loadedData.pages_map, data);
+  },
+
+  pages: (data, dataType, loadedData, paginationInfo) => {
+    if (typeof data === 'object' && 'pages' in data) {
+      loadedData[dataType] = data.pages;
+      if (data.nextToken) paginationInfo.nextToken = data.nextToken;
+      if (data.totalCount) paginationInfo.totalCount = data.totalCount;
+    } else {
+      loadedData[dataType] = data;
+    }
   },
 };
 

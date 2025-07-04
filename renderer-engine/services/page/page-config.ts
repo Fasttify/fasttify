@@ -28,7 +28,7 @@ const cacheTTLs: Record<PageType, number> = {
  * Obtiene la ruta del template según el tipo de página
  */
 function getTemplatePath(pageType: PageType): string {
-  return templatePaths[pageType] || `templates/${pageType}.liquid`;
+  return templatePaths[pageType] || `templates/${pageType}.json`;
 }
 
 /**

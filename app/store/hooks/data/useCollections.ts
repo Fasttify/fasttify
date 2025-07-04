@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { generateClient } from 'aws-amplify/data';
+import { useState } from 'react';
 
 const client = generateClient<Schema>({
   authMode: 'userPool',
@@ -13,6 +13,8 @@ const COLLECTIONS_KEY = 'collections';
 /**
  * Interfaz para los datos de entrada de una colección
  */
+export type Collection = Schema['Collection']['type'];
+export type CollectionSummary = Pick<Collection, 'id' | 'title' | 'slug'>;
 export interface CollectionInput {
   storeId: string; // ID de la tienda a la que pertenece la colección
   title: string; // Título de la colección
@@ -97,12 +99,34 @@ export const useCollections = () => {
         }
 
         return performOperation(() =>
-          client.models.Collection.listCollectionByStoreId({
-            storeId: storeId,
-          })
+          client.models.Collection.listCollectionByStoreId(
+            {
+              storeId: storeId,
+            },
+            {
+              selectionSet: ['id', 'title', 'isActive'],
+            }
+          )
         );
       },
       staleTime: 5 * 60 * 1000, // 5 minutos en caché
+      enabled: !!storeId,
+    });
+  };
+
+  const useListCollectionSummaries = (storeId?: string): UseQueryResult<CollectionSummary[], Error> => {
+    return useQuery({
+      queryKey: [COLLECTIONS_KEY, 'list', storeId, 'summary'],
+      queryFn: () => {
+        if (!storeId) {
+          throw new Error('Store ID is required to list collection summaries.');
+        }
+
+        return performOperation(() =>
+          client.models.Collection.listCollectionByStoreId({ storeId }, { selectionSet: ['id', 'title', 'slug'] })
+        );
+      },
+      staleTime: 5 * 60 * 1000,
       enabled: !!storeId,
     });
   };
@@ -190,6 +214,7 @@ export const useCollections = () => {
     error,
     useGetCollection,
     useListCollections,
+    useListCollectionSummaries,
     useCreateCollection,
     useUpdateCollection,
     useDeleteCollection,
