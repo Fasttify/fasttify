@@ -8,8 +8,7 @@ export class MetadataGenerator {
     // Si se proporciona un título de página específico, usarlo con el nombre de la tienda
     const title = pageTitle ? `${pageTitle} | ${store.storeName}` : `${store.storeName} - Tienda Online`;
 
-    const description =
-      store.storeDescription || `Descubre los mejores productos en ${store.storeName}. Compra online con envío seguro.`;
+    const description = store.storeDescription;
     const url = `https://${domain}`;
     const image = store.storeLogo || store.storeBanner;
 
@@ -38,7 +37,7 @@ export class MetadataGenerator {
             addressLocality: store.storeAdress,
           }
         : undefined,
-      currenciesAccepted: store.storeCurrency || 'COP',
+      currenciesAccepted: store.storeCurrency,
       paymentAccepted: ['Credit Card', 'Debit Card'],
     };
 

@@ -149,6 +149,12 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
     };
   },
 
+  policies: (content: string) => {
+    // Las políticas generalmente no se paginan, se cargan todas.
+    // Podríamos añadir un límite si fuera necesario en el futuro.
+    return {};
+  },
+
   product: () => ({}),
   collection: () => ({}),
   cart: () => ({}),
@@ -244,6 +250,10 @@ const objectDetectors: Record<DataRequirement, ObjectDetector> = {
   pages: {
     pattern: /\{\{\s*pages\s*[\|\}]/g,
     optionsExtractor: loadOptionsExtractors.pages,
+  },
+  policies: {
+    pattern: /for\s+item\s+in\s+policies|for\s+policy\s+in\s+policies|\{\{\s*policies\s*[\|\}]/g,
+    optionsExtractor: loadOptionsExtractors.policies,
   },
   page: {
     pattern: /\{\{\s*page\./g,

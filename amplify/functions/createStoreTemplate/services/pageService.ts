@@ -22,6 +22,7 @@ export const createDefaultPages = async (
           slug: pageConfig.slug,
           isVisible: pageConfig.isVisible,
           status: pageConfig.status,
+          pageType: pageConfig.pageType,
           owner: owner,
         });
 

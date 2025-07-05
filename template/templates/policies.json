@@ -1,9 +1,10 @@
 {
   "sections": {
-    "policies": {
-      "type": "sections/policy",
-      "settings": {}
+    "main": {
+      "type": "sections/policy-list"
     }
   },
-  "order": ["policies"]
-} 
+  "order": [
+    "main"
+  ]
+}

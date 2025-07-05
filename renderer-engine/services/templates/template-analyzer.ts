@@ -21,7 +21,8 @@ export type DataRequirement =
   | 'products_by_collection' // Productos de una colección específica
   | 'related_products' // Productos relacionados
   | 'specific_page' // pages['handle'] o pages.handle
-  | 'pages'; // {{ pages }} - todas las páginas
+  | 'pages' // {{ pages }} - todas las páginas
+  | 'policies'; // {{ policies }} - todas las páginas de políticas
 
 /**
  * Opciones de carga para cada tipo de dato

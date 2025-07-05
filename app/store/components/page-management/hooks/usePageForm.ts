@@ -38,8 +38,9 @@ export const usePageForm = ({
           metaTitle: initialPage.metaTitle || '',
           metaDescription: initialPage.metaDescription || '',
           template: initialPage.template || '',
+          pageType: initialPage.pageType || 'standard',
         }
-      : { storeId, title: '', content: '', slug: '', status: 'draft', isVisible: true };
+      : { storeId, title: '', content: '', slug: '', status: 'draft', isVisible: true, pageType: 'standard' };
   }, [initialPage, storeId]);
 
   const [initialData, setInitialData] = useState(getInitialData);

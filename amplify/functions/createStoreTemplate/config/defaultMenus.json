@@ -74,44 +74,12 @@
         "sortOrder": 3
       },
       {
-        "label": "Política de privacidad",
-        "pageHandle": "policies/privacy-policy",
+        "label": "Términos y condiciones",
+        "pageHandle": "policies",
         "type": "page",
         "isVisible": true,
         "target": "_self",
         "sortOrder": 4
-      },
-      {
-        "label": "Términos y condiciones",
-        "pageHandle": "policies/terms-and-conditions",
-        "type": "page",
-        "isVisible": true,
-        "target": "_self",
-        "sortOrder": 5
-      },
-      {
-        "label": "Política de envíos",
-        "pageHandle": "policies/shipping-policy",
-        "type": "page",
-        "isVisible": true,
-        "target": "_self",
-        "sortOrder": 6
-      },
-      {
-        "label": "Devoluciones",
-        "pageHandle": "policies/returns",
-        "type": "page",
-        "isVisible": true,
-        "target": "_self",
-        "sortOrder": 7
-      },
-      {
-        "label": "Síguenos en Facebook",
-        "url": "https://facebook.com/mitienda",
-        "type": "external",
-        "isVisible": true,
-        "target": "_blank",
-        "sortOrder": 8
       }
     ]
   }

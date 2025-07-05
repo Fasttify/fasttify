@@ -1,5 +1,6 @@
 import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 // Hooks
 import { usePageFilters } from '@/app/store/components/page-management/hooks/usePageFilters';
@@ -18,10 +19,21 @@ import type { PageListProps } from '@/app/store/components/page-management/types
 export function PageList({ storeId, pages, error, deleteMultiplePages, deletePage }: PageListProps) {
   const router = useRouter();
 
+  // State for filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
+  const [visibility, setVisibility] = useState<string[] | undefined>();
+  const [pageType, setPageType] = useState<string[] | undefined>();
+
   // Hooks para manejar diferentes aspectos de la tabla
   const { setSelectedPages } = usePageSelection();
-  const { activeTab, setActiveTab, searchQuery, setSearchQuery, sortedPages, toggleSort, sortDirection, sortField } =
-    usePageFilters(pages);
+  const { sortedPages, toggleSort, sortDirection, sortField } = usePageFilters(
+    pages,
+    searchQuery,
+    activeTab,
+    visibility,
+    pageType
+  );
 
   // Funciones de navegación y acciones
   const handleAddPage = () => {
@@ -99,6 +111,10 @@ export function PageList({ storeId, pages, error, deleteMultiplePages, deletePag
           setActiveTab={setActiveTab}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          visibility={visibility}
+          setVisibility={setVisibility}
+          pageType={pageType}
+          setPageType={setPageType}
         />
 
         <PageTableDesktop

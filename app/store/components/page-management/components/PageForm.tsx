@@ -1,20 +1,20 @@
 'use client';
 
-import { useCallback } from 'react';
-import {
-  Card,
-  FormLayout,
-  TextField,
-  Select,
-  Checkbox,
-  Layout,
-  Page,
-  Text,
-  BlockStack,
-  Divider,
-} from '@shopify/polaris';
 import { usePageForm } from '@/app/store/components/page-management/hooks/usePageForm';
 import type { Page as IPage, PageFormValues } from '@/app/store/components/page-management/types/page-types';
+import {
+  BlockStack,
+  Card,
+  Checkbox,
+  Divider,
+  FormLayout,
+  Layout,
+  Page,
+  Select,
+  Text,
+  TextField,
+} from '@shopify/polaris';
+import { useCallback } from 'react';
 
 interface PageFormProps {
   storeId: string;
@@ -28,6 +28,11 @@ interface PageFormProps {
 const statusOptions = [
   { label: 'Borrador', value: 'draft' },
   { label: 'Publicada', value: 'published' },
+];
+
+const pageTypeOptions = [
+  { label: 'Página Estándar', value: 'standard' },
+  { label: 'Página de Políticas', value: 'policies' },
 ];
 
 export function PageForm({ storeId, initialPage, onSave, onCancel, isEditing, generateSlug }: PageFormProps) {
@@ -121,6 +126,14 @@ export function PageForm({ storeId, initialPage, onSave, onCancel, isEditing, ge
                       error={errors.status}
                     />
 
+                    <Select
+                      label="Tipo de Página"
+                      options={pageTypeOptions}
+                      value={formData.pageType || 'standard'}
+                      onChange={(value) => updateField('pageType', value as any)}
+                      helpText="Define si es una página normal o una de políticas."
+                    />
+
                     <TextField
                       label="Slug personalizado"
                       value={formData.slug}
@@ -156,7 +169,7 @@ export function PageForm({ storeId, initialPage, onSave, onCancel, isEditing, ge
                   <strong>URL de la página:</strong>
                 </Text>
                 <Text variant="bodyMd" as="p">
-                  {`/pages/${formData.slug || '...'}`}
+                  {`/${formData.pageType === 'policies' ? 'policies' : 'pages'}/${formData.slug || '...'}`}
                 </Text>
               </BlockStack>
 

@@ -127,6 +127,13 @@ export class DataFetcher {
     return pageFetcher.getVisibleStorePages(storeId, options);
   }
 
+  /**
+   * Obtiene todas las páginas de políticas de una tienda
+   */
+  public async getPoliciesPages(storeId: string): Promise<PageContext[]> {
+    return pageFetcher.getPoliciesPages(storeId);
+  }
+
   // === CARRITO ===
 
   /**

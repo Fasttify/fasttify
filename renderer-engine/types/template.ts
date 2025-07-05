@@ -234,7 +234,17 @@ export interface TemplateData {
   order: string[];
 }
 
-export type PageType = 'index' | 'product' | 'collection' | 'page' | 'blog' | 'article' | 'search' | 'cart' | '404';
+export type PageType =
+  | 'index'
+  | 'product'
+  | 'collection'
+  | 'page'
+  | 'blog'
+  | 'article'
+  | 'search'
+  | 'cart'
+  | '404'
+  | 'policies';
 
 export interface PageRenderOptions {
   pageType: PageType;

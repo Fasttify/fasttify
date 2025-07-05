@@ -37,6 +37,7 @@ export class PageFetcher {
           filter: {
             isVisible: { eq: true },
             status: { eq: 'published' },
+            pageType: { eq: 'standard' },
           },
         }
       );
@@ -120,6 +121,7 @@ export class PageFetcher {
             slug: { eq: slug },
             isVisible: { eq: true },
             status: { eq: 'published' },
+            pageType: { eq: 'standard' },
           },
         }
       );
@@ -136,6 +138,43 @@ export class PageFetcher {
     } catch (error) {
       logger.error(`Error fetching page by slug ${slug} for store ${storeId}`, error, 'PageFetcher');
       return null;
+    }
+  }
+
+  /**
+   * Obtiene todas las páginas de políticas de una tienda.
+   */
+  public async getPoliciesPages(storeId: string): Promise<PageContext[]> {
+    try {
+      const cacheKey = `policies_pages_${storeId}`;
+      const cached = cacheManager.getCached(cacheKey);
+      if (cached) {
+        return cached as PageContext[];
+      }
+
+      // No podemos filtrar por pageType directamente en la query, así que filtramos después.
+      const response = await cookiesClient.models.Page.listPageByStoreId(
+        { storeId },
+        {
+          filter: {
+            isVisible: { eq: true },
+            status: { eq: 'published' },
+            pageType: { eq: 'policies' },
+          },
+        }
+      );
+
+      if (!response.data) {
+        return [];
+      }
+
+      const pages = response.data.map((page) => this.transformPage(page));
+
+      cacheManager.setCached(cacheKey, pages, cacheManager.COLLECTION_CACHE_TTL);
+      return pages;
+    } catch (error) {
+      logger.error(`Error fetching policies pages for store ${storeId}`, error, 'PageFetcher');
+      return [];
     }
   }
 
@@ -161,6 +200,7 @@ export class PageFetcher {
           filter: {
             isVisible: { eq: true },
             status: { eq: 'published' },
+            pageType: { eq: 'standard' },
           },
         }
       );

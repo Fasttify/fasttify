@@ -53,7 +53,7 @@ export function PageTableDesktop({
     },
   ];
 
-  const rowMarkup = pages.map(({ id, title, slug, status, isVisible, createdAt }, index) => {
+  const rowMarkup = pages.map(({ id, title, slug, status, isVisible, createdAt, pageType }, index) => {
     return (
       <IndexTable.Row id={id} key={id} selected={selectedResources.includes(id)} position={index}>
         <IndexTable.Cell>
@@ -85,6 +85,7 @@ export function PageTableDesktop({
             <Badge tone={getVisibilityTone(isVisible)}>{formatVisibility(isVisible)}</Badge>
           </IndexTable.Cell>
         )}
+        <IndexTable.Cell>{pageType === 'policies' ? 'Política' : 'Estándar'}</IndexTable.Cell>
         <IndexTable.Cell>{formatDate(createdAt)}</IndexTable.Cell>
         {visibleColumns.actions && (
           <IndexTable.Cell>
@@ -117,6 +118,8 @@ export function PageTableDesktop({
   if (visibleColumns.visibility) {
     headings.push({ title: 'Visibilidad' });
   }
+  headings.push({ title: 'Tipo' });
+  sortableColumns.push('pageType');
   headings.push({ title: 'Fecha de creación' });
   sortableColumns.push('createdAt');
   if (visibleColumns.actions) {
@@ -135,7 +138,7 @@ export function PageTableDesktop({
           onSelectionChange={handleSelectionChange}
           promotedBulkActions={promotedBulkActions}
           headings={headings as [{ title: string }]}
-          sortable={[true, true, true, false, true, false]}
+          sortable={[true, true, true, false, true, true, false]}
           sortDirection={sortDirection}
           sortColumnIndex={sortColumnIndex}
           onSort={(index) => {

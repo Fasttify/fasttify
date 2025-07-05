@@ -162,6 +162,19 @@ const pageContextBuilders: Record<string, PageContextBuilder> = {
     template: 'blog',
     page_title: options.handle ? options.handle.charAt(0).toUpperCase() + options.handle.slice(1) : 'Blog',
   }),
+
+  policies: (loadedData, options) => {
+    const baseContext: Record<string, any> = {
+      template: 'policies',
+      page_title: 'Políticas de la Tienda',
+    };
+
+    if (loadedData.policies) {
+      baseContext.policies = loadedData.policies;
+    }
+
+    return baseContext;
+  },
 };
 
 /**

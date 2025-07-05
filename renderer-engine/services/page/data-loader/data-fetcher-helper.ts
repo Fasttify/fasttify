@@ -220,6 +220,10 @@ const dataHandlers: Record<DataRequirement, DataHandler> = {
     return null;
   },
 
+  policies: async (storeId, options) => {
+    return await dataFetcher.getPoliciesPages(storeId);
+  },
+
   blog: async (storeId, options) => {
     // Handler para blog, podría implementarse según necesidades
     return null;
@@ -310,12 +314,16 @@ const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
     loadedData[dataType] = data;
   },
 
+  policies: (data, dataType, loadedData) => {
+    loadedData[dataType] = data;
+  },
+
   blog: (data, dataType, loadedData) => {
     loadedData[dataType] = data;
   },
 
   pagination: (data, dataType, loadedData) => {
-    loadedData[dataType] = data;
+    // No hacer nada, la paginación se maneja por separado
   },
 
   related_products: (data, dataType, loadedData) => {

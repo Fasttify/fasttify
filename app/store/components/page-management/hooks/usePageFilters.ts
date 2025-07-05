@@ -1,9 +1,13 @@
 import type { PageSummary, SortDirection, SortField } from '@/app/store/components/page-management/types/page-types';
 import { useMemo, useState } from 'react';
 
-export function usePageFilters(pages: PageSummary[]) {
-  const [activeTab, setActiveTab] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+export function usePageFilters(
+  pages: PageSummary[],
+  searchQuery: string,
+  activeTab: string,
+  visibility: string[] | undefined,
+  pageType: string[] | undefined
+) {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection | null>(null);
 
@@ -14,13 +18,22 @@ export function usePageFilters(pages: PageSummary[]) {
         return page.status === activeTab;
       })
       .filter((page) => {
+        if (!visibility || visibility.length === 0) return true;
+        const pageVisibility = page.isVisible ? 'visible' : 'hidden';
+        return visibility.includes(pageVisibility);
+      })
+      .filter((page) => {
+        if (!pageType || pageType.length === 0) return true;
+        return pageType.includes(page.pageType || 'standard');
+      })
+      .filter((page) => {
         if (!searchQuery) return true;
         return (
           page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           page.slug.toLowerCase().includes(searchQuery.toLowerCase())
         );
       });
-  }, [pages, activeTab, searchQuery]);
+  }, [pages, activeTab, searchQuery, visibility, pageType]);
 
   const sortedPages = useMemo(() => {
     return [...filteredPages].sort((a, b) => {
@@ -40,6 +53,10 @@ export function usePageFilters(pages: PageSummary[]) {
         case 'slug':
           valueA = a.slug.toLowerCase();
           valueB = b.slug.toLowerCase();
+          break;
+        case 'pageType':
+          valueA = a.pageType || 'standard';
+          valueB = b.pageType || 'standard';
           break;
         case 'createdAt':
           valueA = new Date(a.createdAt || 0).getTime();
@@ -80,10 +97,6 @@ export function usePageFilters(pages: PageSummary[]) {
   };
 
   return {
-    activeTab,
-    setActiveTab,
-    searchQuery,
-    setSearchQuery,
     sortField,
     sortDirection,
     filteredPages,

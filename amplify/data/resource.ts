@@ -408,6 +408,12 @@ const schema = a
             allow.publicApiKey().to(['read']),
           ]),
         template: a.string(),
+        pageType: a
+          .string()
+          .authorization((allow) => [
+            allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+            allow.publicApiKey().to(['read']),
+          ]),
         owner: a
           .string()
           .required()
@@ -416,7 +422,7 @@ const schema = a
             allow.publicApiKey().to(['read']),
           ]),
       })
-      .secondaryIndexes((index) => [index('storeId'), index('slug'), index('status')])
+      .secondaryIndexes((index) => [index('storeId'), index('slug'), index('status'), index('pageType')])
       .authorization((allow) => [
         allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
         allow.publicApiKey().to(['read']),

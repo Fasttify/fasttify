@@ -1,9 +1,11 @@
-import type { CreatePageInput, PageSummary, Page } from '@/app/store/hooks/data/usePage';
+import type { CreatePageInput, Page, PageSummary } from '@/app/store/hooks/data/usePage';
 
-export type { CreatePageInput as PageFormValues, PageSummary, Page };
+export type PageFormValues = CreatePageInput & { pageType?: string };
+
+export type { Page, PageSummary };
 
 export type SortDirection = 'asc' | 'desc' | null;
-export type SortField = 'title' | 'status' | 'slug' | 'createdAt' | 'updatedAt';
+export type SortField = 'title' | 'status' | 'slug' | 'createdAt' | 'updatedAt' | 'pageType';
 
 export interface VisibleColumns {
   page: boolean;

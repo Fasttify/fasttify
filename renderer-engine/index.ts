@@ -39,6 +39,12 @@ const routeMatchers: RouteMatcher[] = [
     }),
   },
 
+  // Policies: /policies
+  {
+    pattern: /^\/policies$/,
+    handler: () => ({ pageType: 'policies' }),
+  },
+
   // Página estática: /pages/handle (plural)
   {
     pattern: /^\/pages\/([^\/]+)$/,

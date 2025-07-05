@@ -17,7 +17,7 @@ const PAGES_KEY = 'pages';
  */
 
 export type Page = Schema['Page']['type'];
-export type PageSummary = Pick<Page, 'id' | 'title' | 'slug' | 'isVisible' | 'status' | 'createdAt'>;
+export type PageSummary = Pick<Page, 'id' | 'title' | 'slug' | 'isVisible' | 'status' | 'createdAt' | 'pageType'>;
 export type { CreatePageInput, UpdatePageInput };
 
 export const usePages = (storeId: string) => {
@@ -51,7 +51,7 @@ export const usePages = (storeId: string) => {
         const response = await performOperation(() =>
           client.models.Page.listPageByStoreId(
             { storeId },
-            { selectionSet: ['id', 'title', 'slug', 'isVisible', 'status', 'createdAt'] }
+            { selectionSet: ['id', 'title', 'slug', 'isVisible', 'status', 'createdAt', 'pageType'] }
           )
         );
         return response || [];
@@ -73,7 +73,7 @@ export const usePages = (storeId: string) => {
           {
             storeId,
           },
-          { selectionSet: ['id', 'title', 'slug'] }
+          { selectionSet: ['id', 'title', 'slug', 'pageType'] }
         );
 
         if (errors) {
