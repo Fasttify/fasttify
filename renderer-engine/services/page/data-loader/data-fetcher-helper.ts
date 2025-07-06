@@ -213,14 +213,14 @@ const dataHandlers: Record<DataRequirement, DataHandler> = {
     return pagesResult.pages;
   },
 
-  page: async (storeId, options, pageOptions) => {
+  page: async (storeId, pageOptions) => {
     if (pageOptions.handle) {
       return await dataFetcher.getPageBySlug(storeId, pageOptions.handle);
     }
     return null;
   },
 
-  policies: async (storeId, options) => {
+  policies: async (storeId) => {
     return await dataFetcher.getPoliciesPages(storeId);
   },
 

@@ -111,7 +111,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       {
         limit,
         nextToken: token,
-        selectionSet: ['id', 'name', 'status', 'quantity', 'price', 'images', 'category', 'sku'],
       }
     );
 

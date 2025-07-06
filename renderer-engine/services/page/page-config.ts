@@ -7,6 +7,7 @@ const templatePaths: Record<PageType, string> = {
   page: 'templates/page.json',
   blog: 'templates/blog.json',
   article: 'templates/article.json',
+  policies: 'templates/policies.json',
   search: 'templates/search.json',
   cart: 'templates/cart.json',
   '404': 'templates/404.json',
@@ -19,6 +20,7 @@ const cacheTTLs: Record<PageType, number> = {
   page: 24 * 60 * 60 * 1000, // 24 horas
   blog: 2 * 60 * 60 * 1000, // 2 horas
   article: 4 * 60 * 60 * 1000, // 4 horas
+  policies: 24 * 60 * 60 * 1000, // 24 horas
   search: 10 * 60 * 1000, // 10 minutos
   cart: 0, // Sin caché para cart (siempre fresco)
   '404': 24 * 60 * 60 * 1000, // 24 horas

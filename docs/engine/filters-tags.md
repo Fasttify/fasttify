@@ -24,10 +24,23 @@ Representa los datos globales de la tienda. También es accesible a través de l
 | `url`          | `String` | La URL completa a la página de inicio (`https://...`).  |
 | `currency`     | `String` | El código de la moneda (ej: `COP`, `USD`).              |
 | `money_format` | `String` | El formato para mostrar los precios.                    |
+| `email`        | `String` | El correo electrónico de contacto.                      |
+| `phone`        | `String` | El número de teléfono de contacto.                      |
+| `address`      | `String` | La dirección física de la tienda.                       |
 | `logo`         | `String` | URL de la imagen del logo.                              |
 | `banner`       | `String` | URL de la imagen del banner principal.                  |
+| `theme`        | `String` | El tema actual de la tienda.                            |
+| `favicon`      | `String` | URL de la imagen del favicon.                           |
+| `storeId`      | `String` | El ID de la tienda.                                     |
+| `collections`  | `Array`  | Un array de las colecciones de la tienda.               |
 
-**Ejemplo Práctico: Crear un encabezado**
+**Ejemplo Práctico: Crear el encabezado del sitio**
+
+El encabezado visual de tu sitio (con el logo, la descripción, etc.) es algo que debes construir manualmente usando el objeto `shop`. Sin embargo, el contenido de la etiqueta `<head>` del HTML (como los meta tags de SEO y los estilos) se gestiona automáticamente.
+
+**Paso 1: Construir el `<header>` visual (en `layout/theme.liquid` o una sección)**
+
+Este es el encabezado que los usuarios ven. Utiliza las propiedades del objeto `shop` para mostrar la información de la marca.
 
 ```liquid
 <header class="site-header">
@@ -38,19 +51,42 @@ Representa los datos globales de la tienda. También es accesible a través de l
 </header>
 ```
 
+**Paso 2: Usar `content_for_header` para el `<head>` del HTML**
+
+**Importante:** No añadas manualmente etiquetas `<title>`, `<meta>` de SEO o los `<style>` de las secciones en tu `layout/theme.liquid`. El motor inyecta todo esto automáticamente a través de la variable `{{ content_for_header }}`.
+
+```liquid
+<!-- En layout/theme.liquid -->
+<head>
+  <meta charset="UTF-8">
+  ...
+  {{ content_for_header }}
+  ...
+</head>
+```
+
+Esta variable se encarga de cargar dinámicamente todo lo necesario para que tu página funcione y esté optimizada para buscadores.
+
 ### Objeto `collection`
 
 Disponible en las plantillas de colección (`collection.liquid`). Contiene la información de la colección que se está visualizando.
 
-| Propiedad     | Tipo     | Descripción                                                      |
-| :------------ | :------- | :--------------------------------------------------------------- |
-| `id`          | `String` | El ID único de la colección.                                     |
-| `title`       | `String` | El título de la colección.                                       |
-| `description` | `String` | La descripción (puede contener HTML).                            |
-| `image`       | `String` | URL de la imagen principal de la colección.                      |
-| `url`         | `String` | La URL canónica de la colección.                                 |
-| `products`    | `Array`  | Un array de los objetos `product` pertenecientes a la colección. |
-| `nextToken`   | `String` | Token para la paginación. Usado internamente por `paginate`.     |
+| Propiedad     | Tipo      | Descripción                                                      |
+| :------------ | :-------- | :--------------------------------------------------------------- |
+| `id`          | `String`  | El ID único de la colección.                                     |
+| `storeId`     | `String`  | El ID de la tienda.                                              |
+| `slug`        | `String`  | El slug de la colección.                                         |
+| `title`       | `String`  | El título de la colección.                                       |
+| `description` | `String`  | La descripción (puede contener HTML).                            |
+| `image`       | `String`  | URL de la imagen principal de la colección.                      |
+| `owner`       | `String`  | El ID del propietario de la colección.                           |
+| `sortOrder`   | `Number`  | El orden de la colección.                                        |
+| `isActive`    | `Boolean` | `true` si la colección está activa.                              |
+| `createdAt`   | `String`  | La fecha de creación de la colección.                            |
+| `updatedAt`   | `String`  | La fecha de la última actualización de la colección.             |
+| `url`         | `String`  | La URL canónica de la colección.                                 |
+| `products`    | `Array`   | Un array de los objetos `product` pertenecientes a la colección. |
+| `nextToken`   | `String`  | Token para la paginación. Usado internamente por `paginate`.     |
 
 **Ejemplo Práctico: Encabezado de una página de colección**
 
@@ -70,18 +106,26 @@ Disponible en las plantillas de colección (`collection.liquid`). Contiene la in
 
 Representa un producto individual. Disponible en `product.liquid` y dentro de bucles `{% for product in collection.products %}`.
 
-| Propiedad          | Tipo      | Descripción                                     |
-| :----------------- | :-------- | :---------------------------------------------- |
-| `id`               | `String`  | El ID único del producto.                       |
-| `title`            | `String`  | El nombre del producto.                         |
-| `description`      | `String`  | La descripción completa (HTML).                 |
-| `price`            | `String`  | El precio ya formateado (ej: `$1,250.00`).      |
-| `compare_at_price` | `String`  | El precio de comparación (antes del descuento). |
-| `url`              | `String`  | La URL canónica del producto.                   |
-| `featured_image`   | `String`  | La URL de la imagen destacada.                  |
-| `images`           | `Array`   | Un array de todas las imágenes del producto.    |
-| `variants`         | `Array`   | Un array de las variantes del producto.         |
-| `available`        | `Boolean` | `true` si el producto tiene stock.              |
+| Propiedad          | Tipo     | Descripción                                       |
+| :----------------- | :------- | :------------------------------------------------ |
+| `id`               | `String` | El ID único del producto.                         |
+| `storeId`          | `String` | El ID de la tienda.                               |
+| `slug`             | `String` | El slug del producto.                             |
+| `attributes`       | `Array`  | Un array de los atributos del producto.           |
+| `featured_image`   | `String` | La URL de la imagen destacada.                    |
+| `quantity`         | `Number` | La cantidad disponible del producto.              |
+| `title`            | `String` | El nombre del producto.                           |
+| `description`      | `String` | La descripción completa (HTML).                   |
+| `price`            | `String` | El precio ya formateado (ej: `$1,250.00`).        |
+| `compare_at_price` | `String` | El precio de comparación (antes del descuento).   |
+| `url`              | `String` | La URL canónica del producto.                     |
+| `featured_image`   | `String` | La URL de la imagen destacada.                    |
+| `images`           | `Array`  | Un array de todas las imágenes del producto.      |
+| `variants`         | `Array`  | Un array de las variantes del producto.           |
+| `status`           | `String` | El estado del producto.                           |
+| `category`         | `String` | La categoría del producto.                        |
+| `createdAt`        | `String` | La fecha de creación del producto.                |
+| `updatedAt`        | `String` | La fecha de la última actualización del producto. |
 
 **Ejemplo Práctico: Mostrar el precio y un descuento**
 
@@ -266,3 +310,23 @@ Los filtros son funciones simples que modifican la salida de una variable.
 - `default`: Proporciona un valor por defecto si la variable está vacía.
   - **Uso**: `{{ collection.description | default: 'No hay descripción disponible.' }}`
   - **Resultado**: Muestra la descripción o el texto por defecto si no existe.
+
+### Filtros de Arrays
+
+- `where`: Filtra un array de objetos para devolver solo aquellos que coinciden con una condición.
+
+  - **Sintaxis**: `{{ array | where: 'propiedad', 'valor_buscado' }}`
+  - **Uso**: `{% assign productos_activos = collection.products | where: 'status', 'active' %}`
+  - **Resultado**: Un nuevo array que contiene únicamente los productos cuyo `status` es exactamente `'active'`.
+  - **Ejemplo Práctico**: Mostrar una lista de productos de una categoría específica.
+    ```liquid
+    <h3>Productos de la categoría "Camisetas":</h3>
+    <ul>
+      {% assign camisetas = collection.products | where: 'category', 'Camisetas' %}
+      {% for product in camisetas %}
+        <li>
+          <a href="{{ product.url }}">{{ product.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+    ```

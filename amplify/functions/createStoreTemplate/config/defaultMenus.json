@@ -80,6 +80,14 @@
         "isVisible": true,
         "target": "_self",
         "sortOrder": 4
+      },
+      {
+        "label": "Síguenos en Facebook",
+        "url": "https://facebook.com/mitienda",
+        "type": "external",
+        "isVisible": true,
+        "target": "_blank",
+        "sortOrder": 5
       }
     ]
   }

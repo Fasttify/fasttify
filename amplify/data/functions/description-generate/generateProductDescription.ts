@@ -1,4 +1,4 @@
-import type { Schema } from '../resource';
+import type { Schema } from '../../resource';
 import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput } from '@aws-sdk/client-bedrock-runtime';
 
 const client = new BedrockRuntimeClient();
@@ -8,8 +8,8 @@ export const handler: Schema['generateProductDescription']['functionHandler'] = 
 
   // Create a prompt for product description generation
   const categoryText = category ? ` en la categoría ${category}` : '';
-  const prompt = `Genera una descripción de producto atractiva y persuasiva para un producto llamado "${productName}"${categoryText}. 
-  La descripción debe tener entre 100-150 palabras, destacar beneficios clave, características principales y casos de uso. 
+  const prompt = `Genera una descripción de producto atractiva y persuasiva para un producto llamado "${productName}"${categoryText}.
+  La descripción debe tener entre 100-150 palabras, destacar beneficios clave, características principales y casos de uso.
   Usa un tono profesional pero amigable. No incluyas precio ni información de envío.`;
 
   // Invoke model

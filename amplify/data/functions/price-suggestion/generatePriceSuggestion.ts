@@ -1,4 +1,4 @@
-import type { Schema } from '../resource';
+import type { Schema } from '../../resource';
 import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput } from '@aws-sdk/client-bedrock-runtime';
 
 // Initialize bedrock runtime client

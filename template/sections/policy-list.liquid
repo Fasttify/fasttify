@@ -1,6 +1,4 @@
 <div class="page-width">
-
-
   <div class="accordion">
     {% for policy in policies %}
       <div class="accordion-item">
@@ -15,6 +13,10 @@
         <div class="accordion-content" id="accordion-content-{{ forloop.index }}">
           <div class="p-6">
             {{ policy.content }}
+          </div>
+          <div class="p-6">
+            {{ policy.createdAt | date }}
+            {{ policy.updatedAt | date }}
           </div>
         </div>
       </div>

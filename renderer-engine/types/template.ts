@@ -55,17 +55,21 @@ export interface ShopContext {
 }
 
 export interface PageContext {
-  id: string;
-  storeId: string;
-  title: string;
-  content: string;
-  slug: string;
-  metaTitle: string;
-  metaDescription: string;
-  status: string;
-  owner: string;
-  template: string;
-  isVisible: boolean;
+  id?: string;
+  storeId?: string;
+  title?: string;
+  content?: string;
+  handle?: string;
+  url?: string;
+  slug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  status?: string;
+  owner?: string;
+  template?: string;
+  isVisible?: boolean;
   metafields?: {
     pagefly?: {
       html_meta?: string;

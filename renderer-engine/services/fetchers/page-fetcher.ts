@@ -1,8 +1,8 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
-import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 import type { PageContext, TemplateError } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/AmplifyServer';
+import { dataTransformer } from '../core/data-transformer';
 
 interface PaginationOptions {
   limit?: number;
@@ -152,7 +152,6 @@ export class PageFetcher {
         return cached as PageContext[];
       }
 
-      // No podemos filtrar por pageType directamente en la query, así que filtramos después.
       const response = await cookiesClient.models.Page.listPageByStoreId(
         { storeId },
         {
@@ -241,20 +240,13 @@ export class PageFetcher {
    */
   private transformPage(page: any): PageContext {
     const handle = dataTransformer.createHandle(page.slug || page.title || `page-${page.id}`);
-
     return {
       id: page.id,
-      storeId: page.storeId,
       title: page.title,
       content: page.content,
-      slug: page.slug,
-      template: page.template,
-      metaTitle: page.metaTitle,
-      metaDescription: page.metaDescription,
-      status: page.status,
-      owner: page.owner,
-      isVisible: page.isVisible,
-      metafields: {},
+      createdAt: page.createdAt,
+      url: `/pages/${handle}`,
+      updatedAt: page.updatedAt,
     };
   }
 }
