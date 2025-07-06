@@ -1,8 +1,8 @@
-import { cookiesClient } from '@/utils/AmplifyServer';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 import { logger } from '@/renderer-engine/lib/logger';
+import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 import type { ProductContext, TemplateError } from '@/renderer-engine/types';
+import { cookiesClient } from '@/utils/AmplifyServer';
 
 interface PaginationOptions {
   limit?: number;
@@ -35,6 +35,9 @@ export class ProductFetcher {
         {
           limit,
           nextToken,
+          filter: {
+            status: { eq: 'active' },
+          },
         }
       );
 
@@ -105,7 +108,14 @@ export class ProductFetcher {
       }
 
       // 4. Si el mapa de handles no está en caché, se genera y se guarda.
-      const { data: allProducts } = await cookiesClient.models.Product.listProductByStoreId({ storeId });
+      const { data: allProducts } = await cookiesClient.models.Product.listProductByStoreId(
+        { storeId },
+        {
+          filter: {
+            status: { eq: 'active' },
+          },
+        }
+      );
 
       if (!allProducts || allProducts.length === 0) {
         return null;
@@ -159,6 +169,9 @@ export class ProductFetcher {
         { storeId },
         {
           limit,
+          filter: {
+            status: { eq: 'active' },
+          },
         }
       );
 
@@ -197,6 +210,9 @@ export class ProductFetcher {
         {
           limit,
           nextToken: nextToken,
+          filter: {
+            status: { eq: 'active' },
+          },
         }
       );
 

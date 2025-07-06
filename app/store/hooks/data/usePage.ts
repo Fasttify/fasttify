@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
-import { generateClient } from 'aws-amplify/data';
-import { getCurrentUser } from 'aws-amplify/auth';
 import type { Schema } from '@/amplify/data/resource';
-import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
-import { createPageSchema, updatePageSchema, CreatePageInput, UpdatePageInput } from '@/lib/zod-schemas/page';
+import { CreatePageInput, createPageSchema, UpdatePageInput, updatePageSchema } from '@/lib/zod-schemas/page';
+import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { getCurrentUser } from 'aws-amplify/auth';
+import { generateClient } from 'aws-amplify/data';
+import { useCallback, useState } from 'react';
 
 const client = generateClient<Schema>({
   authMode: 'userPool',
@@ -17,6 +17,7 @@ const PAGES_KEY = 'pages';
  */
 
 export type Page = Schema['Page']['type'];
+export type PageSummary = Pick<Page, 'id' | 'title' | 'slug' | 'isVisible' | 'status' | 'createdAt' | 'pageType'>;
 export type { CreatePageInput, UpdatePageInput };
 
 export const usePages = (storeId: string) => {
@@ -40,15 +41,47 @@ export const usePages = (storeId: string) => {
     }
   };
 
-  const useListPagesByStore = (): UseQueryResult<Page[], Error> => {
+  const useListPagesByStore = (): UseQueryResult<PageSummary[], Error> => {
     return useQuery({
       queryKey: [PAGES_KEY, 'list', storeId],
       queryFn: async () => {
         if (!storeId) {
           throw new Error('Store ID is required to list pages.');
         }
-        const response = await performOperation(() => client.models.Page.listPageByStoreId({ storeId }));
+        const response = await performOperation(() =>
+          client.models.Page.listPageByStoreId(
+            { storeId },
+            { selectionSet: ['id', 'title', 'slug', 'isVisible', 'status', 'createdAt', 'pageType'] }
+          )
+        );
         return response || [];
+      },
+      staleTime: 5 * 60 * 1000, // 5 minutos en caché
+      enabled: !!storeId,
+    });
+  };
+
+  const useListPageSummaries = (): UseQueryResult<PageSummary[], Error> => {
+    return useQuery({
+      queryKey: [PAGES_KEY, 'list', storeId, 'summary'],
+      queryFn: async () => {
+        if (!storeId) {
+          throw new Error('Store ID is required to list page summaries.');
+        }
+        // Usamos .list() con selectionSet para traer solo los datos necesarios
+        const { data: pages, errors } = await client.models.Page.listPageByStoreId(
+          {
+            storeId,
+          },
+          { selectionSet: ['id', 'title', 'slug', 'pageType'] }
+        );
+
+        if (errors) {
+          console.error('Error fetching page summaries:', errors);
+          throw new Error('Error al cargar el resumen de páginas.');
+        }
+
+        return (pages as PageSummary[]) || [];
       },
       staleTime: 5 * 60 * 1000, // 5 minutos en caché
       enabled: !!storeId,
@@ -122,6 +155,7 @@ export const usePages = (storeId: string) => {
   return {
     error,
     useListPagesByStore,
+    useListPageSummaries,
     useGetPage,
     useCreatePage,
     useUpdatePage,

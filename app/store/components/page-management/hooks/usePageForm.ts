@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
 import type { Page, PageFormValues } from '@/app/store/components/page-management/types/page-types';
 import { createPageSchema } from '@/lib/zod-schemas/page';
+import { useCallback, useEffect, useState } from 'react';
 
 interface UsePageFormProps {
   initialPage?: Page;
@@ -38,8 +38,9 @@ export const usePageForm = ({
           metaTitle: initialPage.metaTitle || '',
           metaDescription: initialPage.metaDescription || '',
           template: initialPage.template || '',
+          pageType: initialPage.pageType || 'standard',
         }
-      : { storeId, title: '', content: '', slug: '', status: 'draft', isVisible: true };
+      : { storeId, title: '', content: '', slug: '', status: 'draft', isVisible: true, pageType: 'standard' };
   }, [initialPage, storeId]);
 
   const [initialData, setInitialData] = useState(getInitialData);

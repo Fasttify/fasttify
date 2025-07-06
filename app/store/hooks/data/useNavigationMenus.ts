@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
-import { generateClient } from 'aws-amplify/data';
-import { getCurrentUser } from 'aws-amplify/auth';
 import type { Schema } from '@/amplify/data/resource';
-import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
-import { validateNavigationMenu, validateUpdateNavigationMenu, validateMenuItems } from '@/lib/zod-schemas/navigation';
+import { validateMenuItems, validateNavigationMenu, validateUpdateNavigationMenu } from '@/lib/zod-schemas/navigation';
+import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { getCurrentUser } from 'aws-amplify/auth';
+import { generateClient } from 'aws-amplify/data';
+import { useCallback, useState } from 'react';
 
 const client = generateClient<Schema>({
   authMode: 'userPool',
@@ -70,6 +70,7 @@ export interface NavigationMenuInput {
  * Tipo para los datos del menú desde la base de datos
  */
 export type NavigationMenu = Schema['NavigationMenu']['type'];
+export type NavigationMenuSummary = Pick<NavigationMenu, 'id' | 'name' | 'handle' | 'isMain' | 'isActive'>;
 
 /**
  * Hook personalizado para gestionar menús de navegación con React Query
@@ -100,7 +101,7 @@ export const useNavigationMenus = () => {
   /**
    * Lista todos los menús de una tienda usando el índice secundario por storeId
    */
-  const useListNavigationMenus = (storeId: string): UseQueryResult<NavigationMenu[], Error> => {
+  const useListNavigationMenus = (storeId: string): UseQueryResult<NavigationMenuSummary[], Error> => {
     return useQuery({
       queryKey: [NAVIGATION_MENUS_KEY, 'list', storeId],
       queryFn: () => {
@@ -108,7 +109,15 @@ export const useNavigationMenus = () => {
           throw new Error('Store ID is required to list navigation menus.');
         }
 
-        return performOperation(() => client.models.NavigationMenu.listNavigationMenuByStoreId({ storeId }));
+        return performOperation(() =>
+          client.models.NavigationMenu.listNavigationMenuByStoreId(
+            { storeId },
+
+            {
+              selectionSet: ['id', 'name', 'handle', 'isMain', 'isActive'],
+            }
+          )
+        );
       },
       staleTime: 5 * 60 * 1000, // 5 minutos en caché
       enabled: !!storeId,

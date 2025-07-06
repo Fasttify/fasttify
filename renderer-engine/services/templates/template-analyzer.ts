@@ -19,7 +19,10 @@ export type DataRequirement =
   | 'specific_collection' // collections['handle'] o collections.handle
   | 'specific_product' // products['handle'] o product por handle específico
   | 'products_by_collection' // Productos de una colección específica
-  | 'related_products'; // Productos relacionados
+  | 'related_products' // Productos relacionados
+  | 'specific_page' // pages['handle'] o pages.handle
+  | 'pages' // {{ pages }} - todas las páginas
+  | 'policies'; // {{ policies }} - todas las páginas de políticas
 
 /**
  * Opciones de carga para cada tipo de dato
@@ -176,6 +179,11 @@ export class TemplateAnalyzer {
     } else if (templatePath.includes('cart')) {
       // Página de carrito necesita datos del carrito
       analysis.requiredData.set('cart', {});
+    } else if (templatePath.includes('page')) {
+      // Página estática necesita datos de la página específica
+      if (!analysis.requiredData.has('page')) {
+        analysis.requiredData.set('page', {});
+      }
     }
 
     // El carrito siempre es necesario para el header

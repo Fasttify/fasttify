@@ -1,15 +1,8 @@
 <html lang="{{ shop.locale }}">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <!-- SEO -->
-  {% if page_description %}
-  <meta name="description" content="{{ page_description | escape }}">
-  {% endif %}
-  <!-- Favicon -->
-  <link rel="icon" href="{{ shop.favicon | img_url: '32x32' }}">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,22 +14,34 @@
   {{ 'theme.css' | asset_url | stylesheet_tag }}
   {{ 'header.css' | asset_url | stylesheet_tag }}
   {{ 'cart.css' | asset_url | stylesheet_tag }}
-  <!-- Fasttify data -->
+  <!-- Fasttify all data for SEO -->
   {{ content_for_header }}
 
   {% render 'pagefly-head' %}
+
+  <style>
+    .site-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    main#main {
+      flex: 1 0 auto;
+    }
+  </style>
 </head>
 
 <body>
 
+  <div class="site-wrapper">
+    {% render 'header' %}
 
-  {% render 'header' %}
+    <main id="main" role="main">
+      {{ content_for_layout }}
+    </main>
 
-  <main id="main" role="main">
-    {{ content_for_layout }}
-  </main>
-
-  {% section 'footer' %}
+    {% section 'footer' %}
+  </div>
 
   <!-- Sections -->
   {% section 'cart' %}

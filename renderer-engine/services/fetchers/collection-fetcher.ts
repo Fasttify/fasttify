@@ -36,6 +36,9 @@ export class CollectionFetcher {
         {
           limit,
           nextToken,
+          filter: {
+            isActive: { eq: true },
+          },
         }
       );
 

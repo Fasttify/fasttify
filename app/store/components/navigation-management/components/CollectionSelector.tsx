@@ -23,16 +23,18 @@ export function CollectionSelector({
   helpText = "Selecciona una colección para enlazar. Para la página de todas las colecciones, selecciona 'Todas las colecciones'.",
 }: CollectionSelectorProps) {
   const currentStore = useStoreDataStore((state) => state.currentStore);
-  const { useListCollections } = useCollections();
-  const { data: collections, isLoading, isError } = useListCollections(currentStore?.storeId);
+  const { useListCollectionSummaries } = useCollections();
+  const { data: collections, isLoading, isError } = useListCollectionSummaries(currentStore?.storeId);
 
   const options = useMemo(() => {
-    if (!collections) return [{ label: 'Todas las colecciones', value: '' }];
+    if (!collections) return [];
 
-    const collectionOptions = collections.map((collection: any) => ({
-      label: collection.title,
-      value: collection.slug,
-    }));
+    const collectionOptions = collections
+      .filter((collection) => collection.slug)
+      .map((collection) => ({
+        label: collection.title,
+        value: collection.slug as string,
+      }));
 
     return [{ label: 'Todas las colecciones', value: '' }, ...collectionOptions];
   }, [collections]);

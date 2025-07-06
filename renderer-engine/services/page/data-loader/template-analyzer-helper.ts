@@ -1,8 +1,8 @@
+import { logger } from '@/renderer-engine/lib/logger';
+import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
 import { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
-import { logger } from '@/renderer-engine/lib/logger';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
-import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
 
 /**
  * Tipo para cargadores de templates
@@ -18,6 +18,7 @@ const templatePaths: Record<string, string> = {
   collection: 'templates/collection.json',
   cart: 'templates/cart.json',
   page: 'templates/page.json',
+  policies: 'templates/policies.json',
   search: 'templates/search.json',
   '404': 'templates/404.json',
 };

@@ -1,0 +1,14 @@
+
+
+
+<!-- Página actual (en template page.liquid) -->
+{% if page %}
+  {{ page.title }}
+  {{ page.content }}
+
+{% else  %}
+  <div class="page-width">
+    <h1>Página no encontrada</h1>
+  </div>
+{% endif %}
+

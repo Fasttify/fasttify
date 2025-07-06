@@ -67,31 +67,31 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     formState: { isDirty },
   } = form;
 
-  useEffect(() => {
+  const loadProduct = useCallback(async () => {
     if (!productId) {
       setIsLoadingProduct(false);
       return;
     }
 
-    const loadProduct = async () => {
-      try {
-        const product = await fetchProduct(productId);
-        if (product) {
-          const formValues = mapProductToFormValues(product);
-          formValues.status = normalizeStatus(formValues.status);
-          formValues.category = formValues.category || '';
-          form.reset(formValues);
-        }
-      } catch (error) {
-        console.error('Error loading product:', error);
-        showToast('No se pudo cargar el producto. Por favor, inténtelo de nuevo.', true);
-      } finally {
-        setIsLoadingProduct(false);
+    try {
+      const product = await fetchProduct(productId);
+      if (product) {
+        const formValues = mapProductToFormValues(product);
+        formValues.status = normalizeStatus(formValues.status);
+        formValues.category = formValues.category || '';
+        form.reset(formValues);
       }
-    };
-
-    loadProduct();
+    } catch (error) {
+      console.error('Error loading product:', error);
+      showToast('No se pudo cargar el producto. Por favor, inténtelo de nuevo.', true);
+    } finally {
+      setIsLoadingProduct(false);
+    }
   }, [productId, fetchProduct, form, showToast]);
+
+  useEffect(() => {
+    loadProduct();
+  }, [loadProduct]);
 
   const handleSave = useCallback(async () => {
     setIsSubmitting(true);

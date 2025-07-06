@@ -1,23 +1,35 @@
-import { Filters, ChoiceList, Tabs } from '@shopify/polaris';
-import { useState, useCallback } from 'react';
-import React from 'react';
+import { ChoiceList, Filters, Tabs } from '@shopify/polaris';
+import React, { useCallback } from 'react';
 
 interface PageFiltersProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  visibility: string[] | undefined;
+  setVisibility: (visibility: string[] | undefined) => void;
+  pageType: string[] | undefined;
+  setPageType: (pageType: string[] | undefined) => void;
 }
 
-export function PageFilters({ searchQuery, setSearchQuery, activeTab, setActiveTab }: PageFiltersProps) {
-  const [visibility, setVisibility] = useState<string[]>();
-
-  const handleVisibilityChange = useCallback((value: string[]) => setVisibility(value), []);
+export function PageFilters({
+  searchQuery,
+  setSearchQuery,
+  activeTab,
+  setActiveTab,
+  visibility,
+  setVisibility,
+  pageType,
+  setPageType,
+}: PageFiltersProps) {
+  const handleVisibilityChange = useCallback((value: string[]) => setVisibility(value), [setVisibility]);
+  const handlePageTypeChange = useCallback((value: string[]) => setPageType(value), [setPageType]);
   const handleSearchQueryChange = useCallback((value: string) => setSearchQuery(value), [setSearchQuery]);
   const handleClearAll = useCallback(() => {
     setVisibility(undefined);
+    setPageType(undefined);
     setSearchQuery('');
-  }, [setSearchQuery]);
+  }, [setSearchQuery, setVisibility, setPageType]);
 
   const filters = [
     {
@@ -38,6 +50,24 @@ export function PageFilters({ searchQuery, setSearchQuery, activeTab, setActiveT
       ),
       shortcut: true,
     },
+    {
+      key: 'pageType',
+      label: 'Tipo de Página',
+      filter: (
+        <ChoiceList
+          title="Tipo de Página"
+          titleHidden
+          choices={[
+            { label: 'Estándar', value: 'standard' },
+            { label: 'Política', value: 'policies' },
+          ]}
+          selected={pageType || []}
+          onChange={handlePageTypeChange}
+          allowMultiple
+        />
+      ),
+      shortcut: true,
+    },
   ];
 
   const appliedFilters = [];
@@ -47,6 +77,14 @@ export function PageFilters({ searchQuery, setSearchQuery, activeTab, setActiveT
       key,
       label: `Visibilidad: ${visibility.join(', ')}`,
       onRemove: () => setVisibility(undefined),
+    });
+  }
+  if (pageType && pageType.length > 0) {
+    const key = 'pageType';
+    appliedFilters.push({
+      key,
+      label: `Tipo: ${pageType.join(', ')}`,
+      onRemove: () => setPageType(undefined),
     });
   }
 

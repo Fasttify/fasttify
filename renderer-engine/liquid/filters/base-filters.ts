@@ -153,6 +153,19 @@ export const urlFilter: LiquidFilter = {
   },
 };
 
+/**
+ * Filtro where - Para filtrar un array de objetos por una propiedad y valor
+ */
+export const whereFilter: LiquidFilter = {
+  name: 'where',
+  filter: (array: any[], property: string, value: any): any[] => {
+    if (!Array.isArray(array) || !property) {
+      return [];
+    }
+    return array.filter((item) => item && item[property] === value);
+  },
+};
+
 export const baseFilters: LiquidFilter[] = [
   dateFilter,
   handleizeFilter,
@@ -161,4 +174,5 @@ export const baseFilters: LiquidFilter[] = [
   escapeFilter,
   defaultFilter,
   urlFilter,
+  whereFilter,
 ];

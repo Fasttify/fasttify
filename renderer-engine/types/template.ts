@@ -55,10 +55,21 @@ export interface ShopContext {
 }
 
 export interface PageContext {
-  title: string;
-  url: string;
-  template: string; // 'index', 'product', 'collection'
-  handle?: string; // Slug/handle for SEO friendly URLs
+  id?: string;
+  storeId?: string;
+  title?: string;
+  content?: string;
+  handle?: string;
+  url?: string;
+  slug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  status?: string;
+  owner?: string;
+  template?: string;
+  isVisible?: boolean;
   metafields?: {
     pagefly?: {
       html_meta?: string;
@@ -227,7 +238,17 @@ export interface TemplateData {
   order: string[];
 }
 
-export type PageType = 'index' | 'product' | 'collection' | 'page' | 'blog' | 'article' | 'search' | 'cart' | '404';
+export type PageType =
+  | 'index'
+  | 'product'
+  | 'collection'
+  | 'page'
+  | 'blog'
+  | 'article'
+  | 'search'
+  | 'cart'
+  | '404'
+  | 'policies';
 
 export interface PageRenderOptions {
   pageType: PageType;

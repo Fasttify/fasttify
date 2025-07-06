@@ -54,6 +54,29 @@ function createProductsProxy(storeId: string, productsMap: Record<string, any> =
 }
 
 /**
+ * Crea un proxy para acceso dinámico a páginas por handle
+ */
+function createPagesProxy(storeId: string, pagesMap: Record<string, any> = {}): any {
+  return new Proxy(pagesMap, {
+    get: (target, prop: string | symbol) => {
+      if (typeof prop === 'symbol') {
+        return undefined;
+      }
+
+      if (prop === 'length' || prop === 'toString' || prop === 'valueOf') {
+        return target[prop as keyof typeof target];
+      }
+
+      return target[prop] || null;
+    },
+
+    has: () => true,
+    ownKeys: () => Object.keys(pagesMap),
+    getOwnPropertyDescriptor: () => ({ enumerable: true, configurable: true }),
+  });
+}
+
+/**
  * Builders declarativos para cada tipo de página
  */
 const pageContextBuilders: Record<string, PageContextBuilder> = {
@@ -119,15 +142,39 @@ const pageContextBuilders: Record<string, PageContextBuilder> = {
     page_title: 'Búsqueda',
   }),
 
-  page: (loadedData, options) => ({
-    template: 'page',
-    page_title: options.handle ? options.handle.charAt(0).toUpperCase() + options.handle.slice(1) : 'Página',
-  }),
+  page: (loadedData, options) => {
+    const baseContext: Record<string, any> = {
+      template: 'page',
+      page_title: options.handle ? options.handle.charAt(0).toUpperCase() + options.handle.slice(1) : 'Página',
+    };
+
+    // Si tenemos una página específica cargada, incluirla en el contexto
+    if (loadedData.page) {
+      baseContext.page = loadedData.page;
+      baseContext.page_title = loadedData.page.title;
+      baseContext.page_description = loadedData.page.metaDescription || loadedData.page.description;
+    }
+
+    return baseContext;
+  },
 
   blog: (loadedData, options) => ({
     template: 'blog',
     page_title: options.handle ? options.handle.charAt(0).toUpperCase() + options.handle.slice(1) : 'Blog',
   }),
+
+  policies: (loadedData, options) => {
+    const baseContext: Record<string, any> = {
+      template: 'policies',
+      page_title: 'Políticas de la Tienda',
+    };
+
+    if (loadedData.policies) {
+      baseContext.policies = loadedData.policies;
+    }
+
+    return baseContext;
+  },
 };
 
 /**
@@ -183,6 +230,11 @@ export async function buildContextData(
     });
 
     contextData.collections = createCollectionsProxy(storeId, collectionsWithProducts);
+  }
+
+  // Inyectar páginas por handle si existen
+  if (loadedData.pages_map && Object.keys(loadedData.pages_map).length > 0) {
+    contextData.pages = createPagesProxy(storeId, loadedData.pages_map);
   }
 
   return contextData;

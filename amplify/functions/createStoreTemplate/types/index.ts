@@ -50,4 +50,5 @@ export interface DefaultPage {
   slug: string;
   isVisible: boolean;
   status: string;
+  pageType: string;
 }

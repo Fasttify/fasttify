@@ -136,22 +136,10 @@ export function CollectionsPage() {
             <Text variant="bodyMd" fontWeight="semibold" as="span">
               {collection.title || 'Sin título'}
             </Text>
-            {collection.description && (
-              <>
-                <br />
-                <Text variant="bodySm" tone="subdued" as="span">
-                  {collection.description}
-                </Text>
-              </>
-            )}
           </div>
         </div>
       </IndexTable.Cell>
-      <IndexTable.Cell>
-        <Text variant="bodyMd" as="span">
-          {collection.products?.length || 0}
-        </Text>
-      </IndexTable.Cell>
+
       <IndexTable.Cell>
         <Badge tone={collection.isActive ? 'success' : 'critical'}>{collection.isActive ? 'Activa' : 'Borrador'}</Badge>
       </IndexTable.Cell>
@@ -218,7 +206,7 @@ export function CollectionsPage() {
           <IndexTable
             resourceName={resourceName}
             itemCount={filteredCollections.length}
-            headings={[{ title: 'Título' }, { title: 'Productos' }, { title: 'Condiciones del producto' }]}
+            headings={[{ title: 'Título' }, { title: 'Estado de la colección' }]}
             selectedItemsCount={selectedResources.length}
             onSelectionChange={(selectionType, toggleType, selection) => {
               if (selectionType === 'all') {

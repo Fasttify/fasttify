@@ -1,0 +1,119 @@
+<div class="page-width">
+  <div class="accordion">
+    {% for policy in policies %}
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button
+            class="accordion-button"
+            aria-expanded="false"
+            aria-controls="accordion-content-{{ forloop.index }}">
+            {{ policy.title }}
+          </button>
+        </h2>
+        <div class="accordion-content" id="accordion-content-{{ forloop.index }}">
+          <div class="p-6">
+            {{ policy.content }}
+          </div>
+          <div class="p-6">
+            {{ policy.createdAt | date }}
+            {{ policy.updatedAt | date }}
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <p class="text-center">No hay políticas para mostrar.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Lista de Políticas",
+    "settings": []
+  }
+{% endschema %}
+
+{% style %}
+  .accordion {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 20rem;
+  }
+
+  .accordion-item {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .accordion-item:last-child {
+    border-bottom: none;
+  }
+
+  .accordion-button {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1.125rem;
+    text-align: left;
+    background-color: #ffffff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+  }
+
+  .accordion-button:hover {
+    background-color: #f9fafb;
+  }
+
+  .accordion-button::after {
+    content: '+';
+    font-size: 1.5rem;
+    transition: transform 0.2s;
+  }
+
+  .accordion-button[aria-expanded="true"]::after {
+    content: '-';
+    transform: rotate(180deg);
+  }
+
+  .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    background-color: #f9fafb;
+  }
+{% endstyle %}
+
+{% javascript %}
+  document.addEventListener('DOMContentLoaded', () => {
+    const accordionButtons = document.querySelectorAll('.accordion-button');
+
+    accordionButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
+        const content = document.getElementById(button.getAttribute('aria-controls'));
+
+// Close all other accordions
+        accordionButtons.forEach(otherButton => {
+          if (otherButton !== button) {
+            otherButton.setAttribute('aria-expanded', 'false');
+            const otherContent = document.getElementById(otherButton.getAttribute('aria-controls'));
+            if (otherContent) {
+              otherContent.style.maxHeight = null;
+            }
+          }
+        });
+
+// Toggle current accordion
+        button.setAttribute('aria-expanded', String(! isExpanded));
+        if (content) {
+          content.style.maxHeight = ! isExpanded
+            ? content.scrollHeight + 'px'
+            : null;
+        }
+      });
+    });
+  });
+{% endjavascript %}

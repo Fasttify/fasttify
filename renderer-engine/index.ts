@@ -1,5 +1,5 @@
-import { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-renderer';
 import { logger } from '@/renderer-engine/lib/logger';
+import { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-renderer';
 import type { RenderResult } from '@/renderer-engine/types';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
 
@@ -39,7 +39,13 @@ const routeMatchers: RouteMatcher[] = [
     }),
   },
 
-  // Página estática: /pages/handle
+  // Policies: /policies
+  {
+    pattern: /^\/policies$/,
+    handler: () => ({ pageType: 'policies' }),
+  },
+
+  // Página estática: /pages/handle (plural)
   {
     pattern: /^\/pages\/([^\/]+)$/,
     handler: (match) => ({
@@ -196,26 +202,26 @@ export class StoreRendererFactory {
 export const storeRenderer = new StoreRendererFactory();
 
 // Exportar tipos para uso externo
-export type { RenderResult } from '@/renderer-engine/types';
 export { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-renderer';
+export type { RenderResult } from '@/renderer-engine/types';
 
 // Exportar servicios para uso avanzado
+export { liquidEngine } from '@/renderer-engine/liquid/engine';
 export { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
-export { templateLoader } from '@/renderer-engine/services/templates/template-loader';
+export { linkListService } from '@/renderer-engine/services/core/navigation-service';
+export { errorRenderer } from '@/renderer-engine/services/errors/error-renderer';
 export { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 export { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher';
-export { linkListService } from '@/renderer-engine/services/core/navigation-service';
-export { liquidEngine } from '@/renderer-engine/liquid/engine';
-export { errorRenderer } from '@/renderer-engine/services/errors/error-renderer';
+export { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 
 // Exportar nuevos servicios dinámicos
-export { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer';
 export { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader';
+export { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer';
 
 // Exportar tipos del sistema dinámico
+export type { DynamicLoadResult } from '@/renderer-engine/services/page/dynamic-data-loader';
 export type {
-  DataRequirement,
   DataLoadOptions,
+  DataRequirement,
   TemplateAnalysis,
 } from '@/renderer-engine/services/templates/template-analyzer';
-export type { DynamicLoadResult } from '@/renderer-engine/services/page/dynamic-data-loader';
