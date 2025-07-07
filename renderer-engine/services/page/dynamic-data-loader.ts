@@ -1,10 +1,10 @@
-import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 import { logger } from '@/renderer-engine/lib/logger';
-import type { PageRenderOptions } from '@/renderer-engine/types/template';
-import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
-import { analyzeRequiredTemplates } from '@/renderer-engine/services/page/data-loader/template-analyzer-helper';
-import { loadDataFromAnalysis } from '@/renderer-engine/services/page/data-loader/data-fetcher-helper';
+import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 import { buildContextData } from '@/renderer-engine/services/page/data-loader/context-builder-helper';
+import { loadDataFromAnalysis } from '@/renderer-engine/services/page/data-loader/data-fetcher-helper';
+import { analyzeRequiredTemplates } from '@/renderer-engine/services/page/data-loader/template-analyzer-helper';
+import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
+import type { PageRenderOptions } from '@/renderer-engine/types/template';
 
 /**
  * Resultado de la carga dinámica de datos

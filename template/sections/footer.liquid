@@ -29,9 +29,15 @@
         <div class="footer-column">
           <h4 class="footer-heading">Enlaces</h4>
           <ul class="footer-links">
-            <li><a href="/">Inicio</a></li>
-            <li><a href="/about">Acerca de</a></li>
-            <li><a href="/contact">Contacto</a></li>
+            <li>
+              <a href="/">Inicio</a>
+            </li>
+            <li>
+              <a href="/about">Acerca de</a>
+            </li>
+            <li>
+              <a href="/contact">Contacto</a>
+            </li>
           </ul>
         </div>
       {%- endif -%}
@@ -58,7 +64,7 @@
     background: {{ section.settings.background }};
     color: {{ section.settings.text_color }};
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: var(--font-body);
   }
 
   .footer-container {
@@ -73,7 +79,7 @@
     flex-wrap: wrap;
     justify-content: space-between;
     padding: 50px 0 30px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .footer-column {
@@ -84,17 +90,20 @@
   }
 
   .footer-heading {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 20px 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-heading);
+    margin: 0 0 20px;
     text-transform: uppercase;
     letter-spacing: 1px;
   }
 
   .footer-column p {
-    margin: 0 0 12px 0;
+    margin: 0 0 12px;
     opacity: 0.8;
     transition: opacity 0.3s ease;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
   }
 
   .footer-column p:hover {
@@ -117,6 +126,8 @@
     text-decoration: none;
     opacity: 0.8;
     transition: opacity 0.3s ease;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
   }
 
   .footer-sec-1 a:hover {
@@ -124,7 +135,7 @@
   }
 
   .footer-bottom {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
   }
 
   .footer-sec-2 {
@@ -136,7 +147,8 @@
   .footer-sec-2 p {
     padding: 10px 15px 10px 0;
     margin: 0;
-    font-size: 14px;
+    font-size: var(--font-size-sm);
+    font-family: var(--font-body);
     opacity: 0.7;
   }
 
@@ -147,7 +159,8 @@
   }
 
   .footer-copyright p {
-    font-size: 14px;
+    font-size: var(--font-size-sm);
+    font-family: var(--font-body);
     opacity: 0.7;
   }
 
@@ -176,30 +189,30 @@
 </style>
 
 {% schema %}
-{
-  "name": "Footer",
-  "settings": [
-    {
-      "type": "color",
-      "id": "background",
-      "label": "Background",
-      "default": "#000000"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "Text",
-      "default": "#F4F4F4"
-    },
-    {
-      "type": "paragraph",
-      "content": "Los enlaces del footer se gestionan desde el menú 'footer-menu' en la configuración de navegación de la tienda."
-    }
-  ],
-  "presets": [
-    {
-      "name": "footer"
-    }
-  ]
-}
+  {
+    "name": "Footer",
+    "settings": [
+      {
+        "type": "color",
+        "id": "background",
+        "label": "Background",
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text",
+        "default": "#F4F4F4"
+      },
+      {
+        "type": "paragraph",
+        "content": "Los enlaces del footer se gestionan desde el menú 'footer-menu' en la configuración de navegación de la tienda."
+      }
+    ],
+    "presets": [
+      {
+        "name": "footer"
+      }
+    ]
+  }
 {% endschema %}

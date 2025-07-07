@@ -8,25 +8,51 @@ type PageContextBuilder = (loadedData: Record<string, any>, options: PageRenderO
 /**
  * Crea un proxy para acceso dinámico a colecciones por handle
  */
-function createCollectionsProxy(storeId: string, collectionsMap: Record<string, any> = {}): any {
-  return new Proxy(collectionsMap, {
+function createCollectionsProxy(
+  storeId: string,
+  collectionsMap: Record<string, any> = {},
+  collections: any[] = []
+): any {
+  // Usar el array completo de colecciones si está disponible, sino usar el map
+  const collectionsArray = collections.length > 0 ? collections : Object.values(collectionsMap);
+
+  return new Proxy(collectionsArray, {
     get: (target, prop: string | symbol) => {
       if (typeof prop === 'symbol') {
-        return undefined;
-      }
-
-      // Propiedades especiales del objeto
-      if (prop === 'length' || prop === 'toString' || prop === 'valueOf') {
         return target[prop as keyof typeof target];
       }
 
-      // Buscar colección por handle en el mapa cargado
-      return target[prop] || null;
+      // Propiedades del array (length, métodos, etc.)
+      if (prop in target) {
+        return target[prop as keyof typeof target];
+      }
+
+      // Acceso por handle: collections['handle']
+      return collectionsMap[prop] || null;
     },
 
-    has: () => true,
-    ownKeys: () => Object.keys(collectionsMap),
-    getOwnPropertyDescriptor: () => ({ enumerable: true, configurable: true }),
+    has: (target, prop) => {
+      if (typeof prop === 'symbol') {
+        return prop in target;
+      }
+      // Verificar si existe en el array o en el mapa
+      return prop in target || prop in collectionsMap;
+    },
+
+    ownKeys: (target) => {
+      // Combinar keys del array con handles
+      return [...Object.keys(target), ...Object.keys(collectionsMap)];
+    },
+
+    getOwnPropertyDescriptor: (target, prop) => {
+      if (prop in target) {
+        return Object.getOwnPropertyDescriptor(target, prop);
+      }
+      if (typeof prop === 'string' && prop in collectionsMap) {
+        return { enumerable: true, configurable: true, value: collectionsMap[prop] };
+      }
+      return undefined;
+    },
   });
 }
 
@@ -204,32 +230,28 @@ export async function buildContextData(
     contextData.collections = createCollectionsProxy(storeId, loadedData.collections_map);
   }
 
-  if (loadedData.products_map && Object.keys(loadedData.products_map).length > 0) {
-    contextData.products_by_handle = createProductsProxy(storeId, loadedData.products_map);
-  }
-
-  // Inyectar productos por colección si existen
-  if (loadedData.collection_products_map && Object.keys(loadedData.collection_products_map).length > 0) {
-    // Extender el proxy de collections para incluir productos
-    const collectionsWithProducts = { ...loadedData.collections_map };
-
-    Object.entries(loadedData.collection_products_map).forEach(([handle, products]) => {
-      if (collectionsWithProducts[handle]) {
-        collectionsWithProducts[handle] = {
-          ...collectionsWithProducts[handle],
-          products: products,
-        };
-      } else {
-        // Crear un objeto de colección básico con solo productos
-        collectionsWithProducts[handle] = {
-          products: products,
-          title: handle.charAt(0).toUpperCase() + handle.slice(1),
-          handle: handle,
-        };
+  // Si tenemos el array completo de collections, usarlo en lugar del map
+  if (loadedData.collections && Array.isArray(loadedData.collections)) {
+    // Crear un mapa para acceso por handle usando todas las colecciones
+    const allCollectionsMap: Record<string, any> = {};
+    loadedData.collections.forEach((collection: any) => {
+      if (collection.slug) {
+        allCollectionsMap[collection.slug] = collection;
+      }
+      // También agregar por handle alternativo si existe
+      const altHandle = collection.title?.toLowerCase().replace(/\s+/g, '-');
+      if (altHandle && altHandle !== collection.slug) {
+        allCollectionsMap[altHandle] = collection;
       }
     });
 
-    contextData.collections = createCollectionsProxy(storeId, collectionsWithProducts);
+    // Combinar con collections_map si existe
+    const finalCollectionsMap = { ...allCollectionsMap, ...loadedData.collections_map };
+    contextData.collections = createCollectionsProxy(storeId, finalCollectionsMap, loadedData.collections);
+  }
+
+  if (loadedData.products_map && Object.keys(loadedData.products_map).length > 0) {
+    contextData.products_by_handle = createProductsProxy(storeId, loadedData.products_map);
   }
 
   // Inyectar páginas por handle si existen

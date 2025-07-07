@@ -1,0 +1,133 @@
+{{ 'collections-list.css' | asset_url | stylesheet_tag }}
+<div class="catalog-container">
+  <header class="catalog-header">
+    <h1 class="catalog-title">CATALOG</h1>
+  </header>
+
+  {% paginate collections by 12 %}
+
+    <div class="catalog-grid">
+      {% for collection in collections %}
+        <div class="catalog-item">
+          <div class="catalog-item__image">
+            <a href="{{ collection.url }}" class="catalog-item__link">
+              {% if collection.featured_image %}
+                <img
+                  src="{{ collection.featured_image | img_url: '600x800' }}"
+                  alt="{{ collection.featured_image.alt | default: collection.title | escape }}"
+                  class="catalog-item__img"
+                  loading="lazy">
+              {% elsif collection.products.first.featured_image %}
+                <img
+                  src="{{ collection.products.first.featured_image | img_url: '600x800' }}"
+                  alt="{{ collection.title | escape }}"
+                  class="catalog-item__img"
+                  loading="lazy">
+              {% else %}
+                <div class="catalog-item__placeholder">
+                  <span>{{ collection.title | upcase }}</span>
+                </div>
+              {% endif %}
+
+              <div class="catalog-item__overlay">
+                <h3 class="catalog-item__title">{{ collection.title | upcase }}</h3>
+                <div class="catalog-item__cta">
+                  <span>SHOP NOW</span>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none">
+                    <path
+                      d="M5 12h14M12 5l7 7-7 7"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      {% else %}
+        <div class="catalog-empty">
+          <div class="catalog-empty__content">
+            <h2>NO COLLECTIONS AVAILABLE</h2>
+            <p>Collections will appear here once they are created.</p>
+            <a href="{{ routes.all_products_collection_url }}" class="btn-primary">
+              VIEW ALL PRODUCTS
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% comment %} Paginación minimalista {% endcomment %}
+    {% if paginate.previous or paginate.next %}
+      <nav class="catalog-pagination">
+        {% if paginate.previous %}
+          <a href="{{ paginate.previous.url }}" class="pagination-btn pagination-btn--prev">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none">
+              <path
+                d="M15 18l-6-6 6-6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            PREV
+          </a>
+        {% endif %}
+
+        <span class="pagination-info">
+          {{ paginate.current_page }} / {{ paginate.pages }}
+        </span>
+
+        {% if paginate.next %}
+          <a href="{{ paginate.next.url }}" class="pagination-btn pagination-btn--next">
+            NEXT
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none">
+              <path
+                d="M9 18l6-6-6-6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </a>
+        {% endif %}
+      </nav>
+    {% endif %}
+  {% endpaginate %}
+</div>
+
+<script>
+  // Interactividad minimalista y elegante
+  (function() {
+  const catalogItems = document.querySelectorAll('.catalog-item');
+
+  catalogItems.forEach(item => {
+    const overlay = item.querySelector('.catalog-item__overlay');
+    const img = item.querySelector('.catalog-item__img');
+
+    item.addEventListener('mouseenter', function() {
+      if (overlay) overlay.style.opacity = '1';
+      if (img) img.style.transform = 'scale(1.05)';
+    });
+
+    item.addEventListener('mouseleave', function() {
+      if (overlay) overlay.style.opacity = '0';
+      if (img) img.style.transform = 'scale(1)';
+    });
+  });
+  })();
+</script>

@@ -195,3 +195,106 @@
   pointer-events: none;
   border-color: #f3f4f6;
 }
+
+/* Actualizar todas las fuentes para usar el sistema unificado */
+
+/* Títulos de productos */
+.product-title,
+.product-name,
+.product-card-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Precios */
+.product-price,
+.product-price-current,
+.product-price-original {
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Descripciones */
+.product-description,
+.product-summary {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+}
+
+/* Botones */
+.product-btn,
+.add-to-cart-btn,
+.product-button {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Variantes */
+.product-variants,
+.product-options {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+}
+
+/* Badges */
+.product-badge,
+.product-tag {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Títulos de sección */
+.section-title,
+.collection-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-light);
+}
+
+/* Subtítulos */
+.section-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-normal);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-title,
+  .collection-title {
+    font-size: var(--font-size-3xl);
+  }
+
+  .section-subtitle {
+    font-size: var(--font-size-xl);
+  }
+
+  .product-title,
+  .product-name,
+  .product-card-title {
+    font-size: var(--font-size-base);
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title,
+  .collection-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .section-subtitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .product-title,
+  .product-name,
+  .product-card-title {
+    font-size: var(--font-size-sm);
+  }
+}
