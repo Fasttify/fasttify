@@ -255,5 +255,6 @@ export interface PageRenderOptions {
   handle?: string; // Para productos, colecciones, páginas específicas, etc.
   productId?: string; // ID específico del producto
   collectionId?: string; // ID específico de la colección
+  collectionHandle?: string; //  Handle de la colección para URLs jerárquicas (/collections/handle/products/handle)
   searchQuery?: string; // Para páginas de búsqueda
 }

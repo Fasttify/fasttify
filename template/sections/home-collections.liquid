@@ -1,0 +1,383 @@
+<section class="featured-collections">
+  <div class="collections-container">
+   {% paginate collections by 2 %}
+    {% for collection in collections %}
+      <div class="collection-hero">
+        <div class="collection-image-container">
+          {% if collection.image %}
+            <img
+              class="collection-image"
+              loading="lazy"
+              src="{{ collection.image | img_url: '800x1000' }}"
+              alt="{{ collection.title | escape }}">
+          {% else %}
+            <div class="collection-placeholder">
+              <div class="placeholder-content">
+                <span class="placeholder-letter">{{ collection.title | slice: 0, 1 | upcase }}</span>
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="collection-overlay">
+            <div class="collection-content">
+              <h2 class="collection-title">{{ collection.title | upcase }}</h2>
+              <p class="collection-subtitle">{{ collection.description | default: "Discover our latest collection" | truncate: 60 }}</p>
+              <a href="{{ collection.url }}" class="collection-cta">
+                <span>EXPLORE</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12,5 19,12 12,19"></polyline>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+    {% endpaginate %}
+  </div>
+</section>
+
+{% style %}
+  /* Featured Collections - Elegante diseño basado en referencia */
+  .featured-collections {
+    padding: 40px 20px;
+    margin: 0;
+    width: 100%;
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+
+  .collections-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    height: 76vh;
+    min-height: 500px;
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
+  }
+
+  .collection-hero {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .collection-hero:hover {
+    transform: scale(1.02);
+  }
+
+  .collection-image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .collection-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: brightness(0.85) contrast(1.1);
+  }
+
+  .collection-hero:hover .collection-image {
+    transform: scale(1.05);
+    filter: brightness(0.75) contrast(1.2);
+  }
+
+  /* Placeholder elegante */
+  .collection-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .placeholder-content {
+    text-align: center;
+  }
+
+  .placeholder-letter {
+    font-size: 120px;
+    font-weight: var(--font-weight-light);
+    font-family: var(--font-heading);
+    color: #999999;
+    letter-spacing: 4px;
+  }
+
+  /* Overlay sofisticado */
+  .collection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .collection-hero:hover .collection-overlay {
+    opacity: 1;
+  }
+
+  /* Contenido elegante */
+  .collection-content {
+    text-align: center;
+    color: #ffffff;
+    max-width: 400px;
+    padding: 40px;
+    transform: translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .collection-hero:hover .collection-content {
+    transform: translateY(0);
+  }
+
+  .collection-title {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 4px;
+    margin: 0 0 20px 0;
+    line-height: 1.1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .collection-subtitle {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-light);
+    letter-spacing: 1px;
+    margin: 0 0 30px 0;
+    line-height: 1.5;
+    opacity: 0.9;
+  }
+
+  /* CTA Button elegante */
+  .collection-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    background: transparent;
+    color: #ffffff;
+    text-decoration: none;
+    border: 2px solid #ffffff;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .collection-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+
+  .collection-cta:hover::before {
+    left: 0;
+  }
+
+  .collection-cta span,
+  .collection-cta svg {
+    position: relative;
+    z-index: 2;
+    transition: color 0.3s ease;
+  }
+
+  .collection-cta:hover {
+    color: #000000;
+    transform: translateY(-2px);
+  }
+
+  .collection-cta svg {
+    transition: transform 0.3s ease;
+  }
+
+  .collection-cta:hover svg {
+    transform: translateX(4px);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .featured-collections {
+      padding: 30px 15px;
+    }
+
+    .collections-container {
+      gap: 15px;
+      height: 75vh;
+      min-height: 450px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .featured-collections {
+      padding: 20px 10px;
+    }
+
+    .collections-container {
+      grid-template-columns: 1fr;
+      gap: 15px;
+      height: auto;
+      min-height: auto;
+    }
+
+    .collection-hero {
+      height: 60vh;
+      min-height: 400px;
+    }
+
+    .collection-title {
+      font-size: var(--font-size-3xl);
+      letter-spacing: 2px;
+    }
+
+    .collection-subtitle {
+      font-size: var(--font-size-sm);
+    }
+
+    .collection-content {
+      padding: 30px 20px;
+      max-width: 300px;
+    }
+
+    .collection-cta {
+      padding: 14px 24px;
+      font-size: var(--font-size-xs);
+      letter-spacing: 1.5px;
+    }
+
+    .collection-overlay {
+      opacity: 0.8;
+    }
+
+    .collection-hero:hover .collection-overlay {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .featured-collections {
+      padding: 15px 8px;
+    }
+
+    .collections-container {
+      gap: 10px;
+    }
+
+    .collection-hero {
+      height: 50vh;
+      min-height: 350px;
+    }
+
+    .collection-title {
+      font-size: var(--font-size-2xl);
+      letter-spacing: 1px;
+    }
+
+    .collection-content {
+      padding: 20px 15px;
+      max-width: 250px;
+    }
+
+    .placeholder-letter {
+      font-size: 80px;
+    }
+  }
+
+  /* Animaciones de entrada */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .collection-hero {
+    animation: fadeInUp 0.8s ease forwards;
+  }
+
+  .collection-hero:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+
+  .collection-hero:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  /* Accesibilidad */
+  @media (prefers-reduced-motion: reduce) {
+    .collection-hero,
+    .collection-image,
+    .collection-overlay,
+    .collection-content,
+    .collection-cta {
+      transition: none;
+      animation: none;
+    }
+
+    .collection-hero:hover {
+      transform: none;
+    }
+
+    .collection-hero:hover .collection-image {
+      transform: none;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+  {
+    "name": "Colecciones Destacadas",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Configuración de Colecciones"
+      },
+      {
+        "type": "paragraph",
+        "content": "Esta sección muestra las 2 primeras colecciones publicadas en un diseño elegante de pantalla completa."
+      }
+    ],
+    "presets": [
+      {
+        "name": "Colecciones Destacadas",
+        "category": "Colecciones"
+      }
+    ]
+  }
+{% endschema %}

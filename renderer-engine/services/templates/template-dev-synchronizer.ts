@@ -1,10 +1,10 @@
+import { logger } from '@/renderer-engine/lib/logger';
+import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import chokidar from 'chokidar';
 import fs from 'fs';
 import path from 'path';
-import chokidar from 'chokidar';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
-import { logger } from '@/renderer-engine/lib/logger';
 
 interface SyncOptions {
   localDir: string;
@@ -155,12 +155,7 @@ export class TemplateDevSynchronizer {
       if (event === 'add' || event === 'change') {
         await this.uploadFileToS3(filePath, s3Key);
       } else if (event === 'unlink') {
-        // TODO: Implementar eliminación de archivos en S3
-        logger.warn(
-          `[TemplateDevSynchronizer] Eliminación de archivos no implementada aún`,
-          undefined,
-          'TemplateDevSynchronizer'
-        );
+        await this.deleteFileFromS3(s3Key);
       }
 
       // Invalidar caché de manera agresiva
@@ -240,6 +235,26 @@ export class TemplateDevSynchronizer {
       logger.debug(`[TemplateDevSynchronizer] Subido a S3: ${s3Key}`, undefined, 'TemplateDevSynchronizer');
     } catch (error) {
       logger.error(`[TemplateDevSynchronizer] Error al subir a S3`, error, 'TemplateDevSynchronizer');
+      throw error;
+    }
+  }
+
+  /**
+   * Elimina un archivo de S3
+   */
+  private async deleteFileFromS3(s3Key: string): Promise<void> {
+    if (!this.s3Client) return;
+
+    try {
+      const command = new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: s3Key,
+      });
+
+      await this.s3Client.send(command);
+      logger.debug(`[TemplateDevSynchronizer] Eliminado de S3: ${s3Key}`, undefined, 'TemplateDevSynchronizer');
+    } catch (error) {
+      logger.error(`[TemplateDevSynchronizer] Error al eliminar de S3`, error, 'TemplateDevSynchronizer');
       throw error;
     }
   }

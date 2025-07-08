@@ -12,21 +12,37 @@
 
   <!-- Styles -->
   {{ 'theme.css' | asset_url | stylesheet_tag }}
-  {{ 'header.css' | asset_url | stylesheet_tag }}
   {{ 'cart.css' | asset_url | stylesheet_tag }}
   <!-- Fasttify all data for SEO -->
   {{ content_for_header }}
 
-  {% render 'pagefly-head' %}
 
   <style>
+    /* Prevent horizontal scroll globally */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+      width: 100%;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     .site-wrapper {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
     }
+
     main#main {
       flex: 1 0 auto;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
     }
   </style>
 </head>
@@ -34,7 +50,10 @@
 <body>
 
   <div class="site-wrapper">
-    {% render 'header' %}
+    <!-- Header normal para todas las páginas excepto cuando hay hero -->
+    {% unless content_for_layout contains 'collection-hero-section' %}
+      {% render 'header' %}
+    {% endunless %}
 
     <main id="main" role="main">
       {{ content_for_layout }}

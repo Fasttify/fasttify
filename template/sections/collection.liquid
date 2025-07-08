@@ -1,116 +1,44 @@
-{% paginate collection.products by 1 %}
-  <section class="collection-sec">
-    <div>
-      <select id="sort-by">
-        {% assign sort_by = collection.sort_by | default: collection.default_sort_by %}
+{% comment %}
+  Este archivo actúa como un router.
+  - Si el objeto 'collection' existe, muestra la vista de detalle de la colección con sus productos.
+  - Si no, muestra la lista de todas las colecciones.
+{% endcomment %}
 
-        {% for option in collection.sort_options %}
-          <option
-            value="{{ option.value }}"
-            {% if option.value == sort_by %}
-            selected="selected"
-            {% endif %}>
-            {{ option.name }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-    <div>
-      <h1>collections</h1>
-      <p>{{ collection.title }}</p>
-      <div class="products-grid">
-        {% for product in collection.products %}
-          <div class="product-card">
-            <img
-              width="300"
-              height="300"
-              loading="lazy"
-              src="{{ product.featured_image | image_url}}">
-            <h3>{{- product.title | link_to: product.url }}</h3>
-            <p>{{ product.price }}</p>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  {{ paginate | default_pagination }}
-{% endpaginate %}
-
-<style>
-  .collection-sec {
-    background: {{ section.settings.background }};
-    color: {{ section.settings.text_color }};
-    padding: 10px;
-    display: flex;
-    margin-top: 100px;
-    justify-content: space-between
-  }
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* Three columns */
-    gap: 20px;
-    /* Adjust the gap between grid items */
-  }
-
-  .product-card {
-    border: 1px solid #ddd;
-    /* Add a border for each product card */
-    padding: 10px;
-    text-align: center;
-  }
-
-  .product-card img {
-    max-width: 100%;
-    height: auto;
-  }
-</style>
-<script>
-  Shopify.queryParams = {};
-
-  // Preserve existing query parameters
-  if (location.search.length) {
-    var params = location.search.substr(1).split('&');
-
-    for (var i = 0; i < params.length; i++) {
-      var keyValue = params[i].split('=');
-
-      if (keyValue.length) {
-        Shopify.queryParams[decodeURIComponent(keyValue[0])] = decodeURIComponent(keyValue[1]);
-      }
-    }
-  }
-
-  // Update sort_by query parameter on select change
-  document.querySelector('#sort-by').addEventListener('change', function (e) {
-    var value = e.target.value;
-
-    Shopify.queryParams.sort_by = value;
-    location.search = new URLSearchParams(Shopify.queryParams).toString();
-  });
-</script>
+{% if collection %}
+  {% render 'collection-details-view' %}
+{% else %}
+  {% render 'collections-list-view' %}
+{% endif %}
 
 {% schema %}
   {
-    "name": "collection",
+    "name": "Página de Colección",
     "settings": [
       {
-        "type": "color",
-        "id": "background",
-        "label": "Background",
-        "default": "#F4F4F4"
+        "type": "header",
+        "content": "Configuración de Lista de Colecciones"
       },
       {
-        "type": "color",
-        "id": "text_color",
-        "label": "Text",
-        "default": "#000000"
-      }
-    ],
-    "presets": [
+        "type": "range",
+        "id": "collections_per_page",
+        "min": 4,
+        "max": 24,
+        "step": 4,
+        "label": "Colecciones por página",
+        "default": 12
+      },
       {
-        "name": "collection"
+        "type": "header",
+        "content": "Configuración de Productos en Colección"
+      },
+      {
+        "type": "range",
+        "id": "products_per_page",
+        "min": 4,
+        "max": 48,
+        "step": 4,
+        "label": "Productos por página",
+        "default": 16
       }
     ]
   }

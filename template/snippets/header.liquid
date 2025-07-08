@@ -1,7 +1,5 @@
-{%- liquid
-  assign main_menu = linklists['main-menu']
--%}
-
+{{ 'header.css' | asset_url | stylesheet_tag }}
+{% assign main_menu = linklists['main-menu'] %}
 
 {% if settings.announcement_enable %}
   <div class="announcement-bar">
@@ -32,8 +30,6 @@
             <img
               src="{{ 'nike.png' | asset_url }}"
               alt="{{ shop.name }}"
-              width="80"
-              height="50"
               loading="lazy"
               class="logo-img">
           </a>

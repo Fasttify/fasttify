@@ -21,6 +21,16 @@ const routeMatchers: RouteMatcher[] = [
     handler: () => ({ pageType: 'index' }),
   },
 
+  //  Producto en colección (estilo Shopify): /collections/handle/products/handle
+  {
+    pattern: /^\/collections\/([^\/]+)\/products\/([^\/]+)$/,
+    handler: (match) => ({
+      pageType: 'product',
+      handle: match[2], // handle del producto
+      collectionHandle: match[1], // handle de la colección para contexto
+    }),
+  },
+
   // Producto: /products/handle
   {
     pattern: /^\/products\/([^\/]+)$/,
@@ -81,7 +91,7 @@ const routeMatchers: RouteMatcher[] = [
 
   // Casos especiales para compatibilidad
   {
-    pattern: /^\/collection$/,
+    pattern: /^\/collections$/,
     handler: () => ({ pageType: 'collection' }),
   },
 

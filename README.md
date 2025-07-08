@@ -396,6 +396,33 @@ export class PolarPaymentProcessor {
 }
 ```
 
+### **8. ⚠️ Paginación: Mejores Prácticas**
+
+**Problema conocido con Amplify Gen 2:**
+Los números impares en paginación pueden causar inconsistencias en `nextToken`.
+
+**✅ Solución: Usar siempre números pares**
+
+```liquid
+<!-- ✅ CORRECTO: Números pares -->
+{% paginate products by 10 %}
+{% paginate products by 20 %}
+{% paginate products by 4 %}
+
+<!-- ❌ EVITAR: Números impares -->
+{% paginate products by 1 %}
+{% paginate products by 3 %}
+{% paginate products by 9 %}
+```
+
+**Recomendaciones por tipo de vista:**
+
+- **Grillas de productos**: 4, 6, 8, 12
+- **Listas estándar**: 10, 20
+- **Catálogos grandes**: 50, 100
+
+> 📖 **Documentación completa**: Ver [docs/engine/amplify-gen2-pagination-gotchas.md](docs/engine/amplify-gen2-pagination-gotchas.md)
+
 ---
 
 ## Guía de Uso

@@ -1,6 +1,6 @@
-import { Tag, TopLevelToken, Liquid, Context, Value, TagToken, Emitter, TokenKind } from 'liquidjs';
 import { logger } from '@/renderer-engine/lib/logger';
 import type { PaginationContext } from '@/renderer-engine/types';
+import { Context, Emitter, Liquid, Tag, TagToken, TokenKind, TopLevelToken, Value } from 'liquidjs';
 
 /**
  * Custom Paginate Tag para Shopify Liquid.

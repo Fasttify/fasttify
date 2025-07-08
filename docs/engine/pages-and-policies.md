@@ -230,3 +230,87 @@ Aquí es donde diseñas la visualización de las políticas. Un patrón de dise�
 ```
 
 ¡Y eso es todo! Con estos elementos, has habilitado una página de políticas robusta y fácil de gestionar para los comerciantes, manteniendo un diseño limpio y profesional en tu tema.
+
+# Gestión de Páginas y Políticas
+
+Este documento explica cómo el motor de plantillas maneja las páginas y políticas en la tienda.
+
+## Tipos de Páginas
+
+El motor soporta varios tipos de páginas:
+
+- `index` - Página de inicio
+- `product` - Páginas de productos individuales
+- `collection` - Páginas de listado de colecciones
+- `page` - Páginas estáticas (Acerca de, Contacto, etc.)
+- `cart` - Página del carrito de compras
+- `search` - Página de resultados de búsqueda
+
+## Políticas
+
+Las páginas de políticas se generan automáticamente para:
+
+- Política de Privacidad
+- Términos de Servicio
+- Política de Devoluciones
+- Política de Envíos
+
+## Mejores Prácticas de Paginación
+
+### ⚠️ Importante: Usar Números Pares para Límites de Paginación
+
+**Problema Identificado**: Amplify Gen 2 con DynamoDB tiene generación inconsistente de tokens cuando se usan números impares como límites de paginación.
+
+**Síntomas**:
+
+- Con límites impares (1, 3, 5, 7, 9, etc.): La última página muestra incorrectamente el botón "Siguiente"
+- Con límites pares (2, 4, 6, 8, 10, 20, 50, 100, etc.): La paginación funciona correctamente
+
+**Causa Raíz**:
+Amplify Gen 2/DynamoDB parece tener optimizaciones internas o algoritmos que funcionan mejor con límites de números pares, causando comportamiento inconsistente del `nextToken` con números impares.
+
+**Solución**:
+Siempre usar números pares para paginación en tus plantillas Liquid:
+
+```liquid
+<!-- ✅ BUENO: Usar números pares -->
+{% paginate products by 2 %}
+{% paginate products by 10 %}
+{% paginate products by 20 %}
+
+<!-- ❌ EVITAR: Los números impares causan problemas con nextToken -->
+{% paginate products by 1 %}
+{% paginate products by 3 %}
+{% paginate products by 9 %}
+```
+
+**Límites de Paginación Recomendados**:
+
+- **Grillas pequeñas**: 4, 6, 8 productos por página
+- **Listas estándar**: 10, 20 productos por página
+- **Catálogos grandes**: 50, 100 productos por página
+
+### Detalles Técnicos
+
+Esta limitación afecta:
+
+- Listados de productos (`{% paginate products by X %}`)
+- Listados de colecciones
+- Listados de páginas
+- Cualquier contenido que use el sistema de paginación
+
+El problema NO afecta:
+
+- La funcionalidad de la aplicación (sigue funcionando, solo muestra el botón "Siguiente" extra)
+- La carga de datos o el rendimiento
+- El SEO o la experiencia de usuario significativamente
+
+### Notas de Implementación
+
+Al diseñar temas, considera:
+
+1. **Diseños en grilla**: Usar números que crean grillas visuales agradables (4, 6, 8, 12)
+2. **Rendimiento**: Números pares más grandes (20, 50) para mejor rendimiento
+3. **Experiencia de usuario**: No exceder 100 elementos por página para usabilidad
+
+Este comportamiento ha sido probado y confirmado en múltiples tiendas y es consistente con la implementación actual de Amplify Gen 2.

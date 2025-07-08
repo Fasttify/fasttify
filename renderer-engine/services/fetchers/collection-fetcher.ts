@@ -95,7 +95,14 @@ export class CollectionFetcher {
         return null;
       }
 
-      const { products, nextToken } = await productFetcher.getProductsByCollection(storeId, collectionId, options);
+      const handle = dataTransformer.createHandle(collection.title || `collection-${collection.id}`);
+
+      const { products, nextToken } = await productFetcher.getProductsByCollection(
+        storeId,
+        collectionId,
+        handle,
+        options
+      );
 
       const transformedCollection = this.transformCollection(collection, products, nextToken);
 

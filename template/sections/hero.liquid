@@ -1,0 +1,182 @@
+{{ 'hero.css' | asset_url | stylesheet_tag }}
+<section
+class="collection-hero-section">
+  <!-- Header integrado solo para esta sección -->
+  {% render 'header' %}
+  {% assign hero_collection = collections['nuevos-productos'] %}
+    <div class="hero-container">
+    <!-- Background Image -->
+    <div class="hero-background">
+      {% if hero_collection.image %}
+        <img
+          class="hero-image"
+          src="{{ hero_collection.image | img_url: '1920x1080' }}"
+          alt="{{ hero_collection.title | escape }}"
+          loading="lazy">
+      {% elsif section.settings.fallback_image %}
+        <img
+          class="hero-image"
+          src="{{ section.settings.fallback_image | img_url: '1920x1080' }}"
+          alt="{{ hero_collection.title | default: 'Hero' | escape }}"
+          loading="lazy">
+      {% else %}
+        <div class="hero-placeholder">
+          <div class="placeholder-content">
+            <svg
+              width="80"
+              height="80"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1">
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="18"
+                rx="2"
+                ry="2" />
+              <circle
+                cx="8.5"
+                cy="8.5"
+                r="1.5" />
+              <polyline points="21,15 16,10 5,21" />
+            </svg>
+            <p>Imagen de fondo</p>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Overlay -->
+      <div class="hero-overlay"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="hero-content">
+      <div class="hero-content-inner">
+        {% if section.settings.hero_subtitle != blank %}
+          <p class="hero-subtitle">{{ section.settings.hero_subtitle }}</p>
+        {% endif %}
+
+        {% if hero_collection.title %}
+          <h1 class="hero-title">{{ hero_collection.title | upcase }}</h1>
+        {% elsif section.settings.hero_title != blank %}
+          <h1 class="hero-title">{{ section.settings.hero_title }}</h1>
+        {% endif %}
+
+        {% if hero_collection.description != blank %}
+          <p class="hero-description">{{ hero_collection.description }}</p>
+        {% elsif section.settings.hero_description != blank %}
+          <p class="hero-description">{{ section.settings.hero_description }}</p>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="hero-actions">
+          {% if hero_collection.url %}
+            <a href="{{ hero_collection.url }}" class="hero-btn hero-btn-primary">
+              <span>{{ section.settings.primary_button_text | default: 'EXPLORAR COLECCIÓN' }}</span>
+            </a>
+          {% elsif section.settings.primary_button_text != blank %}
+            <a href="{{ section.settings.primary_button_url }}" class="hero-btn hero-btn-primary">
+              <span>{{ section.settings.primary_button_text }}</span>
+            </a>
+          {% endif %}
+
+          {% if section.settings.secondary_button_text != blank %}
+            <a href="{{ section.settings.secondary_button_url | default: '/collections' }}" class="hero-btn hero-btn-secondary">
+              <span>{{ section.settings.secondary_button_text | default: 'VER TODAS' }}</span>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% schema %}
+  {
+    "name": "Hero de Colección",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Colección"
+      },
+      {
+        "type": "text",
+        "id": "collection_handle",
+        "label": "Handle de la colección",
+        "default": "nuevos-productos",
+        "info": "El handle de la colección a mostrar (ej: nuevos-productos)"
+      },
+      {
+        "type": "header",
+        "content": "Imagen de Respaldo"
+      },
+      {
+        "type": "image_picker",
+        "id": "fallback_image",
+        "label": "Imagen de respaldo",
+        "info": "Se usa si la colección no tiene imagen. Recomendado: 1920x1080px"
+      },
+      {
+        "type": "header",
+        "content": "Contenido Personalizado"
+      },
+      {
+        "type": "text",
+        "id": "hero_subtitle",
+        "label": "Subtítulo personalizado",
+        "default": "LIMITED SALE",
+        "info": "Opcional: Subtítulo que aparece sobre el título de la colección"
+      },
+      {
+        "type": "text",
+        "id": "hero_title",
+        "label": "Título personalizado",
+        "info": "Opcional: Si está vacío, usa el título de la colección"
+      },
+      {
+        "type": "textarea",
+        "id": "hero_description",
+        "label": "Descripción personalizada",
+        "info": "Opcional: Si está vacío, usa la descripción de la colección"
+      },
+      {
+        "type": "header",
+        "content": "Botones de Acción"
+      },
+      {
+        "type": "text",
+        "id": "primary_button_text",
+        "label": "Texto botón principal",
+        "default": "EXPLORAR COLECCIÓN",
+        "info": "El botón principal siempre apunta a la colección"
+      },
+      {
+        "type": "text",
+        "id": "secondary_button_text",
+        "label": "Texto botón secundario",
+        "default": "VER TODAS"
+      },
+      {
+        "type": "url",
+        "id": "secondary_button_url",
+        "label": "URL botón secundario",
+        "default": "/collections"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Hero de Colección",
+        "settings": {
+          "collection_handle": "nuevos-productos",
+          "hero_subtitle": "LIMITED SALE",
+          "primary_button_text": "EXPLORAR COLECCIÓN",
+          "secondary_button_text": "VER TODAS",
+          "secondary_button_url": "/collections"
+        }
+      }
+    ]
+  }
+{% endschema %}

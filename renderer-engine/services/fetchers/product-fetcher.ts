@@ -197,6 +197,7 @@ export class ProductFetcher {
   public async getProductsByCollection(
     storeId: string,
     collectionId: string,
+    collectionHandle?: string,
     options: PaginationOptions = {}
   ): Promise<ProductsResponse> {
     try {
@@ -216,7 +217,8 @@ export class ProductFetcher {
         }
       );
 
-      const products = response.data.map((p) => this.transformProduct(p));
+      //  Pasar el handle de la colección para generar URLs jerárquicas
+      const products = response.data.map((p) => this.transformProduct(p, collectionHandle));
 
       return {
         products,
@@ -231,7 +233,7 @@ export class ProductFetcher {
   /**
    * Transforma un producto de Amplify al formato Liquid
    */
-  public transformProduct(product: any): ProductContext {
+  public transformProduct(product: any, collectionHandle?: string): ProductContext {
     // Crear handle SEO-friendly
     const handle = dataTransformer.createHandle(product.name);
 
@@ -240,10 +242,16 @@ export class ProductFetcher {
     const compareAtPrice = product.compareAtPrice ? dataTransformer.formatPrice(product.compareAtPrice) : undefined;
 
     // Transformar imágenes, variantes y atributos usando DataTransformer
-    const images = dataTransformer.transformImages(product.images, product.name);
+    const transformedImages = dataTransformer.transformImages(product.images, product.name);
     const variants = dataTransformer.transformVariants(product.variants, product.price);
     const attributes = dataTransformer.transformAttributes(product.attributes);
-    const featured_image = images.length > 0 ? images[0].url : undefined;
+    const featured_image = transformedImages.length > 0 ? transformedImages[0].url : undefined;
+
+    // Crear array de URLs simples para compatibilidad con Liquid
+    const images = transformedImages.map((img) => img.url || img);
+
+    //  Generar URL jerárquica estilo Shopify cuando hay contexto de colección
+    const url = collectionHandle ? `/collections/${collectionHandle}/products/${handle}` : `/products/${handle}`;
 
     return {
       id: product.id,
@@ -257,7 +265,7 @@ export class ProductFetcher {
       description: product.description,
       price: price,
       compare_at_price: compareAtPrice,
-      url: `/products/${handle}`,
+      url: url,
       images: images,
       variants: variants,
       status: product.status,
