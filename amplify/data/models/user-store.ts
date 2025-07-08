@@ -58,6 +58,14 @@ export const userStoreModel = a
         allow.publicApiKey().to(['read']),
       ]),
     onboardingData: a.json(),
+    products: a.hasMany('Product', 'storeId'),
+    collections: a.hasMany('Collection', 'storeId'),
+    carts: a.hasMany('Cart', 'storeId'),
+    cartItems: a.hasMany('CartItem', 'storeId'),
+    orders: a.hasMany('Order', 'storeId'),
+    orderItems: a.hasMany('OrderItem', 'storeId'),
+    pages: a.hasMany('Page', 'storeId'),
+    navigationMenus: a.hasMany('NavigationMenu', 'storeId'),
   })
   .identifier(['storeId'])
   .secondaryIndexes((index) => [index('userId'), index('customDomain'), index('storeName')])
