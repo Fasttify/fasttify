@@ -1,7 +1,7 @@
 import { useToast } from '@/app/store/context/ToastContext';
 import { CollectionInput } from '@/app/store/hooks/data/useCollections';
 import { IProduct } from '@/app/store/hooks/data/useProducts';
-import { routes } from '@/utils/routes';
+import { routes } from '@/utils/client/routes';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 

@@ -1,6 +1,6 @@
-import { DNSHTTPVerifier } from '@/lib/services/domain/dns-http-verifier';
-import { DomainValidator } from '@/lib/services/domain/domain-validator';
-import { SecurityConfig } from '@/lib/config/security-config';
+import { DNSHTTPVerifier } from '@/tenant-domains/services/domain/dns-http-verifier';
+import { DomainValidator } from '@/tenant-domains/services/domain/domain-validator';
+import { SecurityConfig } from '@/tenant-domains/config/security-config';
 
 describe('SSRF Protection Tests', () => {
   let verifier: DNSHTTPVerifier;

@@ -5,7 +5,7 @@ import { useState } from 'react';
 // Hooks
 import { usePageFilters } from '@/app/store/components/page-management/hooks/usePageFilters';
 import { usePageSelection } from '@/app/store/components/page-management/hooks/usePageSelection';
-import { routes } from '@/utils/routes';
+import { routes } from '@/utils/client/routes';
 
 // Components
 import { PageFilters } from '@/app/store/components/page-management/components/listing/PageFilters';

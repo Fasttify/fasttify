@@ -1,10 +1,10 @@
-import { LegacyCard, Text, Thumbnail, TextField, Button, ButtonGroup, Toast } from '@shopify/polaris';
-import { ImageIcon } from '@shopify/polaris-icons';
-import { useState } from 'react';
-import { useProducts } from '@/app/store/hooks/data/useProducts';
-import { getStoreId } from '@/utils/store-utils';
-import { useParams, usePathname } from 'next/navigation';
 import { InventoryRowProps } from '@/app/store/components/product-management/inventory/components/InventoryTable';
+import { useProducts } from '@/app/store/hooks/data/useProducts';
+import { getStoreId } from '@/utils/client/store-utils';
+import { Button, ButtonGroup, LegacyCard, Text, TextField, Thumbnail, Toast } from '@shopify/polaris';
+import { ImageIcon } from '@shopify/polaris-icons';
+import { useParams, usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 interface InventoryCardMobileProps {
   data: InventoryRowProps[];

@@ -1,4 +1,4 @@
-import { StoreLayoutClient } from '@/app/store/config/StoreLayoutClient';
+import { StoreLayoutClient } from '@/app/store/layout/StoreLayoutClient';
 import { inter } from '@/config/fonts';
 import '@/app/global.css';
 

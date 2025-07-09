@@ -1,16 +1,16 @@
+import { routes } from '@/utils/client/routes';
 import {
-  LayoutDashboard,
-  Settings,
-  Package,
-  ShoppingCart,
-  Users,
-  Palette,
   CreditCard,
-  Truck,
   Globe,
+  LayoutDashboard,
+  LucideIcon,
+  Package,
+  Palette,
+  Settings,
+  ShoppingCart,
+  Truck,
+  Users,
 } from 'lucide-react';
-import { LucideIcon } from 'lucide-react';
-import { routes } from '@/utils/routes';
 
 // Definir la interfaz para las rutas de búsqueda
 export interface SearchRoute {

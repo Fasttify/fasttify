@@ -1,10 +1,10 @@
 'use client';
 
-import { ProductForm } from '@/app/store/components/product-management/products/components/form/ProductForm';
-import { useParams, usePathname } from 'next/navigation';
-import { getStoreId } from '@/utils/store-utils';
-import { Amplify } from 'aws-amplify';
 import outputs from '@/amplify_outputs.json';
+import { ProductForm } from '@/app/store/components/product-management/products/components/form/ProductForm';
+import { getStoreId } from '@/utils/client/store-utils';
+import { Amplify } from 'aws-amplify';
+import { useParams, usePathname } from 'next/navigation';
 
 Amplify.configure(outputs);
 const existingConfig = Amplify.getConfig();

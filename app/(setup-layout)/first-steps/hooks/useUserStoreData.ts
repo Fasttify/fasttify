@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import useUserStore from '@/context/core/userStore';
+import { generateClient } from 'aws-amplify/data';
+import { useState } from 'react';
 
 const client = generateClient<Schema>({
   authMode: 'userPool',
@@ -261,7 +261,20 @@ export const useUserStoreData = () => {
    * Crea la tienda y luego inicializa sus colecciones y menús automáticamente.
    */
   const createStoreWithTemplate = async (
-    storeInput: Omit<Schema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>
+    storeInput: Omit<
+      Schema['UserStore']['type'],
+      | 'id'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'products'
+      | 'collections'
+      | 'carts'
+      | 'cartItems'
+      | 'orders'
+      | 'orderItems'
+      | 'pages'
+      | 'navigationMenus'
+    >
   ) => {
     try {
       setLoading(true);

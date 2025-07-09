@@ -33,6 +33,7 @@ export const orderModel = a
         allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
         allow.publicApiKey().to(['create', 'read']),
       ]),
+    store: a.belongsTo('UserStore', 'storeId'),
   })
   .secondaryIndexes((index) => [
     index('storeId'),

@@ -1,4 +1,4 @@
-import { routes } from '@/utils/routes';
+import { routes } from '@/utils/client/routes';
 
 export interface Task {
   id: number;

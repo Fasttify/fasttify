@@ -67,6 +67,7 @@ export const pageModel = a
         allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
         allow.publicApiKey().to(['read']),
       ]),
+    store: a.belongsTo('UserStore', 'storeId'),
   })
   .secondaryIndexes((index) => [index('storeId'), index('slug'), index('status'), index('pageType')])
   .authorization((allow) => [

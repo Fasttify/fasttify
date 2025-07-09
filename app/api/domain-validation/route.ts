@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CustomDomainService } from '@/lib/services/custom-domain-service';
+import { CustomDomainService } from '@/tenant-domains/services/custom-domain-service';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 
 const customDomainService = new CustomDomainService();

@@ -1,7 +1,7 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 import type { PageContext, TemplateError } from '@/renderer-engine/types';
-import { cookiesClient } from '@/utils/AmplifyServer';
+import { cookiesClient } from '@/utils/server/AmplifyServer';
 import { dataTransformer } from '../core/data-transformer';
 
 interface PaginationOptions {

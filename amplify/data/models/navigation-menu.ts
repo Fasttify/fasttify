@@ -65,6 +65,7 @@ export const navigationMenuModel = a
         allow.ownerDefinedIn('owner').to(['create', 'read', 'delete']),
         allow.publicApiKey().to(['read']),
       ]),
+    store: a.belongsTo('UserStore', 'storeId'),
   })
   .secondaryIndexes((index) => [index('storeId'), index('handle'), index('domain')])
   .authorization((allow) => [

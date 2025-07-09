@@ -10,6 +10,14 @@ export const orderItemModel = a
         allow.publicApiKey().to(['create', 'read']),
       ]),
     order: a.belongsTo('Order', 'orderId'),
+    storeId: a
+      .string()
+      .required()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    store: a.belongsTo('UserStore', 'storeId'),
     productId: a
       .string()
       .required()
@@ -58,7 +66,7 @@ export const orderItemModel = a
         allow.publicApiKey().to(['create', 'read']),
       ]),
   })
-  .secondaryIndexes((index) => [index('orderId'), index('productId')])
+  .secondaryIndexes((index) => [index('orderId'), index('productId'), index('storeId')])
   .authorization((allow) => [
     allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
     allow.publicApiKey().to(['create', 'read']),

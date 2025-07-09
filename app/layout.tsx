@@ -1,5 +1,5 @@
-import ConfigureAmplifyClientSide from '@/utils/ConfigureAmplify';
-import { ReactQueryProvider } from '@/utils/ReactQueryProvider';
+import ConfigureAmplifyClientSide from '@/utils/client/ConfigureAmplify';
+import { ReactQueryProvider } from '@/utils/client/ReactQueryProvider';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {

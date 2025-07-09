@@ -1,5 +1,5 @@
 import { SecureLogger } from '@/lib/utils/secure-logger';
-import { SecurityConfig } from '@/lib/config/security-config';
+import { SecurityConfig } from '@/tenant-domains/config/security-config';
 
 export interface VerificationResult {
   success: boolean;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CertificateManager } from '@/lib/services/ssl/certificate-manager';
+import { CertificateManager } from '@/tenant-domains/services/ssl/certificate-manager';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 
 const certificateManager = new CertificateManager();

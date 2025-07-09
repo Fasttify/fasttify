@@ -35,6 +35,7 @@ export const collectionModel = a
         allow.publicApiKey().to(['read']),
       ]),
     products: a.hasMany('Product', 'collectionId'),
+    store: a.belongsTo('UserStore', 'storeId'),
   })
   .secondaryIndexes((index) => [index('storeId'), index('title'), index('slug')])
   .authorization((allow) => [

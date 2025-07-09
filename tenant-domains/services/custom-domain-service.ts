@@ -1,7 +1,11 @@
-import { CertificateManager } from '@/lib/services/ssl/certificate-manager';
-import { DomainValidator, DomainValidationResult } from '@/lib/services/domain/domain-validator';
-import { CloudFrontTenantManager, CreateTenantParams, TenantStatus } from '@/lib/services/cloudfront/tenant-manager';
-import { DNSVerifier, DNSStatus } from '@/lib/services/cloudfront/dns-verifier';
+import { CertificateManager } from '@/tenant-domains/services/ssl/certificate-manager';
+import { DomainValidator, DomainValidationResult } from '@/tenant-domains/services/domain/domain-validator';
+import {
+  CloudFrontTenantManager,
+  CreateTenantParams,
+  TenantStatus,
+} from '@/tenant-domains/services/cloudfront/tenant-manager';
+import { DNSVerifier, DNSStatus } from '@/tenant-domains/services/cloudfront/dns-verifier';
 import { SecureLogger } from '@/lib/utils/secure-logger';
 
 export interface CustomDomainSetupResult {

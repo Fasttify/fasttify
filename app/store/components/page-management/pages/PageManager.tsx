@@ -1,15 +1,15 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useToast } from '@/app/store/context/ToastContext';
 import { PageList } from '@/app/store/components/page-management/components/listing/PageList';
-import { PagesPage } from '@/app/store/components/page-management/pages/PagesPage';
 import { PageForm } from '@/app/store/components/page-management/components/PageForm';
-import { Loading } from '@shopify/polaris';
-import { useCallback } from 'react';
+import { PagesPage } from '@/app/store/components/page-management/pages/PagesPage';
 import type { PageFormValues } from '@/app/store/components/page-management/types/page-types';
+import { useToast } from '@/app/store/context/ToastContext';
 import { usePages } from '@/app/store/hooks/data/usePage';
-import { routes } from '@/utils/routes';
+import { routes } from '@/utils/client/routes';
+import { Loading } from '@shopify/polaris';
+import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 
 interface PageManagerProps {
   pageId?: string;

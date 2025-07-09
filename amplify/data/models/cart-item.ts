@@ -9,7 +9,15 @@ export const cartItemModel = a
         allow.ownerDefinedIn('owner').to(['create', 'read']),
         allow.publicApiKey().to(['read']),
       ]),
+    storeId: a
+      .string()
+      .required()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('owner').to(['create', 'read']),
+        allow.publicApiKey().to(['read']),
+      ]),
     cart: a.belongsTo('Cart', 'cartId'),
+    store: a.belongsTo('UserStore', 'storeId'),
     productId: a
       .string()
       .required()
@@ -59,7 +67,7 @@ export const cartItemModel = a
         allow.publicApiKey().to(['read']),
       ]),
   })
-  .secondaryIndexes((index) => [index('cartId'), index('productId')])
+  .secondaryIndexes((index) => [index('cartId'), index('productId'), index('storeId')])
   .authorization((allow) => [
     allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
     allow.publicApiKey().to(['read', 'create', 'update', 'delete']),

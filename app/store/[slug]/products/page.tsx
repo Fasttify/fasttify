@@ -1,7 +1,7 @@
 'use client';
 
 import { ProductManager } from '@/app/store/components/product-management/products/pages/ProductManager';
-import { getStoreId } from '@/utils/store-utils';
+import { getStoreId } from '@/utils/client/store-utils';
 import { useParams, usePathname } from 'next/navigation';
 
 export default function StoreProductsPage() {

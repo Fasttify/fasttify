@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/middlewares/auth/auth';
-import { cookiesClient } from '@/utils/AmplifyUtils';
+import { cookiesClient } from '@/utils/client/AmplifyUtils';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Middleware para proteger las rutas de tienda

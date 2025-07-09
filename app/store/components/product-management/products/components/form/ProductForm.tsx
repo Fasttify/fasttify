@@ -15,7 +15,7 @@ import {
 import { useToast } from '@/app/store/context/ToastContext';
 import { useProducts } from '@/app/store/hooks/data/useProducts';
 import { defaultValues, productFormSchema, type ProductFormValues } from '@/lib/zod-schemas/product-schema';
-import { routes } from '@/utils/routes';
+import { routes } from '@/utils/client/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BlockStack, Card, ContextualSaveBar, Form, Layout, Loading, Page, Select, Text } from '@shopify/polaris';
 import { useRouter } from 'next/navigation';

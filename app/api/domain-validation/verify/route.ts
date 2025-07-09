@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CustomDomainService } from '@/lib/services/custom-domain-service';
-import { SecurityConfig } from '@/lib/config/security-config';
+import { CustomDomainService } from '@/tenant-domains/services/custom-domain-service';
+import { SecurityConfig } from '@/tenant-domains/config/security-config';
 import { SecureLogger } from '@/lib/utils/secure-logger';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 

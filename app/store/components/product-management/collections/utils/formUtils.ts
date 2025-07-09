@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useToast } from '@/app/store/context/ToastContext';
-import { IProduct } from '@/app/store/hooks/data/useProducts';
 import { CollectionInput } from '@/app/store/hooks/data/useCollections';
-import { routes } from '@/utils/routes';
+import { IProduct } from '@/app/store/hooks/data/useProducts';
+import { routes } from '@/utils/client/routes';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export interface CollectionFormState {
   title: string;

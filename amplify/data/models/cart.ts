@@ -1,4 +1,4 @@
-import { a } from '@aws-amplify/backend';
+import { a, type ClientSchema } from '@aws-amplify/backend';
 
 export const cartModel = a
   .model({
@@ -41,6 +41,7 @@ export const cartModel = a
         allow.ownerDefinedIn('userId').to(['read']),
         allow.publicApiKey().to(['read', 'update']),
       ]), // Para limpiar carritos abandonados
+    store: a.belongsTo('UserStore', 'storeId'),
   })
   .secondaryIndexes((index) => [index('userId'), index('sessionId'), index('storeId'), index('expiresAt')])
   .authorization((allow) => [

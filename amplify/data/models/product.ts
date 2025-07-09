@@ -41,6 +41,7 @@ export const productModel = a
     collectionId: a.string(),
     supplier: a.string(),
     collection: a.belongsTo('Collection', 'collectionId'),
+    store: a.belongsTo('UserStore', 'storeId'),
     owner: a
       .string()
       .required()

@@ -3,7 +3,7 @@ import { useTemplateUpload } from '@/app/(setup-layout)/first-steps/hooks/useTem
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { personalInfoSchema, storeInfoSchema } from '@/lib/zod-schemas/first-step';
-import { routes } from '@/utils/routes';
+import { routes } from '@/utils/client/routes';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 

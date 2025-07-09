@@ -1,10 +1,10 @@
-import { IndexTable, Text, Thumbnail, TextField, Button, Link, ButtonGroup, Toast } from '@shopify/polaris';
-import { ImageIcon } from '@shopify/polaris-icons';
-import { useState } from 'react';
-import { getStoreId } from '@/utils/store-utils';
-import { useParams, usePathname } from 'next/navigation';
-import { routes } from '@/utils/routes';
 import { useProducts } from '@/app/store/hooks/data/useProducts';
+import { routes } from '@/utils/client/routes';
+import { getStoreId } from '@/utils/client/store-utils';
+import { Button, ButtonGroup, IndexTable, Link, Text, TextField, Thumbnail, Toast } from '@shopify/polaris';
+import { ImageIcon } from '@shopify/polaris-icons';
+import { useParams, usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 export interface InventoryRowProps {
   id: string;
