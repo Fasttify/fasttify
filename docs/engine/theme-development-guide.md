@@ -77,7 +77,6 @@ Tu tema debe seguir la siguiente estructura de directorios:
 Las plantillas JSON, como `index.json` o `collection.json`, actúan como un plano para construir páginas a partir de múltiples secciones. Su estructura principal se compone de dos campos clave: `sections` y `order`.
 
 - **`sections`**: Un objeto donde cada clave es un identificador único para una instancia de sección en la página (ej. `"banner"`, `"featured-products"`). El valor asociado a cada clave define:
-
   - `"type"`: La **ruta completa desde la raíz del tema** al archivo `.liquid` de la sección (ej. `"sections/banner"`). Este mecanismo es genérico y funciona para cualquier archivo Liquid que se desee cargar.
   - `"settings"` (Opcional): Un objeto que permite sobrescribir los valores por defecto definidos en el `{% schema %}` de la sección. Esto te da control a nivel de plantilla sobre la configuración de cada instancia de sección.
 
