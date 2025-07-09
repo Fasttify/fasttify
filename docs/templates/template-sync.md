@@ -111,7 +111,6 @@ mi-tienda-template/
 ## Flujo de trabajo recomendado
 
 1. **Configura** tu entorno de desarrollo:
-
    - Clona las plantillas existentes o crea nuevas
    - Organiza tu estructura de directorios
 
