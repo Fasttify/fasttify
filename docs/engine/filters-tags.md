@@ -265,6 +265,7 @@ Los filtros son funciones simples que modifican la salida de una variable.
 ### Filtros de URL
 
 - `asset_url`: Genera la URL para un archivo estático del tema.
+
   - **Uso**: `{{ 'logo.png' | asset_url }}`
   - **Resultado**: `//cdn.tudominio.com/assets/logo.png`
 
@@ -275,10 +276,12 @@ Los filtros son funciones simples que modifican la salida de una variable.
 ### Filtros de HTML
 
 - `default_pagination`: Renderiza un bloque de paginación simple (enlaces "Anterior" y "Siguiente"). Se aplica al objeto que contiene el `nextToken`.
+
   - **Uso**: `{{ collection | default_pagination }}`
   - **Resultado**: `<div class="pagination"><a href="?token=...">Siguiente</a></div>`
 
 - `stylesheet_tag`: Crea una etiqueta `<link>` completa para una hoja de estilos.
+
   - **Uso**: `{{ 'theme.css' | asset_url | stylesheet_tag }}`
   - **Resultado**: `<link href="..." rel="stylesheet" type="text/css" media="all" />`
 
@@ -295,10 +298,12 @@ Los filtros son funciones simples que modifican la salida de una variable.
 ### Filtros de Texto
 
 - `handleize`: Convierte un string en un "handle" amigable para URL.
+
   - **Uso**: `{{ "¡Mi Súper Artículo!" | handleize }}`
   - **Resultado**: `mi-super-articulo`
 
 - `truncate`: Acorta un texto y añade una elipsis.
+
   - **Uso**: `{{ "Este es un texto muy largo" | truncate: 15, '...' }}`
   - **Resultado**: `Este es un te...`
 
