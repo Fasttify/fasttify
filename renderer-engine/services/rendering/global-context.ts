@@ -19,7 +19,12 @@ export class ContextBuilder {
   /**
    * Crea el contexto completo para el renderizado de Liquid
    */
-  public async createRenderContext(store: any, storeTemplate?: any, cartData?: CartContext): Promise<RenderContext> {
+  public async createRenderContext(
+    store: any,
+    products: any[],
+    storeTemplate?: any,
+    cartData?: CartContext
+  ): Promise<RenderContext> {
     // Construir las partes del contexto
     const shop = this.createShopContext(store);
     const page = this.createPageContext(store);
@@ -33,6 +38,7 @@ export class ContextBuilder {
       page,
       page_title: store.storeName,
       page_description: store.storeDescription || `Tienda online ${store.storeName}`,
+      products,
       linklists,
       cart,
     };
@@ -42,8 +48,8 @@ export class ContextBuilder {
    * Crea el contexto de manera síncrona para compatibilidad hacia atrás
    * @deprecated Usar createRenderContext() (async) en su lugar
    */
-  public async createRenderContextSync(store: any): Promise<RenderContext> {
-    return this.createRenderContext(store);
+  public async createRenderContextSync(store: any, products: any[]): Promise<RenderContext> {
+    return this.createRenderContext(store, products);
   }
 
   /**

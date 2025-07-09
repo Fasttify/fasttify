@@ -23,6 +23,7 @@ export interface RenderContext {
   page: PageContext;
   page_title: string;
   page_description: string;
+  products: ProductContext[];
   linklists?: Record<string, any>; // Navegación compatible con Shopify
   content_for_layout?: string; // Contenido principal de la página
   content_for_header?: string; // Contenido adicional para el <head>

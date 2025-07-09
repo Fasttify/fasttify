@@ -47,8 +47,8 @@ export class DynamicDataLoader {
       const contextData = await buildContextData(storeId, options, loadedData);
 
       return {
-        products: loadedData.products || [],
-        collections: loadedData.collections || [],
+        products: loadedData.products,
+        collections: loadedData.collections,
         contextData,
         metaData: {},
         cartData,

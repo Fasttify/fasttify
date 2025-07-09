@@ -5,7 +5,7 @@ import { errorRenderer } from '@/renderer-engine/services/errors/error-renderer'
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 import { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader';
 import { pageConfig } from '@/renderer-engine/services/page/page-config';
-import { contextBuilder } from '@/renderer-engine/services/rendering/context-builder';
+import { contextBuilder } from '@/renderer-engine/services/rendering/global-context';
 import { metadataGenerator } from '@/renderer-engine/services/rendering/metadata-generator';
 import { sectionRenderer } from '@/renderer-engine/services/rendering/section-renderer';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
@@ -175,8 +175,7 @@ async function loadDataStep(data: RenderingData): Promise<RenderingData> {
 async function buildContextStep(data: RenderingData): Promise<RenderingData> {
   const context = await contextBuilder.createRenderContext(
     data.store!,
-    data.pageData!.products || [],
-    data.pageData!.collections || [],
+    data.pageData!.products,
     data.storeTemplate!,
     data.pageData!.cartData
   );

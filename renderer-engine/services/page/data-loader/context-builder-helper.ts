@@ -133,7 +133,7 @@ const pageContextBuilders: Record<string, PageContextBuilder> = {
   collection: (loadedData) => {
     const baseContext: Record<string, any> = {
       template: 'collection',
-      page_title: 'Colección',
+      page_title: 'Colecciones',
     };
 
     if (loadedData.collection) {
