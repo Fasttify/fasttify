@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { CustomDomainService } from '@/lib/services/custom-domain-service';
-import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/AmplifyUtils';
-import { logger } from '@/renderer-engine/lib/logger';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { logger } from '@/renderer-engine/lib/logger';
+import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
+import { NextRequest, NextResponse } from 'next/server';
 
 const customDomainService = new CustomDomainService();
 

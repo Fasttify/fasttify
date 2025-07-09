@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { fetchAuthSession } from 'aws-amplify/auth/server';
 import {
   getSession,
-  handleAuthenticationMiddleware,
   handleAuthenticatedRedirectMiddleware,
+  handleAuthenticationMiddleware,
 } from '@/middlewares/auth/auth';
-import { runWithAmplifyServerContext } from '@/utils/AmplifyUtils';
+import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
+import { fetchAuthSession } from 'aws-amplify/auth/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Mock de los módulos externos
 jest.mock('aws-amplify/auth/server', () => ({

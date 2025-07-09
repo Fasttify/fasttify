@@ -1,6 +1,6 @@
-import { TokenGenerator, TokenGenerationResult } from '@/lib/services/domain/token-generator';
-import { DNSHTTPVerifier } from '@/lib/services/domain/dns-http-verifier';
-import { SecurityConfig } from '@/lib/config/security-config';
+import { TokenGenerator, TokenGenerationResult } from '@/tenant-domains/services/domain/token-generator';
+import { DNSHTTPVerifier } from '@/tenant-domains/services/domain/dns-http-verifier';
+import { SecurityConfig } from '@/tenant-domains/config/security-config';
 
 export interface DomainValidationResult {
   success: boolean;

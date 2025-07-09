@@ -1,26 +1,26 @@
-import {
-  IndexTable,
-  LegacyCard,
-  useIndexResourceState,
-  Text,
-  Badge,
-  Button,
-  ButtonGroup,
-  Thumbnail,
-  Link as PolarisLink,
-} from '@shopify/polaris';
-import { EditIcon, DeleteIcon, ImageIcon } from '@shopify/polaris-icons';
-import { formatInventory } from '@/app/store/components/product-management/utils/product-utils';
-import type { IProduct } from '@/app/store/hooks/data/useProducts';
 import type { SortField, VisibleColumns } from '@/app/store/components/product-management/products/types/product-types';
-import { getStoreId } from '@/utils/store-utils';
-import { useParams, usePathname } from 'next/navigation';
-import { routes } from '@/utils/routes';
 import {
   formatPrice,
   getStatusText,
   getStatusTone,
 } from '@/app/store/components/product-management/utils/common-utils';
+import { formatInventory } from '@/app/store/components/product-management/utils/product-utils';
+import type { IProduct } from '@/app/store/hooks/data/useProducts';
+import { routes } from '@/utils/client/routes';
+import { getStoreId } from '@/utils/client/store-utils';
+import {
+  Badge,
+  Button,
+  ButtonGroup,
+  IndexTable,
+  LegacyCard,
+  Link as PolarisLink,
+  Text,
+  Thumbnail,
+  useIndexResourceState,
+} from '@shopify/polaris';
+import { DeleteIcon, EditIcon, ImageIcon } from '@shopify/polaris-icons';
+import { useParams, usePathname } from 'next/navigation';
 
 interface ProductTableDesktopProps {
   products: IProduct[];

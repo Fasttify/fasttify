@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { AuthGetCurrentUserServer } from '@/utils/AmplifyUtils'
+import { AuthGetCurrentUserServer } from '@/utils/client/AmplifyUtils'
 import {
-  S3Client,
   CopyObjectCommand,
   ListObjectsV2Command,
   ListObjectsV2CommandOutput,
+  S3Client,
 } from '@aws-sdk/client-s3'
+import { NextRequest, NextResponse } from 'next/server'
 
 interface TemplateRequest {
   storeId: string

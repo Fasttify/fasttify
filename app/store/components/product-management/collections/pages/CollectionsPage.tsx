@@ -1,6 +1,6 @@
 import { useCollections } from '@/app/store/hooks/data/useCollections';
-import { routes } from '@/utils/routes';
-import { getStoreId } from '@/utils/store-utils';
+import { routes } from '@/utils/client/routes';
+import { getStoreId } from '@/utils/client/store-utils';
 import {
   Badge,
   Button,

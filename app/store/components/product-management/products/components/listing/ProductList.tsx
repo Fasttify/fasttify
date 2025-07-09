@@ -1,5 +1,5 @@
 import { handleExportProducts } from '@/app/store/components/product-management/utils/product-utils';
-import { routes } from '@/utils/routes';
+import { routes } from '@/utils/client/routes';
 import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
 import { useRouter } from 'next/navigation';
 

@@ -2,7 +2,7 @@ import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 import type { ProductContext, TemplateError } from '@/renderer-engine/types';
-import { cookiesClient } from '@/utils/AmplifyServer';
+import { cookiesClient } from '@/utils/server/AmplifyServer';
 
 interface PaginationOptions {
   limit?: number;

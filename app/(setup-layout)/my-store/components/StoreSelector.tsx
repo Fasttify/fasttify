@@ -1,16 +1,16 @@
 'use client';
 
+import { getUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Loader } from '@/components/ui/loader';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import { routes } from '@/utils/client/routes';
+import { AnimatePresence, motion } from 'framer-motion';
+import { PlusCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import { getUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores';
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Loader } from '@/components/ui/loader';
-import { routes } from '@/utils/routes';
 
 function getInitials(name: string) {
   return name

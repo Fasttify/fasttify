@@ -1,8 +1,8 @@
-import { CreditCard, User, MonitorSmartphone } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { routes } from '@/utils/client/routes';
+import { CreditCard, MonitorSmartphone, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { routes } from '@/utils/routes';
 
 interface SidebarProps {
   currentView: string;

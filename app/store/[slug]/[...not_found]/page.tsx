@@ -1,6 +1,6 @@
 'use client';
 
-import { routes } from '@/utils/routes';
+import { routes } from '@/utils/client/routes';
 import { Button, EmptyState, Page } from '@shopify/polaris';
 import { use } from 'react';
 

@@ -3,7 +3,7 @@
 import { PolarisLayout } from '@/app/store/components/sidebar/components/PolarisLayout';
 import { ToastProvider } from '@/app/store/context/ToastContext';
 import { useStore } from '@/app/store/hooks/data/useStore';
-import { getStoreId } from '@/utils/store-utils';
+import { getStoreId } from '@/utils/client/store-utils';
 import { AppProvider } from '@shopify/polaris';
 import '@shopify/polaris/build/esm/styles.css';
 import esTranslations from '@shopify/polaris/locales/es.json';
@@ -28,7 +28,6 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   const params = useParams();
   const storeId = getStoreId(params, pathname);
 
-  // Solo cargar los datos de la tienda una vez en el layout principal
   useStore(storeId);
 
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);

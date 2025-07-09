@@ -1,8 +1,8 @@
-import { getStoreId } from '@/utils/store-utils';
-import { useParams, usePathname, useRouter } from 'next/navigation';
-import { routes } from '@/utils/routes';
-import { LegacyCard, Text, Button, EmptyState } from '@shopify/polaris';
+import { routes } from '@/utils/client/routes';
+import { getStoreId } from '@/utils/client/store-utils';
+import { Button, EmptyState, LegacyCard, Text } from '@shopify/polaris';
 import { InventoryIcon } from '@shopify/polaris-icons';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 
 export function InventoryPage() {
   const pathname = usePathname();

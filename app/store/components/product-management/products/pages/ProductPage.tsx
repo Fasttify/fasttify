@@ -1,8 +1,8 @@
-import { useParams } from 'next/navigation';
-import { routes } from '@/utils/routes';
-import { LegacyCard, Text, Button } from '@shopify/polaris';
+import { routes } from '@/utils/client/routes';
+import { Button, LegacyCard, Text } from '@shopify/polaris';
 import { ProductIcon } from '@shopify/polaris-icons';
 import Image from 'next/image';
+import { useParams } from 'next/navigation';
 
 export function ProductsPage() {
   const params = useParams();

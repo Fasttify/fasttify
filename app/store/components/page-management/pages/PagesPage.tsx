@@ -1,6 +1,6 @@
-import { Text, EmptyState, LegacyCard } from '@shopify/polaris';
+import { routes } from '@/utils/client/routes';
+import { EmptyState, LegacyCard, Text } from '@shopify/polaris';
 import { PageIcon } from '@shopify/polaris-icons';
-import { routes } from '@/utils/routes';
 
 export function PagesPage({ storeId }: { storeId: string }) {
   return (

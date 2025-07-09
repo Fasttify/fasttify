@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
 import { fetchAuthSession } from 'aws-amplify/auth/server';
-import { runWithAmplifyServerContext } from '@/utils/AmplifyUtils';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function getSession(request: NextRequest, response: NextResponse) {
   return runWithAmplifyServerContext({

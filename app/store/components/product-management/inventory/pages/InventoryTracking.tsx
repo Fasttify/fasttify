@@ -6,8 +6,8 @@ import InventoryTable, {
   InventoryRowProps,
 } from '@/app/store/components/product-management/inventory/components/InventoryTable';
 import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/ProductPagination';
-import { routes } from '@/utils/routes';
-import { getStoreId } from '@/utils/store-utils';
+import { routes } from '@/utils/client/routes';
+import { getStoreId } from '@/utils/client/store-utils';
 import { Button, EmptyState, LegacyCard, Spinner } from '@shopify/polaris';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';

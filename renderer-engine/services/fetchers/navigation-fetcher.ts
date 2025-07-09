@@ -1,11 +1,11 @@
-import { cookiesClient } from '@/utils/AmplifyServer';
+import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 import type {
   NavigationMenuItem,
   ProcessedNavigationMenu,
   ProcessedNavigationMenuItem,
 } from '@/renderer-engine/types/store';
-import { logger } from '@/renderer-engine/lib/logger';
+import { cookiesClient } from '@/utils/server/AmplifyServer';
 
 interface NavigationMenusResponse {
   menus: ProcessedNavigationMenu[];

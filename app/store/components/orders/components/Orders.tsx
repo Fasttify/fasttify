@@ -1,12 +1,12 @@
 'use client';
 
-import { LegacyCard, Text, LegacyStack, Button, Box } from '@shopify/polaris';
+import { Icons } from '@/app/store/icons';
+import { routes } from '@/utils/client/routes';
+import { getStoreId } from '@/utils/client/store-utils';
+import { Box, Button, LegacyCard, LegacyStack, Text } from '@shopify/polaris';
+import { PackageIcon } from '@shopify/polaris-icons';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
-import { getStoreId } from '@/utils/store-utils';
-import { PackageIcon } from '@shopify/polaris-icons';
-import { Icons } from '@/app/store/icons';
-import { routes } from '@/utils/routes';
 
 export function Orders() {
   const pathname = usePathname();

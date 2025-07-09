@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
 import { PricingDrawer } from '@/app/store/components/store-setup/components/PricingDrawer';
 import useStoreDataStore from '@/context/core/storeDataStore';
-import { getStoreId } from '@/utils/store-utils';
+import { getStoreId } from '@/utils/client/store-utils';
 
 // Import new components
 import { SetupAdBanner } from '@/app/store/components/store-setup/components/ecommerce-setup-parts/SetupAdBanner';
