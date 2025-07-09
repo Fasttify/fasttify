@@ -1,4 +1,4 @@
-import { CustomDomainService } from '@/lib/services/custom-domain-service';
+import { CustomDomainService } from '@/tenant-domains/services/custom-domain-service';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { logger } from '@/renderer-engine/lib/logger';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
