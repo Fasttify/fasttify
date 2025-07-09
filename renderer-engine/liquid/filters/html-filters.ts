@@ -1,20 +1,31 @@
+import { logger } from '@/renderer-engine/lib/logger';
 import type { LiquidFilter } from '@/renderer-engine/types';
 
 /**
  * Filtro asset_url - Para archivos estáticos (CSS, JS, imágenes de tema)
- * NOTA: Este filtro base será sobrescrito dinámicamente en el engine para cada tienda
+ * NOTA: Este filtro es consciente del contexto y genera la URL con el storeId.
  */
 export const assetUrlFilter: LiquidFilter = {
   name: 'asset_url',
-  filter: (filename: string): string => {
+  filter: function (filename: string): string {
     if (!filename) {
       return '';
     }
 
-    // Limpiar el filename
     const cleanFilename = filename.replace(/^\/+/, '');
 
-    // Fallback básico (será sobrescrito por el engine)
+    // Acceder al storeId desde el contexto de LiquidJS
+    const storeId = this.context?.getSync(['shop', 'storeId']);
+
+    if (storeId) {
+      // Esta URL debe apuntar al endpoint que sirve los assets estáticos
+      return `/api/stores/${storeId}/assets/${cleanFilename}`;
+    }
+
+    // Fallback si no hay storeId en el contexto
+    logger.warn(`asset_url: storeId not found in context for ${filename}. Using fallback URL.`, {
+      contextKeys: Object.keys(this.context?.getAll() || {}),
+    });
     return `/assets/${cleanFilename}`;
   },
 };

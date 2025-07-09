@@ -52,32 +52,35 @@
             <!-- Imagen del producto -->
             <div class="product-image-wrapper">
               <a href="{{ product.url }}" class="product-link">
-                {% if product.images.size > 0 %}
-                  <!-- Imagen principal -->
+                {% if product.images.size > 1 %}
+                  <!-- Con imagen secundaria: aplicar clases para el hover -->
                   <img
                     class="product-image product-image-primary"
                     src="{{ product.featured_image | img_url: '600x800' }}"
                     alt="{{ product.title | escape }}"
                     loading="lazy">
-
-                  <!-- Imagen secundaria (hover) -->
-                  {% if product.images.size > 1 %}
-                    <img
-                      class="product-image product-image-secondary"
-                      src="{{ product.images[1] | img_url: '600x800' }}"
-                      alt="{{ product.title | escape }}"
-                      loading="lazy">
-
-                    <!-- Indicador de múltiples imágenes -->
-                    <div class="multiple-images-indicator">
-                      <div class="indicator-dot active"></div>
+                  <img
+                    class="product-image product-image-secondary"
+                    src="{{ product.images[1] | img_url: '600x800' }}"
+                    alt="{{ product.title | escape }}"
+                    loading="lazy">
+                  <!-- Indicador de múltiples imágenes -->
+                  <div class="multiple-images-indicator">
+                    <div class="indicator-dot active"></div>
+                    <div class="indicator-dot"></div>
+                    {% if product.images.size > 2 %}
                       <div class="indicator-dot"></div>
-                      {% if product.images.size > 2 %}
-                        <div class="indicator-dot"></div>
-                      {% endif %}
-                    </div>
-                  {% endif %}
+                    {% endif %}
+                  </div>
+                {% elsif product.images.size > 0 %}
+                  <!-- Con una sola imagen: sin clases de hover -->
+                  <img
+                    class="product-image"
+                    src="{{ product.featured_image | img_url: '600x800' }}"
+                    alt="{{ product.title | escape }}"
+                    loading="lazy">
                 {% else %}
+                  <!-- Placeholder si no hay imágenes -->
                   <div class="product-placeholder">
                     <div class="placeholder-content">
                       <svg
@@ -100,7 +103,7 @@
               <!-- Product Badges -->
               <div class="product-badges">
                 {% comment %} Determinar qué badge mostrar basado en las tags del producto {% endcomment %}
-                {% if product.tags contains 'new' or product.created_at > 'now' | date: '%s' | minus: 2592000 %}
+                {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
                   <span class="product-badge badge-new">NEW</span>
                 {% elsif product.tags contains 'bestseller' %}
                   <span class="product-badge badge-bestseller">BESTSELLER</span>

@@ -1,6 +1,6 @@
-import type { RenderContext, ShopContext, PageContext, CartContext } from '@/renderer-engine/types';
-import { flexibleLinkListService, linkListService } from '@/renderer-engine/services/core/navigation-service';
 import { logger } from '@/renderer-engine/lib/logger';
+import { flexibleLinkListService, linkListService } from '@/renderer-engine/services/core/navigation-service';
+import type { CartContext, PageContext, RenderContext, ShopContext } from '@/renderer-engine/types';
 
 /**
  * Formatos de moneda soportados
@@ -19,15 +19,9 @@ export class ContextBuilder {
   /**
    * Crea el contexto completo para el renderizado de Liquid
    */
-  public async createRenderContext(
-    store: any,
-    featuredProducts: any[],
-    collections: any[],
-    storeTemplate?: any,
-    cartData?: CartContext
-  ): Promise<RenderContext> {
+  public async createRenderContext(store: any, storeTemplate?: any, cartData?: CartContext): Promise<RenderContext> {
     // Construir las partes del contexto
-    const shop = this.createShopContext(store, collections);
+    const shop = this.createShopContext(store);
     const page = this.createPageContext(store);
     const cart = cartData || this.createEmptyCart();
     const linklists = await this.createLinkLists(store.storeId, storeTemplate);
@@ -39,8 +33,6 @@ export class ContextBuilder {
       page,
       page_title: store.storeName,
       page_description: store.storeDescription || `Tienda online ${store.storeName}`,
-      products: featuredProducts,
-      collections,
       linklists,
       cart,
     };
@@ -50,18 +42,14 @@ export class ContextBuilder {
    * Crea el contexto de manera síncrona para compatibilidad hacia atrás
    * @deprecated Usar createRenderContext() (async) en su lugar
    */
-  public async createRenderContextSync(
-    store: any,
-    featuredProducts: any[],
-    collections: any[]
-  ): Promise<RenderContext> {
-    return this.createRenderContext(store, featuredProducts, collections);
+  public async createRenderContextSync(store: any): Promise<RenderContext> {
+    return this.createRenderContext(store);
   }
 
   /**
    * Crea el contexto de la tienda
    */
-  private createShopContext(store: any, collections: any[]): ShopContext {
+  private createShopContext(store: any): ShopContext {
     const currency = store.storeCurrency || 'COP';
     const moneyFormat = CURRENCY_FORMATS[currency] || '${{amount}}';
 
@@ -80,7 +68,6 @@ export class ContextBuilder {
       theme: store.storeTheme || 'modern',
       favicon: store.storeFavicon,
       storeId: store.storeId,
-      collections,
     };
   }
 

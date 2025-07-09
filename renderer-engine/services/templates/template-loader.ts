@@ -1,6 +1,8 @@
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import type { TemplateCache, TemplateError } from '@/renderer-engine/types';
+import { liquidEngine } from '@/renderer-engine/liquid/engine';
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import type { TemplateCache, TemplateError } from '@/renderer-engine/types';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import type { Template } from 'liquidjs';
 
 class TemplateLoader {
   private static instance: TemplateLoader;
@@ -8,6 +10,7 @@ class TemplateLoader {
   private readonly bucketName: string;
   private readonly cloudFrontDomain: string;
   private readonly isProduction: boolean;
+  private ongoingRequests: Map<string, Promise<any>> = new Map();
 
   private constructor() {
     this.bucketName = process.env.BUCKET_NAME || '';
@@ -30,18 +33,60 @@ class TemplateLoader {
   }
 
   /**
+   * Carga una plantilla compilada, optimizado para renderizado.
+   * Usa un cache para plantillas ya compiladas.
+   */
+  public async loadCompiledTemplate(storeId: string, templatePath: string): Promise<Template[]> {
+    const compiledCacheKey = `compiled_template_${storeId}_${templatePath}`;
+    const cachedCompiled = cacheManager.getCached(compiledCacheKey) as Template[] | null;
+    if (cachedCompiled) {
+      return cachedCompiled;
+    }
+
+    // Obtener contenido raw usando el método existente (que ya tiene su propio cache)
+    const rawContent = await this.loadTemplate(storeId, templatePath);
+
+    // Compilar
+    const compiledTemplate = liquidEngine.parse(rawContent);
+
+    // Guardar en cache la versión compilada
+    const cacheTTL = cacheManager.getAppropiateTTL('template');
+    cacheManager.setCached(compiledCacheKey, compiledTemplate, cacheTTL);
+
+    return compiledTemplate;
+  }
+
+  /**
    * Carga una plantilla específica desde S3 o CloudFront
    */
   public async loadTemplate(storeId: string, templatePath: string): Promise<string> {
-    // Check cache first - Fast path
     const cacheKey = `template_${storeId}_${templatePath}`;
+
+    // Unificación de peticiones: si ya hay una en vuelo, usarla (SOLO EN PRODUCCIÓN)
+    if (this.isProduction && this.ongoingRequests.has(cacheKey)) {
+      return this.ongoingRequests.get(cacheKey);
+    }
+
     const cached = cacheManager.getCached(cacheKey) as TemplateCache | null;
     if (cached) {
       return cached.content;
     }
 
-    let content: string;
+    const promise = this.fetchTemplateFromSource(storeId, templatePath, cacheKey);
 
+    // Registrar la promesa en vuelo (SOLO EN PRODUCCIÓN)
+    if (this.isProduction) {
+      this.ongoingRequests.set(cacheKey, promise);
+      promise.finally(() => {
+        this.ongoingRequests.delete(cacheKey);
+      });
+    }
+
+    return promise;
+  }
+
+  private async fetchTemplateFromSource(storeId: string, templatePath: string, cacheKey: string): Promise<string> {
+    let content: string;
     try {
       // Usar CloudFront en producción para mejor rendimiento
       if (this.isProduction && this.cloudFrontDomain) {
@@ -102,6 +147,13 @@ class TemplateLoader {
   }
 
   /**
+   * Carga layout principal compilado.
+   */
+  public async loadMainLayoutCompiled(storeId: string): Promise<Template[]> {
+    return this.loadCompiledTemplate(storeId, 'layout/theme.liquid');
+  }
+
+  /**
    * Carga sección específica - Optimizado para velocidad
    */
   public async loadSection(storeId: string, sectionName: string): Promise<string> {
@@ -110,10 +162,17 @@ class TemplateLoader {
   }
 
   /**
+   * Carga una sección compilada.
+   */
+  public async loadSectionCompiled(storeId: string, sectionName: string): Promise<Template[]> {
+    const fileName = sectionName.endsWith('.liquid') ? sectionName : `${sectionName}.liquid`;
+    return this.loadCompiledTemplate(storeId, `sections/${fileName}`);
+  }
+
+  /**
    * Carga asset optimizado para velocidad
    */
   public async loadAsset(storeId: string, assetPath: string): Promise<Buffer> {
-    // Check cache first - Fast path
     const cacheKey = `asset_${storeId}_${assetPath}`;
     const cached = cacheManager.getCached(cacheKey) as TemplateCache | null;
     if (cached) {
@@ -173,13 +232,14 @@ class TemplateLoader {
     }
   }
 
-  // Cache management methods - Simplified
   public invalidateStoreCache(storeId: string): void {
     cacheManager.invalidateStoreCache(storeId);
   }
 
   public invalidateTemplateCache(storeId: string, templatePath: string): void {
+    // Invalidar tanto el cache de contenido raw como el compilado
     cacheManager.setCached(`template_${storeId}_${templatePath}`, null, 0);
+    cacheManager.setCached(`compiled_template_${storeId}_${templatePath}`, null, 0);
   }
 
   public clearCache(): void {
@@ -187,8 +247,6 @@ class TemplateLoader {
   }
 }
 
-// Export singleton instance
 export const templateLoader = TemplateLoader.getInstance();
 
-// Export class for testing
 export { TemplateLoader };

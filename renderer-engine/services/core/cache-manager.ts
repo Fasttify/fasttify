@@ -1,3 +1,5 @@
+import { logger } from '@/renderer-engine/lib/logger';
+
 interface DataCache {
   [key: string]: {
     data: any;
@@ -65,15 +67,18 @@ export class CacheManager {
   public getCached(key: string): any | null {
     const entry = this.cache[key];
     if (!entry) {
+      logger.debug(`[CACHE MISS] Key: ${key}`);
       return null;
     }
 
     const now = Date.now();
     if (now > entry.timestamp + entry.ttl) {
+      logger.debug(`[CACHE EXPIRED] Key: ${key}`);
       delete this.cache[key];
       return null;
     }
 
+    logger.debug(`[CACHE HIT] Key: ${key}`);
     return entry.data;
   }
 
@@ -86,6 +91,7 @@ export class CacheManager {
       ttl = this.DEV_TEMPLATE_CACHE_TTL;
     }
 
+    logger.debug(`[CACHE SET] Key: ${key}, TTL: ${ttl}ms`);
     this.cache[key] = {
       data,
       timestamp: Date.now(),

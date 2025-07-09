@@ -11,6 +11,7 @@ import { sectionRenderer } from '@/renderer-engine/services/rendering/section-re
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import type { RenderResult, ShopContext, TemplateError } from '@/renderer-engine/types';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
+import type { Template } from 'liquidjs';
 
 /**
  * Tipo para pasos del pipeline de renderizado
@@ -26,10 +27,12 @@ interface RenderingData {
   searchParams: Record<string, string>;
   store?: any;
   layout?: string;
+  compiledLayout?: Template[];
   pageData?: any;
   storeTemplate?: any;
   context?: any;
   pageTemplate?: string;
+  compiledPageTemplate?: Template[];
   renderedContent?: string;
   html?: string;
   metadata?: any;
@@ -137,13 +140,19 @@ async function loadDataStep(data: RenderingData): Promise<RenderingData> {
   logger.info(`Using dynamic data loading for ${data.options.pageType}`, 'DynamicPageRenderer');
 
   const templatePath = pageConfig.getTemplatePath(data.options.pageType);
+  const isJsonTemplate = templatePath.endsWith('.json');
 
   // Cargar todo en paralelo para máximo rendimiento
-  const [layout, pageData, storeTemplate, pageTemplate] = await Promise.all([
+  const [layout, compiledLayout, pageData, storeTemplate, pageTemplate, compiledPageTemplate] = await Promise.all([
     templateLoader.loadMainLayout(data.store!.storeId),
+    templateLoader.loadMainLayoutCompiled(data.store!.storeId),
     dynamicDataLoader.loadDynamicData(data.store!.storeId, data.options, data.searchParams),
     dataFetcher.getStoreNavigationMenus(data.store!.storeId),
     templateLoader.loadTemplate(data.store!.storeId, templatePath),
+    // Solo cargar compilado si no es JSON, para no lanzar error innecesario
+    isJsonTemplate
+      ? Promise.resolve(undefined)
+      : templateLoader.loadCompiledTemplate(data.store!.storeId, templatePath),
   ]);
 
   // Log del análisis dinámico para debugging
@@ -157,7 +166,7 @@ async function loadDataStep(data: RenderingData): Promise<RenderingData> {
     'DynamicPageRenderer'
   );
 
-  return { ...data, layout, pageData, storeTemplate, pageTemplate };
+  return { ...data, layout, compiledLayout, pageData, storeTemplate, pageTemplate, compiledPageTemplate };
 }
 
 /**
@@ -201,6 +210,7 @@ async function renderContentStep(data: RenderingData): Promise<RenderingData> {
   const renderedContent = await renderPageContent(
     templatePath,
     data.pageTemplate!,
+    data.compiledPageTemplate,
     data.context!,
     data.store!.storeId,
     data.options,
@@ -219,11 +229,7 @@ async function renderLayoutStep(data: RenderingData): Promise<RenderingData> {
   (data.context as any).content_for_layout = data.renderedContent!;
   (data.context as any).content_for_header = metadataGenerator.generateHeadContent(data.store!);
 
-  const htmlRaw = await liquidEngine.render(
-    data.layout!,
-    data.context!,
-    `${data.options.pageType}_${data.store!.storeId}`
-  );
+  const htmlRaw = await liquidEngine.renderCompiled(data.compiledLayout!, data.context!);
 
   const html = injectAssets(htmlRaw, liquidEngine.assetCollector);
 
@@ -247,6 +253,7 @@ async function generateMetadataStep(data: RenderingData): Promise<RenderingData>
 async function renderPageContent(
   templatePath: string,
   pageTemplate: string,
+  compiledPageTemplate: Template[] | undefined,
   context: any,
   storeId: string,
   options: PageRenderOptions,
@@ -256,7 +263,10 @@ async function renderPageContent(
     const templateConfig = JSON.parse(pageTemplate.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1'));
     return await renderSectionsFromConfig(templateConfig, storeId, context, storeTemplate);
   } else {
-    return await liquidEngine.render(pageTemplate, context, `${options.pageType}_${storeId}`);
+    if (!compiledPageTemplate) {
+      throw new Error(`Compiled template for ${templatePath} not loaded`);
+    }
+    return await liquidEngine.renderCompiled(compiledPageTemplate, context);
   }
 }
 
