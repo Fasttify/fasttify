@@ -12,7 +12,7 @@ jest.mock('aws-amplify/auth/server', () => ({
   fetchAuthSession: jest.fn(),
 }));
 
-jest.mock('@/utils/AmplifyUtils', () => ({
+jest.mock('@/utils/client/AmplifyUtils', () => ({
   runWithAmplifyServerContext: jest.fn(),
 }));
 
