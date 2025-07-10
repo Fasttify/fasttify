@@ -104,11 +104,9 @@ Al implementar paginación, verificar:
 Aunque descubrimos esta solución, se consideraron otros enfoques:
 
 1. **Estrategia N+1**: Solicitar un elemento extra para detectar la última página
-
    - **Por qué se rechazó**: Agrega complejidad y llamadas API adicionales
 
 2. **Lógica de comparación de tokens**: Validación compleja en plantillas
-
    - **Por qué se rechazó**: Hace las plantillas más difíciles de mantener
 
 3. **Normalización en backend**: Procesar tokens del lado del servidor
