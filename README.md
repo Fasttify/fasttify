@@ -122,7 +122,13 @@ cd fasttify
 
 # Instalar dependencias
 npm install
+
+# O si hay conflictos con React 19 y Shopify Polaris:
+npm run install:legacy
 ```
+
+> [!NOTE]
+> **Nota sobre dependencias**: El proyecto usa React 19, pero Shopify Polaris aún no tiene soporte oficial para esta versión. Utilizamos `--legacy-peer-deps` como solución temporal hasta que Shopify lance una versión compatible.
 
 ### **2. Configurar AWS Amplify**
 
