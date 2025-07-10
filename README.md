@@ -3,6 +3,7 @@
 **Plataforma SaaS completa para crear y gestionar tiendas online con motor de plantillas Liquid avanzado**
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Fasttify/fasttify)
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.2-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7.3-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![AWS Amplify](https://img.shields.io/badge/AWS%20Amplify-Gen2-orange?logo=aws&logoColor=white)](https://aws.amazon.com/amplify/)
 [![LiquidJS](https://img.shields.io/badge/LiquidJS-10.21.1-blue?logo=liquid&logoColor=white)](https://liquidjs.com/)
@@ -67,6 +68,7 @@ Fasttify es una **plataforma SaaS avanzada** que permite a emprendedores crear, 
 
 ```
 Next.js 15 (App Router)
+├── React 18.3.1
 ├── TypeScript 5.7.3
 ├── Tailwind CSS 3.4.17
 ├── Shopify Polaris 13.9.5
@@ -122,13 +124,7 @@ cd fasttify
 
 # Instalar dependencias
 npm install
-
-# O si hay conflictos con React 19 y Shopify Polaris:
-npm run install:legacy
 ```
-
-> [!NOTE]
-> **Nota sobre dependencias**: El proyecto usa React 19, pero Shopify Polaris aún no tiene soporte oficial para esta versión. Utilizamos `--legacy-peer-deps` como solución temporal hasta que Shopify lance una versión compatible.
 
 ### **2. Configurar AWS Amplify**
 
