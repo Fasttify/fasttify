@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
+import { useAuth } from '@/app/(setup-layout)/login/hooks/SignIn';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Loader } from '@/components/ui/loader';
 import { signInSchema, type SignInFormData } from '@/lib/zod-schemas/schemas';
-import { useAuth } from '@/app/(setup-layout)/login/hooks/SignIn';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface SignInFormProps {
   onForgotPassword: () => void;
@@ -25,7 +25,7 @@ export function SignInForm({ onForgotPassword, onVerificationNeeded, redirectPat
     onVerificationNeeded,
   });
 
-  const form = useForm<SignInFormData>({
+  const form = useForm({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: '',
