@@ -75,8 +75,8 @@
       },
       {
         "label": "Términos y condiciones",
-        "pageHandle": "policies",
-        "type": "page",
+        "url": "/policies",
+        "type": "internal",
         "isVisible": true,
         "target": "_self",
         "sortOrder": 4

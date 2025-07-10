@@ -9,7 +9,7 @@ import { SectionTag } from '@/renderer-engine/liquid/tags/section-tag';
 import { StyleTag, StylesheetTag } from '@/renderer-engine/liquid/tags/style-tag';
 import { AssetCollector } from '@/renderer-engine/services/rendering/asset-collector';
 import type { LiquidContext, LiquidEngineConfig, TemplateError } from '@/renderer-engine/types';
-import { Liquid } from 'liquidjs';
+import { Liquid, Template } from 'liquidjs';
 
 class LiquidEngine {
   private static instance: LiquidEngine;
@@ -62,28 +62,21 @@ class LiquidEngine {
   }
 
   /**
+   * Parsea un template string a una estructura compilada (AST).
+   * @param templateContent - El contenido del template como string.
+   * @returns La plantilla compilada (un array de nodos AST).
+   */
+  public parse(templateContent: string): Template[] {
+    return this.liquid.parse(templateContent);
+  }
+
+  /**
    * Registra filtros personalizados
    */
   private registerFilters(): void {
     allFilters.forEach(({ name, filter }) => {
       this.liquid.registerFilter(name, filter);
     });
-  }
-
-  /**
-   * Registra filtros específicos por store (optimizado)
-   */
-  private registerStoreFilters(storeId: string): void {
-    if (this.currentStoreId === storeId) return;
-
-    // Registrar asset_url con storeId específico
-    this.liquid.registerFilter('asset_url', (filename: string) => {
-      if (!filename) return '';
-      const cleanFilename = filename.replace(/^\/+/, '');
-      return `/api/stores/${storeId}/assets/${cleanFilename}`;
-    });
-
-    this.currentStoreId = storeId;
   }
 
   /**
@@ -103,22 +96,39 @@ class LiquidEngine {
   }
 
   /**
+   * Renderiza un template ya compilado con un contexto.
+   * Este es el método optimizado que se saltará el parseo.
+   * @param compiledTemplate - La plantilla pre-compilada desde el método parse().
+   * @param context - El contexto de datos para el renderizado.
+   * @returns El HTML renderizado como string.
+   */
+  public async renderCompiled(compiledTemplate: Template[], context: LiquidContext): Promise<string> {
+    try {
+      return await this.liquid.render(compiledTemplate, context);
+    } catch (error) {
+      const templateError: TemplateError = {
+        type: 'RENDER_ERROR',
+        message: `Compiled template rendering failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        details: error,
+        statusCode: 500,
+      };
+      throw templateError;
+    }
+  }
+
+  /**
    * Renderiza template con contexto (método principal optimizado)
    */
   public async render(templateContent: string, context: LiquidContext, templatePath?: string): Promise<string> {
     try {
-      // Registrar filtros de store si es necesario
-      const storeId = context?.storeId || context?.store?.storeId || context?.shop?.storeId;
-      if (storeId) {
-        this.registerStoreFilters(storeId);
-      }
-
       // Renderizar directamente (LiquidJS optimiza internamente)
       return await this.liquid.parseAndRender(templateContent, context);
     } catch (error) {
       const templateError: TemplateError = {
         type: 'RENDER_ERROR',
-        message: `Template rendering failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        message: `Error rendering template ${templatePath || ''}: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
         details: error,
         statusCode: 500,
       };

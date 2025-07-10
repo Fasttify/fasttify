@@ -17,7 +17,7 @@ export interface LiquidEngineConfig {
 
 export interface LiquidFilter {
   name: string;
-  filter: (...args: any[]) => any;
+  filter: (this: { context: any }, ...args: any[]) => any;
 }
 
 export interface LiquidTag {
