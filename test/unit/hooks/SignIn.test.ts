@@ -1,6 +1,18 @@
-import { renderHook, act } from '@testing-library/react';
 import { useAuth } from '@/app/(setup-layout)/login/hooks/SignIn';
-import { signIn, resendSignUpCode } from 'aws-amplify/auth';
+import { act, renderHook } from '@testing-library/react';
+import { resendSignUpCode, signIn } from 'aws-amplify/auth';
+
+// Mock de useRouter de Next.js
+const mockPush = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn(),
+    replace: jest.fn(),
+  }),
+}));
 
 // Mock de los módulos de AWS Amplify
 jest.mock('aws-amplify/auth', () => ({
@@ -17,11 +29,6 @@ jest.mock('aws-amplify', () => ({
 describe('useAuth hook', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock window.location.href
-    Object.defineProperty(window, 'location', {
-      value: { href: '' },
-      writable: true,
-    });
   });
 
   test('should handle successful login', async () => {
@@ -45,7 +52,7 @@ describe('useAuth hook', () => {
     expect(result.current.isAuthenticated).toBe(true);
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
-    expect(window.location.href).toBe('/dashboard');
+    expect(mockPush).toHaveBeenCalledWith('/dashboard');
   });
 
   test('should handle unconfirmed user', async () => {
