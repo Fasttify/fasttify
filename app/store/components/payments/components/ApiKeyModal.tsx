@@ -31,7 +31,7 @@ export function ApiKeyModal({ open, onOpenChange, onSubmit, gateway }: ApiKeyMod
       const validation = schema.safeParse(values);
 
       if (!validation.success) {
-        const errors = validation.error.errors.map((err) => ({
+        const errors = validation.error.issues.map((err) => ({
           message: err.message,
           field: [err.path[0].toString()],
         }));

@@ -2,7 +2,7 @@ import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import chokidar from 'chokidar';
+import * as chokidar from 'chokidar';
 import fs from 'fs';
 import path from 'path';
 
