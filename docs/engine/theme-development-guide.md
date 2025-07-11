@@ -80,6 +80,43 @@ Las plantillas JSON, como `index.json` o `collection.json`, actúan como un plan
   - `"type"`: La **ruta completa desde la raíz del tema** al archivo `.liquid` de la sección (ej. `"sections/banner"`). Este mecanismo es genérico y funciona para cualquier archivo Liquid que se desee cargar.
   - `"settings"` (Opcional): Un objeto que permite sobrescribir los valores por defecto definidos en el `{% schema %}` de la sección. Esto te da control a nivel de plantilla sobre la configuración de cada instancia de sección.
 
+    #### Configuración de Paginación en las Secciones
+
+    Para controlar la paginación de colecciones o productos, debes definir el límite de ítems por página (como `products_per_page` o `collections_per_page`) dentro del bloque `settings` de la sección en tu archivo JSON de plantilla. El motor detectará estos IDs y los usará para cargar los datos paginados para ese recurso.
+
+    _Ejemplo de `templates/index.json` con configuración de paginación para colecciones en la sección `home-collections`:_
+
+    ```json
+    {
+      "sections": {
+        "home-collections": {
+          "type": "sections/home-collections",
+          "settings": {
+            "type": "number",
+            "id": "collections_per_page",
+            "label": "Collections per page",
+            "default": 12
+          }
+        }
+      },
+      "order": ["home-collections"]
+    }
+    ```
+
+    En este ejemplo:
+    - `collections_per_page`: Es el `id` (identificador) que el motor buscará dentro de `settings` para determinar el límite de paginación para las colecciones en esta sección.
+    - Otros IDs como `products_per_page` se manejarán de manera similar para productos.
+    - `type` es el tipo de campo que se va a mostrar en el editor de temas.
+    - `id` es el identificador del campo.
+    - `label` es el label del campo.
+    - `default` es el valor por defecto del campo.
+
+    **Importante:** Para cada tipo de recurso (ej. productos, colecciones) en una página, solo se debe definir **un único límite de paginación**. Si defines, por ejemplo, `products_per_page` en varias secciones de la misma página, el motor priorizará el último valor encontrado, lo que puede llevar a resultados inesperados. Es crucial evitar duplicar estas configuraciones para un mismo recurso dentro del mismo archivo JSON de plantilla.
+
+    **Además, solo se permite un único tag `{% paginate %}` por tipo de recurso (productos o colecciones) por página.** Si necesitas mostrar una lista limitada de ítems sin paginación, consulta la guía "Cómo Mostrar un Número Específico de Ítems sin Paginación".
+
+    **¡Importante! Uso de límites pares**: Es crucial que los límites de paginación (ej. `products_per_page`, `collections_per_page`) que configures en el JSON de tu plantilla sean **números pares**. Esto se debe a una limitación conocida en la paginación con `nextToken` en Amplify Gen 2, que puede causar que el botón "Siguiente" aparezca incorrectamente en la última página si se usan límites impares.
+
 - **`order`**: Un array de strings que define el orden exacto en que se renderizarán las secciones.
   - **Es un campo obligatorio**: Cada plantilla `.json` debe tener un array `order`, incluso si solo contiene un elemento.
   - Los strings en el array deben corresponder a las claves (identificadores únicos) definidas en el objeto `sections`.
@@ -785,10 +822,16 @@ Similar a `{% style %}`, pero para JavaScript. El código se agrupa y se inyecta
 Facilita la paginación de colecciones y productos. Nuestro motor utiliza una paginación basada en tokens para un rendimiento superior.
 
 **Importante:** El motor solo soporta la paginación de colecciones y productos. No se puede paginar en otras secciones.
-tambien puedes usar el filtro `default_pagination` para mostrar el paginador de manera predeterminada. Opcionalmente puedes usar el filtro `paginate` para mostrar el paginador de manera personalizada. ejemplo:
+Ahora, la etiqueta `{% paginate %}` **es pasiva y ya no requiere la cláusula `by number`**. La cantidad de ítems por página se define en el `schema` del template JSON (por ejemplo, en `templates/collection.json` o en la sección que contenga la lista de productos/colecciones).
+
+**Solo se permite un único tag `{% paginate %}` por tipo de recurso (productos o colecciones) por página.** Si necesitas mostrar una lista limitada de ítems sin paginación, consulta la guía "Cómo Mostrar un Número Específico de Ítems sin Paginación".
+
+Puedes usar el filtro `default_pagination` para mostrar el paginador de manera predeterminada, o acceder directamente al objeto `paginate` para construir un paginador personalizado.
+
+**Ejemplo: Paginación personalizada de productos**
 
 ```liquid
-{% paginate collection.products by 12 %}
+{% paginate collection.products %}
 {% if paginate.previous or paginate.next %}
       <nav class="custom-pagination" aria-label="Paginación">
         {% if paginate.previous %}
@@ -809,7 +852,6 @@ tambien puedes usar el filtro `default_pagination` para mostrar el paginador de 
       </nav>
     {% endif %}
 {% endpaginate %}
-
 ```
 
 ### `{% form 'type', object %}`

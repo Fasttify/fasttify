@@ -25,10 +25,10 @@ El motor de renderizado utiliza **Liquid** como lenguaje de plantillas, extendid
 
 ### Características Principales
 
-**Compatibilidad con Shopify**: Sintaxis familiar para desarrolladores  
-**Renderizado Dinámico**: Determina automáticamente qué datos cargar  
-**Sistema de Caché**: Optimizado para performance  
-**Assets Inteligentes**: Combina y optimiza CSS/JS automáticamente  
+**Compatibilidad con Shopify**: Sintaxis familiar para desarrolladores
+**Renderizado Dinámico**: Determina automáticamente qué datos cargar
+**Sistema de Caché**: Optimizado para performance
+**Assets Inteligentes**: Combina y optimiza CSS/JS automáticamente
 **Multi-tenant**: Soporte completo para múltiples tiendas
 
 ---
@@ -143,7 +143,7 @@ Disponible en páginas de colección:
 
 <!-- Productos de la colección -->
 <div class="product-grid">
-  {% paginate collection.products by 12 %}
+  {% paginate collection.products %}
     {% for product in collection.products %}
       {% render 'product-card', product: product %}
     {% endfor %}
@@ -181,16 +181,18 @@ Información del carrito de compras:
 
 ### `{% paginate %}`
 
-La etiqueta más importante para paginación. **Inteligente**: solo carga los datos de la página actual.
+La etiqueta fundamental para la paginación. **Ahora es pasiva y no especifica el límite de ítems por página directamente**. El motor inyecta un objeto `paginate` global que contiene toda la información de paginación (incluyendo el límite, que se define en el `schema` del template JSON de la página).
+
+**¡Importante! Uso de límites pares**: Es crucial que los límites de paginación (ej. `products_per_page`, `collections_per_page`) que configures en el `schema` del JSON de tu plantilla sean **números pares**. Esto se debe a una limitación conocida en la paginación con `nextToken` en Amplify Gen 2, que puede causar que el botón "Siguiente" aparezca incorrectamente en la última página si se usan límites impares.
 
 ```liquid
 {% comment %}
-  Sintaxis: {% paginate expression by number %}
+  Sintaxis: {% paginate expression %}
   - expression: collection.products, search.results, etc.
-  - number: items por página
+  - La cantidad de ítems por página se configura en el schema del template JSON (ej: templates/collection.json o templates/product.json).
 {% endcomment %}
 
-{% paginate collection.products by 12 %}
+{% paginate collection.products %}
   <div class="product-grid">
     {% for product in collection.products %}
       <div class="product-card">
@@ -202,7 +204,7 @@ La etiqueta más importante para paginación. **Inteligente**: solo carga los da
   </div>
 
   <!-- Controles de paginación automáticos -->
-  {{ collection | default_pagination }}
+  {{ paginate | default_pagination }}
 {% endpaginate %}
 ```
 
@@ -811,7 +813,7 @@ cacheManager.invalidateTemplateCache(templatePath);
   </div>
 
   <!-- Productos con paginación -->
-  {% paginate collection.products by 24 %}
+  {% paginate collection.products %}
     {% if collection.products.size > 0 %}
       <div class="product-grid">
         {% for product in collection.products %}
@@ -917,7 +919,7 @@ Error: TEMPLATE_NOT_FOUND
 1. **Usar paginación siempre**:
 
 ```liquid
-{% paginate collection.products by 24 %}
+{% paginate collection.products %}
   <!-- contenido -->
 {% endpaginate %}
 ```

@@ -3,6 +3,7 @@ import type { TemplateAnalysis } from '@/renderer-engine/services/templates/temp
 import { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
+import { extractPaginationLimitFromTemplate } from '@/renderer-engine/services/page/data-loader/pagination-limit-extractor';
 
 /**
  * Tipo para cargadores de templates
@@ -22,6 +23,13 @@ const templatePaths: Record<string, string> = {
   search: 'templates/search.json',
   '404': 'templates/404.json',
 };
+
+/**
+ * Obtiene el path de la plantilla según el tipo de página.
+ */
+function getTemplatePath(pageType: string): string {
+  return templatePaths[pageType] || `templates/${pageType}.json`;
+}
 
 /**
  * Cargadores declarativos para diferentes tipos de templates
@@ -78,11 +86,15 @@ export async function analyzeRequiredTemplates(storeId: string, options: PageRen
 
     const analysis = await templateAnalyzer.analyzeTemplateSet(storeId, allTemplates);
 
+    // PASO 2 (simplificado): Extraer el límite de paginación del schema del propio template JSON.
+    extractPaginationLimitFromTemplate(allTemplates, options, analysis);
+
     logger.debug(
       `Template analysis completed for ${options.pageType}`,
       {
         requiredData: Array.from(analysis.requiredData.keys()),
         hasPagination: analysis.hasPagination,
+        paginationLimit: (analysis as any).paginationLimit,
         dependencies: analysis.dependencies.length,
         templatesLoaded: Object.keys(allTemplates).length,
       },
@@ -148,13 +160,6 @@ function extractPageSectionNames(pageTemplate: string): string[] {
     logger.warn('Error parsing page template JSON', error, 'TemplateAnalyzer');
     return [];
   }
-}
-
-/**
- * Obtiene el path de la plantilla según el tipo de página.
- */
-function getTemplatePath(pageType: string): string {
-  return templatePaths[pageType] || `templates/${pageType}.json`;
 }
 
 /**

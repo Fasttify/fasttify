@@ -258,3 +258,20 @@ export interface PageRenderOptions {
   collectionHandle?: string; //  Handle de la colección para URLs jerárquicas (/collections/handle/products/handle)
   searchQuery?: string; // Para páginas de búsqueda
 }
+
+export interface PaginationInfo {
+  next?: {
+    url: string;
+  };
+  previous?: {
+    title: string;
+    url: string;
+  };
+  totalItems?: number;
+  itemsPerPage?: number;
+  currentPage?: number;
+  pages?: number;
+  nextToken?: string;
+  previousToken?: string;
+  items?: any[];
+}

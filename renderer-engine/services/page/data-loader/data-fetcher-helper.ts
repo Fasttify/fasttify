@@ -5,7 +5,7 @@ import type {
   DataRequirement,
   TemplateAnalysis,
 } from '@/renderer-engine/services/templates/template-analyzer';
-import type { PageRenderOptions } from '@/renderer-engine/types/template';
+import type { PageRenderOptions, PaginationInfo } from '@/renderer-engine/types/template';
 
 /**
  * Tipo para las funciones handlers de datos
@@ -19,7 +19,7 @@ type ResponseProcessor = (
   data: any,
   dataType: DataRequirement,
   loadedData: Record<string, any>,
-  paginationInfo: { nextToken?: string; totalCount?: number }
+  paginationInfo: PaginationInfo
 ) => void;
 
 /**
@@ -243,7 +243,7 @@ const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
     if (typeof data === 'object' && 'products' in data) {
       loadedData[dataType] = data.products;
       if (data.nextToken) paginationInfo.nextToken = data.nextToken;
-      if (data.totalCount) paginationInfo.totalCount = data.totalCount;
+      if (data.totalCount) paginationInfo.totalItems = data.totalCount;
     } else {
       loadedData[dataType] = data;
     }
@@ -253,7 +253,7 @@ const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
     if (typeof data === 'object' && 'collections' in data) {
       loadedData[dataType] = data.collections;
       if (data.nextToken) paginationInfo.nextToken = data.nextToken;
-      if (data.totalCount) paginationInfo.totalCount = data.totalCount;
+      if (data.totalCount) paginationInfo.totalItems = data.totalCount;
     } else {
       loadedData[dataType] = data;
     }
@@ -341,7 +341,7 @@ const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
     if (typeof data === 'object' && 'pages' in data) {
       loadedData[dataType] = data.pages;
       if (data.nextToken) paginationInfo.nextToken = data.nextToken;
-      if (data.totalCount) paginationInfo.totalCount = data.totalCount;
+      if (data.totalCount) paginationInfo.totalItems = data.totalCount;
     } else {
       loadedData[dataType] = data;
     }
@@ -355,22 +355,26 @@ export async function loadDataFromAnalysis(
   storeId: string,
   analysis: TemplateAnalysis,
   options: PageRenderOptions,
-  searchParams: Record<string, string> = {}
-): Promise<{
-  loadedData: Record<string, any>;
-  paginationInfo: { nextToken?: string; totalCount?: number };
-}> {
+  searchParams: Record<string, string>,
+  schemaLimit?: number
+): Promise<{ loadedData: Record<string, any>; paginationInfo: PaginationInfo }> {
   const loadedData: Record<string, any> = {};
-  const paginationInfo: { nextToken?: string; totalCount?: number } = {};
+  const paginationInfo: PaginationInfo = {};
   const loadPromises: Promise<void>[] = [];
 
-  for (const [dataType, loadOptions] of analysis.requiredData) {
-    const enhancedLoadOptions = {
-      ...loadOptions,
-      nextToken: searchParams.token || loadOptions.nextToken,
-    };
+  for (const [dataType, loadOptions] of analysis.requiredData.entries()) {
+    const effectiveLoadOptions = { ...loadOptions };
 
-    const promise = loadSpecificData(storeId, dataType, enhancedLoadOptions, options)
+    // Usar el límite del schema si está presente y el data type es paginable
+    if (schemaLimit && (dataType === 'products' || dataType === 'collections' || dataType === 'collection_products')) {
+      effectiveLoadOptions.limit = schemaLimit;
+    }
+
+    if (searchParams.token) {
+      effectiveLoadOptions.nextToken = searchParams.token;
+    }
+
+    const promise = loadSpecificData(storeId, dataType, effectiveLoadOptions, options)
       .then((data) => {
         if (data) {
           const processor = responseProcessors[dataType];

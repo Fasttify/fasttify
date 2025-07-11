@@ -312,23 +312,21 @@ export class LiquidSyntaxDetector {
   }
 
   public static detectPagination(content: string, analysis: TemplateAnalysis): void {
-    const paginateMatches = content.match(this.TAG_PATTERNS.paginate);
-    if (!paginateMatches?.length) return;
+    const paginatePattern = /\{%\s*paginate\s+(.+?)\s*%\}/;
+    const match = content.match(paginatePattern);
 
-    analysis.hasPagination = true;
+    if (match) {
+      analysis.hasPagination = true;
+      const paginatedObject = match[1].split(/\s+by\s+/)[0];
 
-    for (const match of paginateMatches) {
-      const paginateContent = match.match(/paginate\s+([^\s]+)\s+by\s+(\d+)/i);
-      if (!paginateContent) continue;
-
-      const paginatedObject = paginateContent[1];
-
-      // Buscar handler específico para el tipo de objeto paginado
-      const handlerKey = Object.keys(paginationHandlers).find((key) => paginatedObject.includes(key));
-
-      if (handlerKey) {
-        paginationHandlers[handlerKey](match, analysis);
+      // Determinar si se paginan productos o colecciones
+      if (paginatedObject.includes('products')) {
+        analysis.requiredData.set('products', { limit: 20 }); // Límite por defecto, será sobreescrito
+      } else if (paginatedObject.includes('collections')) {
+        analysis.requiredData.set('collections', { limit: 10 }); // Límite por defecto
       }
+      // Añadir la dependencia 'pagination' para que el contexto se construya
+      analysis.requiredData.set('pagination', {});
     }
   }
 

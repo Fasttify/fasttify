@@ -1,6 +1,6 @@
 {{ 'collection-details.css' | asset_url | stylesheet_tag }}
 
-{% paginate collection.products by 12 %}
+{% paginate collection.products %}
   <div class="page-width">
     <header class="collection-header">
       <h1 class="collection-title">{{ collection.title }}</h1>

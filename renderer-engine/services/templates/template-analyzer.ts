@@ -211,16 +211,10 @@ export class TemplateAnalyzer {
       if (!target.requiredData.has(dataType)) {
         target.requiredData.set(dataType, options);
       } else {
+        // Simplemente sobrescribir o combinar de forma básica por ahora.
+        // La lógica del límite de paginación se centralizará en el data-loader.
         const existingOptions = target.requiredData.get(dataType)!;
         const mergedOptions = { ...existingOptions, ...options };
-        const validLimits = [existingOptions.limit, options.limit].filter(
-          (n): n is number => typeof n === 'number' && n > 0
-        );
-        if (validLimits.length > 0) {
-          mergedOptions.limit = Math.min(...validLimits);
-        } else {
-          delete mergedOptions.limit;
-        }
         target.requiredData.set(dataType, mergedOptions);
       }
     }
