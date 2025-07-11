@@ -1,11 +1,11 @@
 import { defineFunction, secret } from '@aws-amplify/backend';
 
 export const planScheduler = defineFunction({
-  timeoutSeconds: 120,
+  timeoutSeconds: 300,
   name: 'planScheduler',
   entry: 'handler.ts',
   resourceGroupName: 'auth',
-  schedule: 'every 1h',
+  schedule: 'every 6m',
   environment: {
     USER_POOL_ID: secret('USER_POOL_ID'),
   },

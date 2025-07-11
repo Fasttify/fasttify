@@ -29,14 +29,12 @@ export const createDefaultCollections = async (
         }
       } catch (collectionError) {
         console.error(`Error creating collection ${collectionConfig.title}:`, collectionError);
-        // Continuamos con las demás colecciones aunque una falle
       }
     }
 
     return createdCollectionIds;
   } catch (error) {
     console.error('Error creating default collections:', error);
-    // Retornamos array vacío en caso de error general
     return [];
   }
 };

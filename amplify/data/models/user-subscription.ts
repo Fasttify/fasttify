@@ -25,7 +25,7 @@ export const userSubscriptionModel = a
     lastFourDigits: a.integer(),
   })
   .identifier(['id'])
-  .secondaryIndexes((index) => [index('userId')])
+  .secondaryIndexes((index) => [index('userId'), index('subscriptionId'), index('pendingPlan')])
   .authorization((allow) => [
     allow.ownerDefinedIn('userId').to(['read', 'update', 'delete', 'create']),
     allow.authenticated().to(['create']),
