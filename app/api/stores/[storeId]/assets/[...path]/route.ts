@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { logger } from '@/renderer-engine/lib/logger';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { logger } from '@/renderer-engine/lib/logger';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Configuración de S3
 const s3Client = new S3Client({
@@ -24,10 +24,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { storeId, path } = await params;
     const assetPath = path.join('/');
 
+    // 1. Validación de path traversal
+    if (assetPath.includes('..')) {
+      return NextResponse.json({ error: 'Invalid asset path' }, { status: 400, headers: corsHeaders });
+    }
+
     let buffer: Buffer;
     let etag: string | undefined;
 
-    // En producción usar CloudFront, en desarrollo usar S3 directo
+    // 2. Cargar asset según entorno
     if (appEnv === 'production' && cloudFrontDomain) {
       const result = await loadAssetFromCloudFront(storeId, assetPath);
       buffer = result.buffer;
@@ -36,6 +41,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       const result = await loadAssetFromS3(storeId, assetPath);
       buffer = result.buffer;
       etag = result.etag;
+    }
+
+    // 3. Soporte para If-None-Match/ETag y respuesta 304
+    const ifNoneMatch = request.headers.get('if-none-match');
+    if (etag && ifNoneMatch && etag === ifNoneMatch) {
+      return new NextResponse(null, {
+        status: 304,
+        headers: {
+          ...corsHeaders,
+          ETag: etag,
+          'Cache-Control': 'public, max-age=31536000',
+        },
+      });
     }
 
     // Determinar content type
@@ -47,7 +65,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       'AssetsAPI'
     );
 
-    // Retornar el archivo con headers apropiados
+    // 4. Retornar el archivo con headers apropiados y buffer directo
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
@@ -58,10 +76,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         ETag: etag || '',
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('[AssetsAPI] Error loading asset', error, 'AssetsAPI');
 
-    if (error instanceof Error && error.name === 'NoSuchKey') {
+    // 5. Mejor manejo de errores S3
+    if (
+      (error instanceof Error && error.name === 'NoSuchKey') ||
+      error.Code === 'NoSuchKey' ||
+      (error.$metadata && error.$metadata.httpStatusCode === 404)
+    ) {
       return NextResponse.json({ error: 'Asset not found' }, { status: 404, headers: corsHeaders });
     }
 
@@ -110,7 +133,9 @@ async function loadAssetFromS3(storeId: string, assetPath: string): Promise<{ bu
   const response = await s3Client.send(command);
 
   if (!response.Body) {
-    throw new Error(`Asset not found: ${assetPath}`);
+    const err: any = new Error(`Asset not found: ${assetPath}`);
+    err.name = 'NoSuchKey';
+    throw err;
   }
 
   // Convertir stream a buffer
@@ -123,18 +148,15 @@ async function loadAssetFromS3(storeId: string, assetPath: string): Promise<{ bu
 // Helper function para convertir stream a buffer
 async function streamToBuffer(stream: any): Promise<Buffer> {
   const chunks: Uint8Array[] = [];
-
   for await (const chunk of stream) {
     chunks.push(chunk);
   }
-
   return Buffer.concat(chunks);
 }
 
 // Helper function para determinar content type
 function getContentTypeFromFilename(filename: string): string {
   const ext = filename.toLowerCase().split('.').pop();
-
   const contentTypes: Record<string, string> = {
     // Imágenes
     png: 'image/png',
@@ -153,6 +175,5 @@ function getContentTypeFromFilename(filename: string): string {
     ttf: 'font/ttf',
     eot: 'application/vnd.ms-fontobject',
   };
-
   return contentTypes[ext || ''] || 'application/octet-stream';
 }

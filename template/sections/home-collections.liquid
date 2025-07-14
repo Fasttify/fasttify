@@ -1,7 +1,7 @@
 <section class="featured-collections">
   <div class="collections-container">
     {% paginate collections %}
-    {% for collection in collections %}
+    {% for collection in collections limit: 2 %}
       <div class="collection-hero">
         <div class="collection-image-container">
           {% if collection.image %}

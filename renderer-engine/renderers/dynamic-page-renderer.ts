@@ -1,17 +1,21 @@
+import { injectAssets } from '@/renderer-engine/lib/inject-assets';
 import { logger } from '@/renderer-engine/lib/logger';
 import { liquidEngine } from '@/renderer-engine/liquid/engine';
 import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
 import { errorRenderer } from '@/renderer-engine/services/errors/error-renderer';
-import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
-import { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader';
+import { createTemplateError } from '@/renderer-engine/services/errors/error-utils';
 import { pageConfig } from '@/renderer-engine/services/page/page-config';
-import { contextBuilder } from '@/renderer-engine/services/rendering/global-context';
 import { metadataGenerator } from '@/renderer-engine/services/rendering/metadata-generator';
 import { sectionRenderer } from '@/renderer-engine/services/rendering/section-renderer';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import type { RenderResult, ShopContext, TemplateError } from '@/renderer-engine/types';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
 import type { Template } from 'liquidjs';
+import { buildContextStep } from '@/renderer-engine/renderers/pipeline-steps/build-context-step';
+import { initializeEngineStep } from '@/renderer-engine/renderers/pipeline-steps/initialize-engine-step';
+import { loadDataStep } from '@/renderer-engine/renderers/pipeline-steps/load-data-step';
+import { renderContentStep } from '@/renderer-engine/renderers/pipeline-steps/render-content-step';
+import { resolveStoreStep } from '@/renderer-engine/renderers/pipeline-steps/resolve-store-step';
 
 /**
  * Tipo para pasos del pipeline de renderizado
@@ -21,7 +25,7 @@ type RenderStep = (data: RenderingData) => Promise<RenderingData>;
 /**
  * Datos que pasan a través del pipeline de renderizado
  */
-interface RenderingData {
+export interface RenderingData {
   domain: string;
   options: PageRenderOptions;
   searchParams: Record<string, string>;
@@ -88,15 +92,7 @@ export class DynamicPageRenderer {
     }
 
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw this.createTemplateError('RENDER_ERROR', `Failed to render ${options.pageType} page: ${errorMessage}`);
-  }
-
-  private createTemplateError(type: TemplateError['type'], message: string): TemplateError {
-    return {
-      type,
-      message,
-      statusCode: type === 'TEMPLATE_NOT_FOUND' ? 404 : 500,
-    };
+    throw createTemplateError('RENDER_ERROR', `Failed to render ${options.pageType} page: ${errorMessage}`);
   }
 
   public async renderError(error: TemplateError, domain: string, path?: string): Promise<RenderResult> {
@@ -115,108 +111,6 @@ export class DynamicPageRenderer {
       throw error;
     }
   }
-}
-
-/**
- * Paso 1: Resolver dominio a tienda
- */
-async function resolveStoreStep(data: RenderingData): Promise<RenderingData> {
-  const store = await domainResolver.resolveStoreByDomain(data.domain);
-  return { ...data, store };
-}
-
-/**
- * Paso 2: Inicializar motor de rendering
- */
-async function initializeEngineStep(data: RenderingData): Promise<RenderingData> {
-  liquidEngine.assetCollector.clear();
-  return data;
-}
-
-/**
- * Paso 4: Cargar todos los datos en paralelo
- */
-async function loadDataStep(data: RenderingData): Promise<RenderingData> {
-  logger.info(`Using dynamic data loading for ${data.options.pageType}`, 'DynamicPageRenderer');
-
-  const templatePath = pageConfig.getTemplatePath(data.options.pageType);
-  const isJsonTemplate = templatePath.endsWith('.json');
-
-  // Cargar todo en paralelo para máximo rendimiento
-  const [layout, compiledLayout, pageData, storeTemplate, pageTemplate, compiledPageTemplate] = await Promise.all([
-    templateLoader.loadMainLayout(data.store!.storeId),
-    templateLoader.loadMainLayoutCompiled(data.store!.storeId),
-    dynamicDataLoader.loadDynamicData(data.store!.storeId, data.options, data.searchParams),
-    dataFetcher.getStoreNavigationMenus(data.store!.storeId),
-    templateLoader.loadTemplate(data.store!.storeId, templatePath),
-    // Solo cargar compilado si no es JSON, para no lanzar error innecesario
-    isJsonTemplate
-      ? Promise.resolve(undefined)
-      : templateLoader.loadCompiledTemplate(data.store!.storeId, templatePath),
-  ]);
-
-  // Log del análisis dinámico para debugging
-  logger.debug(
-    `Dynamic analysis results for ${data.options.pageType}:`,
-    {
-      requiredData: Array.from(pageData.analysis.requiredData.keys()),
-      liquidObjects: pageData.analysis.liquidObjects,
-      dependencies: pageData.analysis.dependencies.length,
-    },
-    'DynamicPageRenderer'
-  );
-
-  return { ...data, layout, compiledLayout, pageData, storeTemplate, pageTemplate, compiledPageTemplate };
-}
-
-/**
- * Paso 5: Construir contexto de renderizado
- */
-async function buildContextStep(data: RenderingData): Promise<RenderingData> {
-  const context = await contextBuilder.createRenderContext(
-    data.store!,
-    data.pageData!.products,
-    data.storeTemplate!,
-    data.pageData!.cartData
-  );
-
-  // Combinar datos dinámicos
-  Object.assign(context, data.pageData!.contextData);
-
-  // Agregar tokens de paginación
-  if (data.pageData!.nextToken) {
-    (context as any).next_token = data.pageData!.nextToken;
-  }
-
-  if (data.searchParams.token) {
-    (context as any).current_token = data.searchParams.token;
-  }
-
-  // Agregar objeto request para el tag paginate
-  (context as any).request = {
-    searchParams: new URLSearchParams(Object.entries(data.searchParams).map(([key, value]) => [key, value])),
-  };
-
-  return { ...data, context };
-}
-
-/**
- * Paso 6: Renderizar contenido de la página
- */
-async function renderContentStep(data: RenderingData): Promise<RenderingData> {
-  const templatePath = pageConfig.getTemplatePath(data.options.pageType);
-
-  const renderedContent = await renderPageContent(
-    templatePath,
-    data.pageTemplate!,
-    data.compiledPageTemplate,
-    data.context!,
-    data.store!.storeId,
-    data.options,
-    data.storeTemplate!
-  );
-
-  return { ...data, renderedContent };
 }
 
 /**
@@ -247,29 +141,6 @@ async function generateMetadataStep(data: RenderingData): Promise<RenderingData>
 }
 
 /**
- * Renderiza el contenido de la página (template específico)
- */
-async function renderPageContent(
-  templatePath: string,
-  pageTemplate: string,
-  compiledPageTemplate: Template[] | undefined,
-  context: any,
-  storeId: string,
-  options: PageRenderOptions,
-  storeTemplate: any
-): Promise<string> {
-  if (templatePath.endsWith('.json')) {
-    const templateConfig = JSON.parse(pageTemplate.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1'));
-    return await renderSectionsFromConfig(templateConfig, storeId, context, storeTemplate);
-  } else {
-    if (!compiledPageTemplate) {
-      throw new Error(`Compiled template for ${templatePath} not loaded`);
-    }
-    return await liquidEngine.renderCompiled(compiledPageTemplate, context);
-  }
-}
-
-/**
  * Pre-carga secciones del layout en paralelo
  */
 async function preloadLayoutSections(storeId: string, layout: string, context: any, storeTemplate: any): Promise<void> {
@@ -288,31 +159,6 @@ async function preloadLayoutSections(storeId: string, layout: string, context: a
     preloadedSections[name] = content;
   });
   (context as any).preloaded_sections = preloadedSections;
-}
-
-/**
- * Inyecta assets CSS y JS en el HTML
- */
-function injectAssets(html: string, assetCollector: any): string {
-  let finalHtml = html;
-  const css = assetCollector.getCombinedCss();
-  const js = assetCollector.getCombinedJs();
-
-  if (css) {
-    const styleTag = `<style data-fasttify-assets="true">${css}</style>`;
-    finalHtml = finalHtml.includes('</head>')
-      ? finalHtml.replace('</head>', `${styleTag}</head>`)
-      : finalHtml + styleTag;
-  }
-
-  if (js) {
-    const scriptTag = `<script data-fasttify-assets="true">${js}</script>`;
-    finalHtml = finalHtml.includes('</body>')
-      ? finalHtml.replace('</body>', `${scriptTag}</body>`)
-      : finalHtml + scriptTag;
-  }
-
-  return finalHtml;
 }
 
 /**

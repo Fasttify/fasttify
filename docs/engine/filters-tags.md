@@ -285,10 +285,21 @@ Los filtros son funciones simples que modifican la salida de una variable.
 - `stylesheet_tag`: Crea una etiqueta `<link>` completa para una hoja de estilos.
   - **Uso**: `{{ 'theme.css' | asset_url | stylesheet_tag }}`
   - **Resultado**: `<link href="..." rel="stylesheet" type="text/css" media="all" />`
+  - **Preload por defecto**: Este filtro genera por defecto un `<link rel="preload" as="style">` antes del `<link rel="stylesheet">` para mejorar el rendimiento. Puedes desactivar el preload pasando `false` como tercer argumento: `{{ 'theme.css' | asset_url | stylesheet_tag: null, false }}`
 
 - `script_tag`: Crea una etiqueta `<script>` completa para un archivo JS.
   - **Uso**: `{{ 'theme.js' | asset_url | script_tag }}`
-  - **Resultado**: `<script src="..."></script>`
+  - **Resultado**:
+    ```html
+    <link rel="preload" as="script" href="/api/stores/123/assets/theme.js" />
+    <script src="/api/stores/123/assets/theme.js" defer></script>
+    ```
+  - **Preload y defer por defecto**: Este filtro genera por defecto un `<link rel="preload" as="script">` antes del `<script ...>`, igual que Shopify, para acelerar la carga de JS. Puedes desactivar el preload pasando `false` como cuarto argumento: `{{ 'theme.js' | asset_url | script_tag: '', true, false }}`. El atributo `defer` también está activado por defecto y puede desactivarse pasando `false` como tercer argumento.
+  - **Beneficio**: Esto permite que el navegador descargue el JS lo antes posible, pero lo ejecute solo cuando corresponde, mejorando el FCP y el rendimiento general.
+
+- `img_tag`: Genera un elemento `<img>` con atributos.
+  - **Uso**: `{{ product.featured_image | img_tag: product.title, 'class="product-image"' }}`
+  - **Resultado**: `<img src="..." alt="..." class="product-image">`
 
 ### Filtros de Dinero
 
