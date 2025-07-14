@@ -10,8 +10,13 @@
     },
     "home-collections": {
       "type": "sections/home-collections",
-      "settings": {}
+      "settings": {
+        "type": "number",
+        "id": "collections_per_page",
+        "label": "Collections per page",
+        "default": 2
+      }
     }
   },
-  "order": [ "hero", "featured-products", "home-collections"]
+  "order": ["hero", "featured-products", "home-collections"]
 }

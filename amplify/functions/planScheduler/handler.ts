@@ -1,19 +1,38 @@
+import { env } from '$amplify/env/planScheduler';
+import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import {
-  CognitoIdentityProviderClient,
   AdminUpdateUserAttributesCommand,
+  CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
-import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from '$amplify/env/planScheduler';
-import { type Schema } from '../../data/resource';
 import type { EventBridgeHandler } from 'aws-lambda';
+import { type Schema } from '../../data/resource';
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
 
 const clientSchema = generateClient<Schema>();
 const cognitoClient = new CognitoIdentityProviderClient();
+
+type UserSubscription = {
+  id: string;
+  userId: string;
+  subscriptionId: string;
+  planName: string;
+  nextPaymentDate?: string | null;
+  pendingPlan?: string | null;
+  pendingStartDate?: string | null;
+  planPrice?: number | null;
+  lastFourDigits?: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type ListResponse<T> = {
+  data: T[];
+  nextToken?: string | null;
+};
 
 export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async (event: any) => {
   try {
@@ -22,18 +41,26 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
 
     // 2. Consultar DynamoDB para obtener las suscripciones pendientes con un plan asignado
     // Modificado para solo procesar suscripciones que realmente han expirado o tienen un cambio de plan programado
-    const pendingSubscriptionsResponse = await clientSchema.models.UserSubscription.list({
-      filter: {
-        pendingPlan: { attributeExists: true },
-        pendingStartDate: { le: now.toISOString() },
-      },
-    });
+    let nextToken: string | undefined = undefined;
+    let allPendingSubscriptions: UserSubscription[] = [];
 
-    const pendingSubscriptions = pendingSubscriptionsResponse.data || [];
-    console.log(`Found ${pendingSubscriptions.length} subscriptions to process`);
+    do {
+      const response: ListResponse<UserSubscription> =
+        await clientSchema.models.UserSubscription.listUserSubscriptionByPendingPlan(
+          { pendingPlan: 'free' },
+          {
+            filter: { pendingStartDate: { lt: now.toISOString() } },
+            limit: 100,
+            nextToken,
+          }
+        );
+      const pendingSubscriptions = response.data || [];
+      allPendingSubscriptions.push(...pendingSubscriptions);
+      nextToken = response.nextToken || undefined;
+    } while (nextToken);
 
     // 3. Iterar sobre cada registro pendiente
-    for (const subscription of pendingSubscriptions) {
+    for (const subscription of allPendingSubscriptions) {
       const userId = subscription.userId;
       if (!userId) {
         console.warn('Subscription without userId, skipping');
@@ -57,12 +84,7 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
       // 3. La fecha de inicio pendiente está definida y ya pasó (cambio de plan programado)
       const shouldProcess = !nextPaymentDate || nextPaymentDate <= now || (pendingStartDate && pendingStartDate <= now);
 
-      if (!shouldProcess) {
-        console.log(`Skipping subscription for ${userId}: not expired yet and no pending plan change due`);
-        continue;
-      }
-
-      console.log(`Processing subscription for ${userId}: changing plan to ${newPlan}`);
+      if (!shouldProcess) continue;
 
       try {
         // 3.1. Actualizar el atributo en Cognito para asignar el plan pendiente
@@ -100,7 +122,6 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
         });
 
         const userStores = userStoresResponse.data || [];
-        console.log(`Found ${userStores.length} stores for user ${userId}`);
 
         // Actualizar el storeStatus de todas las tiendas del usuario
         for (const store of userStores) {
@@ -109,15 +130,10 @@ export const handler: EventBridgeHandler<'Scheduled Event', null, void> = async 
               storeId: store.storeId,
               storeStatus: newStoreStatus,
             });
-            console.log(`Updated store ${store.storeId} storeStatus to ${newStoreStatus}`);
           } catch (storeUpdateError) {
             console.error(`Error updating store ${store.storeId} status:`, storeUpdateError);
           }
         }
-
-        console.log(
-          `Successfully processed subscription for ${userId}: plan=${newPlan}, storeStatus=${newStoreStatus}`
-        );
       } catch (dbError) {
         console.error(`Error updating user subscription ${userId} in DynamoDB:`, dbError);
       }

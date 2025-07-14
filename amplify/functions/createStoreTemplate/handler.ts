@@ -1,13 +1,13 @@
-import type { Schema } from '../../data/resource';
+import { env } from '$amplify/env/create-store-template';
+import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
-import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from '$amplify/env/create-store-template';
-import { InitializationResult } from './types/index';
-import { validateInputs } from './services/validationService';
+import type { Schema } from '../../data/resource';
 import { createDefaultCollections } from './services/collectionService';
 import { createDefaultMenus } from './services/menuService';
 import { createDefaultPages } from './services/pageService';
+import { validateInputs } from './services/validationService';
+import { InitializationResult } from './types/index';
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -39,8 +39,6 @@ export const handler = async (event: any): Promise<InitializationResult> => {
  */
 async function initializeStoreTemplate(storeId: string, domain: string, owner: string): Promise<InitializationResult> {
   try {
-    console.log(`Initializing store data for: ${storeId}`);
-
     // Crear colecciones por defecto
     const collectionIds = await createDefaultCollections(client, storeId, owner);
 

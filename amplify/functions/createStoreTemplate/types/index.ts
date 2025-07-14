@@ -1,5 +1,3 @@
-// ==================== TIPOS PARA COLECCIONES ====================
-
 export interface DefaultCollection {
   title: string;
   description: string;
@@ -7,8 +5,6 @@ export interface DefaultCollection {
   isActive: boolean;
   sortOrder: number;
 }
-
-// ==================== TIPOS PARA RESULTADOS ====================
 
 export interface InitializationResult {
   success: boolean;
@@ -23,8 +19,6 @@ export interface ValidationResult {
   domain: string;
   userId: string;
 }
-
-// ==================== TIPOS PARA NAVEGACIÓN ====================
 
 export interface DefaultMenuItem {
   label: string;
@@ -41,8 +35,6 @@ export interface DefaultNavigationMenu {
   isMain: boolean;
   items: DefaultMenuItem[];
 }
-
-// ==================== TIPOS PARA PÁGINAS ====================
 
 export interface DefaultPage {
   title: string;

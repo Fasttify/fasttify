@@ -4,7 +4,8 @@ import { buildContextData } from '@/renderer-engine/services/page/data-loader/co
 import { loadDataFromAnalysis } from '@/renderer-engine/services/page/data-loader/data-fetcher-helper';
 import { analyzeRequiredTemplates } from '@/renderer-engine/services/page/data-loader/template-analyzer-helper';
 import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
-import type { PageRenderOptions } from '@/renderer-engine/types/template';
+import type { PageRenderOptions, PaginationInfo } from '@/renderer-engine/types/template';
+import { buildPaginationObject } from '@/renderer-engine/services/page/data-loader/pagination-builder-helper';
 
 /**
  * Resultado de la carga dinámica de datos
@@ -17,6 +18,7 @@ export interface DynamicLoadResult {
   cartData: any;
   analysis: TemplateAnalysis;
   nextToken?: string;
+  paginate?: PaginationInfo;
 }
 
 /**
@@ -43,8 +45,24 @@ export class DynamicDataLoader {
     try {
       const analysis = await analyzeRequiredTemplates(storeId, options);
       const cartData = dataFetcher.transformCartToContext(await dataFetcher.getCart(storeId));
-      const { loadedData, paginationInfo } = await loadDataFromAnalysis(storeId, analysis, options, searchParams);
+
+      // Usar el límite del schema o un fallback seguro de 12 si no está definido.
+      const limit = (analysis as any).paginationLimit || 12;
+      const { loadedData, paginationInfo } = await loadDataFromAnalysis(
+        storeId,
+        analysis,
+        options,
+        searchParams,
+        limit
+      );
+
       const contextData = await buildContextData(storeId, options, loadedData);
+
+      // Construir el objeto paginate global si aplica
+      const paginate = buildPaginationObject(analysis, loadedData, paginationInfo, searchParams, limit);
+      if (paginate) {
+        contextData.paginate = paginate; // Inyectar en el contexto
+      }
 
       return {
         products: loadedData.products,
@@ -54,6 +72,7 @@ export class DynamicDataLoader {
         cartData,
         analysis,
         nextToken: paginationInfo.nextToken,
+        paginate,
       };
     } catch (error) {
       logger.error('Error in dynamic data loading', error, 'DynamicDataLoader');

@@ -15,7 +15,7 @@ Al usar Amplify Gen 2 con DynamoDB para paginación en plantillas Liquid, existe
 
 ```liquid
 <!-- Esto causará problemas en la última página -->
-{% paginate products by 1 %}
+{% paginate products %}
   {% for product in products %}
     <div>{{ product.title }}</div>
   {% endfor %}
@@ -38,14 +38,17 @@ A través de pruebas exhaustivas, descubrimos:
 
 ### ✅ Solución Principal: Usar Números Pares
 
-Siempre usa números pares para los límites de paginación:
+Siempre usa números pares para los límites de paginación (definidos en el esquema JSON de tu plantilla):
 
 ```liquid
-<!-- ✅ RECOMENDADO: Usar números pares -->
-{% paginate products by 2 %}
-{% paginate products by 4 %}
-{% paginate products by 10 %}
-{% paginate products by 20 %}
+<!-- ✅ RECOMENDADO: Usar números pares en tu schema JSON (ej. products_per_page: 2) -->
+{% paginate products %}
+<!-- ✅ RECOMENDADO: Usar números pares en tu schema JSON (ej. products_per_page: 4) -->
+{% paginate products %}
+<!-- ✅ RECOMENDADO: Usar números pares en tu schema JSON (ej. products_per_page: 10) -->
+{% paginate products %}
+<!-- ✅ RECOMENDADO: Usar números pares en tu schema JSON (ej. products_per_page: 20) -->
+{% paginate products %}
 ```
 
 ### Límites de Paginación Recomendados por Caso de Uso

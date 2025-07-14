@@ -507,3 +507,238 @@ Usa la clave de traducción:
 ```
 
 El motor de Fasttify buscará la clave (`products.add_to_cart`) en el archivo de idioma correspondiente y mostrará el texto correcto. Esto hace que tu tema esté listo para ser traducido a múltiples idiomas simplemente añadiendo nuevos archivos JSON a la carpeta `locales` (ej. `es.json`).
+
+### `collection` - Grupos de Productos
+
+```liquid
+<!-- Lo básico -->
+{{ collection.title }}       <!-- "Zapatos Deportivos" -->
+{{ collection.description }} <!-- Descripción de la colección -->
+{{ collection.url }}        <!-- /collections/zapatos-deportivos -->
+
+<!-- Productos de la colección -->
+{% for product in collection.products %}
+  {% render 'product-card', product: product %}
+{% endfor %}
+
+<!-- Ejemplo real: Página de colección -->
+<div class="collection-page">
+  <div class="collection-header">
+    {% if collection.image %}
+      <img src="{{ collection.image | image_url: '1200x400' }}" alt="{{ collection.title }}">
+    {% endif %}
+    <h1>{{ collection.title }}</h1>
+    <p>{{ collection.description }}</p>
+  </div>
+
+  <!-- SÚPER IMPORTANTE: Paginación -->
+  {% paginate collection.products %}
+    <div class="product-grid">
+      {% for product in collection.products %}
+        {% render 'product-card', product: product %}
+      {% endfor %}
+    </div>
+
+    <!-- Controles automáticos de página -->
+    {{ collection | default_pagination }}
+  {% endpaginate %}
+</div>
+```
+
+---
+
+## Tags Mágicos: Las Etiquetas que Hacen la Magia
+
+### `{% paginate %}` - El Más Importante
+
+**¿Por qué es tan importante?** Porque NUNCA carga todos los productos de una vez. Ahora, actúa de forma **pasiva**, simplemente accede a un objeto `paginate` pre-construido en el contexto global, el cual contiene toda la información de paginación (límites, `next_token`, `previous_token`, etc.). La cantidad de ítems por página **ya no se define directamente en esta etiqueta**, sino en el `schema` del template JSON de la página (por ejemplo, `templates/collection.json`) o en la sección que incluye el listado paginado.
+
+```liquid
+<!-- Sintaxis básica -->
+{% paginate collection.products %}
+  <!-- Aquí van tus productos -->
+  {% for product in collection.products %}
+    <div class="product">{{ product.name }}</div>
+  {% endfor %}
+
+  <!-- Controles de navegación automáticos -->
+  {{ collection | default_pagination }}
+{% endpaginate %}
+
+<!-- Ejemplo avanzado -->
+{% paginate collection.products %}
+  <div class="collection-toolbar">
+    <span class="results">
+      Mostrando {{ paginate.items }} productos de {{ paginate.total_entries }} totales
+    </span>
+  </div>
+
+  <div class="product-grid">
+    {% for product in collection.products %}
+      {% render 'product-card', product: product %}
+    {% else %}
+      <p>No hay productos en esta colección</p>
+    {% endfor %}
+  </div>
+
+  {% if paginate.pages > 1 %}
+    <nav class="pagination">
+      {{ collection | default_pagination }}
+    </nav>
+  {% endif %}
+{% endpaginate %}
+```
+
+### Mejores Prácticas
+
+```liquid
+<!-- SIEMPRE usar paginación -->
+{% paginate collection.products %}
+  <!-- contenido -->
+{% endpaginate %}
+
+<!-- Lazy loading para imágenes -->
+<img src="{{ image | image_url: '300x' }}"
+     loading="lazy"
+     alt="{{ product.name }}">
+
+<!-- Snippets para código repetitivo -->
+{% render 'product-card', product: product %}
+
+<!-- EVITAR loops grandes sin paginación -->
+{% for product in collection.products %}  <!-- ¡NO! -->
+  <!-- podría cargar 1000+ productos -->
+{% endfor %}
+
+<!-- Limitar manualmente si no usas paginación -->
+{% for product in collection.products limit: 12 %}
+  {% render 'product-card', product: product %}
+{% endfor %}
+```
+
+### Template de Colección Avanzado
+
+````liquid
+<!-- templates/collection.liquid -->
+<div class="collection-page">
+  <!-- Header -->
+  <div class="collection-header">
+    {% if collection.image %}
+      <div class="collection-banner">
+        <img src="{{ collection.image | image_url: '1200x400' }}"
+             alt="{{ collection.title }}">
+      </div>
+    {% endif %}
+
+    <div class="collection-info">
+      <nav class="breadcrumbs">
+        <a href="{{ shop.url }}">Inicio</a>
+        <span>{{ collection.title }}</span>
+      </nav>
+
+      <h1>{{ collection.title }}</h1>
+      {% if collection.description %}
+        <div class="description">{{ collection.description }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="collection-toolbar">
+    <div class="results-info">
+      {% paginate collection.products %}
+        Mostrando {{ paginate.items }} productos de {{ paginate.total_entries }} totales
+      {% endpaginate %}
+    </div>
+
+    <!-- Aquí irían filtros de precio, marca, etc. -->
+  </div>
+
+  <!-- Productos -->
+  {% paginate collection.products %}
+    {% if collection.products.size > 0 %}
+      <div class="product-grid">
+        {% for product in collection.products %}
+          {% render 'product-card',
+             product: product,
+             show_vendor: true,
+             show_compare_price: true %}
+        {% endfor %}
+      </div>
+
+      <!-- Paginación -->
+      {% if paginate.pages > 1 %}
+        <nav class="pagination">
+          {{ collection | default_pagination }}
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="empty-collection">
+        <h3>No hay productos en esta colección</h3>
+        <p>Vuelve pronto para ver nuevos productos.</p>
+        <a href="{{ shop.url }}" class="btn">Explorar otras colecciones</a>
+      </div>
+    {% endif %}
+  {% endpaginate %}
+</div>
+
+---
+
+## Solución de Problemas Comunes
+
+### "Template not found"
+
+```bash
+# Verificar:
+1. ¿El archivo existe en S3?
+2. ¿El nombre está bien escrito? (case-sensitive)
+3. ¿Tienes permisos correctos?
+4. ¿Está en la carpeta correcta? (templates/, sections/, snippets/)
+````
+
+### "Variable undefined"
+
+```liquid
+<!-- Problemático -->
+{{ variable_que_no_existe }}
+
+<!-- Seguro -->
+{{ variable_que_no_existe | default: 'Valor por defecto' }}
+
+<!-- Con verificación -->
+{% if variable_que_no_existe %}
+  {{ variable_que_no_existe }}
+{% else %}
+  Contenido alternativo
+{% endif %}
+```
+
+### "Schema JSON error"
+
+```liquid
+<!-- Incorrecto -->
+{% schema %}
+{
+  "name": "Mi Sección",  // ← coma al final
+}
+{% endschema %}
+
+<!-- Correcto -->
+{% schema %}
+{
+  "name": "Mi Sección"
+}
+{% endschema %}
+```
+
+### "Performance lenta"
+
+```liquid
+<!-- Evitar -->
+{% for product in collection.products %}  <!-- Carga TODOS -->
+{% for collection in collections %}       <!-- Anidación pesada -->
+
+<!-- Mejor -->
+{% paginate collection.products %}  <!-- Usa el límite definido en el schema de la sección -->
+{% for collection in collections limit: 6 %} <!-- Máximo 6 -->
+```

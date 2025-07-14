@@ -11,6 +11,7 @@ class TemplateLoader {
   private readonly cloudFrontDomain: string;
   private readonly isProduction: boolean;
   private ongoingRequests: Map<string, Promise<any>> = new Map();
+  private ongoingAssetRequests: Map<string, Promise<Buffer>> = new Map();
 
   private constructor() {
     this.bucketName = process.env.BUCKET_NAME || '';
@@ -179,8 +180,21 @@ class TemplateLoader {
       return Buffer.from(cached.content, 'base64');
     }
 
-    let assetBuffer: Buffer;
+    // Unificación de requests concurrentes
+    if (this.ongoingAssetRequests.has(cacheKey)) {
+      return this.ongoingAssetRequests.get(cacheKey)!;
+    }
 
+    const promise = this.fetchAndCacheAsset(storeId, assetPath, cacheKey);
+    this.ongoingAssetRequests.set(cacheKey, promise);
+    promise.finally(() => {
+      this.ongoingAssetRequests.delete(cacheKey);
+    });
+    return promise;
+  }
+
+  private async fetchAndCacheAsset(storeId: string, assetPath: string, cacheKey: string): Promise<Buffer> {
+    let assetBuffer: Buffer;
     try {
       if (this.isProduction && this.cloudFrontDomain) {
         const response = await fetch(`https://${this.cloudFrontDomain}/templates/${storeId}/assets/${assetPath}`);
@@ -193,22 +207,18 @@ class TemplateLoader {
         if (!this.s3Client || !this.bucketName) {
           throw new Error('S3 client or bucket not configured');
         }
-
         const response = await this.s3Client.send(
           new GetObjectCommand({
             Bucket: this.bucketName,
             Key: `templates/${storeId}/assets/${assetPath}`,
           })
         );
-
         if (!response.Body) {
           throw new Error(`Asset not found: ${assetPath}`);
         }
-
         const bytes = await response.Body.transformToByteArray();
         assetBuffer = Buffer.from(bytes);
       }
-
       // Cache asset
       cacheManager.setCached(
         cacheKey,
@@ -219,7 +229,6 @@ class TemplateLoader {
         },
         cacheManager.TEMPLATE_CACHE_TTL
       );
-
       return assetBuffer;
     } catch (error) {
       const templateError: TemplateError = {

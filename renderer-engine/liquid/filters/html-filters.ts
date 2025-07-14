@@ -53,13 +53,19 @@ export const linkToFilter: LiquidFilter = {
 };
 
 /**
- * Filtro stylesheet_tag - Convierte una URL de CSS en un elemento <link>
+ * Filtro stylesheet_tag - Convierte una URL de CSS en un elemento <link> y permite preload (por defecto true)
  */
 export const stylesheetTagFilter: LiquidFilter = {
   name: 'stylesheet_tag',
-  filter: (url: string, media?: string): string => {
+  filter: (url: string, media?: string, preload: boolean = true): string => {
     if (!url) {
       return '';
+    }
+
+    // Si se pasa preload como true, agrega un <link rel="preload">
+    let preloadTag = '';
+    if (preload) {
+      preloadTag = `<link rel="preload" as="style" href="${url}">`;
     }
 
     // Construir atributos del link
@@ -68,27 +74,31 @@ export const stylesheetTagFilter: LiquidFilter = {
       attributes += ` media="${media}"`;
     }
 
-    return `<link ${attributes}>`;
+    return `${preloadTag}<link ${attributes}>`;
   },
 };
 
 /**
- * Filtro script_tag - Convierte una URL de JS en un elemento <script>
+ * Filtro script_tag - Convierte una URL de JS en un elemento <script> y permite defer (por defecto true) y preload (por defecto true)
  */
 export const scriptTagFilter: LiquidFilter = {
   name: 'script_tag',
-  filter: (url: string, attributes?: string): string => {
+  filter: (url: string, attributes?: string, defer: boolean = true, preload: boolean = true): string => {
     if (!url) {
       return '';
     }
-
-    // Construir atributos del script
+    let preloadTag = '';
+    if (preload) {
+      preloadTag = `<link rel="preload" as="script" href="${url}">`;
+    }
     let scriptAttributes = `src="${url}"`;
+    if (defer) {
+      scriptAttributes += ' defer';
+    }
     if (attributes) {
       scriptAttributes += ` ${attributes}`;
     }
-
-    return `<script ${scriptAttributes}></script>`;
+    return `${preloadTag}<script ${scriptAttributes}></script>`;
   },
 };
 

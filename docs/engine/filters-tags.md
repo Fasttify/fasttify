@@ -147,18 +147,21 @@ Las etiquetas controlan el flujo y la lógica de las plantillas.
 
 ### `{% paginate %}`
 
-Es la etiqueta más importante para la paginación. Divide un array de ítems (productos, colecciones, etc.) en múltiples páginas.
+Es la etiqueta fundamental para la paginación. **Actúa de forma pasiva**: ahora solo accede a un objeto `paginate` pre-construido en el contexto global, que contiene la información de la paginación (límites, `next_token`, `previous_token`, etc.). La cantidad de ítems por página **no se define más directamente en esta etiqueta**, sino en el `schema` de la plantilla JSON de la página correspondiente (ej: `templates/collection.json` o `templates/product.json`).
 
-- **Sintaxis**: `{% paginate expression by number %}`
-- **Cómo funciona**: La etiqueta es inteligente. Detecta el tipo de recurso en la `expression` (ej: `.products`, `.collections`) y llama al `fetcher` correspondiente en el backend para obtener solo los ítems de la página actual de forma eficiente. No carga todos los ítems en memoria.
+- **Sintaxis**: `{% paginate expression %}` (la parte `by number` es ignorada y **debe eliminarse** para evitar confusión, ya que el límite se gestiona centralmente).
+- **Cómo funciona**: La etiqueta detecta el tipo de recurso en la `expression` (ej: `.products`, `.collections`) y utiliza la información del objeto `paginate` disponible en el contexto para renderizar la vista correcta. El `fetcher` correspondiente en el backend ya habrá cargado los ítems necesarios de forma eficiente, basado en el `pagination_limit` del schema de la plantilla.
+
+**¡Importante! Uso de límites pares**: Debido a una limitación conocida en la paginación con `nextToken` en Amplify Gen 2, es crucial que los límites de paginación (ej. `products_per_page`, `collections_per_page`) que configures en el JSON de tu plantilla sean **números pares**. Esto asegura un comportamiento consistente y evita que el botón "Siguiente" aparezca incorrectamente en la última página.
 
 **Ejemplo Práctico Completo: Paginando una colección de productos**
 
 ```liquid
 {% comment %}
-  Paginaremos los productos de la colección actual, mostrando 12 por página.
+  Paginaremos los productos de la colección actual.
+  La cantidad de productos por página se define en el schema del template JSON (ej: templates/collection.json).
 {% endcomment %}
-{% paginate collection.products by 12 %}
+{% paginate collection.products %}
 
   <h2>{{ collection.title }}</h2>
 
@@ -172,9 +175,10 @@ Es la etiqueta más importante para la paginación. Divide un array de ítems (p
 
   {% comment %}
     El filtro `default_pagination` es la forma más fácil de renderizar
-    los enlaces de "Siguiente" y "Anterior".
+    los enlaces de "Siguiente" y "Anterior", basándose en el objeto `paginate`
+    disponible globalmente.
   {% endcomment %}
-  {{ collection | default_pagination }}
+  {{ paginate | default_pagination }}
 
 {% endpaginate %}
 ```
@@ -274,17 +278,28 @@ Los filtros son funciones simples que modifican la salida de una variable.
 
 ### Filtros de HTML
 
-- `default_pagination`: Renderiza un bloque de paginación simple (enlaces "Anterior" y "Siguiente"). Se aplica al objeto que contiene el `nextToken`.
+- `default_pagination`: Renderiza un bloque de paginación simple (enlaces "Anterior" y "Siguiente"). Se aplica al objeto que contiene el `paginate` global, el cual se genera automáticamente por el motor basándose en los datos de paginación.
   - **Uso**: `{{ collection | default_pagination }}`
   - **Resultado**: `<div class="pagination"><a href="?token=...">Siguiente</a></div>`
 
 - `stylesheet_tag`: Crea una etiqueta `<link>` completa para una hoja de estilos.
   - **Uso**: `{{ 'theme.css' | asset_url | stylesheet_tag }}`
   - **Resultado**: `<link href="..." rel="stylesheet" type="text/css" media="all" />`
+  - **Preload por defecto**: Este filtro genera por defecto un `<link rel="preload" as="style">` antes del `<link rel="stylesheet">` para mejorar el rendimiento. Puedes desactivar el preload pasando `false` como tercer argumento: `{{ 'theme.css' | asset_url | stylesheet_tag: null, false }}`
 
 - `script_tag`: Crea una etiqueta `<script>` completa para un archivo JS.
   - **Uso**: `{{ 'theme.js' | asset_url | script_tag }}`
-  - **Resultado**: `<script src="..."></script>`
+  - **Resultado**:
+    ```html
+    <link rel="preload" as="script" href="/api/stores/123/assets/theme.js" />
+    <script src="/api/stores/123/assets/theme.js" defer></script>
+    ```
+  - **Preload y defer por defecto**: Este filtro genera por defecto un `<link rel="preload" as="script">` antes del `<script ...>`, igual que Shopify, para acelerar la carga de JS. Puedes desactivar el preload pasando `false` como cuarto argumento: `{{ 'theme.js' | asset_url | script_tag: '', true, false }}`. El atributo `defer` también está activado por defecto y puede desactivarse pasando `false` como tercer argumento.
+  - **Beneficio**: Esto permite que el navegador descargue el JS lo antes posible, pero lo ejecute solo cuando corresponde, mejorando el FCP y el rendimiento general.
+
+- `img_tag`: Genera un elemento `<img>` con atributos.
+  - **Uso**: `{{ product.featured_image | img_tag: product.title, 'class="product-image"' }}`
+  - **Resultado**: `<img src="..." alt="..." class="product-image">`
 
 ### Filtros de Dinero
 

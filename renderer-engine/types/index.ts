@@ -32,6 +32,7 @@ export type {
   TemplateData,
   TemplateError,
   TemplateFile,
+  PaginationInfo,
 } from '@/renderer-engine/types/template';
 
 // Liquid types
