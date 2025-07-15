@@ -23,6 +23,8 @@ export type {
   OpenGraphData,
   PageContext,
   PaginationContext,
+  PaginationInfo,
+  ProductAttribute,
   ProductContext,
   RenderContext,
   RenderResult,
@@ -32,7 +34,6 @@ export type {
   TemplateData,
   TemplateError,
   TemplateFile,
-  PaginationInfo,
 } from '@/renderer-engine/types/template';
 
 // Liquid types

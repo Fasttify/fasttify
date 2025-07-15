@@ -20,15 +20,15 @@ export interface Store {
   cloudflareHostnameId?: string;
   customDomainVerifiedAt?: string;
   onboardingCompleted: boolean;
-  wompiConfig?: string; // JSON string
-  mercadoPagoConfig?: string; // JSON string
+  wompiConfig?: string;
+  mercadoPagoConfig?: string;
 }
 
 export interface StoreTemplate {
   storeId: string;
   domain: string;
   templateKey: string;
-  templateData: string; // JSON string con las URLs de archivos
+  templateData: string;
   isActive: boolean;
   lastUpdated?: string;
   owner: string;

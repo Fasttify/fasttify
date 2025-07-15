@@ -1,7 +1,7 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
-import type { ProductContext, TemplateError } from '@/renderer-engine/types';
+import type { ProductAttribute, ProductContext, TemplateError } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 
 interface PaginationOptions {
@@ -231,7 +231,7 @@ export class ProductFetcher {
   }
 
   /**
-   * Transforma un producto de Amplify al formato Liquid
+   * Transforma un producto al formato Liquid
    */
   public transformProduct(product: any, collectionHandle?: string): ProductContext {
     // Crear handle SEO-friendly
@@ -244,7 +244,7 @@ export class ProductFetcher {
     // Transformar imágenes, variantes y atributos usando DataTransformer
     const transformedImages = dataTransformer.transformImages(product.images, product.name);
     const variants = dataTransformer.transformVariants(product.variants, product.price);
-    const attributes = dataTransformer.transformAttributes(product.attributes);
+    const attributes: ProductAttribute[] = dataTransformer.transformAttributes(product.attributes);
     const featured_image = transformedImages.length > 0 ? transformedImages[0].url : undefined;
 
     // Crear array de URLs simples para compatibilidad con Liquid

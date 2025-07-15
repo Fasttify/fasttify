@@ -105,8 +105,30 @@
                 <span class="price-current">{{ product.price }}</span>
               {% endif %}
             </div>
-            {% comment %} Los swatches de color no estaban en el diseño de featured-products.liquid, los quitamos para la coherencia con el diseño solicitado {% endcomment %}
-            {% comment %} Si necesitas swatches, los re-implementaríamos aquí basándonos en el nuevo diseño {% endcomment %}
+
+            {% comment %} Iterar sobre todos los atributos del producto {% endcomment %}
+            {% if product.attributes %}
+              <div class="product-attributes-summary">
+                {% for attribute in product.attributes %}
+                  <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
+                    <div class="attribute-values-list">
+                      {% if attribute.name == 'color' %}
+                        {% comment %} Si el atributo es 'color', mostrar círculos de color {% endcomment %}
+                        {% for value in attribute.values %}
+                          <span class="color-swatch" style="background-color: {{ value | downcase }};" title="{{ value }}"></span>
+                        {% endfor %}
+                      {% else %}
+                        {% comment %} Para otros atributos (talla, material, etc.), mostrar los valores como texto {% endcomment %}
+                        {% for value in attribute.values %}
+                          <span class="attribute-value-item">{{ value }}</span>
+                        {% endfor %}
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
           </div>
         </div>
       {% else %}
@@ -138,3 +160,41 @@
 
   {% endpaginate %}
 </div>
+
+<style>
+  /* Estilos adicionales para la sección de atributos en la lista de productos */
+  .product-attributes-summary {
+    margin-top: 10px;
+    padding: 0 5px; /* Ajusta según el padding de tu .product-card */
+  }
+  .attribute-display {
+    margin-bottom: 8px;
+  }
+  .attribute-name-label {
+    font-size: 0.85em;
+    color: #555;
+    margin-right: 5px;
+  }
+  .attribute-values-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  /* Reutilizar los estilos de color-swatch y attribute-value-text definidos previamente */
+  .color-swatch {
+    width: 20px; /* Un poco más pequeños para la vista de lista */
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1);
+  }
+  .attribute-value-item {
+    padding: 4px 8px;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    background-color: #fefefe;
+    font-size: 0.8em;
+  }
+</style>
