@@ -1,10 +1,10 @@
+import { SecureLogger } from '@/lib/utils/secure-logger';
 import {
   ACMClient,
+  DescribeCertificateCommand,
   ListCertificatesCommand,
   RequestCertificateCommand,
-  DescribeCertificateCommand,
 } from '@aws-sdk/client-acm';
-import { SecureLogger } from '@/lib/utils/secure-logger';
 export interface CertificateInfo {
   arn: string;
   status: 'ISSUED' | 'PENDING_VALIDATION' | 'FAILED';
@@ -66,6 +66,7 @@ export class CertificateManager {
       const command = new RequestCertificateCommand({
         DomainName: domain,
         ValidationMethod: 'DNS',
+        SubjectAlternativeNames: [`www.${domain}`],
       });
 
       const response = await this.acmClient.send(command);
