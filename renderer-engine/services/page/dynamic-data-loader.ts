@@ -46,16 +46,12 @@ export class DynamicDataLoader {
     loadedTemplates?: Record<string, string>
   ): Promise<DynamicLoadResult> {
     try {
-      // Cargar datos principales (productos, colecciones, carrito, etc.)
       const coreData: CoreData = await coreDataLoader.loadCoreData(storeId, options, searchParams);
 
-      // Cargar datos de búsqueda si tenemos acceso a las plantillas
       let searchData: SearchData | null = null;
       if (loadedTemplates) {
-        searchData = await searchDataLoader.loadSearchData(storeId, loadedTemplates);
-
-        // Inyectar datos de búsqueda en el contexto
-        searchDataLoader.injectSearchDataIntoContext(coreData.contextData, searchData);
+        searchData = await searchDataLoader.loadSearchData(storeId, loadedTemplates, options.searchTerm);
+        searchDataLoader.injectSearchDataIntoContext(coreData.contextData, searchData, options.searchTerm);
       }
 
       logger.info(`Dynamic data loading completed for ${options.pageType}`, {

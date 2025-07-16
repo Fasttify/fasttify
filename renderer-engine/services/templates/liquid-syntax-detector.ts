@@ -269,29 +269,6 @@ const objectDetectors: Record<DataRequirement, ObjectDetector> = {
   },
 };
 
-/**
- * Handlers para diferentes tipos de paginación
- */
-const paginationHandlers: Record<string, PaginationHandler> = {
-  'collection.products': (match: string, analysis: TemplateAnalysis) => {
-    const limitMatch = match.match(/by\s+(\d+)/i);
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 20;
-    analysis.requiredData.set('collection', { limit });
-  },
-
-  products: (match: string, analysis: TemplateAnalysis) => {
-    const limitMatch = match.match(/by\s+(\d+)/i);
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 20;
-    analysis.requiredData.set('products', { limit });
-  },
-
-  collections: (match: string, analysis: TemplateAnalysis) => {
-    const limitMatch = match.match(/by\s+(\d+)/i);
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 10;
-    analysis.requiredData.set('collections', { limit });
-  },
-};
-
 export class LiquidSyntaxDetector {
   private static readonly TAG_PATTERNS = {
     paginate: /\{\%\s*paginate\s+([^%]+)\%\}/g,

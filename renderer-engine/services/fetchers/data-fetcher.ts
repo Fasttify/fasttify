@@ -223,7 +223,4 @@ export class DataFetcher {
   }
 }
 
-// Export singleton instance
 export const dataFetcher = new DataFetcher();
-
-// Class ya está exportada arriba

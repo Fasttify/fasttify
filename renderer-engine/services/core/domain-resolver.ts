@@ -18,7 +18,6 @@ class DomainResolver {
    * Resuelve dominio a store con cache optimizado
    */
   public async resolveDomain(domain: string): Promise<Store | null> {
-    // Fast path: check cache first
     const cacheKey = `domain_${domain}`;
     const cached = cacheManager.getCached(cacheKey);
     if (cached !== null) {
@@ -26,24 +25,28 @@ class DomainResolver {
     }
 
     try {
-      // Query Amplify
-      const { data: stores } = await cookiesClient.models.UserStore.listUserStoreByCustomDomain({
+      let { data: stores } = await cookiesClient.models.UserStore.listUserStoreByCustomDomain({
         customDomain: domain,
       });
 
       if (!stores?.length) {
-        // Cache negative result for 5 minutes
+        const { data: defaultStores } = await cookiesClient.models.UserStore.listUserStoreByDefaultDomain({
+          defaultDomain: domain,
+        });
+        stores = defaultStores;
+      }
+
+      if (!stores?.length) {
         cacheManager.setCached(cacheKey, null, 5 * 60 * 1000);
         return null;
       }
 
       const store = stores[0] as unknown as Store;
-      // Cache positive result
+
       cacheManager.setCached(cacheKey, store, cacheManager.DOMAIN_CACHE_TTL);
       return store;
     } catch {
-      // Cache negative result on error
-      cacheManager.setCached(cacheKey, null, 60 * 1000); // 1 minute
+      cacheManager.setCached(cacheKey, null, 60 * 1000);
       return null;
     }
   }
@@ -63,7 +66,6 @@ class DomainResolver {
       throw error;
     }
 
-    // Check if store is active
     if (!store.storeStatus) {
       const error: TemplateError = {
         type: 'STORE_NOT_ACTIVE',
@@ -84,8 +86,6 @@ class DomainResolver {
   }
 }
 
-// Export singleton instance
 export const domainResolver = DomainResolver.getInstance();
 
-// Export class for testing
 export { DomainResolver };

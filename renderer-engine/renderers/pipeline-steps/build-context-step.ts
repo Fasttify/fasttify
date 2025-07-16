@@ -25,8 +25,15 @@ export async function buildContextStep(data: RenderingData): Promise<RenderingDa
   }
 
   // Agregar objeto request para el tag paginate
+  const searchParams = new URLSearchParams(Object.entries(data.searchParams).map(([key, value]) => [key, value]));
+
+  // Añadir searchTerm al searchParams si existe
+  if (data.options.searchTerm) {
+    searchParams.set('q', data.options.searchTerm);
+  }
+
   (context as any).request = {
-    searchParams: new URLSearchParams(Object.entries(data.searchParams).map(([key, value]) => [key, value])),
+    searchParams,
   };
 
   return { ...data, context };

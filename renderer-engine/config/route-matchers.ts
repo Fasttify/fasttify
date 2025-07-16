@@ -71,8 +71,11 @@ export const routeMatchers: RouteMatcher[] = [
 
   // ===== RUTAS ESPECIALES =====
   {
-    pattern: /^\/search$/,
-    handler: () => ({ pageType: 'search' }),
+    pattern: /^\/search(?:\?q=(.*))?$/,
+    handler: (match) => ({
+      pageType: 'search',
+      searchTerm: match[1],
+    }),
   },
   {
     pattern: /^\/cart$/,

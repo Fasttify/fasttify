@@ -9,11 +9,10 @@ const client = generateClient<Schema>({
   authMode: 'userPool',
 });
 
-// Clave base para las consultas de menús
 const NAVIGATION_MENUS_KEY = 'navigationMenus';
 
 /**
- * Interfaz para los items de menú (objetos JavaScript)
+ * Interfaz para los items de menú
  */
 export interface MenuItem {
   label: string;
@@ -22,11 +21,10 @@ export interface MenuItem {
   target?: '_blank' | '_self';
   sortOrder: number;
 
-  // Campos condicionales según el tipo
-  url?: string; // Para 'internal' y 'external'
-  pageHandle?: string; // Para 'page'
-  collectionHandle?: string; // Para 'collection'
-  productHandle?: string; // Para 'product'
+  url?: string;
+  pageHandle?: string;
+  collectionHandle?: string;
+  productHandle?: string;
 }
 
 /**
@@ -119,7 +117,7 @@ export const useNavigationMenus = () => {
           )
         );
       },
-      staleTime: 5 * 60 * 1000, // 5 minutos en caché
+      staleTime: 5 * 60 * 1000,
       enabled: !!storeId,
     });
   };
@@ -161,11 +159,11 @@ export const useNavigationMenus = () => {
     return name
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remover acentos
-      .replace(/[^a-z0-9\s-]/g, '') // Remover caracteres especiales
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
       .trim()
-      .replace(/\s+/g, '-') // Reemplazar espacios con guiones
-      .replace(/-+/g, '-'); // Remover guiones múltiples
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
   }, []);
 
   /**
@@ -174,10 +172,8 @@ export const useNavigationMenus = () => {
   const useCreateNavigationMenu = () => {
     return useMutation({
       mutationFn: async (menuInput: NavigationMenuInput) => {
-        // Obtener el owner actual
         const { username } = await getCurrentUser();
 
-        // Serializar menuData como JSON string
         const menuData = {
           ...menuInput,
           owner: username,
@@ -187,7 +183,6 @@ export const useNavigationMenus = () => {
         return performOperation(() => client.models.NavigationMenu.create(menuData));
       },
       onSuccess: () => {
-        // Invalidar consultas para actualizar la lista
         queryClient.invalidateQueries({ queryKey: [NAVIGATION_MENUS_KEY, 'list'] });
       },
     });
@@ -199,10 +194,8 @@ export const useNavigationMenus = () => {
   const useUpdateNavigationMenu = () => {
     return useMutation({
       mutationFn: ({ id, data }: { id: string; data: Partial<NavigationMenuInput> }) => {
-        // Remover owner del objeto de actualización para evitar errores de autorización
         const { owner, ...updateDataWithoutOwner } = data;
 
-        // Si hay menuData, serializarlo como JSON string
         const updateData = updateDataWithoutOwner.menuData
           ? { ...updateDataWithoutOwner, menuData: JSON.stringify(updateDataWithoutOwner.menuData) }
           : updateDataWithoutOwner;
@@ -215,7 +208,6 @@ export const useNavigationMenus = () => {
         );
       },
       onSuccess: (data, variables) => {
-        // Actualizar el menú en caché
         queryClient.invalidateQueries({ queryKey: [NAVIGATION_MENUS_KEY, variables.id] });
         queryClient.invalidateQueries({ queryKey: [NAVIGATION_MENUS_KEY, 'list'] });
       },
@@ -229,7 +221,6 @@ export const useNavigationMenus = () => {
     return useMutation({
       mutationFn: (id: string) => performOperation(() => client.models.NavigationMenu.delete({ id })),
       onSuccess: (_, id) => {
-        // Eliminar el menú de la caché
         queryClient.removeQueries({ queryKey: [NAVIGATION_MENUS_KEY, id] });
         queryClient.invalidateQueries({ queryKey: [NAVIGATION_MENUS_KEY, 'list'] });
       },

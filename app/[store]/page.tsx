@@ -5,7 +5,6 @@ import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 
-// Forzar renderizado dinámico para acceder a variables de entorno en runtime
 export const dynamic = 'force-dynamic';
 
 /**
@@ -39,9 +38,6 @@ export default async function StorePage({ params, searchParams }: StorePageProps
 
   const cleanHostname = hostname?.split(':')[0] || '';
 
-  // Esta página NUNCA debe renderizarse para el dominio principal.
-  // El dominio principal (ej: fasttify.com) muestra la landing, precios, etc.
-  // Las tiendas solo se sirven en subdominios (ej: store.fasttify.com) o dominios personalizados.
   const isMainDomain =
     cleanHostname === 'fasttify.com' || cleanHostname === 'www.fasttify.com' || cleanHostname === 'localhost';
 
@@ -50,22 +46,18 @@ export default async function StorePage({ params, searchParams }: StorePageProps
   }
 
   const { store } = await params;
-  const path = (await searchParams).path || '/';
+  const awaitedSearchParams = await searchParams;
+  const path = awaitedSearchParams.path || '/';
 
-  // Validar que no sea una ruta de asset
   if (isAssetPath(path)) {
     notFound();
   }
 
   try {
-    // Resolver dominio completo - detectar el tipo de dominio
-    // El middleware ya debería haber procesado esto correctamente
     const domain = store.includes('.') ? store : `${store}.fasttify.com`;
 
-    // Renderizar página usando el sistema con caché temporal
-    const result = await getCachedRenderResult(domain, path, searchParams);
+    const result = await getCachedRenderResult(domain, path, awaitedSearchParams);
 
-    // Retornar HTML renderizado con aislamiento CSS y auto-reload seguro
     return (
       <>
         <div dangerouslySetInnerHTML={{ __html: result.html }} />
@@ -75,19 +67,14 @@ export default async function StorePage({ params, searchParams }: StorePageProps
   } catch (error: any) {
     logger.error(`Error rendering store page ${store}${path}`, error, 'StorePage');
 
-    // Si el error ya tiene HTML renderizado (páginas de error amigables),
-    // mostrar esa página en lugar de lanzar el error
     if (error.html) {
       return <div dangerouslySetInnerHTML={{ __html: error.html }} />;
     }
 
-    // Mostrar 404 solo para casos muy específicos
     if (error.type === 'STORE_NOT_FOUND' && error.statusCode === 404) {
       notFound();
     }
 
-    // Para otros errores, intentar renderizar una página de error básica
-    // Si llegamos aquí, significa que falló el renderizado de error también
     throw error;
   }
 }
@@ -97,9 +84,9 @@ export default async function StorePage({ params, searchParams }: StorePageProps
  */
 export async function generateMetadata({ params, searchParams }: StorePageProps): Promise<Metadata> {
   const { store } = await params;
-  const path = (await searchParams).path || '/';
+  const awaitedSearchParams = await searchParams;
+  const path = awaitedSearchParams.path || '/';
 
-  // No generar metadata para assets
   if (isAssetPath(path)) {
     return {
       title: 'Asset',
@@ -107,5 +94,5 @@ export async function generateMetadata({ params, searchParams }: StorePageProps)
     };
   }
 
-  return generateStoreMetadata(store, path, searchParams);
+  return generateStoreMetadata(store, path, awaitedSearchParams);
 }

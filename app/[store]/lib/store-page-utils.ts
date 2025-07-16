@@ -34,11 +34,9 @@ export function isAssetPath(path: string): boolean {
  * Función cacheada usando React.cache() que persiste entre generateMetadata y StorePage.
  * Esta es la forma oficial de Next.js para compartir datos entre estas funciones.
  */
-export const getCachedRenderResult = cache(
-  async (domain: string, path: string, searchParams: Promise<Record<string, any>>) => {
-    return await storeRenderer.renderPage(domain, path, await searchParams);
-  }
-);
+export const getCachedRenderResult = cache(async (domain: string, path: string, searchParams: Record<string, any>) => {
+  return await storeRenderer.renderPage(domain, path, searchParams);
+});
 
 /**
  * Genera metadata SEO para la página de la tienda.
@@ -47,7 +45,7 @@ export const getCachedRenderResult = cache(
 export async function generateStoreMetadata(
   store: string,
   path: string,
-  searchParams: Promise<Record<string, any>>
+  searchParams: Record<string, any>
 ): Promise<Metadata> {
   try {
     const domain = store.includes('.') ? store : `${store}.fasttify.com`;

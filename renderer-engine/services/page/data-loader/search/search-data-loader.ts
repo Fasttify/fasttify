@@ -1,15 +1,51 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
+import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher'; // Nueva importación
 import { extractSearchLimitsFromSettings } from '@/renderer-engine/services/page/data-loader/search/search-limits-extractor';
+import type { ProductContext } from '@/renderer-engine/types';
+import { cookiesClient } from '@/utils/server/AmplifyServer';
 
 /**
  * Interfaz para los datos de búsqueda cargados
  */
 export interface SearchData {
-  searchProducts: any[];
+  searchProducts: ProductContext[];
   searchProductsLimit: number;
   searchCollections?: any[];
   searchCollectionsLimit?: number;
+}
+
+/**
+ * Función interna para buscar productos por término de búsqueda.
+ * Retorna ProductContext[]
+ */
+async function searchProductsByTerm(
+  storeId: string,
+  searchTerm: string,
+  limit: number = 20
+): Promise<ProductContext[]> {
+  if (!storeId || !searchTerm) {
+    logger.warn('searchProductsByTerm: storeId or searchTerm missing.', { storeId, searchTerm });
+    return [];
+  }
+
+  try {
+    const { data } = await cookiesClient.models.Product.listProductByStoreId(
+      { storeId },
+      {
+        limit,
+        filter: {
+          status: { eq: 'active' },
+          nameLowercase: { contains: searchTerm.toLowerCase() },
+        },
+      }
+    );
+    // Usar productFetcher.transformProduct para convertir al tipo correcto
+    return (data || []).map((product) => productFetcher.transformProduct(product));
+  } catch (error) {
+    logger.error('Failed to search products by term:', error);
+    return [];
+  }
 }
 
 /**
@@ -29,18 +65,31 @@ export class SearchDataLoader {
 
   /**
    * Carga los datos necesarios para la funcionalidad de búsqueda
+   * @param searchTerm - Término de búsqueda opcional para productos
    */
-  public async loadSearchData(storeId: string, loadedTemplates: Record<string, string>): Promise<SearchData> {
+  public async loadSearchData(
+    storeId: string,
+    loadedTemplates: Record<string, string>,
+    searchTerm?: string // Añadir searchTerm como parámetro opcional
+  ): Promise<SearchData> {
     try {
       // Extraer límites de configuración
       const { searchProductsLimit, searchCollectionsLimit } = extractSearchLimitsFromSettings(loadedTemplates);
 
-      // Cargar productos para búsqueda
-      const searchProductsData = await dataFetcher.getStoreProducts(storeId, {
-        limit: searchProductsLimit,
-      });
+      let searchProducts: ProductContext[] = []; // Asegurar el tipo
 
-      const searchProducts = searchProductsData.products || [];
+      // Condición: si hay searchTerm, usar la función de búsqueda por término
+      if (searchTerm) {
+        searchProducts = await searchProductsByTerm(storeId, searchTerm, searchProductsLimit);
+        logger.info(`Search by term results: ${searchProducts.length} products for term "${searchTerm}"`);
+      } else {
+        // Si no hay searchTerm, cargar productos normales (quizás para una página de búsqueda inicial)
+        const searchProductsData = await dataFetcher.getStoreProducts(storeId, {
+          limit: searchProductsLimit,
+        });
+        searchProducts = searchProductsData.products || [];
+        logger.info(`Loaded ${searchProducts.length} regular products for search page`);
+      }
 
       // Cargar colecciones para búsqueda (si está configurado)
       let searchCollections: any[] = [];
@@ -60,6 +109,7 @@ export class SearchDataLoader {
         collectionsCount: searchCollections.length,
         productsLimit: searchProductsLimit,
         collectionsLimit: searchCollectionsLimit,
+        searchTerm: searchTerm || 'N/A',
       });
 
       return {
@@ -82,7 +132,11 @@ export class SearchDataLoader {
   /**
    * Inyecta los datos de búsqueda en el contexto Liquid
    */
-  public injectSearchDataIntoContext(contextData: Record<string, any>, searchData: SearchData): void {
+  public injectSearchDataIntoContext(
+    contextData: Record<string, any>,
+    searchData: SearchData,
+    searchTerm?: string
+  ): void {
     // Inyectar productos de búsqueda
     contextData.search_products = searchData.searchProducts;
     contextData.search_products_limit = searchData.searchProductsLimit;
@@ -91,6 +145,11 @@ export class SearchDataLoader {
     if (searchData.searchCollections && searchData.searchCollections.length > 0) {
       contextData.search_collections = searchData.searchCollections;
       contextData.search_collections_limit = searchData.searchCollectionsLimit;
+    }
+
+    // Inyectar el término de búsqueda si existe
+    if (searchTerm) {
+      contextData.search_term = searchTerm;
     }
   }
 }

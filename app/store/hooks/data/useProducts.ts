@@ -1,4 +1,5 @@
 import type { Schema } from '@/amplify/data/resource';
+import { withLowercaseName } from '@/app/store/hooks/utils/productUtils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -158,8 +159,7 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   const createProductMutation = useMutation({
     mutationFn: async (productData: ProductCreateInput) => {
       const { username } = await getCurrentUser();
-
-      const { data } = await client.models.Product.create({
+      const dataToSend = withLowercaseName({
         ...productData,
         storeId: storeId || '',
         owner: username,
@@ -167,6 +167,7 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
         quantity: productData.quantity || 0,
       });
 
+      const { data } = await client.models.Product.create(dataToSend);
       return data as IProduct;
     },
     onSuccess: () => {
@@ -177,7 +178,9 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   // Mutación para actualizar un producto
   const updateProductMutation = useMutation({
     mutationFn: async (productData: ProductUpdateInput) => {
-      const { data } = await client.models.Product.update(productData);
+      const dataToSend = withLowercaseName(productData);
+
+      const { data } = await client.models.Product.update(dataToSend);
       return data as IProduct;
     },
     onSuccess: (updatedProduct) => {

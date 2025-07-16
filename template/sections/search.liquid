@@ -1,15 +1,31 @@
 <section>
-  {% if search.performed %}
-    <h1>search page</h1>
-    <div>
-      {% for result in search.results %}
-        <p>{{ result.object_type }}</p>
+  <h1>Resultados de búsqueda para: {{ search_term }}</h1>
+
+  {% if search_products.size > 0 %}
+    <div class="search-results-grid">
+      {% for product in search_products %}
+        <div class="product-card">
+          <h2>{{ product.title }}</h2>
+          <p>{{ product.price }}</p>
+          {% if product.featured_image %}
+            <img src="{{ product.featured_image | img_url: '200x' }}" alt="{{ product.title }}">
+          {% endif %}
+          <a href="{{ product.url }}">Ver producto</a>
+        </div>
       {% endfor %}
-  {% else %}
-    <h1>not results found!</h1>
     </div>
+  {% else %}
+    <p>No se encontraron resultados para "{{ search_term }}".</p>
   {% endif %}
 </section>
+
+<style>
+  .search-results-grid {
+
+    margin-top: 100px;
+
+  }
+</style>
 
 {% schema %}
 {

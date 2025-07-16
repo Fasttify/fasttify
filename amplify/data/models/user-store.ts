@@ -45,6 +45,7 @@ export const userStoreModel = a
     mercadoPagoConfig: a.json(),
     mastershopApiKey: a.string(),
     customDomain: a.string(),
+    defaultDomain: a.string(),
     customDomainStatus: a.string(),
     customDomainVerifiedAt: a.datetime(),
     cloudFrontTenantId: a.string(),
@@ -68,7 +69,7 @@ export const userStoreModel = a
     navigationMenus: a.hasMany('NavigationMenu', 'storeId'),
   })
   .identifier(['storeId'])
-  .secondaryIndexes((index) => [index('userId'), index('customDomain'), index('storeName')])
+  .secondaryIndexes((index) => [index('userId'), index('customDomain'), index('storeName'), index('defaultDomain')])
   .authorization((allow) => [
     allow.authenticated().to(['read', 'update', 'delete', 'create']),
     allow.publicApiKey().to(['read']),

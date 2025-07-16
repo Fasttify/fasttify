@@ -1,8 +1,7 @@
-import { create } from 'zustand';
-import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-import { CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/data';
+import { CONNECTION_STATE_CHANGE, ConnectionState, generateClient } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
+import { create } from 'zustand';
 
 const client = generateClient<Schema>({
   authMode: 'userPool',
@@ -17,7 +16,7 @@ interface StoreDataState {
   error: Error | null;
   connectionState: ConnectionState | null;
   hasMasterShopApiKey: boolean;
-  activeSubscription: (() => void) | null; // Tracking de suscripción activa
+  activeSubscription: (() => void) | null;
   setStoreId: (id: string | null) => void;
   fetchStoreData: (storeId: string, userId: string) => Promise<void>;
   clearStore: () => void;
@@ -26,7 +25,6 @@ interface StoreDataState {
   checkMasterShopApiKey: (storeId: string, userId: string) => Promise<boolean>;
 }
 
-// Configurar el listener de estado de conexión
 Hub.listen('api', (data: any) => {
   const { payload } = data;
   if (payload.event === CONNECTION_STATE_CHANGE) {
@@ -51,12 +49,10 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
   fetchStoreData: async (storeId, userId) => {
     const currentState = get();
 
-    // No hacer fetch si ya tenemos los datos de esta tienda y no está cargando
     if (currentState.currentStore?.storeId === storeId && !currentState.isLoading) {
       return;
     }
 
-    // Si ya hay una petición en curso para la misma tienda, no hacer otra
     if (currentState.isLoading && currentState.storeId === storeId) {
       return;
     }
@@ -71,7 +67,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
             'storeId',
             'storeName',
             'storeLogo',
-            'customDomain',
+            'defaultDomain',
             'contactPhone',
             'contactEmail',
             'storeFavicon',
@@ -79,6 +75,8 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
             'onboardingData',
             'storeAdress',
             'storeDescription',
+            'customDomain',
+            'customDomainStatus',
           ],
         }
       );
@@ -93,7 +91,6 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
         const hasMasterShopApiKey = await get().checkMasterShopApiKey(storeId, userId);
         set({ hasMasterShopApiKey });
 
-        // Solo configurar suscripción si no hay una activa ya
         const state = get();
         if (!state.activeSubscription) {
           const unsubscribe = get().setupSubscription(storeId);
@@ -143,7 +140,6 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
   clearStore: () => {
     const state = get();
 
-    // Cancelar suscripción activa antes de limpiar
     if (state.activeSubscription) {
       state.activeSubscription();
     }
@@ -158,16 +154,14 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     });
   },
 
-  // Configurar suscripción para actualizaciones en tiempo real
   setupSubscription: (id: string) => {
-    // Usar observeQuery para mantener los datos actualizados automáticamente
     const subscription = client.models.UserStore.observeQuery({
       filter: { storeId: { eq: id } },
       selectionSet: [
         'storeId',
         'storeName',
         'storeLogo',
-        'customDomain',
+        'defaultDomain',
         'contactPhone',
         'contactEmail',
         'storeFavicon',
@@ -175,6 +169,8 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
         'onboardingData',
         'storeAdress',
         'storeDescription',
+        'customDomain',
+        'customDomainStatus',
       ],
     }).subscribe({
       next: ({ items, isSynced }) => {
@@ -208,7 +204,6 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
       },
     });
 
-    // Devolver función para cancelar la suscripción
     return () => subscription.unsubscribe();
   },
 }));

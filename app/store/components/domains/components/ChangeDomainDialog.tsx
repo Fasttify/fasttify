@@ -45,7 +45,7 @@ export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdate
 
     try {
       const fullDomain = `${domainName.trim()}.fasttify.com`;
-      const result = await updateUserStore({ storeId, customDomain: fullDomain });
+      const result = await updateUserStore({ storeId, defaultDomain: fullDomain });
 
       if (result) {
         showToast('Dominio actualizado correctamente');

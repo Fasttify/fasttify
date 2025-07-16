@@ -41,7 +41,6 @@ export function DomainManagement() {
     verifyCustomDomainStatus,
   } = useCustomDomain(currentStore?.storeId ?? '');
 
-  // Cargar estado del dominio personalizado al inicio
   const [customDomainLoaded, setCustomDomainLoaded] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -286,7 +285,7 @@ export function DomainManagement() {
                 <LegacyStack alignment="center">
                   <Icon source={GlobeIcon} tone="base" />
                   <LegacyStack vertical spacing="none">
-                    <Text as="p">{currentStore?.customDomain}</Text>
+                    <Text as="p">{currentStore?.defaultDomain}</Text>
                     <Text as="p" tone="subdued">
                       {customDomainStatus?.hasCustomDomain ? 'Dominio de respaldo' : 'Dominio predeterminado'}
                     </Text>

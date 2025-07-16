@@ -7,13 +7,10 @@ const client = generateClient<Schema>({
   authMode: 'userPool',
 });
 
-// Definición del input para UserStore
 export type UserStore = Schema['UserStore']['type'];
 
-// Tipo para pasarelas de pago
 export type PaymentGatewayType = 'mercadoPago' | 'wompi';
 
-// Tipo para configuración de pasarela
 export interface PaymentGatewayConfig {
   publicKey: string;
   privateKey: string;
@@ -21,7 +18,6 @@ export interface PaymentGatewayConfig {
   createdAt: string;
 }
 
-// Tipos para respuestas de inicialización
 export interface StoreInitializationResult {
   success: boolean;
   message: string;
@@ -29,10 +25,8 @@ export interface StoreInitializationResult {
   menus?: string[];
 }
 
-// Tipos para menús de navegación
 export type NavigationMenu = Schema['NavigationMenu']['type'];
 
-// Tipos para items de menú (ahora son objetos JavaScript, no registros de BD)
 export interface MenuItem {
   label: string;
   url: string;
@@ -90,7 +84,6 @@ export const useUserStoreData = () => {
 
       const configuredGateways: PaymentGatewayType[] = [];
 
-      // Verificamos si existe configuración de Wompi
       const wompiResult = await client.models.UserStore.listUserStoreByUserId(
         {
           userId: user.userId,
@@ -104,7 +97,6 @@ export const useUserStoreData = () => {
         }
       );
 
-      // Verificamos si existe configuración de MercadoPago
       const mercadoPagoResult = await client.models.UserStore.listUserStoreByUserId(
         {
           userId: user.userId,
@@ -118,7 +110,6 @@ export const useUserStoreData = () => {
         }
       );
 
-      // Agregamos las pasarelas configuradas al array
       if (wompiResult.data && wompiResult.data.length > 0) {
         configuredGateways.push('wompi');
       }
@@ -153,7 +144,6 @@ export const useUserStoreData = () => {
     }
 
     try {
-      // Primero obtenemos el registro existente
       const existingStoreResult = await client.models.UserStore.listUserStoreByUserId(
         {
           userId: user.userId,
@@ -171,20 +161,16 @@ export const useUserStoreData = () => {
         return false;
       }
 
-      // Convertir a JSON si es necesario
       const configValue = convertToJson ? JSON.stringify(config) : config;
 
-      // El payload de update NO debe incluir el identificador (storeId)
-      // Solo los campos que queremos actualizar
       const updatePayload = {
         ...(gateway === 'mercadoPago' ? { mercadoPagoConfig: configValue } : { wompiConfig: configValue }),
       };
 
-      // Para el update, necesitamos pasar el identificador por separado
       const result = await performOperation(() =>
         client.models.UserStore.update({
-          storeId: storeId, // Este es el identificador
-          ...updatePayload, // Estos son los campos a actualizar
+          storeId: storeId,
+          ...updatePayload,
         })
       );
 
@@ -246,13 +232,14 @@ export const useUserStoreData = () => {
     }
 
     return performOperation(() =>
-      client.models.NavigationMenu.list({
-        filter: {
-          storeId: { eq: storeId },
-          domain: { eq: domain },
+      client.models.NavigationMenu.listNavigationMenuByStoreId(
+        {
+          storeId,
         },
-        selectionSet: ['id', 'name', 'handle', 'isMain', 'isActive', 'domain', 'menuData'],
-      })
+        {
+          selectionSet: ['id', 'name', 'handle', 'isMain', 'isActive', 'domain', 'menuData'],
+        }
+      )
     );
   };
 
@@ -280,15 +267,12 @@ export const useUserStoreData = () => {
       setLoading(true);
       setError(null);
 
-      // Primero crear la tienda
       const storeResult = await performOperation(() => client.models.UserStore.create(storeInput));
 
       if (!storeResult) {
         throw new Error('Failed to create store');
       }
 
-      // Luego inicializar los datos por defecto (colecciones y menús)
-      // Priorizar customDomain, luego generar dominio fasttify si no existe
       const domain = storeInput.customDomain || `${storeInput.storeName}.fasttify.com`;
 
       const templateResult = await initializeStoreTemplate(storeInput.storeId, domain);

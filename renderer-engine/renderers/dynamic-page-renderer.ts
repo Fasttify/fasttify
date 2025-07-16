@@ -77,9 +77,12 @@ export class DynamicPageRenderer {
     searchParams: Record<string, string> = {}
   ): Promise<RenderResult> {
     try {
+      if (options.pageType === 'search' && searchParams.q) {
+        options.searchTerm = searchParams.q;
+      }
+
       let data: RenderingData = { domain, options, searchParams };
 
-      // Ejecutar pipeline de renderizado
       for (const step of renderingPipeline) {
         data = await step(data);
       }

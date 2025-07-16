@@ -226,7 +226,7 @@ export interface PageRenderOptions {
   productId?: string;
   collectionId?: string;
   collectionHandle?: string;
-  searchQuery?: string;
+  searchTerm?: string;
 }
 
 export interface PaginationInfo {
