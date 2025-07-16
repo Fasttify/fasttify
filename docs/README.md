@@ -1,6 +1,6 @@
-# Documentación de Fasttify
+Fasttify es una plataforma de e-commerce headless que integra un potente motor de renderizado Liquid (compatible con Shopify), arquitectura multi-tenant y automatización avanzada para la gestión de tiendas online modernas.
 
-Bienvenido a la documentación de Fasttify, una plataforma completa de e-commerce con motor de renderizado Liquid y funcionalidades avanzadas.
+Esta documentación cubre desde la personalización de temas y plantillas, hasta la integración de dominios personalizados, automatización de flujos y mejores prácticas para desarrolladores y equipos técnicos.
 
 ## 📚 Índice de Documentación
 
