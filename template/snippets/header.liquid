@@ -70,17 +70,9 @@
         <div class="header-actions">
           <!-- Search -->
           <div class="header-search">
-            <button type="button" class="search-toggle js-search-toggle" aria-label="Search" aria-expanded="false" aria-controls="search-form">
+            <button type="button" class="search-toggle js-search-toggle" aria-label="Search" aria-expanded="false" aria-controls="search-dialog-overlay">
               <img src="{{ 'icon-search.svg' | asset_url }}" alt="Search" width="30" height="30" loading="lazy">
             </button>
-            <div class="search-form-container" id="search-form">
-              <form action="/search" method="get" class="search-form" role="search">
-                <input type="search" name="q" placeholder="Buscar productos..." aria-label="Buscar" class="search-input">
-                <button type="submit" class="search-submit" aria-label="Submit search">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                </button>
-              </form>
-            </div>
           </div>
 
           <!-- Account -->
@@ -154,25 +146,36 @@
       </nav>
     </div>
   </div>
+</div>
 
-  <!-- Mobile search panel -->
-  <div class="mobile-search" id="mobile-search">
-    <div class="mobile-search-inner">
-      <div class="mobile-search-header">
-        <button type="button" class="mobile-search-close js-search-toggle" aria-label="Close search">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-      </div>
-      <form action="/search" method="get" class="mobile-search-form" role="search">
-        <input type="search" name="q" placeholder="Buscar productos..." aria-label="Buscar" class="mobile-search-input" autocomplete="off">
-        <button type="submit" class="mobile-search-submit" aria-label="Submit search">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </button>
+<!-- Search Dialog  -->
+<div class="search-dialog-overlay" id="search-dialog-overlay">
+  <div class="search-dialog-content">
+    <div class="search-dialog-header">
+      <form action="/search" method="get" class="search-form" role="search">
+        <div class="search-input-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="search" name="q" placeholder="Buscar" aria-label="Buscar" class="search-input" autocomplete="off">
+        </div>
       </form>
+      <button type="button" class="search-dialog-close js-search-toggle" aria-label="Cerrar búsqueda">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <h2 class="search-dialog-products-heading">Productos</h2>
+    <div class="search-dialog-products-grid">
+      {% for product in search_products limit: 4 %}
+        <div class="product-card-placeholder">
+          <img src="{{ product.featured_image | image_url: width: 100 }}" alt="{{ product.title }}" loading="lazy">
+          <a href="{{ product.url }}" class="product-card-link">
+            <h3>{{ product.title }}</h3>
+            <p>{{ product.price }}</p>
+          </a>
+        </div>
+      {% endfor %}
     </div>
   </div>
 </div>
-
 
 
 {% javascript %}
@@ -192,16 +195,18 @@
 
     // Search toggle
     const searchToggles = document.querySelectorAll('.js-search-toggle');
-    const mobileSearch = document.getElementById('mobile-search');
+    const searchDialogOverlay = document.getElementById('search-dialog-overlay');
 
     searchToggles.forEach(function(toggle) {
       toggle.addEventListener('click', function() {
-        const expanded = toggle.getAttribute('aria-expanded') === 'true';
-        searchToggles.forEach(t => t.setAttribute('aria-expanded', !expanded));
-
-        if (window.innerWidth < 990) {
-          mobileSearch.classList.toggle('is-active');
+        // Toggle aria-expanded for the search icon button itself
+        if (toggle.classList.contains('search-toggle')) {
+          const expanded = toggle.getAttribute('aria-expanded') === 'true';
+          toggle.setAttribute('aria-expanded', !expanded);
         }
+
+        searchDialogOverlay.classList.toggle('is-active');
+        document.body.classList.toggle('search-open');
       });
     });
 
@@ -238,14 +243,21 @@
       }
     });
 
-    // Close dropdowns and menu when clicking outside
+    // Close dialog when clicking outside
     document.addEventListener('click', function(event) {
       const target = event.target;
 
-      if (!target.closest('.header-search') && !target.closest('#search-form')) {
-        const searchToggle = document.querySelector('.search-toggle');
-        if (searchToggle && searchToggle.getAttribute('aria-expanded') === 'true') {
-          searchToggle.setAttribute('aria-expanded', 'false');
+      // Close search dialog if click outside the dialog content and not on the search toggle button
+      if (!target.closest('.search-dialog-content') && !target.closest('.search-toggle')) {
+        const searchDialogOverlay = document.getElementById('search-dialog-overlay');
+        const searchButton = document.querySelector('.search-toggle');
+
+        if (searchDialogOverlay.classList.contains('is-active')) {
+          searchDialogOverlay.classList.remove('is-active');
+          document.body.classList.remove('search-open');
+          if (searchButton) {
+            searchButton.setAttribute('aria-expanded', 'false');
+          }
         }
       }
     });

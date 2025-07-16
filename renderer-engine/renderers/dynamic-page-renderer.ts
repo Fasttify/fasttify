@@ -1,21 +1,32 @@
+// Core utilities
 import { injectAssets } from '@/renderer-engine/lib/inject-assets';
 import { logger } from '@/renderer-engine/lib/logger';
+
+// Liquid engine
 import { liquidEngine } from '@/renderer-engine/liquid/engine';
+
+// Services
+import { pageConfig } from '@/renderer-engine/config/page-config';
 import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
 import { errorRenderer } from '@/renderer-engine/services/errors/error-renderer';
 import { createTemplateError } from '@/renderer-engine/services/errors/error-utils';
-import { pageConfig } from '@/renderer-engine/services/page/page-config';
 import { metadataGenerator } from '@/renderer-engine/services/rendering/metadata-generator';
 import { sectionRenderer } from '@/renderer-engine/services/rendering/section-renderer';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
+
+// Pipeline steps
+import {
+  buildContextStep,
+  initializeEngineStep,
+  loadDataStep,
+  renderContentStep,
+  resolveStoreStep,
+} from '@/renderer-engine/renderers/pipeline-steps';
+
+// Types
 import type { RenderResult, ShopContext, TemplateError } from '@/renderer-engine/types';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
 import type { Template } from 'liquidjs';
-import { buildContextStep } from '@/renderer-engine/renderers/pipeline-steps/build-context-step';
-import { initializeEngineStep } from '@/renderer-engine/renderers/pipeline-steps/initialize-engine-step';
-import { loadDataStep } from '@/renderer-engine/renderers/pipeline-steps/load-data-step';
-import { renderContentStep } from '@/renderer-engine/renderers/pipeline-steps/render-content-step';
-import { resolveStoreStep } from '@/renderer-engine/renderers/pipeline-steps/resolve-store-step';
 
 /**
  * Tipo para pasos del pipeline de renderizado

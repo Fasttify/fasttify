@@ -3,7 +3,7 @@ import type { TemplateAnalysis } from '@/renderer-engine/services/templates/temp
 import { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
-import { extractPaginationLimitFromTemplate } from '@/renderer-engine/services/page/data-loader/pagination-limit-extractor';
+import { extractPaginationLimitFromTemplate } from '@/renderer-engine/services/page/data-loader/pagination/pagination-limit-extractor';
 
 /**
  * Tipo para cargadores de templates

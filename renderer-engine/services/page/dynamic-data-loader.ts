@@ -1,11 +1,8 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
-import { buildContextData } from '@/renderer-engine/services/page/data-loader/context-builder-helper';
-import { loadDataFromAnalysis } from '@/renderer-engine/services/page/data-loader/data-fetcher-helper';
-import { analyzeRequiredTemplates } from '@/renderer-engine/services/page/data-loader/template-analyzer-helper';
-import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
+import { coreDataLoader, searchDataLoader } from '@/renderer-engine/services/page/data-loader';
+import type { CoreData } from '@/renderer-engine/services/page/data-loader/core/core-data-loader';
+import type { SearchData } from '@/renderer-engine/services/page/data-loader/search/search-data-loader';
 import type { PageRenderOptions, PaginationInfo } from '@/renderer-engine/types/template';
-import { buildPaginationObject } from '@/renderer-engine/services/page/data-loader/pagination-builder-helper';
 
 /**
  * Resultado de la carga dinámica de datos
@@ -16,9 +13,11 @@ export interface DynamicLoadResult {
   contextData: Record<string, any>;
   metaData: Record<string, any>;
   cartData: any;
-  analysis: TemplateAnalysis;
+  analysis: any;
   nextToken?: string;
   paginate?: PaginationInfo;
+  searchProducts?: any[];
+  searchCollections?: any[];
 }
 
 /**
@@ -37,42 +36,46 @@ export class DynamicDataLoader {
     return DynamicDataLoader.instance;
   }
 
+  /**
+   * Carga todos los datos necesarios para renderizar una página
+   */
   public async loadDynamicData(
     storeId: string,
     options: PageRenderOptions,
-    searchParams: Record<string, string> = {}
+    searchParams: Record<string, string> = {},
+    loadedTemplates?: Record<string, string>
   ): Promise<DynamicLoadResult> {
     try {
-      const analysis = await analyzeRequiredTemplates(storeId, options);
-      const cartData = dataFetcher.transformCartToContext(await dataFetcher.getCart(storeId));
+      // Cargar datos principales (productos, colecciones, carrito, etc.)
+      const coreData: CoreData = await coreDataLoader.loadCoreData(storeId, options, searchParams);
 
-      // Usar el límite del schema o un fallback seguro de 12 si no está definido.
-      const limit = (analysis as any).paginationLimit || 12;
-      const { loadedData, paginationInfo } = await loadDataFromAnalysis(
-        storeId,
-        analysis,
-        options,
-        searchParams,
-        limit
-      );
+      // Cargar datos de búsqueda si tenemos acceso a las plantillas
+      let searchData: SearchData | null = null;
+      if (loadedTemplates) {
+        searchData = await searchDataLoader.loadSearchData(storeId, loadedTemplates);
 
-      const contextData = await buildContextData(storeId, options, loadedData);
-
-      // Construir el objeto paginate global si aplica
-      const paginate = buildPaginationObject(analysis, loadedData, paginationInfo, searchParams, limit);
-      if (paginate) {
-        contextData.paginate = paginate; // Inyectar en el contexto
+        // Inyectar datos de búsqueda en el contexto
+        searchDataLoader.injectSearchDataIntoContext(coreData.contextData, searchData);
       }
 
+      logger.info(`Dynamic data loading completed for ${options.pageType}`, {
+        coreProductsCount: coreData.products.length,
+        coreCollectionsCount: coreData.collections.length,
+        searchProductsCount: searchData?.searchProducts.length || 0,
+        searchCollectionsCount: searchData?.searchCollections?.length || 0,
+      });
+
       return {
-        products: loadedData.products,
-        collections: loadedData.collections,
-        contextData,
+        products: coreData.products,
+        collections: coreData.collections,
+        contextData: coreData.contextData,
         metaData: {},
-        cartData,
-        analysis,
-        nextToken: paginationInfo.nextToken,
-        paginate,
+        cartData: coreData.cartData,
+        analysis: coreData.analysis,
+        nextToken: coreData.nextToken,
+        paginate: coreData.paginate,
+        searchProducts: searchData?.searchProducts,
+        searchCollections: searchData?.searchCollections,
       };
     } catch (error) {
       logger.error('Error in dynamic data loading', error, 'DynamicDataLoader');
@@ -80,8 +83,10 @@ export class DynamicDataLoader {
     }
   }
 
+  /**
+   * Crea datos de fallback en caso de error
+   */
   private async createFallbackData(storeId: string, options: PageRenderOptions): Promise<DynamicLoadResult> {
-    const cartData = dataFetcher.transformCartToContext(await dataFetcher.getCart(storeId));
     return {
       products: [],
       collections: [],
@@ -90,7 +95,7 @@ export class DynamicDataLoader {
         page_title: options.pageType.charAt(0).toUpperCase() + options.pageType.slice(1),
       },
       metaData: {},
-      cartData,
+      cartData: null,
       analysis: {
         requiredData: new Map(),
         hasPagination: false,
@@ -99,9 +104,14 @@ export class DynamicDataLoader {
         dependencies: [],
       },
       nextToken: undefined,
+      searchProducts: [],
+      searchCollections: [],
     };
   }
 
+  /**
+   * Obtiene estadísticas del último análisis (para debugging)
+   */
   public getLastAnalysisStats(): any {
     return {
       message: 'Use loadDynamicData to get analysis results',
