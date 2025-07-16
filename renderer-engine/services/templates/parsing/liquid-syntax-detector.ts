@@ -2,7 +2,7 @@ import type {
   DataLoadOptions,
   DataRequirement,
   TemplateAnalysis,
-} from '@/renderer-engine/services/templates/template-analyzer';
+} from '@/renderer-engine/services/templates/analysis/template-analyzer';
 
 /**
  * Tipo para detectores de objetos Liquid

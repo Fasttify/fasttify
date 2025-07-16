@@ -1,5 +1,5 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { LiquidSyntaxDetector } from '@/renderer-engine/services/templates/liquid-syntax-detector';
+import { LiquidSyntaxDetector } from '@/renderer-engine/services/templates/parsing/liquid-syntax-detector';
 
 /**
  * Tipo de datos que pueden ser detectados en una plantilla

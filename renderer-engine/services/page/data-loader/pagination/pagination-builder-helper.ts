@@ -1,4 +1,4 @@
-import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
+import type { TemplateAnalysis } from '@/renderer-engine/services/templates/analysis/template-analyzer';
 import type { PaginationInfo } from '@/renderer-engine/types/template';
 
 interface LoadedData {

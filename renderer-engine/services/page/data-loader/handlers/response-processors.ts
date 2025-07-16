@@ -1,4 +1,4 @@
-import type { DataRequirement } from '@/renderer-engine/services/templates/template-analyzer';
+import type { DataRequirement } from '@/renderer-engine/services/templates/analysis/template-analyzer';
 import type { PaginationInfo } from '@/renderer-engine/types/template';
 
 /**

@@ -4,7 +4,7 @@ import { loadDataFromAnalysis } from '@/renderer-engine/services/page/data-loade
 import { buildContextData } from '@/renderer-engine/services/page/data-loader/core/context-builder-helper';
 import { analyzeRequiredTemplates } from '@/renderer-engine/services/page/data-loader/core/template-analyzer-helper';
 import { buildPaginationObject } from '@/renderer-engine/services/page/data-loader/pagination/pagination-builder-helper';
-import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
+import type { TemplateAnalysis } from '@/renderer-engine/services/templates/analysis/template-analyzer';
 import type { PageRenderOptions, PaginationInfo } from '@/renderer-engine/types/template';
 
 /**

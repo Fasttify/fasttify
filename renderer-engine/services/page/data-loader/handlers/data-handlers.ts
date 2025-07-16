@@ -1,6 +1,6 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
-import type { DataLoadOptions, DataRequirement } from '@/renderer-engine/services/templates/template-analyzer';
+import type { DataLoadOptions, DataRequirement } from '@/renderer-engine/services/templates/analysis/template-analyzer';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
 
 /**

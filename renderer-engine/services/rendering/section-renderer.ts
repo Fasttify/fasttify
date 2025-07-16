@@ -1,6 +1,6 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { liquidEngine } from '@/renderer-engine/liquid/engine';
-import { schemaParser } from '@/renderer-engine/services/templates/schema-parser';
+import { schemaParser } from '@/renderer-engine/services/templates/parsing/schema-parser';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import type { RenderContext } from '@/renderer-engine/types';
 
