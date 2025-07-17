@@ -1,5 +1,16 @@
-import { contextBuilder } from '@/renderer-engine/services/rendering/global-context';
 import type { RenderingData } from '@/renderer-engine/renderers/dynamic-page-renderer';
+import { contextBuilder } from '@/renderer-engine/services/rendering/global-context';
+
+/**
+ * Helper para exponer solo propiedades definidas
+ */
+function exposeIfDefined(target: any, source: Record<string, any>, keys: string[]) {
+  for (const key of keys) {
+    if (source[key] !== undefined && source[key] !== null) {
+      target[key] = source[key];
+    }
+  }
+}
 
 /**
  * Paso 5: Construir contexto de renderizado
@@ -15,26 +26,23 @@ export async function buildContextStep(data: RenderingData): Promise<RenderingDa
   // Combinar datos dinámicos
   Object.assign(context, data.pageData!.contextData);
 
-  // Agregar tokens de paginación
-  if (data.pageData!.nextToken) {
-    (context as any).next_token = data.pageData!.nextToken;
-  }
+  // Exponer variables opcionales de paginación y búsqueda
+  exposeIfDefined(
+    context,
+    {
+      next_token: data.pageData!.nextToken,
+      current_token: data.searchParams.token,
+      search_products_limit: data.pageData?.searchProductsLimit,
+    },
+    ['next_token', 'current_token', 'search_products_limit']
+  );
 
-  if (data.searchParams.token) {
-    (context as any).current_token = data.searchParams.token;
-  }
-
-  // Agregar objeto request para el tag paginate
+  // Construir searchParams y request
   const searchParams = new URLSearchParams(Object.entries(data.searchParams).map(([key, value]) => [key, value]));
-
-  // Añadir searchTerm al searchParams si existe
   if (data.options.searchTerm) {
     searchParams.set('q', data.options.searchTerm);
   }
-
-  (context as any).request = {
-    searchParams,
-  };
+  (context as any).request = { searchParams };
 
   return { ...data, context };
 }

@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import type { IProduct } from '@/app/store/hooks/data/useProducts';
+import { useState } from 'react';
 
 export function useProductSelection() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);

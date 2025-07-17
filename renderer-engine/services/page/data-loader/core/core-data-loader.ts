@@ -44,16 +44,12 @@ export class CoreDataLoader {
     searchParams: Record<string, string> = {}
   ): Promise<CoreData> {
     try {
-      // Analizar plantillas para determinar qué datos necesitamos
       const analysis = await analyzeRequiredTemplates(storeId, options);
 
-      // Cargar datos del carrito
       const cartData = dataFetcher.transformCartToContext(await dataFetcher.getCart(storeId));
 
-      // Usar el límite del schema o un fallback seguro de 12 si no está definido
       const limit = (analysis as any).paginationLimit || 12;
 
-      // Cargar datos basados en el análisis
       const { loadedData, paginationInfo } = await loadDataFromAnalysis(
         storeId,
         analysis,
@@ -62,13 +58,11 @@ export class CoreDataLoader {
         limit
       );
 
-      // Construir contexto de datos
       const contextData = await buildContextData(storeId, options, loadedData);
 
-      // Construir el objeto paginate global si aplica
       const paginate = buildPaginationObject(analysis, loadedData, paginationInfo, searchParams, limit);
       if (paginate) {
-        contextData.paginate = paginate; // Inyectar en el contexto
+        contextData.paginate = paginate;
       }
 
       logger.info(`Core data loaded successfully for ${options.pageType}`, {

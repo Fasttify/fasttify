@@ -8,7 +8,7 @@ import InventoryTable, {
 import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/ProductPagination';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
-import { Button, EmptyState, LegacyCard, Spinner } from '@shopify/polaris';
+import { Button, Card, EmptyState, Spinner } from '@shopify/polaris';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
@@ -60,14 +60,14 @@ export function InventoryTracking({
 
   if (error) {
     return (
-      <LegacyCard>
+      <Card>
         <EmptyState
           heading="Error al cargar el inventario"
           image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
           fullWidth>
           <p>Ha ocurrido un error al cargar los datos del inventario.</p>
         </EmptyState>
-      </LegacyCard>
+      </Card>
     );
   }
 
@@ -79,7 +79,7 @@ export function InventoryTracking({
             <InventoryHeader />
           </div>
         </div>
-        <LegacyCard>
+        <Card>
           <EmptyState
             heading="Sin productos en inventario"
             image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
@@ -89,7 +89,7 @@ export function InventoryTracking({
               Ir a productos
             </Button>
           </EmptyState>
-        </LegacyCard>
+        </Card>
       </>
     );
   }
@@ -112,15 +112,15 @@ export function InventoryTracking({
         <InventoryActions />
       </div>
 
-      <LegacyCard>
-        <LegacyCard.Section>
+      <Card>
+        <div style={{ padding: 16 }}>
           <InventoryFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-        </LegacyCard.Section>
+        </div>
 
         <InventoryTable data={filteredData} />
 
         {!loading && !error && filteredData.length > 0 && (
-          <LegacyCard.Section>
+          <div style={{ padding: 16 }}>
             <ProductPagination
               currentPage={currentPage}
               itemsPerPage={itemsPerPage}
@@ -131,13 +131,13 @@ export function InventoryTracking({
               hasPreviousPage={hasPreviousPage}
               currentItemsCount={filteredData.length}
             />
-          </LegacyCard.Section>
+          </div>
         )}
 
-        <LegacyCard.Section>
+        <div style={{ padding: 16 }}>
           <InventoryFooter />
-        </LegacyCard.Section>
-      </LegacyCard>
+        </div>
+      </Card>
     </div>
   );
 }

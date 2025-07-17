@@ -123,8 +123,8 @@
 .desktop-nav {
   display: none;
   justify-self: start;
-  order: -1; /* Mover la navegación antes del logo */
-  margin-left: 20px; /* Separar un poco del borde izquierdo */
+  order: -1;
+  margin-left: 20px;
 }
 
 @media (min-width: 990px) {
@@ -614,6 +614,20 @@ body.menu-open {
   background-color: transparent;
 }
 
+/* Quitar la X azul del input de búsqueda */
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration,
+.search-input::-webkit-search-results-button,
+.search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Para Firefox */
+.search-input::-moz-search-cancel {
+  display: none;
+}
+
 .search-dialog-header .search-input:focus {
   border-color: transparent;
 }
@@ -820,5 +834,41 @@ body.search-open {
   .header-actions {
     gap: 8px;
   }
+}
+
+/* Limitar el ancho máximo de cada tarjeta */
+.product-card-placeholder {
+  max-width: 180px;
+  min-width: 140px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 12px 8px;
+  min-height: 180px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+}
+
+/* Centrar el grid cuando hay pocos productos */
+.search-dialog-products-grid {
+  justify-content: center;
+  justify-items: center;
+}
+
+/* Limitar el tamaño de la imagen */
+.product-card-placeholder img {
+  max-width: 120px;
+  max-height: 120px;
+  width: auto;
+  height: auto;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Cuando solo hay un producto, centrarlo y limitar el grid */
+.search-dialog-products-grid:only-child,
+.search-dialog-products-grid:has(.product-card-placeholder:only-child) {
+  justify-content: center;
+  grid-template-columns: repeat(1, minmax(140px, 180px));
 }
 

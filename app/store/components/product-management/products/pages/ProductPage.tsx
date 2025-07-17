@@ -1,5 +1,5 @@
 import { routes } from '@/utils/client/routes';
-import { Button, LegacyCard, Text } from '@shopify/polaris';
+import { Button, Card, Text } from '@shopify/polaris';
 import { ProductIcon } from '@shopify/polaris-icons';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
@@ -22,7 +22,7 @@ export function ProductsPage() {
         </div>
       </div>
 
-      <LegacyCard sectioned>
+      <Card>
         <div className="flex flex-col items-center text-center max-w-md mx-auto">
           <div className="mb-6">
             <Image
@@ -54,7 +54,7 @@ export function ProductsPage() {
             <Button>Importar productos</Button>
           </div>
         </div>
-      </LegacyCard>
+      </Card>
     </div>
   );
 }

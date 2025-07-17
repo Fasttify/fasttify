@@ -1,17 +1,16 @@
-import { useState, useCallback } from 'react';
 import {
-  Card,
-  Text,
-  BlockStack,
-  TextField,
-  Button,
-  ResourceList,
-  ResourceItem,
-  LegacyStack,
-  Tag,
-  EmptyState,
   Banner,
+  BlockStack,
+  Button,
+  Card,
+  LegacyStack,
+  ResourceItem,
+  ResourceList,
+  Tag,
+  Text,
+  TextField,
 } from '@shopify/polaris';
+import { useCallback, useState } from 'react';
 
 interface Attribute {
   name?: string;
@@ -171,13 +170,7 @@ export function AttributesForm({ value: attributes, onChange }: AttributesFormPr
               </Banner>
             )}
           </BlockStack>
-        ) : (
-          <EmptyState
-            heading="Aún no hay atributos"
-            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
-            <p>Agregue un atributo para empezar a crear variantes de producto.</p>
-          </EmptyState>
-        )}
+        ) : null}
       </BlockStack>
     </Card>
   );

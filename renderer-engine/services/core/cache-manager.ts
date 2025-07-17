@@ -19,7 +19,7 @@ export class CacheManager {
   public readonly STORE_CACHE_TTL = 30 * 60 * 1000; // 30 minutos
   public readonly DOMAIN_CACHE_TTL = 30 * 60 * 1000; // 30 minutos
   public readonly TEMPLATE_CACHE_TTL = 60 * 60 * 1000; // 1 hora
-
+  public readonly SEARCH_CACHE_TTL = 60 * 60 * 1000; // 1 hora
   // TTL reducidos para desarrollo
   private readonly DEV_TEMPLATE_CACHE_TTL = 1000; // 1 segundo en desarrollo
 
@@ -38,7 +38,7 @@ export class CacheManager {
   /**
    * Obtiene el TTL adecuado según el tipo de caché y el entorno
    */
-  public getAppropiateTTL(cacheType: 'template' | 'product' | 'collection' | 'store' | 'domain'): number {
+  public getAppropiateTTL(cacheType: 'template' | 'product' | 'collection' | 'store' | 'domain' | 'search'): number {
     // En desarrollo, usar TTL reducidos para templates
     if (this.isDevelopment && cacheType === 'template') {
       return this.DEV_TEMPLATE_CACHE_TTL;
@@ -56,6 +56,8 @@ export class CacheManager {
         return this.STORE_CACHE_TTL;
       case 'domain':
         return this.DOMAIN_CACHE_TTL;
+      case 'search':
+        return this.SEARCH_CACHE_TTL;
       default:
         return this.STORE_CACHE_TTL;
     }

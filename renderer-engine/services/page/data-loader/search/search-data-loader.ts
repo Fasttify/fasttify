@@ -1,6 +1,6 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
-import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher'; // Nueva importación
+import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher';
 import { extractSearchLimitsFromSettings } from '@/renderer-engine/services/page/data-loader/search/search-limits-extractor';
 import type { ProductContext } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
@@ -19,7 +19,7 @@ export interface SearchData {
  * Función interna para buscar productos por término de búsqueda.
  * Retorna ProductContext[]
  */
-async function searchProductsByTerm(
+export async function searchProductsByTerm(
   storeId: string,
   searchTerm: string,
   limit: number = 20
@@ -40,7 +40,6 @@ async function searchProductsByTerm(
         },
       }
     );
-    // Usar productFetcher.transformProduct para convertir al tipo correcto
     return (data || []).map((product) => productFetcher.transformProduct(product));
   } catch (error) {
     logger.error('Failed to search products by term:', error);
@@ -70,20 +69,17 @@ export class SearchDataLoader {
   public async loadSearchData(
     storeId: string,
     loadedTemplates: Record<string, string>,
-    searchTerm?: string // Añadir searchTerm como parámetro opcional
+    searchTerm?: string
   ): Promise<SearchData> {
     try {
-      // Extraer límites de configuración
       const { searchProductsLimit, searchCollectionsLimit } = extractSearchLimitsFromSettings(loadedTemplates);
 
-      let searchProducts: ProductContext[] = []; // Asegurar el tipo
+      let searchProducts: ProductContext[] = [];
 
-      // Condición: si hay searchTerm, usar la función de búsqueda por término
       if (searchTerm) {
         searchProducts = await searchProductsByTerm(storeId, searchTerm, searchProductsLimit);
         logger.info(`Search by term results: ${searchProducts.length} products for term "${searchTerm}"`);
       } else {
-        // Si no hay searchTerm, cargar productos normales (quizás para una página de búsqueda inicial)
         const searchProductsData = await dataFetcher.getStoreProducts(storeId, {
           limit: searchProductsLimit,
         });
@@ -91,7 +87,6 @@ export class SearchDataLoader {
         logger.info(`Loaded ${searchProducts.length} regular products for search page`);
       }
 
-      // Cargar colecciones para búsqueda (si está configurado)
       let searchCollections: any[] = [];
       if (searchCollectionsLimit) {
         try {
@@ -137,17 +132,14 @@ export class SearchDataLoader {
     searchData: SearchData,
     searchTerm?: string
   ): void {
-    // Inyectar productos de búsqueda
     contextData.search_products = searchData.searchProducts;
     contextData.search_products_limit = searchData.searchProductsLimit;
 
-    // Inyectar colecciones de búsqueda (si existen)
     if (searchData.searchCollections && searchData.searchCollections.length > 0) {
       contextData.search_collections = searchData.searchCollections;
       contextData.search_collections_limit = searchData.searchCollectionsLimit;
     }
 
-    // Inyectar el término de búsqueda si existe
     if (searchTerm) {
       contextData.search_term = searchTerm;
     }

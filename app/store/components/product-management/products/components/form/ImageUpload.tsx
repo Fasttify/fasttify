@@ -1,5 +1,5 @@
 import ImageSelectorModal from '@/app/store/components/images-selector/components/ImageSelectorModal';
-import { BlockStack, Button, Card, DropZone, LegacyStack, Text, TextField, Thumbnail } from '@shopify/polaris';
+import { BlockStack, Button, Card, TextField, Thumbnail } from '@shopify/polaris';
 import { useState } from 'react';
 
 interface ImageFile {
@@ -44,37 +44,48 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
   return (
     <>
       <BlockStack gap="400">
-        <Text as="h2" variant="headingMd">
-          Imágenes
-        </Text>
-        <DropZone onDrop={handleDropZoneDrop}>
-          <DropZone.FileUpload actionHint="o suéltelos para subirlos" />
-        </DropZone>
-
         <Button onClick={() => setIsModalOpen(true)}>Añadir imágenes desde la galería</Button>
 
         {value.length > 0 && (
-          <LegacyStack spacing="loose" wrap>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+              gap: '16px',
+            }}>
             {value.map((image, index) => (
               <Card key={index}>
-                <BlockStack gap="200" inlineAlign="center">
-                  <Thumbnail source={image.url || ''} alt={image.alt || 'Imagen de producto'} size="large" />
-                  <div style={{ flexGrow: 1 }}>
+                <div style={{ position: 'relative', padding: 8, background: '#fafafa', borderRadius: 8 }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 4,
+                      right: 4,
+                      zIndex: 2,
+                    }}>
+                    <Button
+                      onClick={() => removeImage(index)}
+                      variant="plain"
+                      tone="critical"
+                      aria-label="Eliminar imagen">
+                      ×
+                    </Button>
+                  </div>
+                  <BlockStack gap="100" inlineAlign="center">
+                    <Thumbnail source={image.url || ''} alt={image.alt || 'Imagen de producto'} size="large" />
                     <TextField
                       label="Texto alternativo"
                       labelHidden
                       value={image.alt || ''}
                       onChange={(alt) => updateAltText(index, alt)}
                       autoComplete="off"
+                      placeholder="Texto alternativo"
                     />
-                  </div>
-                  <Button onClick={() => removeImage(index)} variant="plain" tone="critical">
-                    Eliminar
-                  </Button>
-                </BlockStack>
+                  </BlockStack>
+                </div>
               </Card>
             ))}
-          </LegacyStack>
+          </div>
         )}
       </BlockStack>
 

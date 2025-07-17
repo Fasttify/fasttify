@@ -1,4 +1,4 @@
-import { LegacyCard, EmptyState } from '@shopify/polaris';
+import { Card, EmptyState } from '@shopify/polaris';
 
 interface ProductEmptyStateProps {
   handleAddProduct: () => void;
@@ -9,14 +9,14 @@ export function ProductEmptyState({ handleAddProduct, error }: ProductEmptyState
   if (error) {
     return (
       <div className="w-full mt-8">
-        <LegacyCard sectioned>
+        <Card>
           <EmptyState
             heading="Error al cargar productos"
             action={{ content: 'Añadir producto', onAction: handleAddProduct }}
             image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
             <p>Error al cargar productos: {error.message}</p>
           </EmptyState>
-        </LegacyCard>
+        </Card>
       </div>
     );
   }

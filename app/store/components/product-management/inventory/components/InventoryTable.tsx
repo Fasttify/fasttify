@@ -1,7 +1,8 @@
+import { useToast } from '@/app/store/context/ToastContext';
 import { useProducts } from '@/app/store/hooks/data/useProducts';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
-import { Button, ButtonGroup, IndexTable, Link, Text, TextField, Thumbnail, Toast } from '@shopify/polaris';
+import { Button, ButtonGroup, IndexTable, Link, Text, TextField, Thumbnail } from '@shopify/polaris';
 import { ImageIcon } from '@shopify/polaris-icons';
 import { useParams, usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -31,11 +32,10 @@ export default function InventoryTable({ data }: InventoryTableProps) {
   const params = useParams();
   const storeId = getStoreId(params, pathname);
   const { updateProduct } = useProducts(storeId);
+  const { showToast } = useToast();
 
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
   const [editingRows, setEditingRows] = useState<{ [key: string]: number }>({});
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
 
   const resourceName = {
     singular: 'producto',
@@ -48,16 +48,14 @@ export default function InventoryTable({ data }: InventoryTableProps) {
         id: productId,
         quantity: newStock,
       });
-      setToastMessage('Inventario actualizado correctamente');
-      setShowToast(true);
+      showToast('Inventario actualizado correctamente');
 
       // Remove from editing state
       const newEditingRows = { ...editingRows };
       delete newEditingRows[productId];
       setEditingRows(newEditingRows);
     } catch (error) {
-      setToastMessage('Error al actualizar el inventario');
-      setShowToast(true);
+      showToast('Error al actualizar el inventario', true);
     }
   };
 
@@ -138,7 +136,7 @@ export default function InventoryTable({ data }: InventoryTableProps) {
         </IndexTable.Cell>
         <IndexTable.Cell>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '80px' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ width: '80px' }}>
               <TextField
                 value={currentStock.toString()}
                 onChange={(value) => handleStockChange(item.id, value)}
@@ -150,18 +148,22 @@ export default function InventoryTable({ data }: InventoryTableProps) {
             </div>
             {isEditing && (
               <ButtonGroup>
-                <Button size="micro" onClick={() => handleStockUpdate(item.id, currentStock)}>
-                  Guardar
-                </Button>
-                <Button
-                  size="micro"
-                  onClick={() => {
-                    const newEditingRows = { ...editingRows };
-                    delete newEditingRows[item.id];
-                    setEditingRows(newEditingRows);
-                  }}>
-                  Cancelar
-                </Button>
+                <span onClick={(e) => e.stopPropagation()}>
+                  <Button size="micro" onClick={() => handleStockUpdate(item.id, currentStock)}>
+                    Guardar
+                  </Button>
+                </span>
+                <span onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    size="micro"
+                    onClick={() => {
+                      const newEditingRows = { ...editingRows };
+                      delete newEditingRows[item.id];
+                      setEditingRows(newEditingRows);
+                    }}>
+                    Cancelar
+                  </Button>
+                </span>
               </ButtonGroup>
             )}
           </div>
@@ -169,8 +171,6 @@ export default function InventoryTable({ data }: InventoryTableProps) {
       </IndexTable.Row>
     );
   });
-
-  const toastMarkup = showToast ? <Toast content={toastMessage} onDismiss={() => setShowToast(false)} /> : null;
 
   return (
     <>
@@ -210,7 +210,6 @@ export default function InventoryTable({ data }: InventoryTableProps) {
         selectable>
         {rowMarkup}
       </IndexTable>
-      {toastMarkup}
     </>
   );
 }

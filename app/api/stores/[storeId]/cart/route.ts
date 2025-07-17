@@ -1,8 +1,8 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
-import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
-import { logger } from '@/renderer-engine/lib/logger';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { logger } from '@/renderer-engine/lib/logger';
+import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
+import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(request);

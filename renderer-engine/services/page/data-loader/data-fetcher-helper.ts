@@ -37,7 +37,6 @@ export async function loadDataFromAnalysis(
           if (processor) {
             processor(data, dataType, loadedData, paginationInfo);
           } else {
-            // Fallback para tipos no procesados
             loadedData[dataType] = data;
           }
         }

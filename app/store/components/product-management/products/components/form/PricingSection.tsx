@@ -64,7 +64,6 @@ export function PricingInventorySection({ form }: PricingInventorySectionProps) 
       if (parsedResult) {
         showToast('Se ha generado una sugerencia de precio basada en el mercado.');
 
-        // Si tenemos un costo por artículo, podemos calcular el margen
         const costPerItem = form.getValues('costPerItem');
         if (costPerItem && parsedResult.suggestedPrice > 0) {
           const margin = ((parsedResult.suggestedPrice - costPerItem) / parsedResult.suggestedPrice) * 100;
