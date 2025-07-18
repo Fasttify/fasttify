@@ -4,5 +4,4 @@ export { DNSHTTPVerifier } from '@/tenant-domains/services/domain/dns-http-verif
 export { DomainValidator } from '@/tenant-domains/services/domain/domain-validator';
 export { TokenGenerator } from '@/tenant-domains/services/domain/token-generator';
 export { CertificateManager } from '@/tenant-domains/services/ssl/certificate-manager';
-
 export { CustomDomainService } from '@/tenant-domains/services/custom-domain-service';
