@@ -1,5 +1,8 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import type { TemplateAnalysis } from '@/renderer-engine/services/templates/analysis/template-analyzer';
+import type {
+  DataRequirement,
+  TemplateAnalysis,
+} from '@/renderer-engine/services/templates/analysis/template-analyzer';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
 
 /**
@@ -38,9 +41,10 @@ export function extractPaginationLimitFromTemplate(
   options: PageRenderOptions,
   analysis: TemplateAnalysis
 ): void {
-  if (!analysis.hasPagination) {
-    return;
-  }
+  // No necesitamos un `hasPagination` general aquí, ya que los límites se aplicarán por tipo de dato.
+  // if (!analysis.hasPagination) {
+  //   return;
+  // }
 
   const templatePath = getTemplatePath(options.pageType);
   const pageTemplateContent = loadedTemplates[templatePath];
@@ -55,57 +59,45 @@ export function extractPaginationLimitFromTemplate(
 
     if (!sections) return;
 
-    let limit: number | undefined;
-
     for (const sectionId in sections) {
       const sectionConfig = sections[sectionId];
       if (!sectionConfig || !sectionConfig.type) continue;
 
       const settings = sectionConfig.settings;
-      let jsonOverride: number | undefined;
+      let extractedLimit: number | undefined;
+      let targetDataType: string | undefined;
 
       if (settings) {
-        if (settings.products_per_page || settings.collections_per_page) {
-          jsonOverride = Number(settings.products_per_page || settings.collections_per_page);
+        if (settings.products_per_page !== undefined) {
+          extractedLimit = Number(settings.products_per_page);
+          targetDataType = 'products'; // O 'collection' si la sección es de productos de colección
+        } else if (settings.collections_per_page !== undefined) {
+          extractedLimit = Number(settings.collections_per_page);
+          targetDataType = 'collections';
         } else if (
           (settings.id === 'products_per_page' || settings.id === 'collections_per_page') &&
-          settings.default
+          settings.default !== undefined
         ) {
-          jsonOverride = Number(settings.default);
+          extractedLimit = Number(settings.default);
+          targetDataType = settings.id === 'products_per_page' ? 'products' : 'collections';
         }
       }
 
-      if (jsonOverride) {
-        limit = jsonOverride;
-        break;
+      // Si la página actual es de tipo 'collection' y el límite es para 'products',
+      // reasignar el targetDataType a 'collection' para que afecte a los productos dentro de la colección.
+      if (options.pageType === 'collection' && targetDataType === 'products') {
+        targetDataType = 'collection';
       }
 
-      const sectionPath = `sections/${sectionConfig.type}.liquid`;
-      const sectionContent = loadedTemplates[sectionPath];
-      if (!sectionContent) continue;
-
-      const schemaMatch = sectionContent.match(/\{%\s*schema\s*%\}([\s\S]*?)\{%\s*endschema\s*%\}/);
-      if (!schemaMatch || !schemaMatch[1]) continue;
-
-      try {
-        const schema = JSON.parse(schemaMatch[1]);
-        const paginationSetting = schema.settings?.find(
-          (s: any) => s.id === 'collections_per_page' || s.id === 'products_per_page'
-        );
-
-        if (paginationSetting?.default) {
-          limit = Number(paginationSetting.default);
-          break;
-        }
-      } catch (e) {
-        logger.warn(`Failed to parse schema for ${sectionPath}`, { error: e });
+      if (extractedLimit !== undefined && targetDataType) {
+        // Actualizar el límite en requiredData para el tipo de datos específico
+        const existingOptions = analysis.requiredData.get(targetDataType as DataRequirement) || {};
+        analysis.requiredData.set(targetDataType as DataRequirement, { ...existingOptions, limit: extractedLimit });
       }
     }
 
-    if (limit) {
-      (analysis as any).paginationLimit = limit;
-    }
+    // NOTA: La propiedad `paginationLimit` en `analysis` ya no se usa y se eliminará.
   } catch (error) {
-    logger.warn(`Could not parse template to find pagination limit for ${templatePath}`, error);
+    logger.warn(`Could not parse template to find pagination limits for ${templatePath}`, error);
   }
 }

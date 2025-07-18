@@ -1,5 +1,5 @@
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import { cacheManager, getSearchProductsCacheKey } from '@/renderer-engine/services/core/cache';
 import { searchProductsByTerm } from '@/renderer-engine/services/page/data-loader/search/search-data-loader';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   try {
-    const cacheKey = `search_products_${storeId}_${q}_${limit}`;
+    const cacheKey = getSearchProductsCacheKey(storeId, q, limit);
     const cached = cacheManager.getCached(cacheKey);
 
     if (cached) {

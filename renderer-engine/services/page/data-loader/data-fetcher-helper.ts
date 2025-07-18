@@ -11,8 +11,7 @@ export async function loadDataFromAnalysis(
   storeId: string,
   analysis: TemplateAnalysis,
   options: PageRenderOptions,
-  searchParams: Record<string, string>,
-  schemaLimit?: number
+  searchParams: Record<string, string>
 ): Promise<{ loadedData: Record<string, any>; paginationInfo: PaginationInfo }> {
   const loadedData: Record<string, any> = {};
   const paginationInfo: PaginationInfo = {};
@@ -21,9 +20,10 @@ export async function loadDataFromAnalysis(
   for (const [dataType, loadOptions] of analysis.requiredData.entries()) {
     const effectiveLoadOptions = { ...loadOptions };
 
-    // Usar el límite del schema si está presente y el data type es paginable
-    if (schemaLimit && (dataType === 'products' || dataType === 'collections' || dataType === 'collection_products')) {
-      effectiveLoadOptions.limit = schemaLimit;
+    // Obtener el límite específico para este dataType del análisis de la plantilla
+    const specificLimit = analysis.requiredData.get(dataType)?.limit;
+    if (specificLimit !== undefined) {
+      effectiveLoadOptions.limit = specificLimit;
     }
 
     if (searchParams.token) {

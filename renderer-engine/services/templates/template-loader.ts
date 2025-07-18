@@ -1,5 +1,10 @@
 import { liquidEngine } from '@/renderer-engine/liquid/engine';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import {
+  cacheManager,
+  getAssetCacheKey,
+  getCompiledTemplateCacheKey,
+  getTemplateCacheKey,
+} from '@/renderer-engine/services/core/cache';
 import type { TemplateCache, TemplateError } from '@/renderer-engine/types';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import type { Template } from 'liquidjs';
@@ -34,18 +39,40 @@ class TemplateLoader {
   }
 
   /**
+   * Resuelve el nombre de un template a la clave completa de S3.
+   * Esta es la lógica centralizada para construir las rutas de los templates Liquid.
+   */
+  private getS3TemplateKey(storeId: string, templateName: string): string {
+    // Manejar templates específicos de Next.js que ya tienen un path completo y extensión.
+    // Ej: 'layout/theme.liquid', 'templates/index.json', 'config/settings_schema.json'
+    if (templateName.includes('/') && (templateName.endsWith('.liquid') || templateName.endsWith('.json'))) {
+      return `templates/${storeId}/${templateName}`;
+    }
+
+    // Manejar snippets y secciones que vienen con su prefijo de carpeta (ej. 'snippets/nombre', 'sections/nombre')
+    if (templateName.includes('/')) {
+      return `templates/${storeId}/${templateName}.liquid`;
+    }
+
+    // Asumir que si no hay barra, es una sección simple (ej. 'cart', 'product', 'footer')
+    // y se encuentra en la carpeta 'sections/'.
+    return `templates/${storeId}/sections/${templateName}.liquid`;
+  }
+
+  /**
    * Carga una plantilla compilada, optimizado para renderizado.
    * Usa un cache para plantillas ya compiladas.
    */
-  public async loadCompiledTemplate(storeId: string, templatePath: string): Promise<Template[]> {
-    const compiledCacheKey = `compiled_template_${storeId}_${templatePath}`;
+  public async loadCompiledTemplate(storeId: string, templateName: string): Promise<Template[]> {
+    const s3Key = this.getS3TemplateKey(storeId, templateName);
+    const compiledCacheKey = getCompiledTemplateCacheKey(storeId, s3Key);
     const cachedCompiled = cacheManager.getCached(compiledCacheKey) as Template[] | null;
     if (cachedCompiled) {
       return cachedCompiled;
     }
 
     // Obtener contenido raw usando el método existente (que ya tiene su propio cache)
-    const rawContent = await this.loadTemplate(storeId, templatePath);
+    const rawContent = await this.loadTemplate(storeId, templateName);
 
     // Compilar
     const compiledTemplate = liquidEngine.parse(rawContent);
@@ -60,8 +87,9 @@ class TemplateLoader {
   /**
    * Carga una plantilla específica desde S3 o CloudFront
    */
-  public async loadTemplate(storeId: string, templatePath: string): Promise<string> {
-    const cacheKey = `template_${storeId}_${templatePath}`;
+  public async loadTemplate(storeId: string, templateName: string): Promise<string> {
+    const s3Key = this.getS3TemplateKey(storeId, templateName);
+    const cacheKey = getTemplateCacheKey(storeId, s3Key);
 
     // Unificación de peticiones: si ya hay una en vuelo, usarla (SOLO EN PRODUCCIÓN)
     if (this.isProduction && this.ongoingRequests.has(cacheKey)) {
@@ -73,7 +101,7 @@ class TemplateLoader {
       return cached.content;
     }
 
-    const promise = this.fetchTemplateFromSource(storeId, templatePath, cacheKey);
+    const promise = this.fetchTemplateFromSource(storeId, s3Key, cacheKey);
 
     // Registrar la promesa en vuelo (SOLO EN PRODUCCIÓN)
     if (this.isProduction) {
@@ -86,14 +114,14 @@ class TemplateLoader {
     return promise;
   }
 
-  private async fetchTemplateFromSource(storeId: string, templatePath: string, cacheKey: string): Promise<string> {
+  private async fetchTemplateFromSource(storeId: string, s3Key: string, cacheKey: string): Promise<string> {
     let content: string;
     try {
       // Usar CloudFront en producción para mejor rendimiento
       if (this.isProduction && this.cloudFrontDomain) {
-        const response = await fetch(`https://${this.cloudFrontDomain}/templates/${storeId}/${templatePath}`);
+        const response = await fetch(`https://${this.cloudFrontDomain}/${s3Key}`);
         if (!response.ok) {
-          throw new Error(`Template not found: ${templatePath}`);
+          throw new Error(`Template not found: ${s3Key}`);
         }
         content = await response.text();
       } else {
@@ -105,12 +133,12 @@ class TemplateLoader {
         const response = await this.s3Client.send(
           new GetObjectCommand({
             Bucket: this.bucketName,
-            Key: `templates/${storeId}/${templatePath}`,
+            Key: s3Key,
           })
         );
 
         if (!response.Body) {
-          throw new Error(`Template not found: ${templatePath}`);
+          throw new Error(`Template not found: ${s3Key}`);
         }
 
         content = await response.Body.transformToString();
@@ -132,7 +160,7 @@ class TemplateLoader {
     } catch (error) {
       const templateError: TemplateError = {
         type: 'TEMPLATE_NOT_FOUND',
-        message: `Template not found: ${templatePath}`,
+        message: `Template not found: ${s3Key}`,
         details: error,
         statusCode: 404,
       };
@@ -156,25 +184,27 @@ class TemplateLoader {
 
   /**
    * Carga sección específica - Optimizado para velocidad
+   * NOTA: Este método ahora solo delega a loadTemplate ya que getS3TemplateKey
+   * manejará la construcción de la ruta 'sections/nombre.liquid'
    */
   public async loadSection(storeId: string, sectionName: string): Promise<string> {
-    const fileName = sectionName.endsWith('.liquid') ? sectionName : `${sectionName}.liquid`;
-    return this.loadTemplate(storeId, `sections/${fileName}`);
+    return this.loadTemplate(storeId, sectionName);
   }
 
   /**
    * Carga una sección compilada.
+   * NOTA: Este método ahora solo delega a loadCompiledTemplate ya que getS3TemplateKey
+   * manejará la construcción de la ruta 'sections/nombre.liquid'
    */
   public async loadSectionCompiled(storeId: string, sectionName: string): Promise<Template[]> {
-    const fileName = sectionName.endsWith('.liquid') ? sectionName : `${sectionName}.liquid`;
-    return this.loadCompiledTemplate(storeId, `sections/${fileName}`);
+    return this.loadCompiledTemplate(storeId, sectionName);
   }
 
   /**
    * Carga asset optimizado para velocidad
    */
   public async loadAsset(storeId: string, assetPath: string): Promise<Buffer> {
-    const cacheKey = `asset_${storeId}_${assetPath}`;
+    const cacheKey = getAssetCacheKey(storeId, assetPath);
     const cached = cacheManager.getCached(cacheKey) as TemplateCache | null;
     if (cached) {
       return Buffer.from(cached.content, 'base64');
@@ -249,8 +279,8 @@ class TemplateLoader {
   public invalidateTemplateCache(storeId: string, templatePath: string): void {
     // Invalidar tanto el cache de contenido raw como el compilado
     // Usar TTL de 0 para invalidación inmediata
-    cacheManager.setCached(`template_${storeId}_${templatePath}`, null, 0);
-    cacheManager.setCached(`compiled_template_${storeId}_${templatePath}`, null, 0);
+    cacheManager.setCached(getTemplateCacheKey(storeId, templatePath), null, 0);
+    cacheManager.setCached(getCompiledTemplateCacheKey(storeId, templatePath), null, 0);
   }
 
   public clearCache(): void {

@@ -1,5 +1,5 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import { cacheManager } from '@/renderer-engine/services/core/cache';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import * as chokidar from 'chokidar';
@@ -159,20 +159,15 @@ export class TemplateDevSynchronizer {
       }
 
       // Invalidar caché de manera agresiva
-      const templatePath = relativePath.replace(/\\/g, '/');
+      // templatePath es ahora el templateName que templateLoader.getS3TemplateKey espera
+      const templateName = relativePath.replace(/\\/g, '/');
 
-      // Invalidar la caché del template específico
-      cacheManager.invalidateTemplateCache(`templates/${this.storeId}/${templatePath}`);
-      templateLoader.invalidateTemplateCache(this.storeId, templatePath);
+      // Invalidar la caché del template específico (tanto raw como compilado)
+      templateLoader.invalidateTemplateCache(this.storeId, templateName);
 
-      // Forzar recarga del template - Si es un cambio importante, invalidar toda la caché
-      if (templatePath.includes('template/')) {
-        logger.debug(
-          `[TemplateDevSynchronizer] Cambio crítico detectado, invalidando toda la caché de la tienda`,
-          undefined,
-          'TemplateDevSynchronizer'
-        );
-        templateLoader.invalidateTemplateCache(this.storeId, templatePath);
+      // Forzar recarga del template - Si es un cambio importante (ej. en el layout), invalidar toda la caché
+      if (templateName.includes('layout/') || templateName.includes('config/')) {
+        cacheManager.invalidateStoreCache(this.storeId); // Invalidar toda la caché de la tienda
       }
 
       // Registrar cambio reciente

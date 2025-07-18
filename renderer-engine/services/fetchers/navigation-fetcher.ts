@@ -1,5 +1,5 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import { cacheManager, getNavigationCacheKey, getNavigationMenuCacheKey } from '@/renderer-engine/services/core/cache';
 import type {
   NavigationMenuItem,
   ProcessedNavigationMenu,
@@ -32,7 +32,7 @@ export class NavigationFetcher {
    */
   public async getStoreNavigationMenus(storeId: string): Promise<NavigationMenusResponse> {
     try {
-      const cacheKey = `navigation_menus_${storeId}`;
+      const cacheKey = getNavigationCacheKey(storeId);
 
       // Verificar caché
       const cached = cacheManager.getCached(cacheKey);
@@ -94,7 +94,7 @@ export class NavigationFetcher {
    */
   public async getNavigationMenuByHandle(storeId: string, handle: string): Promise<ProcessedNavigationMenu | null> {
     try {
-      const cacheKey = `navigation_menu_${storeId}_${handle}`;
+      const cacheKey = getNavigationMenuCacheKey(storeId, handle);
 
       // Verificar caché
       const cached = cacheManager.getCached(cacheKey);
@@ -303,7 +303,7 @@ export class NavigationFetcher {
    * @param handle - Handle del menú
    */
   public invalidateMenuCache(storeId: string, handle: string): void {
-    const cacheKey = `navigation_menu_${storeId}_${handle}`;
+    const cacheKey = getNavigationMenuCacheKey(storeId, handle);
     cacheManager.invalidateTemplateCache(cacheKey);
   }
 }

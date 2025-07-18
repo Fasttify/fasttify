@@ -1,4 +1,4 @@
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import { cacheManager } from '@/renderer-engine/services/core/cache';
 import type { Store, TemplateError } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 

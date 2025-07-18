@@ -14,21 +14,21 @@ export type DataHandler = (storeId: string, options: DataLoadOptions, pageOption
 export const dataHandlers: Record<DataRequirement, DataHandler> = {
   products: async (storeId, options) => {
     return await dataFetcher.getStoreProducts(storeId, {
-      limit: options.limit || 20,
+      limit: options.limit || 50,
       nextToken: options.nextToken,
     });
   },
 
   collection_products: async (storeId, options) => {
-    return await dataFetcher.getFeaturedProducts(storeId, options.limit || 8);
+    return await dataFetcher.getFeaturedProducts(storeId, options.limit || 50);
   },
 
   collections: async (storeId, options) => {
     const collectionsResult = await dataFetcher.getStoreCollections(storeId, {
-      limit: options.limit || 10,
+      limit: options.limit || 50,
       nextToken: options.nextToken,
     });
-    return collectionsResult.collections;
+    return collectionsResult;
   },
 
   // Nuevos handlers para acceso específico por handle
@@ -95,7 +95,7 @@ export const dataHandlers: Record<DataRequirement, DataHandler> = {
 
       if (collectionRef) {
         const collection = await dataFetcher.getCollection(storeId, collectionRef.id, {
-          limit: options.limit || 8,
+          limit: options.limit || 50,
         });
         if (collection) {
           productsByCollection[handle] = collection.products;
@@ -121,20 +121,20 @@ export const dataHandlers: Record<DataRequirement, DataHandler> = {
     // Obtener productos de la misma categoría
     if (currentProduct.category) {
       const productsResult = await dataFetcher.getStoreProducts(storeId, {
-        limit: (options.limit || 4) + 1, // Uno extra para filtrar el actual
+        limit: (options.limit || 50) + 1, // Uno extra para filtrar el actual
       });
 
       return productsResult.products
         .filter((p) => p.id !== currentProduct.id && p.category === currentProduct.category)
-        .slice(0, options.limit || 4);
+        .slice(0, options.limit || 50);
     }
 
     // Fallback: productos aleatorios
     const productsResult = await dataFetcher.getStoreProducts(storeId, {
-      limit: (options.limit || 4) + 1,
+      limit: (options.limit || 50) + 1,
     });
 
-    return productsResult.products.filter((p) => p.id !== currentProduct.id).slice(0, options.limit || 4);
+    return productsResult.products.filter((p) => p.id !== currentProduct.id).slice(0, options.limit || 50);
   },
 
   product: async (storeId, options, pageOptions) => {
@@ -193,7 +193,7 @@ export const dataHandlers: Record<DataRequirement, DataHandler> = {
 
   pages: async (storeId, options) => {
     const pagesResult = await dataFetcher.getVisibleStorePages(storeId, {
-      limit: options.limit || 10,
+      limit: options.limit || 50,
       nextToken: options.nextToken,
     });
     return pagesResult.pages;

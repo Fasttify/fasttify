@@ -2,7 +2,21 @@
   "sections": {
     "collection": {
       "type": "sections/collection",
-      "settings": {}
+      "settings": {
+        "type": "number",
+        "id": "collections_per_page",
+        "label": "Collections per page",
+        "default": 3
+      }
+    },
+    "collection-products": {
+      "type": "snippets/collection-details-view",
+      "settings": {
+        "type": "number",
+        "id": "products_per_page",
+        "label": "Products per page",
+        "default": 2
+      }
     }
   },
   "order": ["collection"]

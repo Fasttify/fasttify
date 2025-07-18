@@ -48,19 +48,21 @@ export class CoreDataLoader {
 
       const cartData = dataFetcher.transformCartToContext(await dataFetcher.getCart(storeId));
 
-      const limit = (analysis as any).paginationLimit || 12;
-
-      const { loadedData, paginationInfo } = await loadDataFromAnalysis(
-        storeId,
-        analysis,
-        options,
-        searchParams,
-        limit
-      );
+      const { loadedData, paginationInfo } = await loadDataFromAnalysis(storeId, analysis, options, searchParams);
 
       const contextData = await buildContextData(storeId, options, loadedData);
 
-      const paginate = buildPaginationObject(analysis, loadedData, paginationInfo, searchParams, limit);
+      // El límite se obtiene ahora dentro de loadDataFromAnalysis
+      const currentLimitForLogging =
+        analysis.requiredData.get('products')?.limit || analysis.requiredData.get('collections')?.limit || 50;
+
+      const paginate = buildPaginationObject(
+        analysis,
+        loadedData,
+        paginationInfo,
+        searchParams,
+        currentLimitForLogging
+      );
       if (paginate) {
         contextData.paginate = paginate;
       }
@@ -69,7 +71,7 @@ export class CoreDataLoader {
         productsCount: loadedData.products?.length || 0,
         collectionsCount: loadedData.collections?.length || 0,
         hasPagination: analysis.hasPagination,
-        paginationLimit: limit,
+        paginationLimit: currentLimitForLogging,
       });
 
       return {

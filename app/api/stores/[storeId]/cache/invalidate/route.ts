@@ -1,5 +1,5 @@
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { cacheInvalidationService, type ChangeType } from '@/renderer-engine/services/core/cache-invalidation-service';
+import { cacheInvalidationService, type ChangeType } from '@/renderer-engine/services/core/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: NextRequest) {

@@ -119,18 +119,15 @@ export class CacheManager {
   public getCached(key: string): any | null {
     const entry = this.cache[key];
     if (!entry) {
-      logger.debug(`[CACHE MISS] Key: ${key}`);
       return null;
     }
 
     const now = Date.now();
     if (now > entry.timestamp + entry.ttl) {
-      logger.debug(`[CACHE EXPIRED] Key: ${key}`);
       delete this.cache[key];
       return null;
     }
 
-    logger.debug(`[CACHE HIT] Key: ${key}`);
     return entry.data;
   }
 
@@ -138,7 +135,6 @@ export class CacheManager {
    * Guarda una entrada en el caché
    */
   public setCached(key: string, data: any, ttl: number): void {
-    logger.debug(`[CACHE SET] Key: ${key}, TTL: ${ttl}ms`);
     this.cache[key] = {
       data,
       timestamp: Date.now(),
@@ -227,6 +223,20 @@ export class CacheManager {
     });
 
     return { total, expired, active };
+  }
+
+  /**
+   * Elimina todas las claves que comiencen con un prefijo dado
+   */
+  public deleteByPrefix(prefix: string): number {
+    let count = 0;
+    Object.keys(this.cache).forEach((key) => {
+      if (key.startsWith(prefix)) {
+        delete this.cache[key];
+        count++;
+      }
+    });
+    return count;
   }
 }
 
