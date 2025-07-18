@@ -2,7 +2,7 @@ import type {
   DataLoadOptions,
   DataRequirement,
   TemplateAnalysis,
-} from '@/renderer-engine/services/templates/template-analyzer';
+} from '@/renderer-engine/services/templates/analysis/template-analyzer';
 
 /**
  * Tipo para detectores de objetos Liquid
@@ -266,29 +266,6 @@ const objectDetectors: Record<DataRequirement, ObjectDetector> = {
   pagination: {
     pattern: /\{\%\s*paginate/g,
     optionsExtractor: loadOptionsExtractors.pagination,
-  },
-};
-
-/**
- * Handlers para diferentes tipos de paginación
- */
-const paginationHandlers: Record<string, PaginationHandler> = {
-  'collection.products': (match: string, analysis: TemplateAnalysis) => {
-    const limitMatch = match.match(/by\s+(\d+)/i);
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 20;
-    analysis.requiredData.set('collection', { limit });
-  },
-
-  products: (match: string, analysis: TemplateAnalysis) => {
-    const limitMatch = match.match(/by\s+(\d+)/i);
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 20;
-    analysis.requiredData.set('products', { limit });
-  },
-
-  collections: (match: string, analysis: TemplateAnalysis) => {
-    const limitMatch = match.match(/by\s+(\d+)/i);
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 10;
-    analysis.requiredData.set('collections', { limit });
   },
 };
 

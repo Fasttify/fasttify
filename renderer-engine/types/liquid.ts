@@ -32,12 +32,11 @@ export interface LiquidContext {
 
 export interface CompiledTemplate {
   liquid: Liquid;
-  template: any; // Plantilla compilada interna de LiquidJS
+  template: any;
   cacheKey: string;
   compiledAt: Date;
 }
 
-// Filtros específicos para e-commerce
 export interface MoneyFilter {
   (amount: number | string, format?: string): string;
 }
@@ -54,7 +53,6 @@ export interface DateFilter {
   (date: string | Date, format?: string): string;
 }
 
-// Tags personalizados para e-commerce
 export interface ProductFormTag {
   productId: string;
   action?: string;

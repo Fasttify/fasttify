@@ -1,7 +1,6 @@
-import { Filters, ChoiceList, RangeSlider, LegacyStack, Tabs } from '@shopify/polaris';
-import { useState, useCallback } from 'react';
 import { isEmpty } from '@/app/store/components/product-management/utils/common-utils';
-import React from 'react';
+import { BlockStack, ChoiceList, Filters, RangeSlider, Tabs } from '@shopify/polaris';
+import { useCallback, useState } from 'react';
 
 interface ProductFiltersProps {
   searchQuery: string;
@@ -88,10 +87,10 @@ export function ProductFilters({ searchQuery, setSearchQuery, activeTab, setActi
   const selectedTabIndex = TABS.findIndex((tab) => tab.id === activeTab);
 
   return (
-    <React.Fragment>
+    <>
       <Tabs tabs={TABS} selected={selectedTabIndex} onSelect={(index: number) => setActiveTab(TABS[index].id)} />
       <div style={{ padding: '16px' }}>
-        <LegacyStack vertical>
+        <BlockStack>
           <Filters
             queryValue={searchQuery}
             onQueryChange={handleSearchQueryChange}
@@ -101,8 +100,8 @@ export function ProductFilters({ searchQuery, setSearchQuery, activeTab, setActi
             filters={filters}
             appliedFilters={appliedFilters}
           />
-        </LegacyStack>
+        </BlockStack>
       </div>
-    </React.Fragment>
+    </>
   );
 }

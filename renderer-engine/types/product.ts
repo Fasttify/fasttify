@@ -37,7 +37,7 @@ export interface ProductVariant {
   barcode?: string;
   quantity: number;
   weight?: number;
-  options: Record<string, string>; // { "Color": "Red", "Size": "L" }
+  options: Record<string, string>;
 }
 
 export interface Collection {
@@ -59,14 +59,13 @@ export interface CollectionProduct {
   position: number;
 }
 
-// Tipos para el contexto de Liquid
 export interface LiquidProduct {
   id: string;
   title: string;
   description: string;
-  price: string; // Formateado con moneda
+  price: string;
   compare_at_price?: string;
-  url: string; // URL del producto
+  url: string;
   images: LiquidProductImage[];
   variants: LiquidProductVariant[];
   tags: string[];

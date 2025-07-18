@@ -16,6 +16,12 @@ export const collectionModel = a
         allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
         allow.publicApiKey().to(['read']),
       ]),
+    nameLowercase: a
+      .string()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+        allow.publicApiKey().to(['read']),
+      ]),
     description: a.string(),
     image: a.string(),
     slug: a.string(),

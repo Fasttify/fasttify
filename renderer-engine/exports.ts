@@ -20,7 +20,7 @@ export { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 export { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher';
 
 // ===== SERVICIOS DE PLANTILLAS =====
-export { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer';
+export { templateAnalyzer } from '@/renderer-engine/services/templates/analysis/template-analyzer';
 export { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 
 // ===== SERVICIOS DINÁMICOS =====
@@ -39,4 +39,4 @@ export type {
   DataLoadOptions,
   DataRequirement,
   TemplateAnalysis,
-} from '@/renderer-engine/services/templates/template-analyzer';
+} from '@/renderer-engine/services/templates/analysis/template-analyzer';

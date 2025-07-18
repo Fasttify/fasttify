@@ -1,68 +1,134 @@
  {{ 'list-product.css' | asset_url | stylesheet_tag }}
+ {{ 'featured-products.css' | asset_url | stylesheet_tag }}
 <div class="page-width">
   <h1 class="page-title">Todos los Productos</h1>
   {% paginate products %}
     <div class="product-grid">
       {% for product in products %}
-        <div class="product-item">
-          <div class="product-item__image-wrapper">
-            <a href="{{ product.url }}">
-              <img
-                src="{{ product.featured_image | img_url: '480x480' }}"
-                alt="{{ product.title | escape }}"
-                class="product-item__image"
-                loading="lazy">
+        <div class="product-card">
+          <!-- Imagen del producto -->
+          <div class="product-image-wrapper">
+            <a href="{{ product.url }}" class="product-link">
+              {% if product.images.size > 1 %}
+                <!-- Con imagen secundaria: aplicar clases para el hover -->
+                <img
+                  class="product-image product-image-primary"
+                  src="{{ product.featured_image | img_url: '600x800' }}"
+                  alt="{{ product.title | escape }}"
+                  loading="lazy">
+                <img
+                  class="product-image product-image-secondary"
+                  src="{{ product.images[1] | img_url: '600x800' }}"
+                  alt="{{ product.title | escape }}"
+                  loading="lazy">
+                <!-- Indicador de múltiples imágenes -->
+                <div class="multiple-images-indicator">
+                  <div class="indicator-dot active"></div>
+                  <div class="indicator-dot"></div>
+                  {% if product.images.size > 2 %}
+                    <div class="indicator-dot"></div>
+                  {% endif %}
+                </div>
+              {% elsif product.images.size > 0 %}
+                <!-- Con una sola imagen: sin clases de hover -->
+                <img
+                  class="product-image"
+                  src="{{ product.featured_image | img_url: '600x800' }}"
+                  alt="{{ product.title | escape }}"
+                  loading="lazy">
+              {% else %}
+                <!-- Placeholder si no hay imágenes -->
+                <div class="product-placeholder">
+                  <div class="placeholder-content">
+                    <svg
+                      width="60"
+                      height="60"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21,15 16,10 5,21" />
+                    </svg>
+                    <p>Imagen del producto</p>
+                  </div>
+                </div>
+              {% endif %}
             </a>
-              <button
-              class="product-item__add-to-cart"
-              aria-label="Añadir al carrito"
-              data-product-id="{{ product.id }}">
-              <img src="{{ 'icon-add-to-cart.svg' | asset_url }}" alt="Añadir al carrito" class="product-item__add-to-cart-icon">
-              <span class="add-to-cart-text">Add</span>
-            </button>
+
+            <!-- Product Badges -->
+            <div class="product-badges">
+              {% comment %} Determinar qué badge mostrar basado en las tags del producto {% endcomment %}
+              {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
+                <span class="product-badge badge-new">NEW</span>
+              {% elsif product.tags contains 'bestseller' %}
+                <span class="product-badge badge-bestseller">BESTSELLER</span>
+              {% elsif product.tags contains 'trending' %}
+                <span class="product-badge badge-trending">TRENDING</span>
+              {% endif %}
+
+              {% if product.compare_at_price > product.price %}
+                <span class="product-badge badge-sale">
+                  SAVE {{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}%
+                </span>
+              {% endif %}
+            </div>
+
+            <!-- Overlay con botón (solo aparece en hover) -->
+            <div class="product-overlay">
+              <div class="product-overlay-content">
+                <a href="{{ product.url }}" class="product-btn product-btn-primary">
+                  <span>VER PRODUCTO</span>
+                </a>
+
+                {% comment %} Asumo que quieres que el botón "Añadir al carrito" funcione como en featured-products {% endcomment %}
+                <button
+                  class="product-btn product-btn-secondary"
+                  onclick="addToCart({{ product.variants.first.id }}, 1)"
+                  aria-label="Añadir al carrito">
+                  <span>AÑADIR AL CARRITO</span>
+                </button>
+              </div>
+            </div>
           </div>
-          <div class="product-item__info">
-            <h2 class="product-item__title">{{ product.title }}</h2>
-            <p class="product-item__price">{{ product.price }}</p>
 
-            {%- comment -%}
-              Buscamos en los atributos del producto la opción "Color"
-              y extraemos sus valores para las muestras de color.
-            {%- endcomment -%}
-            {%- assign color_values = '' -%}
-            {%- for attribute in product.attributes -%}
-              {%- if attribute.name == 'Color' or attribute.name == 'color' -%}
-                {%- for value in attribute.values -%}
-                  {%- assign color_value_cleaned = value | strip -%}
-                  {%- unless color_values contains color_value_cleaned -%}
-                    {%- capture color_values -%}{{ color_values | append: ',' | append: color_value_cleaned }}{%- endcapture -%}
-                  {%- endunless -%}
-                {%- endfor -%}
-              {%- endif -%}
-            {%- endfor -%}
+          <!-- Información del producto -->
+          <div class="product-info">
+            <div class="product-vendor">{{ product.vendor | upcase }}</div>
+            <h3 class="product-title">{{ product.title }}</h3>
+            <div class="product-price">
+              {% if product.compare_at_price > product.price %}
+                <span class="price-compare">{{ product.compare_at_price }}</span>
+                <span class="price-current price-sale">{{ product.price }}</span>
+              {% else %}
+                <span class="price-current">{{ product.price }}</span>
+              {% endif %}
+            </div>
 
-            {%- assign colors = color_values | remove_first: ',' | split: ',' | uniq -%}
-
-            {% if colors.size > 0 and colors.first != '' %}
-              <div class="product-item__swatches">
-                {% for color_name in colors limit: 4 %}
-                  {%- comment -%}
-                    Mapeamos nombres de color en español a valores CSS válidos (inglés o hexadecimal).
-                  {%- endcomment -%}
-                  {%- assign color_map = "Verde:green,Azul:blue,Rojo:red,Negro:black,Blanco:white,Gris:gray,Amarillo:yellow,Morado:purple,Naranja:orange,Rosado:pink" | split: ',' -%}
-                  {%- assign css_color = color_name | handleize -%}
-                  {%- for map_item in color_map -%}
-                    {%- assign pair = map_item | split: ':' -%}
-                    {%- if pair[0] == color_name -%}
-                      {%- assign css_color = pair[1] -%}
-                      {%- break -%}
-                    {%- endif -%}
-                  {%- endfor -%}
-
-                  <span class="color-swatch" style="background-color: {{ css_color }};" title="{{ color_name }}"></span>
+            {% comment %} Iterar sobre todos los atributos del producto {% endcomment %}
+            {% if product.attributes %}
+              <div class="product-attributes-summary">
+                {% for attribute in product.attributes %}
+                  <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
+                    <div class="attribute-values-list">
+                      {% if attribute.name == 'color' %}
+                        {% comment %} Si el atributo es 'color', mostrar círculos de color {% endcomment %}
+                        {% for value in attribute.values %}
+                          <span class="color-swatch" style="background-color: {{ value | downcase }};" title="{{ value }}"></span>
+                        {% endfor %}
+                      {% else %}
+                        {% comment %} Para otros atributos (talla, material, etc.), mostrar los valores como texto {% endcomment %}
+                        {% for value in attribute.values %}
+                          <span class="attribute-value-item">{{ value }}</span>
+                        {% endfor %}
+                      {% endif %}
+                    </div>
+                  </div>
                 {% endfor %}
               </div>
             {% endif %}
+
           </div>
         </div>
       {% else %}
@@ -94,3 +160,45 @@
 
   {% endpaginate %}
 </div>
+
+<style>
+  .product-attributes-summary {
+    margin-top: 10px;
+    padding: 0 5px;
+  }
+  .attribute-display {
+    margin-bottom: 8px;
+  }
+  .attribute-name-label {
+    font-size: 0.85em;
+    color: #555;
+    margin-right: 5px;
+  }
+  .attribute-values-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1);
+  }
+  .attribute-value-item {
+    padding: 4px 8px;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    background-color: #fefefe;
+    font-size: 0.8em;
+  }
+  .page-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-medium);
+    text-align: left;
+    margin-bottom: 4rem;
+  }
+</style>

@@ -1,9 +1,9 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
-import { templateAnalyzer } from '@/renderer-engine/services/templates/template-analyzer';
+import { extractPaginationLimitFromTemplate } from '@/renderer-engine/services/page/data-loader/pagination/pagination-limit-extractor';
+import type { TemplateAnalysis } from '@/renderer-engine/services/templates/analysis/template-analyzer';
+import { templateAnalyzer } from '@/renderer-engine/services/templates/analysis/template-analyzer';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
-import { extractPaginationLimitFromTemplate } from '@/renderer-engine/services/page/data-loader/pagination-limit-extractor';
 
 /**
  * Tipo para cargadores de templates

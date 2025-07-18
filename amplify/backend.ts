@@ -1,6 +1,6 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { Stack } from 'aws-cdk-lib';
-import { AuthorizationType, Cors, LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { AuthorizationType, Cors, LambdaIntegration, MethodLoggingLevel, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { postConfirmation } from './auth/post-confirmation/resource';
 import { auth } from './auth/resource';
@@ -49,9 +49,11 @@ const deployConfig = {
   stageName,
   ...(isProduction && {
     throttle: {
-      rateLimit: 1000,
-      burstLimit: 2000,
+      rateLimit: 200,
+      burstLimit: 400,
     },
+    metricsEnabled: true,
+    loggingLevel: MethodLoggingLevel.INFO,
   }),
 };
 

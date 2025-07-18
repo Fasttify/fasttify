@@ -12,8 +12,8 @@ import {
   Badge,
   Button,
   ButtonGroup,
+  Card,
   IndexTable,
-  LegacyCard,
   Link as PolarisLink,
   Text,
   Thumbnail,
@@ -31,6 +31,8 @@ interface ProductTableDesktopProps {
   toggleSort: (field: SortField) => void;
   sortDirection: 'ascending' | 'descending';
   sortField: SortField;
+  selectedProducts: string[];
+  handleSelectProduct: (id: string) => void;
 }
 
 export function ProductTableDesktop({
@@ -42,6 +44,8 @@ export function ProductTableDesktop({
   toggleSort,
   sortDirection,
   sortField,
+  selectedProducts,
+  handleSelectProduct,
 }: ProductTableDesktopProps) {
   const pathname = usePathname();
   const params = useParams();
@@ -97,15 +101,17 @@ export function ProductTableDesktop({
         {visibleColumns.category && <IndexTable.Cell>{category || 'Sin categoría'}</IndexTable.Cell>}
         {visibleColumns.actions && (
           <IndexTable.Cell>
-            <ButtonGroup>
-              <Button icon={EditIcon} onClick={() => handleEditProduct(id)} accessibilityLabel="Edit product" />
-              <Button
-                icon={DeleteIcon}
-                onClick={() => handleDeleteProduct(id)}
-                accessibilityLabel="Delete product"
-                tone="critical"
-              />
-            </ButtonGroup>
+            {selectedResources.includes(id) ? (
+              <ButtonGroup>
+                <Button icon={EditIcon} onClick={() => handleEditProduct(id)} accessibilityLabel="Edit product" />
+                <Button
+                  icon={DeleteIcon}
+                  onClick={() => handleDeleteProduct(id)}
+                  accessibilityLabel="Delete product"
+                  tone="critical"
+                />
+              </ButtonGroup>
+            ) : null}
           </IndexTable.Cell>
         )}
       </IndexTable.Row>
@@ -131,16 +137,12 @@ export function ProductTableDesktop({
     headings.push({ title: 'Categoría' });
     sortableColumns.push('category');
   }
-  if (visibleColumns.actions) {
-    headings.push({ title: 'Acciones' });
-    sortableColumns.push('creationDate');
-  }
 
   const sortColumnIndex = sortableColumns.indexOf(sortField);
 
   return (
     <div className="hidden sm:block">
-      <LegacyCard>
+      <Card>
         <IndexTable
           resourceName={resourceName}
           itemCount={products.length}
@@ -159,7 +161,7 @@ export function ProductTableDesktop({
           }}>
           {rowMarkup}
         </IndexTable>
-      </LegacyCard>
+      </Card>
     </div>
   );
 }

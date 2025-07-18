@@ -128,14 +128,14 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
   }
 
   const categoryOptions = [
-    { label: 'Ropa', value: 'Ropa' },
-    { label: 'Electrónica', value: 'Electronicos' },
-    { label: 'Hogar y Cocina', value: 'Hogar' },
-    { label: 'Belleza y Cuidado Personal', value: 'Belleza' },
-    { label: 'Deportes y Aire Libre', value: 'Deporte' },
-    { label: 'Otros', value: 'Otros' },
-    { label: 'Todas las categorías', value: 'Todas las categorías' },
-    { label: 'No categorizado', value: 'No categorizado' },
+    { label: 'Ropa', value: 'ropa' },
+    { label: 'Electrónica', value: 'electronicos' },
+    { label: 'Hogar y Cocina', value: 'hogar' },
+    { label: 'Belleza y Cuidado Personal', value: 'belleza' },
+    { label: 'Deportes y Aire Libre', value: 'deporte' },
+    { label: 'Otros', value: 'otros' },
+    { label: 'Todas las categorías', value: 'todas-las-categorias' },
+    { label: 'No categorizado', value: 'no-categorizado' },
   ];
 
   const statusOptions = [

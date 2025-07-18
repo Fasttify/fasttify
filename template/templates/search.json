@@ -2,7 +2,12 @@
   "sections": {
     "search": {
       "type": "sections/search",
-      "settings": {}
+      "settings": {
+        "type": "number",
+        "id": "search_products_per_page",
+        "label": "Productos por página",
+        "default": 2
+      }
     }
   },
   "order": ["search"]

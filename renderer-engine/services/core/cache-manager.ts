@@ -8,23 +8,57 @@ interface DataCache {
   };
 }
 
+// Configuración de TTLs por categoría
+interface TTLConfig {
+  default: number;
+  overrides?: Record<string, number>;
+}
+
 export class CacheManager {
   private static instance: CacheManager;
   private cache: DataCache = {};
   private isDevelopment: boolean;
 
-  // TTL constants
-  public readonly PRODUCT_CACHE_TTL = 15 * 60 * 1000; // 15 minutos
-  public readonly COLLECTION_CACHE_TTL = 30 * 60 * 1000; // 30 minutos
-  public readonly STORE_CACHE_TTL = 30 * 60 * 1000; // 30 minutos
-  public readonly DOMAIN_CACHE_TTL = 30 * 60 * 1000; // 30 minutos
-  public readonly TEMPLATE_CACHE_TTL = 60 * 60 * 1000; // 1 hora
+  // Configuración de TTLs por categoría principal
+  private readonly TTL_CONFIG: Record<string, TTLConfig> = {
+    // Datos de API - contenido dinámico que cambia frecuentemente
+    data: {
+      default: 15 * 60 * 1000, // 15 minutos por defecto
+      overrides: {
+        search: 10 * 60 * 1000, // Búsquedas más cortas
+        cart: 5 * 60 * 1000, // Carrito muy corto
+        navigation: 30 * 60 * 1000, // Navegación más estable
+      },
+    },
 
-  // TTL reducidos para desarrollo
-  private readonly DEV_TEMPLATE_CACHE_TTL = 1000; // 1 segundo en desarrollo
+    // Templates - contenido estático que cambia poco
+    template: {
+      default: 60 * 60 * 1000, // 1 hora por defecto
+    },
+
+    // Páginas renderizadas - contenido procesado
+    page: {
+      default: 30 * 60 * 1000, // 30 minutos por defecto
+      overrides: {
+        index: 15 * 60 * 1000, // Homepage más frecuente
+        product: 60 * 60 * 1000, // Productos más estables
+        collection: 45 * 60 * 1000, // Colecciones intermedias
+        policies: 24 * 60 * 60 * 1000, // Políticas muy estables
+        cart: 0, // Sin caché para carrito
+        '404': 24 * 60 * 60 * 1000, // 404 muy estable
+      },
+    },
+
+    // Dominios - resolución de tiendas
+    domain: {
+      default: 30 * 60 * 1000, // 30 minutos
+    },
+  };
+
+  // TTL para desarrollo (muy corto para testing)
+  private readonly DEV_CACHE_TTL = 1000; // 1 segundo
 
   private constructor() {
-    // Determinar si estamos en modo desarrollo
     this.isDevelopment = process.env.APP_ENV === 'development';
   }
 
@@ -36,29 +70,47 @@ export class CacheManager {
   }
 
   /**
-   * Obtiene el TTL adecuado según el tipo de caché y el entorno
+   * Obtiene el TTL adecuado según la categoría y el tipo específico
+   * Sistema híbrido: configuración por defecto + overrides específicos
    */
-  public getAppropiateTTL(cacheType: 'template' | 'product' | 'collection' | 'store' | 'domain'): number {
-    // En desarrollo, usar TTL reducidos para templates
-    if (this.isDevelopment && cacheType === 'template') {
-      return this.DEV_TEMPLATE_CACHE_TTL;
+  public getAppropiateTTL(category: string, type?: string): number {
+    // En desarrollo, usar TTL reducido para todos
+    if (this.isDevelopment) {
+      return this.DEV_CACHE_TTL;
     }
 
-    // En producción o para otros tipos, usar los TTL normales
-    switch (cacheType) {
-      case 'template':
-        return this.TEMPLATE_CACHE_TTL;
-      case 'product':
-        return this.PRODUCT_CACHE_TTL;
-      case 'collection':
-        return this.COLLECTION_CACHE_TTL;
-      case 'store':
-        return this.STORE_CACHE_TTL;
-      case 'domain':
-        return this.DOMAIN_CACHE_TTL;
-      default:
-        return this.STORE_CACHE_TTL;
+    const config = this.TTL_CONFIG[category];
+    if (!config) {
+      logger.warn(`Unknown cache category: ${category}, using default`, undefined, 'CacheManager');
+      return this.TTL_CONFIG.data.default;
     }
+
+    // Si hay override específico, usarlo
+    if (type && config.overrides && config.overrides[type]) {
+      return config.overrides[type];
+    }
+
+    // Usar TTL por defecto de la categoría
+    return config.default;
+  }
+
+  /**
+   * Métodos de conveniencia para casos comunes
+   */
+  public getDataTTL(type?: string): number {
+    return this.getAppropiateTTL('data', type);
+  }
+
+  public getTemplateTTL(): number {
+    return this.getAppropiateTTL('template');
+  }
+
+  public getPageTTL(type?: string): number {
+    return this.getAppropiateTTL('page', type);
+  }
+
+  public getDomainTTL(): number {
+    return this.getAppropiateTTL('domain');
   }
 
   /**
@@ -86,11 +138,6 @@ export class CacheManager {
    * Guarda una entrada en el caché
    */
   public setCached(key: string, data: any, ttl: number): void {
-    // Si la clave comienza con 'template_' y estamos en desarrollo, usar TTL corto
-    if (key.startsWith('template_') && this.isDevelopment) {
-      ttl = this.DEV_TEMPLATE_CACHE_TTL;
-    }
-
     logger.debug(`[CACHE SET] Key: ${key}, TTL: ${ttl}ms`);
     this.cache[key] = {
       data,

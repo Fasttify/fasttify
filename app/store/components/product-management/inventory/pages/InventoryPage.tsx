@@ -1,6 +1,6 @@
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
-import { Button, EmptyState, LegacyCard, Text } from '@shopify/polaris';
+import { Button, Card, EmptyState, Text } from '@shopify/polaris';
 import { InventoryIcon } from '@shopify/polaris-icons';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 
@@ -31,7 +31,7 @@ export function InventoryPage() {
       </div>
 
       {/* Contenido principal con EmptyState */}
-      <LegacyCard sectioned>
+      <Card>
         <EmptyState
           fullWidth
           heading="Haz seguimiento de tu inventario"
@@ -49,7 +49,7 @@ export function InventoryPage() {
             inventario aquí. Mantén control total sobre tu stock y evita quedarte sin productos.
           </p>
         </EmptyState>
-      </LegacyCard>
+      </Card>
 
       {/* Footer con información adicional */}
       <div style={{ textAlign: 'center', marginTop: '16px' }}>

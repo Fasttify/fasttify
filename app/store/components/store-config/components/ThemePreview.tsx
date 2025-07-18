@@ -1,12 +1,16 @@
-import { Page, Layout, Text, BlockStack, Card, Button, ButtonGroup, Badge, MediaCard } from '@shopify/polaris';
-import { MoneyFilledIcon } from '@shopify/polaris-icons';
 import { LogoUploader } from '@/app/store/components/store-config/components/LogoUploader';
 import useStoreDataStore from '@/context/core/storeDataStore';
+import { Badge, BlockStack, Button, ButtonGroup, Card, Layout, MediaCard, Page, Text } from '@shopify/polaris';
+import { MoneyFilledIcon } from '@shopify/polaris-icons';
 import Image from 'next/image';
 
 export function ThemePreview() {
   const { currentStore } = useStoreDataStore();
-  const customDomain = currentStore?.customDomain;
+  const customDomain =
+    currentStore?.customDomain && currentStore?.customDomainStatus === 'active'
+      ? currentStore.customDomain
+      : currentStore?.defaultDomain;
+
   const viewStore = `https://${customDomain}`;
 
   return (
@@ -14,7 +18,7 @@ export function ThemePreview() {
       title="Diseño"
       primaryAction={{
         content: 'Personalizar',
-        onAction: () => {}, // Agregar acción de personalización
+        onAction: () => {},
       }}>
       <Layout>
         <Layout.Section>

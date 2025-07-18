@@ -1,5 +1,5 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import type { TemplateAnalysis } from '@/renderer-engine/services/templates/template-analyzer';
+import type { TemplateAnalysis } from '@/renderer-engine/services/templates/analysis/template-analyzer';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
 
 /**

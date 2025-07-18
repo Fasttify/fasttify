@@ -1,5 +1,5 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { LiquidSyntaxDetector } from '@/renderer-engine/services/templates/liquid-syntax-detector';
+import { LiquidSyntaxDetector } from '@/renderer-engine/services/templates/parsing/liquid-syntax-detector';
 
 /**
  * Tipo de datos que pueden ser detectados en una plantilla
@@ -33,10 +33,10 @@ export interface DataLoadOptions {
   handle?: string;
   id?: string;
   nextToken?: string;
-  collectionHandle?: string; // Para collections.NOMBRE.products
-  handles?: string[]; // Para múltiples handles específicos
-  productId?: string; // Para productos relacionados
-  category?: string; // Para filtrar por categoría
+  collectionHandle?: string;
+  handles?: string[];
+  productId?: string;
+  category?: string;
 }
 
 /**
@@ -47,7 +47,7 @@ export interface TemplateAnalysis {
   hasPagination: boolean;
   usedSections: string[];
   liquidObjects: string[];
-  dependencies: string[]; // Snippets/secciones que también necesitan análisis
+  dependencies: string[];
 }
 
 /**
@@ -157,22 +157,14 @@ export class TemplateAnalyzer {
    */
   private inferDataFromTemplatePath(templatePath: string, analysis: TemplateAnalysis): void {
     if (templatePath.includes('index')) {
-      // Homepage típicamente necesita colecciones (pero no asumimos cuáles)
       if (!analysis.requiredData.has('collections')) {
         analysis.requiredData.set('collections', { limit: 6 });
       }
     } else if (templatePath.includes('product')) {
-      // No inferir ciegamente 'product'. Dejar que detectLiquidObjects
-      // y detectPagination hagan su trabajo. Si después de eso no se ha
-      // detectado ni 'product' ni 'products', entonces podemos asumir
-      // que es una página de producto individual.
       if (!analysis.requiredData.has('product') && !analysis.requiredData.has('products')) {
         analysis.requiredData.set('product', {});
       }
     } else if (templatePath.includes('collection')) {
-      // Si es una página de colección, se necesita el objeto `collection`.
-      // Solo se establece un requerimiento por defecto si no existe uno previo
-      // (por ejemplo, de la detección de paginación, que incluye un `limit`).
       if (!analysis.requiredData.has('collection')) {
         analysis.requiredData.set('collection', {});
       }

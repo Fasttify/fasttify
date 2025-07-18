@@ -1,6 +1,6 @@
-import { pageConfig } from '@/renderer-engine/services/page/page-config';
-import { renderPageContent } from '@/renderer-engine/services/rendering/render-page-content';
+import { pageConfig } from '@/renderer-engine/config/page-config';
 import type { RenderingData } from '@/renderer-engine/renderers/dynamic-page-renderer';
+import { renderPageContent } from '@/renderer-engine/services/rendering/render-page-content';
 
 /**
  * Paso 6: Renderizar contenido de la página

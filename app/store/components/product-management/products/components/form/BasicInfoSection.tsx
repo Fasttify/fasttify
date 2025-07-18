@@ -127,7 +127,6 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
                     field.onChange(null);
                     return;
                   }
-                  // Adjust for timezone to prevent off-by-one-day errors
                   const date = new Date(dateString);
                   const userTimezoneOffset = date.getTimezoneOffset() * 60000;
                   field.onChange(new Date(date.getTime() + userTimezoneOffset));

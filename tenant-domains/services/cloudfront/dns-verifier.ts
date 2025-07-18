@@ -104,7 +104,7 @@ export class DNSVerifier {
     return `
  Configuración DNS requerida para ${domain}:
 
-🔹 OPCIÓN RECOMENDADA - Registro CNAME:
+ OPCIÓN RECOMENDADA - Registro CNAME:
    • Tipo: CNAME
    • Nombre: ${domain} (o @ si es dominio raíz)
    • Valor: ${endpoint}
@@ -180,16 +180,16 @@ export class DNSVerifier {
     const status = await this.verifyDNS(domain, expectedEndpoint);
     const recordType = await this.getDNSRecordType(domain);
 
-    let diagnostic = `🔍 Diagnóstico DNS para ${domain}:\n\n`;
+    let diagnostic = ` Diagnóstico DNS para ${domain}:\n\n`;
 
-    diagnostic += `📊 Estado actual:\n`;
-    diagnostic += `   • Configurado correctamente: ${status.isConfigured ? '✅ Sí' : '❌ No'}\n`;
+    diagnostic += ` Estado actual:\n`;
+    diagnostic += `   • Configurado correctamente: ${status.isConfigured ? ' Sí' : ' No'}\n`;
     diagnostic += `   • Tipo de registro: ${recordType}\n`;
     diagnostic += `   • Valor actual: ${status.currentValue || 'No encontrado'}\n`;
     diagnostic += `   • Valor esperado: ${status.expectedValue}\n\n`;
 
     if (status.hasError) {
-      diagnostic += `❌ Error: ${status.error}\n\n`;
+      diagnostic += ` Error: ${status.error}\n\n`;
     }
 
     if (!status.isConfigured) {

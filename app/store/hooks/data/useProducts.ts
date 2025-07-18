@@ -1,4 +1,5 @@
 import type { Schema } from '@/amplify/data/resource';
+import { normalizeAttributesField, withLowercaseName } from '@/app/store/hooks/utils/productUtils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -82,23 +83,19 @@ export interface UseProductsOptions extends PaginationOptions {
 export function useProducts(storeId: string | undefined, options?: UseProductsOptions): UseProductsResult {
   const queryClient = useQueryClient();
 
-  // Estado para la paginación
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageTokens, setPageTokens] = useState<(string | null)[]>([null]); // Token para cada página
+  const [pageTokens, setPageTokens] = useState<(string | null)[]>([null]);
 
-  // Valores por defecto para paginación
   const limit = options?.limit || 50;
   const sortDirection = options?.sortDirection || 'DESC';
   const sortField = options?.sortField || 'creationDate';
   const enabled = options?.enabled !== false && !!storeId;
 
-  // Resetear paginación si cambian los parámetros clave
   useEffect(() => {
     setCurrentPage(1);
     setPageTokens([null]);
   }, [storeId, limit, sortDirection, sortField]);
 
-  // Función para obtener productos de una página específica
   const fetchProductsPage = async () => {
     if (!storeId) throw new Error('Store ID is required');
 
@@ -114,7 +111,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       }
     );
 
-    // Ordenamos manualmente los resultados
     const sortedData = [...(data || [])].sort((a, b) => {
       const fieldA = a[sortField as keyof typeof a];
       const fieldB = b[sortField as keyof typeof b];
@@ -133,7 +129,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     };
   };
 
-  // Consulta para la página actual de productos
   const {
     data,
     isFetching,
@@ -147,26 +142,27 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     refetchOnWindowFocus: false,
   });
 
-  // Almacenar el token para la página siguiente
   useEffect(() => {
     if (data?.nextToken && pageTokens.length === currentPage) {
       setPageTokens((tokens) => [...tokens, data.nextToken]);
     }
   }, [data?.nextToken, pageTokens.length, currentPage]);
 
-  // Mutación para crear un producto
   const createProductMutation = useMutation({
     mutationFn: async (productData: ProductCreateInput) => {
       const { username } = await getCurrentUser();
-
-      const { data } = await client.models.Product.create({
+      const dataToSend = withLowercaseName({
         ...productData,
+        attributes: normalizeAttributesField(
+          productData.attributes as string | { name?: string; values?: string[] }[] | undefined
+        ),
         storeId: storeId || '',
         owner: username,
         status: productData.status || 'DRAFT',
         quantity: productData.quantity || 0,
       });
 
+      const { data } = await client.models.Product.create(dataToSend);
       return data as IProduct;
     },
     onSuccess: () => {
@@ -174,10 +170,16 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     },
   });
 
-  // Mutación para actualizar un producto
   const updateProductMutation = useMutation({
     mutationFn: async (productData: ProductUpdateInput) => {
-      const { data } = await client.models.Product.update(productData);
+      const dataToSend = withLowercaseName({
+        ...productData,
+        attributes: normalizeAttributesField(
+          productData.attributes as string | { name?: string; values?: string[] }[] | undefined
+        ),
+      });
+
+      const { data } = await client.models.Product.update(dataToSend);
       return data as IProduct;
     },
     onSuccess: (updatedProduct) => {
@@ -196,7 +198,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     },
   });
 
-  // Mutación para eliminar un producto
   const deleteProductMutation = useMutation({
     mutationFn: async (id: string) => {
       await client.models.Product.delete({ id });
@@ -218,7 +219,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     },
   });
 
-  // Mutación para eliminar múltiples productos
   const deleteMultipleProductsMutation = useMutation({
     mutationFn: async (ids: string[]) => {
       await Promise.all(ids.map((id) => client.models.Product.delete({ id })));
@@ -240,7 +240,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     },
   });
 
-  // Consulta para obtener un producto específico
   const fetchProductById = useCallback(
     async (id: string): Promise<IProduct | null> => {
       if (!storeId) {
@@ -248,7 +247,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
         return null;
       }
 
-      // Buscar en todas las páginas cacheadas
       const queryCache = queryClient.getQueryCache();
       const productQueries = queryCache.findAll({ queryKey: ['products', storeId] });
 
@@ -262,12 +260,10 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
         }
       }
 
-      // Si no está en caché, obtenemos el producto por ID
       try {
         const { data: product } = await client.models.Product.get({ id });
 
         if (product) {
-          // Añadimos el producto a la caché
           queryClient.setQueryData(['product', id], product);
           return product as IProduct;
         }
@@ -304,22 +300,18 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   };
 
   return {
-    // Datos y estado
     products,
     loading: isFetching,
     error: queryError ? new Error(queryError.message) : null,
 
-    // Información de paginación
     currentPage,
     hasNextPage,
     hasPreviousPage,
 
-    // Funciones de paginación
     nextPage,
     previousPage,
     resetPagination: resetPaginationAndRefetch,
 
-    // Funciones CRUD
     createProduct: async (productData) => {
       try {
         return await createProductMutation.mutateAsync(productData);

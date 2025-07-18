@@ -11,6 +11,7 @@ describe('buildContextStep', () => {
   it('debe construir el contexto correctamente', async () => {
     const data = {
       store: { storeId: '123' },
+      options: { pageType: 'index' },
       pageData: { products: [], contextData: { foo: 'bar' } },
       storeTemplate: {},
       searchParams: {},
@@ -23,6 +24,7 @@ describe('buildContextStep', () => {
   it('debe agregar los tokens de paginación si existen', async () => {
     const data = {
       store: { storeId: '123' },
+      options: { pageType: 'collection' },
       pageData: { products: [], contextData: {}, nextToken: 'abc' },
       storeTemplate: {},
       searchParams: { token: 'xyz' },
@@ -30,5 +32,17 @@ describe('buildContextStep', () => {
     const result = await buildContextStep(data as any);
     expect(result.context.next_token).toBe('abc');
     expect(result.context.current_token).toBe('xyz');
+  });
+
+  it('debe agregar searchTerm a searchParams si existe', async () => {
+    const data = {
+      store: { storeId: '123' },
+      options: { pageType: 'search', searchTerm: 'camiseta' },
+      pageData: { products: [], contextData: {} },
+      storeTemplate: {},
+      searchParams: {},
+    };
+    const result = await buildContextStep(data as any);
+    expect(result.context.request.searchParams.get('q')).toBe('camiseta');
   });
 });

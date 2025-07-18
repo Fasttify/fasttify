@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { templateDevSynchronizer } from '@/renderer-engine/services/templates/template-dev-synchronizer';
 import { logger } from '@/renderer-engine/lib/logger';
+import { templateDevSynchronizer } from '@/renderer-engine/services/templates/sync/template-dev-synchronizer';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * API para manejar la sincronización de plantillas en modo desarrollo

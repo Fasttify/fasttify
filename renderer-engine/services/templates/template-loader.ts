@@ -51,7 +51,7 @@ class TemplateLoader {
     const compiledTemplate = liquidEngine.parse(rawContent);
 
     // Guardar en cache la versión compilada
-    const cacheTTL = cacheManager.getAppropiateTTL('template');
+    const cacheTTL = cacheManager.getTemplateTTL();
     cacheManager.setCached(compiledCacheKey, compiledTemplate, cacheTTL);
 
     return compiledTemplate;
@@ -116,8 +116,8 @@ class TemplateLoader {
         content = await response.Body.transformToString();
       }
 
-      // Cache with appropriate TTL
-      const cacheTTL = cacheManager.getAppropiateTTL('template');
+      // Cache with appropriate TTL using new hybrid system
+      const cacheTTL = cacheManager.getTemplateTTL();
       cacheManager.setCached(
         cacheKey,
         {
@@ -219,15 +219,16 @@ class TemplateLoader {
         const bytes = await response.Body.transformToByteArray();
         assetBuffer = Buffer.from(bytes);
       }
-      // Cache asset
+      // Cache asset using new hybrid system
+      const cacheTTL = cacheManager.getTemplateTTL();
       cacheManager.setCached(
         cacheKey,
         {
           content: assetBuffer.toString('base64'),
           lastUpdated: new Date(),
-          ttl: cacheManager.TEMPLATE_CACHE_TTL,
+          ttl: cacheTTL,
         },
-        cacheManager.TEMPLATE_CACHE_TTL
+        cacheTTL
       );
       return assetBuffer;
     } catch (error) {
@@ -247,6 +248,7 @@ class TemplateLoader {
 
   public invalidateTemplateCache(storeId: string, templatePath: string): void {
     // Invalidar tanto el cache de contenido raw como el compilado
+    // Usar TTL de 0 para invalidación inmediata
     cacheManager.setCached(`template_${storeId}_${templatePath}`, null, 0);
     cacheManager.setCached(`compiled_template_${storeId}_${templatePath}`, null, 0);
   }

@@ -1,6 +1,6 @@
 import { handleExportProducts } from '@/app/store/components/product-management/utils/product-utils';
 import { routes } from '@/utils/client/routes';
-import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
+import { Box, Button, ButtonGroup, Card, Text } from '@shopify/polaris';
 import { useRouter } from 'next/navigation';
 
 // Hooks
@@ -36,7 +36,7 @@ export function ProductList({
   const router = useRouter();
   const { showToast } = useToast();
   // Hooks para manejar diferentes aspectos de la tabla
-  const { setSelectedProducts } = useProductSelection();
+  const { selectedProducts, handleSelectProduct, setSelectedProducts } = useProductSelection();
   const { activeTab, setActiveTab, searchQuery, setSearchQuery, sortedProducts, toggleSort, sortDirection, sortField } =
     useProductFilters(products);
 
@@ -109,7 +109,7 @@ export function ProductList({
           </Button>
         </ButtonGroup>
       </div>
-      <LegacyCard>
+      <Card>
         <ProductFilters
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -133,14 +133,16 @@ export function ProductList({
           toggleSort={toggleSort}
           sortDirection={sortDirection === 'asc' ? 'ascending' : 'descending'}
           sortField={sortField ?? 'name'}
+          selectedProducts={selectedProducts}
+          handleSelectProduct={handleSelectProduct}
         />
 
         {/* Vista móvil */}
         <div className="sm:hidden">
           <ProductCardMobile
             products={sortedProducts}
-            selectedProducts={[]}
-            handleSelectProduct={() => {}}
+            selectedProducts={selectedProducts}
+            handleSelectProduct={handleSelectProduct}
             handleEditProduct={handleEditProduct}
             handleDeleteProduct={handleDeleteProduct}
             visibleColumns={{
@@ -166,7 +168,7 @@ export function ProductList({
             currentItemsCount={products.length}
           />
         </Box>
-      </LegacyCard>
+      </Card>
     </div>
   );
 }

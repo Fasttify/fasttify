@@ -59,5 +59,32 @@
         "default": false
       }
     ]
+  },
+  {
+    "name": "Search Settings",
+    "settings": [
+      {
+        "type": "range",
+        "id": "search_products_limit",
+        "label": "Search Products Limit",
+        "info": "Maximum number of products to show in search results",
+        "min": 4,
+        "max": 20,
+        "step": 2,
+        "unit": "products",
+        "default": 12
+      },
+      {
+        "type": "range",
+        "id": "search_collections_limit",
+        "label": "Search Collections Limit",
+        "info": "Maximum number of collections to show in search results",
+        "min": 2,
+        "max": 10,
+        "step": 1,
+        "unit": "collections",
+        "default": 4
+      }
+    ]
   }
 ]

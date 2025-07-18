@@ -19,7 +19,7 @@ jest.mock('@/renderer-engine/services/fetchers/data-fetcher', () => ({
     getStoreNavigationMenus: jest.fn().mockResolvedValue('store-template'),
   },
 }));
-jest.mock('@/renderer-engine/services/page/page-config', () => ({
+jest.mock('@/renderer-engine/config/page-config', () => ({
   pageConfig: {
     getTemplatePath: jest.fn().mockReturnValue('page.liquid'),
   },
