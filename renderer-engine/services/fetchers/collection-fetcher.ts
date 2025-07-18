@@ -57,7 +57,7 @@ export class CollectionFetcher {
         nextToken: response.nextToken,
       };
 
-      cacheManager.setCached(cacheKey, result, cacheManager.getAppropiateTTL('collection'));
+      cacheManager.setCached(cacheKey, result, cacheManager.getDataTTL('collection'));
       return result;
     } catch (error) {
       logger.error(`Error fetching collections for store ${storeId}`, error, 'CollectionFetcher');
@@ -106,7 +106,7 @@ export class CollectionFetcher {
 
       const transformedCollection = this.transformCollection(collection, products, nextToken);
 
-      cacheManager.setCached(cacheKey, transformedCollection, cacheManager.getAppropiateTTL('collection'));
+      cacheManager.setCached(cacheKey, transformedCollection, cacheManager.getDataTTL('collection'));
       return transformedCollection;
     } catch (error) {
       logger.error(`Error fetching collection ${collectionId} for store ${storeId}`, error, 'CollectionFetcher');

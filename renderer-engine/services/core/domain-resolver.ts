@@ -37,16 +37,18 @@ class DomainResolver {
       }
 
       if (!stores?.length) {
-        cacheManager.setCached(cacheKey, null, 5 * 60 * 1000);
+        // Cache negativo por 5 minutos
+        cacheManager.setCached(cacheKey, null, cacheManager.getDataTTL('search'));
         return null;
       }
 
       const store = stores[0] as unknown as Store;
 
-      cacheManager.setCached(cacheKey, store, cacheManager.DOMAIN_CACHE_TTL);
+      cacheManager.setCached(cacheKey, store, cacheManager.getDomainTTL());
       return store;
     } catch {
-      cacheManager.setCached(cacheKey, null, 60 * 1000);
+      // Cache negativo por 1 minuto en caso de error
+      cacheManager.setCached(cacheKey, null, cacheManager.getDataTTL('cart'));
       return null;
     }
   }

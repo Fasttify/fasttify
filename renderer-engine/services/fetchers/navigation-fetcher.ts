@@ -57,8 +57,8 @@ export class NavigationFetcher {
       if (!rawMenus || rawMenus.length === 0) {
         logger.warn(`No navigation menus found for store: ${storeId}`, undefined, 'NavigationFetcher');
         const emptyResponse = { menus: [] };
-        // Cachear respuesta vacía por menor tiempo (5 minutos)
-        cacheManager.setCached(cacheKey, emptyResponse, 5 * 60 * 1000);
+        // Cachear respuesta vacía usando el sistema híbrido
+        cacheManager.setCached(cacheKey, emptyResponse, cacheManager.getDataTTL('navigation'));
         return emptyResponse;
       }
 
@@ -76,8 +76,8 @@ export class NavigationFetcher {
         footerMenu,
       };
 
-      // Guardar en caché
-      cacheManager.setCached(cacheKey, response, cacheManager.getAppropiateTTL('template'));
+      // Guardar en caché usando el sistema híbrido
+      cacheManager.setCached(cacheKey, response, cacheManager.getDataTTL('navigation'));
 
       return response;
     } catch (error) {
@@ -120,8 +120,8 @@ export class NavigationFetcher {
 
       const processedMenu = await this.processNavigationMenu(targetMenu, storeId);
 
-      // Guardar en caché
-      cacheManager.setCached(cacheKey, processedMenu, cacheManager.getAppropiateTTL('template'));
+      // Guardar en caché usando el sistema híbrido
+      cacheManager.setCached(cacheKey, processedMenu, cacheManager.getDataTTL('navigation'));
 
       return processedMenu;
     } catch (error) {

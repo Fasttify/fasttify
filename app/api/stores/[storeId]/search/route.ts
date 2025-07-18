@@ -49,7 +49,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       storeId: product.storeId,
     }));
 
-    cacheManager.setCached(cacheKey, { products: simplifiedProducts }, cacheManager.getAppropiateTTL('search'));
+    cacheManager.setCached(cacheKey, { products: simplifiedProducts }, cacheManager.getDataTTL('search'));
 
     return NextResponse.json({ products: simplifiedProducts });
   } catch (error) {
