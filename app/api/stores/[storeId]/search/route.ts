@@ -1,7 +1,7 @@
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 import { searchProductsByTerm } from '@/renderer-engine/services/page/data-loader/search/search-data-loader';
 import { NextRequest, NextResponse } from 'next/server';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 
 export async function OPTIONS(request: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(request);
