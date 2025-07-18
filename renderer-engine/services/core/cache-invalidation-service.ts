@@ -213,7 +213,13 @@ export class CacheInvalidationService {
     for (const pattern of patterns) {
       for (const key of allKeys) {
         // Reemplazar wildcards con storeId y entityId
-        const searchPattern = pattern.replace('*', storeId).replace('*', entityId || '*');
+        const wildcardValues = [storeId, entityId || '*'];
+        let wildcardIndex = 0;
+        const searchPattern = pattern.replace(/\*/g, () => {
+          const val = wildcardValues[wildcardIndex] !== undefined ? wildcardValues[wildcardIndex] : '*';
+          wildcardIndex++;
+          return val;
+        });
 
         if (key.includes(searchPattern) || key.includes(`_${storeId}_`)) {
           delete cacheManager['cache'][key];

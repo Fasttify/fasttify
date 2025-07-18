@@ -50,7 +50,7 @@ export function NavigationManager({ storeId }: NavigationManagerProps) {
     if (!selectedMenuId) return;
 
     try {
-      await deleteMenuMutation.mutateAsync(selectedMenuId);
+      await deleteMenuMutation.mutateAsync({ id: selectedMenuId, storeId });
       showToast('Menú eliminado exitosamente');
       setShowDeleteModal(false);
       setSelectedMenuId(null);
