@@ -10,8 +10,8 @@ import {
   Badge,
   Button,
   ButtonGroup,
+  Card,
   IndexTable,
-  LegacyCard,
   Link as PolarisLink,
   Text,
   useIndexResourceState,
@@ -45,6 +45,8 @@ export function PageTableDesktop({
   };
 
   const { selectedResources, allResourcesSelected, handleSelectionChange } = useIndexResourceState(pages);
+
+  const showActionsColumn = visibleColumns.actions && selectedResources.length > 0;
 
   const promotedBulkActions = [
     {
@@ -87,7 +89,7 @@ export function PageTableDesktop({
         )}
         <IndexTable.Cell>{pageType === 'policies' ? 'Política' : 'Estándar'}</IndexTable.Cell>
         <IndexTable.Cell>{formatDate(createdAt)}</IndexTable.Cell>
-        {visibleColumns.actions && (
+        {showActionsColumn && (
           <IndexTable.Cell>
             <ButtonGroup>
               <Button icon={EditIcon} onClick={() => handleEditPage(id)} accessibilityLabel="Editar página" />
@@ -122,15 +124,16 @@ export function PageTableDesktop({
   sortableColumns.push('pageType');
   headings.push({ title: 'Fecha de creación' });
   sortableColumns.push('createdAt');
-  if (visibleColumns.actions) {
+  if (showActionsColumn) {
     headings.push({ title: 'Acciones' });
+    // No agregues nada a sortableColumns porque la columna de acciones no es ordenable
   }
 
   const sortColumnIndex = sortableColumns.indexOf(sortField);
 
   return (
     <div className="hidden sm:block">
-      <LegacyCard>
+      <Card>
         <IndexTable
           resourceName={resourceName}
           itemCount={pages.length}
@@ -149,7 +152,7 @@ export function PageTableDesktop({
           }}>
           {rowMarkup}
         </IndexTable>
-      </LegacyCard>
+      </Card>
     </div>
   );
 }

@@ -1,18 +1,19 @@
 import type { PageSummary } from '@/app/store/components/page-management/types/page-types';
 import { getStatusText, getStatusTone } from '@/app/store/components/page-management/utils/page-utils';
-import { Badge, BlockStack, Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
+import { Badge, BlockStack, Box, Button, ButtonGroup, Card, Text } from '@shopify/polaris';
 import { DeleteIcon, EditIcon } from '@shopify/polaris-icons';
 
 interface PageListMobileProps {
   pages: PageSummary[];
   handleEditPage: (id: string) => void;
   handleDeletePage: (id: string) => void;
+  selectedIds?: string[];
 }
 
-export function PageListMobile({ pages, handleEditPage, handleDeletePage }: PageListMobileProps) {
+export function PageListMobile({ pages, handleEditPage, handleDeletePage, selectedIds }: PageListMobileProps) {
   return (
     <div className="sm:hidden">
-      <LegacyCard>
+      <Card>
         <BlockStack gap="0">
           {pages.map((page, index) => (
             <div key={page.id}>
@@ -28,21 +29,23 @@ export function PageListMobile({ pages, handleEditPage, handleDeletePage }: Page
                       {page.title}
                     </Text>
                   </div>
-                  <ButtonGroup>
-                    <Button
-                      icon={EditIcon}
-                      onClick={() => handleEditPage(page.id)}
-                      size="slim"
-                      accessibilityLabel={`Editar ${page.title}`}
-                    />
-                    <Button
-                      icon={DeleteIcon}
-                      onClick={() => handleDeletePage(page.id)}
-                      size="slim"
-                      tone="critical"
-                      accessibilityLabel={`Eliminar ${page.title}`}
-                    />
-                  </ButtonGroup>
+                  {(!selectedIds || selectedIds.includes(page.id)) && (
+                    <ButtonGroup>
+                      <Button
+                        icon={EditIcon}
+                        onClick={() => handleEditPage(page.id)}
+                        size="slim"
+                        accessibilityLabel={`Editar ${page.title}`}
+                      />
+                      <Button
+                        icon={DeleteIcon}
+                        onClick={() => handleDeletePage(page.id)}
+                        size="slim"
+                        tone="critical"
+                        accessibilityLabel={`Eliminar ${page.title}`}
+                      />
+                    </ButtonGroup>
+                  )}
                 </div>
                 <Box paddingBlockStart="200">
                   <Badge tone={getStatusTone(page.status)}>{getStatusText(page.status)}</Badge>
@@ -52,7 +55,7 @@ export function PageListMobile({ pages, handleEditPage, handleDeletePage }: Page
             </div>
           ))}
         </BlockStack>
-      </LegacyCard>
+      </Card>
     </div>
   );
 }

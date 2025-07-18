@@ -1,4 +1,5 @@
 import type { Schema } from '@/amplify/data/resource';
+import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { CreatePageInput, createPageSchema, UpdatePageInput, updatePageSchema } from '@/lib/zod-schemas/page';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -23,6 +24,7 @@ export type { CreatePageInput, UpdatePageInput };
 export const usePages = (storeId: string) => {
   const [error, setError] = useState<any>(null);
   const queryClient = useQueryClient();
+  const { invalidatePageCache } = useCacheInvalidation();
 
   const performOperation = async <T>(
     operation: () => Promise<{ data: T | null; errors?: any[] }>
@@ -118,8 +120,11 @@ export const usePages = (storeId: string) => {
         const validatedInput = createPageSchema.parse(pageInput);
         return performOperation(() => client.models.Page.create({ ...validatedInput, owner: username }));
       },
-      onSuccess: () => {
+      onSuccess: async (newPage) => {
         queryClient.invalidateQueries({ queryKey: [PAGES_KEY, 'list', storeId] });
+
+        // Invalidar caché del motor de renderizado
+        await invalidatePageCache(storeId);
       },
     });
   };
@@ -135,19 +140,30 @@ export const usePages = (storeId: string) => {
           })
         );
       },
-      onSuccess: (_data, variables) => {
+      onSuccess: async (_data, variables) => {
         queryClient.invalidateQueries({ queryKey: [PAGES_KEY, variables.id] });
         queryClient.invalidateQueries({ queryKey: [PAGES_KEY, 'list', storeId] });
+
+        // Invalidar caché del motor de renderizado
+        await invalidatePageCache(storeId, variables.id);
       },
     });
   };
 
   const useDeletePage = () => {
     return useMutation({
-      mutationFn: (id: string) => performOperation(() => client.models.Page.delete({ id })),
-      onSuccess: (_data, id) => {
-        queryClient.removeQueries({ queryKey: [PAGES_KEY, id] });
+      mutationFn: (id: string) => {
+        if (!id) {
+          throw new Error('Page ID is required for deletion');
+        }
+        return performOperation(() => client.models.Page.delete({ id }));
+      },
+      onSuccess: async (_data, deletedId) => {
+        queryClient.removeQueries({ queryKey: [PAGES_KEY, deletedId] });
         queryClient.invalidateQueries({ queryKey: [PAGES_KEY, 'list', storeId] });
+
+        // Invalidar caché del motor de renderizado
+        await invalidatePageCache(storeId, deletedId);
       },
     });
   };

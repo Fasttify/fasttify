@@ -1,4 +1,5 @@
 import type { Schema } from '@/amplify/data/resource';
+import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { validateMenuItems, validateNavigationMenu, validateUpdateNavigationMenu } from '@/lib/zod-schemas/navigation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -77,6 +78,7 @@ export type NavigationMenuSummary = Pick<NavigationMenu, 'id' | 'name' | 'handle
 export const useNavigationMenus = () => {
   const [error, setError] = useState<any>(null);
   const queryClient = useQueryClient();
+  const { invalidateNavigationCache } = useCacheInvalidation();
 
   /**
    * Función auxiliar para ejecutar operaciones con manejo de errores
@@ -182,8 +184,13 @@ export const useNavigationMenus = () => {
 
         return performOperation(() => client.models.NavigationMenu.create(menuData));
       },
-      onSuccess: () => {
+      onSuccess: async (newMenu) => {
         queryClient.invalidateQueries({ queryKey: [NAVIGATION_MENUS_KEY, 'list'] });
+
+        // Invalidar caché del motor de renderizado
+        if (newMenu?.storeId) {
+          await invalidateNavigationCache(newMenu.storeId);
+        }
       },
     });
   };
@@ -207,9 +214,14 @@ export const useNavigationMenus = () => {
           })
         );
       },
-      onSuccess: (data, variables) => {
+      onSuccess: async (data, variables) => {
         queryClient.invalidateQueries({ queryKey: [NAVIGATION_MENUS_KEY, variables.id] });
         queryClient.invalidateQueries({ queryKey: [NAVIGATION_MENUS_KEY, 'list'] });
+
+        // Invalidar caché del motor de renderizado
+        if (data?.storeId) {
+          await invalidateNavigationCache(data.storeId);
+        }
       },
     });
   };
@@ -219,10 +231,21 @@ export const useNavigationMenus = () => {
    */
   const useDeleteNavigationMenu = () => {
     return useMutation({
-      mutationFn: (id: string) => performOperation(() => client.models.NavigationMenu.delete({ id })),
-      onSuccess: (_, id) => {
-        queryClient.removeQueries({ queryKey: [NAVIGATION_MENUS_KEY, id] });
+      mutationFn: ({ id, storeId }: { id: string; storeId: string }) => {
+        if (!id) {
+          throw new Error('Navigation menu ID is required for deletion');
+        }
+        if (!storeId) {
+          throw new Error('Store ID is required for cache invalidation');
+        }
+        return performOperation(() => client.models.NavigationMenu.delete({ id }));
+      },
+      onSuccess: async (_, variables) => {
+        queryClient.removeQueries({ queryKey: [NAVIGATION_MENUS_KEY, variables.id] });
         queryClient.invalidateQueries({ queryKey: [NAVIGATION_MENUS_KEY, 'list'] });
+
+        // Invalidar caché del motor de renderizado
+        await invalidateNavigationCache(variables.storeId);
       },
     });
   };
