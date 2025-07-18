@@ -1,5 +1,6 @@
 import type { Schema } from '@/amplify/data/resource';
 import { normalizeAttributesField, withLowercaseName } from '@/app/store/hooks/utils/productUtils';
+import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -82,6 +83,7 @@ export interface UseProductsOptions extends PaginationOptions {
  */
 export function useProducts(storeId: string | undefined, options?: UseProductsOptions): UseProductsResult {
   const queryClient = useQueryClient();
+  const { invalidateProductCache } = useCacheInvalidation();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageTokens, setPageTokens] = useState<(string | null)[]>([null]);
@@ -165,8 +167,14 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       const { data } = await client.models.Product.create(dataToSend);
       return data as IProduct;
     },
-    onSuccess: () => {
+    onSuccess: async (newProduct) => {
+      // Invalidar React Query cache
       queryClient.invalidateQueries({ queryKey: ['products', storeId] });
+
+      // Invalidar caché del motor de renderizado
+      if (storeId) {
+        await invalidateProductCache(storeId);
+      }
     },
   });
 
@@ -182,7 +190,8 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       const { data } = await client.models.Product.update(dataToSend);
       return data as IProduct;
     },
-    onSuccess: (updatedProduct) => {
+    onSuccess: async (updatedProduct) => {
+      // Actualizar React Query cache optimísticamente
       queryClient
         .getQueryCache()
         .findAll({ queryKey: ['products', storeId] })
@@ -195,6 +204,11 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
             });
           }
         });
+
+      // Invalidar caché del motor de renderizado
+      if (storeId) {
+        await invalidateProductCache(storeId, updatedProduct.id);
+      }
     },
   });
 
@@ -203,7 +217,8 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       await client.models.Product.delete({ id });
       return id;
     },
-    onSuccess: (deletedId) => {
+    onSuccess: async (deletedId) => {
+      // Actualizar React Query cache optimísticamente
       queryClient
         .getQueryCache()
         .findAll({ queryKey: ['products', storeId] })
@@ -216,6 +231,11 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
             });
           }
         });
+
+      // Invalidar caché del motor de renderizado
+      if (storeId) {
+        await invalidateProductCache(storeId, deletedId);
+      }
     },
   });
 
@@ -224,7 +244,8 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       await Promise.all(ids.map((id) => client.models.Product.delete({ id })));
       return ids;
     },
-    onSuccess: (deletedIds) => {
+    onSuccess: async (deletedIds) => {
+      // Actualizar React Query cache optimísticamente
       queryClient
         .getQueryCache()
         .findAll({ queryKey: ['products', storeId] })
@@ -237,6 +258,11 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
             });
           }
         });
+
+      // Invalidar caché del motor de renderizado para cada producto eliminado
+      if (storeId) {
+        await Promise.all(deletedIds.map((id) => invalidateProductCache(storeId, id)));
+      }
     },
   });
 
@@ -330,6 +356,9 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     },
     deleteProduct: async (id) => {
       try {
+        if (!id) {
+          throw new Error('Product ID is required for deletion');
+        }
         await deleteProductMutation.mutateAsync(id);
         return true;
       } catch (err) {

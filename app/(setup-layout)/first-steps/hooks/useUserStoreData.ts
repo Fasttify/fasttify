@@ -1,5 +1,6 @@
 import type { Schema } from '@/amplify/data/resource';
 import useUserStore from '@/context/core/userStore';
+import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { generateClient } from 'aws-amplify/data';
 import { useState } from 'react';
 
@@ -40,6 +41,7 @@ export const useUserStoreData = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>(null);
   const { user } = useUserStore();
+  const { invalidateAllStoreCache, invalidateNavigationCache } = useCacheInvalidation();
 
   /**
    * Función auxiliar que ejecuta una operación y gestiona loading y error.
@@ -174,6 +176,11 @@ export const useUserStoreData = () => {
         })
       );
 
+      if (result && storeId) {
+        await invalidateAllStoreCache(storeId);
+        await invalidateNavigationCache(storeId);
+      }
+
       return result !== null;
     } catch (err) {
       setError(err);
@@ -185,7 +192,12 @@ export const useUserStoreData = () => {
    * Crea una tienda (UserStore) en la base de datos.
    */
   const createUserStore = async (storeInput: Omit<Schema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>) => {
-    return performOperation(() => client.models.UserStore.create(storeInput));
+    const result = await performOperation(() => client.models.UserStore.create(storeInput));
+    if (result && storeInput.storeId) {
+      await invalidateAllStoreCache(storeInput.storeId);
+      await invalidateNavigationCache(storeInput.storeId);
+    }
+    return result;
   };
 
   /**
@@ -194,14 +206,24 @@ export const useUserStoreData = () => {
   const updateUserStore = async (
     storeInput: Omit<Partial<UserStore>, 'id' | 'createdAt' | 'updatedAt'> & { storeId: string }
   ) => {
-    return performOperation(() => client.models.UserStore.update(storeInput));
+    const result = await performOperation(() => client.models.UserStore.update(storeInput));
+    if (result && storeInput.storeId) {
+      await invalidateAllStoreCache(storeInput.storeId);
+      await invalidateNavigationCache(storeInput.storeId);
+    }
+    return result;
   };
 
   /**
    * Elimina una tienda a partir de su 'storeId'.
    */
   const deleteUserStore = async (storeId: string) => {
-    return performOperation(() => client.models.UserStore.delete({ storeId }));
+    const result = await performOperation(() => client.models.UserStore.delete({ storeId }));
+    if (result && storeId) {
+      await invalidateAllStoreCache(storeId);
+      await invalidateNavigationCache(storeId);
+    }
+    return result;
   };
 
   /**
@@ -214,12 +236,17 @@ export const useUserStoreData = () => {
       return null;
     }
 
-    return performOperation(() =>
+    const result = await performOperation(() =>
       client.mutations.initializeStoreTemplate({
         storeId,
         domain,
       })
     );
+    if (result && storeId) {
+      await invalidateAllStoreCache(storeId);
+      await invalidateNavigationCache(storeId);
+    }
+    return result;
   };
 
   /**
@@ -276,6 +303,11 @@ export const useUserStoreData = () => {
       const domain = storeInput.customDomain || `${storeInput.storeName}.fasttify.com`;
 
       const templateResult = await initializeStoreTemplate(storeInput.storeId, domain);
+
+      if (storeInput.storeId) {
+        await invalidateAllStoreCache(storeInput.storeId);
+        await invalidateNavigationCache(storeInput.storeId);
+      }
 
       return {
         store: storeResult,

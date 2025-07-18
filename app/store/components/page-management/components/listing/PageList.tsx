@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, LegacyCard, Text } from '@shopify/polaris';
+import { Box, Button, ButtonGroup, Card, Text } from '@shopify/polaris';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -63,7 +63,7 @@ export function PageList({ storeId, pages, error, deleteMultiplePages, deletePag
   if (error) {
     return (
       <div className="w-full mt-8">
-        <LegacyCard sectioned>
+        <Card>
           <Text as="h2" variant="headingMd">
             Error al cargar páginas
           </Text>
@@ -71,7 +71,7 @@ export function PageList({ storeId, pages, error, deleteMultiplePages, deletePag
           <Box paddingBlockStart="400">
             <Button onClick={handleAddPage}>Crear página</Button>
           </Box>
-        </LegacyCard>
+        </Card>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export function PageList({ storeId, pages, error, deleteMultiplePages, deletePag
         </ButtonGroup>
       </div>
 
-      <LegacyCard>
+      <Card>
         <PageFilters
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -144,7 +144,7 @@ export function PageList({ storeId, pages, error, deleteMultiplePages, deletePag
               : `Mostrando ${sortedPages.length} página${sortedPages.length !== 1 ? 's' : ''} de ${pages.length} total${pages.length !== 1 ? 'es' : ''}`}
           </Text>
         </Box>
-      </LegacyCard>
+      </Card>
     </div>
   );
 }

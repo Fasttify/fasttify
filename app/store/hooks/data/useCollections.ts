@@ -1,4 +1,5 @@
 import type { Schema } from '@/amplify/data/resource';
+import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/data';
 import { useState } from 'react';
@@ -36,6 +37,7 @@ export interface CollectionInput {
 export const useCollections = () => {
   const [error, setError] = useState<any>(null); // Estado de error
   const queryClient = useQueryClient();
+  const { invalidateCollectionCache } = useCacheInvalidation();
 
   /**
    * Función auxiliar para ejecutar operaciones con manejo de errores
@@ -138,9 +140,14 @@ export const useCollections = () => {
     return useMutation({
       mutationFn: (collectionInput: CollectionInput) =>
         performOperation(() => client.models.Collection.create(collectionInput)),
-      onSuccess: () => {
+      onSuccess: async (newCollection) => {
         // Invalidar consultas para actualizar la lista
         queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, 'list'] });
+
+        // Invalidar caché del motor de renderizado
+        if (newCollection?.storeId) {
+          await invalidateCollectionCache(newCollection.storeId);
+        }
       },
     });
   };
@@ -150,17 +157,26 @@ export const useCollections = () => {
    */
   const useUpdateCollection = () => {
     return useMutation({
-      mutationFn: ({ id, data }: { id: string; data: Partial<CollectionInput> }) =>
-        performOperation(() =>
+      mutationFn: ({ id, data }: { id: string; data: Partial<CollectionInput> }) => {
+        if (!id) {
+          throw new Error('Collection ID is required for update');
+        }
+        return performOperation(() =>
           client.models.Collection.update({
             id,
             ...data,
           })
-        ),
-      onSuccess: (data) => {
+        );
+      },
+      onSuccess: async (updatedCollection) => {
         // Actualizar la colección en caché
-        queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, data?.id] });
+        queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, updatedCollection?.id] });
         queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, 'list'] });
+
+        // Invalidar caché del motor de renderizado
+        if (updatedCollection?.storeId) {
+          await invalidateCollectionCache(updatedCollection.storeId, updatedCollection.id);
+        }
       },
     });
   };
@@ -170,11 +186,22 @@ export const useCollections = () => {
    */
   const useDeleteCollection = () => {
     return useMutation({
-      mutationFn: (id: string) => performOperation(() => client.models.Collection.delete({ id })),
-      onSuccess: (_, id) => {
+      mutationFn: ({ id, storeId }: { id: string; storeId: string }) => {
+        if (!id) {
+          throw new Error('Collection ID is required for deletion');
+        }
+        if (!storeId) {
+          throw new Error('Store ID is required for cache invalidation');
+        }
+        return performOperation(() => client.models.Collection.delete({ id }));
+      },
+      onSuccess: async (_, variables) => {
         // Eliminar la colección de la caché
-        queryClient.removeQueries({ queryKey: [COLLECTIONS_KEY, id] });
+        queryClient.removeQueries({ queryKey: [COLLECTIONS_KEY, variables.id] });
         queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, 'list'] });
+
+        // Invalidar caché del motor de renderizado
+        await invalidateCollectionCache(variables.storeId, variables.id);
       },
     });
   };
@@ -186,6 +213,12 @@ export const useCollections = () => {
    * @returns El producto actualizado o null en caso de error
    */
   const addProductToCollection = async (collectionId: string, productId: string) => {
+    if (!collectionId) {
+      throw new Error('Collection ID is required');
+    }
+    if (!productId) {
+      throw new Error('Product ID is required');
+    }
     // Actualizar el producto para asignarle la colección
     return performOperation(() =>
       client.models.Product.update({
@@ -201,6 +234,9 @@ export const useCollections = () => {
    * @returns El producto actualizado o null en caso de error
    */
   const removeProductFromCollection = async (productId: string) => {
+    if (!productId) {
+      throw new Error('Product ID is required');
+    }
     // Actualizar el producto para eliminar la referencia a la colección
     return performOperation(() =>
       client.models.Product.update({

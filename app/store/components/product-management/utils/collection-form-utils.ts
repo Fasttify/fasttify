@@ -305,7 +305,10 @@ export const useCollectionForm = ({
     if (confirm('¿Estás seguro de que deseas eliminar esta colección?')) {
       setIsSubmitting(true);
       try {
-        await deleteCollection.mutateAsync(collectionId);
+        await deleteCollection.mutateAsync({
+          id: collectionId,
+          storeId: storeId,
+        });
         showToast('Colección eliminada.');
         // Esperar a que el redirect termine antes de quitar el loading
         await router.push(routes.store.products.collections(storeId));

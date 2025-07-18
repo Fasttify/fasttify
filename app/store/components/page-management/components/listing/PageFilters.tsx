@@ -1,5 +1,5 @@
 import { ChoiceList, Filters, Tabs } from '@shopify/polaris';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 
 interface PageFiltersProps {
   searchQuery: string;
@@ -96,7 +96,7 @@ export function PageFilters({
   const selectedTabIndex = TABS.findIndex((tab) => tab.id === activeTab);
 
   return (
-    <React.Fragment>
+    <>
       <Tabs tabs={TABS} selected={selectedTabIndex} onSelect={(index: number) => setActiveTab(TABS[index].id)} />
       <div style={{ padding: '16px' }}>
         <Filters
@@ -109,6 +109,6 @@ export function PageFilters({
           appliedFilters={appliedFilters}
         />
       </div>
-    </React.Fragment>
+    </>
   );
 }
