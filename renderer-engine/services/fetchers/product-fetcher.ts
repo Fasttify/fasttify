@@ -49,7 +49,7 @@ export class ProductFetcher {
         nextToken: response.nextToken,
       };
 
-      cacheManager.setCached(cacheKey, result, cacheManager.PRODUCT_CACHE_TTL);
+      cacheManager.setCached(cacheKey, result, cacheManager.getAppropiateTTL('product'));
 
       return result;
     } catch (error) {
@@ -83,7 +83,7 @@ export class ProductFetcher {
         });
         if (productById && productById.storeId === storeId) {
           const transformed = this.transformProduct(productById);
-          cacheManager.setCached(productCacheKey, transformed, cacheManager.PRODUCT_CACHE_TTL);
+          cacheManager.setCached(productCacheKey, transformed, cacheManager.getAppropiateTTL('product'));
           return transformed;
         }
       } catch (e) {}
@@ -127,7 +127,7 @@ export class ProductFetcher {
       }
 
       const transformedProduct = this.transformProduct(targetProduct);
-      cacheManager.setCached(productCacheKey, transformedProduct, cacheManager.PRODUCT_CACHE_TTL);
+      cacheManager.setCached(productCacheKey, transformedProduct, cacheManager.getAppropiateTTL('product'));
       return transformedProduct;
     } catch (error) {
       logger.error(`Error fetching product "${productIdOrHandle}" for store ${storeId}`, error, 'ProductFetcher');
@@ -162,7 +162,7 @@ export class ProductFetcher {
 
       const products = response.data.map((product) => this.transformProduct(product));
 
-      cacheManager.setCached(cacheKey, products, cacheManager.PRODUCT_CACHE_TTL);
+      cacheManager.setCached(cacheKey, products, cacheManager.getAppropiateTTL('product'));
 
       return products;
     } catch (error) {

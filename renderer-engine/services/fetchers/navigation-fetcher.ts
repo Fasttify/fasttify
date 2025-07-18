@@ -77,7 +77,7 @@ export class NavigationFetcher {
       };
 
       // Guardar en caché
-      cacheManager.setCached(cacheKey, response, cacheManager.STORE_CACHE_TTL);
+      cacheManager.setCached(cacheKey, response, cacheManager.getAppropiateTTL('template'));
 
       return response;
     } catch (error) {
@@ -121,7 +121,7 @@ export class NavigationFetcher {
       const processedMenu = await this.processNavigationMenu(targetMenu, storeId);
 
       // Guardar en caché
-      cacheManager.setCached(cacheKey, processedMenu, cacheManager.STORE_CACHE_TTL);
+      cacheManager.setCached(cacheKey, processedMenu, cacheManager.getAppropiateTTL('template'));
 
       return processedMenu;
     } catch (error) {

@@ -2,7 +2,7 @@ import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
 import type { PageContext, TemplateError } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
-import { dataTransformer } from '../core/data-transformer';
+import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 
 interface PaginationOptions {
   limit?: number;
@@ -57,7 +57,7 @@ export class PageFetcher {
         nextToken: response.nextToken,
       };
 
-      cacheManager.setCached(cacheKey, result, cacheManager.COLLECTION_CACHE_TTL);
+      cacheManager.setCached(cacheKey, result, cacheManager.getAppropiateTTL('page'));
       return result;
     } catch (error) {
       logger.error(`Error fetching pages for store ${storeId}`, error, 'PageFetcher');
@@ -94,7 +94,7 @@ export class PageFetcher {
 
       const transformedPage = this.transformPage(page);
 
-      cacheManager.setCached(cacheKey, transformedPage, cacheManager.COLLECTION_CACHE_TTL);
+      cacheManager.setCached(cacheKey, transformedPage, cacheManager.getAppropiateTTL('page'));
       return transformedPage;
     } catch (error) {
       logger.error(`Error fetching page ${pageId} for store ${storeId}`, error, 'PageFetcher');
@@ -133,7 +133,7 @@ export class PageFetcher {
       const page = response.data[0];
       const transformedPage = this.transformPage(page);
 
-      cacheManager.setCached(cacheKey, transformedPage, cacheManager.COLLECTION_CACHE_TTL);
+      cacheManager.setCached(cacheKey, transformedPage, cacheManager.getAppropiateTTL('page'));
       return transformedPage;
     } catch (error) {
       logger.error(`Error fetching page by slug ${slug} for store ${storeId}`, error, 'PageFetcher');
@@ -169,7 +169,7 @@ export class PageFetcher {
 
       const pages = response.data.map((page) => this.transformPage(page));
 
-      cacheManager.setCached(cacheKey, pages, cacheManager.COLLECTION_CACHE_TTL);
+      cacheManager.setCached(cacheKey, pages, cacheManager.getAppropiateTTL('page'));
       return pages;
     } catch (error) {
       logger.error(`Error fetching policies pages for store ${storeId}`, error, 'PageFetcher');
@@ -219,7 +219,7 @@ export class PageFetcher {
         nextToken: response.nextToken,
       };
 
-      cacheManager.setCached(cacheKey, result, cacheManager.COLLECTION_CACHE_TTL);
+      cacheManager.setCached(cacheKey, result, cacheManager.getAppropiateTTL('page'));
       return result;
     } catch (error) {
       logger.error(`Error fetching visible pages for store ${storeId}`, error, 'PageFetcher');

@@ -20,8 +20,10 @@ export class CacheManager {
   public readonly DOMAIN_CACHE_TTL = 30 * 60 * 1000; // 30 minutos
   public readonly TEMPLATE_CACHE_TTL = 60 * 60 * 1000; // 1 hora
   public readonly SEARCH_CACHE_TTL = 60 * 60 * 1000; // 1 hora
+  public readonly PAGE_CACHE_TTL = 60 * 60 * 1000; // 1 hora
+  public readonly CART_CACHE_TTL = 5 * 60 * 1000; // 5 minutos
   // TTL reducidos para desarrollo
-  private readonly DEV_TEMPLATE_CACHE_TTL = 1000; // 1 segundo en desarrollo
+  private readonly DEV_CACHE_TTL = 1000; // 1 segundo en desarrollo
 
   private constructor() {
     // Determinar si estamos en modo desarrollo
@@ -38,13 +40,15 @@ export class CacheManager {
   /**
    * Obtiene el TTL adecuado según el tipo de caché y el entorno
    */
-  public getAppropiateTTL(cacheType: 'template' | 'product' | 'collection' | 'store' | 'domain' | 'search'): number {
-    // En desarrollo, usar TTL reducidos para templates
-    if (this.isDevelopment && cacheType === 'template') {
-      return this.DEV_TEMPLATE_CACHE_TTL;
+  public getAppropiateTTL(
+    cacheType: 'template' | 'product' | 'collection' | 'store' | 'domain' | 'search' | 'page' | 'cart'
+  ): number {
+    // En desarrollo, usar TTL reducidos para todos los tipos
+    if (this.isDevelopment) {
+      return this.DEV_CACHE_TTL;
     }
 
-    // En producción o para otros tipos, usar los TTL normales
+    // En producción, usar los TTL normales
     switch (cacheType) {
       case 'template':
         return this.TEMPLATE_CACHE_TTL;
@@ -58,6 +62,10 @@ export class CacheManager {
         return this.DOMAIN_CACHE_TTL;
       case 'search':
         return this.SEARCH_CACHE_TTL;
+      case 'page':
+        return this.PAGE_CACHE_TTL;
+      case 'cart':
+        return this.CART_CACHE_TTL;
       default:
         return this.STORE_CACHE_TTL;
     }
@@ -88,11 +96,6 @@ export class CacheManager {
    * Guarda una entrada en el caché
    */
   public setCached(key: string, data: any, ttl: number): void {
-    // Si la clave comienza con 'template_' y estamos en desarrollo, usar TTL corto
-    if (key.startsWith('template_') && this.isDevelopment) {
-      ttl = this.DEV_TEMPLATE_CACHE_TTL;
-    }
-
     logger.debug(`[CACHE SET] Key: ${key}, TTL: ${ttl}ms`);
     this.cache[key] = {
       data,
