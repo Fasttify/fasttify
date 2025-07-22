@@ -1,7 +1,8 @@
 import { defineBackend } from '@aws-amplify/backend';
-import { Stack } from 'aws-cdk-lib';
+import { CfnOutput, Stack } from 'aws-cdk-lib';
 import { AuthorizationType, Cors, LambdaIntegration, MethodLoggingLevel, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import * as kms from 'aws-cdk-lib/aws-kms';
 import { postConfirmation } from './auth/post-confirmation/resource';
 import { auth } from './auth/resource';
 import {
@@ -17,8 +18,6 @@ import { planScheduler } from './functions/planScheduler/resource';
 import { storeImages } from './functions/storeImages/resource';
 import { webHookPlan } from './functions/webHookPlan/resource';
 import { storage } from './storage/resource';
-import * as kms from 'aws-cdk-lib/aws-kms';
-import { CfnOutput } from 'aws-cdk-lib';
 
 /**
  * Detección simple de entorno
@@ -139,7 +138,7 @@ backend.generatePriceSuggestionFunction.resources.lambda.addToRolePolicy(
 const paymentKeysKmsKey = new kms.Key(backend.stack, 'PaymentKeysKmsKey', {
   description: 'KMS key for encrypting payment gateway keys',
   enableKeyRotation: true, // Habilitar la rotación de claves para mayor seguridad
-  alias: 'alias/FasttifyPaymentKeys', // Alias amigable para referenciar la clave
+  alias: `alias/FasttifyPaymentKeys-${stageName}`, // Alias amigable para referenciar la clave
 });
 
 // Otorga permisos a la función Lambda para usar la clave KMS
