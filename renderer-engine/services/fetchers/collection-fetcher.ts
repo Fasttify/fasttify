@@ -1,5 +1,6 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import { cacheManager, getCollectionCacheKey, getCollectionsCacheKey } from '@/renderer-engine/services/core/cache';
+
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher';
 import type { CollectionContext, ProductContext, TemplateError } from '@/renderer-engine/types';
@@ -23,7 +24,7 @@ export class CollectionFetcher {
   public async getStoreCollections(storeId: string, options: PaginationOptions = {}): Promise<CollectionsResponse> {
     try {
       const { limit = 10, nextToken } = options;
-      const cacheKey = `collections_${storeId}_${limit}_${nextToken || 'first'}`;
+      const cacheKey = getCollectionsCacheKey(storeId, limit, nextToken);
 
       const cached = cacheManager.getCached(cacheKey);
       if (cached) {
@@ -82,7 +83,7 @@ export class CollectionFetcher {
     options: PaginationOptions = {}
   ): Promise<CollectionContext | null> {
     try {
-      const cacheKey = `collection_${storeId}_${collectionId}_${options.limit || 'def'}_${options.nextToken || 'first'}`;
+      const cacheKey = getCollectionCacheKey(storeId, collectionId, options.limit, options.nextToken);
       const cached = cacheManager.getCached(cacheKey);
       if (cached) {
         return cached as CollectionContext;

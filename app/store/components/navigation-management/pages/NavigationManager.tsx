@@ -26,7 +26,7 @@ export function NavigationManager({ storeId }: NavigationManagerProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Obtener dominio de la tienda
-  const domain = store?.customDomain || `${store?.storeName}.fasttify.com`;
+  const domain = store?.defaultDomain || `${store?.storeName}.fasttify.com`;
 
   // Mutación para eliminar
   const deleteMenuMutation = useDeleteNavigationMenu();

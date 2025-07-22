@@ -1,5 +1,14 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import {
+  cacheManager,
+  getCollectionCacheKey,
+  getCollectionsCacheKey,
+  getFeaturedProductsCacheKey,
+  getPageCacheKey,
+  getPagesCacheKey,
+  getProductCacheKey,
+  getProductsCacheKey,
+} from '@/renderer-engine/services/core/cache';
 
 /**
  * Tipos de cambios que pueden ocurrir en una tienda
@@ -41,32 +50,32 @@ export class CacheInvalidationService {
     product_created: {
       cacheKeys: [],
       patterns: [
-        'products_*', // Lista de productos
-        'featured_products_*', // Productos destacados
-        'search_products_*', // Búsquedas
-        'collection_*', // Colecciones (pueden incluir el nuevo producto)
+        'products_', // Lista de productos
+        'featured_products_', // Productos destacados
+        'search_products_', // Búsquedas
+        'collection_', // Colecciones (pueden incluir el nuevo producto)
       ],
       description: 'Producto creado - invalidar listas y búsquedas',
     },
     product_updated: {
       cacheKeys: [],
       patterns: [
-        'product_*', // Producto específico
-        'products_*', // Lista de productos
-        'featured_products_*', // Productos destacados
-        'search_products_*', // Búsquedas
-        'collection_*', // Colecciones que contengan el producto
+        'product_', // Producto específico
+        'products_', // Lista de productos
+        'featured_products_', // Productos destacados
+        'search_products_', // Búsquedas
+        'collection_', // Colecciones que contengan el producto
       ],
       description: 'Producto actualizado - invalidar producto y listas',
     },
     product_deleted: {
       cacheKeys: [],
       patterns: [
-        'product_*', // Producto específico
-        'products_*', // Lista de productos
-        'featured_products_*', // Productos destacados
-        'search_products_*', // Búsquedas
-        'collection_*', // Colecciones que contuvieran el producto
+        'product_', // Producto específico
+        'products_', // Lista de productos
+        'featured_products_', // Productos destacados
+        'search_products_', // Búsquedas
+        'collection_', // Colecciones que contuvieran el producto
       ],
       description: 'Producto eliminado - invalidar producto y listas',
     },
@@ -75,26 +84,26 @@ export class CacheInvalidationService {
     collection_created: {
       cacheKeys: [],
       patterns: [
-        'collections_*', // Lista de colecciones
-        'navigation_*', // Menús de navegación
+        'collections_', // Lista de colecciones
+        'navigation_', // Menús de navegación
       ],
       description: 'Colección creada - invalidar listas y navegación',
     },
     collection_updated: {
       cacheKeys: [],
       patterns: [
-        'collection_*', // Colección específica
-        'collections_*', // Lista de colecciones
-        'navigation_*', // Menús de navegación
+        'collection_', // Colección específica
+        'collections_', // Lista de colecciones
+        'navigation_', // Menús de navegación
       ],
       description: 'Colección actualizada - invalidar colección y listas',
     },
     collection_deleted: {
       cacheKeys: [],
       patterns: [
-        'collection_*', // Colección específica
-        'collections_*', // Lista de colecciones
-        'navigation_*', // Menús de navegación
+        'collection_', // Colección específica
+        'collections_', // Lista de colecciones
+        'navigation_', // Menús de navegación
       ],
       description: 'Colección eliminada - invalidar colección y listas',
     },
@@ -103,26 +112,26 @@ export class CacheInvalidationService {
     page_created: {
       cacheKeys: [],
       patterns: [
-        'pages_*', // Lista de páginas
-        'navigation_*', // Menús de navegación
+        'pages_', // Lista de páginas
+        'navigation_', // Menús de navegación
       ],
       description: 'Página creada - invalidar listas y navegación',
     },
     page_updated: {
       cacheKeys: [],
       patterns: [
-        'page_*', // Página específica
-        'pages_*', // Lista de páginas
-        'navigation_*', // Menús de navegación
+        'page_', // Página específica
+        'pages_', // Lista de páginas
+        'navigation_', // Menús de navegación
       ],
       description: 'Página actualizada - invalidar página y listas',
     },
     page_deleted: {
       cacheKeys: [],
       patterns: [
-        'page_*', // Página específica
-        'pages_*', // Lista de páginas
-        'navigation_*', // Menús de navegación
+        'page_', // Página específica
+        'pages_', // Lista de páginas
+        'navigation_', // Menús de navegación
       ],
       description: 'Página eliminada - invalidar página y listas',
     },
@@ -131,7 +140,7 @@ export class CacheInvalidationService {
     navigation_updated: {
       cacheKeys: [],
       patterns: [
-        'navigation_*', // Menús de navegación
+        'navigation_', // Menús de navegación
       ],
       description: 'Navegación actualizada - invalidar menús',
     },
@@ -140,8 +149,8 @@ export class CacheInvalidationService {
     template_updated: {
       cacheKeys: [],
       patterns: [
-        'template_*', // Templates
-        'compiled_template_*', // Templates compilados
+        'template_', // Templates
+        'compiled_template_', // Templates compilados
       ],
       description: 'Template actualizado - invalidar templates',
     },
@@ -150,8 +159,8 @@ export class CacheInvalidationService {
     store_settings_updated: {
       cacheKeys: [],
       patterns: [
-        'domain_*', // Dominios
-        'navigation_*', // Navegación (puede cambiar con config)
+        'domain_', // Dominios
+        'navigation_', // Navegación (puede cambiar con config)
       ],
       description: 'Configuración de tienda actualizada - invalidar dominios y navegación',
     },
@@ -160,7 +169,7 @@ export class CacheInvalidationService {
     domain_updated: {
       cacheKeys: [],
       patterns: [
-        'domain_*', // Dominios
+        'domain_', // Dominios
       ],
       description: 'Dominio actualizado - invalidar resolución de dominios',
     },
@@ -207,38 +216,43 @@ export class CacheInvalidationService {
    * Invalida caché por patrones de claves
    */
   private invalidateByPatterns(patterns: string[], storeId: string, entityId?: string): void {
-    const allKeys = Object.keys(cacheManager['cache']);
-    let invalidatedCount = 0;
+    let totalInvalidated = 0;
+    const usedPrefixes: string[] = [];
 
     for (const pattern of patterns) {
-      for (const key of allKeys) {
-        // Reemplazar wildcards con storeId y entityId
-        const wildcardValues = [storeId, entityId || '*'];
+      // Convertir patrón tipo 'products_*' en prefijo real 'products_{storeId}_'
+      let prefix = pattern;
+      if (pattern.includes('*')) {
+        // Solo soportamos hasta dos wildcards: storeId y entityId
+        const wildcardValues = [storeId, entityId || ''];
         let wildcardIndex = 0;
-        const searchPattern = pattern.replace(/\*/g, () => {
-          const val = wildcardValues[wildcardIndex] !== undefined ? wildcardValues[wildcardIndex] : '*';
+        prefix = pattern.replace(/\*/g, () => {
+          const val = wildcardValues[wildcardIndex] !== undefined ? wildcardValues[wildcardIndex] : '';
           wildcardIndex++;
-          return val;
+          return val + '_';
         });
-
-        if (key.includes(searchPattern) || key.includes(`_${storeId}_`)) {
-          delete cacheManager['cache'][key];
-          invalidatedCount++;
-        }
+        // Limpiar doble guion bajo si entityId es vacío
+        prefix = prefix.replace(/__+/g, '_');
+        // Quitar guion bajo final si quedó
+        prefix = prefix.replace(/_+$/, '_');
+      }
+      // Eliminar claves por prefijo
+      const deleted = cacheManager.deleteByPrefix(prefix);
+      totalInvalidated += deleted;
+      usedPrefixes.push(prefix);
+      if (deleted > 0) {
+        logger.debug(
+          `Claves de caché eliminadas: ${deleted} (prefijo: ${prefix})`,
+          { prefix, deleted, storeId, entityId },
+          'CacheInvalidationService'
+        );
       }
     }
-
-    if (invalidatedCount > 0) {
-      logger.debug(
-        `Invalidated ${invalidatedCount} cache entries for patterns`,
-        {
-          patterns,
-          storeId,
-          entityId,
-        },
-        'CacheInvalidationService'
-      );
-    }
+    logger.debug(
+      `Total de claves eliminadas por patrones: ${totalInvalidated}`,
+      { usedPrefixes, totalInvalidated, storeId, entityId },
+      'CacheInvalidationService'
+    );
   }
 
   /**
@@ -250,17 +264,24 @@ export class CacheInvalidationService {
     switch (changeType) {
       case 'product_updated':
       case 'product_deleted':
-        specificKeys.push(`product_${storeId}_${entityId}`, `products_${storeId}`, `featured_products_${storeId}`);
+        specificKeys.push(
+          getProductCacheKey(storeId, entityId),
+          getProductsCacheKey(storeId, undefined as any, undefined), // Pasa limit y nextToken si es necesario
+          getFeaturedProductsCacheKey(storeId, undefined as any)
+        );
         break;
 
       case 'collection_updated':
       case 'collection_deleted':
-        specificKeys.push(`collection_${storeId}_${entityId}`, `collections_${storeId}`);
+        specificKeys.push(
+          getCollectionCacheKey(storeId, entityId),
+          getCollectionsCacheKey(storeId, undefined as any, undefined)
+        );
         break;
 
       case 'page_updated':
       case 'page_deleted':
-        specificKeys.push(`page_${storeId}_${entityId}`, `pages_${storeId}`);
+        specificKeys.push(getPageCacheKey(storeId, entityId), getPagesCacheKey(storeId));
         break;
     }
 

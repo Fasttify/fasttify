@@ -29,27 +29,17 @@ export const userStoreModel = a
     storeDescription: a.string(),
     storeLogo: a.string(),
     storeFavicon: a.string(),
-    storeBanner: a.string(),
     storeTheme: a.string(),
     storeCurrency: a.string(),
     storeType: a.string(),
     storeStatus: a.boolean(),
-    storePolicy: a.string(),
     storeAdress: a.string(),
     contactEmail: a.string(),
     contactPhone: a.string(),
     contactName: a.string(),
     conctactIdentification: a.string(),
     contactIdentificationType: a.string(),
-    wompiConfig: a.json(),
-    mercadoPagoConfig: a.json(),
-    mastershopApiKey: a.string(),
-    customDomain: a.string(),
     defaultDomain: a.string(),
-    customDomainStatus: a.string(),
-    customDomainVerifiedAt: a.datetime(),
-    cloudFrontTenantId: a.string(),
-    cloudFrontEndpoint: a.string(),
     onboardingCompleted: a
       .boolean()
       .required()
@@ -67,9 +57,11 @@ export const userStoreModel = a
     orderItems: a.hasMany('OrderItem', 'storeId'),
     pages: a.hasMany('Page', 'storeId'),
     navigationMenus: a.hasMany('NavigationMenu', 'storeId'),
+    storePaymentConfig: a.hasMany('StorePaymentConfig', 'storeId'),
+    storeCustomDomain: a.hasOne('StoreCustomDomain', 'storeId'),
   })
   .identifier(['storeId'])
-  .secondaryIndexes((index) => [index('userId'), index('customDomain'), index('storeName'), index('defaultDomain')])
+  .secondaryIndexes((index) => [index('userId'), index('storeName'), index('defaultDomain')])
   .authorization((allow) => [
     allow.authenticated().to(['read', 'update', 'delete', 'create']),
     allow.publicApiKey().to(['read']),

@@ -1,4 +1,4 @@
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import { cacheManager } from '@/renderer-engine/services/core/cache';
 import { cartFetcher } from '@/renderer-engine/services/fetchers/cart-fetcher';
 import { collectionFetcher } from '@/renderer-engine/services/fetchers/collection-fetcher';
 import { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher';

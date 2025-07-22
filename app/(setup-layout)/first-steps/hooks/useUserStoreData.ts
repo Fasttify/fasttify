@@ -3,6 +3,10 @@ import useUserStore from '@/context/core/userStore';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { generateClient } from 'aws-amplify/data';
 import { useState } from 'react';
+import { Amplify } from 'aws-amplify';
+import outputs from '@/amplify_outputs.json';
+
+Amplify.configure(outputs);
 
 const client = generateClient<Schema>({
   authMode: 'userPool',
@@ -86,37 +90,43 @@ export const useUserStoreData = () => {
 
       const configuredGateways: PaymentGatewayType[] = [];
 
-      const wompiResult = await client.models.UserStore.listUserStoreByUserId(
-        {
-          userId: user.userId,
-        },
-        {
-          filter: {
-            storeId: { eq: storeId },
-            wompiConfig: { attributeExists: true },
+      // Consultar StorePaymentConfig para Wompi
+      const wompiConfigs = await performOperation(() =>
+        client.models.StorePaymentConfig.listStorePaymentConfigByStoreId(
+          {
+            storeId: storeId,
           },
-          selectionSet: ['storeId'],
-        }
+          {
+            filter: {
+              gatewayType: { eq: 'wompi' },
+              isActive: { eq: true }, // Solo configs activas
+            },
+            selectionSet: ['storeId'], // Solo necesitamos confirmar existencia
+          }
+        )
       );
 
-      const mercadoPagoResult = await client.models.UserStore.listUserStoreByUserId(
-        {
-          userId: user.userId,
-        },
-        {
-          filter: {
-            storeId: { eq: storeId },
-            mercadoPagoConfig: { attributeExists: true },
+      // Consultar StorePaymentConfig para MercadoPago
+      const mercadoPagoConfigs = await performOperation(() =>
+        client.models.StorePaymentConfig.listStorePaymentConfigByStoreId(
+          {
+            storeId: storeId,
           },
-          selectionSet: ['storeId'],
-        }
+          {
+            filter: {
+              gatewayType: { eq: 'mercadoPago' },
+              isActive: { eq: true }, // Solo configs activas
+            },
+            selectionSet: ['storeId'], // Solo necesitamos confirmar existencia
+          }
+        )
       );
 
-      if (wompiResult.data && wompiResult.data.length > 0) {
+      if (wompiConfigs && wompiConfigs.length > 0) {
         configuredGateways.push('wompi');
       }
 
-      if (mercadoPagoResult.data && mercadoPagoResult.data.length > 0) {
+      if (mercadoPagoConfigs && mercadoPagoConfigs.length > 0) {
         configuredGateways.push('mercadoPago');
       }
 
@@ -137,8 +147,7 @@ export const useUserStoreData = () => {
   const configurePaymentGateway = async (
     storeId: string,
     gateway: PaymentGatewayType,
-    config: any,
-    convertToJson: boolean = false
+    config: PaymentGatewayConfig
   ): Promise<boolean> => {
     if (!storeId || !user?.userId) {
       setError('Store ID or User ID not provided');
@@ -146,42 +155,22 @@ export const useUserStoreData = () => {
     }
 
     try {
-      const existingStoreResult = await client.models.UserStore.listUserStoreByUserId(
-        {
-          userId: user.userId,
-        },
-        {
-          filter: {
-            storeId: { eq: storeId },
-          },
-          selectionSet: ['storeId'],
-        }
-      );
-
-      if (!existingStoreResult.data || existingStoreResult.data.length === 0) {
-        setError('Store not found');
-        return false;
-      }
-
-      const configValue = convertToJson ? JSON.stringify(config) : config;
-
-      const updatePayload = {
-        ...(gateway === 'mercadoPago' ? { mercadoPagoConfig: configValue } : { wompiConfig: configValue }),
+      const mutationInput = {
+        storeId,
+        gatewayType: gateway,
+        publicKey: config.publicKey,
+        privateKey: config.privateKey,
+        isActive: config.isActive,
       };
 
       const result = await performOperation(() =>
-        client.models.UserStore.update({
-          storeId: storeId,
-          ...updatePayload,
+        client.mutations.processStorePaymentConfig({
+          action: 'update',
+          input: mutationInput,
         })
       );
 
-      if (result && storeId) {
-        await invalidateAllStoreCache(storeId);
-        await invalidateNavigationCache(storeId);
-      }
-
-      return result !== null;
+      return result?.success === true;
     } catch (err) {
       setError(err);
       return false;
@@ -288,6 +277,8 @@ export const useUserStoreData = () => {
       | 'orderItems'
       | 'pages'
       | 'navigationMenus'
+      | 'storePaymentConfig'
+      | 'storeCustomDomain'
     >
   ) => {
     try {
@@ -300,7 +291,7 @@ export const useUserStoreData = () => {
         throw new Error('Failed to create store');
       }
 
-      const domain = storeInput.customDomain || `${storeInput.storeName}.fasttify.com`;
+      const domain = storeInput.defaultDomain || `${storeInput.storeName}.fasttify.com`;
 
       const templateResult = await initializeStoreTemplate(storeInput.storeId, domain);
 

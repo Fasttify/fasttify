@@ -94,7 +94,6 @@ export async function analyzeRequiredTemplates(storeId: string, options: PageRen
       {
         requiredData: Array.from(analysis.requiredData.keys()),
         hasPagination: analysis.hasPagination,
-        paginationLimit: (analysis as any).paginationLimit,
         dependencies: analysis.dependencies.length,
         templatesLoaded: Object.keys(allTemplates).length,
       },
@@ -116,7 +115,7 @@ async function loadSections(storeId: string, sectionNames: string[], context: st
 
   const loadPromises = sectionNames.map(async (sectionName) => {
     try {
-      const sectionContent = await templateLoader.loadSection(storeId, sectionName);
+      const sectionContent = await templateLoader.loadTemplate(storeId, sectionName);
       sections[sectionName] = sectionContent;
     } catch (error) {
       logger.warn(`Could not load ${context} section ${sectionName}`, error, 'TemplateAnalyzer');
@@ -153,7 +152,10 @@ function extractPageSectionNames(pageTemplate: string): string[] {
         const sectionType = (sectionConfig as any).type;
         if (!sectionType) return '';
 
-        return sectionType.includes('/') ? sectionType.split('/').pop()! : sectionType;
+        // Construir la ruta completa: si ya incluye un prefijo, usarlo. Si no, asumir que es una sección.
+        const fullPath = sectionType.includes('/') ? `${sectionType}.liquid` : `sections/${sectionType}.liquid`;
+
+        return fullPath;
       })
       .filter(Boolean);
   } catch (error) {

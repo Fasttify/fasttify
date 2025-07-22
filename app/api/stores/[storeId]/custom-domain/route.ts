@@ -1,8 +1,9 @@
-import { CustomDomainService } from '@/tenant-domains/services/custom-domain-service';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { logger } from '@/renderer-engine/lib/logger';
+import { CustomDomainService } from '@/tenant-domains/services/custom-domain-service';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
+import type { Schema } from '@/amplify/data/resource';
 
 const customDomainService = new CustomDomainService();
 
@@ -26,19 +27,24 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
-    // Buscar la tienda
-    const { data: store } = await cookiesClient.models.UserStore.get({ storeId });
-    if (!store) {
+    // Buscar la tienda (UserStore) para verificación de propiedad
+    const { data: userStore } = await cookiesClient.models.UserStore.get({
+      storeId,
+    });
+    if (!userStore) {
       return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
     }
 
     // Verificar propiedad
-    if (store.userId !== session.username) {
+    if (userStore.userId !== session.username) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
     }
 
-    // Si no tiene dominio personalizado
-    if (!store.customDomain) {
+    // Obtener la configuración de dominio personalizado desde StoreCustomDomain
+    const { data: storeCustomDomain } = await cookiesClient.models.StoreCustomDomain.get({ storeId });
+
+    // Si no tiene un registro de dominio personalizado en StoreCustomDomain
+    if (!storeCustomDomain || !storeCustomDomain.customDomain) {
       return NextResponse.json(
         {
           hasCustomDomain: false,
@@ -49,19 +55,19 @@ export async function GET(
       );
     }
 
-    // Verificar estado en CloudFront si existe
+    // Verificar estado en CloudFront si existe el tenantId
     let cloudFrontStatus = null;
-    if (store.cloudFrontTenantId) {
-      cloudFrontStatus = await customDomainService.getCustomDomainStatus(store.cloudFrontTenantId);
+    if (storeCustomDomain.cloudFrontTenantId) {
+      cloudFrontStatus = await customDomainService.getCustomDomainStatus(storeCustomDomain.cloudFrontTenantId);
     }
 
     return NextResponse.json(
       {
         hasCustomDomain: true,
-        domain: store.customDomain,
-        status: store.customDomainStatus,
-        verifiedAt: store.customDomainVerifiedAt,
-        cloudFrontTenantId: store.cloudFrontTenantId,
+        domain: storeCustomDomain.customDomain,
+        status: storeCustomDomain.customDomainStatus,
+        verifiedAt: storeCustomDomain.customDomainVerifiedAt,
+        cloudFrontTenantId: storeCustomDomain.cloudFrontTenantId,
         cloudFrontStatus,
         verificationInfo: cloudFrontStatus?.dnsInstructions || null,
       },
@@ -108,27 +114,44 @@ export async function POST(
       );
     }
 
-    // Buscar la tienda
-    const { data: store } = await cookiesClient.models.UserStore.get({ storeId });
-    if (!store) {
+    // Buscar la tienda (UserStore) para verificación de propiedad
+    const { data: userStore } = await cookiesClient.models.UserStore.get({
+      storeId,
+    });
+    if (!userStore) {
       return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
     }
 
     // Verificar propiedad
-    if (store.userId !== session.username) {
+    if (userStore.userId !== session.username) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
     }
 
-    // Verificar si el dominio ya está en uso
-    const { data: existingStores } = await cookiesClient.models.UserStore.listUserStoreByCustomDomain({
-      customDomain,
-    });
+    // Verificar si el dominio ya está en uso en StoreCustomDomain
+    const { data: existingCustomDomains } =
+      await cookiesClient.models.StoreCustomDomain.listStoreCustomDomainByCustomDomain({
+        customDomain,
+      });
 
-    if (existingStores && existingStores.length > 0) {
-      return NextResponse.json({ error: 'Domain already in use' }, { status: 409, headers: corsHeaders });
+    if (existingCustomDomains && existingCustomDomains.length > 0) {
+      // Si el dominio ya está en uso por otra tienda, o por esta misma tienda pero en un registro diferente
+      if (existingCustomDomains[0].storeId !== storeId) {
+        return NextResponse.json(
+          { error: 'Domain already in use by another store' },
+          { status: 409, headers: corsHeaders }
+        );
+      } else {
+        // Si el dominio ya está configurado para esta tienda, simplemente proceder con la actualización
+        logger.info(
+          `Domain ${customDomain} already configured for store ${storeId}. Proceeding with update logic if necessary.`
+        );
+      }
     }
 
-    // Crear tenant en CloudFront Multi-Tenant
+    // Obtener la configuración de dominio actual para esta tienda
+    const { data: existingStoreCustomDomain } = await cookiesClient.models.StoreCustomDomain.get({ storeId });
+
+    // Crear o actualizar el tenant en CloudFront Multi-Tenant
     const tenantResult = await customDomainService.setupCustomDomain(customDomain, storeId);
 
     if (!tenantResult.success) {
@@ -138,22 +161,37 @@ export async function POST(
       );
     }
 
-    // Actualizar la tienda en la base de datos
-    await cookiesClient.models.UserStore.update({
-      storeId,
-      customDomain,
-      customDomainStatus: 'pending',
-      cloudFrontTenantId: tenantResult.tenantId,
-      cloudFrontEndpoint: tenantResult.endpoint || '',
-    });
+    let updatedCustomDomainRecord: Schema['StoreCustomDomain']['type'] | null = null;
+
+    if (existingStoreCustomDomain) {
+      // Si ya existe un registro de StoreCustomDomain, actualizarlo
+      const { data } = await cookiesClient.models.StoreCustomDomain.update({
+        storeId,
+        customDomain,
+        customDomainStatus: 'pending',
+        cloudFrontTenantId: tenantResult.tenantId,
+        cloudFrontEndpoint: tenantResult.endpoint || '',
+      });
+      updatedCustomDomainRecord = data;
+    } else {
+      // Si no existe, crear un nuevo registro en StoreCustomDomain
+      const { data } = await cookiesClient.models.StoreCustomDomain.create({
+        storeId,
+        customDomain,
+        customDomainStatus: 'pending',
+        cloudFrontTenantId: tenantResult.tenantId,
+        cloudFrontEndpoint: tenantResult.endpoint || '',
+      });
+      updatedCustomDomainRecord = data;
+    }
 
     return NextResponse.json(
       {
         success: true,
-        domain: customDomain,
-        status: 'pending',
-        tenantId: tenantResult.tenantId,
-        endpoint: tenantResult.endpoint,
+        domain: updatedCustomDomainRecord?.customDomain,
+        status: updatedCustomDomainRecord?.customDomainStatus,
+        tenantId: updatedCustomDomainRecord?.cloudFrontTenantId,
+        endpoint: updatedCustomDomainRecord?.cloudFrontEndpoint,
         verificationInfo: tenantResult.dnsInstructions,
       },
       { headers: corsHeaders }
@@ -179,31 +217,31 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
-    // Buscar la tienda
-    const { data: store } = await cookiesClient.models.UserStore.get({ storeId });
-    if (!store) {
+    // Buscar la tienda (UserStore) para verificación de propiedad
+    const { data: userStore } = await cookiesClient.models.UserStore.get({
+      storeId,
+    });
+    if (!userStore) {
       return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
     }
 
     // Verificar propiedad
-    if (store.userId !== session.username) {
+    if (userStore.userId !== session.username) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
     }
 
-    // Eliminar tenant de CloudFront si existe
-    if (store.cloudFrontTenantId) {
-      await customDomainService.deleteCustomDomain(store.cloudFrontTenantId);
+    // Obtener la configuración de dominio personalizado desde StoreCustomDomain
+    const { data: storeCustomDomain } = await cookiesClient.models.StoreCustomDomain.get({ storeId });
+
+    // Eliminar tenant de CloudFront si existe en StoreCustomDomain
+    if (storeCustomDomain?.cloudFrontTenantId) {
+      await customDomainService.deleteCustomDomain(storeCustomDomain.cloudFrontTenantId);
     }
 
-    // Actualizar la tienda en la base de datos
-    await cookiesClient.models.UserStore.update({
-      storeId,
-      customDomain: null,
-      customDomainStatus: null,
-      cloudFrontTenantId: null,
-      cloudFrontEndpoint: null,
-      customDomainVerifiedAt: null,
-    });
+    // Eliminar el registro en StoreCustomDomain
+    if (storeCustomDomain) {
+      await cookiesClient.models.StoreCustomDomain.delete({ storeId });
+    }
 
     return NextResponse.json(
       {
@@ -233,25 +271,35 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
-    // Buscar la tienda
-    const { data: store } = await cookiesClient.models.UserStore.get({ storeId });
-    if (!store || !store.customDomain || !store.cloudFrontTenantId) {
-      return NextResponse.json({ error: 'No custom domain configured' }, { status: 400, headers: corsHeaders });
+    // Buscar la tienda (UserStore) para verificación de propiedad
+    const { data: userStore } = await cookiesClient.models.UserStore.get({
+      storeId,
+    });
+    if (!userStore) {
+      return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
     }
 
     // Verificar propiedad
-    if (store.userId !== session.username) {
+    if (userStore.userId !== session.username) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
     }
 
+    // Obtener la configuración de dominio personalizado desde StoreCustomDomain
+    const { data: storeCustomDomain } = await cookiesClient.models.StoreCustomDomain.get({ storeId });
+
+    // Verificar que haya un StoreCustomDomain configurado con los campos necesarios
+    if (!storeCustomDomain || !storeCustomDomain.customDomain || !storeCustomDomain.cloudFrontTenantId) {
+      return NextResponse.json({ error: 'No custom domain configured' }, { status: 400, headers: corsHeaders });
+    }
+
     // Verificar estado en CloudFront
-    const tenantStatus = await customDomainService.getCustomDomainStatus(store.cloudFrontTenantId);
+    const tenantStatus = await customDomainService.getCustomDomainStatus(storeCustomDomain.cloudFrontTenantId);
 
     // Verificar DNS
-    const dnsStatus = await customDomainService.verifyDNSConfiguration(store.customDomain);
+    const dnsStatus = await customDomainService.verifyDNSConfiguration(storeCustomDomain.customDomain);
 
-    let newStatus = store.customDomainStatus;
-    let verifiedAt = store.customDomainVerifiedAt;
+    let newStatus = storeCustomDomain.customDomainStatus;
+    let verifiedAt = storeCustomDomain.customDomainVerifiedAt;
 
     // Actualizar estado basado en verificaciones
     if (tenantStatus.isActive && dnsStatus.isConfigured) {
@@ -265,9 +313,9 @@ export async function PATCH(
       newStatus = 'pending';
     }
 
-    // Actualizar en base de datos si el estado cambió
-    if (newStatus !== store.customDomainStatus || verifiedAt !== store.customDomainVerifiedAt) {
-      await cookiesClient.models.UserStore.update({
+    // Actualizar en StoreCustomDomain si el estado cambió
+    if (newStatus !== storeCustomDomain.customDomainStatus || verifiedAt !== storeCustomDomain.customDomainVerifiedAt) {
+      await cookiesClient.models.StoreCustomDomain.update({
         storeId,
         customDomainStatus: newStatus,
         customDomainVerifiedAt: verifiedAt,

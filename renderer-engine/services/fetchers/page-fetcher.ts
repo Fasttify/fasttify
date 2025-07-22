@@ -1,5 +1,5 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import { cacheManager, getPagesCacheKey, getPageCacheKey } from '@/renderer-engine/services/core/cache';
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 import type { PageContext, TemplateError } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
@@ -21,7 +21,7 @@ export class PageFetcher {
   public async getStorePages(storeId: string, options: PaginationOptions = {}): Promise<PagesResponse> {
     try {
       const { limit = 10, nextToken } = options;
-      const cacheKey = `pages_${storeId}_${limit}_${nextToken || 'first'}`;
+      const cacheKey = getPagesCacheKey(storeId);
 
       const cached = cacheManager.getCached(cacheKey);
       if (cached) {
@@ -78,7 +78,7 @@ export class PageFetcher {
    */
   public async getPage(storeId: string, pageId: string): Promise<PageContext | null> {
     try {
-      const cacheKey = `page_${storeId}_${pageId}`;
+      const cacheKey = getPageCacheKey(storeId, pageId);
       const cached = cacheManager.getCached(cacheKey);
       if (cached) {
         return cached as PageContext;
@@ -107,7 +107,7 @@ export class PageFetcher {
    */
   public async getPageBySlug(storeId: string, slug: string): Promise<PageContext | null> {
     try {
-      const cacheKey = `page_slug_${storeId}_${slug}`;
+      const cacheKey = getPageCacheKey(storeId, slug);
       const cached = cacheManager.getCached(cacheKey);
       if (cached) {
         return cached as PageContext;
@@ -146,7 +146,7 @@ export class PageFetcher {
    */
   public async getPoliciesPages(storeId: string): Promise<PageContext[]> {
     try {
-      const cacheKey = `policies_pages_${storeId}`;
+      const cacheKey = getPagesCacheKey(storeId);
       const cached = cacheManager.getCached(cacheKey);
       if (cached) {
         return cached as PageContext[];
@@ -183,7 +183,7 @@ export class PageFetcher {
   public async getVisibleStorePages(storeId: string, options: PaginationOptions = {}): Promise<PagesResponse> {
     try {
       const { limit = 10, nextToken } = options;
-      const cacheKey = `visible_pages_${storeId}_${limit}_${nextToken || 'first'}`;
+      const cacheKey = getPagesCacheKey(storeId);
 
       const cached = cacheManager.getCached(cacheKey);
       if (cached) {

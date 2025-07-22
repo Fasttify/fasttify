@@ -1,12 +1,16 @@
+import {
+  FormTag,
+  JavaScriptTag,
+  PaginateTag,
+  RenderTag,
+  SchemaTag,
+  ScriptTag,
+  SectionTag,
+  IncludeTag,
+  StyleTag,
+  StylesheetTag,
+} from '@/renderer-engine/liquid';
 import { allFilters } from '@/renderer-engine/liquid/filters';
-import { FormTag } from '@/renderer-engine/liquid/tags/form-tag';
-import { JavaScriptTag } from '@/renderer-engine/liquid/tags/javascript-tag';
-import { PaginateTag } from '@/renderer-engine/liquid/tags/paginate-tag';
-import { IncludeTag, RenderTag } from '@/renderer-engine/liquid/tags/render-tag';
-import { SchemaTag } from '@/renderer-engine/liquid/tags/schema-tag';
-import { ScriptTag } from '@/renderer-engine/liquid/tags/script-tag';
-import { SectionTag } from '@/renderer-engine/liquid/tags/section-tag';
-import { StyleTag, StylesheetTag } from '@/renderer-engine/liquid/tags/style-tag';
 import { AssetCollector } from '@/renderer-engine/services/rendering/asset-collector';
 import type { LiquidContext, LiquidEngineConfig, TemplateError } from '@/renderer-engine/types';
 import { Liquid, Template } from 'liquidjs';

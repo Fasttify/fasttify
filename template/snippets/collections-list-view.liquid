@@ -14,12 +14,12 @@
               {% if collection.featured_image %}
                 <img
                   src="{{ collection.featured_image | img_url: '600x800' }}"
-                  alt="{{ collection.featured_image.alt | default: collection.title | escape }}"
+                  alt="{{ collection.title | escape }}"
                   class="catalog-item__img"
                   loading="lazy">
-              {% elsif collection.products.first.featured_image %}
+              {% elsif collection.image %}
                 <img
-                  src="{{ collection.products.first.featured_image | img_url: '600x800' }}"
+                  src="{{ collection.image | img_url: '600x800' }}"
                   alt="{{ collection.title | escape }}"
                   class="catalog-item__img"
                   loading="lazy">
@@ -63,52 +63,67 @@
       {% endfor %}
     </div>
 
-    {% comment %} Paginación minimalista {% endcomment %}
-    {% if paginate.previous or paginate.next %}
-      <nav class="catalog-pagination">
+     {% if paginate.previous or paginate.next %}
+      <nav class="custom-pagination" aria-label="Paginación">
         {% if paginate.previous %}
-          <a href="{{ paginate.previous.url }}" class="pagination-btn pagination-btn--prev">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none">
-              <path
-                d="M15 18l-6-6 6-6"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round" />
-            </svg>
-            PREV
+          <a class="custom-pagination__link" href="{{ paginate.previous.url }}">
+            &larr; Anterior
           </a>
+        {% else %}
+          <span class="custom-pagination__link custom-pagination__link--disabled">&larr; Anterior</span>
         {% endif %}
 
-        <span class="pagination-info">
-          {{ paginate.current_page }} / {{ paginate.pages }}
-        </span>
-
         {% if paginate.next %}
-          <a href="{{ paginate.next.url }}" class="pagination-btn pagination-btn--next">
-            NEXT
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none">
-              <path
-                d="M9 18l6-6-6-6"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round" />
-            </svg>
+          <a class="custom-pagination__link" href="{{ paginate.next.url }}">
+            Siguiente &rarr;
           </a>
+        {% else %}
+          <span class="custom-pagination__link custom-pagination__link--disabled">Siguiente &rarr;</span>
         {% endif %}
       </nav>
     {% endif %}
+
   {% endpaginate %}
 </div>
+
+<style>
+  .custom-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0;
+  gap: 1rem;
+}
+.custom-pagination__link {
+  padding: 0.8rem 1.5rem;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #000000;
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: all 0.3s ease;
+  background-color: transparent;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.custom-pagination__link:hover {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+.custom-pagination__link--disabled {
+  color: #9ca3af;
+  background-color: #f9fafb;
+  pointer-events: none;
+  border-color: #f3f4f6;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+</style>
 
 <script>
   // Interactividad minimalista y elegante
@@ -131,3 +146,4 @@
   });
   })();
 </script>
+

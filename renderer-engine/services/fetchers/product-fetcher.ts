@@ -1,5 +1,11 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import {
+  cacheManager,
+  getFeaturedProductsCacheKey,
+  getProductCacheKey,
+  getProductHandleMapCacheKey,
+  getProductsCacheKey,
+} from '@/renderer-engine/services/core/cache';
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 import type { ProductAttribute, ProductContext, TemplateError } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
@@ -21,7 +27,7 @@ export class ProductFetcher {
   public async getStoreProducts(storeId: string, options: PaginationOptions = {}): Promise<ProductsResponse> {
     try {
       const { limit = 20, nextToken } = options;
-      const cacheKey = `products_${storeId}_${limit}_${nextToken || 'first'}`;
+      const cacheKey = getProductsCacheKey(storeId, limit, nextToken);
       const cached = cacheManager.getCached(cacheKey);
       if (cached) {
         return cached as ProductsResponse;
@@ -71,7 +77,7 @@ export class ProductFetcher {
    */
   public async getProduct(storeId: string, productIdOrHandle: string): Promise<ProductContext | null> {
     try {
-      const productCacheKey = `product_${storeId}_${productIdOrHandle}`;
+      const productCacheKey = getProductCacheKey(storeId, productIdOrHandle);
       const cachedProduct = cacheManager.getCached(productCacheKey);
       if (cachedProduct) {
         return cachedProduct as ProductContext;
@@ -88,7 +94,7 @@ export class ProductFetcher {
         }
       } catch (e) {}
 
-      const handleMapCacheKey = `product_handle_map_${storeId}`;
+      const handleMapCacheKey = getProductHandleMapCacheKey(storeId);
       const handleMap = cacheManager.getCached(handleMapCacheKey);
 
       if (handleMap && handleMap[productIdOrHandle]) {
@@ -140,7 +146,7 @@ export class ProductFetcher {
    */
   public async getFeaturedProducts(storeId: string, limit: number = 8): Promise<ProductContext[]> {
     try {
-      const cacheKey = `featured_products_${storeId}_${limit}`;
+      const cacheKey = getFeaturedProductsCacheKey(storeId, limit);
       const cached = cacheManager.getCached(cacheKey);
       if (cached) {
         return cached as ProductContext[];

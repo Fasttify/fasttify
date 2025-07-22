@@ -4,11 +4,9 @@ import { useState } from 'react';
 import { Page, Card, Text, Button, InlineGrid, Box, Badge, BlockStack } from '@shopify/polaris';
 import Image from 'next/image';
 import { ConnectModal } from '@/app/store/components/app-integration/components/ConnectModal';
-import useStoreDataStore from '@/context/core/storeDataStore';
 
 export function AppIntegrationPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { hasMasterShopApiKey } = useStoreDataStore();
 
   const masterShopCard = (
     <Card>
@@ -45,11 +43,8 @@ export function AppIntegrationPage() {
               <Badge>Actualización automática</Badge>
             </InlineGrid>
             <Box>
-              <Button
-                variant={hasMasterShopApiKey ? 'primary' : 'primary'}
-                onClick={() => setIsModalOpen(true)}
-                disabled={hasMasterShopApiKey}>
-                {hasMasterShopApiKey ? 'Conectado' : 'Conectar'}
+              <Button variant={'primary'} onClick={() => setIsModalOpen(true)}>
+                Conectar
               </Button>
             </Box>
           </BlockStack>

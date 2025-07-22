@@ -9,18 +9,9 @@ interface ConfigStepProps {
   onApiKeyChange: (apiKey: string) => void;
   status: Status;
   errorMessage: string;
-  updateLoading: boolean;
 }
 
-export function ConfigStep({
-  option,
-  onOptionChange,
-  apiKey,
-  onApiKeyChange,
-  status,
-  errorMessage,
-  updateLoading,
-}: ConfigStepProps) {
+export function ConfigStep({ option, onOptionChange, apiKey, onApiKeyChange, status, errorMessage }: ConfigStepProps) {
   const choices = [
     {
       label: 'Ya tengo cuenta en Master Shop',
@@ -70,7 +61,7 @@ export function ConfigStep({
         <InlineStack gap="200" align="center">
           <Spinner size="small" />
           <Text as="span" tone="subdued">
-            {updateLoading ? 'Guardando configuración...' : 'Verificando conexión...'}
+            Verificando conexión...
           </Text>
         </InlineStack>
       )}

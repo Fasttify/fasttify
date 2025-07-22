@@ -1,4 +1,4 @@
-import { cacheManager } from '@/renderer-engine/services/core/cache-manager';
+import { cacheManager } from '@/renderer-engine/services/core/cache';
 import type { PageType } from '@/renderer-engine/types/template';
 
 const templatePaths: Record<PageType, string> = {

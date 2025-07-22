@@ -11,7 +11,6 @@ export function useStoreFromZustand() {
   const isLoading = useStoreDataStore((state) => state.isLoading);
   const error = useStoreDataStore((state) => state.error);
   const storeId = useStoreDataStore((state) => state.storeId);
-  const hasMasterShopApiKey = useStoreDataStore((state) => state.hasMasterShopApiKey);
 
   // Memoizar el objeto de respuesta para evitar re-renders innecesarios
   return useMemo(
@@ -20,9 +19,8 @@ export function useStoreFromZustand() {
       loading: isLoading,
       error,
       storeId,
-      hasMasterShopApiKey,
     }),
-    [currentStore, isLoading, error, storeId, hasMasterShopApiKey]
+    [currentStore, isLoading, error, storeId]
   );
 }
 
@@ -39,12 +37,4 @@ export function useCurrentStore() {
  */
 export function useStoreId() {
   return useStoreDataStore((state) => state.storeId);
-}
-
-/**
- * Hook para componentes que solo necesitan verificar
- * si la tienda tiene API key configurada
- */
-export function useStoreApiKeyStatus() {
-  return useStoreDataStore((state) => state.hasMasterShopApiKey);
 }

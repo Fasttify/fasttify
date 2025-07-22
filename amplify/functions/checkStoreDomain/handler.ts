@@ -31,8 +31,8 @@ export const handler = async (event: any) => {
   }
 
   try {
-    const { data: stores } = await clientSchema.models.UserStore.listUserStoreByCustomDomain({
-      customDomain: domainName,
+    const { data: stores } = await clientSchema.models.UserStore.listUserStoreByDefaultDomain({
+      defaultDomain: domainName,
     });
 
     return {
