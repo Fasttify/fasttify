@@ -12,7 +12,6 @@ interface StoreInput {
   contactEmail?: string;
   contactPhone?: string;
   contactName?: string;
-  customDomain?: string;
   defaultDomain: string;
   conctactIdentification?: string;
   contactIdentificationType?: string;

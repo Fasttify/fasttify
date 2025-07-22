@@ -6,10 +6,7 @@ import Image from 'next/image';
 
 export function ThemePreview() {
   const { currentStore } = useStoreDataStore();
-  const customDomain =
-    currentStore?.customDomain && currentStore?.customDomainStatus === 'active'
-      ? currentStore.customDomain
-      : currentStore?.defaultDomain;
+  const customDomain = currentStore?.defaultDomain || '';
 
   const viewStore = `https://${customDomain}`;
 

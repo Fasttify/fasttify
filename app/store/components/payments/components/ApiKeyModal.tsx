@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect, useCallback } from 'react';
 import { useForm, useField } from '@shopify/react-form';
 import { Modal, Form, FormLayout, TextField, Banner, Text, LegacyStack, Badge, Box } from '@shopify/polaris';

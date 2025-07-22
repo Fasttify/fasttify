@@ -2,9 +2,9 @@ import { type ClientSchema, a, defineData, defineFunction } from '@aws-amplify/b
 import { postConfirmation } from '../auth/post-confirmation/resource';
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource';
 import { createStoreTemplate } from '../functions/createStoreTemplate/resource';
-import { apiKeyManager } from '../functions/LambdaEncryptKeys/resource';
 import { planScheduler } from '../functions/planScheduler/resource';
 import { webHookPlan } from '../functions/webHookPlan/resource';
+import { managePaymentKeys } from '../functions/managePaymentKeys/resource';
 
 // Model Imports
 import { cartModel } from './models/cart';
@@ -18,6 +18,8 @@ import { productModel } from './models/product';
 import { userProfileModel } from './models/user-profile';
 import { userStoreModel } from './models/user-store';
 import { userSubscriptionModel } from './models/user-subscription';
+import { storePaymentConfigModel } from './models/store-payment-config';
+import { storeCustomDomainModel } from './models/store-custom-domain';
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0';
 
@@ -40,6 +42,21 @@ export const generatePriceSuggestionFunction = defineFunction({
   environment: {
     MODEL_ID,
   },
+});
+
+// Definir el tipo de entrada para la mutación de pago
+const PaymentConfigInput = a.customType({
+  storeId: a.string(),
+  gatewayType: a.string(),
+  publicKey: a.string(),
+  privateKey: a.string(),
+  isActive: a.boolean(),
+});
+
+// Definir el tipo de retorno para la mutación de pago
+const PaymentConfigResult = a.customType({
+  success: a.boolean().required(),
+  message: a.string(),
 });
 
 const schema = a
@@ -81,6 +98,14 @@ const schema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(createStoreTemplate)),
 
+    // Nueva mutación para procesar la configuración de pagos
+    processStorePaymentConfig: a
+      .mutation()
+      .arguments({ action: a.string(), input: PaymentConfigInput })
+      .returns(PaymentConfigResult)
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(managePaymentKeys)),
+
     // Models
     UserProfile: userProfileModel,
     UserSubscription: userSubscriptionModel,
@@ -93,14 +118,16 @@ const schema = a
     CartItem: cartItemModel,
     Order: orderModel,
     OrderItem: orderItemModel,
+    StorePaymentConfig: storePaymentConfigModel,
+    StoreCustomDomain: storeCustomDomainModel,
   })
   .authorization((allow) => [
     allow.resource(postConfirmation),
     allow.resource(webHookPlan),
     allow.resource(planScheduler),
     allow.resource(checkStoreDomain),
-    allow.resource(apiKeyManager),
     allow.resource(createStoreTemplate),
+    allow.resource(managePaymentKeys),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

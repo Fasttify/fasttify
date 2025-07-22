@@ -12,11 +12,13 @@ import {
 } from './data/resource';
 import { checkStoreDomain } from './functions/checkStoreDomain/resource';
 import { createSubscription } from './functions/createSubscription/resource';
-import { apiKeyManager } from './functions/LambdaEncryptKeys/resource';
+import { managePaymentKeys } from './functions/managePaymentKeys/resource';
 import { planScheduler } from './functions/planScheduler/resource';
 import { storeImages } from './functions/storeImages/resource';
 import { webHookPlan } from './functions/webHookPlan/resource';
 import { storage } from './storage/resource';
+import * as kms from 'aws-cdk-lib/aws-kms';
+import { CfnOutput } from 'aws-cdk-lib';
 
 /**
  * Detección simple de entorno
@@ -73,10 +75,10 @@ const backend = defineBackend({
   postConfirmation,
   generateHaikuFunction,
   checkStoreDomain,
-  apiKeyManager,
   generateProductDescriptionFunction,
   generatePriceSuggestionFunction,
   storeImages,
+  managePaymentKeys,
 });
 
 backend.generateHaikuFunction.resources.lambda.addToRolePolicy(
@@ -132,6 +134,28 @@ backend.generatePriceSuggestionFunction.resources.lambda.addToRolePolicy(
     ],
   })
 );
+
+// Define la clave KMS para la encriptación de las claves de pago
+const paymentKeysKmsKey = new kms.Key(backend.stack, 'PaymentKeysKmsKey', {
+  description: 'KMS key for encrypting payment gateway keys',
+  enableKeyRotation: true, // Habilitar la rotación de claves para mayor seguridad
+  alias: 'alias/FasttifyPaymentKeys', // Alias amigable para referenciar la clave
+});
+
+// Otorga permisos a la función Lambda para usar la clave KMS
+backend.managePaymentKeys.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ['kms:Encrypt', 'kms:Decrypt', 'kms:GenerateDataKey'], // Añadido GenerateDataKey para ciertas operaciones
+    resources: [paymentKeysKmsKey.keyArn], // Apunta a la nueva clave KMS
+  })
+);
+
+// Exporta el ARN de la clave KMS como una salida de CloudFormation
+new CfnOutput(backend.stack, 'PaymentKeysKmsKeyArn', {
+  value: paymentKeysKmsKey.keyArn,
+  description: 'ARN of the KMS key for encrypting payment gateway keys',
+});
 
 backend.postConfirmation.resources.lambda.addToRolePolicy(
   new PolicyStatement({
@@ -211,23 +235,6 @@ checkStoreDomainResource.addMethod('GET', checkStoreDomainIntegration);
 
 /**
  *
- * API para Gestión de Claves API
- *
- */
-const apiKeyManagerApi = new RestApi(apiStack, 'ApiKeyManagerApi', {
-  restApiName: `ApiKeyManagerApi-${stageName}`,
-  deploy: true,
-  deployOptions: deployConfig,
-  defaultCorsPreflightOptions: corsConfig,
-});
-
-const apiKeyManagerIntegration = new LambdaIntegration(backend.apiKeyManager.resources.lambda);
-
-const apiKeyManagerResource = apiKeyManagerApi.root.addResource('api-keys');
-apiKeyManagerResource.addMethod('POST', apiKeyManagerIntegration);
-
-/**
- *
  * API para Almacenar Imágenes
  *
  */
@@ -256,7 +263,6 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
         `${subscriptionApi.arnForExecuteApi('*', '/subscribe', stageName)}`,
         `${webHookApi.arnForExecuteApi('*', '/webhook', stageName)}`,
         `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', stageName)}`,
-        `${apiKeyManagerApi.arnForExecuteApi('*', '/api-keys', stageName)}`,
         `${storeImagesApi.arnForExecuteApi('*', '/store-images', stageName)}`,
       ],
     }),
@@ -297,12 +303,7 @@ backend.addOutput({
         apiName: checkStoreDomainApi.restApiName,
         stage: stageName,
       },
-      ApiKeyManagerApi: {
-        endpoint: apiKeyManagerApi.url,
-        region: Stack.of(apiKeyManagerApi).region,
-        apiName: apiKeyManagerApi.restApiName,
-        stage: stageName,
-      },
+
       StoreImagesApi: {
         endpoint: storeImagesApi.url,
         region: Stack.of(storeImagesApi).region,

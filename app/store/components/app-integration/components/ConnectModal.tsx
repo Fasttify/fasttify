@@ -1,19 +1,13 @@
-'use client';
-
 import { useEffect, useCallback, useMemo } from 'react';
 import { Modal } from '@shopify/polaris';
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon } from '@shopify/polaris-icons';
-import useStoreDataStore from '@/context/core/storeDataStore';
 import { useConnectModal } from '@/app/store/components/app-integration/hooks/useConnectModal';
 import { IntroStep } from '@/app/store/components/app-integration/components/steps/IntroStep';
 import { ConfigStep } from '@/app/store/components/app-integration/components/steps/ConfigStep';
 import { SuccessStep } from '@/app/store/components/app-integration/components/steps/SuccessStep';
 import { ConnectModalProps } from '@/app/store/components/app-integration/constants/connectModal';
-import useUserStore from '@/context/core/userStore';
 
 export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
-  const { currentStore, hasMasterShopApiKey, checkMasterShopApiKey } = useStoreDataStore();
-  const { user } = useUserStore();
   const handleClose = useCallback(() => onOpenChange(false), [onOpenChange]);
 
   const {
@@ -26,14 +20,13 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
     status,
     setStatus,
     errorMessage,
-    updateLoading,
     resetState,
     handleApiKeyConnection,
-  } = useConnectModal(currentStore, handleClose);
+  } = useConnectModal(handleClose);
 
   useEffect(() => {
-    if (open && hasMasterShopApiKey) setStep(3);
-  }, [open, hasMasterShopApiKey, setStep]);
+    if (open) setStep(3);
+  }, [open, setStep]);
 
   const handleNext = useCallback(async () => {
     if (step === 1) {
@@ -41,12 +34,9 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
     } else if (step === 2 && option === 'existing') {
       if (await handleApiKeyConnection()) {
         setStep(3);
-        if (currentStore?.storeId && user?.userId) {
-          checkMasterShopApiKey(currentStore.storeId, user.userId);
-        }
       }
     }
-  }, [step, option, handleApiKeyConnection, setStep, currentStore?.storeId, user?.userId, checkMasterShopApiKey]);
+  }, [step, option, handleApiKeyConnection, setStep]);
 
   const handleBack = useCallback(() => {
     if (step === 2) {
@@ -79,7 +69,6 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
             onApiKeyChange={setApiKey}
             status={status}
             errorMessage={errorMessage}
-            updateLoading={updateLoading}
           />
         );
       case 3:
@@ -87,7 +76,7 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
       default:
         return null;
     }
-  }, [step, option, setOption, apiKey, setApiKey, status, errorMessage, updateLoading]);
+  }, [step, option, setOption, apiKey, setApiKey, status, errorMessage]);
 
   const nextButtonDisabled = useMemo(
     () => (step === 2 && !option) || (step === 2 && option === 'existing' && !apiKey) || status === 'loading',
@@ -96,9 +85,6 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
 
   const getNextButtonContent = (): string => {
     if (step === 1) return 'Continuar';
-    if (hasMasterShopApiKey) {
-      return 'Master Shop Activo';
-    }
     return 'Conectar';
   };
 
@@ -108,13 +94,13 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
           content: getNextButtonContent(),
           onAction: handleNext,
           disabled: nextButtonDisabled,
-          icon: hasMasterShopApiKey ? undefined : ArrowRightIcon,
+          icon: ArrowRightIcon,
         }
       : {
-          content: hasMasterShopApiKey ? 'Conexión Activa' : 'Finalizar',
+          content: 'Finalizar',
           onAction: handleClose,
-          icon: hasMasterShopApiKey ? CheckIcon : undefined,
-          variant: hasMasterShopApiKey ? 'primary' : 'primary',
+          icon: CheckIcon,
+          variant: 'primary',
         };
 
   const secondaryActions =
@@ -133,7 +119,7 @@ export function ConnectModal({ open, onOpenChange }: ConnectModalProps) {
     <Modal
       open={open}
       onClose={() => handleModalChange(false)}
-      title={hasMasterShopApiKey ? 'Master Shop Conectado' : 'Conectar con Master Shop'}
+      title={'Conectar con Master Shop'}
       primaryAction={primaryAction}
       secondaryActions={secondaryActions}>
       <Modal.Section>{stepContent}</Modal.Section>

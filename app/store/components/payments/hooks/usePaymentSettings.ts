@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStoreData, PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
-import { useApiKeyEncryption } from '@/app/(setup-layout)/first-steps/hooks/useApiKeyEncryption';
 import useUserStore from '@/context/core/userStore';
 import { useToast } from '@/app/store/context/ToastContext';
 
@@ -12,7 +11,6 @@ export function usePaymentSettings() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGateway, setSelectedGateway] = useState<PaymentGatewayType>('mercadoPago');
   const { getStorePaymentInfo, configurePaymentGateway } = useUserStoreData();
-  const { encryptApiKey } = useApiKeyEncryption();
   const { user, loading: userLoading } = useUserStore();
   const queryClient = useQueryClient();
   const userId = user?.userId;
@@ -33,7 +31,7 @@ export function usePaymentSettings() {
 
   const configureGatewayMutation = useMutation({
     mutationFn: async (data: { storeId: string; gateway: PaymentGatewayType; configData: any }) => {
-      return await configurePaymentGateway(data.storeId, data.gateway, data.configData, true);
+      return await configurePaymentGateway(data.storeId, data.gateway, data.configData);
     },
     onSuccess: (_, variables) => {
       const gatewayName = variables.gateway === 'wompi' ? 'Wompi' : 'Mercado Pago';
@@ -59,38 +57,19 @@ export function usePaymentSettings() {
       return;
     }
 
-    let configData: any = { isActive: true };
+    // Pasa las claves públicas y privadas directamente a la mutación.
+    // La encriptación se realizará en la Lambda.
+    const configData = {
+      publicKey: data.publicKey,
+      privateKey: data.privateKey,
+      isActive: true, // Asume que isActive es siempre true al configurar
+    };
 
-    try {
-      if (data.gateway === 'wompi') {
-        if (data.publicKey) {
-          const encryptedPublicKey = await encryptApiKey(data.publicKey, 'wompi', 'publicKey', storeId);
-          configData.publicKey = encryptedPublicKey;
-        }
-        if (data.privateKey) {
-          const encryptedSignature = await encryptApiKey(data.privateKey, 'wompi', 'signature', storeId);
-          configData.signature = encryptedSignature;
-        }
-      } else if (data.gateway === 'mercadoPago') {
-        if (data.publicKey) {
-          const encryptedPublicKey = await encryptApiKey(data.publicKey, 'mercadopago', 'publicKey', storeId);
-          configData.publicKey = encryptedPublicKey;
-        }
-        if (data.privateKey) {
-          const encryptedPrivateKey = await encryptApiKey(data.privateKey, 'mercadopago', 'privateKey', storeId);
-          configData.privateKey = encryptedPrivateKey;
-        }
-      }
-
-      await configureGatewayMutation.mutateAsync({
-        storeId: storeId,
-        gateway: data.gateway,
-        configData,
-      });
-    } catch (err) {
-      showToast('Error al encriptar o guardar las claves. Intenta de nuevo.', true);
-      console.error('Error configuring the payment gateway:', err);
-    }
+    await configureGatewayMutation.mutateAsync({
+      storeId: storeId,
+      gateway: data.gateway,
+      configData,
+    });
   };
 
   const isGatewayConfigured = (gateway: PaymentGatewayType) => {

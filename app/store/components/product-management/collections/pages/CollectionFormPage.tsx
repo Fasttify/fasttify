@@ -65,7 +65,7 @@ export function FormPage() {
   });
 
   const pageTitle = isEditing ? 'Editar colección' : 'Nueva colección';
-  const customDomain = currentStore?.customDomain || '';
+  const customDomain = currentStore?.defaultDomain || '';
 
   const secondaryActions = isEditing
     ? [
