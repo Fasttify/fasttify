@@ -88,8 +88,8 @@ export interface ProductContext {
   featured_image?: string;
   quantity: number;
   description?: string;
-  price: string;
-  compare_at_price?: string;
+  price: number;
+  compare_at_price?: number;
   url: string;
   images: string[];
   variants: ProductVariantContext[];
@@ -107,7 +107,7 @@ export interface ProductAttribute {
 export interface ProductVariantContext {
   id: string;
   title: string;
-  price: string;
+  price: number;
   available: boolean;
   sku?: string;
   [key: string]: any;

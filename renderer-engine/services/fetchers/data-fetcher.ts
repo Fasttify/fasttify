@@ -181,8 +181,8 @@ export class DataFetcher {
   /**
    * Limpia carritos expirados
    */
-  public cleanupExpiredCarts(): void {
-    return cartFetcher.cleanupExpiredCarts();
+  public async cleanupExpiredCarts(): Promise<void> {
+    await cartFetcher.cleanupExpiredCarts();
   }
 
   // === GESTIÓN DE CACHÉ ===

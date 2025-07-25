@@ -1,0 +1,159 @@
+.product-image-modal {
+  display: flex;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #fff;
+  justify-content: center;
+  align-items: center;
+}
+
+.product-image-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  padding: 0;
+  border-radius: 8px;
+  max-width: 900px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(0.95);
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.product-image-modal.is-open .modal-content {
+  transform: scale(1);
+}
+
+.close-button {
+  color: #333;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: #000;
+  background-color: #f0f0f0;
+  border-color: #a0a0a0;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #333;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-arrow.prev-arrow {
+  left: 20px;
+  z-index: 1001;
+}
+
+.nav-arrow.next-arrow {
+  right: 20px;
+  z-index: 1001;
+}
+
+.nav-arrow:hover {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.modal-product-image {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.image-counter {
+  color: #fff;
+  font-size: 1rem;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 5px;
+  z-index: 1001;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    padding: 0;
+  }
+
+  .nav-arrow {
+    padding: 8px 12px;
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+  }
+
+  .modal-product-image {
+    margin: 0;
+  }
+
+  .close-button,
+  .image-counter {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+  }
+
+  .close-button {
+    right: 10px;
+    left: auto;
+  }
+
+  .image-counter {
+    left: 10px;
+    right: auto;
+  }
+}

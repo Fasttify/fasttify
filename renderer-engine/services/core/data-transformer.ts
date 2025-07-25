@@ -78,7 +78,7 @@ export class DataTransformer {
       ? variantsArray.map((variant: any) => ({
           id: variant.id,
           title: variant.title || variant.name || 'Default',
-          price: this.formatPrice(variant.price || basePrice || 0),
+          price: variant.price || basePrice || 0,
           available: (variant.quantity || variant.stock || 0) > 0,
           sku: variant.sku,
         }))

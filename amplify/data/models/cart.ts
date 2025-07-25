@@ -1,4 +1,4 @@
-import { a, type ClientSchema } from '@aws-amplify/backend';
+import { a } from '@aws-amplify/backend';
 
 export const cartModel = a
   .model({

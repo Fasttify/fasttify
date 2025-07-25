@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(cartContext, { status: 200, headers: corsHeaders });
   } catch (error) {
-    logger.error('Error in /api/cart GET', error, 'CartAPI');
+    logger.error('Error in /api/cart GET', error as Error, 'CartAPI');
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
     return NextResponse.json(
       { message: 'Internal Server Error', error: errorMessage },
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result.cart, { status: 200, headers: corsHeaders });
   } catch (error) {
-    logger.error('Error in /api/cart POST', error, 'CartAPI');
+    logger.error('Error in /api/cart POST', error as Error, 'CartAPI');
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
     return NextResponse.json(
       { message: 'Internal Server Error', error: errorMessage },
@@ -123,7 +123,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json(result.cart, { status: 200, headers: corsHeaders });
   } catch (error) {
-    logger.error('Error in /api/cart PATCH', error, 'CartAPI');
+    logger.error('Error in /api/cart PATCH', error as Error, 'CartAPI');
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
     return NextResponse.json(
       { message: 'Internal Server Error', error: errorMessage },
@@ -156,7 +156,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json(result.cart, { status: 200, headers: corsHeaders });
   } catch (error) {
-    logger.error('Error in /api/cart DELETE', error, 'CartAPI');
+    logger.error('Error in /api/cart DELETE', error as Error, 'CartAPI');
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
     return NextResponse.json(
       { message: 'Internal Server Error', error: errorMessage },

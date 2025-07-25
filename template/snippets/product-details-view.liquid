@@ -1,27 +1,323 @@
+{{ 'product-details.css' | asset_url | stylesheet_tag }}
+{{ 'modal-gallery.css' | asset_url | stylesheet_tag }}
+
 <div class="product-page-container">
   <div class="product__images">
-    <img src="{{ product.featured_image | img_url: '800x800' }}" alt="{{ product.featured_image.alt | escape }}" class="product__featured-image">
+    {% if product.images.size > 0 %}
+    <div class="product-images-desktop-view">
+      <div class="main-product-images">
+        <img src="{{ product.images[0] | img_url: '800x800' }}" alt="{{ product.images[0].alt | escape }}"
+          class="product__main-image" data-index="0" onclick="openImageModal(parseInt(this.dataset.index))">
+        {% if product.images.size > 1 %}
+        <img src="{{ product.images[1] | img_url: '800x800' }}" alt="{{ product.images[1].alt | escape }}"
+          class="product__main-image" data-index="1" onclick="openImageModal(parseInt(this.dataset.index))">
+        {% endif %}
+      </div>
+      {% if product.images.size > 2 %}
+      <div class="product__thumbnails">
+        {% for image in product.images offset: 2 %}
+        <img src="{{ image | img_url: '400x400' }}" alt="{{ image.alt | escape }}" class="product__thumbnail-image"
+          data-index="{{ forloop.index | plus: 1 }}" onclick="openImageModal(parseInt(this.dataset.index))">
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="product-images-mobile-view">
+      <div class="product-image-carousel">
+        <div class="carousel-track">
+          {% for image in product.images %}
+          <img src="{{ image | img_url: '800x800' }}" alt="{{ image.alt | escape }}"
+            class="product__main-image-carousel-item" data-index="{{ forloop.index0 }}">
+          {% endfor %}
+        </div>
+        <span class="carousel-counter">1/{{ product.images.size }}</span>
+      </div>
+    </div>
+    {% else %}
+    <div class="product-placeholder">
+      <div class="placeholder-content">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <polyline points="21,15 16,10 5,21" />
+        </svg>
+        <p>Imagen del producto</p>
+      </div>
+    </div>
+    {% endif %}
   </div>
   <div class="product__info">
-    <h1>{{ product.title }}</h1>
-    <div class="product__price">
-      {{ product.price | money }}
+    <div class="product-vendor text-sm font-semibold">{{ product.category | upcase }}</div>
+    <h1 class="product-title text-4xl font-bold">{{ product.title }}</h1>
+    <div class="product__price text-2xl font-bold">
+      {{ product.price }}
     </div>
-    <div class="product__description">
+    <a href="/policies" class="product-link">
+      <div class="shipping-info text-sm">
+        Envío calculado al finalizar la compra.
+      </div>
+    </a>
+    <div class="product__description text-base">
       {{ product.description }}
     </div>
 
     {% form 'product', product %}
-      <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-      <button type="submit" class="btn btn-primary">
-        Añadir al carrito
+    <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+
+    {% comment %} Product Options (Color and Size) {% endcomment %}
+    {% if product.has_only_default_variant == false %}
+    {% for option in product.options_with_values %}
+    <div class="product-option-group">
+      <div class="product-option-name text-sm font-semibold">
+        {{ option.name | upcase }}: <span class="selected-option-value font-normal">{{ option.selected_value }}</span>
+      </div>
+      <div class="attribute-values-list">
+        {% for value in option.values %}
+        {% if option.name == 'Color' %}
+        <span class="color-swatch {% if option.selected_value == value %}selected{% endif %}"
+          style="background-color: {{ value | downcase }};" title="{{ value }}"
+          data-option-name="{{ option.name | handleize }}" data-option-value="{{ value | handleize }}"
+          onclick="selectOption(this)">
+        </span>
+        {% else %}
+        <button type="button" class="size-selector-button {% if option.selected_value == value %}selected{% endif %}"
+          data-option-name="{{ option.name | handleize }}" data-option-value="{{ value | handleize }}"
+          onclick="selectOption(this)">
+          {{ value }}
+        </button>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% comment %} Fit Guide {% endcomment %}
+    <div class="fit-guide">
+      <div class="fit-guide-label text-sm font-semibold">GUÍA DE AJUSTE</div>
+      <div class="fit-guide-bar">
+        <span class="fit-guide-text text-sm">Pequeño</span>
+        <div class="fit-guide-progress">
+          <div class="fit-guide-progress-fill"></div>
+        </div>
+        <span class="fit-guide-text text-sm">Grande</span>
+      </div>
+      <a href="#" class="sizing-guide-link text-sm">Guía de tallas</a>
+    </div>
+
+    {% comment %} Quantity Selector and Add to Cart Button {% endcomment %}
+    <div class="product-actions">
+      <div class="quantity-selector">
+        <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+        <input type="number" name="quantity" value="1" min="1" class="quantity-input text-base font-medium">
+        <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
+      </div>
+      <button type="submit" class="btn add-to-cart-btn font-semibold">
+        <span>AÑADIR AL CARRITO</span>
       </button>
+    </div>
+
+    <button type="button" class="btn buy-it-now-btn font-semibold">
+      <span>COMPRAR AHORA</span>
+    </button>
     {% endform %}
+
+    <div class="pickup-info">
+      <div class="pickup-info__icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      </div>
+      <div class="pickup-info__details">
+        <p class="text-sm">Recogida disponible en 827 North Coronado</p>
+        <p class="text-sm text-gray">Normalmente listo en 24 horas</p>
+        <a href="#" class="pickup-info__link text-sm">Ver información de la tienda</a>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<style>
-.product-page-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto; padding: 2rem; }
-.product__featured-image { max-width: 100%; border: 1px solid #eee; }
-.product__price { font-size: 1.5rem; font-weight: bold; margin: 1rem 0; }
-</style>
+<div id="productImageModal" class="product-image-modal">
+  <span class="close-button" onclick="closeImageModal()">&times;</span>
+  <span class="image-counter"></span>
+  <button class="nav-arrow prev-arrow" onclick="changeImage(-1)">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15,18 9,12 15,6"></polyline>
+    </svg>
+  </button>
+  <div class="modal-content">
+    <img src="" alt="Product Image" class="modal-product-image">
+  </div>
+  <button class="nav-arrow next-arrow" onclick="changeImage(1)">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="9,18 15,12 9,6"></polyline>
+    </svg>
+  </button>
+</div>
+
+<script>
+  function selectOption(element) {
+    const optionName = element.dataset.optionName;
+    const optionValue = element.dataset.optionValue;
+    const form = element.closest('form');
+    const hiddenInput = form.querySelector('input[name="id"]');
+
+    const siblings = Array.from(element.parentNode.children);
+    siblings.forEach(sibling => sibling.classList.remove('selected'));
+
+    element.classList.add('selected');
+
+    const selectedOptionValueSpan = form.querySelector(`.product-option-name .selected-option-value`);
+    if (selectedOptionValueSpan) {
+      selectedOptionValueSpan.textContent = element.textContent || element.title;
+    }
+
+  }
+
+  function updateQuantity(change) {
+    const quantityInput = document.querySelector('.quantity-input');
+    let currentQuantity = parseInt(quantityInput.value);
+    currentQuantity += change;
+    if (currentQuantity < 1) {
+      currentQuantity = 1;
+    }
+    quantityInput.value = currentQuantity;
+  }
+
+  // Image Modal Gallery (existing functions)
+  let modalCurrentImageIndex = 0;
+  const modalProductImages = [
+    {% for image in product.images %}
+  "{{ image | img_url: '800x800' }}"{% if forloop.last == false %}, {% endif %}
+  {% endfor %}
+  ];
+
+  function openImageModal(index) {
+    modalCurrentImageIndex = index;
+    const modal = document.getElementById('productImageModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.classList.add('is-open');
+    }, 10);
+    updateModalImage();
+  }
+
+  function closeImageModal() {
+    const modal = document.getElementById('productImageModal');
+    modal.classList.remove('is-open');
+    modal.addEventListener('transitionend', function handler() {
+      modal.style.display = 'none';
+      modal.removeEventListener('transitionend', handler);
+    }, { once: true });
+  }
+
+  function updateModalImage() {
+    const modalImage = document.querySelector('#productImageModal .modal-product-image');
+    const imageCounter = document.querySelector('#productImageModal .image-counter');
+
+    if (modalProductImages.length > 0) {
+      modalImage.src = modalProductImages[modalCurrentImageIndex];
+      imageCounter.textContent = `${modalCurrentImageIndex + 1}/${modalProductImages.length}`;
+    } else {
+      modalImage.src = '';
+      imageCounter.textContent = '0/0';
+    }
+  }
+
+  function changeImage(direction) {
+    modalCurrentImageIndex += direction;
+    if (modalCurrentImageIndex < 0) {
+      modalCurrentImageIndex = modalProductImages.length - 1;
+    } else if (modalCurrentImageIndex >= modalProductImages.length) {
+      modalCurrentImageIndex = 0;
+    }
+    updateModalImage();
+  }
+
+  let currentProductImageIndex = 0;
+  const productCarouselImages = [
+    {% for image in product.images %}
+  "{{ image | img_url: '800x800' }}"{% if forloop.last == false %}, {% endif %}
+  {% endfor %}
+  ];
+
+  function updateProductCarouselImage() {
+    const carouselTrack = document.querySelector('.product-images-mobile-view .carousel-track');
+    const counter = document.querySelector('.product-images-mobile-view .carousel-counter');
+
+    if (productCarouselImages.length > 0) {
+      carouselTrack.style.transform = `translateX(-${currentProductImageIndex * 100}%)`;
+      counter.textContent = `${currentProductImageIndex + 1}/${productCarouselImages.length}`;
+    } else {
+      carouselTrack.style.transform = 'translateX(0)';
+      counter.textContent = '0/0';
+    }
+  }
+
+  function changeProductImage(direction) {
+    currentProductImageIndex += direction;
+    if (currentProductImageIndex < 0) {
+      currentProductImageIndex = productCarouselImages.length - 1;
+    } else if (currentProductImageIndex >= productCarouselImages.length) {
+      currentProductImageIndex = 0;
+    }
+    updateProductCarouselImage();
+  }
+
+  updateProductCarouselImage();
+
+  const productCarousel = document.querySelector('.product-images-mobile-view .product-image-carousel');
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchEndX = 0;
+  let touchEndY = 0;
+
+  if (productCarousel) {
+    productCarousel.addEventListener('touchstart', (event) => {
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+    });
+
+    productCarousel.addEventListener('touchmove', (event) => {
+      event.preventDefault();
+    }, { passive: false });
+
+    productCarousel.addEventListener('touchend', (event) => {
+      touchEndX = event.changedTouches[0].clientX;
+      touchEndY = event.changedTouches[0].clientY;
+
+      const swipeThreshold = 50;
+      const tapThreshold = 10;
+      const distanceX = touchStartX - touchEndX;
+      const distanceY = touchStartY - touchEndY;
+      const totalMovement = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+      if (Math.abs(distanceX) > swipeThreshold && Math.abs(distanceX) > Math.abs(distanceY)) {
+        if (distanceX > 0) {
+          changeProductImage(1);
+        } else {
+          changeProductImage(-1);
+        }
+        event.preventDefault();
+        event.stopPropagation();
+      } else if (totalMovement < tapThreshold) {
+        openImageModal(currentProductImageIndex);
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      touchStartX = 0;
+      touchStartY = 0;
+      touchEndX = 0;
+      touchEndY = 0;
+    });
+
+    // Event listener for opening modal from carousel image
+    productCarousel.querySelector('.product__main-image-carousel-item').addEventListener('click', () => {
+      openImageModal(currentProductImageIndex);
+    });
+  }
+</script>

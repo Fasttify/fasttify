@@ -70,6 +70,10 @@
   {{ 'newsletter-popup.js' | asset_url | script_tag }}
   {{ 'side-cart.js' | asset_url | script_tag }}
 
+  <script>
+    window.STORE_ID = '{{ shop.storeId }}';
+  </script>
+
 </body>
 
 </html>

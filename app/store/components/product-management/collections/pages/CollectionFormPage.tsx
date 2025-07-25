@@ -1,6 +1,6 @@
 import { CollectionContent } from '@/app/store/components/product-management/collections/components/form/CollectionContent';
 import { CollectionSidebar } from '@/app/store/components/product-management/collections/components/form/CollectionSidebar';
-import { useCollectionForm } from '@/app/store/components/product-management/utils/collection-form-utils';
+import { useCollectionForm } from '@/app/store/components/product-management/collections/utils/formUtils';
 import { useCollections } from '@/app/store/hooks/data/useCollections';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import useUserStore from '@/context/core/userStore';

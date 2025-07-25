@@ -85,7 +85,7 @@
                 {% comment %} Asumo que quieres que el botón "Añadir al carrito" funcione como en featured-products {% endcomment %}
                 <button
                   class="product-btn product-btn-secondary"
-                  onclick="addToCart({{ product.variants.first.id }}, 1)"
+                  onclick="addToCart('{{ product.id }}', 1)"
                   aria-label="Añadir al carrito">
                   <span>AÑADIR AL CARRITO</span>
                 </button>

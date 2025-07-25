@@ -101,7 +101,7 @@ export const useUserStoreData = () => {
               gatewayType: { eq: 'wompi' },
               isActive: { eq: true }, // Solo configs activas
             },
-            selectionSet: ['storeId'], // Solo necesitamos confirmar existencia
+            selectionSet: ['isActive'], // Solo necesitamos confirmar existencia
           }
         )
       );
@@ -117,7 +117,7 @@ export const useUserStoreData = () => {
               gatewayType: { eq: 'mercadoPago' },
               isActive: { eq: true }, // Solo configs activas
             },
-            selectionSet: ['storeId'], // Solo necesitamos confirmar existencia
+            selectionSet: ['isActive'], // Solo necesitamos confirmar existencia
           }
         )
       );

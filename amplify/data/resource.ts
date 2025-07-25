@@ -2,11 +2,11 @@ import { type ClientSchema, a, defineData, defineFunction } from '@aws-amplify/b
 import { postConfirmation } from '../auth/post-confirmation/resource';
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource';
 import { createStoreTemplate } from '../functions/createStoreTemplate/resource';
+import { managePaymentKeys } from '../functions/managePaymentKeys/resource';
 import { planScheduler } from '../functions/planScheduler/resource';
 import { webHookPlan } from '../functions/webHookPlan/resource';
-import { managePaymentKeys } from '../functions/managePaymentKeys/resource';
 
-// Model Imports
+// Importacion de modelos
 import { cartModel } from './models/cart';
 import { cartItemModel } from './models/cart-item';
 import { collectionModel } from './models/collection';
@@ -15,11 +15,11 @@ import { orderModel } from './models/order';
 import { orderItemModel } from './models/order-item';
 import { pageModel } from './models/page';
 import { productModel } from './models/product';
+import { storeCustomDomainModel } from './models/store-custom-domain';
+import { storePaymentConfigModel } from './models/store-payment-config';
 import { userProfileModel } from './models/user-profile';
 import { userStoreModel } from './models/user-store';
 import { userSubscriptionModel } from './models/user-subscription';
-import { storePaymentConfigModel } from './models/store-payment-config';
-import { storeCustomDomainModel } from './models/store-custom-domain';
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0';
 
@@ -106,7 +106,7 @@ const schema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(managePaymentKeys)),
 
-    // Models
+    // Modelos
     UserProfile: userProfileModel,
     UserSubscription: userSubscriptionModel,
     UserStore: userStoreModel,
