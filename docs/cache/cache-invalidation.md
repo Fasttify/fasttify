@@ -19,6 +19,7 @@ Esta documentación cubre desde la personalización de temas y plantillas, hasta
 ### 🔧 Motor de Renderizado
 
 - [Amplify Gen 2 Pagination Gotchas](./engine/amplify-gen2-pagination-gotchas.md) - Problemas conocidos de paginación
+- [Cart System](./engine/cart-system.md) - **Sistema completo de carrito** - Guía para implementar carrito lateral en temas
 - [Filters & Tags](./engine/filters-tags.md) - Filtros y tags Liquid disponibles
 - [Liquid Data Access](./engine/liquid-data-access.md) - Acceso a datos en templates Liquid
 - [Pages and Policies](./engine/pages-and-policies.md) - Sistema de páginas y políticas
@@ -39,6 +40,17 @@ Esta documentación cubre desde la personalización de temas y plantillas, hasta
 - [Multiple Sections Pagination Strategy](./templates/multiple-sections-pagination-strategy.md) - Estrategia de paginación para múltiples secciones
 
 ## 🚀 Características Principales
+
+### Sistema de Carrito Completo
+
+Sistema de carrito lateral con funcionalidad completa para e-commerce:
+
+- ✅ **Carrito lateral deslizable** con overlay y animaciones
+- ✅ **Controles de cantidad** con botones +/- e input manual
+- ✅ **Eliminación individual** y limpieza completa del carrito
+- ✅ **Actualización en tiempo real** sin recargar página
+- ✅ **API REST completa** para todas las operaciones
+- ✅ **Eventos personalizados** para integración con temas
 
 ### Sistema de Búsqueda Automática
 
@@ -73,9 +85,10 @@ Sistema automatizado para:
 
 Si estás desarrollando un tema para Fasttify, comienza con:
 
-1. [Search System](./engine/search-system.md) - Sistema de búsqueda automática
-2. [Theme Development Guide](./engine/theme-development-guide.md) - Guía de desarrollo
-3. [Filters & Tags](./engine/filters-tags.md) - Filtros disponibles
+1. [Cart System](./engine/cart-system.md) - **Sistema completo de carrito** - Implementación de carrito lateral
+2. [Search System](./engine/search-system.md) - Sistema de búsqueda automática
+3. [Theme Development Guide](./engine/theme-development-guide.md) - Guía de desarrollo
+4. [Filters & Tags](./engine/filters-tags.md) - Filtros disponibles
 
 ### Para Desarrolladores del Core
 
@@ -86,6 +99,24 @@ Si estás trabajando en el motor de renderizado:
 3. [Dynamic Template Analysis](./templates/dynamic-template-analysis.md) - Análisis de plantillas
 
 ## 📖 Guías Rápidas
+
+### Implementar Carrito en un Tema
+
+```liquid
+<!-- Incluir assets en layout/theme.liquid -->
+{{ 'cart.css' | asset_url | stylesheet_tag }}
+{{ 'side-cart.js' | asset_url | script_tag }}
+
+<!-- Botón para abrir carrito -->
+<button type="button" data-open-cart>
+  Carrito ({{ cart.item_count }})
+</button>
+
+<!-- Agregar producto al carrito -->
+<button onclick="addToCart('{{ product.id }}', 1)">
+  Agregar al Carrito
+</button>
+```
 
 ### Configurar Búsqueda en un Tema
 

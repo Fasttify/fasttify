@@ -33,7 +33,6 @@ class SideCart {
     document.addEventListener('cart:close', () => this.close())
     document.addEventListener('cart:updated', e => this.updateCartDisplay(e.detail.cart))
 
-
     document.addEventListener('click', e => {
       if (e.target.closest('[data-open-cart]')) {
         e.preventDefault()
@@ -41,7 +40,7 @@ class SideCart {
       }
     })
 
-
+    this.refresh()
   }
 
   open() {
@@ -115,12 +114,12 @@ class SideCart {
       if (!storeId) throw new Error('Store ID is not defined.')
 
       const response = await fetch(`/api/stores/${storeId}/cart`, {
-        method: 'DELETE',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify({ itemId }),
+        body: JSON.stringify({ itemId, quantity: 0 }),
       })
 
       if (response.ok) {
@@ -134,6 +133,46 @@ class SideCart {
     } catch (error) {
       console.error('Error removing item:', error)
       alert(`Error al eliminar producto: ${error.message || 'Hubo un problema'}`)
+      this.refresh()
+    } finally {
+      this.isUpdating = false
+      this.setLoadingState(false)
+    }
+  }
+
+  async clearCart() {
+    if (this.isUpdating) return
+
+    if (!confirm('¿Estás seguro de que quieres limpiar todo el carrito?')) {
+      return
+    }
+
+    try {
+      this.isUpdating = true
+      this.setLoadingState(true)
+
+      const storeId = window.STORE_ID
+      if (!storeId) throw new Error('Store ID is not defined.')
+
+      const response = await fetch(`/api/stores/${storeId}/cart`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        this.updateCartDisplay(data.cart)
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data.cart } }))
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Error clearing cart')
+      }
+    } catch (error) {
+      console.error('Error clearing cart:', error)
+      alert(`Error al limpiar el carrito: ${error.message || 'Hubo un problema'}`)
       this.refresh()
     } finally {
       this.isUpdating = false
@@ -214,16 +253,87 @@ class SideCart {
       </div>
       <div class="cart-actions">
         <a href="/checkout" class="button button--primary cart-checkout-btn">Finalizar Compra</a>
-        <button type="button" class="button button--secondary cart-close-btn" data-cart-close>Seguir Comprando</button>
+        <button type="button" class="button button--danger cart-clear-btn" data-clear-cart>Limpiar Carrito</button>
       </div>
     `
+  }
+
+  setupQuantityControls() {
+    this.sidebar.querySelectorAll('[data-quantity-plus]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault()
+        const itemId = button.getAttribute('data-item-id')
+        const input = this.sidebar.querySelector(`input[data-item-id="${itemId}"]`)
+        if (input) {
+          const currentQuantity = parseInt(input.value) || 0
+          this.updateQuantity(itemId, currentQuantity + 1)
+        }
+      })
+    })
+
+    this.sidebar.querySelectorAll('[data-quantity-minus]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault()
+        const itemId = button.getAttribute('data-item-id')
+        const input = this.sidebar.querySelector(`input[data-item-id="${itemId}"]`)
+        if (input) {
+          const currentQuantity = parseInt(input.value) || 0
+          if (currentQuantity > 1) {
+            this.updateQuantity(itemId, currentQuantity - 1)
+          } else {
+            this.removeItem(itemId)
+          }
+        }
+      })
+    })
+
+    this.sidebar.querySelectorAll('.quantity-input').forEach(input => {
+      let timeout
+      input.addEventListener('input', (e) => {
+        clearTimeout(timeout)
+        const itemId = e.target.getAttribute('data-item-id')
+        const newQuantity = parseInt(e.target.value) || 0
+
+        timeout = setTimeout(() => {
+          if (newQuantity <= 0) {
+            this.removeItem(itemId)
+          } else {
+            this.updateQuantity(itemId, newQuantity)
+          }
+        }, 500)
+      })
+
+      input.addEventListener('blur', (e) => {
+        const value = parseInt(e.target.value) || 0
+        if (value < 0) {
+          e.target.value = 0
+        }
+      })
+    })
+  }
+
+  setupRemoveButtons() {
+    this.sidebar.querySelectorAll('[data-remove-item]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault()
+        const itemId = button.getAttribute('data-item-id')
+        this.removeItem(itemId)
+      })
+    })
+
+    this.sidebar.querySelectorAll('[data-clear-cart]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault()
+        this.clearCart()
+      })
+    })
   }
 
   updateCartDisplay(cart) {
     if (!this.cartContentContainer) return
 
-    if (!cart || typeof cart !== 'object' || !cart.items || !Array.isArray(cart.items)) {
-      console.error('updateCartDisplay received invalid cart object or missing/invalid items array:', cart);
+    if (!cart || !Array.isArray(cart.items)) {
+      console.error('updateCartDisplay received invalid cart object or missing items array:', cart);
       this.cartContentContainer.innerHTML = `
         <div class="cart-empty-state">
           <p>Error al cargar el carrito o el carrito está vacío.</p>
@@ -244,7 +354,7 @@ class SideCart {
 
     if (cart.item_count === 0) {
       this.cartContentContainer.innerHTML = `
-       <div class="cart-empty">
+        <div class="cart-empty">
           <h3 class="cart-empty-title">Tu carrito está vacío</h3>
           <p class="cart-empty-text">¿Tienes una cuenta?
             <a href="/account/login" class="cart-empty-link">Inicia sesión</a>
@@ -272,39 +382,6 @@ class SideCart {
       this.setupQuantityControls()
       this.setupRemoveButtons()
     }
-  }
-
-  setupQuantityControls() {
-    this.sidebar.querySelectorAll('[data-quantity-minus]').forEach(button => {
-      button.onclick = (e) => {
-        const itemId = e.target.dataset.itemId;
-        const input = this.sidebar.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
-        if (input) {
-          let quantity = parseInt(input.value) - 1;
-          this.updateQuantity(itemId, quantity);
-        }
-      };
-    });
-
-    this.sidebar.querySelectorAll('[data-quantity-plus]').forEach(button => {
-      button.onclick = (e) => {
-        const itemId = e.target.dataset.itemId;
-        const input = this.sidebar.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
-        if (input) {
-          let quantity = parseInt(input.value) + 1;
-          this.updateQuantity(itemId, quantity);
-        }
-      };
-    });
-  }
-
-  setupRemoveButtons() {
-    this.sidebar.querySelectorAll('[data-remove-item]').forEach(button => {
-      button.onclick = (e) => {
-        const itemId = e.target.dataset.itemId;
-        this.removeItem(itemId);
-      };
-    });
   }
 
   async refresh() {
