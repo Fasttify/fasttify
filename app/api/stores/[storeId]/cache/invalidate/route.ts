@@ -33,6 +33,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       'template_updated',
       'store_settings_updated',
       'domain_updated',
+      'cart_updated',
     ];
 
     if (!validChangeTypes.includes(changeType)) {

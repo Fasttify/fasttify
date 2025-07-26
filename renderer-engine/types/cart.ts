@@ -1,22 +1,24 @@
 import type { Schema } from '@/amplify/data/resource';
 
-export type Cart = Schema['Cart']['type'] & {
-  items: Schema['CartItem']['type'][];
+export type Cart = Omit<Schema['Cart']['type'], 'items'> & {
+  items: CartItem[];
 };
 export type CartItem = Schema['CartItem']['type'];
+export type CartRaw = Schema['Cart']['type'];
 
 export interface AddToCartRequest {
   storeId: string;
   productId: string;
   variantId?: string | null;
   quantity: number;
-  properties?: Record<string, any>;
+  sessionId?: string;
 }
 
 export interface UpdateCartRequest {
   storeId: string;
   itemId: string;
   quantity: number;
+  sessionId?: string;
 }
 
 export interface CartItemContext {
@@ -30,12 +32,11 @@ export interface CartItemContext {
   line_price: number;
   image?: string;
   url?: string;
-  properties: Record<string, any>;
 }
 
 export interface CartContext {
   id: string;
-  token: string;
+  token?: string;
   item_count: number;
   total_price: number;
   items: CartItemContext[];

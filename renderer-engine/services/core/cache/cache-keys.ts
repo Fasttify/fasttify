@@ -88,4 +88,19 @@ export function getSearchProductsCacheKey(storeId: string, q: string, limit: num
   return `search_products_${storeId}_${q}_${limit}`;
 }
 
+/**
+ * Carrito
+ */
+export function getCartCacheKey(storeId: string, sessionId: string) {
+  return `cart_${storeId}_${sessionId}`;
+}
+
+export function getCartItemCacheKey(cartId: string, itemId: string) {
+  return `cart_item_${cartId}_${itemId}`;
+}
+
+export function getCartItemsCacheKey(cartId: string) {
+  return `cart_items_${cartId}`;
+}
+
 // Agregar aquí más funciones según se necesiten para otros tipos de datos

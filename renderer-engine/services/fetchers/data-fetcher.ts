@@ -139,8 +139,8 @@ export class DataFetcher {
   /**
    * Obtiene el carrito para una sesión específica
    */
-  public async getCart(storeId: string): Promise<Cart> {
-    return cartFetcher.getCart(storeId);
+  public async getCart(storeId: string, sessionId: string): Promise<Cart> {
+    return cartFetcher.getCart(storeId, sessionId);
   }
 
   /**
@@ -160,15 +160,15 @@ export class DataFetcher {
   /**
    * Remueve un item del carrito
    */
-  public async removeFromCart(storeId: string, itemId: string): Promise<CartResponse> {
-    return cartFetcher.removeFromCart(storeId, itemId);
+  public async removeFromCart(storeId: string, itemId: string, sessionId: string): Promise<CartResponse> {
+    return cartFetcher.removeFromCart(storeId, itemId, sessionId);
   }
 
   /**
    * Limpia todos los items del carrito
    */
-  public async clearCart(storeId: string): Promise<CartResponse> {
-    return cartFetcher.clearCart(storeId);
+  public async clearCart(storeId: string, sessionId: string): Promise<CartResponse> {
+    return cartFetcher.clearCart(storeId, sessionId);
   }
 
   /**

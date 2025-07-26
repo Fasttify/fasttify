@@ -74,10 +74,6 @@ export const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
     loadedData[dataType] = data;
   },
 
-  cart: (data, dataType, loadedData) => {
-    loadedData[dataType] = data;
-  },
-
   linklists: (data, dataType, loadedData) => {
     loadedData[dataType] = data;
   },

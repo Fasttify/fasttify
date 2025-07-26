@@ -7,7 +7,6 @@ class SideCart {
     this.overlay = document.querySelector('[data-cart-overlay]')
     this.sidebar = document.querySelector('[data-cart-sidebar]')
     this.closeBtn = document.querySelector('[data-cart-close]')
-    // El formulario será actualizado dinámicamente, por ahora solo el contenedor
     this.cartContentContainer = this.sidebar?.querySelector('.cart-content')
     this.cartTotalElements = document.querySelectorAll('[data-cart-total]')
     this.cartCountElements = document.querySelectorAll('[data-cart-count]')
@@ -21,23 +20,19 @@ class SideCart {
   init() {
     if (!this.overlay || !this.sidebar || !this.cartContentContainer) return
 
-    // Event listeners
     this.closeBtn?.addEventListener('click', () => this.close())
     this.overlay.addEventListener('click', e => {
       if (e.target === this.overlay) this.close()
     })
 
-    // Cerrar con ESC
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && this.isOpen) this.close()
     })
 
-    // Escuchar eventos de carrito (abrir/cerrar/actualizar)
     document.addEventListener('cart:open', () => this.open())
     document.addEventListener('cart:close', () => this.close())
-    document.addEventListener('cart:updated', e => this.updateCartDisplay(e.detail))
+    document.addEventListener('cart:updated', e => this.updateCartDisplay(e.detail.cart))
 
-    // Event listener global para botones data-open-cart
     document.addEventListener('click', e => {
       if (e.target.closest('[data-open-cart]')) {
         e.preventDefault()
@@ -45,7 +40,6 @@ class SideCart {
       }
     })
 
-    // Inicializar el carrito al cargar la página
     this.refresh()
   }
 
@@ -72,8 +66,6 @@ class SideCart {
     this.overlay.classList.remove('active')
   }
 
-  // --- Funciones para interactuar con la API del carrito ---
-
   async updateQuantity(itemId, quantity) {
     if (this.isUpdating) return
 
@@ -94,9 +86,9 @@ class SideCart {
       })
 
       if (response.ok) {
-        const cart = await response.json()
-        this.updateCartDisplay(cart)
-        document.dispatchEvent(new CustomEvent('cart:updated', { detail: cart }))
+        const data = await response.json()
+        this.updateCartDisplay(data.cart)
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data.cart } }))
       } else {
         const errorData = await response.json()
         throw new Error(errorData.message || 'Error updating cart item')
@@ -104,7 +96,7 @@ class SideCart {
     } catch (error) {
       console.error('Error updating quantity:', error)
       alert(`Error al actualizar cantidad: ${error.message || 'Hubo un problema'}`)
-      this.refresh() // Recargar para mostrar el estado real
+      this.refresh()
     } finally {
       this.isUpdating = false
       this.setLoadingState(false)
@@ -131,9 +123,9 @@ class SideCart {
       })
 
       if (response.ok) {
-        const cart = await response.json()
-        this.updateCartDisplay(cart)
-        document.dispatchEvent(new CustomEvent('cart:updated', { detail: cart }))
+        const data = await response.json()
+        this.updateCartDisplay(data.cart)
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data.cart } }))
       } else {
         const errorData = await response.json()
         throw new Error(errorData.message || 'Error removing cart item')
@@ -141,14 +133,12 @@ class SideCart {
     } catch (error) {
       console.error('Error removing item:', error)
       alert(`Error al eliminar producto: ${error.message || 'Hubo un problema'}`)
-      this.refresh() // Recargar para mostrar el estado real
+      this.refresh()
     } finally {
       this.isUpdating = false
       this.setLoadingState(false)
     }
   }
-
-  // --- UI Helpers ---
 
   setLoadingState(loading) {
     const updateBtn = this.sidebar.querySelector('.cart-update-btn')
@@ -168,10 +158,7 @@ class SideCart {
     }
   }
 
-  // Helper para formatear precios como moneda (replicando el filtro 'money' de Liquid)
   formatMoney(amount) {
-    // Asume que el precio viene en centavos y que la moneda es USD con 2 decimales.
-    // Si necesitas un formato más robusto (e.g., de `shop.money_format`), expórtalo globalmente.
     if (typeof amount !== 'number') return 'N/A'
     return `$${(amount / 100).toFixed(2)}`
   }
@@ -234,7 +221,19 @@ class SideCart {
   updateCartDisplay(cart) {
     if (!this.cartContentContainer) return
 
-    // Actualizar contador en header y en otros elementos
+    if (!cart || typeof cart !== 'object' || !cart.items || !Array.isArray(cart.items)) {
+      console.error('updateCartDisplay received invalid cart object or missing/invalid items array:', cart);
+      this.cartContentContainer.innerHTML = `
+        <div class="cart-empty-state">
+          <p>Error al cargar el carrito o el carrito está vacío.</p>
+          <a href="/collections/all" class="button button--primary">Explorar productos</a>
+        </div>
+      `;
+      const cartFooter = this.sidebar.querySelector('.cart-footer')
+      if (cartFooter) cartFooter.style.display = 'none'
+      return;
+    }
+
     this.cartCountElements.forEach(el => {
       el.textContent = cart.item_count
     })
@@ -249,7 +248,6 @@ class SideCart {
           <a href="/collections/all" class="button button--primary">Explorar productos</a>
         </div>
       `
-      // Ocultar footer si el carrito está vacío
       const cartFooter = this.sidebar.querySelector('.cart-footer')
       if (cartFooter) cartFooter.style.display = 'none'
     } else {
@@ -263,10 +261,42 @@ class SideCart {
       const cartFooter = this.sidebar.querySelector('.cart-footer')
       if (cartFooter) cartFooter.style.display = 'block'
 
-      // Re-setup event listeners para el nuevo contenido
       this.setupQuantityControls()
       this.setupRemoveButtons()
     }
+  }
+
+  setupQuantityControls() {
+    this.sidebar.querySelectorAll('[data-quantity-minus]').forEach(button => {
+      button.onclick = (e) => {
+        const itemId = e.target.dataset.itemId;
+        const input = this.sidebar.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+        if (input) {
+          let quantity = parseInt(input.value) - 1;
+          this.updateQuantity(itemId, quantity);
+        }
+      };
+    });
+
+    this.sidebar.querySelectorAll('[data-quantity-plus]').forEach(button => {
+      button.onclick = (e) => {
+        const itemId = e.target.dataset.itemId;
+        const input = this.sidebar.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+        if (input) {
+          let quantity = parseInt(input.value) + 1;
+          this.updateQuantity(itemId, quantity);
+        }
+      };
+    });
+  }
+
+  setupRemoveButtons() {
+    this.sidebar.querySelectorAll('[data-remove-item]').forEach(button => {
+      button.onclick = (e) => {
+        const itemId = e.target.dataset.itemId;
+        this.removeItem(itemId);
+      };
+    });
   }
 
   async refresh() {
@@ -277,22 +307,20 @@ class SideCart {
 
       const response = await fetch(`/api/stores/${storeId}/cart`)
       if (response.ok) {
-        const cart = await response.json()
-        this.updateCartDisplay(cart)
+        const data = await response.json()
+        this.updateCartDisplay(data.cart)
       } else {
         const errorData = await response.json()
         throw new Error(errorData.message || 'Error refreshing cart')
       }
     } catch (error) {
       console.error('Error refreshing cart from API:', error)
-      // Opcional: mostrar un mensaje de error al usuario
     } finally {
       this.setLoadingState(false)
     }
   }
 }
 
-// Funciones globales para abrir y cerrar el carrito
 window.openCart = function () {
   document.dispatchEvent(new CustomEvent('cart:open'))
 }
@@ -301,7 +329,6 @@ window.closeCart = function () {
   document.dispatchEvent(new CustomEvent('cart:close'))
 }
 
-// Agregar producto al carrito (para usar desde botones de producto)
 window.addToCart = async function (productId, quantity = 1) {
   try {
     const storeId = window.STORE_ID
@@ -320,13 +347,12 @@ window.addToCart = async function (productId, quantity = 1) {
     })
 
     if (response.ok) {
-      const cart = await response.json()
+      const data = await response.json()
 
-      // Abrir el carrito después de agregar
       document.dispatchEvent(new CustomEvent('cart:open'))
-      document.dispatchEvent(new CustomEvent('cart:updated', { detail: cart }))
+      document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data.cart } }))
 
-      return cart
+      return data.cart
     } else {
       const errorData = await response.json()
       throw new Error(errorData.message || 'Error adding to cart')
@@ -338,7 +364,6 @@ window.addToCart = async function (productId, quantity = 1) {
   }
 }
 
-// Inicializar cuando el DOM esté listo
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => new SideCart())
 } else {
