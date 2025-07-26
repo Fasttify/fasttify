@@ -33,6 +33,7 @@ class SideCart {
     document.addEventListener('cart:close', () => this.close())
     document.addEventListener('cart:updated', e => this.updateCartDisplay(e.detail.cart))
 
+
     document.addEventListener('click', e => {
       if (e.target.closest('[data-open-cart]')) {
         e.preventDefault()
@@ -40,7 +41,7 @@ class SideCart {
       }
     })
 
-    this.refresh()
+
   }
 
   open() {
@@ -243,9 +244,16 @@ class SideCart {
 
     if (cart.item_count === 0) {
       this.cartContentContainer.innerHTML = `
-        <div class="cart-empty-state">
-          <p>Tu carrito está vacío.</p>
-          <a href="/collections/all" class="button button--primary">Explorar productos</a>
+       <div class="cart-empty">
+          <h3 class="cart-empty-title">Tu carrito está vacío</h3>
+          <p class="cart-empty-text">¿Tienes una cuenta?
+            <a href="/account/login" class="cart-empty-link">Inicia sesión</a>
+            para pagar más rápido.
+          </p>
+          <button
+            type="button"
+            class="cart-continue-shopping"
+            data-cart-close>Seguir comprando</button>
         </div>
       `
       const cartFooter = this.sidebar.querySelector('.cart-footer')

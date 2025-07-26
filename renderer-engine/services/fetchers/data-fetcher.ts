@@ -178,13 +178,6 @@ export class DataFetcher {
     return cartFetcher.transformCartToContext(cart);
   }
 
-  /**
-   * Limpia carritos expirados
-   */
-  public async cleanupExpiredCarts(): Promise<void> {
-    await cartFetcher.cleanupExpiredCarts();
-  }
-
   // === GESTIÓN DE CACHÉ ===
 
   /**
