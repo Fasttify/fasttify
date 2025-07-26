@@ -1,4 +1,4 @@
-import { getCookieOptions } from '@/lib/cookies/cookiesOption';
+import { getCartCookieOptions } from '@/lib/cookies/cookiesOption';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager, getCartCacheKey } from '@/renderer-engine/services/core/cache';
@@ -26,32 +26,50 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   let sessionId = cookiesStore.get(SESSION_ID_COOKIE_NAME)?.value;
   let newSessionIdGenerated = false;
 
+  // Log para debugging en producción
+  logger.info(`[Cart API] GET request - storeId: ${storeId}, sessionId: ${sessionId || 'NOT_FOUND'}`, null, 'CartAPI');
+
   if (!sessionId) {
     sessionId = uuidv4();
     newSessionIdGenerated = true;
+    logger.info(`[Cart API] Generated new sessionId: ${sessionId}`, null, 'CartAPI');
   }
 
   try {
     const cacheKey = getCartCacheKey(storeId, sessionId);
     const cached = cacheManager.getCached(cacheKey);
+
     if (cached) {
+      logger.info(`[Cart API] Cache hit for sessionId: ${sessionId}`, null, 'CartAPI');
       return NextResponse.json({ success: true, cart: cached }, { headers: corsHeaders });
     }
 
+    logger.info(`[Cart API] Cache miss, fetching from database for sessionId: ${sessionId}`, null, 'CartAPI');
+
     const cart = await cartFetcher.getCart(storeId, sessionId);
     const transformedCart = cartFetcher.transformCartToContext(cart);
-    cacheManager.setCached(cacheKey, transformedCart, cacheManager.getDataTTL('cart'));
+
+    // Solo cachear si el carrito tiene items o es un carrito válido
+    if (transformedCart && (transformedCart.item_count > 0 || transformedCart.id)) {
+      cacheManager.setCached(cacheKey, transformedCart, cacheManager.getDataTTL('cart'));
+      logger.info(
+        `[Cart API] Cached cart data for sessionId: ${sessionId}, items: ${transformedCart.item_count}`,
+        null,
+        'CartAPI'
+      );
+    }
 
     const response = NextResponse.json({ success: true, cart: transformedCart }, { headers: corsHeaders });
 
     if (newSessionIdGenerated) {
-      const cookieOptions = getCookieOptions();
+      const cookieOptions = getCartCookieOptions();
       response.cookies.set(SESSION_ID_COOKIE_NAME, sessionId, cookieOptions);
+      logger.info(`[Cart API] Set new cookie for sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     return response;
   } catch (error) {
-    logger.error('Error en GET /api/stores/[storeId]/cart:', error);
+    logger.error(`[Cart API] Error in GET /api/stores/${storeId}/cart:`, error, 'CartAPI');
     return NextResponse.json(
       { success: false, error: 'Failed to retrieve cart' },
       { status: 500, headers: corsHeaders }
@@ -70,14 +88,23 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   let sessionId = cookiesStore.get(SESSION_ID_COOKIE_NAME)?.value;
   let newSessionIdGenerated = false;
 
+  logger.info(`[Cart API] POST request - storeId: ${storeId}, sessionId: ${sessionId || 'NOT_FOUND'}`, null, 'CartAPI');
+
   if (!sessionId) {
     sessionId = uuidv4();
     newSessionIdGenerated = true;
+    logger.info(`[Cart API] Generated new sessionId for POST: ${sessionId}`, null, 'CartAPI');
   }
 
   try {
     const body = await request.json();
     const { productId, variantId, quantity } = body;
+
+    logger.info(
+      `[Cart API] Adding to cart - productId: ${productId}, variantId: ${variantId}, quantity: ${quantity}`,
+      null,
+      'CartAPI'
+    );
 
     if (!productId || !quantity) {
       return NextResponse.json(
@@ -89,7 +116,11 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     const cartResponse = await cartFetcher.addToCart({ storeId, productId, variantId, quantity, sessionId });
 
     if (cartResponse.success) {
+      // Invalidar cache inmediatamente después de modificar el carrito
+      const cacheKey = getCartCacheKey(storeId, sessionId);
+      cacheManager.deleteByPrefix(cacheKey);
       cacheInvalidationService.invalidateCache('cart_updated', storeId, sessionId);
+      logger.info(`[Cart API] Cache invalidated after adding item for sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     const response = NextResponse.json(
@@ -102,13 +133,14 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     );
 
     if (newSessionIdGenerated) {
-      const cookieOptions = getCookieOptions();
+      const cookieOptions = getCartCookieOptions();
       response.cookies.set(SESSION_ID_COOKIE_NAME, sessionId, cookieOptions);
+      logger.info(`[Cart API] Set new cookie for POST sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     return response;
   } catch (error) {
-    logger.error('Error en POST /api/stores/[storeId]/cart:', error);
+    logger.error(`[Cart API] Error in POST /api/stores/${storeId}/cart:`, error, 'CartAPI');
     return NextResponse.json(
       { success: false, error: 'Failed to add item to cart' },
       { status: 500, headers: corsHeaders }
@@ -127,14 +159,23 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   let sessionId = cookiesStore.get(SESSION_ID_COOKIE_NAME)?.value;
   let newSessionIdGenerated = false;
 
+  logger.info(
+    `[Cart API] PATCH request - storeId: ${storeId}, sessionId: ${sessionId || 'NOT_FOUND'}`,
+    null,
+    'CartAPI'
+  );
+
   if (!sessionId) {
     sessionId = uuidv4();
     newSessionIdGenerated = true;
+    logger.info(`[Cart API] Generated new sessionId for PATCH: ${sessionId}`, null, 'CartAPI');
   }
 
   try {
     const body = await request.json();
     const { itemId, quantity } = body;
+
+    logger.info(`[Cart API] Updating cart item - itemId: ${itemId}, quantity: ${quantity}`, null, 'CartAPI');
 
     if (!itemId || typeof quantity === 'undefined') {
       return NextResponse.json(
@@ -146,7 +187,11 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const cartResponse = await cartFetcher.updateCartItem({ storeId, itemId, quantity, sessionId });
 
     if (cartResponse.success) {
+      // Invalidar cache inmediatamente después de modificar el carrito
+      const cacheKey = getCartCacheKey(storeId, sessionId);
+      cacheManager.deleteByPrefix(cacheKey);
       cacheInvalidationService.invalidateCache('cart_updated', storeId, sessionId);
+      logger.info(`[Cart API] Cache invalidated after updating item for sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     const response = NextResponse.json(
@@ -160,13 +205,14 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
 
     // Si getCart creó un nuevo sessionId, asegúrate de que se establezca la cookie
     if (newSessionIdGenerated) {
-      const cookieOptions = getCookieOptions();
+      const cookieOptions = getCartCookieOptions();
       response.cookies.set(SESSION_ID_COOKIE_NAME, sessionId, cookieOptions);
+      logger.info(`[Cart API] Set new cookie for PATCH sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     return response;
   } catch (error) {
-    logger.error('Error en PATCH /api/stores/[storeId]/cart:', error);
+    logger.error(`[Cart API] Error in PATCH /api/stores/${storeId}/cart:`, error, 'CartAPI');
     return NextResponse.json(
       { success: false, error: 'Failed to update cart item' },
       { status: 500, headers: corsHeaders }
@@ -185,16 +231,27 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
   let sessionId = cookiesStore.get(SESSION_ID_COOKIE_NAME)?.value;
   let newSessionIdGenerated = false;
 
+  logger.info(
+    `[Cart API] DELETE request - storeId: ${storeId}, sessionId: ${sessionId || 'NOT_FOUND'}`,
+    null,
+    'CartAPI'
+  );
+
   if (!sessionId) {
     sessionId = uuidv4();
     newSessionIdGenerated = true;
+    logger.info(`[Cart API] Generated new sessionId for DELETE: ${sessionId}`, null, 'CartAPI');
   }
 
   try {
     const cartResponse = await cartFetcher.clearCart(storeId, sessionId);
 
     if (cartResponse.success) {
+      // Invalidar cache inmediatamente después de limpiar el carrito
+      const cacheKey = getCartCacheKey(storeId, sessionId);
+      cacheManager.deleteByPrefix(cacheKey);
       cacheInvalidationService.invalidateCache('cart_updated', storeId, sessionId);
+      logger.info(`[Cart API] Cache invalidated after clearing cart for sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     const response = NextResponse.json(
@@ -207,13 +264,14 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     );
 
     if (newSessionIdGenerated) {
-      const cookieOptions = getCookieOptions();
+      const cookieOptions = getCartCookieOptions();
       response.cookies.set(SESSION_ID_COOKIE_NAME, sessionId, cookieOptions);
+      logger.info(`[Cart API] Set new cookie for DELETE sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     return response;
   } catch (error) {
-    logger.error('Error en DELETE /api/stores/[storeId]/cart:', error);
+    logger.error(`[Cart API] Error in DELETE /api/stores/${storeId}/cart:`, error, 'CartAPI');
     return NextResponse.json({ success: false, error: 'Failed to clear cart' }, { status: 500, headers: corsHeaders });
   }
 }
