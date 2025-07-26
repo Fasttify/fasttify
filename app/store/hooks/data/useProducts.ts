@@ -83,7 +83,7 @@ export interface UseProductsOptions extends PaginationOptions {
  */
 export function useProducts(storeId: string | undefined, options?: UseProductsOptions): UseProductsResult {
   const queryClient = useQueryClient();
-  const { invalidateProductCache, invalidateCartCache } = useCacheInvalidation();
+  const { invalidateProductCache } = useCacheInvalidation();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageTokens, setPageTokens] = useState<(string | null)[]>([null]);
@@ -174,7 +174,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       // Invalidar caché del motor de renderizado
       if (storeId) {
         await invalidateProductCache(storeId);
-        await invalidateCartCache(storeId, newProduct.id);
       }
     },
   });
@@ -209,7 +208,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       // Invalidar caché del motor de renderizado
       if (storeId) {
         await invalidateProductCache(storeId, updatedProduct.id);
-        await invalidateCartCache(storeId, updatedProduct.id);
       }
     },
   });
@@ -237,7 +235,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       // Invalidar caché del motor de renderizado
       if (storeId) {
         await invalidateProductCache(storeId, deletedId);
-        await invalidateCartCache(storeId, deletedId);
       }
     },
   });
@@ -265,7 +262,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       // Invalidar caché del motor de renderizado para cada producto eliminado
       if (storeId) {
         await Promise.all(deletedIds.map((id) => invalidateProductCache(storeId, id)));
-        await invalidateCartCache(storeId, deletedIds[0]);
       }
     },
   });
