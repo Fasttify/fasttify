@@ -8,7 +8,6 @@ import {
   getPagesCacheKey,
   getProductCacheKey,
   getProductsCacheKey,
-  getCartCacheKey,
 } from '@/renderer-engine/services/core/cache';
 
 /**
@@ -27,8 +26,7 @@ export type ChangeType =
   | 'navigation_updated'
   | 'template_updated'
   | 'store_settings_updated'
-  | 'domain_updated'
-  | 'cart_updated';
+  | 'domain_updated';
 
 /**
  * Configuración de invalidación por tipo de cambio
@@ -175,13 +173,6 @@ export class CacheInvalidationService {
       ],
       description: 'Dominio actualizado - invalidar resolución de dominios',
     },
-
-    // Cambios en carrito
-    cart_updated: {
-      cacheKeys: [],
-      patterns: ['cart_'],
-      description: 'Carrito actualizado - invalidar carrito',
-    },
   };
 
   private constructor() {}
@@ -274,10 +265,6 @@ export class CacheInvalidationService {
       case 'page_updated':
       case 'page_deleted':
         specificKeys.push(getPageCacheKey(storeId, entityId), getPagesCacheKey(storeId));
-        break;
-
-      case 'cart_updated':
-        specificKeys.push(getCartCacheKey(storeId, entityId));
         break;
     }
 

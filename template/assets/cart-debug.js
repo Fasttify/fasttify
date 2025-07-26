@@ -122,28 +122,30 @@ class CartDebugger {
     document.body.appendChild(button);
   }
 
-  showDebugInfo() {
-    const info = {
-      storeId: window.STORE_ID,
-      cartCookie: document.cookie
-        .split('; ')
-        .find(row => row.startsWith('fasttify_cart_session_id='))?.split('=')[1] || 'NOT_FOUND',
-      sideCartExists: !!window.sideCart,
-      cartElements: {
-        overlay: !!document.querySelector('[data-cart-overlay]'),
-        sidebar: !!document.querySelector('[data-cart-sidebar]'),
-        content: !!document.querySelector('.cart-content')
-      }
-    };
+           showDebugInfo() {
+           const info = {
+             storeId: window.STORE_ID,
+             cartCookie: document.cookie
+               .split('; ')
+               .find(row => row.startsWith('fasttify_cart_session_id='))?.split('=')[1] || 'NOT_FOUND',
+             sideCartExists: !!window.sideCart,
+             cartElements: {
+               overlay: !!document.querySelector('[data-cart-overlay]'),
+               sidebar: !!document.querySelector('[data-cart-sidebar]'),
+               content: !!document.querySelector('.cart-content')
+             },
+             cacheStatus: 'DISABLED - Fresh data always'
+           };
 
     console.log('[CartDebugger] Debug Info:', info);
 
-    // Mostrar en alert para fácil copia
-    alert(`Cart Debug Info:
-Store ID: ${info.storeId}
-Session ID: ${info.cartCookie}
-SideCart: ${info.sideCartExists}
-Elements: ${JSON.stringify(info.cartElements, null, 2)}`);
+               // Mostrar en alert para fácil copia
+           alert(`Cart Debug Info:
+       Store ID: ${info.storeId}
+       Session ID: ${info.cartCookie}
+       SideCart: ${info.sideCartExists}
+       Cache: ${info.cacheStatus}
+       Elements: ${JSON.stringify(info.cartElements, null, 2)}`);
   }
 
   static enable() {
@@ -157,9 +159,16 @@ Elements: ${JSON.stringify(info.cartElements, null, 2)}`);
   }
 }
 
-// Habilitar debug desde consola
-window.enableCartDebug = () => CartDebugger.enable();
-window.disableCartDebug = () => CartDebugger.disable();
+         // Habilitar debug desde consola
+         window.enableCartDebug = () => CartDebugger.enable();
+         window.disableCartDebug = () => CartDebugger.disable();
+         window.runCartTests = () => {
+           if (typeof window.runCartTests === 'function') {
+             window.runCartTests();
+           } else {
+             console.log('[CartDebugger] Cart tests not available. Load cart-test.js first.');
+           }
+         };
 
 // Inicializar debugger si está habilitado
 if (localStorage.getItem('cart-debug') === 'true') {

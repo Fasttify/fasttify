@@ -125,26 +125,6 @@ export function useCacheInvalidation() {
     }
   }, []);
 
-  /**
-   * Invalida caché de carrito
-   */
-  const invalidateCartCache = useCallback(async (storeId: string, sessionId: string) => {
-    try {
-      await fetch(`/api/stores/${storeId}/cache/invalidate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          changeType: 'cart_updated',
-          entityId: sessionId,
-        }),
-      });
-    } catch (error) {
-      console.error('Error invalidating cart cache:', error);
-    }
-  }, []);
-
   return {
     invalidateProductCache,
     invalidateCollectionCache,
@@ -152,6 +132,5 @@ export function useCacheInvalidation() {
     invalidateNavigationCache,
     invalidateTemplateCache,
     invalidateAllStoreCache,
-    invalidateCartCache,
   };
 }
