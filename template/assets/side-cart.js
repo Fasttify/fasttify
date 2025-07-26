@@ -390,16 +390,44 @@ class SideCart {
       const storeId = window.STORE_ID
       if (!storeId) throw new Error('Store ID is not defined.')
 
+      console.log('[SideCart] Refreshing cart...', { storeId })
+
       const response = await fetch(`/api/stores/${storeId}/cart`)
+
       if (response.ok) {
         const data = await response.json()
-        this.updateCartDisplay(data.cart)
+        console.log('[SideCart] Cart refresh successful:', data)
+
+        if (data.success && data.cart) {
+          this.updateCartDisplay(data.cart)
+          // Disparar evento para sincronizar otros componentes
+          document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data.cart } }))
+        } else {
+          console.warn('[SideCart] Cart refresh returned no data or error:', data)
+          // Mostrar carrito vacío si no hay datos
+          this.updateCartDisplay({ items: [], item_count: 0, total_price: 0 })
+        }
       } else {
         const errorData = await response.json()
+        console.error('[SideCart] Cart refresh failed:', errorData)
         throw new Error(errorData.message || 'Error refreshing cart')
       }
     } catch (error) {
-      console.error('Error refreshing cart from API:', error)
+      console.error('[SideCart] Error refreshing cart from API:', error)
+      // En caso de error, mostrar carrito vacío y permitir reintentar
+      this.updateCartDisplay({ items: [], item_count: 0, total_price: 0 })
+
+      // Mostrar mensaje de error al usuario
+      if (this.cartContentContainer) {
+        this.cartContentContainer.innerHTML = `
+          <div class="cart-error-state">
+            <p>Error al cargar el carrito</p>
+            <button type="button" onclick="window.sideCart?.refresh()" class="retry-btn">
+              Reintentar
+            </button>
+          </div>
+        `
+      }
     } finally {
       this.setLoadingState(false)
     }
@@ -449,8 +477,15 @@ window.addToCart = async function (productId, quantity = 1) {
   }
 }
 
+// Inicializar cuando el DOM esté listo
+let sideCartInstance = null;
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new SideCart())
+  document.addEventListener('DOMContentLoaded', () => {
+    sideCartInstance = new SideCart();
+    window.sideCart = sideCartInstance;
+  })
 } else {
-  new SideCart()
+  sideCartInstance = new SideCart();
+  window.sideCart = sideCartInstance;
 }

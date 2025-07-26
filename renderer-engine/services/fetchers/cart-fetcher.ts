@@ -25,7 +25,7 @@ export class CartFetcher {
 
       const guestCartResponse = await cookiesClient.models.Cart.listCartByStoreId(
         { storeId },
-        { filter: { sessionId: { eq: sessionId }, userId: { attributeExists: false } } }
+        { filter: { sessionId: { eq: sessionId } } }
       );
 
       if (guestCartResponse.data && guestCartResponse.data.length > 0) {

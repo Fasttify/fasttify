@@ -498,6 +498,132 @@ try {
 - Revisar configuración de cookies en el servidor
 - Verificar que el `sessionId` se esté generando correctamente
 
+#### 5. **Items no cargan en producción (Problema Crítico)**
+
+**Síntomas:**
+
+- El carrito aparece vacío aunque tenga productos
+- Solo se muestran items después de agregar un nuevo producto
+- Los items desaparecen al recargar la página
+
+**Causas Identificadas:**
+
+1. **Cache invalidation inconsistente** - El cache no se limpia correctamente
+2. **Cookies mal configuradas** - Problemas con `httpOnly` y `secure` en producción
+3. **Session ID perdido** - La cookie de sesión no persiste correctamente
+4. **Race conditions** - Múltiples llamadas simultáneas a la API
+
+**Soluciones Implementadas:**
+
+**A. Mejoras en Cache Management:**
+
+```typescript
+// Invalidación inmediata después de modificar el carrito
+if (cartResponse.success) {
+  const cacheKey = getCartCacheKey(storeId, sessionId);
+  cacheManager.deleteByPrefix(cacheKey);
+  cacheInvalidationService.invalidateCache('cart_updated', storeId, sessionId);
+}
+```
+
+**B. Configuración Mejorada de Cookies:**
+
+```typescript
+export const getCartCookieOptions = () => {
+  const isProduction = process.env.APP_ENV === 'production';
+
+  return {
+    httpOnly: false, // Accesible desde JavaScript
+    secure: isProduction,
+    sameSite: isProduction ? 'strict' : ('lax' as 'strict' | 'lax'),
+    maxAge: 60 * 60 * 24 * 90, // 90 días para carritos
+    path: '/',
+  };
+};
+```
+
+**C. Logging Detallado:**
+
+```typescript
+logger.info(`[Cart API] GET request - storeId: ${storeId}, sessionId: ${sessionId || 'NOT_FOUND'}`, null, 'CartAPI');
+logger.info(`[Cart API] Cache hit for sessionId: ${sessionId}`, null, 'CartAPI');
+logger.info(`[Cart API] Cache miss, fetching from database for sessionId: ${sessionId}`, null, 'CartAPI');
+```
+
+**D. Manejo de Errores Mejorado:**
+
+```javascript
+// En side-cart.js
+async refresh() {
+  try {
+    const response = await fetch(`/api/stores/${storeId}/cart`);
+
+    if (response.ok) {
+      const data = await response.json();
+
+      if (data.success && data.cart) {
+        this.updateCartDisplay(data.cart);
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data.cart } }));
+      } else {
+        // Mostrar carrito vacío si no hay datos
+        this.updateCartDisplay({ items: [], item_count: 0, total_price: 0 });
+      }
+    }
+  } catch (error) {
+    // Mostrar estado de error con botón de reintentar
+    this.showErrorState();
+  }
+}
+```
+
+**E. Script de Diagnóstico:**
+
+```javascript
+// Habilitar debug desde consola
+window.enableCartDebug();
+
+// Ver información de debug
+window.sideCart?.showDebugInfo();
+```
+
+**Pasos de Verificación:**
+
+1. **Verificar Cookies:**
+
+   ```javascript
+   // En consola del navegador
+   console.log('Cart Cookie:', document.cookie.includes('fasttify_cart_session_id'));
+   ```
+
+2. **Verificar Cache:**
+
+   ```javascript
+   // Habilitar debug
+   localStorage.setItem('cart-debug', 'true');
+   location.reload();
+   ```
+
+3. **Verificar Logs del Servidor:**
+
+   ```bash
+   # En CloudWatch Logs
+   grep "Cart API" /aws/lambda/your-function-name
+   ```
+
+4. **Verificar Base de Datos:**
+   ```sql
+   -- Verificar carritos existentes
+   SELECT * FROM Cart WHERE sessionId = 'your-session-id';
+   ```
+
+**Variables de Entorno Requeridas:**
+
+```bash
+# En producción
+APP_ENV=production
+COOKIE_DOMAIN=.tudominio.com  # Opcional, para cookies de dominio
+```
+
 ### Debugging
 
 #### Logs del Cliente
@@ -518,6 +644,19 @@ tail -f logs/api-cart.log
 
 # Ver logs de errores
 grep "cart" logs/error.log
+```
+
+#### Script de Diagnóstico Avanzado
+
+```javascript
+// Habilitar modo debug completo
+window.enableCartDebug();
+
+// Ver información detallada
+window.sideCart?.showDebugInfo();
+
+// Forzar refresh del carrito
+window.sideCart?.refresh();
 ```
 
 ## Ejemplos Completos
