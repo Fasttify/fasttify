@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, LegacyStack } from '@shopify/polaris';
+import { Modal, BlockStack } from '@shopify/polaris';
 import { useCustomDomain } from '@/app/store/hooks/api/useCustomDomain';
 import { useDomainValidation } from '@/app/store/hooks/api/useDomainValidation';
 import { useToast } from '@/app/store/context/ToastContext';
@@ -10,7 +10,7 @@ import { DomainValidationStep } from '@/app/store/components/domains/components/
 import { ACMValidationStep } from '@/app/store/components/domains/components/steps/ACMValidationStep';
 import { LoadingStep } from '@/app/store/components/domains/components/steps/LoadingStep';
 import { CompletionStep } from '@/app/store/components/domains/components/steps/CompletionStep';
-import { StepProgress } from '@/app/store/components/domains/components/shared/StepProgress';
+import { StepProgress } from '@/app/store/components/domains/shared/StepProgress';
 
 interface AutomatedCustomDomainDialogProps {
   open: boolean;
@@ -231,10 +231,10 @@ export function AutomatedCustomDomainDialog({
     <>
       <Modal open={open} onClose={handleClose} title="Configurar Dominio Personalizado" size="large">
         <Modal.Section>
-          <LegacyStack vertical spacing="loose">
+          <BlockStack gap="400">
             {currentStep !== 'input' && currentStep !== 'complete' && <StepProgress currentStep={currentStep} />}
             {renderCurrentStep()}
-          </LegacyStack>
+          </BlockStack>
         </Modal.Section>
       </Modal>
 

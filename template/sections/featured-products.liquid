@@ -129,6 +129,7 @@
                     <button
                       class="product-btn product-btn-secondary"
                       data-product-id="{{ product.id }}"
+                      onclick="addProductToCart('{{ product.id }}', 1)"
                       aria-label="Añadir al carrito">
                       <span>AÑADIR AL CARRITO</span>
                     </button>
@@ -143,10 +144,10 @@
               <h3 class="product-title">{{ product.title }}</h3>
               <div class="product-price">
                 {% if product.compare_at_price > product.price %}
-                  <span class="price-compare">{{ product.compare_at_price }}</span>
-                  <span class="price-current price-sale">{{ product.price }}</span>
-                {% else %}
-                  <span class="price-current">{{ product.price }}</span>
+                  <span class="price-compare">{{ product.compare_at_price | money }}</span>
+                  <span class="price-current price-sale">{{ product.price | money }}</span>
+                  {% else %}
+                  <span class="price-current">{{ product.price | money }}</span>
                 {% endif %}
               </div>
               </div>

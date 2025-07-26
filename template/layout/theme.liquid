@@ -68,10 +68,35 @@
 
   <!-- Scripts -->
   {{ 'newsletter-popup.js' | asset_url | script_tag }}
-  {{ 'side-cart.js' | asset_url | script_tag }}
+
+  <!-- Cart Modules -->
+  {{ 'cart/cart-api.js' | asset_url | script_tag }}
+  {{ 'cart/cart-helpers.js' | asset_url | script_tag }}
+  {{ 'cart/cart-templates.js' | asset_url | script_tag }}
+  {{ 'cart/cart-ui.js' | asset_url | script_tag }}
+  {{ 'cart/side-cart.js' | asset_url | script_tag }}
 
   <script>
     window.STORE_ID = '{{ shop.storeId }}';
+    window.MONEY_FORMAT = '{{ shop.currency_format }}';
+    window.MONEY_LOCALE = '{{ shop.currency_locale }}';
+    window.MONEY_DECIMAL_PLACES = {{ shop.currency_decimal_places }};
+    window.MONEY_SYMBOL = '{{ shop.currency_format | currency_symbol }}';
+
+    window.formatMoney = function(amount) {
+      if (typeof amount !== 'number') return 'N/A';
+
+      const locale = window.MONEY_LOCALE;
+      const decimalPlaces = window.MONEY_DECIMAL_PLACES;
+      const symbol = window.MONEY_SYMBOL;
+
+      const formattedAmount = new Intl.NumberFormat(locale, {
+        minimumFractionDigits: decimalPlaces,
+        maximumFractionDigits: decimalPlaces,
+      }).format(amount);
+
+      return `${symbol}${formattedAmount}`;
+    };
   </script>
 
 </body>

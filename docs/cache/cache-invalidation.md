@@ -41,6 +41,40 @@ Esta documentación cubre desde la personalización de temas y plantillas, hasta
 
 ## 🚀 Características Principales
 
+### Mejoras Recientes del Sistema de Carrito
+
+**Refactorización Modular (Enero 2025)**
+
+El sistema de carrito ha sido completamente refactorizado para mejorar la mantenibilidad y escalabilidad:
+
+#### 🏗️ Nueva Arquitectura Modular
+
+- **`cart-api.js`**: Gestión centralizada de todas las operaciones API
+- **`cart-helpers.js`**: Utilidades reutilizables (formateo, validación, etc.)
+- **`cart-templates.js`**: Generación de HTML mediante templates
+- **`cart-ui.js`**: Controles de interfaz y gestión de eventos
+- **`side-cart.js`**: Lógica principal y coordinación de módulos
+
+#### 🎨 Soporte para Atributos de Producto
+
+- **Captura automática** de atributos seleccionados (color, talla, etc.)
+- **Almacenamiento** en el carrito con los productos
+- **Visualización** en el carrito lateral
+- **Integración** con páginas de producto
+
+#### 🔗 Integración Automática con Header
+
+- **Contadores en tiempo real** en el header
+- **Sincronización automática** entre carrito y header
+- **Eventos personalizados** para comunicación entre componentes
+
+#### 📱 Mejoras de UX
+
+- **Estados de carga** mejorados
+- **Manejo de errores** más robusto
+- **Animaciones** más fluidas
+- **Responsive design** optimizado
+
 ### Sistema de Carrito Completo
 
 Sistema de carrito lateral con funcionalidad completa para e-commerce:
@@ -51,6 +85,11 @@ Sistema de carrito lateral con funcionalidad completa para e-commerce:
 - ✅ **Actualización en tiempo real** sin recargar página
 - ✅ **API REST completa** para todas las operaciones
 - ✅ **Eventos personalizados** para integración con temas
+- ✅ **Arquitectura modular** con separación de responsabilidades
+- ✅ **Soporte para atributos de producto** (color, talla, etc.)
+- ✅ **Integración automática con header** para contadores
+- ✅ **Sistema de templates** para generación de HTML
+- ✅ **Helpers reutilizables** para formateo y utilidades
 
 ### Sistema de Búsqueda Automática
 
@@ -172,4 +211,4 @@ Para preguntas sobre la documentación o el sistema:
 
 ---
 
-**Última actualización**: Sistema de búsqueda automática implementado y documentado
+**Última actualización**: Sistema de carrito refactorizado con arquitectura modular, soporte para atributos de producto e integración automática con header (Julio 2025)

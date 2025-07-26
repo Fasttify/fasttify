@@ -1,28 +1,68 @@
 import type { LiquidFilter } from '@/renderer-engine/types';
 
 /**
+ * Filtro para extraer el símbolo de la moneda
+ */
+export const currencySymbolFilter: LiquidFilter = {
+  name: 'currency_symbol',
+  filter: function (input?: string): string {
+    // Si se pasa un input, usarlo directamente
+    if (input) {
+      const symbol = input.replace('{{amount}}', '').trim();
+      return symbol || '$';
+    }
+
+    // Obtener configuración de moneda desde environments
+    const environments = this.context?.environments;
+    const shop = environments?.shop || environments?.store;
+    const format = shop?.currency_format || '${{amount}}';
+
+    // Extraer el símbolo removiendo {{amount}}
+    const symbol = format.replace('{{amount}}', '').trim();
+
+    return symbol || '$';
+  },
+};
+
+/**
  * Filtro para formatear precios con moneda
  */
 export const moneyFilter: LiquidFilter = {
   name: 'money',
-  filter: (amount: number | string, format?: string): string => {
+  filter: function (amount: number | string, format?: string): string {
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
 
     if (isNaN(numAmount)) {
       return '$0.00';
     }
 
+    // Obtener configuración de moneda desde environments
+    const environments = this.context?.environments;
+    const shop = environments?.shop || environments?.store;
+    const currencyConfig = environments?._currency_config;
+
+    // Usar configuración dinámica o fallback
+    const locale = shop?.currency_locale || currencyConfig?.locale || 'es-CO';
+    const decimalPlaces =
+      shop?.currency_decimal_places !== undefined && shop?.currency_decimal_places !== null
+        ? shop?.currency_decimal_places
+        : currencyConfig?.decimalPlaces !== undefined && currencyConfig?.decimalPlaces !== null
+          ? currencyConfig?.decimalPlaces
+          : 2;
+    const defaultFormat = shop?.currency_format || currencyConfig?.format || '${{amount}}';
+
     // Formato por defecto o personalizado
-    const defaultFormat = '${{amount}}';
     const actualFormat = format || defaultFormat;
 
-    // Formatear el número con separadores de miles
-    const formattedAmount = new Intl.NumberFormat('es-CO', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+    // Formatear el número con separadores de miles usando el locale de la tienda
+    const formattedAmount = new Intl.NumberFormat(locale, {
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces,
     }).format(numAmount);
 
-    return actualFormat.replace('{{amount}}', formattedAmount);
+    const result = actualFormat.replace('{{amount}}', formattedAmount);
+
+    return result;
   },
 };
 
@@ -31,17 +71,34 @@ export const moneyFilter: LiquidFilter = {
  */
 export const moneyWithoutCurrencyFilter: LiquidFilter = {
   name: 'money_without_currency',
-  filter: (amount: number | string): string => {
+  filter: function (amount: number | string): string {
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
 
     if (isNaN(numAmount)) {
       return '0.00';
     }
 
-    return new Intl.NumberFormat('es-CO', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+    // Obtener configuración de moneda desde environments
+    const environments = this.context?.environments;
+    const shop = environments?.shop || environments?.store;
+    const currencyConfig = environments?._currency_config;
+
+    // Usar configuración dinámica o fallback
+    const locale = shop?.currency_locale || currencyConfig?.locale || 'es-CO';
+    const decimalPlaces =
+      shop?.currency_decimal_places !== undefined && shop?.currency_decimal_places !== null
+        ? shop?.currency_decimal_places
+        : currencyConfig?.decimalPlaces !== undefined && currencyConfig?.decimalPlaces !== null
+          ? currencyConfig?.decimalPlaces
+          : 2;
+
+    // Formatear el número con separadores de miles usando el locale de la tienda
+    const formattedAmount = new Intl.NumberFormat(locale, {
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces,
     }).format(numAmount);
+
+    return formattedAmount;
   },
 };
 
@@ -50,22 +107,28 @@ export const moneyWithoutCurrencyFilter: LiquidFilter = {
  */
 export const moneyWithoutDecimalFilter: LiquidFilter = {
   name: 'money_without_decimal',
-  filter: (amount: number | string, format?: string): string => {
+  filter: function (amount: number | string): string {
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
 
     if (isNaN(numAmount)) {
-      return '$0';
+      return '0';
     }
 
-    const defaultFormat = '${{amount}}';
-    const actualFormat = format || defaultFormat;
+    // Obtener configuración de moneda desde environments
+    const environments = this.context?.environments;
+    const shop = environments?.shop || environments?.store;
+    const currencyConfig = environments?._currency_config;
 
-    const formattedAmount = new Intl.NumberFormat('es-CO', {
+    // Usar configuración dinámica o fallback
+    const locale = shop?.currency_locale || currencyConfig?.locale || 'es-CO';
+
+    // Formatear el número sin decimales usando el locale de la tienda
+    const formattedAmount = new Intl.NumberFormat(locale, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(numAmount);
 
-    return actualFormat.replace('{{amount}}', formattedAmount);
+    return formattedAmount;
   },
 };
 
@@ -74,7 +137,7 @@ export const moneyWithoutDecimalFilter: LiquidFilter = {
  */
 export const centsToPriceFilter: LiquidFilter = {
   name: 'cents_to_price',
-  filter: (cents: number | string): number => {
+  filter: function (cents: number | string): number {
     const numCents = typeof cents === 'string' ? parseFloat(cents) : cents;
 
     if (isNaN(numCents)) {
@@ -86,6 +149,7 @@ export const centsToPriceFilter: LiquidFilter = {
 };
 
 export const moneyFilters: LiquidFilter[] = [
+  currencySymbolFilter,
   moneyFilter,
   moneyWithoutCurrencyFilter,
   moneyWithoutDecimalFilter,

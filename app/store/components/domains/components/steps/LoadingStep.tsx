@@ -1,4 +1,4 @@
-import { LegacyStack, Spinner, Text } from '@shopify/polaris';
+import { BlockStack, Spinner, Text } from '@shopify/polaris';
 
 interface LoadingStepProps {
   title: string;
@@ -7,7 +7,7 @@ interface LoadingStepProps {
 
 export function LoadingStep({ title, description }: LoadingStepProps) {
   return (
-    <LegacyStack vertical spacing="loose" alignment="center">
+    <BlockStack gap="400" align="center">
       <Spinner size="large" />
       <Text variant="headingMd" as="h3">
         {title}
@@ -15,6 +15,6 @@ export function LoadingStep({ title, description }: LoadingStepProps) {
       <Text as="p" tone="subdued" alignment="center">
         {description}
       </Text>
-    </LegacyStack>
+    </BlockStack>
   );
 }

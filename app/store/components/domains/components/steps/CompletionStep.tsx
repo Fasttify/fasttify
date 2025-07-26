@@ -1,4 +1,4 @@
-import { LegacyStack, Text, Banner, Button, Icon } from '@shopify/polaris';
+import { Banner, BlockStack, Button, Icon, InlineStack, Text } from '@shopify/polaris';
 import { CheckCircleIcon } from '@shopify/polaris-icons';
 
 interface CompletionStepProps {
@@ -22,7 +22,7 @@ export function CompletionStep({ domain, method, onClose }: CompletionStepProps)
   };
 
   return (
-    <LegacyStack vertical spacing="loose" alignment="center">
+    <BlockStack gap="400" align="center">
       <Icon source={CheckCircleIcon} tone="success" />
       <Text variant="headingLg" as="h2" alignment="center">
         ¡Dominio preparado exitosamente!
@@ -42,11 +42,11 @@ export function CompletionStep({ domain, method, onClose }: CompletionStepProps)
         Una vez configurado el DNS, podrás acceder a tu tienda en: <strong>https://{domain}</strong>
       </Text>
 
-      <LegacyStack distribution="trailing">
+      <InlineStack align="end">
         <Button onClick={onClose} variant="primary">
           Finalizar y configurar DNS
         </Button>
-      </LegacyStack>
-    </LegacyStack>
+      </InlineStack>
+    </BlockStack>
   );
 }

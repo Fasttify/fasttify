@@ -1,11 +1,13 @@
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { CurrencySelector } from '@/app/store/components/domains/components/CurrencySelector';
+import { useCurrencyConfig } from '@/app/store/components/domains/hooks/useCurrencyConfig';
 import { HelpTooltip } from '@/app/store/components/navigation-management/components/HelpTooltip';
 import { useToast } from '@/app/store/context/ToastContext';
 import { storeProfileSchema, type StoreProfileFormValues } from '@/lib/zod-schemas/store-profile-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormLayout, Link, Modal, Text, TextField } from '@shopify/polaris';
+import { BlockStack, Card, Form, FormLayout, Link, Modal, Text, TextField } from '@shopify/polaris';
 import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 
 interface EditStoreProfileDialogProps {
   open: boolean;
@@ -17,6 +19,10 @@ interface EditStoreProfileDialogProps {
     contactPhone?: string;
     storeAdress?: string;
     storeDescription?: string;
+    storeCurrency?: string;
+    currencyFormat?: string;
+    currencyLocale?: string;
+    currencyDecimalPlaces?: number;
   };
   onProfileUpdated?: () => void;
 }
@@ -36,6 +42,7 @@ export function EditStoreProfileDialog({
     handleSubmit,
     formState: { errors, isSubmitting, isDirty },
     reset,
+    setValue,
   } = useForm<StoreProfileFormValues>({
     resolver: zodResolver(storeProfileSchema),
     defaultValues: {
@@ -44,8 +51,30 @@ export function EditStoreProfileDialog({
       storeEmail: '',
       storeAdress: '',
       storeDescription: '',
+      storeCurrency: '',
+      currencyFormat: '',
+      currencyLocale: '',
+      currencyDecimalPlaces: 0,
     },
   });
+
+  // Observar cambios en la moneda seleccionada
+  const selectedCurrency = useWatch({
+    control,
+    name: 'storeCurrency',
+  });
+
+  // Obtener configuración automática de la moneda
+  const { config: currencyConfig } = useCurrencyConfig(selectedCurrency);
+
+  // Actualizar configuración automáticamente cuando cambia la moneda
+  useEffect(() => {
+    if (selectedCurrency) {
+      setValue('currencyFormat', currencyConfig.format, { shouldDirty: false });
+      setValue('currencyLocale', currencyConfig.locale, { shouldDirty: false });
+      setValue('currencyDecimalPlaces', currencyConfig.decimalPlaces, { shouldDirty: false });
+    }
+  }, [selectedCurrency, currencyConfig, setValue]);
 
   useEffect(() => {
     if (open) {
@@ -55,6 +84,10 @@ export function EditStoreProfileDialog({
         storeEmail: initialData.contactEmail || '',
         storeAdress: initialData.storeAdress || '',
         storeDescription: initialData.storeDescription || '',
+        storeCurrency: initialData.storeCurrency || '',
+        currencyFormat: initialData.currencyFormat || '',
+        currencyLocale: initialData.currencyLocale || '',
+        currencyDecimalPlaces: initialData.currencyDecimalPlaces || 0,
       };
       reset(defaultValues);
     }
@@ -82,6 +115,10 @@ export function EditStoreProfileDialog({
         contactPhone: data.storePhone,
         storeAdress: data.storeAdress,
         storeDescription: data.storeDescription,
+        storeCurrency: data.storeCurrency,
+        currencyFormat: currencyConfig.format,
+        currencyLocale: currencyConfig.locale,
+        currencyDecimalPlaces: currencyConfig.decimalPlaces,
       });
 
       if (result) {
@@ -96,6 +133,35 @@ export function EditStoreProfileDialog({
   };
 
   const isSubmitDisabled = !isDirty || isUpdating || isSubmitting;
+
+  // Función para mostrar vista previa del formato
+  const renderCurrencyPreview = () => {
+    if (!selectedCurrency) return null;
+
+    const exampleAmount = 1234.56;
+    const formattedAmount = new Intl.NumberFormat(currencyConfig.locale, {
+      minimumFractionDigits: currencyConfig.decimalPlaces,
+      maximumFractionDigits: currencyConfig.decimalPlaces,
+    }).format(exampleAmount);
+
+    const preview = currencyConfig.format.replace('{{amount}}', formattedAmount);
+
+    return (
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h3" variant="headingMd">
+            Vista previa del formato
+          </Text>
+          <Text as="p" tone="subdued">
+            Ejemplo: {preview}
+          </Text>
+          <Text as="p" tone="subdued" variant="bodySm">
+            Locale: {currencyConfig.locale} | Decimales: {currencyConfig.decimalPlaces}
+          </Text>
+        </BlockStack>
+      </Card>
+    );
+  };
 
   return (
     <Modal
@@ -177,6 +243,21 @@ export function EditStoreProfileDialog({
                 />
               )}
             />
+            <Controller
+              name="storeCurrency"
+              control={control}
+              render={({ field }) => (
+                <CurrencySelector
+                  value={field.value}
+                  onChange={field.onChange}
+                  helpText="Selecciona la moneda principal para tu tienda. El formato se configurará automáticamente."
+                  error={errors.storeCurrency?.message}
+                  showSymbol={true}
+                  showBadge={true}
+                />
+              )}
+            />
+            {renderCurrencyPreview()}
             <Controller
               name="storeDescription"
               control={control}

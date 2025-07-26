@@ -29,6 +29,10 @@ export const storeProfileSchema = z.object({
 
   storeAdress: z.string().optional(),
   storeDescription: z.string().optional(),
+  storeCurrency: z.string().min(3, { message: 'Selecciona una moneda válida' }).optional(),
+  currencyFormat: z.string().optional(),
+  currencyLocale: z.string().optional(),
+  currencyDecimalPlaces: z.number().optional(),
 });
 
 export type StoreProfileFormValues = z.infer<typeof storeProfileSchema>;

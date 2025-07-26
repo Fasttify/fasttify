@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Text, LegacyStack, Button, Banner, LegacyCard, Collapsible, List, Box, Badge } from '@shopify/polaris';
+import { Badge, Banner, BlockStack, Box, Button, Card, Collapsible, InlineStack, List, Text } from '@shopify/polaris';
 import { ClipboardIcon } from '@shopify/polaris-icons';
+import { useState } from 'react';
 
 interface DomainValidationStepProps {
   domain: string;
@@ -23,7 +23,7 @@ export function DomainValidationStep({
   const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <LegacyStack vertical spacing="loose">
+    <BlockStack gap="400">
       <Banner title="Validación de Dominio Requerida" tone="warning">
         <p>
           Para usar tu dominio personalizado, necesitas demostrar que tienes control sobre él. Elige una de las opciones
@@ -31,8 +31,8 @@ export function DomainValidationStep({
         </p>
       </Banner>
 
-      <LegacyCard sectioned>
-        <LegacyStack vertical spacing="tight">
+      <Card>
+        <BlockStack gap="400">
           <Text variant="headingMd" as="h3">
             Opciones de Validación
           </Text>
@@ -43,105 +43,97 @@ export function DomainValidationStep({
 
           {/* Opción 1: DNS TXT */}
           <Box padding="400" background="bg-surface-secondary">
-            <LegacyStack vertical spacing="tight">
-              <LegacyStack alignment="center">
+            <BlockStack gap="400">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Badge tone="info">OPCIÓN 1</Badge>
                 <Text variant="headingSm" as="h4">
                   Registro DNS TXT
                 </Text>
-              </LegacyStack>
+              </div>
 
-              <LegacyStack>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <Box minWidth="80px">
                   <Text as="p" variant="bodyMd" fontWeight="medium">
                     Nombre:
                   </Text>
                 </Box>
-                <LegacyStack alignment="center">
-                  <Text as="p" variant="bodyMd" fontWeight="medium">
-                    _fasttify-validation.{domain}
-                  </Text>
-                  <Button
-                    size="micro"
-                    icon={ClipboardIcon}
-                    onClick={() => copyToClipboard(`_fasttify-validation.${domain}`)}
-                  />
-                </LegacyStack>
-              </LegacyStack>
+                <Text as="p" variant="bodyMd" fontWeight="medium">
+                  _fasttify-validation.{domain}
+                </Text>
+                <Button
+                  size="micro"
+                  icon={ClipboardIcon}
+                  onClick={() => copyToClipboard(`_fasttify-validation.${domain}`)}
+                />
+              </div>
 
-              <LegacyStack>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <Box minWidth="80px">
                   <Text as="p" variant="bodyMd" fontWeight="medium">
                     Valor:
                   </Text>
                 </Box>
-                <LegacyStack alignment="center">
-                  <Text as="p" variant="bodyMd" fontWeight="medium">
-                    {validationToken}
-                  </Text>
-                  <Button size="micro" icon={ClipboardIcon} onClick={() => copyToClipboard(validationToken)} />
-                </LegacyStack>
-              </LegacyStack>
+                <Text as="p" variant="bodyMd" fontWeight="medium">
+                  {validationToken}
+                </Text>
+                <Button size="micro" icon={ClipboardIcon} onClick={() => copyToClipboard(validationToken)} />
+              </div>
 
               <Text as="p" variant="bodySm" tone="subdued">
                 TTL: 300 (5 minutos)
               </Text>
-            </LegacyStack>
+            </BlockStack>
           </Box>
 
           {/* Opción 2: Archivo HTTP */}
           <Box padding="400" background="bg-surface-secondary">
-            <LegacyStack vertical spacing="tight">
-              <LegacyStack alignment="center">
+            <BlockStack gap="400">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Badge tone="info">OPCIÓN 2</Badge>
                 <Text variant="headingSm" as="h4">
                   Archivo HTTP
                 </Text>
-              </LegacyStack>
+              </div>
 
-              <LegacyStack>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <Box minWidth="80px">
                   <Text as="p" variant="bodyMd" fontWeight="medium">
                     URL:
                   </Text>
                 </Box>
-                <LegacyStack alignment="center">
-                  <Text as="p" variant="bodyMd" fontWeight="medium">
-                    http://{domain}/.well-known/fasttify-validation.txt
-                  </Text>
-                  <Button
-                    size="micro"
-                    icon={ClipboardIcon}
-                    onClick={() => copyToClipboard(`http://${domain}/.well-known/fasttify-validation.txt`)}
-                  />
-                </LegacyStack>
-              </LegacyStack>
+                <Text as="p" variant="bodyMd" fontWeight="medium">
+                  http://{domain}/.well-known/fasttify-validation.txt
+                </Text>
+                <Button
+                  size="micro"
+                  icon={ClipboardIcon}
+                  onClick={() => copyToClipboard(`http://${domain}/.well-known/fasttify-validation.txt`)}
+                />
+              </div>
 
-              <LegacyStack>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <Box minWidth="80px">
                   <Text as="p" variant="bodyMd" fontWeight="medium">
                     Contenido:
                   </Text>
                 </Box>
-                <LegacyStack alignment="center">
-                  <Text as="p" variant="bodyMd" fontWeight="medium">
-                    {validationToken}
-                  </Text>
-                  <Button size="micro" icon={ClipboardIcon} onClick={() => copyToClipboard(validationToken)} />
-                </LegacyStack>
-              </LegacyStack>
-            </LegacyStack>
+                <Text as="p" variant="bodyMd" fontWeight="medium">
+                  {validationToken}
+                </Text>
+                <Button size="micro" icon={ClipboardIcon} onClick={() => copyToClipboard(validationToken)} />
+              </div>
+            </BlockStack>
           </Box>
-        </LegacyStack>
-      </LegacyCard>
+        </BlockStack>
+      </Card>
 
       <Button onClick={() => setShowDetails(!showDetails)} disclosure={showDetails ? 'up' : 'down'} fullWidth>
         Instrucciones detalladas por proveedor DNS
       </Button>
 
       <Collapsible id="dns-provider-details" open={showDetails}>
-        <LegacyCard sectioned>
-          <LegacyStack vertical spacing="loose">
+        <Card>
+          <BlockStack gap="400">
             <Text variant="headingMd" as="h3">
               Configuración por proveedor DNS
             </Text>
@@ -164,8 +156,8 @@ export function DomainValidationStep({
                 Value: {validationToken}
               </List.Item>
             </List>
-          </LegacyStack>
-        </LegacyCard>
+          </BlockStack>
+        </Card>
       </Collapsible>
 
       <Banner tone="warning">
@@ -174,12 +166,12 @@ export function DomainValidationStep({
         </p>
       </Banner>
 
-      <LegacyStack distribution="trailing">
+      <InlineStack align="end" gap="200">
         <Button onClick={onSkip}>Configurar después</Button>
         <Button onClick={onValidate} loading={isValidating} variant="primary">
           Verificar Dominio
         </Button>
-      </LegacyStack>
-    </LegacyStack>
+      </InlineStack>
+    </BlockStack>
   );
 }

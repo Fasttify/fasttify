@@ -1,5 +1,6 @@
 {{ 'product-details.css' | asset_url | stylesheet_tag }}
 {{ 'modal-gallery.css' | asset_url | stylesheet_tag }}
+{{ 'product-details.js' | asset_url | script_tag }}
 
 <div class="product-page-container">
   <div class="product__images">
@@ -51,7 +52,7 @@
     <div class="product-vendor text-sm font-semibold">{{ product.category | upcase }}</div>
     <h1 class="product-title text-4xl font-bold">{{ product.title }}</h1>
     <div class="product__price text-2xl font-bold">
-      {{ product.price }}
+      {{ product.price | money }}
     </div>
     <a href="/policies" class="product-link">
       <div class="shipping-info text-sm">
@@ -62,66 +63,66 @@
       {{ product.description }}
     </div>
 
-    {% form 'product', product %}
-    <input type="hidden" name="id" value="{{ product.variants.first.id }}">
-
-    {% comment %} Product Options (Color and Size) {% endcomment %}
-    {% if product.has_only_default_variant == false %}
-    {% for option in product.options_with_values %}
-    <div class="product-option-group">
-      <div class="product-option-name text-sm font-semibold">
-        {{ option.name | upcase }}: <span class="selected-option-value font-normal">{{ option.selected_value }}</span>
-      </div>
-      <div class="attribute-values-list">
-        {% for value in option.values %}
-        {% if option.name == 'Color' %}
-        <span class="color-swatch {% if option.selected_value == value %}selected{% endif %}"
-          style="background-color: {{ value | downcase }};" title="{{ value }}"
-          data-option-name="{{ option.name | handleize }}" data-option-value="{{ value | handleize }}"
-          onclick="selectOption(this)">
-        </span>
-        {% else %}
-        <button type="button" class="size-selector-button {% if option.selected_value == value %}selected{% endif %}"
-          data-option-name="{{ option.name | handleize }}" data-option-value="{{ value | handleize }}"
-          onclick="selectOption(this)">
-          {{ value }}
-        </button>
-        {% endif %}
+    {% comment %} Product Attributes Summary {% endcomment %}
+    {% if product.attributes %}
+      <div class="product-attributes-summary">
+        {% for attribute in product.attributes %}
+          <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
+            <div class="attribute-values-list">
+              {% if attribute.name == 'color' %}
+                {% comment %} Si el atributo es 'color', mostrar círculos de color {% endcomment %}
+                {% for value in attribute.values %}
+                  <button class="color-swatch"
+                    style="background-color: {{ value | downcase }};"
+                    title="{{ value }}"
+                    data-option-name="{{ attribute.name | handleize }}"
+                    data-option-value="{{ value | handleize }}"
+                    onclick="selectOption(this)"></button>
+                {% endfor %}
+              {% else %}
+                {% comment %} Para otros atributos (talla, material, etc.), mostrar los valores como texto {% endcomment %}
+                {% for value in attribute.values %}
+                   <button class="attribute-value-item"
+                     data-option-name="{{ attribute.name | handleize }}"
+                     data-option-value="{{ value | handleize }}"
+                     onclick="selectOption(this)">{{ value }}</button>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
         {% endfor %}
       </div>
-    </div>
-    {% endfor %}
     {% endif %}
 
-    {% comment %} Fit Guide {% endcomment %}
-    <div class="fit-guide">
-      <div class="fit-guide-label text-sm font-semibold">GUÍA DE AJUSTE</div>
-      <div class="fit-guide-bar">
-        <span class="fit-guide-text text-sm">Pequeño</span>
-        <div class="fit-guide-progress">
-          <div class="fit-guide-progress-fill"></div>
+    <div class="product-options-container">
+      {% comment %} Fit Guide {% endcomment %}
+      <div class="fit-guide">
+        <div class="fit-guide-label text-sm font-semibold">GUÍA DE AJUSTE</div>
+        <div class="fit-guide-bar">
+          <span class="fit-guide-text text-sm">Pequeño</span>
+          <div class="fit-guide-progress">
+            <div class="fit-guide-progress-fill"></div>
+          </div>
+          <span class="fit-guide-text text-sm">Grande</span>
         </div>
-        <span class="fit-guide-text text-sm">Grande</span>
+        <a href="#" class="sizing-guide-link text-sm">Guía de tallas</a>
       </div>
-      <a href="#" class="sizing-guide-link text-sm">Guía de tallas</a>
-    </div>
 
-    {% comment %} Quantity Selector and Add to Cart Button {% endcomment %}
-    <div class="product-actions">
-      <div class="quantity-selector">
-        <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">-</button>
-        <input type="number" name="quantity" value="1" min="1" class="quantity-input text-base font-medium">
-        <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
+      <div class="product-actions">
+        <div class="quantity-selector">
+          <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+          <input type="number" id="product-quantity" value="1" min="1" class="quantity-input text-base font-medium">
+          <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
+        </div>
+        <button type="button" onclick="addProductToCart('{{ product.id }}', document.getElementById('product-quantity').value)" class="btn add-to-cart-btn font-semibold">
+          <span>AÑADIR AL CARRITO</span>
+        </button>
       </div>
-      <button type="submit" class="btn add-to-cart-btn font-semibold">
-        <span>AÑADIR AL CARRITO</span>
+
+      <button type="button" class="btn buy-it-now-btn font-semibold">
+        <span>COMPRAR AHORA</span>
       </button>
     </div>
-
-    <button type="button" class="btn buy-it-now-btn font-semibold">
-      <span>COMPRAR AHORA</span>
-    </button>
-    {% endform %}
 
     <div class="pickup-info">
       <div class="pickup-info__icon">
@@ -160,164 +161,13 @@
 </div>
 
 <script>
-  function selectOption(element) {
-    const optionName = element.dataset.optionName;
-    const optionValue = element.dataset.optionValue;
-    const form = element.closest('form');
-    const hiddenInput = form.querySelector('input[name="id"]');
-
-    const siblings = Array.from(element.parentNode.children);
-    siblings.forEach(sibling => sibling.classList.remove('selected'));
-
-    element.classList.add('selected');
-
-    const selectedOptionValueSpan = form.querySelector(`.product-option-name .selected-option-value`);
-    if (selectedOptionValueSpan) {
-      selectedOptionValueSpan.textContent = element.textContent || element.title;
-    }
-
-  }
-
-  function updateQuantity(change) {
-    const quantityInput = document.querySelector('.quantity-input');
-    let currentQuantity = parseInt(quantityInput.value);
-    currentQuantity += change;
-    if (currentQuantity < 1) {
-      currentQuantity = 1;
-    }
-    quantityInput.value = currentQuantity;
-  }
-
-  // Image Modal Gallery (existing functions)
-  let modalCurrentImageIndex = 0;
-  const modalProductImages = [
+  // Variables globales para el JavaScript
+  window.PRODUCT_ID = '{{ product.id }}';
+  window.PRODUCT_IMAGES = [
     {% for image in product.images %}
-  "{{ image | img_url: '800x800' }}"{% if forloop.last == false %}, {% endif %}
-  {% endfor %}
+      "{{ image | img_url: '800x800' }}"{% if forloop.last == false %}, {% endif %}
+    {% endfor %}
   ];
-
-  function openImageModal(index) {
-    modalCurrentImageIndex = index;
-    const modal = document.getElementById('productImageModal');
-    modal.style.display = 'flex';
-    setTimeout(() => {
-      modal.classList.add('is-open');
-    }, 10);
-    updateModalImage();
-  }
-
-  function closeImageModal() {
-    const modal = document.getElementById('productImageModal');
-    modal.classList.remove('is-open');
-    modal.addEventListener('transitionend', function handler() {
-      modal.style.display = 'none';
-      modal.removeEventListener('transitionend', handler);
-    }, { once: true });
-  }
-
-  function updateModalImage() {
-    const modalImage = document.querySelector('#productImageModal .modal-product-image');
-    const imageCounter = document.querySelector('#productImageModal .image-counter');
-
-    if (modalProductImages.length > 0) {
-      modalImage.src = modalProductImages[modalCurrentImageIndex];
-      imageCounter.textContent = `${modalCurrentImageIndex + 1}/${modalProductImages.length}`;
-    } else {
-      modalImage.src = '';
-      imageCounter.textContent = '0/0';
-    }
-  }
-
-  function changeImage(direction) {
-    modalCurrentImageIndex += direction;
-    if (modalCurrentImageIndex < 0) {
-      modalCurrentImageIndex = modalProductImages.length - 1;
-    } else if (modalCurrentImageIndex >= modalProductImages.length) {
-      modalCurrentImageIndex = 0;
-    }
-    updateModalImage();
-  }
-
-  let currentProductImageIndex = 0;
-  const productCarouselImages = [
-    {% for image in product.images %}
-  "{{ image | img_url: '800x800' }}"{% if forloop.last == false %}, {% endif %}
-  {% endfor %}
-  ];
-
-  function updateProductCarouselImage() {
-    const carouselTrack = document.querySelector('.product-images-mobile-view .carousel-track');
-    const counter = document.querySelector('.product-images-mobile-view .carousel-counter');
-
-    if (productCarouselImages.length > 0) {
-      carouselTrack.style.transform = `translateX(-${currentProductImageIndex * 100}%)`;
-      counter.textContent = `${currentProductImageIndex + 1}/${productCarouselImages.length}`;
-    } else {
-      carouselTrack.style.transform = 'translateX(0)';
-      counter.textContent = '0/0';
-    }
-  }
-
-  function changeProductImage(direction) {
-    currentProductImageIndex += direction;
-    if (currentProductImageIndex < 0) {
-      currentProductImageIndex = productCarouselImages.length - 1;
-    } else if (currentProductImageIndex >= productCarouselImages.length) {
-      currentProductImageIndex = 0;
-    }
-    updateProductCarouselImage();
-  }
-
-  updateProductCarouselImage();
-
-  const productCarousel = document.querySelector('.product-images-mobile-view .product-image-carousel');
-  let touchStartX = 0;
-  let touchStartY = 0;
-  let touchEndX = 0;
-  let touchEndY = 0;
-
-  if (productCarousel) {
-    productCarousel.addEventListener('touchstart', (event) => {
-      touchStartX = event.touches[0].clientX;
-      touchStartY = event.touches[0].clientY;
-    });
-
-    productCarousel.addEventListener('touchmove', (event) => {
-      event.preventDefault();
-    }, { passive: false });
-
-    productCarousel.addEventListener('touchend', (event) => {
-      touchEndX = event.changedTouches[0].clientX;
-      touchEndY = event.changedTouches[0].clientY;
-
-      const swipeThreshold = 50;
-      const tapThreshold = 10;
-      const distanceX = touchStartX - touchEndX;
-      const distanceY = touchStartY - touchEndY;
-      const totalMovement = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-
-      if (Math.abs(distanceX) > swipeThreshold && Math.abs(distanceX) > Math.abs(distanceY)) {
-        if (distanceX > 0) {
-          changeProductImage(1);
-        } else {
-          changeProductImage(-1);
-        }
-        event.preventDefault();
-        event.stopPropagation();
-      } else if (totalMovement < tapThreshold) {
-        openImageModal(currentProductImageIndex);
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      touchStartX = 0;
-      touchStartY = 0;
-      touchEndX = 0;
-      touchEndY = 0;
-    });
-
-    // Event listener for opening modal from carousel image
-    productCarousel.querySelector('.product__main-image-carousel-item').addEventListener('click', () => {
-      openImageModal(currentProductImageIndex);
-    });
-  }
 </script>
+
+

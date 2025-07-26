@@ -31,14 +31,14 @@ export const userStoreModel = a
     storeFavicon: a.string(),
     storeTheme: a.string(),
     storeCurrency: a.string(),
+    currencyFormat: a.string(),
+    currencyLocale: a.string(),
+    currencyDecimalPlaces: a.integer(),
     storeType: a.string(),
     storeStatus: a.boolean(),
     storeAdress: a.string(),
     contactEmail: a.string(),
     contactPhone: a.string(),
-    contactName: a.string(),
-    conctactIdentification: a.string(),
-    contactIdentificationType: a.string(),
     defaultDomain: a.string(),
     onboardingCompleted: a
       .boolean()

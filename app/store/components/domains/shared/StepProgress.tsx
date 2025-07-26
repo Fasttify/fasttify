@@ -1,4 +1,4 @@
-import { LegacyStack, Text, LegacyCard, Icon, Spinner } from '@shopify/polaris';
+import { BlockStack, Card, Icon, InlineStack, Spinner, Text } from '@shopify/polaris';
 import { CheckCircleIcon } from '@shopify/polaris-icons';
 
 type Step = 'input' | 'validation' | 'acm-validation' | 'cloudfront' | 'complete';
@@ -35,7 +35,11 @@ export function StepProgress({ currentStep }: StepProgressProps) {
     const status = getStepStatus(step);
 
     if (status === 'completed') {
-      return <Icon source={CheckCircleIcon} tone="success" />;
+      return (
+        <div style={{ display: 'flex', alignItems: 'flex-start', paddingTop: '2px' }}>
+          <Icon source={CheckCircleIcon} tone="success" />
+        </div>
+      );
     }
     if (status === 'active') {
       return <Spinner size="small" />;
@@ -54,19 +58,19 @@ export function StepProgress({ currentStep }: StepProgressProps) {
   };
 
   return (
-    <LegacyCard sectioned>
-      <LegacyStack vertical spacing="tight">
+    <Card>
+      <BlockStack gap="400">
         <Text variant="headingMd" as="h3">
           Progreso de configuración
         </Text>
 
-        <LegacyStack vertical spacing="extraTight">
+        <BlockStack gap="200">
           {steps.map((step) => {
             const status = getStepStatus(step.id);
             return (
-              <LegacyStack key={step.id} alignment="center" spacing="tight">
+              <InlineStack key={step.id} align="start" gap="400">
                 {renderStepIcon(step.id)}
-                <LegacyStack vertical spacing="none">
+                <BlockStack gap="0">
                   <Text
                     as="p"
                     variant="bodyMd"
@@ -79,12 +83,12 @@ export function StepProgress({ currentStep }: StepProgressProps) {
                       {step.description}
                     </Text>
                   )}
-                </LegacyStack>
-              </LegacyStack>
+                </BlockStack>
+              </InlineStack>
             );
           })}
-        </LegacyStack>
-      </LegacyStack>
-    </LegacyCard>
+        </BlockStack>
+      </BlockStack>
+    </Card>
   );
 }

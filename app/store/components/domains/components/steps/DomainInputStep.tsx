@@ -1,4 +1,4 @@
-import { TextField, LegacyStack, Button, Banner } from '@shopify/polaris';
+import { Banner, BlockStack, Button, InlineStack, TextField } from '@shopify/polaris';
 
 interface DomainInputStepProps {
   domainName: string;
@@ -18,7 +18,7 @@ export function DomainInputStep({
   isLoading,
 }: DomainInputStepProps) {
   return (
-    <LegacyStack vertical spacing="loose">
+    <BlockStack gap="400">
       <Banner title="Configuración Automatizada" tone="info">
         <p>
           Vamos a conectar tu dominio personalizado con tu tienda. No te preocupes, nosotros nos encargamos de todo lo
@@ -36,7 +36,7 @@ export function DomainInputStep({
         autoComplete="off"
       />
 
-      <LegacyStack distribution="trailing">
+      <InlineStack align="end">
         <Button onClick={onCancel}>Cancelar</Button>
         <Button
           variant="primary"
@@ -45,7 +45,7 @@ export function DomainInputStep({
           loading={isLoading}>
           Configurar Dominio
         </Button>
-      </LegacyStack>
-    </LegacyStack>
+      </InlineStack>
+    </BlockStack>
   );
 }

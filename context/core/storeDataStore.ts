@@ -72,6 +72,10 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
             'onboardingData',
             'storeAdress',
             'storeDescription',
+            'storeCurrency',
+            'currencyFormat',
+            'currencyLocale',
+            'currencyDecimalPlaces',
           ],
         }
       );
@@ -133,6 +137,10 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
         'onboardingData',
         'storeAdress',
         'storeDescription',
+        'storeCurrency',
+        'currencyFormat',
+        'currencyLocale',
+        'currencyDecimalPlaces',
       ],
     }).subscribe({
       next: ({ items, isSynced }) => {
