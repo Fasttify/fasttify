@@ -1,4 +1,5 @@
 import { cacheManager, getDomainCacheKey } from '@/renderer-engine/services/core/cache';
+import { logger } from '@/renderer-engine/lib/logger';
 import type { Store, TemplateError } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 
@@ -60,7 +61,7 @@ class DomainResolver {
       cacheManager.setCached(cacheKey, resolvedStore, cacheManager.getDomainTTL());
       return resolvedStore;
     } catch (error) {
-      console.error('Error resolving domain:', error);
+      logger.error('Error resolving domain:', error, 'DomainResolver');
       // Cache negativo por 1 minuto en caso de error
       cacheManager.setCached(cacheKey, null, cacheManager.getDataTTL('cart'));
       return null;

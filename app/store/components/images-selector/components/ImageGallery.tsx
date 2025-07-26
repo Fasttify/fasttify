@@ -1,19 +1,19 @@
+import { useToast } from '@/app/store/context/ToastContext';
+import { S3Image } from '@/app/store/hooks/storage/useS3Images';
 import {
-  Grid,
-  Card,
-  Thumbnail,
-  Text,
-  Spinner,
-  EmptyState,
-  Button,
   Box,
+  Button,
   ButtonGroup,
+  Card,
+  EmptyState,
+  Grid,
   InlineStack,
+  Spinner,
+  Text,
+  Thumbnail,
 } from '@shopify/polaris';
 import { DeleteIcon, SelectIcon } from '@shopify/polaris-icons';
-import { S3Image } from '@/app/store/hooks/storage/useS3Images';
-import { useState, useCallback } from 'react';
-import { useToast } from '@/app/store/context/ToastContext';
+import { useCallback, useState } from 'react';
 
 interface ImageGalleryProps {
   images: S3Image[];
@@ -116,9 +116,9 @@ export default function ImageGallery({
 
   if (loading) {
     return (
-      <Box padding="400" minHeight="200px">
-        <Spinner accessibilityLabel="Cargando imágenes" size="large" />
-      </Box>
+      <div className="flex justify-center items-center h-full">
+        <Spinner accessibilityLabel="Cargando imágenes" size="small" />
+      </div>
     );
   }
 
@@ -238,8 +238,8 @@ export default function ImageGallery({
                     </div>
                   )}
 
-                  {/* Botón de eliminación individual (solo si no está en modo delete) */}
-                  {!deleteMode && (
+                  {/* Botón de eliminación individual (solo si no está en modo delete y la imagen está seleccionada) */}
+                  {!deleteMode && isSelected(image) && (
                     <div
                       style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1 }}
                       onClick={(e: React.MouseEvent) => e.stopPropagation()}>

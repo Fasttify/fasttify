@@ -84,9 +84,7 @@
           <button type="button" class="header-icon header-cart" aria-label="cart" onclick="openCart()">
             <span class="cart-icon-wrapper">
               <img src="{{ 'icon-cart.svg' | asset_url }}" alt="Cart" width="24" height="24" loading="lazy">
-              {% if cart.item_count > 0 %}
-                <span class="cart-count" data-cart-count>{{ cart.item_count }}</span>
-              {% endif %}
+              <span class="cart-count" data-cart-count>{{ cart.item_count }}</span>
             </span>
           </button>
         </div>

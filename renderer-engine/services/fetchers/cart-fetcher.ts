@@ -1,362 +1,330 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher';
+import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 import type {
   AddToCartRequest,
   Cart,
   CartContext,
   CartItem,
+  CartRaw,
   CartResponse,
   UpdateCartRequest,
 } from '@/renderer-engine/types';
-
-interface CartStorageOptions {
-  expirationDays?: number;
-}
+import { cookiesClient } from '@/utils/server/AmplifyServer';
 
 export class CartFetcher {
-  private readonly CART_STORAGE_KEY = 'fasttify_cart';
-  private readonly DEFAULT_EXPIRATION_DAYS = 30;
-
   /**
-   * Obtiene el carrito actual para una tienda
+   * Obtiene el carrito actual para una tienda.
+   * Siempre intentará obtener un carrito basado en el sessionId proporcionado.
+   * Si no existe, creará un nuevo carrito de invitado.
    */
-  public async getCart(storeId: string): Promise<Cart> {
-    try {
-      // Para invitados, usar localStorage
-      const existingCart = this.getCartFromStorage(storeId);
+  public async getCart(storeId: string, sessionId: string): Promise<Cart> {
+    logger.info(`[CartFetcher] getCart called with sessionId: ${sessionId}`, null, 'CartFetcher');
 
-      if (existingCart && !this.isCartExpired(existingCart)) {
-        return existingCart;
+    try {
+      let rawCartData: CartRaw | undefined;
+
+      const guestCartResponse = await cookiesClient.models.Cart.listCartByStoreId(
+        { storeId },
+        { filter: { sessionId: { eq: sessionId }, userId: { attributeExists: false } } }
+      );
+
+      if (guestCartResponse.data && guestCartResponse.data.length > 0) {
+        rawCartData = guestCartResponse.data[0];
+      } else {
+        rawCartData = undefined;
       }
 
-      // Crear nuevo carrito si no existe o está expirado
-      return this.createNewCart(storeId);
+      if (!rawCartData) {
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30); // 30 días de expiración
+
+        const newCartData: any = {
+          storeId,
+          itemCount: 0,
+          totalAmount: 0,
+          expiresAt: expiresAt.toISOString(),
+          sessionId: sessionId,
+        };
+
+        const { data: createdCart } = await cookiesClient.models.Cart.create(newCartData);
+        if (!createdCart) {
+          throw new Error('Failed to create new cart.');
+        }
+        logger.info(`[CartFetcher] NEW Cart created with sessionId: ${createdCart.sessionId}`, null, 'CartFetcher');
+        rawCartData = createdCart;
+      }
+
+      if (!rawCartData) {
+        throw new Error('Cart could not be retrieved or created.');
+      }
+
+      const { data: items } = await cookiesClient.models.CartItem.listCartItemByCartId({ cartId: rawCartData.id });
+
+      const cart: Cart = {
+        ...rawCartData,
+        items: items as CartItem[],
+      };
+
+      return cart;
     } catch (error) {
-      logger.error('Error getting cart', error, 'CartFetcher');
-      return this.createNewCart(storeId);
+      logger.error('Error getting or creating cart', error, 'CartFetcher');
+      throw new Error('Failed to retrieve or create cart.');
     }
   }
 
   /**
-   * Agrega un producto al carrito
+   * Agrega un producto al carrito o actualiza su cantidad si ya existe.
    */
   public async addToCart(request: AddToCartRequest): Promise<CartResponse> {
     try {
-      const { storeId, productId, variantId, quantity = 1, properties = {} } = request;
+      const { storeId, productId, variantId, quantity = 1, sessionId } = request;
 
-      // Obtener información del producto
-      const product = await productFetcher.getProduct(storeId, productId);
-      if (!product) {
-        return {
-          success: false,
-          error: 'Product not found',
-          cart: await this.getCart(storeId),
-        };
+      const currentCart = await this.getCart(storeId, sessionId || '');
+      if (!currentCart) {
+        return { success: false, error: 'Cart not found or could not be created.' };
       }
 
-      // Obtener carrito actual
-      const cart = await this.getCart(storeId);
+      const product = await dataFetcher.getProduct(storeId, productId);
+      if (!product) {
+        return { success: false, error: 'Product not found.' };
+      }
 
-      // Verificar si el producto ya existe en el carrito
-      const existingItemIndex = cart.items.findIndex(
-        (item) =>
-          item.productId === productId &&
-          item.variantId === variantId &&
-          JSON.stringify(item.properties) === JSON.stringify(properties)
+      const productPrice = product.price || 0;
+      const productSnapshot = JSON.stringify({
+        id: product.id,
+        storeId: product.storeId,
+        name: product.name,
+        title: product.name,
+        slug: product.slug,
+        attributes: product.attributes,
+        featured_image: product.featured_image,
+        quantity: product.quantity,
+        description: product.description,
+        price: product.price,
+        compare_at_price: product.compare_at_price,
+        url: product.url,
+        images: product.images,
+        variants: product.variants,
+        status: product.status,
+        category: product.category,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      });
+
+      // Buscar si el item ya existe en el carrito
+      const cartItemsResponse = await cookiesClient.models.CartItem.listCartItemByCartId(
+        { cartId: currentCart.id },
+        { filter: { productId: { eq: productId }, variantId: { eq: variantId || undefined } } }
       );
 
-      if (existingItemIndex >= 0) {
+      // Asegurarse de que data no es nulo/undefined antes de acceder a [0]
+      let existingCartItem =
+        cartItemsResponse.data && cartItemsResponse.data.length > 0 ? cartItemsResponse.data[0] : undefined;
+
+      if (existingCartItem) {
         // Actualizar cantidad del item existente
-        cart.items[existingItemIndex].quantity += quantity;
-        cart.items[existingItemIndex].linePrice =
-          cart.items[existingItemIndex].quantity * cart.items[existingItemIndex].price;
+        const updatedQuantity = existingCartItem.quantity + quantity;
+        const updatedTotalPrice = updatedQuantity * existingCartItem.unitPrice;
+
+        const { data: updatedItem } = await cookiesClient.models.CartItem.update({
+          id: existingCartItem.id,
+          quantity: updatedQuantity,
+          totalPrice: updatedTotalPrice,
+          owner: currentCart.sessionId || 'public',
+        });
+        if (!updatedItem) {
+          throw new Error('Failed to update cart item.');
+        }
       } else {
         // Crear nuevo item
-        const productPrice = parseInt(product.price) || 0;
-        const newItem: CartItem = {
-          id: this.generateCartItemId(),
-          productId,
-          variantId,
-          title: product.title,
-          price: productPrice,
-          quantity,
-          linePrice: productPrice * quantity,
-          image: product.featured_image,
-          url: product.url,
-          properties,
-        };
-        cart.items.push(newItem);
-      }
-
-      // Recalcular totales
-      this.recalculateCartTotals(cart);
-
-      // Guardar carrito
-      this.saveCartToStorage(cart);
-
-      return {
-        success: true,
-        cart,
-        item: cart.items.find((item) => item.productId === productId),
-      };
-    } catch (error) {
-      logger.error('Error adding to cart', error, 'CartFetcher');
-      return {
-        success: false,
-        error: 'Failed to add item to cart',
-        cart: await this.getCart(request.storeId),
-      };
-    }
-  }
-
-  /**
-   * Actualiza un item del carrito
-   */
-  public async updateCartItem(request: UpdateCartRequest): Promise<CartResponse> {
-    try {
-      const { storeId, itemId, quantity, properties } = request;
-
-      const cart = await this.getCart(storeId);
-      const itemIndex = cart.items.findIndex((item) => item.id === itemId);
-
-      if (itemIndex === -1) {
-        return {
-          success: false,
-          error: 'Cart item not found',
-          cart,
-        };
-      }
-
-      if (quantity <= 0) {
-        // Eliminar item si quantity es 0 o negativo
-        cart.items.splice(itemIndex, 1);
-      } else {
-        // Actualizar item
-        cart.items[itemIndex].quantity = quantity;
-        cart.items[itemIndex].linePrice = cart.items[itemIndex].price * quantity;
-
-        if (properties) {
-          cart.items[itemIndex].properties = properties;
+        const newItemTotalPrice = productPrice * quantity;
+        const { data: createdItem } = await cookiesClient.models.CartItem.create({
+          cartId: currentCart.id,
+          storeId: currentCart.storeId,
+          productId: productId,
+          variantId: variantId,
+          quantity: quantity,
+          unitPrice: productPrice,
+          totalPrice: newItemTotalPrice,
+          productSnapshot: productSnapshot,
+          owner: currentCart.sessionId || 'public',
+        });
+        if (!createdItem) {
+          throw new Error('Failed to create cart item.');
         }
       }
 
-      // Recalcular totales
-      this.recalculateCartTotals(cart);
+      // Recalcular y actualizar totales del carrito
+      await this.recalculateCartTotals(currentCart.id);
 
-      // Guardar carrito
-      this.saveCartToStorage(cart);
-
-      return {
-        success: true,
-        cart,
-        item: quantity > 0 ? cart.items[itemIndex] : undefined,
-      };
+      const updatedCart = await this.getCart(storeId, sessionId || '');
+      return { success: true, cart: updatedCart };
     } catch (error) {
-      logger.error('Error updating cart item', error, 'CartFetcher');
-      return {
-        success: false,
-        error: 'Failed to update cart item',
-        cart: await this.getCart(request.storeId),
-      };
+      logger.error('Error adding to cart', error, 'CartFetcher');
+      return { success: false, error: 'Failed to add item to cart.' };
     }
   }
 
   /**
-   * Elimina un item del carrito
+   * Actualiza la cantidad de un item en el carrito o lo elimina si la cantidad es <= 0.
    */
-  public async removeFromCart(storeId: string, itemId: string): Promise<CartResponse> {
+  public async updateCartItem(request: UpdateCartRequest): Promise<CartResponse> {
     try {
-      const cart = await this.getCart(storeId);
-      const itemIndex = cart.items.findIndex((item) => item.id === itemId);
+      const { storeId, itemId, quantity, sessionId } = request;
 
-      if (itemIndex === -1) {
-        return {
-          success: false,
-          error: 'Cart item not found',
-          cart,
-        };
+      const currentCart = await this.getCart(storeId, sessionId || '');
+      if (!currentCart) {
+        return { success: false, error: 'Cart not found.' };
       }
 
-      // Eliminar item
-      cart.items.splice(itemIndex, 1);
+      const { data: existingItem } = await cookiesClient.models.CartItem.get({ id: itemId });
 
-      // Recalcular totales
-      this.recalculateCartTotals(cart);
+      if (!existingItem || existingItem.cartId !== currentCart.id) {
+        return { success: false, error: 'Cart item not found in current cart.' };
+      }
 
-      // Guardar carrito
-      this.saveCartToStorage(cart);
+      if (quantity <= 0) {
+        // Eliminar item si la cantidad es 0 o negativa
+        await cookiesClient.models.CartItem.delete({ id: itemId });
+      } else {
+        // Actualizar item
+        const updatedTotalPrice = existingItem.unitPrice * quantity;
+        await cookiesClient.models.CartItem.update({
+          id: itemId,
+          quantity: quantity,
+          totalPrice: updatedTotalPrice,
+        });
+      }
 
-      return {
-        success: true,
-        cart,
-      };
+      // Recalcular y actualizar totales del carrito
+      await this.recalculateCartTotals(currentCart.id);
+
+      const updatedCart = await this.getCart(storeId, sessionId || '');
+      return { success: true, cart: updatedCart };
+    } catch (error) {
+      logger.error('Error updating cart item', error, 'CartFetcher');
+      return { success: false, error: 'Failed to update cart item.' };
+    }
+  }
+
+  /**
+   * Elimina un item del carrito.
+   */
+  public async removeFromCart(storeId: string, itemId: string, sessionId?: string): Promise<CartResponse> {
+    try {
+      const currentCart = await this.getCart(storeId, sessionId || '');
+      if (!currentCart) {
+        return { success: false, error: 'Cart not found.' };
+      }
+
+      const { data: existingItem } = await cookiesClient.models.CartItem.get({ id: itemId });
+
+      if (!existingItem || existingItem.cartId !== currentCart.id) {
+        return { success: false, error: 'Cart item not found in current cart.' };
+      }
+
+      await cookiesClient.models.CartItem.delete({ id: itemId });
+
+      // Recalcular y actualizar totales del carrito
+      await this.recalculateCartTotals(currentCart.id);
+
+      const updatedCart = await this.getCart(storeId, sessionId || '');
+      return { success: true, cart: updatedCart };
     } catch (error) {
       logger.error('Error removing from cart', error, 'CartFetcher');
-      return {
-        success: false,
-        error: 'Failed to remove item from cart',
-        cart: await this.getCart(storeId),
-      };
+      return { success: false, error: 'Failed to remove item from cart.' };
     }
   }
 
   /**
-   * Limpia completamente el carrito
+   * Limpia completamente el carrito (elimina todos los ítems).
    */
-  public async clearCart(storeId: string): Promise<CartResponse> {
+  public async clearCart(storeId: string, sessionId?: string): Promise<CartResponse> {
     try {
-      const cart = this.createNewCart(storeId);
-      this.saveCartToStorage(cart);
+      const currentCart = await this.getCart(storeId, sessionId || '');
+      if (!currentCart) {
+        return { success: false, error: 'Cart not found.' };
+      }
 
-      return {
-        success: true,
-        cart,
-      };
+      // Obtener todos los ítems del carrito y eliminarlos
+      const { data: cartItems } = await cookiesClient.models.CartItem.listCartItemByCartId({
+        cartId: currentCart.id,
+      });
+
+      for (const item of cartItems) {
+        await cookiesClient.models.CartItem.delete({ id: item.id });
+      }
+
+      // Resetear totales del carrito
+      await cookiesClient.models.Cart.update({
+        id: currentCart.id,
+        itemCount: 0,
+        totalAmount: 0,
+      });
+
+      const updatedCart = await this.getCart(storeId, sessionId || '');
+      return { success: true, cart: updatedCart };
     } catch (error) {
       logger.error('Error clearing cart', error, 'CartFetcher');
-      return {
-        success: false,
-        error: 'Failed to clear cart',
-        cart: await this.getCart(storeId),
-      };
+      return { success: false, error: 'Failed to clear cart.' };
     }
   }
 
   /**
-   * Transforma el carrito al formato para Liquid Context
+   * Transforma el carrito al formato para Liquid Context.
    */
   public transformCartToContext(cart: Cart): CartContext {
+    const totalItems = Array.isArray(cart.items) ? cart.items.reduce((total, item) => total + item.quantity, 0) : 0;
+    const totalPrice = Array.isArray(cart.items) ? cart.items.reduce((total, item) => total + item.totalPrice, 0) : 0;
+
     return {
       id: cart.id,
-      item_count: cart.totalItems,
-      total_price: cart.totalPrice,
-      items: cart.items.map((item) => ({
-        id: item.id,
-        product_id: item.productId,
-        variant_id: item.variantId || '',
-        title: item.title,
-        price: item.price,
-        quantity: item.quantity,
-        line_price: item.linePrice,
-        image: item.image || '',
-        url: item.url,
-        properties: item.properties || {},
-      })),
+      item_count: totalItems,
+      total_price: totalPrice,
+      items: Array.isArray(cart.items)
+        ? cart.items.map((item) => {
+            let productSnapshotParsed: any = {};
+            // Asegurarse de que productSnapshot sea un string antes de intentar parsear
+            if (typeof item.productSnapshot === 'string') {
+              try {
+                productSnapshotParsed = JSON.parse(item.productSnapshot);
+              } catch (e) {
+                logger.error('Failed to parse productSnapshot for cart item', e, 'CartFetcher');
+              }
+            }
+
+            return {
+              id: item.id,
+              product_id: item.productId,
+              variant_id: item.variantId || '',
+              title: productSnapshotParsed.name || 'N/A',
+              price: item.unitPrice,
+              quantity: item.quantity,
+              line_price: item.totalPrice,
+              image: productSnapshotParsed.images?.[0] || '',
+              url: `/products/${productSnapshotParsed.slug || productSnapshotParsed.id}`,
+            };
+          })
+        : [],
       created_at: cart.createdAt,
       updated_at: cart.updatedAt,
     };
   }
 
   /**
-   * Crea un nuevo carrito vacío
+   * Recalcula los totales del carrito (cantidad de ítems y precio total).
    */
-  private createNewCart(storeId: string, options: CartStorageOptions = {}): Cart {
-    const now = new Date().toISOString();
-    const expirationDays = options.expirationDays || this.DEFAULT_EXPIRATION_DAYS;
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + expirationDays);
+  private async recalculateCartTotals(cartId: string): Promise<void> {
+    const { data: cartItems } = await cookiesClient.models.CartItem.listCartItemByCartId({ cartId });
 
-    return {
-      id: this.generateCartId(),
-      storeId,
-      items: [],
-      totalItems: 0,
-      totalPrice: 0,
-      createdAt: now,
-      updatedAt: now,
-      expiresAt: expiresAt.toISOString(),
-    };
-  }
+    const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+    const totalAmount = cartItems.reduce((total, item) => total + item.totalPrice, 0);
 
-  /**
-   * Obtiene el carrito desde localStorage
-   */
-  private getCartFromStorage(storeId: string): Cart | null {
-    if (typeof window === 'undefined') return null;
-
-    try {
-      const stored = localStorage.getItem(`${this.CART_STORAGE_KEY}_${storeId}`);
-      if (!stored) return null;
-
-      const cart: Cart = JSON.parse(stored);
-      return cart.storeId === storeId ? cart : null;
-    } catch (error) {
-      logger.error('Error reading cart from storage', error, 'CartFetcher');
-      return null;
-    }
-  }
-
-  /**
-   * Guarda el carrito en localStorage
-   */
-  private saveCartToStorage(cart: Cart): void {
-    if (typeof window === 'undefined') return;
-
-    try {
-      cart.updatedAt = new Date().toISOString();
-      localStorage.setItem(`${this.CART_STORAGE_KEY}_${cart.storeId}`, JSON.stringify(cart));
-    } catch (error) {
-      logger.error('Error saving cart to storage', error, 'CartFetcher');
-    }
-  }
-
-  /**
-   * Verifica si el carrito ha expirado
-   */
-  private isCartExpired(cart: Cart): boolean {
-    if (!cart.expiresAt) return false;
-    return new Date() > new Date(cart.expiresAt);
-  }
-
-  /**
-   * Recalcula los totales del carrito
-   */
-  private recalculateCartTotals(cart: Cart): void {
-    cart.totalItems = cart.items.reduce((total, item) => total + item.quantity, 0);
-    cart.totalPrice = cart.items.reduce((total, item) => total + item.linePrice, 0);
-  }
-
-  /**
-   * Genera un ID único para el carrito
-   */
-  private generateCartId(): string {
-    return `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  /**
-   * Genera un ID único para un item del carrito
-   */
-  private generateCartItemId(): string {
-    return `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  /**
-   * Limpia carritos expirados del localStorage
-   */
-  public cleanupExpiredCarts(): void {
-    if (typeof window === 'undefined') return;
-
-    try {
-      const keys = Object.keys(localStorage);
-      const cartKeys = keys.filter((key) => key.startsWith(this.CART_STORAGE_KEY));
-
-      cartKeys.forEach((key) => {
-        try {
-          const stored = localStorage.getItem(key);
-          if (stored) {
-            const cart: Cart = JSON.parse(stored);
-            if (this.isCartExpired(cart)) {
-              localStorage.removeItem(key);
-            }
-          }
-        } catch (error) {
-          // Si hay error parseando, eliminar la key corrupta
-          localStorage.removeItem(key);
-        }
-      });
-    } catch (error) {
-      logger.error('Error cleaning up expired carts', error, 'CartFetcher');
-    }
+    await cookiesClient.models.Cart.update({
+      id: cartId,
+      itemCount: totalItems,
+      totalAmount: totalAmount,
+    });
   }
 }
 

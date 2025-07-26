@@ -10,7 +10,6 @@ export type DataRequirement =
   | 'collections' // {{ collections }}
   | 'product' // {{ product }} (página individual)
   | 'collection' // {{ collection }} (página individual)
-  | 'cart' // {{ cart }}
   | 'linklists' // {{ linklists.main-menu }}
   | 'shop' // {{ shop }}
   | 'page' // {{ page }}
@@ -85,15 +84,6 @@ export class TemplateAnalyzer {
 
       // Inferir datos adicionales basados en el tipo de plantilla
       this.inferDataFromTemplatePath(templatePath, analysis);
-
-      logger.debug(
-        `Template analysis for ${templatePath}:`,
-        {
-          requiredData: Array.from(analysis.requiredData.keys()),
-          dependencies: analysis.dependencies,
-        },
-        'TemplateAnalyzer'
-      );
     } catch (error) {
       logger.error('Error analyzing template', error, 'TemplateAnalyzer');
     }
@@ -168,19 +158,11 @@ export class TemplateAnalyzer {
       if (!analysis.requiredData.has('collection')) {
         analysis.requiredData.set('collection', {});
       }
-    } else if (templatePath.includes('cart')) {
-      // Página de carrito necesita datos del carrito
-      analysis.requiredData.set('cart', {});
     } else if (templatePath.includes('page')) {
       // Página estática necesita datos de la página específica
       if (!analysis.requiredData.has('page')) {
         analysis.requiredData.set('page', {});
       }
-    }
-
-    // El carrito siempre es necesario para el header
-    if (!analysis.requiredData.has('cart')) {
-      analysis.requiredData.set('cart', {});
     }
 
     // Los linklists siempre son necesarios para navegación

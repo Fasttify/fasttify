@@ -220,8 +220,8 @@ export class ProductFetcher {
   public transformProduct(product: any, collectionHandle?: string): ProductContext {
     const handle = dataTransformer.createHandle(product.name);
 
-    const price = dataTransformer.formatPrice(product.price || 0);
-    const compareAtPrice = product.compareAtPrice ? dataTransformer.formatPrice(product.compareAtPrice) : undefined;
+    const price = product.price || 0;
+    const compareAtPrice = product.compareAtPrice || undefined;
     const transformedImages = dataTransformer.transformImages(product.images, product.name);
     const variants = dataTransformer.transformVariants(product.variants, product.price);
     const attributes: ProductAttribute[] = dataTransformer.transformAttributes(product.attributes);

@@ -33,7 +33,6 @@ export class StoreRendererFactory {
       // Convertir path a opciones del renderizador dinámico
       const options = pathToRenderOptions(cleanPath);
 
-      // Usar el renderizador dinámico
       return await this.dynamicRenderer.render(domain, options, searchParams);
     } catch (error) {
       return this.handleRenderError(error, domain, cleanPath);

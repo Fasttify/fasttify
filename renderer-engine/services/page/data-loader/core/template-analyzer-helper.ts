@@ -89,17 +89,6 @@ export async function analyzeRequiredTemplates(storeId: string, options: PageRen
     // PASO 2 (simplificado): Extraer el límite de paginación del schema del propio template JSON.
     extractPaginationLimitFromTemplate(allTemplates, options, analysis);
 
-    logger.debug(
-      `Template analysis completed for ${options.pageType}`,
-      {
-        requiredData: Array.from(analysis.requiredData.keys()),
-        hasPagination: analysis.hasPagination,
-        dependencies: analysis.dependencies.length,
-        templatesLoaded: Object.keys(allTemplates).length,
-      },
-      'TemplateAnalyzer'
-    );
-
     return analysis;
   } catch (error) {
     logger.error('Error analyzing templates', error, 'TemplateAnalyzer');

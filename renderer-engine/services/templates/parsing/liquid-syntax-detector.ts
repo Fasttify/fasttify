@@ -157,7 +157,6 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
 
   product: () => ({}),
   collection: () => ({}),
-  cart: () => ({}),
   linklists: () => ({}),
   shop: () => ({}),
   page: (content: string) => {
@@ -230,10 +229,6 @@ const objectDetectors: Record<DataRequirement, ObjectDetector> = {
   collection: {
     pattern: /\{\{\s*collection\./g,
     optionsExtractor: loadOptionsExtractors.collection,
-  },
-  cart: {
-    pattern: /\{\{\s*cart\./g,
-    optionsExtractor: loadOptionsExtractors.cart,
   },
   linklists: {
     pattern: /\{\{\s*linklists\./g,

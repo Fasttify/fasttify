@@ -160,11 +160,6 @@ export const dataHandlers: Record<DataRequirement, DataHandler> = {
     return null;
   },
 
-  cart: async (storeId) => {
-    const cart = await dataFetcher.getCart(storeId);
-    return dataFetcher.transformCartToContext(cart);
-  },
-
   linklists: async (storeId) => {
     return await dataFetcher.getStoreNavigationMenus(storeId);
   },

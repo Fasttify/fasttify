@@ -7,6 +7,7 @@ import { liquidEngine } from '@/renderer-engine/liquid/engine';
 
 // Services
 import { pageConfig } from '@/renderer-engine/config/page-config';
+import { getPageCacheKey } from '@/renderer-engine/services/core/cache/cache-keys';
 import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
 import { errorRenderer } from '@/renderer-engine/services/errors/error-renderer';
 import { createTemplateError } from '@/renderer-engine/services/errors/error-utils';
@@ -40,6 +41,7 @@ export interface RenderingData {
   domain: string;
   options: PageRenderOptions;
   searchParams: Record<string, string>;
+  sessionId?: string;
   store?: any;
   layout?: string;
   compiledLayout?: Template[];
@@ -115,9 +117,7 @@ export class DynamicPageRenderer {
       if (error.type !== 'STORE_NOT_FOUND') {
         try {
           store = (await domainResolver.resolveStoreByDomain(domain)) as unknown as ShopContext;
-        } catch {
-          // Continua sin información de la tienda si falla
-        }
+        } catch {}
       }
       return await errorRenderer.renderError(error, { domain, path, store });
     } catch (renderError) {
@@ -149,7 +149,7 @@ async function renderLayoutStep(data: RenderingData): Promise<RenderingData> {
 async function generateMetadataStep(data: RenderingData): Promise<RenderingData> {
   const pageTitle = (data.context as any).page_title || (data.context as any).page?.title;
   const metadata = metadataGenerator.generateMetadata(data.store!, data.domain, pageTitle);
-  const cacheKey = generateCacheKey(data.store!.storeId, data.options);
+  const cacheKey = getPageCacheKey(data.store!.storeId, data.options.pageType);
 
   return { ...data, metadata, cacheKey };
 }
@@ -199,15 +199,6 @@ async function renderSectionsFromConfig(
 
   const renderedSections = await Promise.all(sectionPromises);
   return renderedSections.join('\n');
-}
-
-/**
- * Genera clave de caché para la página
- */
-function generateCacheKey(storeId: string, options: PageRenderOptions): string {
-  const { pageType, handle, productId, collectionId } = options;
-  const identifier = handle || productId || collectionId || 'default';
-  return `${pageType}_${storeId}_${identifier}_${Date.now()}`;
 }
 
 export const dynamicPageRenderer = new DynamicPageRenderer();

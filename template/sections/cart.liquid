@@ -3,6 +3,11 @@
   class="cart-overlay"
   data-cart-overlay>
   <div class="cart-sidebar" data-cart-sidebar>
+    <!-- Loading Overlay -->
+    <div class="cart-loading-overlay">
+      <div class="cart-loading-spinner"></div>
+    </div>
+
     <!-- Header del carrito -->
     <div class="cart-header">
       <h2 class="cart-title">Tu carrito</h2>
@@ -34,7 +39,8 @@
           <h3 class="cart-empty-title">Tu carrito está vacío</h3>
           <p class="cart-empty-text">¿Tienes una cuenta?
             <a href="/account/login" class="cart-empty-link">Inicia sesión</a>
-            para pagar más rápido.</p>
+            para pagar más rápido.
+          </p>
           <button
             type="button"
             class="cart-continue-shopping"

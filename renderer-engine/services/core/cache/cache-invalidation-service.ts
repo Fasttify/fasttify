@@ -8,6 +8,7 @@ import {
   getPagesCacheKey,
   getProductCacheKey,
   getProductsCacheKey,
+  getCartCacheKey,
 } from '@/renderer-engine/services/core/cache';
 
 /**
@@ -26,7 +27,8 @@ export type ChangeType =
   | 'navigation_updated'
   | 'template_updated'
   | 'store_settings_updated'
-  | 'domain_updated';
+  | 'domain_updated'
+  | 'cart_updated';
 
 /**
  * Configuración de invalidación por tipo de cambio
@@ -173,6 +175,13 @@ export class CacheInvalidationService {
       ],
       description: 'Dominio actualizado - invalidar resolución de dominios',
     },
+
+    // Cambios en carrito
+    cart_updated: {
+      cacheKeys: [],
+      patterns: ['cart_'],
+      description: 'Carrito actualizado - invalidar carrito',
+    },
   };
 
   private constructor() {}
@@ -220,10 +229,8 @@ export class CacheInvalidationService {
     const usedPrefixes: string[] = [];
 
     for (const pattern of patterns) {
-      // Convertir patrón tipo 'products_*' en prefijo real 'products_{storeId}_'
       let prefix = pattern;
       if (pattern.includes('*')) {
-        // Solo soportamos hasta dos wildcards: storeId y entityId
         const wildcardValues = [storeId, entityId || ''];
         let wildcardIndex = 0;
         prefix = pattern.replace(/\*/g, () => {
@@ -231,28 +238,13 @@ export class CacheInvalidationService {
           wildcardIndex++;
           return val + '_';
         });
-        // Limpiar doble guion bajo si entityId es vacío
         prefix = prefix.replace(/__+/g, '_');
-        // Quitar guion bajo final si quedó
         prefix = prefix.replace(/_+$/, '_');
       }
-      // Eliminar claves por prefijo
       const deleted = cacheManager.deleteByPrefix(prefix);
       totalInvalidated += deleted;
       usedPrefixes.push(prefix);
-      if (deleted > 0) {
-        logger.debug(
-          `Claves de caché eliminadas: ${deleted} (prefijo: ${prefix})`,
-          { prefix, deleted, storeId, entityId },
-          'CacheInvalidationService'
-        );
-      }
     }
-    logger.debug(
-      `Total de claves eliminadas por patrones: ${totalInvalidated}`,
-      { usedPrefixes, totalInvalidated, storeId, entityId },
-      'CacheInvalidationService'
-    );
   }
 
   /**
@@ -283,13 +275,16 @@ export class CacheInvalidationService {
       case 'page_deleted':
         specificKeys.push(getPageCacheKey(storeId, entityId), getPagesCacheKey(storeId));
         break;
+
+      case 'cart_updated':
+        specificKeys.push(getCartCacheKey(storeId, entityId));
+        break;
     }
 
     // Eliminar claves específicas
     specificKeys.forEach((key) => {
       if (cacheManager['cache'][key]) {
         delete cacheManager['cache'][key];
-        logger.debug(`Invalidated specific key: ${key}`, undefined, 'CacheInvalidationService');
       }
     });
   }

@@ -1,20 +1,20 @@
 import {
-  S3Client,
-  ListObjectsV2Command,
-  PutObjectCommand,
   DeleteObjectCommand,
+  ListObjectsV2Command,
   ListObjectsV2CommandOutput,
+  PutObjectCommand,
+  S3Client,
   _Object,
 } from '@aws-sdk/client-s3';
+import { ConfigService } from '../config/config';
 import {
+  BatchDeleteResponse,
+  BatchUploadResponse,
+  DeleteImageResponse,
   ImageItem,
   ListImagesResponse,
   UploadImageResponse,
-  DeleteImageResponse,
-  BatchUploadResponse,
-  BatchDeleteResponse,
 } from '../types/types';
-import { ConfigService } from '../config/config';
 import { FileUtils } from './utils';
 
 export class S3Service {
@@ -290,11 +290,17 @@ export class S3Service {
    */
   private createImageItemFromS3Object(s3Object: _Object): ImageItem {
     const key = s3Object.Key!;
-    const filename = FileUtils.extractFilename(key);
     const url = this.configService.generateImageUrl(key);
-    const fileType = FileUtils.getFileType(filename);
+    const fileType = FileUtils.getFileType(key);
 
-    // Generar ID único basado en la clave S3 y timestamp para consistencia
+    // Extraer el nombre de archivo original de la clave S3
+    const parts = key.split('/');
+    const fullFilename = parts[parts.length - 1];
+    // Eliminar el prefijo timestamp-uniqueId- del nombre del archivo
+    const filenameMatch = fullFilename.match(/^\d+-[a-zA-Z0-9]+-(.*)$/);
+    const filename = filenameMatch ? filenameMatch[1] : fullFilename;
+
+    // Generar ID único basado en la clave S3 para consistencia
     const id = this.generateConsistentId(key);
 
     return {
@@ -312,11 +318,17 @@ export class S3Service {
    * Crea un objeto ImageItem optimizado para nuevas subidas
    */
   private createImageItem(key: string, override?: Partial<ImageItem>): ImageItem {
-    const filename = FileUtils.extractFilename(key);
     const url = this.configService.generateImageUrl(key);
-    const fileType = FileUtils.getFileType(filename);
+    const fileType = FileUtils.getFileType(key);
 
-    // Generar ID único basado en la clave S3 y timestamp para consistencia
+    // Extraer el nombre de archivo original de la clave S3
+    const parts = key.split('/');
+    const fullFilename = parts[parts.length - 1];
+    // Eliminar el prefijo timestamp-uniqueId- del nombre del archivo
+    const filenameMatch = fullFilename.match(/^\d+-[a-zA-Z0-9]+-(.*)$/);
+    const filename = filenameMatch ? filenameMatch[1] : fullFilename;
+
+    // Generar ID único basado en la clave S3 para consistencia
     const id = this.generateConsistentId(key);
 
     return {

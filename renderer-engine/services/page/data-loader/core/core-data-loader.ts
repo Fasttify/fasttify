@@ -1,5 +1,4 @@
 import { logger } from '@/renderer-engine/lib/logger';
-import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 import { loadDataFromAnalysis } from '@/renderer-engine/services/page/data-loader';
 import { buildContextData } from '@/renderer-engine/services/page/data-loader/core/context-builder-helper';
 import { analyzeRequiredTemplates } from '@/renderer-engine/services/page/data-loader/core/template-analyzer-helper';
@@ -14,7 +13,6 @@ export interface CoreData {
   products: any[];
   collections: any[];
   contextData: Record<string, any>;
-  cartData: any;
   analysis: TemplateAnalysis;
   nextToken?: string;
   paginate?: PaginationInfo;
@@ -46,8 +44,6 @@ export class CoreDataLoader {
     try {
       const analysis = await analyzeRequiredTemplates(storeId, options);
 
-      const cartData = dataFetcher.transformCartToContext(await dataFetcher.getCart(storeId));
-
       const { loadedData, paginationInfo } = await loadDataFromAnalysis(storeId, analysis, options, searchParams);
 
       const contextData = await buildContextData(storeId, options, loadedData);
@@ -78,7 +74,6 @@ export class CoreDataLoader {
         products: loadedData.products || [],
         collections: loadedData.collections || [],
         contextData,
-        cartData,
         analysis,
         nextToken: paginationInfo.nextToken,
         paginate,
@@ -93,7 +88,6 @@ export class CoreDataLoader {
    * Crea datos de fallback en caso de error
    */
   private async createFallbackData(storeId: string, options: PageRenderOptions): Promise<CoreData> {
-    const cartData = dataFetcher.transformCartToContext(await dataFetcher.getCart(storeId));
     return {
       products: [],
       collections: [],
@@ -101,7 +95,6 @@ export class CoreDataLoader {
         template: options.pageType,
         page_title: options.pageType.charAt(0).toUpperCase() + options.pageType.slice(1),
       },
-      cartData,
       analysis: {
         requiredData: new Map(),
         hasPagination: false,

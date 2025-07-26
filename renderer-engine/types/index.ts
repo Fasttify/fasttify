@@ -63,6 +63,7 @@ export type {
   Cart,
   CartContext,
   CartItem,
+  CartRaw,
   CartResponse,
   UpdateCartRequest,
 } from '@/renderer-engine/types/cart';

@@ -2,6 +2,7 @@ import { logger } from '@/renderer-engine/lib/logger';
 import { coreDataLoader, searchDataLoader } from '@/renderer-engine/services/page/data-loader';
 import type { CoreData } from '@/renderer-engine/services/page/data-loader/core/core-data-loader';
 import type { SearchData } from '@/renderer-engine/services/page/data-loader/search/search-data-loader';
+import type { CartContext } from '@/renderer-engine/types';
 import type { PageRenderOptions, PaginationInfo } from '@/renderer-engine/types/template';
 
 /**
@@ -12,7 +13,7 @@ export interface DynamicLoadResult {
   collections: any[];
   contextData: Record<string, any>;
   metaData: Record<string, any>;
-  cartData: any;
+  cartData: CartContext;
   analysis: any;
   nextToken?: string;
   paginate?: PaginationInfo;
@@ -48,25 +49,29 @@ export class DynamicDataLoader {
     try {
       const coreData: CoreData = await coreDataLoader.loadCoreData(storeId, options, searchParams);
 
+      const cartContext: CartContext = {
+        id: 'empty-cart',
+        item_count: 0,
+        total_price: 0,
+        items: [],
+        token: undefined,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        currency: 'COP',
+      };
+
       let searchData: SearchData | null = null;
       if (loadedTemplates) {
         searchData = await searchDataLoader.loadSearchData(storeId, loadedTemplates, options.searchTerm);
         searchDataLoader.injectSearchDataIntoContext(coreData.contextData, searchData, options.searchTerm);
       }
 
-      logger.info(`Dynamic data loading completed for ${options.pageType}`, {
-        coreProductsCount: coreData.products.length,
-        coreCollectionsCount: coreData.collections.length,
-        searchProductsCount: searchData?.searchProducts.length || 0,
-        searchCollectionsCount: searchData?.searchCollections?.length || 0,
-      });
-
       return {
         products: coreData.products,
         collections: coreData.collections,
         contextData: coreData.contextData,
         metaData: {},
-        cartData: coreData.cartData,
+        cartData: cartContext,
         analysis: coreData.analysis,
         nextToken: coreData.nextToken,
         paginate: coreData.paginate,
@@ -83,6 +88,17 @@ export class DynamicDataLoader {
    * Crea datos de fallback en caso de error
    */
   private async createFallbackData(storeId: string, options: PageRenderOptions): Promise<DynamicLoadResult> {
+    const cartContext: CartContext = {
+      id: 'fallback-cart',
+      item_count: 0,
+      total_price: 0,
+      items: [],
+      token: undefined,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      currency: 'COP',
+    };
+
     return {
       products: [],
       collections: [],
@@ -91,7 +107,7 @@ export class DynamicDataLoader {
         page_title: options.pageType.charAt(0).toUpperCase() + options.pageType.slice(1),
       },
       metaData: {},
-      cartData: null,
+      cartData: cartContext,
       analysis: {
         requiredData: new Map(),
         hasPagination: false,
