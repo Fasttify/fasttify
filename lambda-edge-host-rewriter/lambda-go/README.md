@@ -3,6 +3,8 @@
 Esta función Lambda@Edge está escrita en Go y modifica los headers de las solicitudes de CloudFront para reescribir el host header.
 
 **Nombre de la función:** `lambda-edge-host-rewriter-go`
+**Región:** `us-east-1` (requerido para Lambda@Edge)
+**ARN:** `arn:aws:lambda:us-east-1:626635400208:function:lambda-edge-host-rewriter-go:1`
 
 ## Funcionalidad
 
@@ -68,6 +70,7 @@ aws lambda update-function-code \
 3. En "Lambda Function Associations", selecciona:
    - **Event Type**: Origin Request
    - **Lambda Function**: lambda-edge-host-rewriter-go:1 (o la versión más reciente)
+   - **ARN**: `arn:aws:lambda:us-east-1:626635400208:function:lambda-edge-host-rewriter-go:1`
 
 ## Estructura del Evento
 
