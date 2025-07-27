@@ -68,7 +68,7 @@
       <div class="product-attributes-summary">
         {% for attribute in product.attributes %}
           <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
-            <div class="attribute-values-list">
+      <div class="attribute-values-list">
               {% if attribute.name == 'color' %}
                 {% comment %} Si el atributo es 'color', mostrar círculos de color {% endcomment %}
                 {% for value in attribute.values %}
@@ -79,7 +79,7 @@
                     data-option-value="{{ value | handleize }}"
                     onclick="selectOption(this)"></button>
                 {% endfor %}
-              {% else %}
+        {% else %}
                 {% comment %} Para otros atributos (talla, material, etc.), mostrar los valores como texto {% endcomment %}
                 {% for value in attribute.values %}
                    <button class="attribute-value-item"
@@ -87,7 +87,7 @@
                      data-option-value="{{ value | handleize }}"
                      onclick="selectOption(this)">{{ value }}</button>
                 {% endfor %}
-              {% endif %}
+        {% endif %}
             </div>
           </div>
         {% endfor %}
@@ -95,33 +95,33 @@
     {% endif %}
 
     <div class="product-options-container">
-      {% comment %} Fit Guide {% endcomment %}
-      <div class="fit-guide">
-        <div class="fit-guide-label text-sm font-semibold">GUÍA DE AJUSTE</div>
-        <div class="fit-guide-bar">
-          <span class="fit-guide-text text-sm">Pequeño</span>
-          <div class="fit-guide-progress">
-            <div class="fit-guide-progress-fill"></div>
-          </div>
-          <span class="fit-guide-text text-sm">Grande</span>
+    {% comment %} Fit Guide {% endcomment %}
+    <div class="fit-guide">
+      <div class="fit-guide-label text-sm font-semibold">GUÍA DE AJUSTE</div>
+      <div class="fit-guide-bar">
+        <span class="fit-guide-text text-sm">Pequeño</span>
+        <div class="fit-guide-progress">
+          <div class="fit-guide-progress-fill"></div>
         </div>
-        <a href="#" class="sizing-guide-link text-sm">Guía de tallas</a>
+        <span class="fit-guide-text text-sm">Grande</span>
       </div>
+      <a href="#" class="sizing-guide-link text-sm">Guía de tallas</a>
+    </div>
 
-      <div class="product-actions">
-        <div class="quantity-selector">
-          <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+    <div class="product-actions">
+      <div class="quantity-selector">
+        <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">-</button>
           <input type="number" id="product-quantity" value="1" min="1" class="quantity-input text-base font-medium">
-          <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
-        </div>
-        <button type="button" onclick="addProductToCart('{{ product.id }}', document.getElementById('product-quantity').value)" class="btn add-to-cart-btn font-semibold">
-          <span>AÑADIR AL CARRITO</span>
-        </button>
+        <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
       </div>
-
-      <button type="button" class="btn buy-it-now-btn font-semibold">
-        <span>COMPRAR AHORA</span>
+        <button type="button" onclick="addProductToCart('{{ product.id }}', document.getElementById('product-quantity').value)" class="btn add-to-cart-btn font-semibold">
+        <span>AÑADIR AL CARRITO</span>
       </button>
+    </div>
+
+    <button type="button" class="btn buy-it-now-btn font-semibold">
+      <span>COMPRAR AHORA</span>
+    </button>
     </div>
 
     <div class="pickup-info">
@@ -165,8 +165,8 @@
   window.PRODUCT_ID = '{{ product.id }}';
   window.PRODUCT_IMAGES = [
     {% for image in product.images %}
-      "{{ image | img_url: '800x800' }}"{% if forloop.last == false %}, {% endif %}
-    {% endfor %}
+  "{{ image | img_url: '800x800' }}"{% if forloop.last == false %}, {% endif %}
+  {% endfor %}
   ];
 </script>
 
