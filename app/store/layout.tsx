@@ -1,6 +1,6 @@
+import '@/app/global.css';
 import { StoreLayoutClient } from '@/app/store/layout/StoreLayoutClient';
 import { inter } from '@/config/fonts';
-import '@/app/global.css';
 
 export const metadata = {
   title: 'Mi tienda',

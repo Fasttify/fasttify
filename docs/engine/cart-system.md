@@ -16,14 +16,19 @@ El sistema de carrito de Fasttify proporciona una funcionalidad completa de carr
 - ✅ **API REST completa** para todas las operaciones
 - ✅ **Eventos personalizados** para integración con temas
 - ✅ **Datos siempre frescos** sin cache para máxima confiabilidad
+- ✅ **Arquitectura modular** con separación de responsabilidades
+- ✅ **Soporte para atributos de producto** (color, talla, etc.)
+- ✅ **Integración automática con header** para contadores
+- ✅ **Sistema de templates** para generación de HTML
+- ✅ **Helpers reutilizables** para formateo y utilidades
 
 ## Arquitectura del Sistema
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Tema Liquid   │    │   Side Cart JS  │    │   API REST      │
+│   Tema Liquid   │    │   Módulos JS    │    │   API REST      │
 │                 │    │                 │    │                 │
-│ (Botones, HTML) │◄──►│ (Lógica Frontend)│◄──►│ (Gestión Carrito)│
+│ (Botones, HTML) │◄──►│ (Cart System)   │◄──►│ (Gestión Carrito)│
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          │                       ▼                       ▼
@@ -31,6 +36,19 @@ El sistema de carrito de Fasttify proporciona una funcionalidad completa de carr
          │              │   Eventos DOM   │    │   Base de Datos │
          │              │                 │    │                 │
          │              │ (cart:open, etc)│    │ (Cart Items)    │
+         └──────────────└─────────────────┘    └─────────────────┘
+
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Cart API      │    │  Cart Helpers   │    │ Cart Templates  │
+│                 │    │                 │    │                 │
+│ (API calls)     │    │ (Utilities)     │    │ (HTML gen)      │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       ▼                       ▼
+         │              ┌─────────────────┐    ┌─────────────────┐
+         │              │   Cart UI       │    │   Side Cart     │
+         │              │                 │    │                 │
+         │              │ (UI controls)   │    │ (Main logic)    │
          └──────────────└─────────────────┘    └─────────────────┘
 ```
 
@@ -112,9 +130,170 @@ Content-Type: application/json
 DELETE /api/stores/STORE_ID/cart
 ```
 
-### 2. JavaScript del Carrito Lateral
+### 2. Arquitectura Modular del JavaScript
 
-El archivo `template/assets/side-cart.js` contiene toda la lógica del carrito:
+El sistema de carrito ha sido refactorizado en una arquitectura modular para mejorar la mantenibilidad y separación de responsabilidades. Los módulos se cargan en el siguiente orden:
+
+#### Módulos del Sistema de Carrito
+
+**1. `cart-api.js` - Gestión de API**
+
+```javascript
+class CartAPI {
+  constructor() {
+    this.baseURL = '/api/stores';
+  }
+
+  async getCart() {
+    /* Obtener carrito actual */
+  }
+  async addToCart(productId, quantity, selectedAttributes) {
+    /* Agregar producto */
+  }
+  async updateCartItem(itemId, quantity) {
+    /* Actualizar cantidad */
+  }
+  async removeCartItem(itemId) {
+    /* Eliminar item */
+  }
+  async clearCart() {
+    /* Limpiar carrito */
+  }
+}
+
+window.cartAPI = new CartAPI();
+```
+
+**2. `cart-helpers.js` - Utilidades y Helpers**
+
+```javascript
+class CartHelpers {
+  static formatMoney(amount) {
+    /* Formatear moneda */
+  }
+  static getSelectedAttributes() {
+    /* Obtener atributos seleccionados */
+  }
+  static capitalizeFirst(str) {
+    /* Capitalizar texto */
+  }
+  static showError(message) {
+    /* Mostrar error */
+  }
+  static showSuccess(message) {
+    /* Mostrar éxito */
+  }
+  static debounce(func, wait) {
+    /* Debounce para inputs */
+  }
+}
+
+window.CartHelpers = CartHelpers;
+```
+
+**3. `cart-templates.js` - Generación de HTML**
+
+```javascript
+class CartTemplates {
+  static generateCartItemHtml(item) {
+    /* HTML de item */
+  }
+  static generateCartFooterHtml(cart) {
+    /* HTML de footer */
+  }
+  static generateEmptyCartHtml() {
+    /* HTML de carrito vacío */
+  }
+  static generateErrorStateHtml() {
+    /* HTML de error */
+  }
+  static generateLoadingStateHtml() {
+    /* HTML de carga */
+  }
+}
+
+window.CartTemplates = CartTemplates;
+```
+
+**4. `cart-ui.js` - Controles de Interfaz**
+
+```javascript
+class CartUI {
+  constructor(sidebar) {
+    /* Inicializar UI */
+  }
+
+  setLoadingState(loading) {
+    /* Estado de carga */
+  }
+  updateCartDisplay(cart) {
+    /* Actualizar display */
+  }
+  updateCartCounters(cart) {
+    /* Actualizar contadores */
+  }
+  renderCartItems(cart) {
+    /* Renderizar items */
+  }
+  setupQuantityControls() {
+    /* Configurar controles */
+  }
+  setupRemoveButtons() {
+    /* Configurar botones */
+  }
+}
+
+window.CartUI = CartUI;
+```
+
+**5. `side-cart.js` - Lógica Principal**
+
+```javascript
+class SideCart {
+  constructor() {
+    /* Inicializar carrito */
+  }
+
+  open() {
+    /* Abrir carrito */
+  }
+  close() {
+    /* Cerrar carrito */
+  }
+  updateQuantity(itemId, quantity) {
+    /* Actualizar cantidad */
+  }
+  removeItem(itemId) {
+    /* Eliminar item */
+  }
+  clearCart() {
+    /* Limpiar carrito */
+  }
+  refresh() {
+    /* Recargar carrito */
+  }
+}
+
+// Funciones globales
+window.openCart = () => document.dispatchEvent(new CustomEvent('cart:open'));
+window.closeCart = () => document.dispatchEvent(new CustomEvent('cart:close'));
+window.addProductToCart = async (productId, quantity) => {
+  /* Agregar producto */
+};
+```
+
+#### Orden de Carga de Módulos
+
+```liquid
+<!-- En layout/theme.liquid -->
+{{ 'cart/cart-api.js' | asset_url | script_tag }}
+{{ 'cart/cart-helpers.js' | asset_url | script_tag }}
+{{ 'cart/cart-templates.js' | asset_url | script_tag }}
+{{ 'cart/cart-ui.js' | asset_url | script_tag }}
+{{ 'cart/side-cart.js' | asset_url | script_tag }}
+```
+
+### 3. JavaScript del Carrito Lateral (Legacy)
 
 #### Clase Principal: `SideCart`
 
@@ -144,7 +323,76 @@ class SideCart {
 - `clearCart()` - Limpia todo el carrito
 - `refresh()` - Recarga el carrito desde la API
 
-### 3. Eventos Personalizados
+### 3. Soporte para Atributos de Producto
+
+El sistema ahora soporta la captura y almacenamiento de atributos de producto seleccionados (como color, talla, etc.) cuando se agregan productos al carrito.
+
+#### Captura de Atributos
+
+Los atributos se capturan automáticamente desde elementos HTML con los siguientes atributos:
+
+```html
+<!-- Para colores -->
+<button class="color-swatch" data-option-name="color" data-option-value="red" onclick="selectOption(this)"></button>
+
+<!-- Para tallas u otros atributos -->
+<button class="attribute-value-item" data-option-name="size" data-option-value="large" onclick="selectOption(this)">
+  Large
+</button>
+```
+
+#### Función de Selección de Atributos
+
+```javascript
+// En product-details.js
+function selectOption(element) {
+  // Remover selección previa
+  const siblings = Array.from(element.parentNode.children);
+  siblings.forEach((sibling) => {
+    if (sibling.classList.contains('attribute-value-item') || sibling.classList.contains('color-swatch')) {
+      sibling.classList.remove('selected');
+    }
+  });
+
+  // Seleccionar elemento actual
+  element.classList.add('selected');
+}
+```
+
+#### Obtención de Atributos Seleccionados
+
+```javascript
+// En cart-helpers.js
+static getSelectedAttributes() {
+  const selectedAttributes = {};
+  const selectedOptions = document.querySelectorAll(
+    '.product-option-group .selected, .attribute-values-list .selected'
+  );
+
+  selectedOptions.forEach(option => {
+    const optionName = option.dataset.optionName;
+    const optionValue = option.dataset.optionValue;
+    if (optionName && optionValue) {
+      selectedAttributes[optionName] = optionValue;
+    }
+  });
+
+  return selectedAttributes;
+}
+```
+
+#### Visualización en el Carrito
+
+Los atributos seleccionados se muestran en el carrito:
+
+```html
+<div class="cart-item-attributes">
+  <span class="cart-item-attribute">Color: Red</span>
+  <span class="cart-item-attribute">Size: Large</span>
+</div>
+```
+
+### 4. Eventos Personalizados
 
 El sistema emite eventos DOM para integración con temas:
 
@@ -165,7 +413,52 @@ document.dispatchEvent(
 
 ## Implementación en Temas
 
-### 1. Estructura HTML Requerida
+### 1. Integración Automática con Header
+
+El sistema ahora incluye integración automática con el header para actualizar contadores de carrito en tiempo real.
+
+#### Configuración del Header
+
+```javascript
+// En header.js
+const cartCountElement = document.querySelector('[data-cart-count]');
+
+if (cartCountElement) {
+  // Escuchar actualizaciones del carrito
+  document.addEventListener('cart:updated', function (event) {
+    const cart = event.detail.cart;
+    if (cart && typeof cart.item_count !== 'undefined') {
+      cartCountElement.textContent = cart.item_count;
+    }
+  });
+
+  // Actualización inicial del carrito
+  if (window.sideCart) {
+    window.sideCart
+      .refresh()
+      .then(() => {
+        console.log('Initial cart refresh completed');
+      })
+      .catch((error) => {
+        console.error('Error refreshing cart on header load:', error);
+      });
+  }
+}
+```
+
+#### HTML del Header
+
+```liquid
+<!-- En snippets/header.liquid -->
+<button type="button" class="header-icon header-cart" aria-label="cart" onclick="openCart()">
+  <span class="cart-icon-wrapper">
+    <img src="{{ 'icon-cart.svg' | asset_url }}" alt="Cart" width="24" height="24" loading="lazy">
+    <span class="cart-count" data-cart-count>{{ cart.item_count }}</span>
+  </span>
+</button>
+```
+
+### 2. Estructura HTML Requerida
 
 #### Carrito Lateral (Obligatorio)
 
@@ -195,6 +488,8 @@ document.dispatchEvent(
   </div>
 </div>
 ```
+
+**Nota**: La sección del carrito ahora es completamente dinámica. Todo el contenido se genera mediante JavaScript usando los templates del sistema modular, eliminando la necesidad de HTML estático de Liquid.
 
 #### Botones para Abrir Carrito
 
@@ -252,11 +547,24 @@ document.dispatchEvent(
 
   <!-- CSS del carrito -->
   {{ 'cart.css' | asset_url | stylesheet_tag }}
-
-  <!-- JavaScript del carrito -->
-  {{ 'side-cart.js' | asset_url | script_tag }}
 </head>
+
+<body>
+  <!-- ... contenido de la página ... -->
+
+  <!-- Módulos del Carrito (orden específico) -->
+  {{ 'cart/cart-api.js' | asset_url | script_tag }}
+  {{ 'cart/cart-helpers.js' | asset_url | script_tag }}
+  {{ 'cart/cart-templates.js' | asset_url | script_tag }}
+  {{ 'cart/cart-ui.js' | asset_url | script_tag }}
+  {{ 'cart/side-cart.js' | asset_url | script_tag }}
+
+  <!-- JavaScript del header (para integración de contadores) -->
+  {{ 'header.js' | asset_url | script_tag }}
+</body>
 ```
+
+**Importante**: Los módulos del carrito deben cargarse en el orden especificado para garantizar que las dependencias estén disponibles.
 
 ## Funcionalidades Disponibles
 

@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Menu toggle
   const menuToggles = document.querySelectorAll('.js-menu-toggle');
   const mobileMenu = document.getElementById('mobile-menu');
 
@@ -12,13 +11,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Search toggle
   const searchToggles = document.querySelectorAll('.js-search-toggle');
   const searchDialogOverlay = document.getElementById('search-dialog-overlay');
 
   searchToggles.forEach(function(toggle) {
     toggle.addEventListener('click', function() {
-      // Toggle aria-expanded for the search icon button itself
       if (toggle.classList.contains('search-toggle')) {
         const expanded = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', !expanded);
@@ -29,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Mobile submenu
   const submenuToggles = document.querySelectorAll('.mobile-submenu-toggle');
 
   submenuToggles.forEach(function(toggle) {
@@ -48,9 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Make header sticky on scroll
   const header = document.getElementById('site-header');
-  const scrollThreshold = 50; // Define el umbral de scroll para activar el efecto
+  const scrollThreshold = 50;
 
   window.addEventListener('scroll', function() {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -62,11 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Close dialog when clicking outside
   document.addEventListener('click', function(event) {
     const target = event.target;
 
-    // Close search dialog if click outside the dialog content and not on the search toggle button
     if (!target.closest('.search-dialog-content') && !target.closest('.search-toggle')) {
       const searchDialogOverlay = document.getElementById('search-dialog-overlay');
       const searchButton = document.querySelector('.search-toggle');
@@ -81,10 +74,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Search functionality
   const searchInput = document.querySelector('.search-input');
   const productsGrid = document.querySelector('.search-dialog-products-grid');
-  const storeId = window.STORE_ID; // Esta variable la definiremos desde Liquid
+  const storeId = window.STORE_ID;
 
   let debounceTimeout = null;
 
@@ -122,5 +114,23 @@ document.addEventListener('DOMContentLoaded', function() {
           });
       }, 300);
     });
+  }
+
+  const cartCountElement = document.querySelector('[data-cart-count]');
+
+  if (cartCountElement) {
+    document.addEventListener('cart:updated', function(event) {
+      const cart = event.detail.cart;
+      if (cart && typeof cart.item_count !== 'undefined') {
+        cartCountElement.textContent = cart.item_count;
+      }
+    });
+
+    if (window.sideCart) {
+      window.sideCart.refresh().then(() => {
+      }).catch(error => {
+        console.error('Error refreshing cart on header load:', error);
+      });
+    }
   }
 });

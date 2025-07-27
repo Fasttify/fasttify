@@ -85,10 +85,10 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
   try {
     const body = await request.json();
-    const { productId, variantId, quantity } = body;
+    const { productId, variantId, quantity, selectedAttributes } = body;
 
     logger.info(
-      `[Cart API] Adding to cart - productId: ${productId}, variantId: ${variantId}, quantity: ${quantity}`,
+      `[Cart API] Adding to cart - productId: ${productId}, variantId: ${variantId}, quantity: ${quantity}, selectedAttributes: ${JSON.stringify(selectedAttributes)}`,
       null,
       'CartAPI'
     );
@@ -100,7 +100,14 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    const cartResponse = await cartFetcher.addToCart({ storeId, productId, variantId, quantity, sessionId });
+    const cartResponse = await cartFetcher.addToCart({
+      storeId,
+      productId,
+      variantId,
+      quantity,
+      selectedAttributes,
+      sessionId,
+    });
 
     logger.info(`[Cart API] Item added to cart for sessionId: ${sessionId}`, null, 'CartAPI');
 

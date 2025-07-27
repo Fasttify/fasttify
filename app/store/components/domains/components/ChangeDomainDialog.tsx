@@ -1,9 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Modal, TextField, Text, Spinner, LegacyStack, Icon } from '@shopify/polaris';
-import { CheckCircleIcon, AlertTriangleIcon } from '@shopify/polaris-icons';
-import { useDomainValidator } from '@/app/store/hooks/api/useDomainValidator';
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
 import { useToast } from '@/app/store/context/ToastContext';
+import { useDomainValidator } from '@/app/store/hooks/api/useDomainValidator';
+import { BlockStack, InlineStack, Modal, Spinner, Text, TextField } from '@shopify/polaris';
+import { useCallback, useEffect, useState } from 'react';
 
 interface ChangeDomainDialogProps {
   open: boolean;
@@ -75,22 +74,21 @@ export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdate
   const renderHelpText = () => {
     if (isChecking) {
       return (
-        <LegacyStack alignment="center" spacing="extraTight">
+        <InlineStack align="start" gap="050">
           <Spinner size="small" />
           <Text as="span" tone="subdued">
             Verificando disponibilidad...
           </Text>
-        </LegacyStack>
+        </InlineStack>
       );
     }
     if (domainName && hasBeenValidated) {
       return (
-        <LegacyStack alignment="center" spacing="extraTight">
-          <Icon source={exists ? AlertTriangleIcon : CheckCircleIcon} tone={exists ? 'critical' : 'success'} />
+        <InlineStack align="end" gap="100">
           <Text as="span" tone={exists ? 'critical' : 'success'}>
             {exists ? 'Este dominio ya está en uso.' : '¡Dominio disponible!'}
           </Text>
-        </LegacyStack>
+        </InlineStack>
       );
     }
     return null;
@@ -110,7 +108,7 @@ export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdate
         }}
         secondaryActions={[{ content: 'Cancelar', onAction: () => onOpenChange(false) }]}>
         <Modal.Section>
-          <LegacyStack vertical spacing="loose">
+          <BlockStack gap="400">
             <Text as="p" tone="subdued">
               Puedes cambiar el dominio de tu tienda mas de una vez. Pero ten en cuenta que esta acción puede tener un
               impacto en el tráfico de tu tienda.
@@ -125,7 +123,7 @@ export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdate
               autoComplete="off"
               helpText={renderHelpText()}
             />
-          </LegacyStack>
+          </BlockStack>
         </Modal.Section>
       </Modal>
     </>

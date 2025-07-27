@@ -12,6 +12,7 @@ export interface AddToCartRequest {
   variantId?: string | null;
   quantity: number;
   sessionId?: string;
+  selectedAttributes?: Record<string, string>;
 }
 
 export interface UpdateCartRequest {
@@ -32,6 +33,8 @@ export interface CartItemContext {
   line_price: number;
   image?: string;
   url?: string;
+  attributes?: any[];
+  selectedAttributes?: Record<string, string>;
 }
 
 export interface CartContext {

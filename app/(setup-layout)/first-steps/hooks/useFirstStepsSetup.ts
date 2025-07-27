@@ -46,14 +46,15 @@ export const useFirstStepsSetup = () => {
         storeName: formData.storeName,
         storeDescription: formData.description,
         storeCurrency: 'COP',
+        currencyFormat: '${{amount}}',
+        currencyLocale: 'es-CO',
+        currencyDecimalPlaces: 2,
         storeStatus: true,
         storeAdress: formData.location,
         contactEmail: formData.email,
         contactPhone: '',
         contactName: formData.fullName,
         defaultDomain: `${formData.storeName.toLowerCase().replace(/\s+/g, '-')}.fasttify.com`,
-        conctactIdentification: '',
-        contactIdentificationType: '',
         onboardingCompleted: true,
       };
       const templateInput = {
@@ -65,6 +66,9 @@ export const useFirstStepsSetup = () => {
           contactEmail: formData.email,
           contactPhone: '',
           storeAddress: formData.location,
+          currencyFormat: '${{amount}}',
+          currencyLocale: 'es-CO',
+          currencyDecimalPlaces: 2,
         },
       };
       const result = await createStoreAndUploadTemplate(storeInput, templateInput);
@@ -90,6 +94,9 @@ export const useFirstStepsSetup = () => {
       defaultDomain: `${storeName.toLowerCase().replace(/\s+/g, '-')}.fasttify.com`,
       storeType: 'quick-setup',
       storeCurrency: 'COP',
+      currencyFormat: '${{amount}}',
+      currencyLocale: 'es-CO',
+      currencyDecimalPlaces: 2,
       onboardingCompleted: true,
     };
     const templateInput = {
@@ -98,6 +105,9 @@ export const useFirstStepsSetup = () => {
         theme: 'modern',
         currency: 'COP',
         description: 'Tienda creada con configuración rápida',
+        currencyFormat: '${{amount}}',
+        currencyLocale: 'es-CO',
+        currencyDecimalPlaces: 2,
       },
     };
     const result = await createStoreAndUploadTemplate(quickStoreInput, templateInput);

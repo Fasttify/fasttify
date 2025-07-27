@@ -1,15 +1,16 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
-import type {
-  AddToCartRequest,
-  Cart,
-  CartContext,
-  CartItem,
-  CartRaw,
-  CartResponse,
-  UpdateCartRequest,
-} from '@/renderer-engine/types';
+import type { Cart, CartContext, CartItem, CartRaw, CartResponse, UpdateCartRequest } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
+
+export interface AddToCartRequest {
+  storeId: string;
+  productId: string;
+  variantId?: string | null;
+  quantity: number;
+  sessionId?: string;
+  selectedAttributes?: Record<string, string>;
+}
 
 export class CartFetcher {
   /**
@@ -77,7 +78,7 @@ export class CartFetcher {
    */
   public async addToCart(request: AddToCartRequest): Promise<CartResponse> {
     try {
-      const { storeId, productId, variantId, quantity = 1, sessionId } = request;
+      const { storeId, productId, variantId, quantity = 1, sessionId, selectedAttributes } = request;
 
       const currentCart = await this.getCart(storeId, sessionId || '');
       if (!currentCart) {
@@ -96,15 +97,16 @@ export class CartFetcher {
         name: product.name,
         title: product.name,
         slug: product.slug,
-        attributes: product.attributes,
+        attributes: product.attributes || [],
+        selectedAttributes: selectedAttributes || {},
         featured_image: product.featured_image,
         quantity: product.quantity,
         description: product.description,
         price: product.price,
         compare_at_price: product.compare_at_price,
         url: product.url,
-        images: product.images,
-        variants: product.variants,
+        images: product.images || [],
+        variants: product.variants || [],
         status: product.status,
         category: product.category,
         createdAt: product.createdAt,
@@ -303,6 +305,9 @@ export class CartFetcher {
               line_price: item.totalPrice,
               image: productSnapshotParsed.images?.[0] || '',
               url: `/products/${productSnapshotParsed.slug || productSnapshotParsed.id}`,
+              attributes: productSnapshotParsed.attributes || [],
+              selectedAttributes: productSnapshotParsed.selectedAttributes || {},
+              variant_title: productSnapshotParsed.variant_title || '',
             };
           })
         : [],

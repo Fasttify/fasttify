@@ -34,6 +34,12 @@ export interface RenderContext {
   pagination?: PaginationContext;
   preloaded_sections?: Record<string, string>;
   _assetCollector?: AssetCollector;
+  _currency_config?: {
+    currency: string;
+    format: string;
+    locale: string;
+    decimalPlaces: number;
+  };
 }
 
 export interface ShopContext {
@@ -43,6 +49,9 @@ export interface ShopContext {
   url: string;
   currency: string;
   money_format: string;
+  currency_format?: string;
+  currency_locale?: string;
+  currency_decimal_places?: number;
   email?: string;
   phone?: string;
   address?: string;

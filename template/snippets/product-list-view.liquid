@@ -1,5 +1,17 @@
- {{ 'list-product.css' | asset_url | stylesheet_tag }}
- {{ 'featured-products.css' | asset_url | stylesheet_tag }}
+{% comment %}
+  Product List View - Vista de lista de productos
+  Actualizado para trabajar con el nuevo sistema modular de carrito
+
+  Características:
+  - Muestra atributos de producto de forma visual (no seleccionables)
+  - Botón "VER OPCIONES" para productos con atributos
+  - Botón "AÑADIR AL CARRITO" para productos sin atributos
+  - Integración con addProductToCart() del sistema modular
+  - Límites en la visualización de atributos para mejor UX
+{% endcomment %}
+
+{{ 'list-product.css' | asset_url | stylesheet_tag }}
+{{ 'featured-products.css' | asset_url | stylesheet_tag }}
 <div class="page-width">
   <h1 class="page-title">Todos los Productos</h1>
   {% paginate products %}
@@ -59,7 +71,6 @@
 
             <!-- Product Badges -->
             <div class="product-badges">
-              {% comment %} Determinar qué badge mostrar basado en las tags del producto {% endcomment %}
               {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
                 <span class="product-badge badge-new">NEW</span>
               {% elsif product.tags contains 'bestseller' %}
@@ -75,19 +86,20 @@
               {% endif %}
             </div>
 
-            <!-- Overlay con botón (solo aparece en hover) -->
             <div class="product-overlay">
               <div class="product-overlay-content">
                 <a href="{{ product.url }}" class="product-btn product-btn-primary">
                   <span>VER PRODUCTO</span>
                 </a>
 
-                {% comment %} Asumo que quieres que el botón "Añadir al carrito" funcione como en featured-products {% endcomment %}
                 <button
                   class="product-btn product-btn-secondary"
-                  onclick="addToCart('{{ product.id }}', 1)"
-                  aria-label="Añadir al carrito">
-                  <span>AÑADIR AL CARRITO</span>
+                  onclick="addProductToCart('{{ product.id }}', 1)"
+                  aria-label="Añadir al carrito"
+                  >
+                  <span>
+                      AÑADIR AL CARRITO
+                  </span>
                 </button>
               </div>
             </div>
@@ -99,29 +111,35 @@
             <h3 class="product-title">{{ product.title }}</h3>
             <div class="product-price">
               {% if product.compare_at_price > product.price %}
-                <span class="price-compare">{{ product.compare_at_price }}</span>
-                <span class="price-current price-sale">{{ product.price }}</span>
+                <span class="price-compare">{{ product.compare_at_price | money }}</span>
+                <span class="price-current price-sale">{{ product.price | money }}</span>
               {% else %}
-                <span class="price-current">{{ product.price }}</span>
+                <span class="price-current">{{ product.price | money }}</span>
               {% endif %}
             </div>
 
-            {% comment %} Iterar sobre todos los atributos del producto {% endcomment %}
+            {% comment %} Mostrar atributos del producto (solo visual, no seleccionables en lista) {% endcomment %}
             {% if product.attributes %}
               <div class="product-attributes-summary">
                 {% for attribute in product.attributes %}
                   <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
                     <div class="attribute-values-list">
                       {% if attribute.name == 'color' %}
-                        {% comment %} Si el atributo es 'color', mostrar círculos de color {% endcomment %}
-                        {% for value in attribute.values %}
+                        {% comment %} Para colores, mostrar círculos de color {% endcomment %}
+                        {% for value in attribute.values limit: 4 %}
                           <span class="color-swatch" style="background-color: {{ value | downcase }};" title="{{ value }}"></span>
                         {% endfor %}
+                        {% if attribute.values.size > 4 %}
+                          <span class="attribute-more">+{{ attribute.values.size | minus: 4 }}</span>
+                        {% endif %}
                       {% else %}
-                        {% comment %} Para otros atributos (talla, material, etc.), mostrar los valores como texto {% endcomment %}
-                        {% for value in attribute.values %}
+                        {% comment %} Para otros atributos, mostrar los primeros valores {% endcomment %}
+                        {% for value in attribute.values limit: 3 %}
                           <span class="attribute-value-item">{{ value }}</span>
                         {% endfor %}
+                        {% if attribute.values.size > 3 %}
+                          <span class="attribute-more">+{{ attribute.values.size | minus: 3 }}</span>
+                        {% endif %}
                       {% endif %}
                     </div>
                   </div>
@@ -163,11 +181,11 @@
 
 <style>
   .product-attributes-summary {
-    margin-top: 10px;
+    margin-top: 8px;
     padding: 0 5px;
   }
   .attribute-display {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .attribute-name-label {
     font-size: 0.85em;
@@ -177,28 +195,46 @@
   .attribute-values-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px;
     align-items: center;
   }
   .color-swatch {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    border: 1px solid #ccc;
-    cursor: pointer;
+    border: 1px solid #ddd;
+    cursor: default;
     box-shadow: 0 0 2px rgba(0,0,0,0.1);
+    flex-shrink: 0;
   }
   .attribute-value-item {
-    padding: 4px 8px;
+    padding: 2px 6px;
     border: 1px solid #eee;
     border-radius: 3px;
-    background-color: #fefefe;
-    font-size: 0.8em;
+    background-color: #f8f8f8;
+    font-size: 0.75em;
+    color: #666;
+    white-space: nowrap;
+  }
+  .attribute-more {
+    font-size: 0.7em;
+    color: #999;
+    font-weight: 500;
   }
   .page-title {
     font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-medium);
     text-align: left;
     margin-bottom: 4rem;
+  }
+
+  /* Mejoras para productos con atributos */
+  .product-btn[data-has-attributes="true"] {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+  }
+  .product-btn[data-has-attributes="true"]:hover {
+    background-color: #e0e0e0;
   }
 </style>
