@@ -14,7 +14,23 @@
 {{ 'featured-products.css' | asset_url | stylesheet_tag }}
 <div class="page-width">
   <h1 class="page-title">Todos los Productos</h1>
-  {% paginate products %}
+
+  <!-- Layout con sidebar para filtros -->
+  <div class="products-layout">
+    <!-- Sidebar de filtros -->
+    {% filters
+       style: 'sidebar',
+       css_class: 'product-filters',
+       product_renderer: '.product-grid',
+       max_categories: 8,
+       max_tags: 10,
+       no_results_message: 'No se encontraron productos con estos filtros 🔍',
+       loading_message: 'Filtrando productos...'
+    %}
+
+    <!-- Contenido principal -->
+    <div class="products-main-content">
+      {% paginate products %}
     <div class="product-grid">
       {% for product in products %}
         <div class="product-card">
@@ -156,8 +172,9 @@
       {% endfor %}
     </div>
 
+    {% comment %} Paginación de Liquid (visible cuando no hay filtros) {% endcomment %}
     {% if paginate.previous or paginate.next %}
-      <nav class="custom-pagination" aria-label="Paginación">
+      <nav class="custom-pagination liquid-pagination" aria-label="Paginación" data-pagination-type="liquid">
         {% if paginate.previous %}
           <a class="custom-pagination__link" href="{{ paginate.previous.url }}">
             &larr; Anterior
@@ -176,65 +193,52 @@
       </nav>
     {% endif %}
 
+    {% comment %} Paginación de JavaScript (oculta por defecto, visible con filtros) {% endcomment %}
+    <nav class="custom-pagination js-pagination" aria-label="Paginación con Filtros" style="display: none;" data-pagination-type="javascript">
+      <button class="custom-pagination__link js-prev-page" disabled>
+        &larr; Anterior
+      </button>
+      <button class="custom-pagination__link js-next-page" disabled>
+        Siguiente &rarr;
+      </button>
+    </nav>
+
+    <style>
+      .js-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .js-pagination button {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        background: white;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .js-pagination button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .js-pagination button:not(:disabled):hover {
+        background: #f5f5f5;
+      }
+
+      .js-pagination.hidden {
+        display: none !important;
+      }
+
+      .liquid-pagination.hidden {
+        display: none !important;
+      }
+    </style>
   {% endpaginate %}
+    </div> <!-- Cierre products-main-content -->
+  </div> <!-- Cierre products-layout -->
 </div>
 
-<style>
-  .product-attributes-summary {
-    margin-top: 8px;
-    padding: 0 5px;
-  }
-  .attribute-display {
-    margin-bottom: 6px;
-  }
-  .attribute-name-label {
-    font-size: 0.85em;
-    color: #555;
-    margin-right: 5px;
-  }
-  .attribute-values-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    align-items: center;
-  }
-  .color-swatch {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 1px solid #ddd;
-    cursor: default;
-    box-shadow: 0 0 2px rgba(0,0,0,0.1);
-    flex-shrink: 0;
-  }
-  .attribute-value-item {
-    padding: 2px 6px;
-    border: 1px solid #eee;
-    border-radius: 3px;
-    background-color: #f8f8f8;
-    font-size: 0.75em;
-    color: #666;
-    white-space: nowrap;
-  }
-  .attribute-more {
-    font-size: 0.7em;
-    color: #999;
-    font-weight: 500;
-  }
-  .page-title {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-medium);
-    text-align: left;
-    margin-bottom: 4rem;
-  }
-
-  /* Mejoras para productos con atributos */
-  .product-btn[data-has-attributes="true"] {
-    background-color: #f0f0f0;
-    color: #333;
-    border: 1px solid #ddd;
-  }
-  .product-btn[data-has-attributes="true"]:hover {
-    background-color: #e0e0e0;
-  }
-</style>

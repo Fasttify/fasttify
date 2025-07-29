@@ -20,7 +20,8 @@ export async function buildContextStep(data: RenderingData): Promise<RenderingDa
     data.store!,
     data.pageData!.products,
     data.storeTemplate!,
-    data.pageData!.cartData
+    data.pageData!.cartData,
+    data.navigationMenus
   );
 
   // Combinar datos dinámicos

@@ -34,6 +34,7 @@ export interface RenderContext {
   pagination?: PaginationContext;
   preloaded_sections?: Record<string, string>;
   _assetCollector?: AssetCollector;
+  _store_template?: any;
   _currency_config?: {
     currency: string;
     format: string;
@@ -106,6 +107,7 @@ export interface ProductContext {
   category?: string;
   createdAt: string;
   updatedAt: string;
+  tags?: string[];
 }
 
 export interface ProductAttribute {

@@ -1,4 +1,6 @@
+import { allFilters } from '@/renderer-engine/liquid/filters';
 import {
+  FiltersTag,
   FormTag,
   IncludeTag,
   JavaScriptTag,
@@ -9,8 +11,7 @@ import {
   SectionTag,
   StyleTag,
   StylesheetTag,
-} from '@/renderer-engine/liquid';
-import { allFilters } from '@/renderer-engine/liquid/filters';
+} from '@/renderer-engine/liquid/tags';
 import { AssetCollector } from '@/renderer-engine/services/rendering/asset-collector';
 import type { LiquidContext, LiquidEngineConfig, TemplateError } from '@/renderer-engine/types';
 import { Liquid, Template } from 'liquidjs';
@@ -97,6 +98,7 @@ class LiquidEngine {
     this.liquid.registerTag('script', ScriptTag);
     this.liquid.registerTag('javascript', JavaScriptTag);
     this.liquid.registerTag('form', FormTag);
+    this.liquid.registerTag('filters', FiltersTag);
   }
 
   /**
