@@ -75,12 +75,21 @@ export async function generateStoreMetadata(
             siteName: metadata.openGraph.site_name,
           }
         : undefined,
-      twitter: metadata.openGraph
+      twitter: metadata.twitterCardData
         ? {
-            card: 'summary_large_image',
-            title: metadata.openGraph.title,
-            description: metadata.openGraph.description,
-            images: metadata.openGraph.image ? [metadata.openGraph.image] : undefined,
+            card: metadata.twitterCardData.card,
+            site: metadata.twitterCardData.site,
+            creator: metadata.twitterCardData.creator,
+            title: metadata.twitterCardData.title,
+            description: metadata.twitterCardData.description,
+            images: metadata.twitterCardData.image
+              ? [
+                  {
+                    url: metadata.twitterCardData.image,
+                    alt: metadata.twitterCardData.image_alt || metadata.twitterCardData.title,
+                  },
+                ]
+              : undefined,
           }
         : undefined,
       other: metadata.schema

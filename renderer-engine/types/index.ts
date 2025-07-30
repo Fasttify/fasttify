@@ -34,6 +34,7 @@ export type {
   TemplateData,
   TemplateError,
   TemplateFile,
+  TwitterCardData,
 } from '@/renderer-engine/types/template';
 
 // Liquid types

@@ -1,15 +1,19 @@
-import type { OpenGraphData, RenderResult, SchemaData } from '@/renderer-engine/types';
+import type { OpenGraphData, RenderResult, SchemaData, TwitterCardData } from '@/renderer-engine/types/template';
 
 export class MetadataGenerator {
   /**
    * Genera metadata SEO para la homepage
    */
-  public generateMetadata(store: any, domain: string, pageTitle?: string): RenderResult['metadata'] {
+  public generateMetadata(store: any, pageTitle?: string): RenderResult['metadata'] {
     // Si se proporciona un título de página específico, usarlo con el nombre de la tienda
     const title = pageTitle ? `${pageTitle} | ${store.storeName}` : `${store.storeName} - Tienda Online`;
 
     const description = store.storeDescription;
-    const url = `https://${domain}`;
+    const activeDomain =
+      store.storeCustomDomain?.customDomain && store.storeCustomDomain.customDomainStatus === 'ACTIVE'
+        ? store.storeCustomDomain.customDomain
+        : store.defaultDomain;
+    const url = `https://${activeDomain}`;
     const image = store.storeLogo || store.storeBanner;
 
     const openGraph: OpenGraphData = {
@@ -38,7 +42,16 @@ export class MetadataGenerator {
           }
         : undefined,
       currenciesAccepted: store.storeCurrency,
-      paymentAccepted: ['Credit Card', 'Debit Card'],
+      paymentAccepted: ['Credit Card', 'Debit Card', 'Cash', 'Bank Transfer', 'PayPal'],
+    };
+
+    const twitterCardData: TwitterCardData = {
+      card: image ? 'summary_large_image' : 'summary',
+      site: '@tu_nombre_de_usuario_twitter',
+      title,
+      description,
+      image,
+      image_alt: `${store.storeName} logo`,
     };
 
     return {
@@ -49,6 +62,7 @@ export class MetadataGenerator {
       schema,
       icons: image,
       keywords: ['ecommerce', 'tienda online', store.storeName, 'compras online'],
+      twitterCardData,
     };
   }
 
@@ -93,8 +107,12 @@ export class MetadataGenerator {
     headContent.push(`<meta name="robots" content="index, follow">`);
 
     // Canonical URL
-    if (store.customDomain) {
-      headContent.push(`<link rel="canonical" href="https://${store.customDomain}">`);
+    const activeDomain =
+      store.storeCustomDomain?.customDomain && store.storeCustomDomain.customDomainStatus === 'ACTIVE'
+        ? store.storeCustomDomain.customDomain
+        : store.defaultDomain;
+    if (activeDomain) {
+      headContent.push(`<link rel="canonical" href="https://${activeDomain}">`);
     }
 
     return headContent.join('\n    ');
