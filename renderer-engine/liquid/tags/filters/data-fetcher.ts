@@ -34,6 +34,7 @@ export class FilterDataFetcher {
     const tags = new Set<string>();
     const vendors = new Set<string>();
     const prices: number[] = [];
+    const collections = new Set<string>();
 
     // Extraer datos de cada producto
     products.forEach((product, index) => {
@@ -61,6 +62,26 @@ export class FilterDataFetcher {
 
       if (product.price && typeof product.price === 'number') {
         prices.push(product.price);
+      }
+
+      // Extraer colecciones
+      if (product.collections && product.collections !== '[]') {
+        try {
+          const parsedCollections = JSON.parse(product.collections);
+          if (Array.isArray(parsedCollections)) {
+            parsedCollections.forEach((col: string) => collections.add(col));
+          } else if (typeof product.collections === 'string' && product.collections.trim()) {
+            collections.add(product.collections.trim());
+          }
+        } catch (e) {
+          // Si no es JSON válido, tratar como string simple
+          if (typeof product.collections === 'string' && product.collections.trim()) {
+            collections.add(product.collections.trim());
+          }
+        }
+      } else if (product.collection && typeof product.collection === 'string' && product.collection.trim()) {
+        // Si no hay 'collections' (plural), buscar 'collection' (singular)
+        collections.add(product.collection.trim());
       }
     });
 
@@ -91,11 +112,17 @@ export class FilterDataFetcher {
       count: 0,
     }));
 
+    const collectionsArray = Array.from(collections).map((col) => ({
+      value: col,
+      label: col.charAt(0).toUpperCase() + col.slice(1),
+      count: 0,
+    }));
+
     const result = {
       categories: categoriesArray,
       tags: tagsArray,
       vendors: vendorsArray,
-      collections: [], // Las colecciones se manejan por separado
+      collections: collectionsArray,
       priceRange,
       sortOptions: [
         { value: 'createdAt', label: 'Más recientes' },
