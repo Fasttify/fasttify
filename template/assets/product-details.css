@@ -111,8 +111,8 @@
   background-color: rgba(255, 255, 255, 0.8);
   padding: 5px 10px;
   border-radius: 20px;
-  font-size: 0.9em;
-  font-weight: bold;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: #333;
   pointer-events: auto;
   z-index: 10;
@@ -165,7 +165,7 @@
 }
 
 .product-placeholder p {
-  font-size: 0.9em;
+  font-size: var(--font-size-base);
 }
 
 .product__info {
@@ -201,9 +201,15 @@
 .product-vendor {
   color: #555;
   margin-bottom: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 }
 
 .product-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
   margin: 0;
@@ -211,6 +217,7 @@
 }
 
 .product__price {
+  font-family: var(--font-body);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   margin-top: 5px;
@@ -218,6 +225,7 @@
 }
 
 .shipping-info {
+  font-family: var(--font-body);
   color: #555;
   text-decoration: underline;
   cursor: pointer;
@@ -226,9 +234,11 @@
 }
 
 .product__description {
+  font-family: var(--font-body);
   color: #333;
   line-height: 1.6;
   margin-bottom: 15px;
+  font-size: var(--font-size-base);
 }
 
 .product-option-group {
@@ -236,12 +246,14 @@
 }
 
 .product-option-name {
+  font-family: var(--font-body);
   color: #000;
   margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 5px;
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 .selected-option-value {
@@ -281,6 +293,8 @@
   text-align: center;
   transition: all 0.2s ease-in-out;
   font-size: var(--font-size-sm);
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-normal);
 }
 
 .size-selector-button.selected,
@@ -295,9 +309,11 @@
 }
 
 .fit-guide-label {
+  font-family: var(--font-body);
   color: #000;
   margin-bottom: 5px;
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 .fit-guide-bar {
@@ -308,8 +324,10 @@
 }
 
 .fit-guide-text {
+  font-family: var(--font-body);
   color: #555;
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
 }
 
 .fit-guide-progress {
@@ -327,10 +345,12 @@
 }
 
 .sizing-guide-link {
+  font-family: var(--font-body);
   color: #555;
   text-decoration: underline;
   display: block;
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
 }
 
 /* Quantity Selector and Buttons */
@@ -351,9 +371,11 @@
   border: none;
     padding: 8px 12px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
   color: #000;
   transition: background-color 0.2s;
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-normal);
 }
 
 .quantity-btn:hover {
@@ -367,7 +389,9 @@
   -moz-appearance: textfield;
   appearance: textfield;
   color: #000;
-  font-size: 0.9rem;
+  font-size: var(--font-size-base);
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-normal);
 }
 
 /* Buttons */
@@ -383,7 +407,9 @@
   transition: all 0.2s ease-in-out;
   position: relative;
   overflow: hidden;
+  font-family: var(--font-body);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 .add-to-cart-btn {
@@ -469,15 +495,22 @@
 }
 
 .pickup-info__details p {
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
   margin: 0;
   line-height: 1.4;
+  color: #333;
 }
 
 .pickup-info__link {
+  font-family: var(--font-body);
   color: #555;
   text-decoration: underline;
   margin-top: 5px;
   display: inline-block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
 }
 
 /* Product Attributes Summary */
@@ -488,6 +521,7 @@
   background-color: #f9f9f9;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
+  font-family: var(--font-body);
 }
 
 .attribute-display {
@@ -537,11 +571,12 @@
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   background-color: #fff;
-  font-size: 0.85em;
+  font-size: var(--font-size-sm);
   color: #333;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: var(--font-body);
 }
 
 .attribute-value-item:hover {

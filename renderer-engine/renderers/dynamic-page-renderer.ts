@@ -53,6 +53,7 @@ export interface RenderingData {
   renderedContent?: string;
   html?: string;
   metadata?: any;
+  navigationMenus?: any;
   cacheKey?: string;
 }
 

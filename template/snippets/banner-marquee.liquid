@@ -1,7 +1,5 @@
 {% assign bg_color = background | default: '#ffffff' %}
 {% assign txt_color = text_color | default: '#000000' %}
-{% assign font_sz = font_size | default: 40 %}
-{% assign font_wt = font_weight | default: '700' %}
 {% assign txt_transform = text_transform | default: 'uppercase' %}
 {% assign anim_speed = speed | default: 20 %}
 {% assign vertical_padding = padding | default: 15 %}
@@ -91,8 +89,9 @@
   .marquee-item {
     display: inline-block;
     color: {{ txt_color }};
-    font-size: {{ font_sz }}px;
-    font-weight: {{ font_wt }};
+    font-family: var(--font-heading);
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
     text-transform: {{ txt_transform }};
     padding: 0 10px;
     white-space: nowrap;
@@ -101,7 +100,9 @@
   .marquee-separator {
     display: inline-block;
     color: {{ txt_color }};
-    font-size: {{ font_sz }}px;
+    font-family: var(--font-heading);
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
     padding: 0 15px;
   }
 

@@ -10,13 +10,14 @@ export class ContextBuilder {
     store: any,
     products: any[],
     storeTemplate?: any,
-    cartData?: CartContext
+    cartData?: CartContext,
+    navigationMenus?: any
   ): Promise<RenderContext> {
     // Construir las partes del contexto
     const shop = this.createShopContext(store);
     const page = this.createPageContext(store);
     const cart = cartData || this.createEmptyCart();
-    const linklists = await this.createLinkLists(store.storeId, storeTemplate);
+    const linklists = await this.createLinkLists(store.storeId, storeTemplate, navigationMenus);
 
     // Variables globales para configuración de moneda
     const currencyConfig = {
@@ -40,6 +41,7 @@ export class ContextBuilder {
       linklists,
       cart,
       _currency_config: currencyConfig,
+      _store_template: storeTemplate, // Agregar acceso al storeTemplate
     };
   }
 
@@ -119,7 +121,29 @@ export class ContextBuilder {
   /**
    * Crea linklists con fallback simple
    */
-  private async createLinkLists(storeId: string, storeTemplate?: any): Promise<any> {
+  private async createLinkLists(storeId: string, storeTemplate?: any, navigationMenus?: any): Promise<any> {
+    // Usar navigationMenus si están disponibles
+    if (navigationMenus) {
+      try {
+        // Convertir navigationMenus a linklists directamente
+        const linklists: any = {};
+        if (navigationMenus.menus) {
+          navigationMenus.menus.forEach((menu: any) => {
+            linklists[menu.handle] = {
+              title: menu.name,
+              handle: menu.handle,
+              links: menu.items || [],
+            };
+          });
+        }
+        if (Object.keys(linklists).length > 0) {
+          return linklists;
+        }
+      } catch (error) {
+        logger.warn('Failed to load navigation menus from provided data:', error);
+      }
+    }
+
     // Intentar cargar desde base de datos
     try {
       const linklists = await linkListService.createLinkListsFromDatabase(storeId);

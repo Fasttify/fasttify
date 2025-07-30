@@ -14,7 +14,7 @@ export async function loadDataStep(data: RenderingData): Promise<RenderingData> 
   const templatePath = pageConfig.getTemplatePath(data.options.pageType);
   const isJsonTemplate = templatePath.endsWith('.json');
 
-  const [layout, compiledLayout, storeTemplate, pageTemplate, compiledPageTemplate] = await Promise.all([
+  const [layout, compiledLayout, navigationMenus, pageTemplate, compiledPageTemplate] = await Promise.all([
     templateLoader.loadMainLayout(data.store!.storeId),
     templateLoader.loadMainLayoutCompiled(data.store!.storeId),
     dataFetcher.getStoreNavigationMenus(data.store!.storeId),
@@ -23,6 +23,17 @@ export async function loadDataStep(data: RenderingData): Promise<RenderingData> 
       ? Promise.resolve(undefined)
       : templateLoader.loadCompiledTemplate(data.store!.storeId, templatePath),
   ]);
+
+  // Cargar la configuración del template para obtener products_per_page
+  let storeTemplate = null;
+  if (isJsonTemplate && pageTemplate) {
+    try {
+      const templateConfig = JSON.parse(pageTemplate.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1'));
+      storeTemplate = { templates: { [data.options.pageType]: templateConfig } };
+    } catch (error) {
+      logger.warn('Error parsing template config:', error);
+    }
+  }
 
   const [settingsSchema] = await Promise.all([
     templateLoader.loadTemplate(data.store!.storeId, 'config/settings_schema.json').catch(() => null),
@@ -51,5 +62,14 @@ export async function loadDataStep(data: RenderingData): Promise<RenderingData> 
     'DynamicPageRenderer'
   );
 
-  return { ...data, layout, compiledLayout, pageData, storeTemplate, pageTemplate, compiledPageTemplate };
+  return {
+    ...data,
+    layout,
+    compiledLayout,
+    pageData,
+    storeTemplate,
+    pageTemplate,
+    compiledPageTemplate,
+    navigationMenus,
+  };
 }

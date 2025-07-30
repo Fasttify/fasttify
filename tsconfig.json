@@ -24,5 +24,11 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "amplify/**/*", ".amplify/**/*", "template/**/*", "lambda/**/*"]
+  "exclude": [
+    "node_modules",
+    "amplify/**/*",
+    ".amplify/**/*",
+    "template/**/*",
+    "lambda-edge-host-rewriter/**/*-host-rewriter/**/*"
+  ]
 }

@@ -1,88 +1,91 @@
-{% comment %}
-  Product List View - Vista de lista de productos
-  Actualizado para trabajar con el nuevo sistema modular de carrito
-
-  Características:
-  - Muestra atributos de producto de forma visual (no seleccionables)
-  - Botón "VER OPCIONES" para productos con atributos
-  - Botón "AÑADIR AL CARRITO" para productos sin atributos
-  - Integración con addProductToCart() del sistema modular
-  - Límites en la visualización de atributos para mejor UX
-{% endcomment %}
-
 {{ 'list-product.css' | asset_url | stylesheet_tag }}
 {{ 'featured-products.css' | asset_url | stylesheet_tag }}
+{{ 'filter-styles.css' | asset_url | stylesheet_tag }}
+
 <div class="page-width">
-  <h1 class="page-title">Todos los Productos</h1>
+  <div class="products-layout">
+    <!-- Sidebar con filtros -->
+    <aside class="filters-sidebar">
+      {% filters
+        storeId: store.id,
+        cssClass: 'product-filters',
+        title: 'FILTER AND SORT',
+        showPriceRange: true,
+        showSortOptions: true,
+        showClearButton: true,
+        showCounts: true,
+        maxCategories: 10,
+        maxTags: 15,
+        maxVendors: 8,
+        maxCollections: 6,
+        infiniteScroll: true,
+        scrollThreshold: 100,
+        debounceDelay: 300,
+        loadingMessage: 'Cargando productos...',
+        noResultsMessage: 'No se encontraron productos',
+        errorMessage: 'Error cargando productos',
+        clearFiltersText: 'Limpiar filtros'
+      %}
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="products-main">
+      <h1 class="page-title">Todos los Productos</h1>
   {% paginate products %}
-    <div class="product-grid">
+    <div class="product-grid" data-products id="products-container">
       {% for product in products %}
         <div class="product-card">
           <!-- Imagen del producto -->
           <div class="product-image-wrapper">
             <a href="{{ product.url }}" class="product-link">
               {% if product.images.size > 1 %}
-                <!-- Con imagen secundaria: aplicar clases para el hover -->
-                <img
-                  class="product-image product-image-primary"
-                  src="{{ product.featured_image | img_url: '600x800' }}"
-                  alt="{{ product.title | escape }}"
-                  loading="lazy">
-                <img
-                  class="product-image product-image-secondary"
-                  src="{{ product.images[1] | img_url: '600x800' }}"
-                  alt="{{ product.title | escape }}"
-                  loading="lazy">
-                <!-- Indicador de múltiples imágenes -->
-                <div class="multiple-images-indicator">
-                  <div class="indicator-dot active"></div>
-                  <div class="indicator-dot"></div>
-                  {% if product.images.size > 2 %}
-                    <div class="indicator-dot"></div>
-                  {% endif %}
-                </div>
+              <!-- Con imagen secundaria: aplicar clases para el hover -->
+              <img class="product-image product-image-primary" src="{{ product.featured_image | img_url: '600x800' }}"
+                alt="{{ product.title | escape }}" loading="lazy">
+              <img class="product-image product-image-secondary" src="{{ product.images[1] | img_url: '600x800' }}"
+                alt="{{ product.title | escape }}" loading="lazy">
+              <!-- Indicador de múltiples imágenes -->
+              <div class="multiple-images-indicator">
+                <div class="indicator-dot active"></div>
+                <div class="indicator-dot"></div>
+                {% if product.images.size > 2 %}
+                <div class="indicator-dot"></div>
+                {% endif %}
+              </div>
               {% elsif product.images.size > 0 %}
-                <!-- Con una sola imagen: sin clases de hover -->
-                <img
-                  class="product-image"
-                  src="{{ product.featured_image | img_url: '600x800' }}"
-                  alt="{{ product.title | escape }}"
-                  loading="lazy">
+              <!-- Con una sola imagen: sin clases de hover -->
+              <img class="product-image" src="{{ product.featured_image | img_url: '600x800' }}"
+                alt="{{ product.title | escape }}" loading="lazy">
               {% else %}
-                <!-- Placeholder si no hay imágenes -->
-                <div class="product-placeholder">
-                  <div class="placeholder-content">
-                    <svg
-                      width="60"
-                      height="60"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21,15 16,10 5,21" />
-                    </svg>
-                    <p>Imagen del producto</p>
-                  </div>
+              <!-- Placeholder si no hay imágenes -->
+              <div class="product-placeholder">
+                <div class="placeholder-content">
+                  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21,15 16,10 5,21" />
+                  </svg>
+                  <p>Imagen del producto</p>
                 </div>
+              </div>
               {% endif %}
             </a>
 
             <!-- Product Badges -->
             <div class="product-badges">
               {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
-                <span class="product-badge badge-new">NEW</span>
+              <span class="product-badge badge-new">NEW</span>
               {% elsif product.tags contains 'bestseller' %}
-                <span class="product-badge badge-bestseller">BESTSELLER</span>
+              <span class="product-badge badge-bestseller">BESTSELLER</span>
               {% elsif product.tags contains 'trending' %}
-                <span class="product-badge badge-trending">TRENDING</span>
+              <span class="product-badge badge-trending">TRENDING</span>
               {% endif %}
 
               {% if product.compare_at_price > product.price %}
-                <span class="product-badge badge-sale">
-                  SAVE {{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}%
-                </span>
+              <span class="product-badge badge-sale">
+                SAVE {{ product.compare_at_price | minus: product.price | times: 100 | divided_by:
+                product.compare_at_price | round }}%
+              </span>
               {% endif %}
             </div>
 
@@ -92,13 +95,10 @@
                   <span>VER PRODUCTO</span>
                 </a>
 
-                <button
-                  class="product-btn product-btn-secondary"
-                  onclick="addProductToCart('{{ product.id }}', 1)"
-                  aria-label="Añadir al carrito"
-                  >
+                <button class="product-btn product-btn-secondary" onclick="addProductToCart('{{ product.id }}', 1)"
+                  aria-label="Añadir al carrito">
                   <span>
-                      AÑADIR AL CARRITO
+                    AÑADIR AL CARRITO
                   </span>
                 </button>
               </div>
@@ -120,31 +120,32 @@
 
             {% comment %} Mostrar atributos del producto (solo visual, no seleccionables en lista) {% endcomment %}
             {% if product.attributes %}
-              <div class="product-attributes-summary">
-                {% for attribute in product.attributes %}
-                  <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
-                    <div class="attribute-values-list">
-                      {% if attribute.name == 'color' %}
-                        {% comment %} Para colores, mostrar círculos de color {% endcomment %}
-                        {% for value in attribute.values limit: 4 %}
-                          <span class="color-swatch" style="background-color: {{ value | downcase }};" title="{{ value }}"></span>
-                        {% endfor %}
-                        {% if attribute.values.size > 4 %}
-                          <span class="attribute-more">+{{ attribute.values.size | minus: 4 }}</span>
-                        {% endif %}
-                      {% else %}
-                        {% comment %} Para otros atributos, mostrar los primeros valores {% endcomment %}
-                        {% for value in attribute.values limit: 3 %}
-                          <span class="attribute-value-item">{{ value }}</span>
-                        {% endfor %}
-                        {% if attribute.values.size > 3 %}
-                          <span class="attribute-more">+{{ attribute.values.size | minus: 3 }}</span>
-                        {% endif %}
-                      {% endif %}
-                    </div>
-                  </div>
-                {% endfor %}
+            <div class="product-attributes-summary">
+              {% for attribute in product.attributes %}
+              <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
+                <div class="attribute-values-list">
+                  {% if attribute.name == 'color' %}
+                  {% comment %} Para colores, mostrar círculos de color {% endcomment %}
+                  {% for value in attribute.values limit: 4 %}
+                  <span class="color-swatch" style="background-color: {{ value | downcase }};"
+                    title="{{ value }}"></span>
+                  {% endfor %}
+                  {% if attribute.values.size > 4 %}
+                  <span class="attribute-more">+{{ attribute.values.size | minus: 4 }}</span>
+                  {% endif %}
+                  {% else %}
+                  {% comment %} Para otros atributos, mostrar los primeros valores {% endcomment %}
+                  {% for value in attribute.values limit: 3 %}
+                  <span class="attribute-value-item">{{ value }}</span>
+                  {% endfor %}
+                  {% if attribute.values.size > 3 %}
+                  <span class="attribute-more">+{{ attribute.values.size | minus: 3 }}</span>
+                  {% endif %}
+                  {% endif %}
+                </div>
               </div>
+              {% endfor %}
+            </div>
             {% endif %}
 
           </div>
@@ -159,82 +160,24 @@
     {% if paginate.previous or paginate.next %}
       <nav class="custom-pagination" aria-label="Paginación">
         {% if paginate.previous %}
-          <a class="custom-pagination__link" href="{{ paginate.previous.url }}">
-            &larr; Anterior
-          </a>
+        <a class="custom-pagination__link" href="{{ paginate.previous.url }}">
+          &larr; Anterior
+        </a>
         {% else %}
-          <span class="custom-pagination__link custom-pagination__link--disabled">&larr; Anterior</span>
+        <span class="custom-pagination__link custom-pagination__link--disabled">&larr; Anterior</span>
         {% endif %}
 
         {% if paginate.next %}
-          <a class="custom-pagination__link" href="{{ paginate.next.url }}">
-            Siguiente &rarr;
-          </a>
+        <a class="custom-pagination__link" href="{{ paginate.next.url }}">
+          Siguiente &rarr;
+        </a>
         {% else %}
-          <span class="custom-pagination__link custom-pagination__link--disabled">Siguiente &rarr;</span>
+        <span class="custom-pagination__link custom-pagination__link--disabled">Siguiente &rarr;</span>
         {% endif %}
       </nav>
     {% endif %}
 
   {% endpaginate %}
+    </main>
+  </div>
 </div>
-
-<style>
-  .product-attributes-summary {
-    margin-top: 8px;
-    padding: 0 5px;
-  }
-  .attribute-display {
-    margin-bottom: 6px;
-  }
-  .attribute-name-label {
-    font-size: 0.85em;
-    color: #555;
-    margin-right: 5px;
-  }
-  .attribute-values-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    align-items: center;
-  }
-  .color-swatch {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 1px solid #ddd;
-    cursor: default;
-    box-shadow: 0 0 2px rgba(0,0,0,0.1);
-    flex-shrink: 0;
-  }
-  .attribute-value-item {
-    padding: 2px 6px;
-    border: 1px solid #eee;
-    border-radius: 3px;
-    background-color: #f8f8f8;
-    font-size: 0.75em;
-    color: #666;
-    white-space: nowrap;
-  }
-  .attribute-more {
-    font-size: 0.7em;
-    color: #999;
-    font-weight: 500;
-  }
-  .page-title {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-medium);
-    text-align: left;
-    margin-bottom: 4rem;
-  }
-
-  /* Mejoras para productos con atributos */
-  .product-btn[data-has-attributes="true"] {
-    background-color: #f0f0f0;
-    color: #333;
-    border: 1px solid #ddd;
-  }
-  .product-btn[data-has-attributes="true"]:hover {
-    background-color: #e0e0e0;
-  }
-</style>

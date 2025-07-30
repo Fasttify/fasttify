@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   <img src="${product.featured_image}" alt="${product.title}" loading="lazy">
                   <a href="${product.url}" class="product-card-link">
                     <h3>${product.title}</h3>
-                    <p>${product.price}</p>
+                    <p>${window.formatMoney(product.price)}</p>
                   </a>
                 </div>
               `).join('');

@@ -20,6 +20,7 @@ Esta documentación cubre desde la personalización de temas y plantillas, hasta
 
 - [Amplify Gen 2 Pagination Gotchas](./engine/amplify-gen2-pagination-gotchas.md) - Problemas conocidos de paginación
 - [Cart System](./engine/cart-system.md) - **Sistema completo de carrito** - Guía para implementar carrito lateral en temas
+- [Filters System](./engine/filters-system.md) - **Sistema de filtros de productos** - Guía completa para implementar filtros avanzados
 - [Filters & Tags](./engine/filters-tags.md) - Filtros y tags Liquid disponibles
 - [Liquid Data Access](./engine/liquid-data-access.md) - Acceso a datos en templates Liquid
 - [Pages and Policies](./engine/pages-and-policies.md) - Sistema de páginas y políticas
@@ -91,6 +92,21 @@ Sistema de carrito lateral con funcionalidad completa para e-commerce:
 - ✅ **Sistema de templates** para generación de HTML
 - ✅ **Helpers reutilizables** para formateo y utilidades
 
+### Sistema de Filtros Avanzado
+
+Sistema de filtros de productos con funcionalidad completa:
+
+- ✅ **Filtros dinámicos** por categorías, tags, vendors y colecciones
+- ✅ **Filtro de precio** con rango configurable
+- ✅ **Ordenamiento múltiple** (nombre, precio, fecha, relevancia)
+- ✅ **Scroll infinito** con carga automática de productos
+- ✅ **URL persistente** que mantiene los filtros aplicados
+- ✅ **Token oculto** para paginación sin contaminar la URL
+- ✅ **Formateo automático de moneda** usando función global
+- ✅ **Ocultar paginación** automáticamente cuando hay filtros
+- ✅ **Diseño responsive** con sidebar adaptativo
+- ✅ **Loading states** y manejo de errores robusto
+
 ### Sistema de Búsqueda Automática
 
 El nuevo sistema de búsqueda automática permite que los productos se muestren en el diálogo de búsqueda del header sin configuración manual. Características:
@@ -125,9 +141,10 @@ Sistema automatizado para:
 Si estás desarrollando un tema para Fasttify, comienza con:
 
 1. [Cart System](./engine/cart-system.md) - **Sistema completo de carrito** - Implementación de carrito lateral
-2. [Search System](./engine/search-system.md) - Sistema de búsqueda automática
-3. [Theme Development Guide](./engine/theme-development-guide.md) - Guía de desarrollo
-4. [Filters & Tags](./engine/filters-tags.md) - Filtros disponibles
+2. [Filters System](./engine/filters-system.md) - **Sistema de filtros de productos** - Implementación de filtros avanzados
+3. [Search System](./engine/search-system.md) - Sistema de búsqueda automática
+4. [Theme Development Guide](./engine/theme-development-guide.md) - Guía de desarrollo
+5. [Filters & Tags](./engine/filters-tags.md) - Filtros disponibles
 
 ### Para Desarrolladores del Core
 
@@ -155,6 +172,32 @@ Si estás trabajando en el motor de renderizado:
 <button onclick="addToCart('{{ product.id }}', 1)">
   Agregar al Carrito
 </button>
+```
+
+### Implementar Filtros en un Tema
+
+```liquid
+<!-- En product-list-view.liquid -->
+<div class="product-page">
+  {% filters
+    storeId: store.id,
+    cssClass: 'product-filters',
+    title: 'Filtrar Productos',
+    showPriceRange: true,
+    showSortOptions: true,
+    infiniteScroll: true
+  %}
+
+  <div class="product-grid" id="products-container" data-products>
+    {% for product in products %}
+      <div class="product-card" data-product-id="{{ product.id }}">
+        <img src="{{ product.featured_image | image_url: width: 300 }}">
+        <h3>{{ product.title }}</h3>
+        <p>{{ product.price | money }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
 ```
 
 ### Configurar Búsqueda en un Tema
@@ -211,4 +254,4 @@ Para preguntas sobre la documentación o el sistema:
 
 ---
 
-**Última actualización**: Sistema de carrito refactorizado con arquitectura modular, soporte para atributos de producto e integración automática con header (Julio 2025)
+**Última actualización**: Sistema de filtros monolítico restaurado y optimizado, sistema de carrito modular, y documentación completa actualizada (Enero 2025)
