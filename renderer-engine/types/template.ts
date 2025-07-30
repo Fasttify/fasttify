@@ -169,6 +169,7 @@ export interface RenderResult {
     schema: SchemaData;
     icons: string;
     keywords?: string[];
+    twitterCardData?: TwitterCardData;
   };
   cacheKey: string;
   cacheTTL: number;
@@ -181,6 +182,16 @@ export interface OpenGraphData {
   type: 'website' | 'product' | 'article';
   image?: string;
   site_name: string;
+}
+
+export interface TwitterCardData {
+  card: 'summary' | 'summary_large_image' | 'app' | 'player';
+  site: string;
+  creator?: string;
+  title: string;
+  description: string;
+  image?: string;
+  image_alt?: string;
 }
 
 export interface SchemaData {

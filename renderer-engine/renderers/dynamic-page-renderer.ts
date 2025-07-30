@@ -149,7 +149,7 @@ async function renderLayoutStep(data: RenderingData): Promise<RenderingData> {
  */
 async function generateMetadataStep(data: RenderingData): Promise<RenderingData> {
   const pageTitle = (data.context as any).page_title || (data.context as any).page?.title;
-  const metadata = metadataGenerator.generateMetadata(data.store!, data.domain, pageTitle);
+  const metadata = metadataGenerator.generateMetadata(data.store!, pageTitle);
   const cacheKey = getPageCacheKey(data.store!.storeId, data.options.pageType);
 
   return { ...data, metadata, cacheKey };
