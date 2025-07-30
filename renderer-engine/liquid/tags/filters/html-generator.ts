@@ -79,25 +79,45 @@ export class FilterHtmlGenerator {
 
     return `
       <div class="${cssClass}__filter-group">
-        <label class="${cssClass}__filter-label">Rango de precios</label>
-        <div class="${cssClass}__price-range">
-          <input
-            type="number"
-            class="${cssClass}__price-input"
-            data-filter="price-min"
-            placeholder="Mínimo"
-            min="${priceRange.min}"
-            max="${priceRange.max}"
-          />
-          <span class="${cssClass}__price-separator">-</span>
-          <input
-            type="number"
-            class="${cssClass}__price-input"
-            data-filter="price-max"
-            placeholder="Máximo"
-            min="${priceRange.min}"
-            max="${priceRange.max}"
-          />
+        <label class="${cssClass}__filter-label">Precio</label>
+        <div class="${cssClass}__price-range-container">
+          <div class="${cssClass}__price-range-slider" data-min="${priceRange.min}" data-max="${priceRange.max}">
+            <div class="${cssClass}__price-range-track">
+              <div class="${cssClass}__price-range-progress"></div>
+            </div>
+            <div class="${cssClass}__price-range-handle ${cssClass}__price-range-handle--left" data-handle="left" data-value="${priceRange.min}"></div>
+            <div class="${cssClass}__price-range-handle ${cssClass}__price-range-handle--right" data-handle="right" data-value="${priceRange.max}"></div>
+          </div>
+          <div class="${cssClass}__price-range-inputs">
+            <div class="${cssClass}__price-input-wrapper">
+              <label class="${cssClass}__price-input-label">Mínimo</label>
+              <input
+                type="text"
+                class="${cssClass}__price-input"
+                data-filter="price-min"
+                placeholder="${priceRange.min}"
+                min="${priceRange.min}"
+                max="${priceRange.max}"
+                value="${priceRange.min}"
+                data-placeholder-formatted="${priceRange.min}"
+              />
+              <span class="${cssClass}__price-display" data-price-display="min"></span>
+            </div>
+            <div class="${cssClass}__price-input-wrapper">
+              <label class="${cssClass}__price-input-label">Máximo</label>
+              <input
+                type="text"
+                class="${cssClass}__price-input"
+                data-filter="price-max"
+                placeholder="${priceRange.max}"
+                min="${priceRange.min}"
+                max="${priceRange.max}"
+                value="${priceRange.max}"
+                data-placeholder-formatted="${priceRange.max}"
+              />
+              <span class="${cssClass}__price-display" data-price-display="max"></span>
+            </div>
+          </div>
         </div>
       </div>
     `;

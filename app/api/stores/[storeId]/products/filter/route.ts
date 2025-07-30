@@ -122,14 +122,17 @@ async function getFilteredProducts(storeId: string, filters: FilterParams): Prom
     }
 
     // Filtro de rango de precios
-    if (filters.price_min !== undefined) {
-      amplifyFilters.price = { ...amplifyFilters.price, gte: filters.price_min };
-    }
-    if (filters.price_max !== undefined) {
-      amplifyFilters.price = { ...amplifyFilters.price, lte: filters.price_max };
+    if (filters.price_min !== undefined && filters.price_max !== undefined) {
+      // Usar between para rangos de precio
+      amplifyFilters.price = {
+        between: [filters.price_min, filters.price_max],
+      };
+    } else if (filters.price_min !== undefined) {
+      amplifyFilters.price = { gte: filters.price_min };
+    } else if (filters.price_max !== undefined) {
+      amplifyFilters.price = { lte: filters.price_max };
     }
 
-    // Ejecutar consulta con filtros
     const response = await cookiesClient.models.Product.listProductByStoreId(
       { storeId },
       {

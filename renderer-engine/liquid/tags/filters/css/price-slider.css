@@ -1,0 +1,119 @@
+/* Estilos para el slider de precios */
+.product-filters__price-range-container {
+  margin: 15px 0;
+}
+
+.product-filters__price-range-slider {
+  position: relative;
+  height: 40px;
+  margin: 20px 0;
+  background: #f1f1f1;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.product-filters__price-range-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #e1e1e1;
+  border-radius: 2px;
+  transform: translateY(-50%);
+}
+
+.product-filters__price-range-progress {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #007cba;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.product-filters__price-range-handle {
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: #007cba;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: grab;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.product-filters__price-range-handle:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.product-filters__price-range-handle:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.product-filters__price-range-inputs {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.product-filters__price-input-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.product-filters__price-input-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.product-filters__price-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
+  transition: border-color 0.2s ease;
+}
+
+.product-filters__price-input:focus {
+  outline: none;
+  border-color: #007cba;
+  box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
+}
+
+.product-filters__price-display {
+  display: block;
+  font-size: 12px;
+  color: #007cba;
+  font-weight: 500;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .product-filters__price-range-inputs {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .product-filters__price-range-slider {
+    height: 30px;
+  }
+
+  .product-filters__price-range-handle {
+    width: 18px;
+    height: 18px;
+  }
+}
