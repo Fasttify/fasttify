@@ -46,8 +46,8 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  font-size: 25px;
-  font-weight: bold;
+  font-size: var(--font-size-2xl); /* Ajustado a variable: 24px */
+  font-weight: var(--font-weight-bold); /* Ajustado a variable */
   cursor: pointer;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -59,6 +59,7 @@
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 .close-button:hover,
@@ -79,7 +80,7 @@
   padding: 0;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl); /* Ajustado a variable: 24px */
   color: #333;
   transition: background-color 0.2s, border-color 0.2s, color 0.2s;
   width: 45px;
@@ -88,6 +89,7 @@
   justify-content: center;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 .nav-arrow.prev-arrow {
@@ -113,7 +115,7 @@
 
 .image-counter {
   color: #fff;
-  font-size: 1rem;
+  font-size: var(--font-size-base); /* Ajustado a variable: 16px */
   position: absolute;
   top: 20px;
   left: 20px;
@@ -121,6 +123,7 @@
   padding: 5px 10px;
   border-radius: 5px;
   z-index: 1001;
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 @media (max-width: 768px) {
@@ -131,7 +134,7 @@
 
   .nav-arrow {
     padding: 8px 12px;
-    font-size: 1.2rem;
+    font-size: var(--font-size-lg); /* Ajustado a variable: 18px */
     width: 40px;
     height: 40px;
   }

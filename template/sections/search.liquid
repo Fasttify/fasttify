@@ -108,10 +108,10 @@
             <h3 class="product-title">{{ product.title }}</h3>
             <div class="product-price">
               {% if product.compare_at_price > product.price %}
-                <span class="price-compare">{{ product.compare_at_price }}</span>
-                <span class="price-current price-sale">{{ product.price }}</span>
+                <span class="price-compare">{{ product.compare_at_price | money }}</span>
+                <span class="price-current price-sale">{{ product.price | money }}</span>
               {% else %}
-                <span class="price-current">{{ product.price }}</span>
+                <span class="price-current">{{ product.price | money }}</span>
               {% endif %}
             </div>
 
@@ -182,6 +182,7 @@
   .page-title {
     font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-medium);
+    font-family: var(--font-heading);
     text-align: left;
     margin-bottom: 4rem;
   }
@@ -189,6 +190,7 @@
     margin-bottom: 8px;
   }
   .attribute-name-label {
+    font-family: var(--font-body);
     font-size: 0.85em;
     color: #555;
     margin-right: 5px;
@@ -208,6 +210,7 @@
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
   }
   .attribute-value-item {
+    font-family: var(--font-body);
     padding: 4px 8px;
     border: 1px solid #eee;
     border-radius: 3px;

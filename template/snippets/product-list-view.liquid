@@ -1,104 +1,91 @@
-{% comment %}
-  Product List View - Vista de lista de productos
-  Actualizado para trabajar con el nuevo sistema modular de carrito
-
-  Características:
-  - Muestra atributos de producto de forma visual (no seleccionables)
-  - Botón "VER OPCIONES" para productos con atributos
-  - Botón "AÑADIR AL CARRITO" para productos sin atributos
-  - Integración con addProductToCart() del sistema modular
-  - Límites en la visualización de atributos para mejor UX
-{% endcomment %}
-
 {{ 'list-product.css' | asset_url | stylesheet_tag }}
 {{ 'featured-products.css' | asset_url | stylesheet_tag }}
-<div class="page-width">
-  <h1 class="page-title">Todos los Productos</h1>
+{{ 'filter-styles.css' | asset_url | stylesheet_tag }}
 
-  <!-- Layout con sidebar para filtros -->
+<div class="page-width">
   <div class="products-layout">
-    <!-- Sidebar de filtros -->
-    {% filters
-       style: 'sidebar',
-       css_class: 'product-filters',
-       product_renderer: '.product-grid',
-       max_categories: 8,
-       max_tags: 10,
-       no_results_message: 'No se encontraron productos con estos filtros 🔍',
-       loading_message: 'Filtrando productos...'
-    %}
+    <!-- Sidebar con filtros -->
+    <aside class="filters-sidebar">
+      {% filters
+        storeId: store.id,
+        cssClass: 'product-filters',
+        title: 'FILTER AND SORT',
+        showPriceRange: true,
+        showSortOptions: true,
+        showClearButton: true,
+        showCounts: true,
+        maxCategories: 10,
+        maxTags: 15,
+        maxVendors: 8,
+        maxCollections: 6,
+        infiniteScroll: true,
+        scrollThreshold: 100,
+        debounceDelay: 300,
+        loadingMessage: 'Cargando productos...',
+        noResultsMessage: 'No se encontraron productos',
+        errorMessage: 'Error cargando productos',
+        clearFiltersText: 'Limpiar filtros'
+      %}
+    </aside>
 
     <!-- Contenido principal -->
-    <div class="products-main-content">
-      {% paginate products %}
-    <div class="product-grid">
+    <main class="products-main">
+      <h1 class="page-title">Todos los Productos</h1>
+  {% paginate products %}
+    <div class="product-grid" data-products id="products-container">
       {% for product in products %}
         <div class="product-card">
           <!-- Imagen del producto -->
           <div class="product-image-wrapper">
             <a href="{{ product.url }}" class="product-link">
               {% if product.images.size > 1 %}
-                <!-- Con imagen secundaria: aplicar clases para el hover -->
-                <img
-                  class="product-image product-image-primary"
-                  src="{{ product.featured_image | img_url: '600x800' }}"
-                  alt="{{ product.title | escape }}"
-                  loading="lazy">
-                <img
-                  class="product-image product-image-secondary"
-                  src="{{ product.images[1] | img_url: '600x800' }}"
-                  alt="{{ product.title | escape }}"
-                  loading="lazy">
-                <!-- Indicador de múltiples imágenes -->
-                <div class="multiple-images-indicator">
-                  <div class="indicator-dot active"></div>
-                  <div class="indicator-dot"></div>
-                  {% if product.images.size > 2 %}
-                    <div class="indicator-dot"></div>
-                  {% endif %}
-                </div>
+              <!-- Con imagen secundaria: aplicar clases para el hover -->
+              <img class="product-image product-image-primary" src="{{ product.featured_image | img_url: '600x800' }}"
+                alt="{{ product.title | escape }}" loading="lazy">
+              <img class="product-image product-image-secondary" src="{{ product.images[1] | img_url: '600x800' }}"
+                alt="{{ product.title | escape }}" loading="lazy">
+              <!-- Indicador de múltiples imágenes -->
+              <div class="multiple-images-indicator">
+                <div class="indicator-dot active"></div>
+                <div class="indicator-dot"></div>
+                {% if product.images.size > 2 %}
+                <div class="indicator-dot"></div>
+                {% endif %}
+              </div>
               {% elsif product.images.size > 0 %}
-                <!-- Con una sola imagen: sin clases de hover -->
-                <img
-                  class="product-image"
-                  src="{{ product.featured_image | img_url: '600x800' }}"
-                  alt="{{ product.title | escape }}"
-                  loading="lazy">
+              <!-- Con una sola imagen: sin clases de hover -->
+              <img class="product-image" src="{{ product.featured_image | img_url: '600x800' }}"
+                alt="{{ product.title | escape }}" loading="lazy">
               {% else %}
-                <!-- Placeholder si no hay imágenes -->
-                <div class="product-placeholder">
-                  <div class="placeholder-content">
-                    <svg
-                      width="60"
-                      height="60"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21,15 16,10 5,21" />
-                    </svg>
-                    <p>Imagen del producto</p>
-                  </div>
+              <!-- Placeholder si no hay imágenes -->
+              <div class="product-placeholder">
+                <div class="placeholder-content">
+                  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21,15 16,10 5,21" />
+                  </svg>
+                  <p>Imagen del producto</p>
                 </div>
+              </div>
               {% endif %}
             </a>
 
             <!-- Product Badges -->
             <div class="product-badges">
               {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
-                <span class="product-badge badge-new">NEW</span>
+              <span class="product-badge badge-new">NEW</span>
               {% elsif product.tags contains 'bestseller' %}
-                <span class="product-badge badge-bestseller">BESTSELLER</span>
+              <span class="product-badge badge-bestseller">BESTSELLER</span>
               {% elsif product.tags contains 'trending' %}
-                <span class="product-badge badge-trending">TRENDING</span>
+              <span class="product-badge badge-trending">TRENDING</span>
               {% endif %}
 
               {% if product.compare_at_price > product.price %}
-                <span class="product-badge badge-sale">
-                  SAVE {{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}%
-                </span>
+              <span class="product-badge badge-sale">
+                SAVE {{ product.compare_at_price | minus: product.price | times: 100 | divided_by:
+                product.compare_at_price | round }}%
+              </span>
               {% endif %}
             </div>
 
@@ -108,13 +95,10 @@
                   <span>VER PRODUCTO</span>
                 </a>
 
-                <button
-                  class="product-btn product-btn-secondary"
-                  onclick="addProductToCart('{{ product.id }}', 1)"
-                  aria-label="Añadir al carrito"
-                  >
+                <button class="product-btn product-btn-secondary" onclick="addProductToCart('{{ product.id }}', 1)"
+                  aria-label="Añadir al carrito">
                   <span>
-                      AÑADIR AL CARRITO
+                    AÑADIR AL CARRITO
                   </span>
                 </button>
               </div>
@@ -136,31 +120,32 @@
 
             {% comment %} Mostrar atributos del producto (solo visual, no seleccionables en lista) {% endcomment %}
             {% if product.attributes %}
-              <div class="product-attributes-summary">
-                {% for attribute in product.attributes %}
-                  <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
-                    <div class="attribute-values-list">
-                      {% if attribute.name == 'color' %}
-                        {% comment %} Para colores, mostrar círculos de color {% endcomment %}
-                        {% for value in attribute.values limit: 4 %}
-                          <span class="color-swatch" style="background-color: {{ value | downcase }};" title="{{ value }}"></span>
-                        {% endfor %}
-                        {% if attribute.values.size > 4 %}
-                          <span class="attribute-more">+{{ attribute.values.size | minus: 4 }}</span>
-                        {% endif %}
-                      {% else %}
-                        {% comment %} Para otros atributos, mostrar los primeros valores {% endcomment %}
-                        {% for value in attribute.values limit: 3 %}
-                          <span class="attribute-value-item">{{ value }}</span>
-                        {% endfor %}
-                        {% if attribute.values.size > 3 %}
-                          <span class="attribute-more">+{{ attribute.values.size | minus: 3 }}</span>
-                        {% endif %}
-                      {% endif %}
-                    </div>
-                  </div>
-                {% endfor %}
+            <div class="product-attributes-summary">
+              {% for attribute in product.attributes %}
+              <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
+                <div class="attribute-values-list">
+                  {% if attribute.name == 'color' %}
+                  {% comment %} Para colores, mostrar círculos de color {% endcomment %}
+                  {% for value in attribute.values limit: 4 %}
+                  <span class="color-swatch" style="background-color: {{ value | downcase }};"
+                    title="{{ value }}"></span>
+                  {% endfor %}
+                  {% if attribute.values.size > 4 %}
+                  <span class="attribute-more">+{{ attribute.values.size | minus: 4 }}</span>
+                  {% endif %}
+                  {% else %}
+                  {% comment %} Para otros atributos, mostrar los primeros valores {% endcomment %}
+                  {% for value in attribute.values limit: 3 %}
+                  <span class="attribute-value-item">{{ value }}</span>
+                  {% endfor %}
+                  {% if attribute.values.size > 3 %}
+                  <span class="attribute-more">+{{ attribute.values.size | minus: 3 }}</span>
+                  {% endif %}
+                  {% endif %}
+                </div>
               </div>
+              {% endfor %}
+            </div>
             {% endif %}
 
           </div>
@@ -172,73 +157,27 @@
       {% endfor %}
     </div>
 
-    {% comment %} Paginación de Liquid (visible cuando no hay filtros) {% endcomment %}
     {% if paginate.previous or paginate.next %}
-      <nav class="custom-pagination liquid-pagination" aria-label="Paginación" data-pagination-type="liquid">
+      <nav class="custom-pagination" aria-label="Paginación">
         {% if paginate.previous %}
-          <a class="custom-pagination__link" href="{{ paginate.previous.url }}">
-            &larr; Anterior
-          </a>
+        <a class="custom-pagination__link" href="{{ paginate.previous.url }}">
+          &larr; Anterior
+        </a>
         {% else %}
-          <span class="custom-pagination__link custom-pagination__link--disabled">&larr; Anterior</span>
+        <span class="custom-pagination__link custom-pagination__link--disabled">&larr; Anterior</span>
         {% endif %}
 
         {% if paginate.next %}
-          <a class="custom-pagination__link" href="{{ paginate.next.url }}">
-            Siguiente &rarr;
-          </a>
+        <a class="custom-pagination__link" href="{{ paginate.next.url }}">
+          Siguiente &rarr;
+        </a>
         {% else %}
-          <span class="custom-pagination__link custom-pagination__link--disabled">Siguiente &rarr;</span>
+        <span class="custom-pagination__link custom-pagination__link--disabled">Siguiente &rarr;</span>
         {% endif %}
       </nav>
     {% endif %}
 
-    {% comment %} Paginación de JavaScript (oculta por defecto, visible con filtros) {% endcomment %}
-    <nav class="custom-pagination js-pagination" aria-label="Paginación con Filtros" style="display: none;" data-pagination-type="javascript">
-      <button class="custom-pagination__link js-prev-page" disabled>
-        &larr; Anterior
-      </button>
-      <button class="custom-pagination__link js-next-page" disabled>
-        Siguiente &rarr;
-      </button>
-    </nav>
-
-    <style>
-      .js-pagination {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-top: 2rem;
-      }
-
-      .js-pagination button {
-        padding: 0.5rem 1rem;
-        border: 1px solid #ddd;
-        background: white;
-        cursor: pointer;
-        border-radius: 4px;
-        font-size: 14px;
-      }
-
-      .js-pagination button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .js-pagination button:not(:disabled):hover {
-        background: #f5f5f5;
-      }
-
-      .js-pagination.hidden {
-        display: none !important;
-      }
-
-      .liquid-pagination.hidden {
-        display: none !important;
-      }
-    </style>
   {% endpaginate %}
-    </div> <!-- Cierre products-main-content -->
-  </div> <!-- Cierre products-layout -->
+    </main>
+  </div>
 </div>
-

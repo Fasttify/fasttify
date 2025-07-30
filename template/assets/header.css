@@ -65,21 +65,24 @@
   color: var(--announcement-text);
   text-align: center;
   padding: 8px 0;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  font-family: var(--font-body);
 }
 
 .announcement-text {
   margin: 0;
   display: inline;
+  font-family: var(--font-body);
 }
 
 .announcement-link {
   color: var(--announcement-text);
   text-decoration: underline;
   margin-left: 8px;
+  font-family: var(--font-body);
 }
 
 /* Main Header */
@@ -148,8 +151,8 @@
 .nav-link {
   color: var(--header-text);
   text-decoration: none;
-  font-weight: 500;
-  font-size: 14px;
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
   letter-spacing: 0.5px;
   text-transform: uppercase;
   padding: 8px 0;
@@ -157,6 +160,7 @@
   align-items: center;
   position: relative;
   transition: color 0.2s ease;
+  font-family: var(--font-body);
 }
 
 .nav-link:hover,
@@ -190,6 +194,7 @@
   transition: all 0.2s ease;
   z-index: 100;
   list-style-type: none;
+  font-family: var(--font-body);
 }
 
 .has-dropdown:hover .dropdown {
@@ -203,11 +208,12 @@
   padding: 12px 20px;
   color: var(--header-text);
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
   transition: background-color 0.2s ease;
   text-transform: none;
   letter-spacing: 0;
+  font-family: var(--font-body);
 }
 
 .dropdown-link:hover,
@@ -238,7 +244,7 @@
   padding: 0;
   cursor: pointer;
   text-decoration: none;
-  font-family: inherit;
+  font-family: var(--font-body);
 }
 
 .header-icon:hover {
@@ -256,8 +262,8 @@
   right: -8px;
   background-color: var(--header-accent);
   color: #fff;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   border-radius: 50%;
   width: 18px;
   height: 18px;
@@ -265,6 +271,7 @@
   align-items: center;
   justify-content: center;
   min-width: 18px;
+  font-family: var(--font-body);
 }
 
 /* Search */
@@ -285,6 +292,7 @@
   border-radius: 50%;
   transition: background-color 0.2s;
   color: var(--header-text);
+  font-family: var(--font-body);
 }
 
 .search-toggle:hover {
@@ -406,6 +414,7 @@
   border-bottom: 1px solid var(--header-border);
   opacity: 0;
   transform: translateX(-20px);
+  font-family: var(--font-body);
 }
 
 .mobile-menu.is-active .mobile-nav-item {
@@ -420,13 +429,14 @@
   justify-content: space-between;
   text-decoration: none;
   color: var(--header-text);
-  font-size: 18px;
-  font-weight: 500;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
   background: none;
   border: none;
   cursor: pointer;
   width: 100%;
   text-align: left;
+  font-family: var(--font-body);
 }
 
 /* Mobile Submenu */
@@ -456,17 +466,19 @@
   gap: 10px;
   cursor: pointer;
   color: var(--header-text);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   width: 100%;
   text-align: left;
   border-bottom: 1px solid var(--header-border);
+  font-family: var(--font-body);
 }
 
 .mobile-submenu-header {
   padding: 15px 20px;
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   border-bottom: 1px solid var(--header-border);
+  font-family: var(--font-heading);
 }
 
 .mobile-submenu-list {
@@ -480,11 +492,11 @@
   display: block;
   text-decoration: none;
   color: var(--header-text);
-  font-size: 16px;
+  font-size: var(--font-size-base);
   border-bottom: 1px solid var(--header-border);
+  font-family: var(--font-body);
 }
 
-/* Responsive adjustments */
 @media (max-width: 989px) {
   .header-main {
     grid-template-columns: auto 1fr auto;
@@ -527,7 +539,6 @@ body.menu-open {
   overflow: hidden;
 }
 
-/* Animation */
 @keyframes slideInFromLeft {
   from {
     opacity: 0;
@@ -539,7 +550,6 @@ body.menu-open {
   }
 }
 
-/* New Search Dialog */
 .search-dialog-overlay {
   position: fixed;
   top: 0;
@@ -609,12 +619,12 @@ body.menu-open {
   width: 100%;
   padding: 0 0 0 10px;
   border: none;
-  font-size: 16px;
+  font-size: var(--font-size-base);
   outline: none;
   background-color: transparent;
+  font-family: var(--font-body);
 }
 
-/* Quitar la X azul del input de búsqueda */
 .search-input::-webkit-search-cancel-button,
 .search-input::-webkit-search-decoration,
 .search-input::-webkit-search-results-button,
@@ -623,7 +633,6 @@ body.menu-open {
   appearance: none;
 }
 
-/* Para Firefox */
 .search-input::-moz-search-cancel {
   display: none;
 }
@@ -648,13 +657,13 @@ body.menu-open {
 }
 
 .search-dialog-products-heading {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
   margin-bottom: 15px;
   color: var(--header-text);
+  font-family: var(--font-heading);
 }
 
-/* Search Dialog Product Grid */
 .search-dialog-products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -665,7 +674,6 @@ body.menu-open {
   padding-bottom: 20px;
 }
 
-/* Individual Product Card in Search Dialog */
 .product-card-placeholder {
   background-color: #f8f8f8;
   border-radius: 8px;
@@ -722,7 +730,6 @@ body.menu-open {
   font-weight: var(--font-weight-normal);
 }
 
-/* Responsive adjustments for products grid */
 @media (max-width: 989px) {
   .search-dialog-products-grid {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -758,7 +765,6 @@ body.search-open {
   overflow: hidden;
 }
 
-/* Responsive adjustments */
 @media (max-width: 989px) {
   .search-dialog-overlay {
     align-items: stretch;
@@ -836,7 +842,6 @@ body.search-open {
   }
 }
 
-/* Limitar el ancho máximo de cada tarjeta */
 .product-card-placeholder {
   max-width: 180px;
   min-width: 140px;
@@ -847,13 +852,11 @@ body.search-open {
   box-shadow: 0 1px 6px rgba(0,0,0,0.03);
 }
 
-/* Centrar el grid cuando hay pocos productos */
 .search-dialog-products-grid {
   justify-content: center;
   justify-items: center;
 }
 
-/* Limitar el tamaño de la imagen */
 .product-card-placeholder img {
   max-width: 120px;
   max-height: 120px;
@@ -865,7 +868,6 @@ body.search-open {
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-/* Cuando solo hay un producto, centrarlo y limitar el grid */
 .search-dialog-products-grid:only-child,
 .search-dialog-products-grid:has(.product-card-placeholder:only-child) {
   justify-content: center;

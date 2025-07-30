@@ -1,76 +1,168 @@
-import { TagToken } from 'liquidjs';
-import { FiltersOptions } from './types';
+import { FilterConfig } from './types';
 
-export class FiltersOptionsParser {
-  static parse(tagToken: TagToken): FiltersOptions {
-    const options: FiltersOptions = {};
-    const args = tagToken.args?.trim() || '';
+export class FilterOptionsParser {
+  /**
+   * Parsea los argumentos del tag Liquid y los convierte en configuración
+   */
+  static parse(args: string[], storeId: string, productsPerPage: number): FilterConfig {
+    const config: FilterConfig = {
+      storeId,
+      productsPerPage,
+      // Valores por defecto
+      cssClass: 'custom-filters',
+      style: 'sidebar',
+      title: 'Filtros',
+      showCounts: true,
+      showPriceRange: true,
+      showSortOptions: true,
+      showClearButton: true,
+      autoApply: true,
+      debounceMs: 500,
+      infiniteScroll: true,
+      noResultsMessage: 'No se encontraron productos con estos filtros',
+      loadingMessage: 'Cargando productos...',
+      clearFiltersText: 'Limpiar filtros',
+      productGridSelector: '.product-grid[data-infinite-scroll="true"]',
+      paginationSelector: '.product-grid-paginated',
+      preserveState: true,
+    };
 
-    if (!args) return options;
-
-    // Parse simple options like: style: 'sidebar', max_categories: 10
-    const optionPairs = args.split(',').map((pair) => pair.trim());
-
-    for (const pair of optionPairs) {
-      const [key, value] = pair.split(':').map((s) => s.trim());
-
-      if (key && value) {
-        const cleanKey = key.replace(/['"]/g, '');
-        const cleanValue = value.replace(/['"]/g, '');
-
-        switch (cleanKey) {
-          case 'style':
-            options.style = cleanValue as 'sidebar' | 'horizontal' | 'modal';
-            break;
-          case 'max_categories':
-            options.maxCategories = parseInt(cleanValue) || 10;
-            break;
-          case 'max_tags':
-            options.maxTags = parseInt(cleanValue) || 15;
-            break;
-          case 'only':
-            options.only = cleanValue.split('|').map((s) => s.trim());
-            break;
-          case 'except':
-            options.except = cleanValue.split('|').map((s) => s.trim());
-            break;
-          // Nuevas opciones de personalización
-          case 'css_class':
-          case 'cssClass':
-            options.cssClass = cleanValue;
-            break;
-          case 'custom_template':
-          case 'customTemplate':
-            options.customTemplate = cleanValue;
-            break;
-          case 'product_renderer':
-          case 'productRenderer':
-            options.productRenderer = cleanValue;
-            break;
-          case 'no_results_message':
-          case 'noResultsMessage':
-            options.noResultsMessage = cleanValue;
-            break;
-          case 'loading_message':
-          case 'loadingMessage':
-            options.loadingMessage = cleanValue;
-            break;
-        }
-      }
+    // Procesar argumentos
+    for (const arg of args) {
+      this.applyConfigValue(config, arg);
     }
 
-    return options;
+    return config;
   }
 
-  static shouldInclude(filterType: string, options: FiltersOptions): boolean {
-    if (options.only) {
-      return options.only.includes(filterType);
+  /**
+   * Aplica un valor de configuración basado en el argumento
+   */
+  private static applyConfigValue(config: FilterConfig, arg: string): void {
+    const [key, value] = arg.split('=');
+
+    if (!key || !value) return;
+
+    switch (key.trim()) {
+      // Personalización de UI
+      case 'css_class':
+        config.cssClass = value.trim();
+        break;
+      case 'style':
+        if (['sidebar', 'horizontal', 'modal', 'dropdown'].includes(value.trim())) {
+          config.style = value.trim() as any;
+        }
+        break;
+      case 'title':
+        config.title = value.trim();
+        break;
+
+      // Opciones de visualización
+      case 'show_counts':
+        config.showCounts = value.trim() === 'true';
+        break;
+      case 'show_price_range':
+        config.showPriceRange = value.trim() === 'true';
+        break;
+      case 'show_sort_options':
+        config.showSortOptions = value.trim() === 'true';
+        break;
+      case 'show_clear_button':
+        config.showClearButton = value.trim() === 'true';
+        break;
+
+      // Límites
+      case 'max_categories':
+        config.maxCategories = parseInt(value.trim());
+        break;
+      case 'max_tags':
+        config.maxTags = parseInt(value.trim());
+        break;
+      case 'max_vendors':
+        config.maxVendors = parseInt(value.trim());
+        break;
+      case 'max_collections':
+        config.maxCollections = parseInt(value.trim());
+        break;
+
+      // Comportamiento
+      case 'auto_apply':
+        config.autoApply = value.trim() === 'true';
+        break;
+      case 'debounce_ms':
+        config.debounceMs = parseInt(value.trim());
+        break;
+      case 'infinite_scroll':
+        config.infiniteScroll = value.trim() === 'true';
+        break;
+
+      // Mensajes
+      case 'no_results_message':
+        config.noResultsMessage = value.trim();
+        break;
+      case 'loading_message':
+        config.loadingMessage = value.trim();
+        break;
+      case 'clear_filters_text':
+        config.clearFiltersText = value.trim();
+        break;
+
+      // Selectores CSS
+      case 'product_grid_selector':
+        config.productGridSelector = value.trim();
+        break;
+      case 'pagination_selector':
+        config.paginationSelector = value.trim();
+        break;
+
+      // Plantillas personalizadas
+      case 'product_template':
+        config.productTemplate = value.trim();
+        break;
+      case 'filter_template':
+        config.filterTemplate = value.trim();
+        break;
+
+      // Estado
+      case 'preserve_state':
+        config.preserveState = value.trim() === 'true';
+        break;
+    }
+  }
+
+  /**
+   * Valida la configuración y aplica valores por defecto si es necesario
+   */
+  static validate(config: FilterConfig): FilterConfig {
+    // Asegurar valores mínimos
+    if (!config.debounceMs || config.debounceMs < 100) {
+      config.debounceMs = 500;
     }
 
-    if (options.except) {
-      return !options.except.includes(filterType);
+    if (!config.productsPerPage || config.productsPerPage < 1) {
+      config.productsPerPage = 50;
     }
 
-    return true;
+    // Asegurar límites razonables
+    if (config.maxCategories && config.maxCategories > 50) {
+      config.maxCategories = 50;
+    }
+
+    if (config.maxTags && config.maxTags > 100) {
+      config.maxTags = 100;
+    }
+
+    if (config.maxVendors && config.maxVendors > 50) {
+      config.maxVendors = 50;
+    }
+
+    if (config.maxCollections && config.maxCollections > 50) {
+      config.maxCollections = 50;
+    }
+
+    // Forzar infinite scroll para filtros
+    config.infiniteScroll = true;
+
+    return config;
   }
 }

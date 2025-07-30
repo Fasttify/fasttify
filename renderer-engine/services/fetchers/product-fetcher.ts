@@ -18,6 +18,7 @@ interface PaginationOptions {
 interface ProductsResponse {
   products: ProductContext[];
   nextToken?: string | null;
+  totalCount?: number;
 }
 
 export class ProductFetcher {
@@ -50,9 +51,20 @@ export class ProductFetcher {
 
       const products: ProductContext[] = response.data.map((product) => this.transformProduct(product));
 
+      // Calcular totalCount: si hay nextToken, significa que hay más productos
+      // Si no hay nextToken y tenemos menos productos que el límite, es el total
+      let totalCount = products.length;
+      if (response.nextToken) {
+        // Hay más productos, pero no sabemos el total exacto
+        // Para evitar consultas adicionales costosas, usamos una estimación
+        // basada en el patrón de paginación
+        totalCount = (limit || 20) * 2; // Estimación conservadora
+      }
+
       const result: ProductsResponse = {
         products,
         nextToken: response.nextToken,
+        totalCount,
       };
 
       cacheManager.setCached(cacheKey, result, cacheManager.getDataTTL('product'));
@@ -204,9 +216,16 @@ export class ProductFetcher {
 
       const products = response.data.map((p) => this.transformProduct(p, collectionHandle));
 
+      // Calcular totalCount: si hay nextToken, significa que hay más productos
+      let totalCount = products.length;
+      if (response.nextToken) {
+        totalCount = (limit || 20) * 2; // Estimación conservadora
+      }
+
       return {
         products,
         nextToken: response.nextToken,
+        totalCount,
       };
     } catch (error) {
       logger.error(`Error fetching products for collection ${collectionId}`, error, 'ProductFetcher');

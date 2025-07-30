@@ -1,8 +1,3 @@
-/* ============================================
-   FEATURED PRODUCTS SECTION
-   Siguiendo el estilo elegante del hero
-   ============================================ */
-
 .featured-products-section {
   position: relative;
   width: 100%;
@@ -17,9 +12,6 @@
   padding: 0 15px;
 }
 
-/* ============================================
-   SECTION HEADER
-   ============================================ */
 
 .section-header {
   display: flex;
@@ -34,6 +26,14 @@
 
 .section-header-content {
   flex: 1;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+  color: #000000;
+  margin: 0 0 20px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .section-header-action {
@@ -72,9 +72,6 @@
   max-width: 800px;
 }
 
-/* ============================================
-   HEADER ACTION BUTTON
-   ============================================ */
 
 .view-all-btn-header {
   font-family: var(--font-body);
@@ -108,9 +105,7 @@
   width: 100%;
 }
 
-/* ============================================
-   PRODUCTS CAROUSEL
-   ============================================ */
+
 
 .products-carousel-container {
   position: relative;
@@ -143,18 +138,39 @@
   min-width: 0;
 }
 
-.product-card:nth-child(1) { animation-delay: 0.1s; }
-.product-card:nth-child(2) { animation-delay: 0.2s; }
-.product-card:nth-child(3) { animation-delay: 0.3s; }
-.product-card:nth-child(4) { animation-delay: 0.4s; }
-.product-card:nth-child(5) { animation-delay: 0.5s; }
-.product-card:nth-child(6) { animation-delay: 0.6s; }
-.product-card:nth-child(7) { animation-delay: 0.7s; }
-.product-card:nth-child(8) { animation-delay: 0.8s; }
+.product-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
 
-/* ============================================
-   PRODUCT IMAGE
-   ============================================ */
+.product-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.product-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.product-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.product-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.product-card:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.product-card:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+.product-card:nth-child(8) {
+  animation-delay: 0.8s;
+}
+
+
 
 .product-image-wrapper {
   position: relative;
@@ -206,9 +222,7 @@
   transition-delay: 0s;
 }
 
-/* ============================================
-   MULTIPLE IMAGES INDICATOR
-   ============================================ */
+
 
 .multiple-images-indicator {
   position: absolute;
@@ -271,9 +285,6 @@
   margin: 0;
 }
 
-/* ============================================
-   PRODUCT BADGES
-   ============================================ */
 
 .product-badges {
   position: absolute;
@@ -289,7 +300,7 @@
   display: inline-block;
   padding: 4px 8px;
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -314,9 +325,7 @@
   background-color: #e74c3c;
 }
 
-/* ============================================
-   CAROUSEL NAVIGATION
-   ============================================ */
+
 
 .carousel-nav {
   position: absolute;
@@ -362,9 +371,7 @@
   right: -15px;
 }
 
-/* ============================================
-   CAROUSEL INDICATORS
-   ============================================ */
+
 
 .carousel-indicators {
   display: flex;
@@ -390,9 +397,7 @@
   transform: scale(1.2);
 }
 
-/* ============================================
-   PRODUCT OVERLAY (Botones en parte inferior)
-   ============================================ */
+
 
 .product-overlay {
   position: absolute;
@@ -428,9 +433,7 @@
   transform: translateY(0);
 }
 
-/* ============================================
-   PRODUCT BUTTONS (Estilo hero)
-   ============================================ */
+
 
 .product-btn {
   display: inline-flex;
@@ -438,7 +441,7 @@
   justify-content: center;
   padding: 8px 16px;
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -521,9 +524,7 @@
   transform: translateY(-1px);
 }
 
-/* ============================================
-   PRODUCT INFO
-   ============================================ */
+
 
 .product-info {
   text-align: left;
@@ -532,7 +533,7 @@
 
 .product-vendor {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -577,9 +578,7 @@
   color: #e74c3c;
 }
 
-/* ============================================
-   SECTION FOOTER
-   ============================================ */
+
 
 .section-footer {
   text-align: left;
@@ -642,9 +641,7 @@
   transform: translateX(5px);
 }
 
-/* ============================================
-   EMPTY STATE
-   ============================================ */
+
 
 .empty-state {
   text-align: center;
@@ -658,24 +655,21 @@
   margin: 0;
 }
 
-/* ============================================
-   ANIMATIONS
-   ============================================ */
+
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* ============================================
-   RESPONSIVE DESIGN
-   ============================================ */
+
 
 @media (min-width: 1600px) {
   .featured-products-container {
@@ -772,7 +766,7 @@
 
   .product-btn {
     padding: 6px 12px;
-    font-size: 9px;
+    font-size: var(--font-size-xs);
     max-width: 100px;
   }
 
@@ -816,7 +810,7 @@
   }
 
   .view-all-btn-header {
-    font-size: 11px;
+    font-size: var(--font-size-xs);
   }
 
   .carousel-slide {
@@ -850,16 +844,16 @@
   }
 
   .product-vendor {
-    font-size: 10px;
+    font-size: var(--font-size-xs);
   }
 
   .product-title {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     margin-bottom: 6px;
   }
 
   .product-price {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
   }
 
   .product-overlay-content {
@@ -870,7 +864,7 @@
   .product-btn {
     padding: 6px 10px;
     max-width: 80px;
-    font-size: 8px;
+    font-size: var(--font-size-xxs);
   }
 
   .view-all-btn {
@@ -895,11 +889,10 @@
   }
 }
 
-/* ============================================
-   ACCESSIBILITY
-   ============================================ */
+
 
 @media (prefers-reduced-motion: reduce) {
+
   .section-header,
   .product-card,
   .section-footer {
@@ -918,9 +911,7 @@
   }
 }
 
-/* ============================================
-   HOVER EFFECTS (Solo desktop)
-   ============================================ */
+
 
 /* Mobile: Mostrar segunda imagen en touch */
 @media (hover: none) and (pointer: coarse) {
@@ -939,6 +930,7 @@
 
 /* Desktop: Efectos hover */
 @media (hover: hover) {
+
   .product-image-wrapper:hover .product-image-primary,
   .product-image-wrapper:hover .product-image-secondary {
     transform: scale(1.05);

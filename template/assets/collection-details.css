@@ -41,9 +41,10 @@
 }
 
 .products-count {
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm); /* Ajustado a variable */
   color: #888;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium); /* Ajustado a variable */
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 /* Toolbar de filtros */
@@ -64,8 +65,9 @@
 }
 
 .collection-sorting label {
-  font-weight: 500;
+  font-weight: var(--font-weight-medium); /* Ajustado a variable */
   color: #333;
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 .sort-select {
@@ -73,8 +75,9 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm); /* Ajustado a variable */
   cursor: pointer;
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 .sort-select:focus {
@@ -116,6 +119,8 @@
   display: block;
   width: 100%;
   height: 100%;
+  text-decoration: none;
+  color: inherit;
 }
 
 .product-card__image {
@@ -137,7 +142,8 @@
   height: 100%;
   background: #f0f0f0;
   color: #999;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm); /* Ajustado a variable */
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 .product-card__add-to-cart {
@@ -181,8 +187,9 @@
 
 .product-card__title {
   margin: 0 0 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: var(--font-size-lg); /* Ajustado a variable */
+  font-weight: var(--font-weight-semibold); /* Ajustado a variable */
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 .product-card__title a {
@@ -200,8 +207,9 @@
 }
 
 .price {
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: var(--font-weight-semibold); /* Ajustado a variable */
+  font-size: var(--font-size-lg); /* Ajustado a variable */
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 .price--on-sale {
@@ -211,8 +219,9 @@
 .price--compare {
   color: #999;
   text-decoration: line-through;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm); /* Ajustado a variable */
   margin-left: 0.5rem;
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 /* Swatches de color */
@@ -239,11 +248,12 @@
 .color-swatch--more {
   background: #f0f0f0;
   color: #666;
-  font-size: 0.7rem;
+  font-size: var(--font-size-xs); /* Ajustado a variable */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium); /* Ajustado a variable */
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 /* Estado vacío */
@@ -254,14 +264,18 @@
 }
 
 .collection-empty h2 {
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl); /* Ajustado a variable */
   margin-bottom: 1rem;
   color: #333;
+  font-family: var(--font-heading); /* Ajustado a variable */
+  font-weight: var(--font-weight-semibold); /* Ajustado a variable */
 }
 
 .collection-empty p {
   color: #666;
   margin-bottom: 2rem;
+  font-family: var(--font-body); /* Ajustado a variable */
+  font-size: var(--font-size-sm); /* Ajustado a variable */
 }
 
 .btn {
@@ -269,10 +283,12 @@
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium); /* Ajustado a variable */
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;
+  font-family: var(--font-body); /* Ajustado a variable */
+  font-size: var(--font-size-base); /* Ajustado a variable */
 }
 
 .btn--primary {
@@ -304,7 +320,8 @@
   color: #007bff;
   border: 1px solid #ddd;
   transition: all 0.2s ease;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium); /* Ajustado a variable */
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 .pagination__link:hover:not(.pagination__link--disabled) {
@@ -321,7 +338,8 @@
 
 .pagination__info {
   color: #666;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm); /* Ajustado a variable */
+  font-family: var(--font-body); /* Ajustado a variable */
 }
 
 /* Responsive */
@@ -348,7 +366,7 @@
   }
 
   .pagination__link {
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm); /* Ajustado a variable */
     padding: 0.5rem 0.75rem;
   }
 }

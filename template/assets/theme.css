@@ -19,6 +19,7 @@ body {
   --font-size-3xl: 1.875rem;  /* 30px */
   --font-size-4xl: 2.25rem;   /* 36px */
   --font-size-5xl: 3rem;      /* 48px */
+  --font-size-xxs: 0.625rem;  /* 10px - extra small */
 
   /* Pesos de fuente */
   --font-weight-light: 300;

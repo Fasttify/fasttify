@@ -1,5 +1,6 @@
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { logger } from '@/renderer-engine/lib/logger';
+import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -22,16 +23,21 @@ interface FilterParams {
   price_min?: number;
   price_max?: number;
   category?: string;
+  categories?: string;
+  tags?: string;
+  vendors?: string;
+  collections?: string;
   availability?: string;
   featured?: boolean;
   sort_by?: string;
-  nextToken?: string;
+  token?: string;
   limit?: number;
 }
 
 interface ProductsResponse {
   products: any[];
   nextToken?: string | null;
+  totalCount?: number;
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ storeId: string }> }) {
@@ -45,10 +51,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       price_min: searchParams.get('price_min') ? parseFloat(searchParams.get('price_min')!) : undefined,
       price_max: searchParams.get('price_max') ? parseFloat(searchParams.get('price_max')!) : undefined,
       category: searchParams.get('category') || undefined,
+      categories: searchParams.get('categories') || undefined,
+      tags: searchParams.get('tags') || undefined,
+      vendors: searchParams.get('vendors') || undefined,
+      collections: searchParams.get('collections') || undefined,
       availability: searchParams.get('availability') || undefined,
       featured: searchParams.get('featured') === 'true' ? true : undefined,
       sort_by: searchParams.get('sort_by') || 'createdAt',
-      nextToken: searchParams.get('nextToken') || undefined,
+      token: searchParams.get('token') || undefined,
       limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 20,
     };
 
@@ -62,8 +72,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         limit: filters.limit,
         nextToken: productsData.nextToken,
         hasMore: !!productsData.nextToken,
-        totalResults: productsData.products.length,
+        totalResults: productsData.totalCount || productsData.products.length,
       },
+      totalCount: productsData.totalCount,
       filters_applied: getAppliedFiltersInfo(filters),
       available_filters: await getAvailableFilters(storeId),
     };
@@ -88,9 +99,16 @@ async function getFilteredProducts(storeId: string, filters: FilterParams): Prom
       status: { eq: 'active' }, // Solo productos activos
     };
 
-    // Filtro de categoría
+    // Filtro de categoría (individual o múltiple)
     if (filters.category) {
       amplifyFilters.category = { eq: filters.category };
+    } else if (filters.categories) {
+      const categoryList = filters.categories.split(',').map((cat) => cat.trim());
+      if (categoryList.length === 1) {
+        amplifyFilters.category = { eq: categoryList[0] };
+      } else {
+        amplifyFilters.category = { in: categoryList };
+      }
     }
 
     // Filtro de productos destacados
@@ -116,22 +134,33 @@ async function getFilteredProducts(storeId: string, filters: FilterParams): Prom
       { storeId },
       {
         limit: filters.limit!,
-        nextToken: filters.nextToken,
+        nextToken: filters.token,
         filter: amplifyFilters,
       }
     );
 
     if (!response.data) {
-      return { products: [], nextToken: null };
+      return { products: [], nextToken: null, totalCount: 0 };
     }
 
     // Aplicar ordenamiento (Amplify no soporta ordenamiento avanzado, se hace en memoria pero solo en el subset filtrado)
     let products = response.data.map(transformProduct);
     products = applySorting(products, filters.sort_by || 'createdAt');
 
+    // Calcular totalCount: si hay nextToken, significa que hay más productos
+    // Si no hay nextToken y tenemos menos productos que el límite, es el total
+    let totalCount = products.length;
+    if (response.nextToken) {
+      // Hay más productos, pero no sabemos el total exacto
+      // Para evitar consultas adicionales costosas, usamos una estimación
+      // basada en el patrón de paginación
+      totalCount = (filters.limit || 20) * 2; // Estimación conservadora
+    }
+
     return {
       products,
       nextToken: response.nextToken,
+      totalCount,
     };
   } catch (error) {
     logger.error('Error in getFilteredProducts', error);
@@ -143,6 +172,8 @@ async function getFilteredProducts(storeId: string, filters: FilterParams): Prom
  * Transforma un producto de Amplify al formato esperado
  */
 function transformProduct(product: any) {
+  const images = dataTransformer.transformImages(product.images, product.name);
+
   return {
     id: product.id,
     name: product.name,
@@ -151,7 +182,7 @@ function transformProduct(product: any) {
     compareAtPrice: product.compareAtPrice,
     quantity: product.quantity,
     category: product.category,
-    images: product.images,
+    images: images,
     status: product.status,
     slug: product.slug,
     featured: product.featured,
@@ -219,6 +250,10 @@ function getAppliedFiltersInfo(filters: FilterParams) {
     });
   }
   if (filters.category) applied.push({ type: 'category', value: filters.category });
+  if (filters.categories) applied.push({ type: 'categories', value: filters.categories });
+  if (filters.tags) applied.push({ type: 'tags', value: filters.tags });
+  if (filters.vendors) applied.push({ type: 'vendors', value: filters.vendors });
+  if (filters.collections) applied.push({ type: 'collections', value: filters.collections });
   if (filters.availability) applied.push({ type: 'availability', value: 'En stock' });
   if (filters.featured) applied.push({ type: 'featured', value: 'Destacados' });
   if (filters.sort_by && filters.sort_by !== 'createdAt') {

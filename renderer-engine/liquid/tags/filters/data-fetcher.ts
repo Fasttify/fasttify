@@ -1,111 +1,157 @@
-import { logger } from '@/renderer-engine/lib/logger';
-import type { AvailableFilters } from './types';
+import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
+import { AvailableFilters } from './types';
 
-export class FiltersDataFetcher {
+export class FilterDataFetcher {
   /**
-   * Extrae el límite de productos por página desde la configuración del template
+   * Obtiene los filtros disponibles usando el DataFetcher del motor
    */
-  static extractProductsPerPage(storeTemplate: any): number {
+  static async getAvailableFilters(storeId: string): Promise<AvailableFilters> {
     try {
-      logger.info('Extracting products_per_page from template:', JSON.stringify(storeTemplate, null, 2));
+      // Obtener una muestra de productos para extraer filtros disponibles
+      const productsResponse = await dataFetcher.getStoreProducts(storeId, { limit: 50 });
+      const products = productsResponse.products;
 
-      // Buscar en la estructura correcta según product.json
-      if (storeTemplate?.templates?.product?.sections) {
-        const sections = storeTemplate.templates.product.sections;
-        logger.info('Searching in templates.product.sections:', sections);
-
-        // Buscar en todas las secciones
-        for (const sectionId in sections) {
-          const sectionConfig = sections[sectionId];
-          if (!sectionConfig) continue;
-
-          const settings = sectionConfig.settings;
-          if (settings) {
-            logger.info(`Checking section ${sectionId} settings:`, settings);
-
-            // Buscar en configuración con id
-            if (settings.id === 'products_per_page' && settings.default !== undefined) {
-              logger.info('Found products_per_page in id/default:', settings.default);
-              return Number(settings.default);
-            }
-
-            // Buscar products_per_page directamente en settings
-            if (settings.products_per_page !== undefined) {
-              logger.info('Found products_per_page in settings:', settings.products_per_page);
-              return Number(settings.products_per_page);
-            }
-          }
-        }
+      if (!products || products.length === 0) {
+        console.warn('No products found to extract filters');
+        return this.getFallbackFilters();
       }
 
-      // Fallback: buscar en la estructura directa del template
-      if (storeTemplate?.sections) {
-        const sections = storeTemplate.sections;
-        logger.info('Searching in direct sections:', sections);
+      // Extraer filtros disponibles de los productos
+      const availableFilters = this.extractFiltersFromProducts(products);
 
-        for (const sectionId in sections) {
-          const sectionConfig = sections[sectionId];
-          if (!sectionConfig) continue;
-
-          const settings = sectionConfig.settings;
-          if (settings) {
-            logger.info(`Checking direct section ${sectionId} settings:`, settings);
-
-            // Buscar en configuración con id
-            if (settings.id === 'products_per_page' && settings.default !== undefined) {
-              logger.info('Found products_per_page in direct sections id/default:', settings.default);
-              return Number(settings.default);
-            }
-
-            // Buscar products_per_page directamente en settings
-            if (settings.products_per_page !== undefined) {
-              logger.info('Found products_per_page in direct sections settings:', settings.products_per_page);
-              return Number(settings.products_per_page);
-            }
-          }
-        }
-      }
-
-      logger.warn('No products_per_page found in template, using default: 50');
-      return 50; // Valor por defecto si no se encuentra
+      return availableFilters;
     } catch (error) {
-      logger.warn('Error extracting products_per_page from template:', error);
-      return 50; // Valor por defecto en caso de error
+      console.warn('Error getting available filters, using fallback:', error);
+      return this.getFallbackFilters();
     }
   }
 
   /**
-   * Obtiene los filtros disponibles desde la API
+   * Extrae filtros disponibles de una lista de productos
    */
-  static async getAvailableFilters(storeId: string, productsPerPage: number = 50): Promise<AvailableFilters> {
-    try {
-      const response = await fetch(`/api/stores/${storeId}/products/filter?limit=${productsPerPage}`);
+  private static extractFiltersFromProducts(products: any[]): AvailableFilters {
+    const categories = new Set<string>();
+    const tags = new Set<string>();
+    const vendors = new Set<string>();
+    const prices: number[] = [];
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    // Extraer datos de cada producto
+    products.forEach((product, index) => {
+      if (product.category) {
+        categories.add(product.category);
       }
 
-      const data = await response.json();
-      return data.availableFilters || FiltersDataFetcher.getFallbackFilters();
-    } catch (error) {
-      logger.warn('Error fetching available filters:', error);
-      return FiltersDataFetcher.getFallbackFilters();
-    }
-  }
+      if (product.tags && product.tags !== '[]') {
+        try {
+          const parsedTags = JSON.parse(product.tags);
+          if (Array.isArray(parsedTags)) {
+            parsedTags.forEach((tag: string) => tags.add(tag));
+          }
+        } catch (e) {
+          // Si no es JSON válido, tratar como string simple
+          if (typeof product.tags === 'string' && product.tags.trim()) {
+            tags.add(product.tags.trim());
+          }
+        }
+      }
 
-  /**
-   * Filtros de respaldo en caso de error
-   */
-  static getFallbackFilters(): AvailableFilters {
-    return {
-      categories: [],
-      tags: [],
-      priceRange: { min: 0, max: 1000000 },
+      if (product.vendor) {
+        vendors.add(product.vendor);
+      }
+
+      if (product.price && typeof product.price === 'number') {
+        prices.push(product.price);
+      }
+    });
+
+    // Calcular rango de precios
+    const priceRange = {
+      min: prices.length > 0 ? Math.min(...prices) : 0,
+      max: prices.length > 0 ? Math.max(...prices) : 100000,
+      currentMin: undefined,
+      currentMax: undefined,
+    };
+
+    // Convertir Sets a arrays de FilterOption
+    const categoriesArray = Array.from(categories).map((cat) => ({
+      value: cat,
+      label: cat.charAt(0).toUpperCase() + cat.slice(1),
+      count: 0,
+    }));
+
+    const tagsArray = Array.from(tags).map((tag) => ({
+      value: tag,
+      label: tag.charAt(0).toUpperCase() + tag.slice(1),
+      count: 0,
+    }));
+
+    const vendorsArray = Array.from(vendors).map((vendor) => ({
+      value: vendor,
+      label: vendor.charAt(0).toUpperCase() + vendor.slice(1),
+      count: 0,
+    }));
+
+    const result = {
+      categories: categoriesArray,
+      tags: tagsArray,
+      vendors: vendorsArray,
+      collections: [], // Las colecciones se manejan por separado
+      priceRange,
       sortOptions: [
-        { value: 'created_at_desc', label: 'Más recientes' },
-        { value: 'created_at_asc', label: 'Más antiguos' },
-        { value: 'price_asc', label: 'Precio: menor a mayor' },
+        { value: 'createdAt', label: 'Más recientes' },
+        { value: 'createdAt_desc', label: 'Más antiguos' },
+        { value: 'price', label: 'Precio: menor a mayor' },
         { value: 'price_desc', label: 'Precio: mayor a menor' },
+        { value: 'name', label: 'Nombre A-Z' },
+        { value: 'name_desc', label: 'Nombre Z-A' },
+        { value: 'best_selling', label: 'Más vendidos' },
+        { value: 'featured', label: 'Destacados' },
+      ],
+    };
+
+    return result;
+  }
+
+  /**
+   * Filtros de fallback cuando la API no está disponible
+   */
+  private static getFallbackFilters(): AvailableFilters {
+    return {
+      categories: [
+        { value: 'ropa', label: 'Ropa', count: 0 },
+        { value: 'accesorios', label: 'Accesorios', count: 0 },
+        { value: 'calzado', label: 'Calzado', count: 0 },
+      ],
+      tags: [
+        { value: 'nuevo', label: 'Nuevo', count: 0 },
+        { value: 'oferta', label: 'Oferta', count: 0 },
+        { value: 'destacado', label: 'Destacado', count: 0 },
+        { value: 'popular', label: 'Popular', count: 0 },
+        { value: 'tendencia', label: 'Tendencia', count: 0 },
+      ],
+      vendors: [
+        { value: 'marca1', label: 'Marca 1', count: 0 },
+        { value: 'marca2', label: 'Marca 2', count: 0 },
+      ],
+      collections: [
+        { value: 'coleccion1', label: 'Colección 1', count: 0 },
+        { value: 'coleccion2', label: 'Colección 2', count: 0 },
+      ],
+      priceRange: {
+        min: 0,
+        max: 100000,
+        currentMin: undefined,
+        currentMax: undefined,
+      },
+      sortOptions: [
+        { value: 'createdAt', label: 'Más recientes' },
+        { value: 'createdAt_desc', label: 'Más antiguos' },
+        { value: 'price', label: 'Precio: menor a mayor' },
+        { value: 'price_desc', label: 'Precio: mayor a menor' },
+        { value: 'name', label: 'Nombre A-Z' },
+        { value: 'name_desc', label: 'Nombre Z-A' },
+        { value: 'best_selling', label: 'Más vendidos' },
+        { value: 'featured', label: 'Destacados' },
       ],
     };
   }

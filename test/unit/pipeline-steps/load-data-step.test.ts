@@ -39,6 +39,7 @@ describe('loadDataStep', () => {
     expect(result.compiledLayout).toEqual(['compiled-layout']);
     expect(result.pageData).toEqual({ analysis: { requiredData: new Map(), liquidObjects: [], dependencies: [] } });
     expect(result.storeTemplate).toBe('store-template');
+    expect(result.navigationMenus).toBe('store-template');
     expect(result.pageTemplate).toBe('page-template');
     expect(result.compiledPageTemplate).toEqual(['compiled-page-template']);
   });
