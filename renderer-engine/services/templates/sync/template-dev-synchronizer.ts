@@ -6,6 +6,9 @@ import * as chokidar from 'chokidar';
 import fs from 'fs';
 import path from 'path';
 
+// Define the root directory for template development
+const TEMPLATE_DEV_ROOT = path.resolve(process.cwd(), 'template-dev-root');
+
 interface SyncOptions {
   localDir: string;
   storeId: string;
@@ -305,6 +308,9 @@ export class TemplateDevSynchronizer {
       throw new Error('El sincronizador no está activo');
     }
 
+    // Validate and normalize the localDir before using it
+    const safeLocalDir = this.validateAndResolveLocalDir(this.localDir);
+
     logger.debug(`[TemplateDevSynchronizer] Sincronizando todos los archivos...`, undefined, 'TemplateDevSynchronizer');
 
     const syncFiles = async (dir: string) => {
@@ -321,7 +327,7 @@ export class TemplateDevSynchronizer {
       }
     };
 
-    await syncFiles(this.localDir);
+    await syncFiles(safeLocalDir);
     logger.debug(`[TemplateDevSynchronizer] Sincronización completa`, undefined, 'TemplateDevSynchronizer');
   }
 
@@ -337,6 +343,24 @@ export class TemplateDevSynchronizer {
    */
   public getRecentChanges(): FileChange[] {
     return [...this.recentChanges];
+  }
+  /**
+   * Validates and resolves the localDir to ensure it is within the allowed root.
+   * Throws an error if the path is outside the allowed root.
+   */
+  private validateAndResolveLocalDir(localDir: string): string {
+    // Resolve the user-supplied path against the root
+    const resolvedPath = path.resolve(TEMPLATE_DEV_ROOT, localDir);
+    let realPath: string;
+    try {
+      realPath = fs.realpathSync(resolvedPath);
+    } catch (err) {
+      throw new Error('El directorio local especificado no existe o no es accesible');
+    }
+    if (!realPath.startsWith(TEMPLATE_DEV_ROOT)) {
+      throw new Error('El directorio local especificado no está permitido');
+    }
+    return realPath;
   }
 }
 
