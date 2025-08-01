@@ -122,6 +122,38 @@ export async function handleProductCreate(
 }
 
 /**
+ * Duplica un producto existente
+ * @param productId ID del producto a duplicar
+ * @param storeId ID de la tienda
+ * @param duplicateProductFn Función para duplicar el producto
+ * @returns Producto duplicado o null
+ */
+export async function handleProductDuplicate(
+  productId: string,
+  storeId: string,
+  duplicateProductFn: (id: string) => Promise<IProduct | null>
+): Promise<IProduct | null> {
+  if (!productId) {
+    console.error('Cannot duplicate product: No product ID provided');
+    throw new Error('No se proporcionó un ID de producto');
+  }
+
+  try {
+    const result = await duplicateProductFn(productId);
+
+    if (!result) {
+      console.error('Product duplication failed: No data returned');
+      throw new Error('No se recibió respuesta al duplicar el producto');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error in handleProductDuplicate:', error);
+    throw error;
+  }
+}
+
+/**
  * Formatea un precio a una cadena de texto con formato de moneda
  * @param price Precio a formatear
  * @returns Precio formateado con formato de moneda

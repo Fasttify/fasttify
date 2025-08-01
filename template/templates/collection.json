@@ -6,7 +6,7 @@
         "type": "number",
         "id": "collections_per_page",
         "label": "Collections per page",
-        "default": 3
+        "default": 2
       }
     },
     "collection-products": {
@@ -15,7 +15,7 @@
         "type": "number",
         "id": "products_per_page",
         "label": "Products per page",
-        "default": 2
+        "default": 50
       }
     }
   },

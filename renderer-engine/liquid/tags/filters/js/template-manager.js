@@ -1,42 +1,52 @@
 /**
- * Renderizador de productos para el sistema de filtros
- * Usa el template existente de la tienda para mantener la personalización
+ * Gestor de templates personalizados para el sistema de filtros
+ * Permite a cada tienda definir su propio diseño de productos
  */
-export class ProductRenderer {
-  static templateManager = null;
-
-  /**
-   * Inicializa el renderizador con el template manager
-   */
-  static async init(storeId) {
-    if (!this.templateManager) {
-      const { TemplateManager } = await import('./template-manager.js');
-      this.templateManager = new TemplateManager(storeId);
-      await this.templateManager.loadCustomTemplate();
-    }
+export class TemplateManager {
+  constructor(storeId) {
+    this.storeId = storeId;
+    this.customTemplate = null;
+    this.templateConfig = null;
   }
 
   /**
-   * Renderiza un producto individual usando el template existente
+   * Carga el template personalizado de la tienda
    */
-  static renderProduct(product) {
-    if (this.templateManager) {
-      return this.templateManager.renderProduct(product);
-    }
+  async loadCustomTemplate() {
+    try {
+      const baseUrl = 'https://cdn.fasttify.com';
+      const templateUrl = `${baseUrl}/templates/${this.storeId}/assets/product-template.js`;
 
-    // Fallback si no hay template manager
+      const response = await fetch(templateUrl);
+      if (response.ok) {
+        const templateModule = await import(templateUrl);
+        this.customTemplate = templateModule.default || templateModule;
+        return true;
+      }
+    } catch (error) {}
+
+    // Si no hay template personalizado, usar el template existente en la página
+    return this.loadExistingTemplate();
+  }
+
+  /**
+   * Carga el template existente en la página
+   */
+  loadExistingTemplate() {
     const existingProduct = document.querySelector('.product-card');
     if (existingProduct) {
-      return this.renderFromTemplate(existingProduct, product);
+      this.customTemplate = {
+        render: (product) => this.renderFromExistingTemplate(existingProduct, product),
+      };
+      return true;
     }
-
-    return this.createBasicTemplate(product);
+    return false;
   }
 
   /**
-   * Renderiza un producto basado en el template existente de la tienda
+   * Renderiza un producto usando el template existente
    */
-  static renderFromTemplate(template, product) {
+  renderFromExistingTemplate(template, product) {
     const clone = template.cloneNode(true);
 
     // Actualizar ID del producto
@@ -61,9 +71,9 @@ export class ProductRenderer {
   }
 
   /**
-   * Actualiza las imágenes del producto manteniendo la estructura existente
+   * Actualiza las imágenes del producto
    */
-  static updateProductImages(clone, product) {
+  updateProductImages(clone, product) {
     const imageWrapper = clone.querySelector('.product-image-wrapper');
     if (!imageWrapper) return;
 
@@ -140,7 +150,7 @@ export class ProductRenderer {
   /**
    * Actualiza la información del producto
    */
-  static updateProductInfo(clone, product) {
+  updateProductInfo(clone, product) {
     const productInfo = clone.querySelector('.product-info');
     if (!productInfo) return;
 
@@ -174,7 +184,7 @@ export class ProductRenderer {
   /**
    * Actualiza los badges del producto
    */
-  static updateProductBadges(clone, product) {
+  updateProductBadges(clone, product) {
     const badgesContainer = clone.querySelector('.product-badges');
     if (!badgesContainer) return;
 
@@ -223,7 +233,7 @@ export class ProductRenderer {
   /**
    * Actualiza el overlay del producto
    */
-  static updateProductOverlay(clone, product) {
+  updateProductOverlay(clone, product) {
     const overlay = clone.querySelector('.product-overlay');
     if (!overlay) return;
 
@@ -251,7 +261,7 @@ export class ProductRenderer {
   /**
    * Actualiza los atributos del producto
    */
-  static updateProductAttributes(clone, product) {
+  updateProductAttributes(clone, product) {
     const attributesContainer = clone.querySelector('.product-attributes-summary');
     if (!attributesContainer || !product.attributes) return;
 
@@ -303,9 +313,21 @@ export class ProductRenderer {
   }
 
   /**
-   * Crea un template básico pero extensible para cuando no hay template existente
+   * Renderiza un producto usando el template disponible
    */
-  static createBasicTemplate(product) {
+  renderProduct(product) {
+    if (this.customTemplate && this.customTemplate.render) {
+      return this.customTemplate.render(product);
+    }
+
+    // Fallback al template básico
+    return this.renderBasicTemplate(product);
+  }
+
+  /**
+   * Renderiza un template básico como fallback
+   */
+  renderBasicTemplate(product) {
     const hasComparePrice = product.compareAtPrice && product.compareAtPrice > product.price;
     const discountPercent = hasComparePrice
       ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
@@ -439,7 +461,7 @@ export class ProductRenderer {
   /**
    * Parsea tags desde string o array
    */
-  static parseTags(tags) {
+  parseTags(tags) {
     if (!tags) return [];
 
     if (Array.isArray(tags)) {
@@ -461,44 +483,8 @@ export class ProductRenderer {
   /**
    * Formatea una cantidad de dinero usando la función global
    */
-  static formatMoney(amount) {
+  formatMoney(amount) {
     if (!amount) return '';
     return window.formatMoney ? window.formatMoney(amount) : amount.toString();
-  }
-
-  /**
-   * Renderiza una lista de productos
-   */
-  static renderProducts(products) {
-    if (!products || products.length === 0) {
-      return '';
-    }
-
-    return products.map((product) => this.renderProduct(product)).join('');
-  }
-
-  /**
-   * Reemplaza productos en el contenedor
-   */
-  static replaceProducts(products, container, noResultsMessage) {
-    if (!container) return;
-
-    if (!products || products.length === 0) {
-      container.innerHTML = `<p class="no-products">${noResultsMessage}</p>`;
-      return;
-    }
-
-    const productsHTML = this.renderProducts(products);
-    container.innerHTML = productsHTML;
-  }
-
-  /**
-   * Agrega productos al final del contenedor
-   */
-  static appendProducts(products, container) {
-    if (!container || !products || products.length === 0) return;
-
-    const productsHTML = this.renderProducts(products);
-    container.insertAdjacentHTML('beforeend', productsHTML);
   }
 }

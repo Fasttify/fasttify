@@ -1,15 +1,16 @@
 {{ 'header.css' | asset_url | stylesheet_tag }}
+{{ 'mega-menu.css' | asset_url | stylesheet_tag }}
 {% assign main_menu = linklists['main-menu'] %}
 
 {% if settings.announcement_enable %}
-  <div class="announcement-bar">
-    <div class="container">
-      <p class="announcement-text">{{ settings.announcement_text }}</p>
-      {% if settings.announcement_link != blank %}
-        <a href="{{ settings.announcement_link }}" class="announcement-link">{{ settings.announcement_link_text }}</a>
-      {% endif %}
-    </div>
+<div class="announcement-bar">
+  <div class="container">
+    <p class="announcement-text">{{ settings.announcement_text }}</p>
+    {% if settings.announcement_link != blank %}
+    <a href="{{ settings.announcement_link }}" class="announcement-link">{{ settings.announcement_link_text }}</a>
+    {% endif %}
   </div>
+</div>
 {% endif %}
 
 <div class="header-wrapper">
@@ -27,42 +28,85 @@
         <!-- Logo -->
         <div class="header-logo">
           <a href="/" class="site-logo">
-            <img
-              src="{{ 'nike.png' | asset_url }}"
-              alt="{{ shop.name }}"
-              loading="lazy"
-              class="logo-img">
+            <img src="{{ 'nike.png' | asset_url }}" alt="{{ shop.name }}" loading="lazy" class="logo-img">
           </a>
         </div>
 
         <!-- Desktop navigation -->
         <nav class="header-nav desktop-nav">
           {% if main_menu.links.size > 0 %}
-            <ul class="nav-list">
-              {% for link in main_menu.links %}
-                <li class="nav-item{% if link.links.size > 0 %} has-dropdown{% endif %}">
-                  <a href="{{ link.url }}" class="nav-link{% if link.active %} nav-link--active{% endif %}">
-                    {{ link.title }}
-                    {% if link.links.size > 0 %}
-                      <span class="icon-chevron-down" aria-hidden="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                      </span>
-                    {% endif %}
+          <ul class="nav-list">
+            {% for link in main_menu.links %}
+            <li
+              class="nav-item{% if link.links.size > 0 or link.title == 'Todos los Productos' %} has-dropdown{% endif %}">
+              <a href="{{ link.url }}" class="nav-link{% if link.active %} nav-link--active{% endif %}">
+                {{ link.title }}
+                {% if link.links.size > 0 or link.title == 'Todos los Productos' %}
+                <span class="icon-chevron-down" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="12" height="12" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </span>
+                {% endif %}
+              </a>
+              {% if link.links.size > 0 or link.title == 'Todos los Productos' %}
+              <ul class="dropdown">
+                {% if link.title == 'Todos los Productos' %}
+                <div class="container">
+                  <div class="dropdown-products-grid">
+                    {% assign featured_collection = collections['nuevos-productos'] %}
+                    {% for product in featured_collection.products limit: 4 %}
+                    <div class="product-card">
+                      <div class="product-image-wrapper">
+                        <a href="{{ product.url }}" class="product-link">
+                          {% if product.images.size > 1 %}
+                          <img class="product-image product-image-primary"
+                            src="{{ product.featured_image | img_url: '600x800' }}" alt="{{ product.title | escape }}"
+                            loading="lazy">
+                          <img class="product-image product-image-secondary"
+                            src="{{ product.images[1] | img_url: '600x800' }}" alt="{{ product.title | escape }}"
+                            loading="lazy">
+                          {% elsif product.images.size > 0 %}
+                          <img class="product-image" src="{{ product.featured_image | img_url: '600x800' }}"
+                            alt="{{ product.title | escape }}" loading="lazy">
+                          {% else %}
+                          <div class="product-placeholder">
+                            <div class="placeholder-content">
+                              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21,15 16,10 5,21" />
+                              </svg>
+                              <p>Imagen</p>
+                            </div>
+                          </div>
+                          {% endif %}
+                        </a>
+                        <div class="product-info-overlay">
+                          <h3 class="product-title">{{ product.title }}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% else %}
+                {% for childlink in link.links %}
+                <li>
+                  <a href="{{ childlink.url }}"
+                    class="dropdown-link{% if childlink.active %} dropdown-link--active{% endif %}">
+                    {{ childlink.title }}
                   </a>
-                  {% if link.links.size > 0 %}
-                    <ul class="dropdown">
-                      {% for childlink in link.links %}
-                        <li>
-                          <a href="{{ childlink.url }}" class="dropdown-link{% if childlink.active %} dropdown-link--active{% endif %}">
-                            {{ childlink.title }}
-                          </a>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
                 </li>
-              {% endfor %}
-            </ul>
+                {% endfor %}
+                {% endif %}
+              </ul>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
           {% endif %}
         </nav>
 
@@ -70,7 +114,8 @@
         <div class="header-actions">
           <!-- Search -->
           <div class="header-search">
-            <button type="button" class="search-toggle js-search-toggle" aria-label="Search" aria-expanded="false" aria-controls="search-dialog-overlay">
+            <button type="button" class="search-toggle js-search-toggle" aria-label="Search" aria-expanded="false"
+              aria-controls="search-dialog-overlay">
               <img src="{{ 'icon-search.svg' | asset_url }}" alt="Search" width="30" height="30" loading="lazy">
             </button>
           </div>
@@ -97,49 +142,62 @@
     <div class="mobile-menu-inner">
       <div class="mobile-menu-header">
         <button type="button" class="mobile-menu-close js-menu-toggle" aria-label="Close menu">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
       </div>
 
       <nav class="mobile-nav">
         {% if main_menu.links.size > 0 %}
-          <ul class="mobile-nav-list">
-            {% assign delay_time = 0 %}
-            {% for link in main_menu.links %}
-              <li class="mobile-nav-item{% if link.links.size > 0 %} has-submenu{% endif %}" style="--delay: {{ delay_time }}ms;">
-                {% if link.links.size > 0 %}
-                  <button class="mobile-nav-link mobile-submenu-toggle">
-                    {{ link.title }}
-                    <span class="icon-plus" aria-hidden="true">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    </span>
-                  </button>
-                  <div class="mobile-submenu">
-                    <button class="mobile-submenu-back">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                      Atrás
-                    </button>
-                    <div class="mobile-submenu-header">
-                      <span>{{ link.title }}</span>
-                    </div>
-                    <ul class="mobile-submenu-list">
-                      <li>
-                        <a href="{{ link.url }}" class="mobile-submenu-link">Ver todo {{ link.title }}</a>
-                      </li>
-                      {% for childlink in link.links %}
-                        <li>
-                          <a href="{{ childlink.url }}" class="mobile-submenu-link">{{ childlink.title }}</a>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                {% else %}
-                  <a href="{{ link.url }}" class="mobile-nav-link">{{ link.title }}</a>
-                {% endif %}
-              </li>
-              {% assign delay_time = delay_time | plus: 50 %}
-            {% endfor %}
-          </ul>
+        <ul class="mobile-nav-list">
+          {% assign delay_time = 0 %}
+          {% for link in main_menu.links %}
+          <li class="mobile-nav-item{% if link.links.size > 0 %} has-submenu{% endif %}"
+            style="--delay: {{ delay_time }}ms;">
+            {% if link.links.size > 0 %}
+            <button class="mobile-nav-link mobile-submenu-toggle">
+              {{ link.title }}
+              <span class="icon-plus" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </span>
+            </button>
+            <div class="mobile-submenu">
+              <button class="mobile-submenu-back">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Atrás
+              </button>
+              <div class="mobile-submenu-header">
+                <span>{{ link.title }}</span>
+              </div>
+              <ul class="mobile-submenu-list">
+                <li>
+                  <a href="{{ link.url }}" class="mobile-submenu-link">Ver todo {{ link.title }}</a>
+                </li>
+                {% for childlink in link.links %}
+                <li>
+                  <a href="{{ childlink.url }}" class="mobile-submenu-link">{{ childlink.title }}</a>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% else %}
+            <a href="{{ link.url }}" class="mobile-nav-link">{{ link.title }}</a>
+            {% endif %}
+          </li>
+          {% assign delay_time = delay_time | plus: 50 %}
+          {% endfor %}
+        </ul>
         {% endif %}
       </nav>
     </div>
@@ -152,118 +210,113 @@
     <div class="search-dialog-header">
       <form action="/search" method="get" class="search-form" role="search">
         <div class="search-input-wrapper">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="search" name="q" placeholder="Buscar" aria-label="Buscar" class="search-input" autocomplete="off">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="search" name="q" placeholder="Buscar" aria-label="Buscar" class="search-input"
+            autocomplete="off">
         </div>
       </form>
       <button type="button" class="search-dialog-close js-search-toggle" aria-label="Cerrar búsqueda">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
     </div>
     <h2 class="search-dialog-products-heading">Productos</h2>
     <div class="search-dialog-products-grid">
       {% if search_products.size > 0 %}
-        {% for product in search_products limit: 4 %}
-          <div class="product-card">
-            <!-- Imagen del producto -->
-            <div class="product-image-wrapper">
-              <a href="{{ product.url }}" class="product-link">
-                {% if product.images.size > 1 %}
-                  <!-- Con imagen secundaria: aplicar clases para el hover -->
-                  <img
-                    class="product-image product-image-primary"
-                    src="{{ product.featured_image | img_url: '600x800' }}"
-                    alt="{{ product.title | escape }}"
-                    loading="lazy">
-                  <img
-                    class="product-image product-image-secondary"
-                    src="{{ product.images[1] | img_url: '600x800' }}"
-                    alt="{{ product.title | escape }}"
-                    loading="lazy">
-                  <!-- Indicador de múltiples imágenes -->
-                  <div class="multiple-images-indicator">
-                    <div class="indicator-dot active"></div>
-                    <div class="indicator-dot"></div>
-                    {% if product.images.size > 2 %}
-                      <div class="indicator-dot"></div>
-                    {% endif %}
-                  </div>
-                {% elsif product.images.size > 0 %}
-                  <!-- Con una sola imagen: sin clases de hover -->
-                  <img
-                    class="product-image"
-                    src="{{ product.featured_image | img_url: '600x800' }}"
-                    alt="{{ product.title | escape }}"
-                    loading="lazy">
-                {% else %}
-                  <!-- Placeholder si no hay imágenes -->
-                  <div class="product-placeholder">
-                    <div class="placeholder-content">
-                      <svg
-                        width="60"
-                        height="60"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <polyline points="21,15 16,10 5,21" />
-                      </svg>
-                      <p>Imagen del producto</p>
-                    </div>
-                  </div>
-                {% endif %}
-              </a>
-
-              <!-- Product Badges -->
-              <div class="product-badges">
-                {% comment %} Determinar qué badge mostrar basado en las tags del producto {% endcomment %}
-                {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
-                  <span class="product-badge badge-new">NEW</span>
-                {% elsif product.tags contains 'bestseller' %}
-                  <span class="product-badge badge-bestseller">BESTSELLER</span>
-                {% elsif product.tags contains 'trending' %}
-                  <span class="product-badge badge-trending">TRENDING</span>
-                {% endif %}
-
-                {% if product.compare_at_price > product.price %}
-                  <span class="product-badge badge-sale">
-                    SAVE {{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}%
-                  </span>
-                {% endif %}
-              </div>
-
-           
+      {% for product in search_products limit: 4 %}
+      <div class="product-card">
+        <!-- Imagen del producto -->
+        <div class="product-image-wrapper">
+          <a href="{{ product.url }}" class="product-link">
+            {% if product.images.size > 1 %}
+            <!-- Con imagen secundaria: aplicar clases para el hover -->
+            <img class="product-image product-image-primary" src="{{ product.featured_image | img_url: '600x800' }}"
+              alt="{{ product.title | escape }}" loading="lazy">
+            <img class="product-image product-image-secondary" src="{{ product.images[1] | img_url: '600x800' }}"
+              alt="{{ product.title | escape }}" loading="lazy">
+            <!-- Indicador de múltiples imágenes -->
+            <div class="multiple-images-indicator">
+              <div class="indicator-dot active"></div>
+              <div class="indicator-dot"></div>
+              {% if product.images.size > 2 %}
+              <div class="indicator-dot"></div>
+              {% endif %}
             </div>
-
-            <!-- Información del producto -->
-            <div class="product-info">
-              <div class="product-vendor">{{ product.vendor | upcase }}</div>
-              <h3 class="product-title">{{ product.title }}</h3>
-              <div class="product-price">
-                {% if product.compare_at_price > product.price %}
-                  <span class="price-compare">{{ product.compare_at_price | money }}</span>
-                  <span class="price-current price-sale">{{ product.price | money }}</span>
-                {% else %}
-                  <span class="price-current">{{ product.price | money }}</span>
-                {% endif %}
+            {% elsif product.images.size > 0 %}
+            <!-- Con una sola imagen: sin clases de hover -->
+            <img class="product-image" src="{{ product.featured_image | img_url: '600x800' }}"
+              alt="{{ product.title | escape }}" loading="lazy">
+            {% else %}
+            <!-- Placeholder si no hay imágenes -->
+            <div class="product-placeholder">
+              <div class="placeholder-content">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21,15 16,10 5,21" />
+                </svg>
+                <p>Imagen del producto</p>
               </div>
             </div>
+            {% endif %}
+          </a>
+
+          <!-- Product Badges -->
+          <div class="product-badges">
+            {% comment %} Determinar qué badge mostrar basado en las tags del producto {% endcomment %}
+            {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
+            <span class="product-badge badge-new">NEW</span>
+            {% elsif product.tags contains 'bestseller' %}
+            <span class="product-badge badge-bestseller">BESTSELLER</span>
+            {% elsif product.tags contains 'trending' %}
+            <span class="product-badge badge-trending">TRENDING</span>
+            {% endif %}
+
+            {% if product.compare_at_price > product.price %}
+            <span class="product-badge badge-sale">
+              SAVE {{ product.compare_at_price | minus: product.price | times: 100 | divided_by:
+              product.compare_at_price | round }}%
+            </span>
+            {% endif %}
           </div>
-        {% endfor %}
+
+
+        </div>
+
+        <!-- Información del producto -->
+        <div class="product-info">
+          <div class="product-vendor">{{ product.vendor | upcase }}</div>
+          <h3 class="product-title">{{ product.title }}</h3>
+          <div class="product-price">
+            {% if product.compare_at_price > product.price %}
+            <span class="price-compare">{{ product.compare_at_price | money }}</span>
+            <span class="price-current price-sale">{{ product.price | money }}</span>
+            {% else %}
+            <span class="price-current">{{ product.price | money }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
       {% else %}
-        <!-- Esqueletos de carga o estado vacío -->
-        {% for i in (1..4) %}
-          <div class="product-card skeleton-card">
-            <div class="product-image-wrapper skeleton-image"></div>
-            <div class="product-info">
-              <div class="product-vendor skeleton-text skeleton-vendor"></div>
-              <h3 class="product-title skeleton-text skeleton-title"></h3>
-              <div class="product-price skeleton-text skeleton-price"></div>
-            </div>
-          </div>
-        {% endfor %}
+      <!-- Esqueletos de carga o estado vacío -->
+      {% for i in (1..4) %}
+      <div class="product-card skeleton-card">
+        <div class="product-image-wrapper skeleton-image"></div>
+        <div class="product-info">
+          <div class="product-vendor skeleton-text skeleton-vendor"></div>
+          <h3 class="product-title skeleton-text skeleton-title"></h3>
+          <div class="product-price skeleton-text skeleton-price"></div>
+        </div>
+      </div>
+      {% endfor %}
       {% endif %}
     </div>
   </div>

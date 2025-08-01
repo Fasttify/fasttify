@@ -166,6 +166,8 @@ async function getFilteredProducts(storeId: string, filters: FilterParams): Prom
 function transformProduct(product: any) {
   const images = dataTransformer.transformImages(product.images, product.name);
   const handle = dataTransformer.createHandle(product.name);
+  const attributes = dataTransformer.transformAttributes(product.attributes);
+
   return {
     id: product.id,
     name: product.name,
@@ -184,6 +186,7 @@ function transformProduct(product: any) {
     vendor: product.supplier,
     sales_count: product.salesCount || 0,
     url: `/products/${handle}`,
+    attributes: attributes,
   };
 }
 

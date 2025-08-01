@@ -1,7 +1,7 @@
-import { useProducts } from '@/app/store/hooks/data/useProducts';
 import { ProductForm } from '@/app/store/components/product-management/products/components/form/ProductForm';
 import { ProductList } from '@/app/store/components/product-management/products/components/listing/ProductList';
 import { ProductsPage } from '@/app/store/components/product-management/products/pages/ProductPage';
+import { useProducts } from '@/app/store/hooks/data/useProducts';
 import { Loading } from '@shopify/polaris';
 import { useState } from 'react';
 
@@ -25,6 +25,7 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
     deleteMultipleProducts,
     refreshProducts,
     deleteProduct,
+    duplicateProduct,
   } = useProducts(storeId, { limit: itemsPerPage });
 
   if (productId) {
@@ -51,6 +52,7 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
       deleteMultipleProducts={deleteMultipleProducts}
       refreshProducts={refreshProducts}
       deleteProduct={deleteProduct}
+      duplicateProduct={duplicateProduct}
       itemsPerPage={itemsPerPage}
       setItemsPerPage={setItemsPerPage}
     />

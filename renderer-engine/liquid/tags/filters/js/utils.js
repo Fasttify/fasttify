@@ -109,13 +109,41 @@ export class FilterUtils {
   }
 
   /**
-   * Verifica si el scroll está cerca del final
+   * Verifica si el scroll está cerca del final usando múltiples criterios
    */
-  static isNearBottom(threshold = 100) {
+  static isNearBottom(threshold = 500, thresholdPercentage = 20) {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
+    const scrollPosition = scrollTop + windowHeight;
 
-    return scrollTop + windowHeight >= documentHeight - threshold;
+    // Criterio 1: Distancia en píxeles desde el final
+    const pixelThreshold = documentHeight - threshold;
+    const isNearBottomByPixels = scrollPosition >= pixelThreshold;
+
+    // Criterio 2: Porcentaje del viewport desde el final
+    const percentageThreshold = documentHeight - windowHeight * (thresholdPercentage / 100);
+    const isNearBottomByPercentage = scrollPosition >= percentageThreshold;
+
+    // Criterio 3: Si estamos en el último 25% del documento
+    const lastQuarterThreshold = documentHeight * 0.75;
+    const isInLastQuarter = scrollPosition >= lastQuarterThreshold;
+
+    // Criterio 4: Si el usuario ha scrolleado más del 80% del contenido
+    const scrollPercentage = (scrollTop / (documentHeight - windowHeight)) * 100;
+    const isNearBottomByScrollPercentage = scrollPercentage >= 80;
+
+    // Criterio 5: Si estamos a menos de 2 viewports del final
+    const viewportThreshold = documentHeight - windowHeight * 2;
+    const isNearBottomByViewport = scrollPosition >= viewportThreshold;
+
+    // Retornar true si cualquiera de los criterios se cumple
+    return (
+      isNearBottomByPixels ||
+      isNearBottomByPercentage ||
+      isInLastQuarter ||
+      isNearBottomByScrollPercentage ||
+      isNearBottomByViewport
+    );
   }
 }

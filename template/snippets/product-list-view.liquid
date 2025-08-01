@@ -27,7 +27,8 @@
         maxVendors: 8,
         maxCollections: 6,
         infiniteScroll: true,
-        scrollThreshold: 100,
+        scrollThreshold: 500,
+        scrollThresholdPercentage: 20,
         debounceDelay: 300,
         loadingMessage: 'Cargando productos...',
         noResultsMessage: 'No se encontraron productos',
@@ -42,7 +43,7 @@
   {% paginate products %}
     <div class="product-grid" data-products id="products-container">
       {% for product in products %}
-        <div class="product-card">
+        <div class="product-card" data-product-id="{{ product.id }}">
           <div class="product-image-wrapper">
             <a href="{{ product.url }}" class="product-link">
               {% if product.images.size > 1 %}
