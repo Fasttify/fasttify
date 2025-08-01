@@ -152,7 +152,7 @@
   width: 1.25rem;
   height: 1.25rem;
   border: 1px solid #000;
-  border-radius: 3px;
+  border-radius: 0;
   margin-right: 0.75rem;
   display: grid;
   place-content: center;
@@ -270,25 +270,28 @@
 .product-filters__price-range-inputs {
   display: flex;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin-top: 1rem;
 }
 
 .product-filters__price-input-wrapper {
   position: relative;
-  flex-grow: 1;
+  flex: 1;
+  min-width: 0;
 }
 
 .product-filters__price-input {
   font-family: var(--font-body);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   color: #000;
   width: 100%;
-  padding: 0.6rem 1rem 0.6rem 2.25rem;
+  padding: 0.4rem 0.5rem;
   border: 1px solid #000;
   border-radius: 5px;
   text-align: center;
   -moz-appearance: textfield;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .product-filters__price-input::-webkit-outer-spin-button,
@@ -297,15 +300,13 @@
   margin: 0;
 }
 
-.product-filters__price-input-wrapper::before {
-  content: "$";
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
+.product-filters__price-display {
   font-family: var(--font-body);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   color: #000;
+  text-align: center;
+  margin-top: 0.25rem;
+  display: block;
 }
 
 .product-filters__show-more {
@@ -317,4 +318,45 @@
   margin-top: 0.5rem;
   display: inline-block;
   align-self: flex-start;
+}
+
+/* Loader mejorado */
+.product-filters__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.product-filters__loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #000;
+  border-radius: 50%;
+  animation: filter-spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.product-filters__loading-text {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  color: #555;
+  margin: 0;
+  animation: filter-pulse 2s ease-in-out infinite;
+}
+
+@keyframes filter-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes filter-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }

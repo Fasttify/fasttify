@@ -162,15 +162,109 @@
     </div>
     <h2 class="search-dialog-products-heading">Productos</h2>
     <div class="search-dialog-products-grid">
-      {% for product in search_products limit: 4 %}
-        <div class="product-card-placeholder">
-          <img src="{{ product.featured_image | image_url: width: 100 }}" alt="{{ product.title }}" loading="lazy">
-          <a href="{{ product.url }}" class="product-card-link">
-            <h3>{{ product.title }}</h3>
-            <p>{{ product.price | money }}</p>
-          </a>
-        </div>
-      {% endfor %}
+      {% if search_products.size > 0 %}
+        {% for product in search_products limit: 4 %}
+          <div class="product-card">
+            <!-- Imagen del producto -->
+            <div class="product-image-wrapper">
+              <a href="{{ product.url }}" class="product-link">
+                {% if product.images.size > 1 %}
+                  <!-- Con imagen secundaria: aplicar clases para el hover -->
+                  <img
+                    class="product-image product-image-primary"
+                    src="{{ product.featured_image | img_url: '600x800' }}"
+                    alt="{{ product.title | escape }}"
+                    loading="lazy">
+                  <img
+                    class="product-image product-image-secondary"
+                    src="{{ product.images[1] | img_url: '600x800' }}"
+                    alt="{{ product.title | escape }}"
+                    loading="lazy">
+                  <!-- Indicador de múltiples imágenes -->
+                  <div class="multiple-images-indicator">
+                    <div class="indicator-dot active"></div>
+                    <div class="indicator-dot"></div>
+                    {% if product.images.size > 2 %}
+                      <div class="indicator-dot"></div>
+                    {% endif %}
+                  </div>
+                {% elsif product.images.size > 0 %}
+                  <!-- Con una sola imagen: sin clases de hover -->
+                  <img
+                    class="product-image"
+                    src="{{ product.featured_image | img_url: '600x800' }}"
+                    alt="{{ product.title | escape }}"
+                    loading="lazy">
+                {% else %}
+                  <!-- Placeholder si no hay imágenes -->
+                  <div class="product-placeholder">
+                    <div class="placeholder-content">
+                      <svg
+                        width="60"
+                        height="60"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21,15 16,10 5,21" />
+                      </svg>
+                      <p>Imagen del producto</p>
+                    </div>
+                  </div>
+                {% endif %}
+              </a>
+
+              <!-- Product Badges -->
+              <div class="product-badges">
+                {% comment %} Determinar qué badge mostrar basado en las tags del producto {% endcomment %}
+                {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
+                  <span class="product-badge badge-new">NEW</span>
+                {% elsif product.tags contains 'bestseller' %}
+                  <span class="product-badge badge-bestseller">BESTSELLER</span>
+                {% elsif product.tags contains 'trending' %}
+                  <span class="product-badge badge-trending">TRENDING</span>
+                {% endif %}
+
+                {% if product.compare_at_price > product.price %}
+                  <span class="product-badge badge-sale">
+                    SAVE {{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}%
+                  </span>
+                {% endif %}
+              </div>
+
+           
+            </div>
+
+            <!-- Información del producto -->
+            <div class="product-info">
+              <div class="product-vendor">{{ product.vendor | upcase }}</div>
+              <h3 class="product-title">{{ product.title }}</h3>
+              <div class="product-price">
+                {% if product.compare_at_price > product.price %}
+                  <span class="price-compare">{{ product.compare_at_price | money }}</span>
+                  <span class="price-current price-sale">{{ product.price | money }}</span>
+                {% else %}
+                  <span class="price-current">{{ product.price | money }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <!-- Esqueletos de carga o estado vacío -->
+        {% for i in (1..4) %}
+          <div class="product-card skeleton-card">
+            <div class="product-image-wrapper skeleton-image"></div>
+            <div class="product-info">
+              <div class="product-vendor skeleton-text skeleton-vendor"></div>
+              <h3 class="product-title skeleton-text skeleton-title"></h3>
+              <div class="product-price skeleton-text skeleton-price"></div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
     </div>
   </div>
 </div>

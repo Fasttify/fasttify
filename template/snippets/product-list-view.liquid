@@ -3,6 +3,14 @@
 {{ 'filter-styles.css' | asset_url | stylesheet_tag }}
 
 <div class="page-width">
+  <div class="product-page-banner">
+    <img src="{{ 'banner1.webp' | asset_url }}" alt="Nuevas llegadas" class="product-banner-image">
+    <div class="product-banner-content">
+      <h2 class="product-banner-title">New Arrivals</h2>
+      <p class="product-banner-description">Luxurious textures and bold colors — introducing our most vibrant collection yet.</p>
+    </div>
+  </div>
+
   <div class="products-layout">
     <!-- Sidebar con filtros -->
     <aside class="filters-sidebar">
@@ -35,16 +43,13 @@
     <div class="product-grid" data-products id="products-container">
       {% for product in products %}
         <div class="product-card">
-          <!-- Imagen del producto -->
           <div class="product-image-wrapper">
             <a href="{{ product.url }}" class="product-link">
               {% if product.images.size > 1 %}
-              <!-- Con imagen secundaria: aplicar clases para el hover -->
               <img class="product-image product-image-primary" src="{{ product.featured_image | img_url: '600x800' }}"
                 alt="{{ product.title | escape }}" loading="lazy">
               <img class="product-image product-image-secondary" src="{{ product.images[1] | img_url: '600x800' }}"
                 alt="{{ product.title | escape }}" loading="lazy">
-              <!-- Indicador de múltiples imágenes -->
               <div class="multiple-images-indicator">
                 <div class="indicator-dot active"></div>
                 <div class="indicator-dot"></div>
@@ -53,11 +58,9 @@
                 {% endif %}
               </div>
               {% elsif product.images.size > 0 %}
-              <!-- Con una sola imagen: sin clases de hover -->
               <img class="product-image" src="{{ product.featured_image | img_url: '600x800' }}"
                 alt="{{ product.title | escape }}" loading="lazy">
               {% else %}
-              <!-- Placeholder si no hay imágenes -->
               <div class="product-placeholder">
                 <div class="placeholder-content">
                   <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -71,7 +74,6 @@
               {% endif %}
             </a>
 
-            <!-- Product Badges -->
             <div class="product-badges">
               {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
               <span class="product-badge badge-new">NEW</span>
@@ -105,7 +107,6 @@
             </div>
           </div>
 
-          <!-- Información del producto -->
           <div class="product-info">
             <div class="product-vendor">{{ product.vendor | upcase }}</div>
             <h3 class="product-title">{{ product.title }}</h3>
@@ -118,14 +119,12 @@
               {% endif %}
             </div>
 
-            {% comment %} Mostrar atributos del producto (solo visual, no seleccionables en lista) {% endcomment %}
             {% if product.attributes %}
             <div class="product-attributes-summary">
               {% for attribute in product.attributes %}
               <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
                 <div class="attribute-values-list">
                   {% if attribute.name == 'color' %}
-                  {% comment %} Para colores, mostrar círculos de color {% endcomment %}
                   {% for value in attribute.values limit: 4 %}
                   <span class="color-swatch" style="background-color: {{ value | downcase }};"
                     title="{{ value }}"></span>
@@ -134,7 +133,6 @@
                   <span class="attribute-more">+{{ attribute.values.size | minus: 4 }}</span>
                   {% endif %}
                   {% else %}
-                  {% comment %} Para otros atributos, mostrar los primeros valores {% endcomment %}
                   {% for value in attribute.values limit: 3 %}
                   <span class="attribute-value-item">{{ value }}</span>
                   {% endfor %}

@@ -1,5 +1,6 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager } from '@/renderer-engine/services/core/cache';
+import { cacheInvalidationService } from '@/renderer-engine/services/core/cache/cache-invalidation-service';
 import { templateLoader } from '@/renderer-engine/services/templates/template-loader';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import * as chokidar from 'chokidar';
@@ -169,6 +170,9 @@ export class TemplateDevSynchronizer {
       if (templateName.includes('layout/') || templateName.includes('config/')) {
         cacheManager.invalidateStoreCache(this.storeId); // Invalidar toda la caché de la tienda
       }
+
+      // Invalidar caché de CloudFront para el archivo específico
+      cacheInvalidationService.invalidateCache('template_store_updated', this.storeId, undefined, templateName);
 
       // Registrar cambio reciente
       const change: FileChange = {

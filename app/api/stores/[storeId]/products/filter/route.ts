@@ -94,12 +94,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  */
 async function getFilteredProducts(storeId: string, filters: FilterParams): Promise<ProductsResponse> {
   try {
-    // Construir filtros de Amplify
     const amplifyFilters: any = {
-      status: { eq: 'active' }, // Solo productos activos
+      status: { eq: 'active' },
     };
 
-    // Filtro de categoría (individual o múltiple)
     if (filters.category) {
       amplifyFilters.category = { eq: filters.category };
     } else if (filters.categories) {
@@ -111,25 +109,25 @@ async function getFilteredProducts(storeId: string, filters: FilterParams): Prom
       }
     }
 
-    // Filtro de productos destacados
     if (filters.featured !== undefined) {
       amplifyFilters.featured = { eq: filters.featured };
     }
 
-    // Filtro de disponibilidad (productos en stock)
     if (filters.availability === 'in_stock') {
       amplifyFilters.quantity = { gt: 0 };
     }
 
     // Filtro de rango de precios
-    if (filters.price_min !== undefined) {
-      amplifyFilters.price = { ...amplifyFilters.price, gte: filters.price_min };
-    }
-    if (filters.price_max !== undefined) {
-      amplifyFilters.price = { ...amplifyFilters.price, lte: filters.price_max };
+    if (filters.price_min !== undefined && filters.price_max !== undefined) {
+      amplifyFilters.price = {
+        between: [filters.price_min, filters.price_max],
+      };
+    } else if (filters.price_min !== undefined) {
+      amplifyFilters.price = { gte: filters.price_min };
+    } else if (filters.price_max !== undefined) {
+      amplifyFilters.price = { lte: filters.price_max };
     }
 
-    // Ejecutar consulta con filtros
     const response = await cookiesClient.models.Product.listProductByStoreId(
       { storeId },
       {
@@ -143,18 +141,12 @@ async function getFilteredProducts(storeId: string, filters: FilterParams): Prom
       return { products: [], nextToken: null, totalCount: 0 };
     }
 
-    // Aplicar ordenamiento (Amplify no soporta ordenamiento avanzado, se hace en memoria pero solo en el subset filtrado)
     let products = response.data.map(transformProduct);
     products = applySorting(products, filters.sort_by || 'createdAt');
 
-    // Calcular totalCount: si hay nextToken, significa que hay más productos
-    // Si no hay nextToken y tenemos menos productos que el límite, es el total
     let totalCount = products.length;
     if (response.nextToken) {
-      // Hay más productos, pero no sabemos el total exacto
-      // Para evitar consultas adicionales costosas, usamos una estimación
-      // basada en el patrón de paginación
-      totalCount = (filters.limit || 20) * 2; // Estimación conservadora
+      totalCount = (filters.limit || 20) * 2;
     }
 
     return {
@@ -173,7 +165,7 @@ async function getFilteredProducts(storeId: string, filters: FilterParams): Prom
  */
 function transformProduct(product: any) {
   const images = dataTransformer.transformImages(product.images, product.name);
-
+  const handle = dataTransformer.createHandle(product.name);
   return {
     id: product.id,
     name: product.name,
@@ -184,13 +176,14 @@ function transformProduct(product: any) {
     category: product.category,
     images: images,
     status: product.status,
-    slug: product.slug,
+    slug: handle,
     featured: product.featured,
     tags: product.tags,
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
     vendor: product.supplier,
     sales_count: product.salesCount || 0,
+    url: `/products/${handle}`,
   };
 }
 

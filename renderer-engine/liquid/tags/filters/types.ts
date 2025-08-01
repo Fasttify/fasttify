@@ -29,6 +29,8 @@ export interface AvailableFilters {
   collections: FilterOption[];
   priceRange: PriceRange;
   sortOptions: SortOption[];
+  availability?: FilterOption[];
+  colors?: FilterOption[];
 }
 
 // Filtros aplicados por el usuario
@@ -58,12 +60,15 @@ export interface FilterConfig {
   showPriceRange?: boolean;
   showSortOptions?: boolean;
   showClearButton?: boolean;
+  showAvailabilityFilter?: boolean;
+  showColorFilter?: boolean;
 
   // Límites
   maxCategories?: number;
   maxTags?: number;
   maxVendors?: number;
   maxCollections?: number;
+  maxColors?: number;
 
   // Comportamiento
   autoApply?: boolean;
