@@ -91,20 +91,97 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       debounceTimeout = setTimeout(() => {
-        productsGrid.innerHTML = '<div class="loader">Buscando...</div>';
+        // Mostrar esqueletos de carga
+        let skeletonHtml = '';
+        for (let i = 0; i < 4; i++) {
+          skeletonHtml += `
+            <div class="product-card skeleton-card">
+              <div class="product-image-wrapper skeleton-image"></div>
+              <div class="product-info">
+                <div class="product-vendor skeleton-text skeleton-vendor"></div>
+                <h3 class="product-title skeleton-text skeleton-title"></h3>
+                <div class="product-price skeleton-text skeleton-price"></div>
+              </div>
+            </div>
+          `;
+        }
+        productsGrid.innerHTML = skeletonHtml;
+
         fetch(`/api/stores/${storeId}/search?q=${encodeURIComponent(query)}&limit=${window.SEARCH_PRODUCTS_LIMIT}`)
           .then(res => res.json())
           .then(data => {
             if (data.products && data.products.length > 0) {
-              productsGrid.innerHTML = data.products.map(product => `
-                <div class="product-card-placeholder">
-                  <img src="${product.featured_image}" alt="${product.title}" loading="lazy">
-                  <a href="${product.url}" class="product-card-link">
-                    <h3>${product.title}</h3>
-                    <p>${window.formatMoney(product.price)}</p>
-                  </a>
-                </div>
-              `).join('');
+              productsGrid.innerHTML = data.products.map(product => {
+                const hasMultipleImages = product.images && product.images.length > 1;
+                const hasSingleImage = product.images && product.images.length > 0;
+                const saleBadge = product.compare_at_price > product.price
+                  ? `<span class="product-badge badge-sale">SAVE ${Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}%</span>`
+                  : '';
+                const newBadge = product.tags && (product.tags.includes('new') || (new Date(product.createdAt).getTime() > (Date.now() - 2592000000)))
+                  ? `<span class="product-badge badge-new">NEW</span>`
+                  : '';
+                const bestsellerBadge = product.tags && product.tags.includes('bestseller')
+                  ? `<span class="product-badge badge-bestseller">BESTSELLER</span>`
+                  : '';
+                const trendingBadge = product.tags && product.tags.includes('trending')
+                  ? `<span class="product-badge badge-trending">TRENDING</span>`
+                  : '';
+
+                return `
+                  <div class="product-card">
+                    <div class="product-image-wrapper">
+                      <a href="${product.url}" class="product-link">
+                        ${hasMultipleImages
+                          ? `
+                            <img class="product-image product-image-primary" src="${product.featured_image}" alt="${product.title}" loading="lazy">
+                            <img class="product-image product-image-secondary" src="${product.images[1]}" alt="${product.title}" loading="lazy">
+                            <div class="multiple-images-indicator">
+                              <div class="indicator-dot active"></div>
+                              <div class="indicator-dot"></div>
+                              ${product.images.length > 2 ? '<div class="indicator-dot"></div>' : ''}
+                            </div>
+                          `
+                          : hasSingleImage
+                          ? `
+                            <img class="product-image" src="${product.featured_image}" alt="${product.title}" loading="lazy">
+                          `
+                          : `
+                            <div class="product-placeholder">
+                              <div class="placeholder-content">
+                                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                  <circle cx="8.5" cy="8.5" r="1.5" />
+                                  <polyline points="21,15 16,10 5,21" />
+                                </svg>
+                                <p>Imagen del producto</p>
+                              </div>
+                            </div>
+                          `
+                        }
+                      </a>
+                      <div class="product-badges">
+                        ${newBadge}
+                        ${bestsellerBadge}
+                        ${trendingBadge}
+                        ${saleBadge}
+                      </div>
+                    </div>
+                    <div class="product-info">
+                      <div class="product-vendor">${product.vendor ? product.vendor.toUpperCase() : ''}</div>
+                      <h3 class="product-title">${product.title}</h3>
+                      <div class="product-price">
+                        ${product.compare_at_price > product.price
+                          ? `
+                            <span class="price-compare">${window.formatMoney(product.compare_at_price)}</span>
+                            <span class="price-current price-sale">${window.formatMoney(product.price)}</span>
+                          `
+                          : `<span class="price-current">${window.formatMoney(product.price)}</span>`
+                        }
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('');
             } else {
               productsGrid.innerHTML = '<div class="no-results">No se encontraron productos.</div>';
             }

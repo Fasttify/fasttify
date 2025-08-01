@@ -45,7 +45,7 @@ export class ProductRenderer {
 
     const link = clone.querySelector('.product-link');
     if (link) {
-      link.href = '/products/' + product.id;
+      link.href = product.url;
     }
 
     const cartButton = clone.querySelector('[onclick*="addProductToCart"]');
@@ -63,7 +63,7 @@ export class ProductRenderer {
     return `
       <div class="product-card" data-product-id="${product.id}">
         <div class="product-image-wrapper">
-          <a href="/products/${product.id}" class="product-link">
+          <a href="${product.url}" class="product-link">
             <img class="product-image" src="${product.images?.[0]?.url || ''}" alt="${product.name}">
           </a>
         </div>

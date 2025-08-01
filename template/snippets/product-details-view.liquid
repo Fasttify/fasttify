@@ -52,7 +52,21 @@
     <div class="product-vendor text-sm font-semibold">{{ product.category | upcase }}</div>
     <h1 class="product-title text-4xl font-bold">{{ product.title }}</h1>
     <div class="product__price text-2xl font-bold">
-      {{ product.price | money }}
+      {% if product.compare_at_price > product.price %}
+        <span class="price-compare text-base font-normal">{{ product.compare_at_price | money }}</span>
+        <span class="price-current price-sale">{{ product.price | money }}</span>
+        {% assign saved_percentage = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round %}
+        <span class="product-badge badge-sale discount-badge">SAVE {{ saved_percentage }}%</span>
+      {% else %}
+        <span class="price-current">{{ product.price | money }}</span>
+      {% endif %}
+    </div>
+    <div class="product-stock-status">
+      {% if product.quantity > 0 %}
+        <span class="in-stock-message">&#9679; Item is in stock</span>
+      {% else %}
+        <span class="out-of-stock-message">&#9679; Out of stock</span>
+      {% endif %}
     </div>
     <a href="/policies" class="product-link">
       <div class="shipping-info text-sm">
@@ -115,13 +129,42 @@
         <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
       </div>
         <button type="button" onclick="addProductToCart('{{ product.id }}', document.getElementById('product-quantity').value)" class="btn add-to-cart-btn font-semibold">
-        <span>AÑADIR AL CARRITO</span>
+        <span>AÑADIR AL CARRITO
+          {% if product.compare_at_price > product.price %}
+            <span class="add-to-cart-price price-compare">{{ product.compare_at_price | money }}</span>
+            <span class="add-to-cart-price price-current price-sale">{{ product.price | money }}</span>
+          {% else %}
+            <span class="add-to-cart-price price-current">{{ product.price | money }}</span>
+          {% endif %}
+        </span>
       </button>
     </div>
 
     <button type="button" class="btn buy-it-now-btn font-semibold">
       <span>COMPRAR AHORA</span>
     </button>
+
+    <div class="limited-time-offer">
+      <p class="limited-time-offer-text">Exclusive styles at 30% off, only for three days!</p>
+      <div class="countdown-timer">
+        <div class="countdown-item">
+          <span class="countdown-value">29</span>
+          <span class="countdown-label">DAYS</span>
+        </div>
+        <div class="countdown-item">
+          <span class="countdown-value">14</span>
+          <span class="countdown-label">HOURS</span>
+        </div>
+        <div class="countdown-item">
+          <span class="countdown-value">45</span>
+          <span class="countdown-label">MINUTES</span>
+        </div>
+        <div class="countdown-item">
+          <span class="countdown-value">00</span>
+          <span class="countdown-label">SECONDS</span>
+        </div>
+      </div>
+    </div>
     </div>
 
     <div class="pickup-info">

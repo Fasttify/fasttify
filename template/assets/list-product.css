@@ -6,7 +6,7 @@
   max-width: 1900px;
   margin: 0 auto;
   padding: 0 2rem;
-  margin-top: 100px;
+  margin-top: 110px;
   overflow-x: hidden;
 }
 
@@ -32,7 +32,6 @@
 
   .page-width {
     padding: 0 1rem;
-    margin-top: 10vh;
   }
 
   .page-title {
@@ -41,6 +40,103 @@
     font-weight: var(--font-weight-normal);
     margin-bottom: 1.5rem;
 
+  }
+}
+
+
+.product-page-banner {
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.product-banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.product-banner-content {
+  position: relative;
+  z-index: 2;
+  margin-top: 0;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+}
+
+.product-banner-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-normal);
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.product-banner-description {
+  font-family: var(--font-body);
+  font-size: var(--font-size-lg);
+  max-width: 600px;
+  margin: 0 auto;
+  color: #ffffff;
+}
+
+
+@media (max-width: 1200px) {
+  .product-page-banner {
+    height: 300px;
+  }
+
+  .product-banner-title {
+    font-size: var(--font-size-5xl);
+  }
+
+  .product-banner-description {
+    font-size: var(--font-size-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .product-page-banner {
+    height: 250px;
+    margin-bottom: 1.5rem;
+  }
+
+  .product-banner-title {
+    font-size: var(--font-size-4xl);
+  }
+
+  .product-banner-description {
+    font-size: var(--font-size-base);
+  }
+}
+
+@media (max-width: 480px) {
+  .product-page-banner {
+    height: 200px;
+    margin-bottom: 1rem;
+  }
+
+  .product-banner-title {
+    font-size: var(--font-size-3xl);
+  }
+
+  .product-banner-description {
+    font-size: var(--font-size-sm);
   }
 }
 
@@ -208,7 +304,7 @@
     gap: 1rem;
   }
 
-  .filters-sidebar {
+  .product-filters {
     position: static;
     order: -1;
   }

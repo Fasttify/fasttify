@@ -49,11 +49,7 @@ export class FilterJavaScriptGenerator {
   private static buildScriptContent(filterConfig: string): string {
     return `
       import { initFilterSystem } from 'https://cdn.fasttify.com/assets/filter-main.js';
-
-      // Configuración del filtro
       const FILTER_CONFIG = ${filterConfig};
-
-      // Inicializar el sistema de filtros
       initFilterSystem(FILTER_CONFIG);
     `;
   }
