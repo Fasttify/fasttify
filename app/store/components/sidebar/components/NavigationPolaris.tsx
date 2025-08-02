@@ -1,17 +1,8 @@
 'use client';
 
 import { Navigation } from '@shopify/polaris';
-import {
-  HomeIcon,
-  ProductIcon,
-  OrderIcon,
-  StoreIcon,
-  SettingsIcon,
-  PersonIcon,
-  ContentIcon,
-} from '@shopify/polaris-icons';
+import { HomeIcon, OrderIcon, PersonIcon, ProductIcon, SettingsIcon, StoreIcon } from '@shopify/polaris-icons';
 import { usePathname } from 'next/navigation';
-
 interface NavigationPolarisProps {
   storeId: string;
 }

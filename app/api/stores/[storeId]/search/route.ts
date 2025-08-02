@@ -9,6 +9,7 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ storeId: string }> }) {
+  const corsHeaders = await getNextCorsHeaders(request);
   const { storeId } = await params;
   const { searchParams } = new URL(request.url);
 
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const limit = parseInt(searchParams.get('limit') || '20', 10);
 
   if (!storeId || !q) {
-    return NextResponse.json({ error: 'Parameters required: storeId and q' }, { status: 400 });
+    return NextResponse.json({ error: 'Parameters required: storeId and q' }, { status: 400, headers: corsHeaders });
   }
 
   try {
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const cached = cacheManager.getCached(cacheKey);
 
     if (cached) {
-      return NextResponse.json(cached);
+      return NextResponse.json(cached, { headers: corsHeaders });
     }
 
     const products = await searchProductsByTerm(storeId, q, limit);
@@ -51,8 +52,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     cacheManager.setCached(cacheKey, { products: simplifiedProducts }, cacheManager.getDataTTL('search'));
 
-    return NextResponse.json({ products: simplifiedProducts });
+    return NextResponse.json({ products: simplifiedProducts }, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal error searching products.' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal error searching products.' }, { status: 500, headers: corsHeaders });
   }
 }

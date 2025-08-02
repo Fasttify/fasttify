@@ -6,6 +6,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3'
 import { NextRequest, NextResponse } from 'next/server'
+import { getNextCorsHeaders } from '@/lib/utils/next-cors'
 
 interface TemplateRequest {
   storeId: string
@@ -29,12 +30,13 @@ const s3Client = new S3Client({
 const BASE_TEMPLATE_PREFIX = 'base-templates/default/'
 
 export async function POST(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
   try {
     // 1. Validar autenticación
     const user = await AuthGetCurrentUserServer()
 
     if (!user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401, headers: corsHeaders })
     }
 
     // 2. Parsear request body
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
     if (!storeId || !storeName || !domain) {
       return NextResponse.json(
         { error: 'Missing required fields: storeId, storeName, domain' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       )
     }
 
@@ -75,7 +77,7 @@ export async function POST(request: NextRequest) {
         error: 'Internal server error',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     )
   }
 }

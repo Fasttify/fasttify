@@ -57,6 +57,7 @@
     "framer-motion": "^12.23.1",
     "gsap": "^3.13.0",
     "input-otp": "^1.4.2",
+    "jszip": "^3.10.1",
     "liquidjs": "^10.21.1",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.1",
