@@ -229,7 +229,7 @@ export class ProductFetcher {
       };
     } catch (error) {
       logger.error(`Error fetching products for collection ${collectionId}`, error, 'ProductFetcher');
-      return { products: [], nextToken: null };
+      return { products: [], nextToken: null, totalCount: 0 };
     }
   }
 

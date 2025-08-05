@@ -143,6 +143,10 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     enabled,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
   });
 
   useEffect(() => {

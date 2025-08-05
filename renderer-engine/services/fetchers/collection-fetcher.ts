@@ -1,6 +1,5 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { cacheManager, getCollectionCacheKey, getCollectionsCacheKey } from '@/renderer-engine/services/core/cache';
-
 import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher';
 import type { CollectionContext, ProductContext, TemplateError } from '@/renderer-engine/types';
@@ -49,7 +48,7 @@ export class CollectionFetcher {
 
       const collections: CollectionContext[] = [];
       for (const collection of response.data) {
-        const transformedCollection = this.transformCollection(collection, [], null);
+        const transformedCollection = this.transformCollection(collection, [], null, 0);
         collections.push(transformedCollection);
       }
 
@@ -98,14 +97,14 @@ export class CollectionFetcher {
 
       const handle = dataTransformer.createHandle(collection.title || `collection-${collection.id}`);
 
-      const { products, nextToken } = await productFetcher.getProductsByCollection(
+      const { products, nextToken, totalCount } = await productFetcher.getProductsByCollection(
         storeId,
         collectionId,
         handle,
         options
       );
 
-      const transformedCollection = this.transformCollection(collection, products, nextToken);
+      const transformedCollection = this.transformCollection(collection, products, nextToken, totalCount || 0);
 
       cacheManager.setCached(cacheKey, transformedCollection, cacheManager.getDataTTL('collection'));
       return transformedCollection;
@@ -121,7 +120,8 @@ export class CollectionFetcher {
   private transformCollection(
     collection: any,
     products: ProductContext[],
-    nextToken: string | null | undefined
+    nextToken: string | null | undefined,
+    totalCount?: number | undefined
   ): CollectionContext {
     const handle = dataTransformer.createHandle(collection.name || collection.title || `collection-${collection.id}`);
 
@@ -140,6 +140,7 @@ export class CollectionFetcher {
       isActive: collection.isActive,
       createdAt: collection.createdAt,
       updatedAt: collection.updatedAt,
+      products_count: totalCount,
     };
   }
 }

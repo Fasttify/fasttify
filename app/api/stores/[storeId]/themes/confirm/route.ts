@@ -59,12 +59,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       version: themeData.theme.version,
       author: themeData.theme.author,
       description: themeData.theme.description,
-      files: [],
-      sections: [],
-      templates: [],
-      assets: [],
+      // Usar los archivos extraídos que vienen del endpoint de upload
+      files: themeData.theme.files || [],
+      sections: themeData.theme.sections || [],
+      templates: themeData.theme.templates || [],
+      assets: themeData.theme.assets || [],
       totalSize: themeData.theme.totalSize || 0,
-      settings: {
+      settings: themeData.theme.settings || {
         name: themeData.theme.name,
         version: themeData.theme.version,
         settings_schema: [],

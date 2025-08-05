@@ -171,9 +171,29 @@ export class S3StorageService {
   private async uploadThemeFiles(files: ThemeFile[], baseKey: string): Promise<{ success: boolean; error?: string }> {
     try {
       const uploadPromises = files.map(async (file) => {
-        const fileKey = `${baseKey}/files/${file.path}`;
-        const content = file.content instanceof Buffer ? file.content : Buffer.from(file.content as string);
+        // Organizar archivos por tipo en carpetas separadas
+        let fileKey: string;
 
+        if (file.path.includes('/layout/')) {
+          fileKey = `${baseKey}/layout/${file.path.split('/layout/')[1]}`;
+        } else if (file.path.includes('/templates/')) {
+          fileKey = `${baseKey}/templates/${file.path.split('/templates/')[1]}`;
+        } else if (file.path.includes('/sections/')) {
+          fileKey = `${baseKey}/sections/${file.path.split('/sections/')[1]}`;
+        } else if (file.path.includes('/snippets/')) {
+          fileKey = `${baseKey}/snippets/${file.path.split('/snippets/')[1]}`;
+        } else if (file.path.includes('/assets/')) {
+          fileKey = `${baseKey}/assets/${file.path.split('/assets/')[1]}`;
+        } else if (file.path.includes('/config/')) {
+          fileKey = `${baseKey}/config/${file.path.split('/config/')[1]}`;
+        } else if (file.path.includes('/locales/')) {
+          fileKey = `${baseKey}/locales/${file.path.split('/locales/')[1]}`;
+        } else {
+          // Archivos en la raíz
+          fileKey = `${baseKey}/root/${file.path}`;
+        }
+
+        const content = file.content instanceof Buffer ? file.content : Buffer.from(file.content as string);
         return this.uploadFile(content, fileKey);
       });
 
@@ -181,12 +201,14 @@ export class S3StorageService {
       const failedUploads = results.filter((result) => !result.success);
 
       if (failedUploads.length > 0) {
+        this.logger.error('Failed to upload theme files', { failedCount: failedUploads.length }, 'S3StorageService');
         return {
           success: false,
           error: `Failed to upload ${failedUploads.length} files`,
         };
       }
 
+      this.logger.info('Theme files uploaded successfully', { fileCount: files.length }, 'S3StorageService');
       return { success: true };
     } catch (error) {
       return {

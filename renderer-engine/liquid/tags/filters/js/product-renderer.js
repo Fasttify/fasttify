@@ -24,7 +24,6 @@ export class ProductRenderer {
       return this.templateManager.renderProduct(product);
     }
 
-    // Fallback si no hay template manager
     const existingProduct = document.querySelector('.product-card');
     if (existingProduct) {
       return this.renderFromTemplate(existingProduct, product);

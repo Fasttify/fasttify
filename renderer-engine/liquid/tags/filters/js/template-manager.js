@@ -25,7 +25,6 @@ export class TemplateManager {
       }
     } catch (error) {}
 
-    // Si no hay template personalizado, usar el template existente en la página
     return this.loadExistingTemplate();
   }
 

@@ -1,8 +1,8 @@
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { cacheManager, getSearchProductsCacheKey } from '@/renderer-engine/services/core/cache';
+import { dataTransformer } from '@/renderer-engine/services/core/data-transformer';
 import { searchProductsByTerm } from '@/renderer-engine/services/page/data-loader/search/search-data-loader';
 import { NextRequest, NextResponse } from 'next/server';
-
 export async function OPTIONS(request: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(request);
   return new Response(null, { status: 204, headers: corsHeaders });

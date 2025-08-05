@@ -8,7 +8,7 @@ El sistema de almacenamiento de temas en S3 permite a los usuarios subir temas p
 
 ### Organización por Store ID
 
-Los temas se almacenan en S3 siguiendo esta estructura:
+Los temas se almacenan en S3 siguiendo esta estructura organizada por carpetas:
 
 ```
 s3://fasttify-themes/
@@ -16,22 +16,26 @@ s3://fasttify-themes/
 │   ├── {storeId}/
 │   │   ├── theme.zip                        # Archivo ZIP original
 │   │   ├── metadata.json                    # Metadata del tema
-│   │   └── files/                          # Archivos individuales
-│   │       ├── template/
-│   │       │   ├── layout/
-│   │       │   │   └── theme.liquid
-│   │       │   ├── sections/
-│   │       │   │   ├── header.liquid
-│   │       │   │   └── footer.liquid
-│   │       │   ├── snippets/
-│   │       │   │   └── product-card.liquid
-│   │       │   ├── templates/
-│   │       │   │   ├── index.json
-│   │       │   │   └── product.json
-│   │       │   └── assets/
-│   │           ├── theme.css
-│   │           ├── theme.js
-│   │           └── images/
+│   │   ├── layout/                          # Archivos de layout
+│   │   │   └── theme.liquid
+│   │   ├── templates/                       # Archivos de templates
+│   │   │   ├── index.json
+│   │   │   └── product.json
+│   │   ├── sections/                        # Archivos de secciones
+│   │   │   ├── header.liquid
+│   │   │   └── footer.liquid
+│   │   ├── snippets/                        # Archivos de snippets
+│   │   │   └── product-card.liquid
+│   │   ├── assets/                          # Archivos de assets
+│   │   │   ├── theme.css
+│   │   │   ├── theme.js
+│   │   │   └── images/
+│   │   ├── config/                          # Archivos de configuración
+│   │   │   └── settings_schema.json
+│   │   ├── locales/                         # Archivos de localización
+│   │   │   └── en.default.json
+│   │   └── root/                            # Archivos en la raíz
+│   │       └── README.md
 │   └── {storeId2}/
 ```
 
@@ -40,7 +44,14 @@ s3://fasttify-themes/
 - **Base Key**: `templates/{storeId}/`
 - **ZIP Original**: `templates/{storeId}/theme.zip`
 - **Metadata**: `templates/{storeId}/metadata.json`
-- **Archivos**: `templates/{storeId}/files/{filePath}`
+- **Layout**: `templates/{storeId}/layout/{filePath}`
+- **Templates**: `templates/{storeId}/templates/{filePath}`
+- **Sections**: `templates/{storeId}/sections/{filePath}`
+- **Snippets**: `templates/{storeId}/snippets/{filePath}`
+- **Assets**: `templates/{storeId}/assets/{filePath}`
+- **Config**: `templates/{storeId}/config/{filePath}`
+- **Locales**: `templates/{storeId}/locales/{filePath}`
+- **Root**: `templates/{storeId}/root/{filePath}`
 
 ## Configuración de Variables de Entorno
 
@@ -93,7 +104,14 @@ const result = await s3Storage.storeTheme(processedTheme, storeId, zipFile);
 
 - **ZIP Original**: `https://cdn.fasttify.com/templates/{storeId}/theme.zip`
 - **Metadata**: `https://cdn.fasttify.com/templates/{storeId}/metadata.json`
-- **Archivos**: `https://cdn.fasttify.com/templates/{storeId}/files/{filePath}`
+- **Layout**: `https://cdn.fasttify.com/templates/{storeId}/layout/{filePath}`
+- **Templates**: `https://cdn.fasttify.com/templates/{storeId}/templates/{filePath}`
+- **Sections**: `https://cdn.fasttify.com/templates/{storeId}/sections/{filePath}`
+- **Snippets**: `https://cdn.fasttify.com/templates/{storeId}/snippets/{filePath}`
+- **Assets**: `https://cdn.fasttify.com/templates/{storeId}/assets/{filePath}`
+- **Config**: `https://cdn.fasttify.com/templates/{storeId}/config/{filePath}`
+- **Locales**: `https://cdn.fasttify.com/templates/{storeId}/locales/{filePath}`
+- **Root**: `https://cdn.fasttify.com/templates/{storeId}/root/{filePath}`
 
 ## Operaciones Disponibles
 

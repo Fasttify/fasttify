@@ -24,7 +24,7 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   products: (content: string) => {
     const limitMatch = content.match(/products[^}]*limit:\s*(\d+)/i);
     return {
-      limit: limitMatch ? parseInt(limitMatch[1], 10) : 20,
+      limit: limitMatch ? parseInt(limitMatch[1], 10) : undefined,
     };
   },
 
@@ -44,7 +44,7 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   collections: (content: string) => {
     const limitMatch = content.match(/collections[^}]*limit:\s*(\d+)/i);
     return {
-      limit: limitMatch ? parseInt(limitMatch[1], 10) : 10,
+      limit: limitMatch ? parseInt(limitMatch[1], 10) : undefined,
     };
   },
 
@@ -293,11 +293,10 @@ export class LiquidSyntaxDetector {
 
       // Determinar si se paginan productos o colecciones
       if (paginatedObject.includes('products')) {
-        analysis.requiredData.set('products', { limit: 20 }); // Límite por defecto, será sobreescrito
+        analysis.requiredData.set('products', {});
       } else if (paginatedObject.includes('collections')) {
-        analysis.requiredData.set('collections', { limit: 10 }); // Límite por defecto
+        analysis.requiredData.set('collections', {});
       }
-      // Añadir la dependencia 'pagination' para que el contexto se construya
       analysis.requiredData.set('pagination', {});
     }
   }

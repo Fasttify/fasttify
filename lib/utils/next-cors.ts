@@ -34,8 +34,7 @@ async function isAllowedOrigin(origin: string | undefined): Promise<boolean> {
 
     // Si no se encuentra en las listas estáticas, consulta la base de datos para un dominio personalizado válido
     const store = await domainResolver.resolveDomain(hostname);
-    logger.info('Store', { store }, hostname);
-    return !!store; // Si se encuentra una tienda para el dominio, está permitido.
+    return !!store;
   } catch (error) {
     logger.error('Error checking origin', error);
     return false;
@@ -49,8 +48,6 @@ async function isAllowedOrigin(origin: string | undefined): Promise<boolean> {
 export async function getNextCorsHeaders(request: NextRequest): Promise<Record<string, string>> {
   const origin = request.headers.get('origin') ?? undefined;
   const isAllowed = await isAllowedOrigin(origin);
-
-  logger.info('CORS headers', { origin, isAllowed, allowedOrigins: staticAllowedOrigins });
 
   return {
     'Access-Control-Allow-Origin': isAllowed && origin ? origin : staticAllowedOrigins[0],

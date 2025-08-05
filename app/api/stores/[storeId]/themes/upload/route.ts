@@ -98,7 +98,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     // 8. Solo validar y procesar, no almacenar automáticamente
     // El almacenamiento se hará cuando el usuario confirme en la UI
-    let storageResult = null;
+    const storageResult = null;
 
     // 9. Preparar respuesta
     const response = {
@@ -115,6 +115,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         sectionCount: processedTheme.sections.length,
         templateCount: processedTheme.templates.length,
         preview: processedTheme.preview,
+        // Incluir los archivos extraídos para el almacenamiento
+        files: processedTheme.files,
+        sections: processedTheme.sections,
+        templates: processedTheme.templates,
+        assets: processedTheme.assets,
+        settings: processedTheme.settings,
+        validation: processedTheme.validation,
+        analysis: processedTheme.analysis,
       },
       validation: {
         isValid: validation.isValid,
@@ -124,14 +132,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         warnings: validation.warnings,
       },
       analysis: processedTheme.analysis,
-      storage: storageResult
-        ? {
-            success: storageResult.success,
-            s3Key: storageResult.s3Key,
-            cdnUrl: storageResult.cdnUrl,
-            error: storageResult.error,
-          }
-        : null,
+      storage: null,
     };
 
     logger.info(
