@@ -265,12 +265,10 @@ function getAppliedFiltersInfo(filters: FilterParams) {
  */
 async function getAvailableFilters(storeId: string) {
   try {
-    // Consulta ligera para obtener solo los campos necesarios para filtros
-    // Amplify no soporta projection, pero podemos usar un límite más bajo y cachear
     const response = await cookiesClient.models.Product.listProductByStoreId(
       { storeId },
       {
-        limit: 100, // Muestra más pequeña pero representativa
+        limit: 50,
         filter: {
           status: { eq: 'active' },
         },
@@ -279,10 +277,8 @@ async function getAvailableFilters(storeId: string) {
 
     const products = response.data || [];
 
-    // Extraer categorías únicas
     const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
 
-    // Extraer tags únicos (si tags es un array JSON)
     const allTags = products.reduce((tags: string[], product: any) => {
       if (product.tags && Array.isArray(product.tags)) {
         tags.push(...product.tags);
@@ -291,7 +287,6 @@ async function getAvailableFilters(storeId: string) {
     }, []);
     const tags = [...new Set(allTags)];
 
-    // Extraer rango de precios
     const prices = products.map((p: any) => p.price || 0).filter((p: any) => p > 0);
     const priceRange = {
       min: prices.length > 0 ? Math.min(...prices) : 0,

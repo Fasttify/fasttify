@@ -1,5 +1,6 @@
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { cacheInvalidationService, type ChangeType } from '@/renderer-engine/services/core/cache';
+import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: NextRequest) {
@@ -8,8 +9,21 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ storeId: string }> }) {
-  const { storeId } = await params;
   const corsHeaders = await getNextCorsHeaders(request);
+  const session = await AuthGetCurrentUserServer();
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+  }
+  const { storeId } = await params;
+  const { data: userStore } = await cookiesClient.models.UserStore.get({
+    storeId,
+  });
+  if (!userStore) {
+    return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
+  }
+  if (userStore.userId !== session.username) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
+  }
 
   try {
     const { changeType, entityId } = await request.json();
