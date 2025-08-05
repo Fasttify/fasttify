@@ -1,3 +1,4 @@
+import { logger } from '@/renderer-engine/lib/logger';
 import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
 import { NextRequest } from 'next/server';
 
@@ -33,9 +34,9 @@ async function isAllowedOrigin(origin: string | undefined): Promise<boolean> {
 
     // Si no se encuentra en las listas estáticas, consulta la base de datos para un dominio personalizado válido
     const store = await domainResolver.resolveDomain(hostname);
-    return !!store; // Si se encuentra una tienda para el dominio, está permitido.
+    return !!store;
   } catch (error) {
-    // Formato de origen inválido o error
+    logger.error('Error checking origin', error);
     return false;
   }
 }

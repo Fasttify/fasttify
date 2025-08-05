@@ -1,10 +1,10 @@
 import type { Schema } from '@/amplify/data/resource';
+import outputs from '@/amplify_outputs.json';
 import useUserStore from '@/context/core/userStore';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
+import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import { useState } from 'react';
-import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify_outputs.json';
 
 Amplify.configure(outputs);
 
@@ -279,6 +279,7 @@ export const useUserStoreData = () => {
       | 'navigationMenus'
       | 'storePaymentConfig'
       | 'storeCustomDomain'
+      | 'userThemes'
     >
   ) => {
     try {

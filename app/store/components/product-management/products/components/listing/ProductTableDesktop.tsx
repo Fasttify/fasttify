@@ -9,23 +9,26 @@ import type { IProduct } from '@/app/store/hooks/data/useProducts';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
 import {
+  ActionList,
   Badge,
   Button,
-  ButtonGroup,
   Card,
   IndexTable,
   Link as PolarisLink,
+  Popover,
   Text,
   Thumbnail,
   useIndexResourceState,
 } from '@shopify/polaris';
-import { DeleteIcon, EditIcon, ImageIcon } from '@shopify/polaris-icons';
+import { DeleteIcon, DuplicateIcon, EditIcon, ImageIcon, SettingsIcon } from '@shopify/polaris-icons';
 import { useParams, usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 interface ProductTableDesktopProps {
   products: IProduct[];
   handleEditProduct: (id: string) => void;
   handleDeleteProduct: (id: string) => void;
+  handleDuplicateProduct: (id: string) => void;
   handleDeleteSelected: (selectedIds: string[]) => void;
   visibleColumns: VisibleColumns;
   toggleSort: (field: SortField) => void;
@@ -39,6 +42,7 @@ export function ProductTableDesktop({
   products,
   handleEditProduct,
   handleDeleteProduct,
+  handleDuplicateProduct,
   handleDeleteSelected,
   visibleColumns,
   toggleSort,
@@ -50,6 +54,7 @@ export function ProductTableDesktop({
   const pathname = usePathname();
   const params = useParams();
   const storeId = getStoreId(params, pathname);
+  const [activePopover, setActivePopover] = useState<string | null>(null);
 
   const resourceName = {
     singular: 'producto',
@@ -79,6 +84,8 @@ export function ProductTableDesktop({
       imageUrl = images[0]?.url;
     }
 
+    const isPopoverActive = activePopover === id;
+
     return (
       <IndexTable.Row id={id} key={id} selected={selectedResources.includes(id)} position={index}>
         <IndexTable.Cell>
@@ -102,15 +109,52 @@ export function ProductTableDesktop({
         {visibleColumns.actions && (
           <IndexTable.Cell>
             {selectedResources.includes(id) ? (
-              <ButtonGroup>
-                <Button icon={EditIcon} onClick={() => handleEditProduct(id)} accessibilityLabel="Edit product" />
-                <Button
-                  icon={DeleteIcon}
-                  onClick={() => handleDeleteProduct(id)}
-                  accessibilityLabel="Delete product"
-                  tone="critical"
+              <Popover
+                active={isPopoverActive}
+                activator={
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      icon={SettingsIcon}
+                      onClick={() => setActivePopover(isPopoverActive ? null : id)}
+                      accessibilityLabel="Más opciones"
+                      variant="plain"
+                    />
+                  </div>
+                }
+                onClose={() => setActivePopover(null)}
+                preferredPosition="below"
+                preferredAlignment="right">
+                <ActionList
+                  actionRole="menuitem"
+                  items={[
+                    {
+                      content: 'Editar',
+                      icon: EditIcon,
+                      onAction: () => {
+                        handleEditProduct(id);
+                        setActivePopover(null);
+                      },
+                    },
+                    {
+                      content: 'Duplicar',
+                      icon: DuplicateIcon,
+                      onAction: () => {
+                        handleDuplicateProduct(id);
+                        setActivePopover(null);
+                      },
+                    },
+                    {
+                      content: 'Eliminar',
+                      icon: DeleteIcon,
+                      destructive: true,
+                      onAction: () => {
+                        handleDeleteProduct(id);
+                        setActivePopover(null);
+                      },
+                    },
+                  ]}
                 />
-              </ButtonGroup>
+              </Popover>
             ) : null}
           </IndexTable.Cell>
         )}

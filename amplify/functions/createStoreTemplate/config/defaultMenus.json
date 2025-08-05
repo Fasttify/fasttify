@@ -58,16 +58,16 @@
         "sortOrder": 1
       },
       {
-        "label": "Ropa Masculina",
-        "collectionHandle": "ropa-hombre",
+        "label": "Nuevos productos",
+        "collectionHandle": "nuevos-productos",
         "type": "collection",
         "isVisible": true,
         "target": "_self",
         "sortOrder": 2
       },
       {
-        "label": "Ropa Femenina",
-        "collectionHandle": "ropa-mujer",
+        "label": "Ofertas especiales",
+        "collectionHandle": "ofertas-especiales",
         "type": "collection",
         "isVisible": true,
         "target": "_self",

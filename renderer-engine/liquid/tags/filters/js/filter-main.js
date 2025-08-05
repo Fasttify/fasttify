@@ -36,11 +36,13 @@ export class FilterSystem {
   /**
    * Inicializa el sistema de filtros
    */
-  init() {
+  async init() {
     if (!this.domManager.findElements()) {
       console.error('Filter system initialization failed');
       return false;
     }
+
+    await this.productRenderer.init(this.config.storeId);
 
     this.eventHandler.setFilterConfig(this.config);
     this.eventHandler.bindEvents();
@@ -92,13 +94,13 @@ export class FilterSystem {
 /**
  * Función de inicialización automática
  */
-export function initFilterSystem(config) {
+export async function initFilterSystem(config) {
   const filterSystem = FilterSystem.create(config);
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => filterSystem.init());
+    document.addEventListener('DOMContentLoaded', async () => await filterSystem.init());
   } else {
-    filterSystem.init();
+    await filterSystem.init();
   }
 
   return filterSystem;

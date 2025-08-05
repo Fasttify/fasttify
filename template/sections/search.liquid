@@ -3,7 +3,6 @@
 <section class="search-results-grid">
   <h1 class="page-title">Resultados de búsqueda para: {{ search_term }}</h1>
   <div class="product-grid">
-    {% paginate search_products %}
       {% for product in search_products %}
         <div class="product-card">
           <!-- Imagen del producto -->
@@ -149,26 +148,6 @@
         </div>
       {% endfor %}
 
-      {% if paginate.previous or paginate.next %}
-        <nav class="custom-pagination" aria-label="Paginación">
-          {% if paginate.previous %}
-            <a class="custom-pagination__link" href="{{ paginate.previous.url }}">
-              &larr; Anterior
-            </a>
-          {% else %}
-            <span class="custom-pagination__link custom-pagination__link--disabled">&larr; Anterior</span>
-          {% endif %}
-
-          {% if paginate.next %}
-            <a class="custom-pagination__link" href="{{ paginate.next.url }}">
-              Siguiente &rarr;
-            </a>
-          {% else %}
-            <span class="custom-pagination__link custom-pagination__link--disabled">Siguiente &rarr;</span>
-          {% endif %}
-        </nav>
-      {% endif %}
-    {% endpaginate %}
   </div>
 </section>
 

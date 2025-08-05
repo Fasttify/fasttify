@@ -82,6 +82,78 @@ export class SchemaParser {
   }
 
   /**
+   * Extrae información del tema desde settings_schema.json
+   */
+  public extractThemeInfo(jsonContent: string): Record<string, any> {
+    try {
+      const schema = JSON.parse(jsonContent);
+
+      // Buscar la sección theme_info
+      const themeInfo = schema.find((section: any) => section.name === 'theme_info');
+
+      if (themeInfo) {
+        return {
+          name: themeInfo.theme_name || 'Untitled Theme',
+          version: themeInfo.theme_version || '1.0.0',
+          author: themeInfo.theme_author,
+          description: themeInfo.theme_description,
+          homepage: themeInfo.theme_documentation_url,
+          support: themeInfo.theme_support_url,
+          settings_schema: schema,
+          settings_defaults: this.extractDefaultsFromSchema(schema),
+        };
+      }
+
+      // Fallback: intentar extraer del primer objeto
+      if (schema.length > 0 && schema[0].theme_name) {
+        return {
+          name: schema[0].theme_name,
+          version: schema[0].theme_version || '1.0.0',
+          author: schema[0].theme_author,
+          description: schema[0].theme_description,
+          homepage: schema[0].theme_documentation_url,
+          support: schema[0].theme_support_url,
+          settings_schema: schema,
+          settings_defaults: this.extractDefaultsFromSchema(schema),
+        };
+      }
+
+      return {
+        name: 'Untitled Theme',
+        version: '1.0.0',
+        settings_schema: schema,
+        settings_defaults: this.extractDefaultsFromSchema(schema),
+      };
+    } catch (error) {
+      return {
+        name: 'Untitled Theme',
+        version: '1.0.0',
+        settings_schema: [],
+        settings_defaults: {},
+      };
+    }
+  }
+
+  /**
+   * Extrae valores por defecto del schema
+   */
+  private extractDefaultsFromSchema(schema: any[]): Record<string, any> {
+    const defaults: Record<string, any> = {};
+
+    for (const section of schema) {
+      if (section.settings && Array.isArray(section.settings)) {
+        for (const setting of section.settings) {
+          if (setting.id && setting.default !== undefined) {
+            defaults[setting.id] = setting.default;
+          }
+        }
+      }
+    }
+
+    return defaults;
+  }
+
+  /**
    * Extrae blocks del schema
    */
   public extractSchemaBlocks(templateContent: string): any[] {

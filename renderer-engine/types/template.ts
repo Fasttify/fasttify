@@ -139,6 +139,7 @@ export interface CollectionContext {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  products_count?: number;
 }
 
 export interface PaginationContext {

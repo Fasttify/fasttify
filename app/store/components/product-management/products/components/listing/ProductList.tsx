@@ -4,10 +4,12 @@ import { Box, Button, ButtonGroup, Card, Text } from '@shopify/polaris';
 import { useRouter } from 'next/navigation';
 
 // Hooks
+import { useProductDuplication } from '@/app/store/components/product-management/products/hooks/useProductDuplication';
 import { useProductFilters } from '@/app/store/components/product-management/products/hooks/useProductFilters';
 import { useProductSelection } from '@/app/store/components/product-management/products/hooks/useProductSelection';
 
 // Components
+import { DuplicateConfirmModal } from '@/app/store/components/product-management/products/components/listing/DuplicateConfirmModal';
 import { ProductCardMobile } from '@/app/store/components/product-management/products/components/listing/ProductCardMobile';
 import { ProductEmptyState } from '@/app/store/components/product-management/products/components/listing/ProductEmtyState';
 import { ProductFilters } from '@/app/store/components/product-management/products/components/listing/ProductFilters';
@@ -30,15 +32,34 @@ export function ProductList({
   currentPage,
   deleteMultipleProducts,
   deleteProduct,
+  duplicateProduct,
   itemsPerPage,
   setItemsPerPage,
 }: ProductListProps) {
   const router = useRouter();
   const { showToast } = useToast();
+
   // Hooks para manejar diferentes aspectos de la tabla
   const { selectedProducts, handleSelectProduct, setSelectedProducts } = useProductSelection();
   const { activeTab, setActiveTab, searchQuery, setSearchQuery, sortedProducts, toggleSort, sortDirection, sortField } =
     useProductFilters(products);
+
+  // Hook para manejar duplicación de productos
+  const {
+    isDuplicating,
+    duplicatingProductId,
+    showConfirmModal,
+    pendingProduct,
+    handleDuplicateProduct,
+    confirmDuplication,
+    cancelDuplication,
+  } = useProductDuplication({
+    duplicateProduct,
+    onSuccess: (duplicatedProduct) => {
+      // Opcional: redirigir al producto duplicado para editarlo
+      router.push(routes.store.products.edit(storeId, duplicatedProduct.id));
+    },
+  });
 
   // Funciones de navegación y acciones
   const handleAddProduct = () => {
@@ -59,6 +80,11 @@ export function ProductList({
         showToast('Error al eliminar el producto');
       }
     }
+  };
+
+  const handleDuplicateProductWithName = (id: string) => {
+    const product = products.find((p) => p.id === id);
+    handleDuplicateProduct(id, product?.name);
   };
 
   const handleDeleteSelected = async (selectedIds: string[]) => {
@@ -109,6 +135,7 @@ export function ProductList({
           </Button>
         </ButtonGroup>
       </div>
+
       <Card>
         <ProductFilters
           activeTab={activeTab}
@@ -121,6 +148,7 @@ export function ProductList({
           products={sortedProducts}
           handleEditProduct={handleEditProduct}
           handleDeleteProduct={handleDeleteProduct}
+          handleDuplicateProduct={handleDuplicateProductWithName}
           handleDeleteSelected={handleDeleteSelected}
           visibleColumns={{
             product: true,
@@ -145,6 +173,7 @@ export function ProductList({
             handleSelectProduct={handleSelectProduct}
             handleEditProduct={handleEditProduct}
             handleDeleteProduct={handleDeleteProduct}
+            handleDuplicateProduct={handleDuplicateProductWithName}
             visibleColumns={{
               product: true,
               status: true,
@@ -169,6 +198,17 @@ export function ProductList({
           />
         </Box>
       </Card>
+
+      {/* Modal de confirmación de duplicación */}
+      {showConfirmModal && pendingProduct && (
+        <DuplicateConfirmModal
+          open={showConfirmModal}
+          onClose={cancelDuplication}
+          onConfirm={confirmDuplication}
+          productName={pendingProduct.name}
+          isLoading={isDuplicating}
+        />
+      )}
     </div>
   );
 }

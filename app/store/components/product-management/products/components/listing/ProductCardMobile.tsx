@@ -1,5 +1,5 @@
 import { Badge, BlockStack, Box, Button, ButtonGroup, Checkbox, Text, Thumbnail } from '@shopify/polaris';
-import { DeleteIcon, EditIcon, ImageIcon } from '@shopify/polaris-icons';
+import { DeleteIcon, DuplicateIcon, EditIcon, ImageIcon } from '@shopify/polaris-icons';
 
 import type { VisibleColumns } from '@/app/store/components/product-management/products/types/product-types';
 import { getStatusText, getStatusTone } from '@/app/store/components/product-management/utils/common-utils';
@@ -12,6 +12,7 @@ interface ProductCardMobileProps {
   handleSelectProduct: (id: string) => void;
   handleEditProduct: (id: string) => void;
   handleDeleteProduct: (id: string) => void;
+  handleDuplicateProduct: (id: string) => void;
   visibleColumns: VisibleColumns;
 }
 
@@ -21,6 +22,7 @@ export function ProductCardMobile({
   handleSelectProduct,
   handleEditProduct,
   handleDeleteProduct,
+  handleDuplicateProduct,
   visibleColumns,
 }: ProductCardMobileProps) {
   const getImageUrl = (images: IProduct['images']) => {
@@ -102,6 +104,9 @@ export function ProductCardMobile({
                   <ButtonGroup>
                     <Button icon={EditIcon} onClick={() => handleEditProduct(productId)} size="slim">
                       Editar
+                    </Button>
+                    <Button icon={DuplicateIcon} onClick={() => handleDuplicateProduct(productId)} size="slim">
+                      Duplicar
                     </Button>
                     <Button
                       icon={DeleteIcon}

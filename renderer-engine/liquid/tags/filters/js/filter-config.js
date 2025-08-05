@@ -3,7 +3,8 @@
  */
 export const DEFAULT_FILTER_CONFIG = {
   infiniteScroll: true,
-  scrollThreshold: 100,
+  scrollThreshold: 500,
+  scrollThresholdPercentage: 20,
   debounceDelay: 300,
   loadingMessage: 'Cargando productos...',
   noResultsMessage: 'No se encontraron productos',

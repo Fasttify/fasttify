@@ -70,7 +70,7 @@ export function extractPaginationLimitFromTemplate(
       if (settings) {
         if (settings.products_per_page !== undefined) {
           extractedLimit = Number(settings.products_per_page);
-          targetDataType = 'products'; // O 'collection' si la sección es de productos de colección
+          targetDataType = 'products';
         } else if (settings.collections_per_page !== undefined) {
           extractedLimit = Number(settings.collections_per_page);
           targetDataType = 'collections';
@@ -83,20 +83,15 @@ export function extractPaginationLimitFromTemplate(
         }
       }
 
-      // Si la página actual es de tipo 'collection' y el límite es para 'products',
-      // reasignar el targetDataType a 'collection' para que afecte a los productos dentro de la colección.
       if (options.pageType === 'collection' && targetDataType === 'products') {
         targetDataType = 'collection';
       }
 
       if (extractedLimit !== undefined && targetDataType) {
-        // Actualizar el límite en requiredData para el tipo de datos específico
         const existingOptions = analysis.requiredData.get(targetDataType as DataRequirement) || {};
         analysis.requiredData.set(targetDataType as DataRequirement, { ...existingOptions, limit: extractedLimit });
       }
     }
-
-    // NOTA: La propiedad `paginationLimit` en `analysis` ya no se usa y se eliminará.
   } catch (error) {
     logger.warn(`Could not parse template to find pagination limits for ${templatePath}`, error);
   }

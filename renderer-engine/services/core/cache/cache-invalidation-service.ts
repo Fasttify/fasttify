@@ -46,142 +46,81 @@ interface InvalidationConfig {
 export class CacheInvalidationService {
   private static instance: CacheInvalidationService;
 
-  // Configuración de invalidación por tipo de cambio
   private readonly invalidationConfig: Record<ChangeType, InvalidationConfig> = {
-    // Cambios en productos
     product_created: {
       cacheKeys: [],
-      patterns: [
-        'products_', // Lista de productos
-        'featured_products_', // Productos destacados
-        'search_products_', // Búsquedas
-        'collection_', // Colecciones (pueden incluir el nuevo producto)
-      ],
+      patterns: ['products_', 'featured_products_', 'search_products_', 'collection_'],
       description: 'Producto creado - invalidar listas y búsquedas',
     },
     product_updated: {
       cacheKeys: [],
-      patterns: [
-        'product_', // Producto específico
-        'products_', // Lista de productos
-        'featured_products_', // Productos destacados
-        'search_products_', // Búsquedas
-        'collection_', // Colecciones que contengan el producto
-      ],
+      patterns: ['product_', 'products_', 'featured_products_', 'search_products_', 'collection_'],
       description: 'Producto actualizado - invalidar producto y listas',
     },
     product_deleted: {
       cacheKeys: [],
-      patterns: [
-        'product_', // Producto específico
-        'products_', // Lista de productos
-        'featured_products_', // Productos destacados
-        'search_products_', // Búsquedas
-        'collection_', // Colecciones que contuvieran el producto
-      ],
+      patterns: ['product_', 'products_', 'featured_products_', 'search_products_', 'collection_'],
       description: 'Producto eliminado - invalidar producto y listas',
     },
 
-    // Cambios en colecciones
     collection_created: {
       cacheKeys: [],
-      patterns: [
-        'collections_', // Lista de colecciones
-        'navigation_', // Menús de navegación
-      ],
+      patterns: ['collections_', 'navigation_'],
       description: 'Colección creada - invalidar listas y navegación',
     },
     collection_updated: {
       cacheKeys: [],
-      patterns: [
-        'collection_', // Colección específica
-        'collections_', // Lista de colecciones
-        'navigation_', // Menús de navegación
-      ],
+      patterns: ['collection_', 'collections_', 'navigation_'],
       description: 'Colección actualizada - invalidar colección y listas',
     },
     collection_deleted: {
       cacheKeys: [],
-      patterns: [
-        'collection_', // Colección específica
-        'collections_', // Lista de colecciones
-        'navigation_', // Menús de navegación
-      ],
+      patterns: ['collection_', 'collections_', 'navigation_'],
       description: 'Colección eliminada - invalidar colección y listas',
     },
 
-    // Cambios en páginas
     page_created: {
       cacheKeys: [],
-      patterns: [
-        'pages_', // Lista de páginas
-        'navigation_', // Menús de navegación
-      ],
+      patterns: ['pages_', 'navigation_'],
       description: 'Página creada - invalidar listas y navegación',
     },
     page_updated: {
       cacheKeys: [],
-      patterns: [
-        'page_', // Página específica
-        'pages_', // Lista de páginas
-        'navigation_', // Menús de navegación
-      ],
+      patterns: ['page_', 'pages_', 'navigation_'],
       description: 'Página actualizada - invalidar página y listas',
     },
     page_deleted: {
       cacheKeys: [],
-      patterns: [
-        'page_', // Página específica
-        'pages_', // Lista de páginas
-        'navigation_', // Menús de navegación
-      ],
+      patterns: ['page_', 'pages_', 'navigation_'],
       description: 'Página eliminada - invalidar página y listas',
     },
 
-    // Cambios en navegación
     navigation_updated: {
       cacheKeys: [],
-      patterns: [
-        'navigation_', // Menús de navegación
-      ],
+      patterns: ['navigation_'],
       description: 'Navegación actualizada - invalidar menús',
     },
 
-    // Cambios en templates
     template_updated: {
       cacheKeys: [],
-      patterns: [
-        'template_', // Templates
-        'compiled_template_', // Templates compilados
-      ],
+      patterns: ['template_', 'compiled_template_'],
       description: 'Template actualizado - invalidar templates',
     },
 
-    // Cambios en configuración de tienda
     store_settings_updated: {
       cacheKeys: [],
-      patterns: [
-        'domain_', // Dominios
-        'navigation_', // Navegación (puede cambiar con config)
-      ],
+      patterns: ['domain_', 'navigation_'],
       description: 'Configuración de tienda actualizada - invalidar dominios y navegación',
     },
 
-    // Cambios en dominios
     domain_updated: {
       cacheKeys: [],
-      patterns: [
-        'domain_', // Dominios
-      ],
+      patterns: ['domain_'],
       description: 'Dominio actualizado - invalidar resolución de dominios',
     },
-    // Cambios en plantillas de tienda
     template_store_updated: {
       cacheKeys: [],
-      patterns: [
-        'template_', // Plantillas de tienda
-        'compiled_template_', // Plantillas compiladas de tienda
-      ],
+      patterns: ['template_', 'compiled_template_'],
       description: 'Plantilla de tienda actualizada - invalidar plantillas de tienda y compiladas',
     },
   };
@@ -214,15 +153,12 @@ export class CacheInvalidationService {
       'CacheInvalidationService'
     );
 
-    // Invalidar por patrones
     this.invalidateByPatterns(config.patterns, storeId, entityId);
 
-    // Invalidar claves específicas si se proporciona entityId
     if (entityId) {
       this.invalidateSpecificKeys(changeType, storeId, entityId);
     }
 
-    // Invalidar caché de CloudFront si se trata de actualización de plantilla de tienda
     if (changeType === 'template_store_updated') {
       this.invalidateCloudFrontCache(storeId, path);
     } else if (
@@ -243,7 +179,6 @@ export class CacheInvalidationService {
         'template_store_updated',
       ].includes(changeType)
     ) {
-      // Para estos tipos de cambio, invalidar todas las plantillas de la tienda en CloudFront
       this.invalidateCloudFrontCache(storeId);
     }
   }
@@ -285,7 +220,7 @@ export class CacheInvalidationService {
       case 'product_deleted':
         specificKeys.push(
           getProductCacheKey(storeId, entityId),
-          getProductsCacheKey(storeId, undefined as any, undefined), // Pasa limit y nextToken si es necesario
+          getProductsCacheKey(storeId, undefined as any, undefined),
           getFeaturedProductsCacheKey(storeId, undefined as any)
         );
         break;
@@ -304,7 +239,6 @@ export class CacheInvalidationService {
         break;
     }
 
-    // Eliminar claves específicas
     specificKeys.forEach((key) => {
       if (cacheManager['cache'][key]) {
         delete cacheManager['cache'][key];

@@ -1,6 +1,7 @@
 import { logger } from '@/renderer-engine/lib/logger';
 import { templateDevSynchronizer } from '@/renderer-engine/services/templates/sync/template-dev-synchronizer';
 import { NextRequest } from 'next/server';
+import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 
 // Almacén de conexiones SSE activas
 const activeConnections = new Set<ReadableStreamDefaultController>();
@@ -9,6 +10,7 @@ const activeConnections = new Set<ReadableStreamDefaultController>();
  * Endpoint SSE (Server-Sent Events) para notificaciones en tiempo real
  */
 export async function GET(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
   // Configurar cabeceras para SSE
   const encoder = new TextEncoder();
 
@@ -66,6 +68,7 @@ export async function GET(request: NextRequest) {
       'Cache-Control': 'no-cache, no-transform',
       Connection: 'keep-alive',
       'X-Accel-Buffering': 'no',
+      ...corsHeaders,
     },
   });
 }

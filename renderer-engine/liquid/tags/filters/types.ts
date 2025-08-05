@@ -76,6 +76,7 @@ export interface FilterConfig {
   debounceDelay?: number;
   infiniteScroll?: boolean;
   scrollThreshold?: number;
+  scrollThresholdPercentage?: number;
 
   // Mensajes
   noResultsMessage?: string;

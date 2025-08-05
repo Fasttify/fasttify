@@ -63,6 +63,7 @@ export interface UseProductsResult {
   updateProduct: (productData: ProductUpdateInput) => Promise<IProduct | null>;
   deleteProduct: (id: string) => Promise<boolean>;
   deleteMultipleProducts: (ids: string[]) => Promise<boolean>;
+  duplicateProduct: (id: string) => Promise<IProduct | null>;
   refreshProducts: () => void;
   fetchProduct: (id: string) => Promise<IProduct | null>;
 }
@@ -142,6 +143,10 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     enabled,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
   });
 
   useEffect(() => {
@@ -266,6 +271,54 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     },
   });
 
+  const duplicateProductMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data: originalProduct } = await client.models.Product.get({ id });
+      if (!originalProduct) {
+        throw new Error(`Product with ID ${id} not found`);
+      }
+
+      const { username } = await getCurrentUser();
+
+      // Crear una copia del producto sin campos que se generan automáticamente
+      const duplicatedProduct = withLowercaseName({
+        storeId: originalProduct.storeId,
+        name: `${originalProduct.name} (Copia)`,
+        nameLowercase: `${originalProduct.name} (copia)`.toLowerCase(),
+        description: originalProduct.description,
+        price: originalProduct.price,
+        compareAtPrice: originalProduct.compareAtPrice,
+        costPerItem: originalProduct.costPerItem,
+        sku: originalProduct.sku ? `${originalProduct.sku}-copy` : undefined,
+        barcode: originalProduct.barcode,
+        quantity: 0,
+        category: originalProduct.category,
+        images: originalProduct.images,
+        attributes: originalProduct.attributes,
+        status: 'active',
+        slug: originalProduct.slug ? `${originalProduct.slug}-copy` : undefined,
+        featured: false,
+        tags: originalProduct.tags,
+        variants: originalProduct.variants,
+        collectionId: originalProduct.collectionId,
+        supplier: originalProduct.supplier,
+        owner: username,
+      });
+
+      const { data } = await client.models.Product.create(duplicatedProduct);
+      return data as IProduct;
+    },
+    onSuccess: async (duplicatedProduct) => {
+      // Invalidar React Query cache
+      queryClient.invalidateQueries({ queryKey: ['products', storeId] });
+
+      // Invalidar caché del motor de renderizado
+      if (storeId) {
+        await invalidateProductCache(storeId);
+      }
+    },
+  });
+
   const fetchProductById = useCallback(
     async (id: string): Promise<IProduct | null> => {
       if (!storeId) {
@@ -373,6 +426,17 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
       } catch (err) {
         console.error('Error deleting multiple products:', err);
         return false;
+      }
+    },
+    duplicateProduct: async (id) => {
+      try {
+        if (!id) {
+          throw new Error('Product ID is required for duplication');
+        }
+        return await duplicateProductMutation.mutateAsync(id);
+      } catch (err) {
+        console.error('Error duplicating product:', err);
+        return null;
       }
     },
     fetchProduct: fetchProductById,

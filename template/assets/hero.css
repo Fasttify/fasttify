@@ -20,32 +20,31 @@
   }
 
   .collection-hero-section .site-header {
-    background: transparent;
-    backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Efecto al hacer scroll - header se vuelve blanco */
+  /* Efecto al hacer scroll - header se mantiene igual */
   .collection-hero-section .site-header.is-sticky {
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   }
 
-  /* Asegurar que los elementos del header sean visibles sobre la imagen */
+  /* Asegurar que los elementos del header sean visibles */
   .collection-hero-section .header-main,
   .collection-hero-section .nav-link,
   .collection-hero-section .logo-img {
-    color: #ffffff;
-    filter: brightness(0) invert(1);
+    color: #000000;
   }
 
-  /* Cuando el header se vuelve sticky, restaurar colores normales */
+  /* Cuando el header se vuelve sticky, mantener colores normales */
   .collection-hero-section .site-header.is-sticky .header-main,
   .collection-hero-section .site-header.is-sticky .nav-link,
   .collection-hero-section .site-header.is-sticky .logo-img {
     color: #000000;
-    filter: none;
   }
 
   .hero-container {

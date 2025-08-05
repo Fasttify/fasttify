@@ -25,6 +25,7 @@ export interface ProductListProps {
   deleteMultipleProducts: (ids: string[]) => Promise<boolean>;
   refreshProducts: () => void;
   deleteProduct: (id: string) => Promise<boolean>;
+  duplicateProduct: (id: string) => Promise<IProduct | null>;
   itemsPerPage: number;
   setItemsPerPage: (value: number) => void;
 }

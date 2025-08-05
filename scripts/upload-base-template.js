@@ -247,8 +247,8 @@ async function invalidateCloudFrontCache() {
       DistributionId: CLOUDFRONT_DISTRIBUTION_ID,
       InvalidationBatch: {
         Paths: {
-          Quantity: 1,
-          Items: ['/assets/*'],
+          Quantity: 3,
+          Items: ['/assets/*', '/base-templates/*', '/templates/*'],
         },
         CallerReference: `invalidation-${Date.now()}`,
       },
