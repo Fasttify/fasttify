@@ -9,7 +9,6 @@ import {
   getProductCacheKey,
   getProductsCacheKey,
 } from '@/renderer-engine/services/core/cache';
-import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront';
 
 /**
  * Tipos de cambios que pueden ocurrir en una tienda
@@ -158,29 +157,6 @@ export class CacheInvalidationService {
     if (entityId) {
       this.invalidateSpecificKeys(changeType, storeId, entityId);
     }
-
-    if (changeType === 'template_store_updated') {
-      this.invalidateCloudFrontCache(storeId, path);
-    } else if (
-      [
-        'product_created',
-        'product_updated',
-        'product_deleted',
-        'collection_created',
-        'collection_updated',
-        'collection_deleted',
-        'page_created',
-        'page_updated',
-        'page_deleted',
-        'navigation_updated',
-        'template_updated',
-        'store_settings_updated',
-        'domain_updated',
-        'template_store_updated',
-      ].includes(changeType)
-    ) {
-      this.invalidateCloudFrontCache(storeId);
-    }
   }
 
   /**
@@ -264,48 +240,6 @@ export class CacheInvalidationService {
       'CacheInvalidationService'
     );
     cacheManager.invalidateProductCache(storeId, productId);
-  }
-
-  /**
-   * Invalida caché de CloudFront para una tienda o path específico
-   */
-  private async invalidateCloudFrontCache(storeId: string, path?: string): Promise<void> {
-    if (!process.env.CLOUDFRONT_DISTRIBUTION_ID) {
-      logger.warn(
-        'CLOUDFRONT_DISTRIBUTION_ID not configured, skipping CloudFront invalidation',
-        undefined,
-        'CacheInvalidationService'
-      );
-      return;
-    }
-    const REGION = process.env.REGION_BUCKET || 'us-east-2';
-    const cloudFrontClient = new CloudFrontClient({
-      region: REGION,
-    });
-
-    const invalidationPath = path ? `/templates/${storeId}/${path}` : `/templates/${storeId}/*`;
-
-    try {
-      const command = new CreateInvalidationCommand({
-        DistributionId: process.env.CLOUDFRONT_DISTRIBUTION_ID,
-        InvalidationBatch: {
-          Paths: {
-            Quantity: 1,
-            Items: [invalidationPath],
-          },
-          CallerReference: `template-invalidation-${Date.now()}-${storeId}`,
-        },
-      });
-
-      await cloudFrontClient.send(command);
-      logger.info(`CloudFront cache invalidated for: ${invalidationPath}`, undefined, 'CacheInvalidationService');
-    } catch (error: any) {
-      logger.error(
-        `Error invalidating CloudFront cache for ${invalidationPath}: ${error.message}`,
-        error,
-        'CacheInvalidationService'
-      );
-    }
   }
 
   /**
