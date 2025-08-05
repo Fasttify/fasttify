@@ -38,11 +38,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Listar temas de la tienda
-    const { data: themes, errors } = await cookiesClient.models.UserTheme.list({
-      filter: {
-        storeId: { eq: storeId },
-      },
-      sort: { field: 'createdAt', direction: 'DESC' },
+    const { data: themes, errors } = await cookiesClient.models.UserTheme.listUserThemeByStoreId({
+      storeId,
     });
 
     if (errors) {
@@ -178,7 +175,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       {
         storeId,
         themeId,
-        isActive: updatedTheme.isActive,
+        isActive: updatedTheme?.isActive,
       },
       'ThemeActivationAPI'
     );
@@ -188,9 +185,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         success: true,
         message: isActive ? 'Theme activated successfully' : 'Theme deactivated successfully',
         theme: {
-          id: updatedTheme.id,
-          name: updatedTheme.name,
-          isActive: updatedTheme.isActive,
+          id: updatedTheme?.id,
+          name: updatedTheme?.name,
+          isActive: updatedTheme?.isActive,
         },
       },
       { status: 200, headers: corsHeaders }
