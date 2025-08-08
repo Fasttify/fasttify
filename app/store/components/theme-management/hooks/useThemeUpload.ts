@@ -4,7 +4,7 @@ import type { ThemeUploadResult } from '../types/theme-types';
 interface UseThemeUploadProps {
   storeId: string;
   onUpload: (file: File) => Promise<ThemeUploadResult>;
-  onConfirm: (result: ThemeUploadResult, originalFile: File) => Promise<boolean>;
+  onConfirm: (result: ThemeUploadResult, originalFile: File) => Promise<{ ok: boolean; processId?: string }>;
 }
 
 interface UseThemeUploadReturn {
@@ -12,6 +12,9 @@ interface UseThemeUploadReturn {
   uploadResult: ThemeUploadResult | null;
   isUploading: boolean;
   isConfirming: boolean;
+  isProcessing: boolean;
+  processingStatus: 'idle' | 'processing' | 'completed' | 'error';
+  processingError: string | null;
   uploadProgress: number;
   error: string | null;
   handleFileSelect: (file: File) => void;
@@ -26,8 +29,12 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
   const [uploadResult, setUploadResult] = useState<ThemeUploadResult | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState<'idle' | 'processing' | 'completed' | 'error'>('idle');
+  const [processingError, setProcessingError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [processId, setProcessId] = useState<string | null>(null);
 
   const handleFileSelect = useCallback((file: File) => {
     if (!file.name.endsWith('.zip')) {
@@ -90,12 +97,71 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
     setError(null);
 
     try {
-      const success = await onConfirm(uploadResult, selectedFile);
-      if (success) {
-        // Limpiar estado después de confirmación exitosa
-        setSelectedFile(null);
-        setUploadResult(null);
-        setUploadProgress(0);
+      const { ok, processId } = await onConfirm(uploadResult, selectedFile);
+      if (ok && processId) {
+        setProcessId(processId);
+        setIsProcessing(true);
+        setProcessingStatus('processing');
+
+        // Polling del estado del proceso
+        const start = Date.now();
+        const poll = async () => {
+          try {
+            const res = await fetch(`/api/stores/${storeId}/themes/confirm?processId=${processId}`);
+            if (res.ok) {
+              const status = await res.json();
+              if (status.status === 'completed') {
+                setProcessingStatus('completed');
+                setIsProcessing(false);
+                // Reset de selección para permitir nueva subida
+                setSelectedFile(null);
+                setUploadResult(null);
+                setUploadProgress(0);
+                return; // detener polling
+              }
+              if (status.status === 'error') {
+                setProcessingStatus('error');
+                setProcessingError(status.message || 'Error en el procesamiento');
+                setIsProcessing(false);
+                return;
+              }
+              if (status.status === 'unknown') {
+                // Fallback: verificar en la lista de temas si el tema ya aparece
+                try {
+                  const themesResp = await fetch(`/api/stores/${storeId}/themes`);
+                  if (themesResp.ok) {
+                    const data = await themesResp.json();
+                    const themes = data.themes || [];
+                    const expectedName = uploadResult?.theme?.name;
+                    const expectedVersion = uploadResult?.theme?.version;
+                    const exists = themes.some(
+                      (t: any) => t.name === expectedName && String(t.version) === String(expectedVersion)
+                    );
+                    if (exists) {
+                      setProcessingStatus('completed');
+                      setIsProcessing(false);
+                      setSelectedFile(null);
+                      setUploadResult(null);
+                      setUploadProgress(0);
+                      return;
+                    }
+                  }
+                } catch (_) {}
+              }
+            }
+          } catch (err) {}
+
+          if (Date.now() - start < 90_000) {
+            setTimeout(poll, 2000);
+          } else {
+            setProcessingStatus('error');
+            setProcessingError('Tiempo de espera agotado al confirmar el tema');
+            setIsProcessing(false);
+          }
+        };
+
+        // iniciar primer intento
+        setTimeout(poll, 1500);
       }
     } catch (err) {
       setError('Error al confirmar el tema. Por favor intenta de nuevo.');
@@ -122,6 +188,9 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
     uploadResult,
     isUploading,
     isConfirming,
+    isProcessing,
+    processingStatus,
+    processingError,
     uploadProgress,
     error,
     handleFileSelect,
