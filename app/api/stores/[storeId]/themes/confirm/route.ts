@@ -332,7 +332,7 @@ async function storeLargeFileInChunks(
   // Almacenar con timeout
   const storagePromise = s3Storage.storeTheme(processedTheme, storeId, processedFile);
   const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('S3 storage timeout')), 25000); // 25 segundos timeout
+    setTimeout(() => reject(new Error('S3 storage timeout')), 120000); // 120 segundos timeout
   });
 
   try {
