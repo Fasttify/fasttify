@@ -5,9 +5,10 @@ import {
   type ThemeStorageResult,
 } from '@/renderer-engine/services/themes/storage/s3-storage-service';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
+import { GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { NextRequest, NextResponse } from 'next/server';
+import { getCdnUrlForKey } from '@/utils/server/cdn-url';
 
-// Estado de procesos de confirmación en memoria (best-effort)
 type ProcessStatus = {
   status: 'processing' | 'completed' | 'error';
   message?: string;
@@ -104,17 +105,41 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
  * GET /api/stores/[storeId]/themes/confirm?processId=XYZ
  * Devuelve el estado del proceso de confirmación
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ storeId: string }> }) {
   const corsHeaders = await getNextCorsHeaders(request);
   try {
+    const { storeId } = await params;
     const processId = request.nextUrl.searchParams.get('processId');
     if (!processId) {
       return NextResponse.json({ error: 'processId is required' }, { status: 400, headers: corsHeaders });
     }
+    // Chequear metadata.json en S3 primero
+    try {
+      const s3 = new S3Client({ region: process.env.REGION_BUCKET || 'us-east-2' });
+      const baseKey = `templates/${storeId}`;
+      const metadataKey = `${baseKey}/metadata.json`;
+      const metaResp = await s3.send(new GetObjectCommand({ Bucket: process.env.BUCKET_NAME, Key: metadataKey }));
+      if (metaResp.Body) {
+        const text = await metaResp.Body.transformToString();
+        const meta = JSON.parse(text || '{}');
+        if (meta.status === 'ready') {
+          return NextResponse.json(
+            { status: 'completed', themeId: meta.themeId, updatedAt: Date.now() },
+            { status: 200, headers: corsHeaders }
+          );
+        }
+        try {
+          await s3.send(new HeadObjectCommand({ Bucket: process.env.BUCKET_NAME, Key: `${baseKey}/theme.zip` }));
+          return NextResponse.json(
+            { status: 'completed', themeId: meta.themeId, updatedAt: Date.now() },
+            { status: 200, headers: corsHeaders }
+          );
+        } catch (_) {}
+      }
+    } catch (_) {}
 
     const status = themeProcessStatus.get(processId);
     if (!status) {
-      // Instancias serverless pueden no compartir memoria; si no existe, devolver 'unknown'
       return NextResponse.json({ status: 'unknown' }, { status: 200, headers: corsHeaders });
     }
 
