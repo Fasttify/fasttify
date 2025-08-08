@@ -32,6 +32,6 @@ export interface ThemeUploadResult {
 export interface ThemeUploadFormProps {
   storeId: string;
   onUpload: (file: File) => Promise<ThemeUploadResult>;
-  onConfirm: (result: ThemeUploadResult, originalFile: File) => Promise<boolean>;
+  onConfirm: (result: ThemeUploadResult, originalFile: File) => Promise<{ ok: boolean; processId?: string }>;
   onCancel: () => void;
 }

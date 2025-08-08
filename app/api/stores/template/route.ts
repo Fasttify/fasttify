@@ -1,12 +1,16 @@
-import { AuthGetCurrentUserServer } from '@/utils/client/AmplifyUtils'
+import { getNextCorsHeaders } from '@/lib/utils/next-cors'
+import { SchemaParser } from '@/renderer-engine/services/templates/parsing/schema-parser'
+import { ThemeValidator } from '@/renderer-engine/services/themes'
+import type { ThemeFile, ValidationResult } from '@/renderer-engine/services/themes/types'
+import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils'
 import {
   CopyObjectCommand,
+  GetObjectCommand,
   ListObjectsV2Command,
   ListObjectsV2CommandOutput,
   S3Client,
 } from '@aws-sdk/client-s3'
 import { NextRequest, NextResponse } from 'next/server'
-import { getNextCorsHeaders } from '@/lib/utils/next-cors'
 
 interface TemplateRequest {
   storeId: string
@@ -28,6 +32,54 @@ const s3Client = new S3Client({
 
 // Prefijo de la plantilla base en S3
 const BASE_TEMPLATE_PREFIX = 'base-templates/default/'
+
+/**
+ * Carga los objetos del template base desde S3 y los convierte en ThemeFile[]
+ */
+async function loadBaseTemplateAsThemeFiles(
+  templateObjects: Array<{ key: string; relativePath: string }>
+): Promise<ThemeFile[]> {
+  const files: ThemeFile[] = []
+  for (const obj of templateObjects) {
+    try {
+      const response = await s3Client.send(
+        new GetObjectCommand({ Bucket: process.env.BUCKET_NAME, Key: obj.key })
+      )
+      const body = await response.Body?.transformToByteArray()
+      if (!body) continue
+
+      const isText = isTextLike(obj.relativePath)
+      const content = isText ? new TextDecoder('utf-8').decode(body) : Buffer.from(body)
+
+      files.push({
+        path: obj.relativePath,
+        content,
+        type: determineFileType(obj.relativePath),
+        size: body.length,
+        lastModified: new Date(),
+      })
+    } catch (e) {
+      console.error('Failed to load base template file from S3', obj.key, e)
+    }
+  }
+  return files
+}
+
+function isTextLike(path: string): boolean {
+  const ext = path.toLowerCase().split('.').pop() || ''
+  return ['liquid', 'json', 'css', 'js', 'html', 'xml', 'txt', 'md'].includes(ext)
+}
+
+function determineFileType(path: string): 'liquid' | 'json' | 'css' | 'js' | 'image' | 'font' | 'other' {
+  const extension = path.toLowerCase().split('.').pop() || ''
+  if (extension === 'liquid') return 'liquid'
+  if (extension === 'json') return 'json'
+  if (extension === 'css') return 'css'
+  if (extension === 'js') return 'js'
+  if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(extension)) return 'image'
+  if (['woff', 'woff2', 'ttf', 'eot', 'otf'].includes(extension)) return 'font'
+  return 'other'
+}
 
 export async function POST(request: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(request);
@@ -63,12 +115,82 @@ export async function POST(request: NextRequest) {
     // 5. Generar URLs de las plantillas
     const templateUrls = generateTemplateUrls(storeId, copyResults)
 
+    // 6. Validar el "tema local" (la plantilla base) reutilizando el validador de temas
+    //    Leemos los archivos fuente desde el bucket base y construimos ThemeFile[]
+    const themeFiles: ThemeFile[] = await loadBaseTemplateAsThemeFiles(templateObjects)
+    const validator = ThemeValidator.getInstance()
+    const validation: ValidationResult = await validator.validateThemeFiles(themeFiles, storeId)
+
+    // Extraer metadatos del tema desde config/settings_schema.json
+    const settingsFile = themeFiles.find(
+      (f) =>
+        f.path === 'config/settings_schema.json' ||
+        f.path.endsWith('/config/settings_schema.json') ||
+        f.path.includes('/config/settings_schema.json')
+    )
+    let themeInfo: any = {}
+    if (settingsFile && typeof settingsFile.content === 'string') {
+      try {
+        const parser = new SchemaParser()
+        const info = parser.extractThemeInfo(settingsFile.content as string)
+        themeInfo = info
+      } catch (e) {
+        // ignorar errores de parseo aquí; ya vendrán reflejados en validation
+      }
+    }
+
+    // 7. Crear registro del tema en la DB con la información validada
+    try {
+      const s3FolderKey = `templates/${storeId}/`
+      const baseUrl =
+        process.env.CLOUDFRONT_DOMAIN_NAME && process.env.APP_ENV === 'production'
+          ? `https://${process.env.CLOUDFRONT_DOMAIN_NAME}`
+          : `https://${process.env.BUCKET_NAME}.s3.${process.env.REGION_BUCKET || 'us-east-2'}.amazonaws.com`
+
+      const totalBytes = themeFiles.reduce((sum, f) => sum + (Number(f.size) || 0), 0)
+
+      const themeRecord = {
+        storeId,
+        name: themeInfo.name || `${storeData?.theme || 'Default'} Theme`,
+        version: themeInfo.version || '1.0.0',
+        author: themeInfo.author || 'System',
+        description: themeInfo.description || storeData?.description || 'Tema inicial de la tienda',
+        s3Key: s3FolderKey,
+        cdnUrl: `${baseUrl}/${s3FolderKey}`,
+        fileCount: copyResults.length,
+        totalSize: totalBytes,
+        isActive: true,
+        settings: JSON.stringify({
+          name: themeInfo.name || `${storeData?.theme || 'Default'} Theme`,
+          version: themeInfo.version || '1.0.0',
+          settings_schema: themeInfo.settings_schema || [],
+          settings_defaults: themeInfo.settings_defaults || {},
+        }),
+        validation: JSON.stringify(validation),
+        analysis: JSON.stringify(validation.analysis || {}),
+        preview: templateUrls['layout/theme.liquid'] || null,
+        owner: user.username,
+      }
+
+      await cookiesClient.models.UserTheme.create(themeRecord as any)
+    } catch (e) {
+      console.error('Failed to create initial theme record in DB:', e)
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Template files copied to user store successfully',
       templateUrls,
       copiedFiles: copyResults.length,
       files: copyResults,
+      validation: {
+        isValid: validation.isValid,
+        errorCount: validation.errors.length,
+        warningCount: validation.warnings.length,
+        errors: validation.errors,
+        warnings: validation.warnings,
+        theme: themeInfo,
+      },
     })
   } catch (error) {
     console.error('Error copying template to user store:', error)
@@ -180,9 +302,6 @@ function generateTemplateUrls(
   return urls
 }
 
-// Función para sanitizar los valores de los metadatos
 function sanitizeMetadataValue(value: string): string {
-  // S3 metadata must be ASCII. This removes non-ASCII characters
-  // to prevent SignatureDoesNotMatch errors.
   return value.replace(/[^\x00-\x7F]/g, '')
 }

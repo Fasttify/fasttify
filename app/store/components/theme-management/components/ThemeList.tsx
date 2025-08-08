@@ -284,19 +284,22 @@ export function ThemeList({ storeId }: { storeId: string }) {
 
                   const confirmResult = await response.json();
 
-                  if (confirmResult.success) {
-                    setShowUploadModal(false);
-                    refreshThemes();
-                    return true;
-                  } else {
-                    throw new Error(confirmResult.message || 'Error al confirmar el tema');
+                  if (confirmResult.success && confirmResult.processId) {
+                    // No cerramos aún; el formulario hará polling y cerrará automático tras completar
+                    // Lanzar un refresh eventual por si ya aparece
+                    setTimeout(() => refreshThemes(), 2000);
+                    return { ok: true, processId: confirmResult.processId as string };
                   }
+                  return { ok: false };
                 } catch (error) {
                   console.error('Error confirming theme:', error);
-                  throw error;
+                  return { ok: false };
                 }
               }}
-              onCancel={() => setShowUploadModal(false)}
+              onCancel={() => {
+                setShowUploadModal(false);
+                refreshThemes();
+              }}
             />
           </Modal.Section>
         </Modal>

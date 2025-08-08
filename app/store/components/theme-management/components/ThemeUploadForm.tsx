@@ -1,4 +1,15 @@
-import { Banner, BlockStack, Button, Card, Icon, InlineStack, ProgressBar, Text, Thumbnail } from '@shopify/polaris';
+import {
+  Banner,
+  BlockStack,
+  Button,
+  Card,
+  Icon,
+  InlineStack,
+  ProgressBar,
+  Spinner,
+  Text,
+  Thumbnail,
+} from '@shopify/polaris';
 import { AlertCircleIcon, CheckCircleIcon, UploadIcon } from '@shopify/polaris-icons';
 import { useCallback } from 'react';
 import { useThemeUpload } from '../hooks/useThemeUpload';
@@ -11,6 +22,9 @@ export function ThemeUploadForm({ storeId, onUpload, onConfirm, onCancel }: Them
     uploadResult,
     isUploading,
     isConfirming,
+    isProcessing,
+    processingStatus,
+    processingError,
     uploadProgress,
     error,
     handleFileSelect,
@@ -46,7 +60,6 @@ export function ThemeUploadForm({ storeId, onUpload, onConfirm, onCancel }: Them
       const file = event.target.files?.[0];
       if (file) {
         handleFileSelect(file);
-        // Automáticamente iniciar el upload cuando se selecciona un archivo
         setTimeout(() => handleUpload(), 100);
       }
     },
@@ -221,19 +234,43 @@ export function ThemeUploadForm({ storeId, onUpload, onConfirm, onCancel }: Them
               </BlockStack>
             )}
 
-            {/* Botones de acción */}
-            <InlineStack gap="200">
-              <Button
-                variant="primary"
-                onClick={handleConfirm}
-                loading={isConfirming}
-                disabled={!uploadResult.validation?.isValid || isConfirming}>
-                {isConfirming ? 'Confirmando...' : 'Confirmar y Activar Tema'}
-              </Button>
-              <Button onClick={handleCancel} disabled={isConfirming}>
-                Cancelar
-              </Button>
-            </InlineStack>
+            {/* Estado de confirmación y procesamiento */}
+            {processingStatus === 'completed' ? (
+              <Banner tone="success" icon={CheckCircleIcon}>
+                <p>¡Tema confirmado y almacenado correctamente! Cerrando…</p>
+              </Banner>
+            ) : isProcessing || processingStatus === 'processing' ? (
+              <Banner>
+                <BlockStack gap="200">
+                  <InlineStack gap="200" align="start">
+                    <Spinner size="small" />
+                    <Text as="p" variant="bodyMd">
+                      Confirmando y almacenando el tema... Esto puede tardar 30–60 segundos.
+                    </Text>
+                  </InlineStack>
+                  <Text as="p" variant="bodySm" tone="subdued">
+                    Puedes mantener esta ventana abierta; se cerrará automáticamente al finalizar.
+                  </Text>
+                </BlockStack>
+              </Banner>
+            ) : processingStatus === 'error' ? (
+              <Banner tone="critical" icon={AlertCircleIcon}>
+                <p>{processingError || 'Ocurrió un error al confirmar el tema'}</p>
+              </Banner>
+            ) : (
+              <InlineStack gap="200">
+                <Button
+                  variant="primary"
+                  onClick={handleConfirm}
+                  loading={isConfirming}
+                  disabled={!uploadResult.validation?.isValid || isConfirming}>
+                  {isConfirming ? 'Confirmando...' : 'Confirmar y Activar Tema'}
+                </Button>
+                <Button onClick={handleCancel} disabled={isConfirming}>
+                  Cancelar
+                </Button>
+              </InlineStack>
+            )}
           </BlockStack>
         </Card>
       )}

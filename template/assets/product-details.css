@@ -176,7 +176,7 @@
 }
 
 @media (max-width: 767px) {
-  .product-title {
+  .product-page-container .product-title {
     font-size: var(--font-size-3xl);
     font-family: var(--font-heading);
   }
@@ -210,7 +210,7 @@
   text-transform: uppercase;
 }
 
-.product-title {
+.product-page-container .product-title {
   font-family: var(--font-heading);
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-heading);
