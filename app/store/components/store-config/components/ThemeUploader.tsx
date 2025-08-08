@@ -46,10 +46,10 @@ export function ThemeUploader() {
   );
 
   const handleConfirm = useCallback(
-    async (result: ThemeUploadResult, originalFile: File): Promise<boolean> => {
+    async (result: ThemeUploadResult, originalFile: File): Promise<{ ok: boolean; processId?: string }> => {
       if (!currentStore?.storeId) {
         showToast('Error: Store ID not found', true);
-        return false;
+        return { ok: false };
       }
 
       try {
@@ -68,15 +68,15 @@ export function ThemeUploader() {
 
         if (response.ok && confirmResult.success) {
           showToast('Tema subido y activado con éxito');
-          return true;
+          return { ok: true, processId: confirmResult.processId };
         } else {
           showToast(confirmResult.error || 'Error al confirmar el tema', true);
-          return false;
+          return { ok: false };
         }
       } catch (error) {
         console.error('Confirm error:', error);
         showToast('Error al confirmar el tema', true);
-        return false;
+        return { ok: false };
       }
     },
     [currentStore?.storeId, showToast]
