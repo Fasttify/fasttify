@@ -3,6 +3,7 @@ import { SchemaParser } from '@/renderer-engine/services/templates/parsing/schem
 import { ThemeValidator } from '@/renderer-engine/services/themes'
 import type { ThemeFile, ValidationResult } from '@/renderer-engine/services/themes/types'
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils'
+import { getCdnBaseUrl, getCdnUrlForKey } from '@/utils/server'
 import {
   CopyObjectCommand,
   GetObjectCommand,
@@ -142,10 +143,7 @@ export async function POST(request: NextRequest) {
     // 7. Crear registro del tema en la DB con la información validada
     try {
       const s3FolderKey = `templates/${storeId}/`
-      const baseUrl =
-        process.env.CLOUDFRONT_DOMAIN_NAME && process.env.APP_ENV === 'production'
-          ? `https://${process.env.CLOUDFRONT_DOMAIN_NAME}`
-          : `https://${process.env.BUCKET_NAME}.s3.${process.env.REGION_BUCKET || 'us-east-2'}.amazonaws.com`
+      const baseUrl = getCdnBaseUrl()
 
       const totalBytes = themeFiles.reduce((sum, f) => sum + (Number(f.size) || 0), 0)
 
@@ -291,12 +289,7 @@ function generateTemplateUrls(
   const urls: Record<string, string> = {}
 
   copyResults.forEach(({ key, path }) => {
-    const baseUrl =
-      process.env.CLOUDFRONT_DOMAIN_NAME && process.env.APP_ENV === 'production'
-        ? `https://${process.env.CLOUDFRONT_DOMAIN_NAME}`
-        : `https://${process.env.BUCKET_NAME}.s3.${process.env.REGION_BUCKET || 'us-east-2'}.amazonaws.com`
-
-    urls[path] = `${baseUrl}/${key}`
+    urls[path] = getCdnUrlForKey(key)
   })
 
   return urls

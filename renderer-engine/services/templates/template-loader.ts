@@ -6,6 +6,7 @@ import {
   getTemplateCacheKey,
 } from '@/renderer-engine/services/core/cache';
 import type { TemplateCache, TemplateError } from '@/renderer-engine/types';
+import { getCdnUrlForKey } from '@/utils/server';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import type { Template } from 'liquidjs';
 
@@ -13,14 +14,12 @@ class TemplateLoader {
   private static instance: TemplateLoader;
   private s3Client?: S3Client;
   private readonly bucketName: string;
-  private readonly cloudFrontDomain: string;
   private readonly isProduction: boolean;
   private ongoingRequests: Map<string, Promise<any>> = new Map();
   private ongoingAssetRequests: Map<string, Promise<Buffer>> = new Map();
 
   private constructor() {
     this.bucketName = process.env.BUCKET_NAME || '';
-    this.cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN_NAME || '';
     this.isProduction = process.env.APP_ENV === 'production';
 
     // Solo inicializar S3 si tenemos bucket configurado
@@ -117,9 +116,9 @@ class TemplateLoader {
   private async fetchTemplateFromSource(storeId: string, s3Key: string, cacheKey: string): Promise<string> {
     let content: string;
     try {
-      // Usar CloudFront en producción para mejor rendimiento
-      if (this.isProduction && this.cloudFrontDomain) {
-        const response = await fetch(`https://${this.cloudFrontDomain}/${s3Key}`);
+      // Usar CDN en producción para mejor rendimiento
+      if (this.isProduction) {
+        const response = await fetch(getCdnUrlForKey(s3Key));
         if (!response.ok) {
           throw new Error(`Template not found: ${s3Key}`);
         }
@@ -226,8 +225,8 @@ class TemplateLoader {
   private async fetchAndCacheAsset(storeId: string, assetPath: string, cacheKey: string): Promise<Buffer> {
     let assetBuffer: Buffer;
     try {
-      if (this.isProduction && this.cloudFrontDomain) {
-        const response = await fetch(`https://${this.cloudFrontDomain}/templates/${storeId}/assets/${assetPath}`);
+      if (this.isProduction) {
+        const response = await fetch(getCdnUrlForKey(`templates/${storeId}/assets/${assetPath}`));
         if (!response.ok) {
           throw new Error(`Asset not found: ${assetPath}`);
         }

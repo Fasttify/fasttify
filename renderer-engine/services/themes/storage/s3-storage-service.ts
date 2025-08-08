@@ -1,4 +1,5 @@
 import { RendererLogger } from '@/renderer-engine/lib/logger';
+import { getCdnUrlForKey } from '@/utils/server';
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -88,7 +89,7 @@ export class S3StorageService {
       }
 
       // 5. Generar URL de CDN
-      const cdnUrl = this.generateCdnUrl(zipKey);
+      const cdnUrl = getCdnUrlForKey(zipKey);
 
       const result: ThemeStorageResult = {
         success: true,
@@ -275,14 +276,7 @@ export class S3StorageService {
     };
   }
 
-  /**
-   * Genera URL de CDN para el tema
-   */
-  private generateCdnUrl(s3Key: string): string {
-    // TODO: Implementar generación real de URL de CDN
-    // Por ahora simulamos la URL
-    return `https://cdn.fasttify.com/${s3Key}`;
-  }
+  // URL generation centralizada en getCdnUrlForKey
 
   /**
    * Obtiene un tema desde S3

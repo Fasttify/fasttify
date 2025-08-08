@@ -7,6 +7,7 @@ import {
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 import { GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { NextRequest, NextResponse } from 'next/server';
+import { getCdnUrlForKey } from '@/utils/server/cdn-url';
 
 type ProcessStatus = {
   status: 'processing' | 'completed' | 'error';
