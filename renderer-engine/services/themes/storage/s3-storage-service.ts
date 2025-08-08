@@ -47,6 +47,16 @@ export class S3StorageService {
       // 1. Crear estructura de carpetas
       const baseKey = this.generateThemeKey(storeId);
 
+      // 1.1 Escribir metadata inicial (placeholder) para no bloquear a la UI si tarda la subida
+      const metadataKey = `${baseKey}/metadata.json`;
+      const initialMetadata = {
+        ...this.generateThemeMetadata(theme, storeId),
+        status: 'processing',
+        stage: 'init',
+        updatedAt: new Date().toISOString(),
+      };
+      await this.uploadJson(initialMetadata, metadataKey);
+
       // 2. Subir archivo ZIP original
       const zipKey = `${baseKey}/theme.zip`;
       const zipResult = await this.uploadFile(originalZipFile, zipKey);
@@ -64,10 +74,14 @@ export class S3StorageService {
         }
       }
 
-      // 4. Generar metadata del tema
-      const metadataKey = `${baseKey}/metadata.json`;
-      const metadata = this.generateThemeMetadata(theme, storeId);
-      const metadataResult = await this.uploadJson(metadata, metadataKey);
+      // 4. Generar metadata final del tema
+      const finalMetadata = {
+        ...this.generateThemeMetadata(theme, storeId),
+        status: 'ready',
+        stage: 'completed',
+        updatedAt: new Date().toISOString(),
+      };
+      const metadataResult = await this.uploadJson(finalMetadata, metadataKey);
 
       if (!metadataResult.success) {
         throw new Error(`Failed to upload metadata: ${metadataResult.error}`);
