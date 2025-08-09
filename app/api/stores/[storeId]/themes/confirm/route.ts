@@ -5,6 +5,7 @@ import {
   type ThemeStorageResult,
 } from '@/renderer-engine/services/themes/storage/s3-storage-service';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
+import { getCdnUrlForKey } from '@/utils/server';
 import { GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     // Crear placeholder en DB antes de responder (para garantizar registro aun si el background se corta)
     let themeId: string | undefined;
+    const cdnUrl = getCdnUrlForKey(`templates/${storeId}/theme.zip`);
     try {
       const { data: placeholder, errors: placeholderErrors } = await cookiesClient.models.UserTheme.create({
         storeId,
@@ -78,7 +80,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         author: themeData?.theme?.author || 'Unknown',
         description: themeData?.theme?.description || '',
         s3Key: '',
-        cdnUrl: '',
+        cdnUrl: cdnUrl,
         fileCount: themeData?.theme?.fileCount || 0,
         totalSize: themeData?.theme?.totalSize || 0,
         isActive: false,
