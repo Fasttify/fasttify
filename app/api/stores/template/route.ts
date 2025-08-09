@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
 
     // 7. Crear registro del tema en la DB con la información validada
     try {
-      const s3FolderKey = `templates/${storeId}/`
+      const s3FolderKey = `templates/${storeId}`
       const baseUrl = getCdnBaseUrl()
 
       const totalBytes = themeFiles.reduce((sum, f) => sum + (Number(f.size) || 0), 0)
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         author: themeInfo.author || 'System',
         description: themeInfo.description || storeData?.description || 'Tema inicial de la tienda',
         s3Key: s3FolderKey,
-        cdnUrl: `${baseUrl}/${s3FolderKey}`,
+        cdnUrl: `${baseUrl}/${s3FolderKey}/theme.zip`,
         fileCount: copyResults.length,
         totalSize: totalBytes,
         isActive: true,
