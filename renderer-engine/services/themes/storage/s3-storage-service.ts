@@ -27,7 +27,7 @@ export class S3StorageService {
 
   private constructor() {
     this.s3Client = new S3Client({
-      region: process.env.REGION_BUCKET || 'us-east-2',
+      region: process.env.AWS_REGION || 'us-east-2',
     });
   }
 
@@ -124,22 +124,29 @@ export class S3StorageService {
    */
   private async uploadFile(file: File | Buffer, key: string): Promise<{ success: boolean; error?: string }> {
     try {
-      const content = file instanceof File ? await file.arrayBuffer() : file;
+      const body: Buffer | Uint8Array =
+        file instanceof File
+          ? new Uint8Array(await file.arrayBuffer())
+          : Buffer.isBuffer(file)
+            ? file
+            : new Uint8Array(file as any);
 
       const command = new PutObjectCommand({
         Bucket: process.env.BUCKET_NAME,
         Key: key,
-        Body: Buffer.from(content instanceof ArrayBuffer ? new Uint8Array(content) : content),
+        Body: body,
         ContentType: this.getContentType(key),
+        ContentLength: (body as any).byteLength ?? (body as any).length,
       });
 
       await this.s3Client.send(command);
 
-      this.logger.debug(`Uploaded file to S3: ${key}`, { size: content.byteLength }, 'S3StorageService');
+      const size = (body as any).byteLength ?? (body as any).length;
+      this.logger.debug(`Uploaded file to S3: ${key}`, { size }, 'S3StorageService');
 
       return { success: true };
     } catch (error) {
-      this.logger.error('Error uploading file to S3', error, 'S3StorageService');
+      this.logger.error('Error uploading file to S3', { key, error }, 'S3StorageService');
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Upload failed',
@@ -276,8 +283,6 @@ export class S3StorageService {
     };
   }
 
-  // URL generation centralizada en getCdnUrlForKey
-
   /**
    * Obtiene un tema desde S3
    */
@@ -303,7 +308,6 @@ export class S3StorageService {
 
       this.logger.debug(`Retrieved theme from S3: ${metadataKey}`, { themeId: metadata.themeId }, 'S3StorageService');
 
-      // TODO: Implementar reconstrucción completa del ProcessedTheme desde metadata
       return null;
     } catch (error) {
       this.logger.error('Error getting theme from S3', error, 'S3StorageService');
@@ -318,7 +322,6 @@ export class S3StorageService {
     try {
       const baseKey = this.generateThemeKey(storeId);
 
-      // Listar todos los objetos del tema para eliminarlos
       const listCommand = new ListObjectsV2Command({
         Bucket: process.env.BUCKET_NAME,
         Prefix: `${baseKey}/`,
@@ -331,7 +334,6 @@ export class S3StorageService {
         return { success: true };
       }
 
-      // Eliminar todos los objetos del tema
       const deletePromises = listResponse.Contents.map(async (object) => {
         if (!object.Key) return;
 
@@ -383,7 +385,6 @@ export class S3StorageService {
         return [];
       }
 
-      // Extraer los IDs de los temas de las rutas
       const themeIds = response.CommonPrefixes.map((prefix) => prefix.Prefix)
         .filter((prefix) => prefix)
         .map((prefix) => prefix!.replace(`templates/${storeId}/`, '').replace('/', ''));
