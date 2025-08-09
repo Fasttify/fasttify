@@ -7,7 +7,6 @@ import {
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 import { GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { NextRequest, NextResponse } from 'next/server';
-import { getCdnUrlForKey } from '@/utils/server/cdn-url';
 
 type ProcessStatus = {
   status: 'processing' | 'completed' | 'error';
@@ -69,8 +68,35 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // Generar ID único para el proceso
     const processId = `theme-confirm-${storeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
+    // Crear placeholder en DB antes de responder (para garantizar registro aun si el background se corta)
+    let themeId: string | undefined;
+    try {
+      const { data: placeholder, errors: placeholderErrors } = await cookiesClient.models.UserTheme.create({
+        storeId,
+        name: themeData?.theme?.name || 'Untitled Theme',
+        version: themeData?.theme?.version || '1.0.0',
+        author: themeData?.theme?.author || 'Unknown',
+        description: themeData?.theme?.description || '',
+        s3Key: '',
+        cdnUrl: '',
+        fileCount: themeData?.theme?.fileCount || 0,
+        totalSize: themeData?.theme?.totalSize || 0,
+        isActive: false,
+        settings: JSON.stringify(themeData?.theme?.settings || {}),
+        validation: JSON.stringify(themeData?.validation || {}),
+        analysis: JSON.stringify(themeData?.analysis || {}),
+        preview: themeData?.theme?.preview || null,
+        owner: session.username,
+      } as any);
+      if (!placeholderErrors) {
+        themeId = placeholder?.id;
+      }
+    } catch (e) {
+      logger.warn('Failed to create placeholder theme', e, 'ThemeConfirmAPI');
+    }
+
     // Registrar estado inicial del proceso
-    themeProcessStatus.set(processId, { status: 'processing', updatedAt: Date.now() });
+    themeProcessStatus.set(processId, { status: 'processing', updatedAt: Date.now(), themeId });
 
     // Responder inmediatamente con 202 Accepted
     const response = NextResponse.json(
@@ -78,6 +104,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         success: true,
         message: 'Theme confirmation started',
         processId: processId,
+        themeId,
         status: 'processing',
         estimatedTime: '30-60 seconds',
       },
@@ -85,7 +112,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     );
 
     // Iniciar procesamiento en segundo plano (no esperar)
-    processThemeInBackground(processId, storeId, themeData, themeFile, session.username);
+    processThemeInBackground(processId, storeId, themeData, themeFile, session.username, themeId);
 
     return response;
   } catch (error) {
@@ -110,8 +137,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { storeId } = await params;
     const processId = request.nextUrl.searchParams.get('processId');
+    const themeId = request.nextUrl.searchParams.get('themeId');
     if (!processId) {
       return NextResponse.json({ error: 'processId is required' }, { status: 400, headers: corsHeaders });
+    }
+    // Si envían themeId, comprobar DB primero
+    if (themeId) {
+      try {
+        const { data: theme } = await cookiesClient.models.UserTheme.get({ id: themeId });
+        if (theme && theme.cdnUrl && theme.s3Key) {
+          return NextResponse.json(
+            { status: 'completed', themeId, updatedAt: Date.now() },
+            { status: 200, headers: corsHeaders }
+          );
+        }
+      } catch (_) {}
     }
     // Chequear metadata.json en S3 primero
     try {
@@ -161,7 +201,8 @@ async function processThemeInBackground(
   storeId: string,
   themeData: any,
   themeFile: File,
-  username: string
+  username: string,
+  themeId?: string
 ) {
   try {
     logger.info('Starting background theme processing', { processId, storeId }, 'ThemeConfirmAPI');
@@ -204,7 +245,7 @@ async function processThemeInBackground(
       return;
     }
 
-    // Guardar en la base de datos
+    // Guardar/Actualizar en la base de datos
     const themeRecord = {
       storeId,
       name: processedTheme.name,
@@ -223,16 +264,34 @@ async function processThemeInBackground(
       owner: username,
     };
 
-    const { data: savedTheme, errors } = await cookiesClient.models.UserTheme.create(themeRecord);
-
-    if (errors) {
-      logger.error('Failed to save theme to database', { processId, errors }, 'ThemeConfirmAPI');
-      themeProcessStatus.set(processId, {
-        status: 'error',
-        message: 'Failed to save theme to database',
-        updatedAt: Date.now(),
-      });
-      return;
+    let savedThemeId: string | undefined = themeId;
+    if (themeId) {
+      const { data: updated, errors: updateErrors } = await cookiesClient.models.UserTheme.update({
+        id: themeId,
+        ...themeRecord,
+      } as any);
+      if (updateErrors) {
+        logger.error('Failed to update placeholder theme', { processId, errors: updateErrors }, 'ThemeConfirmAPI');
+        themeProcessStatus.set(processId, {
+          status: 'error',
+          message: 'Failed to update theme',
+          updatedAt: Date.now(),
+        });
+        return;
+      }
+      savedThemeId = updated?.id;
+    } else {
+      const { data: created, errors: createErrors } = await cookiesClient.models.UserTheme.create(themeRecord);
+      if (createErrors) {
+        logger.error('Failed to save theme to database', { processId, errors: createErrors }, 'ThemeConfirmAPI');
+        themeProcessStatus.set(processId, {
+          status: 'error',
+          message: 'Failed to save theme to database',
+          updatedAt: Date.now(),
+        });
+        return;
+      }
+      savedThemeId = created?.id;
     }
 
     logger.info(
@@ -241,7 +300,7 @@ async function processThemeInBackground(
         processId,
         storeId,
         s3Key: storageResult.s3Key,
-        themeId: savedTheme?.id,
+        themeId: savedThemeId,
       },
       'ThemeConfirmAPI'
     );
@@ -249,7 +308,7 @@ async function processThemeInBackground(
     // Marcar como completado
     themeProcessStatus.set(processId, {
       status: 'completed',
-      themeId: savedTheme?.id,
+      themeId: savedThemeId,
       updatedAt: Date.now(),
     });
   } catch (error) {
