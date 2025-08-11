@@ -140,6 +140,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Resolver preview URL buscando un asset conocido o usando la del schema
+    const previewUrl = findPreviewUrlFromTemplateUrls(templateUrls) || themeInfo.previewUrl || null
+
     // 7. Crear registro del tema en la DB con la información validada
     try {
       const s3FolderKey = `templates/${storeId}`
@@ -166,7 +169,7 @@ export async function POST(request: NextRequest) {
         }),
         validation: JSON.stringify(validation),
         analysis: JSON.stringify(validation.analysis || {}),
-        preview: templateUrls['layout/theme.liquid'] || null,
+        preview: previewUrl,
         owner: user.username,
       }
 
@@ -297,4 +300,36 @@ function generateTemplateUrls(
 
 function sanitizeMetadataValue(value: string): string {
   return value.replace(/[^\x00-\x7F]/g, '')
+}
+
+// Busca una URL de preview dentro de los archivos copiados del template
+function findPreviewUrlFromTemplateUrls(urls: Record<string, string>): string | undefined {
+  const candidates = [
+    'assets/preview.png',
+    'assets/preview.jpg',
+    'assets/preview.webp',
+    'assets/screenshot.png',
+    'assets/screenshot.jpg',
+    'assets/screenshot.webp',
+    'preview.png',
+    'preview.jpg',
+    'preview.webp',
+    'screenshot.png',
+    'screenshot.jpg',
+    'screenshot.webp',
+  ]
+
+  // Intentar coincidencia exacta por clave
+  for (const name of candidates) {
+    if (urls[name]) return urls[name]
+  }
+
+  // Si no está exacto, buscar por sufijo en claves (por si vienen en subcarpetas)
+  const keys = Object.keys(urls)
+  for (const key of keys) {
+    if (candidates.some((c) => key.endsWith('/' + c) || key.toLowerCase().endsWith('/' + c))) {
+      return urls[key]
+    }
+  }
+  return undefined
 }
