@@ -50,6 +50,7 @@
     "dist/**/*",
     "build/**/*",
     "test/**/*",
-    "lambda-edge-host-rewriter/**/*"
+    "lambda-edge-host-rewriter/**/*",
+    "docs/**/*"
   ]
 }
