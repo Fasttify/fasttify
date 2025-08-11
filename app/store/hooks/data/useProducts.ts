@@ -1,5 +1,5 @@
 import type { Schema } from '@/amplify/data/resource';
-import { normalizeAttributesField, withLowercaseName } from '@/app/store/hooks/utils/productUtils';
+import { normalizeAttributesField, normalizeTagsField, withLowercaseName } from '@/app/store/hooks/utils/productUtils';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
@@ -163,6 +163,7 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
         attributes: normalizeAttributesField(
           productData.attributes as string | { name?: string; values?: string[] }[] | undefined
         ),
+        tags: normalizeTagsField(productData.tags as string[] | string | undefined),
         storeId: storeId || '',
         owner: username,
         status: productData.status || 'DRAFT',
@@ -190,6 +191,7 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
         attributes: normalizeAttributesField(
           productData.attributes as string | { name?: string; values?: string[] }[] | undefined
         ),
+        tags: normalizeTagsField(productData.tags as string[] | string | undefined),
       });
 
       const { data } = await client.models.Product.update(dataToSend);

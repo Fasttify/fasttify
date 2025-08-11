@@ -167,6 +167,7 @@ function transformProduct(product: any) {
   const images = dataTransformer.transformImages(product.images, product.name);
   const handle = dataTransformer.createHandle(product.name);
   const attributes = dataTransformer.transformAttributes(product.attributes);
+  const tags = dataTransformer.transformTags(product.tags);
 
   return {
     id: product.id,
@@ -180,7 +181,7 @@ function transformProduct(product: any) {
     status: product.status,
     slug: handle,
     featured: product.featured,
-    tags: product.tags,
+    tags: tags,
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
     vendor: product.supplier,

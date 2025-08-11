@@ -2,7 +2,7 @@ import { AIGenerateButton } from '@/app/store/components/product-management/prod
 import { useProductDescription } from '@/app/store/components/product-management/products/hooks/useProductDescription';
 import { useToast } from '@/app/store/context/ToastContext';
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
-import { Banner, BlockStack, Button, ButtonGroup, FormLayout, Text, TextField } from '@shopify/polaris';
+import { Banner, BlockStack, Button, ButtonGroup, Card, FormLayout, Text, TextField } from '@shopify/polaris';
 import { useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
@@ -51,115 +51,117 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
   };
 
   return (
-    <BlockStack gap="400">
-      <Text as="h2" variant="headingMd">
-        Información Básica
-      </Text>
-      <FormLayout>
-        <Controller
-          name="name"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <TextField
-              {...field}
-              label="Nombre del Producto"
-              error={fieldState.error?.message}
-              autoComplete="off"
-              helpText="El nombre de su producto como aparecerá a los clientes."
-            />
-          )}
-        />
-        <BlockStack gap="200">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text as="h3" variant="headingSm">
-              Descripción
-            </Text>
-            <AIGenerateButton
-              onClick={handleGenerateDescription}
-              isLoading={isGeneratingDescription}
-              isDisabled={!!previewDescription}
-            />
-          </div>
-          {previewDescription && (
-            <Banner title="Vista previa de descripción generada" tone="info">
-              <BlockStack gap="200">
-                <Text as="p">{previewDescription}</Text>
-                <ButtonGroup>
-                  <Button onClick={handleGenerateDescription} loading={isGeneratingDescription}>
-                    Regenerar
-                  </Button>
-                  <Button onClick={rejectDescription}>Descartar</Button>
-                  <Button onClick={acceptDescription} variant="primary">
-                    Aplicar
-                  </Button>
-                </ButtonGroup>
-              </BlockStack>
-            </Banner>
-          )}
+    <Card>
+      <BlockStack gap="400">
+        <Text as="h2" variant="headingMd">
+          Información Básica
+        </Text>
+        <FormLayout>
           <Controller
-            name="description"
+            name="name"
             control={form.control}
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
-                label="Descripción"
-                labelHidden
-                multiline={4}
+                label="Nombre del Producto"
                 error={fieldState.error?.message}
                 autoComplete="off"
-                helpText="Proporcione una descripción detallada de su producto."
+                helpText="El nombre de su producto como aparecerá a los clientes."
               />
             )}
           />
-        </BlockStack>
+          <BlockStack gap="200">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text as="h3" variant="headingSm">
+                Descripción
+              </Text>
+              <AIGenerateButton
+                onClick={handleGenerateDescription}
+                isLoading={isGeneratingDescription}
+                isDisabled={!!previewDescription}
+              />
+            </div>
+            {previewDescription && (
+              <Banner title="Vista previa de descripción generada" tone="info">
+                <BlockStack gap="200">
+                  <Text as="p">{previewDescription}</Text>
+                  <ButtonGroup>
+                    <Button onClick={handleGenerateDescription} loading={isGeneratingDescription}>
+                      Regenerar
+                    </Button>
+                    <Button onClick={rejectDescription}>Descartar</Button>
+                    <Button onClick={acceptDescription} variant="primary">
+                      Aplicar
+                    </Button>
+                  </ButtonGroup>
+                </BlockStack>
+              </Banner>
+            )}
+            <Controller
+              name="description"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  label="Descripción"
+                  labelHidden
+                  multiline={4}
+                  error={fieldState.error?.message}
+                  autoComplete="off"
+                  helpText="Proporcione una descripción detallada de su producto."
+                />
+              )}
+            />
+          </BlockStack>
 
-        <FormLayout.Group>
-          <Controller
-            name="creationDate"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Fecha de Creación"
-                type="date"
-                value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
-                onChange={(dateString) => {
-                  if (!dateString) {
-                    field.onChange(null);
-                    return;
-                  }
-                  const date = new Date(dateString);
-                  const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-                  field.onChange(new Date(date.getTime() + userTimezoneOffset));
-                }}
-                onBlur={field.onBlur}
-                name={field.name}
-                error={fieldState.error?.message}
-                autoComplete="off"
-                helpText="Cuando se creó este producto."
-              />
-            )}
-          />
+          <FormLayout.Group>
+            <Controller
+              name="creationDate"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <TextField
+                  label="Fecha de Creación"
+                  type="date"
+                  value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                  onChange={(dateString) => {
+                    if (!dateString) {
+                      field.onChange(null);
+                      return;
+                    }
+                    const date = new Date(dateString);
+                    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+                    field.onChange(new Date(date.getTime() + userTimezoneOffset));
+                  }}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  error={fieldState.error?.message}
+                  autoComplete="off"
+                  helpText="Cuando se creó este producto."
+                />
+              )}
+            />
 
-          <Controller
-            name="lastModifiedDate"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Fecha de Última Modificación"
-                type="date"
-                value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                name={field.name}
-                disabled
-                error={fieldState.error?.message}
-                autoComplete="off"
-                helpText="Se actualiza automáticamente cuando se guarda el producto."
-              />
-            )}
-          />
-        </FormLayout.Group>
-      </FormLayout>
-    </BlockStack>
+            <Controller
+              name="lastModifiedDate"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <TextField
+                  label="Fecha de Última Modificación"
+                  type="date"
+                  value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  disabled
+                  error={fieldState.error?.message}
+                  autoComplete="off"
+                  helpText="Se actualiza automáticamente cuando se guarda el producto."
+                />
+              )}
+            />
+          </FormLayout.Group>
+        </FormLayout>
+      </BlockStack>
+    </Card>
   );
 }

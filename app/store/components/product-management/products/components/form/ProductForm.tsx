@@ -4,8 +4,10 @@ import { AttributesForm } from '@/app/store/components/product-management/produc
 import { BasicInfoSection } from '@/app/store/components/product-management/products/components/form/BasicInfoSection';
 import { CollectionSelector } from '@/app/store/components/product-management/products/components/form/CollectionSelector';
 import { ImageUpload } from '@/app/store/components/product-management/products/components/form/ImageUpload';
-import { PricingInventorySection } from '@/app/store/components/product-management/products/components/form/PricingSection';
+import { InventoryOnlySection } from '@/app/store/components/product-management/products/components/form/InventoryOnlySection';
+import { PricingOnlySection } from '@/app/store/components/product-management/products/components/form/PricingOnlySection';
 import { PublicationSection } from '@/app/store/components/product-management/products/components/form/PublicationSection';
+import { TagsSection } from '@/app/store/components/product-management/products/components/form/TagsSection';
 import {
   handleProductCreate,
   handleProductUpdate,
@@ -191,7 +193,8 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                   />
                 </BlockStack>
               </Card>
-              <PricingInventorySection form={form} />
+              <PricingOnlySection form={form} />
+              <InventoryOnlySection form={form} />
               <Card>
                 <Controller
                   name="attributes"
@@ -262,6 +265,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                   />
                 </BlockStack>
               </Card>
+              <TagsSection form={form} />
               <PublicationSection form={form} />
             </BlockStack>
           </Layout.Section>
