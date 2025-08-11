@@ -7,6 +7,7 @@ import { ImageUpload } from '@/app/store/components/product-management/products/
 import { InventoryOnlySection } from '@/app/store/components/product-management/products/components/form/InventoryOnlySection';
 import { PricingOnlySection } from '@/app/store/components/product-management/products/components/form/PricingOnlySection';
 import { PublicationSection } from '@/app/store/components/product-management/products/components/form/PublicationSection';
+import { TagsSection } from '@/app/store/components/product-management/products/components/form/TagsSection';
 import {
   handleProductCreate,
   handleProductUpdate,
@@ -264,6 +265,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
                   />
                 </BlockStack>
               </Card>
+              <TagsSection form={form} />
               <PublicationSection form={form} />
             </BlockStack>
           </Layout.Section>

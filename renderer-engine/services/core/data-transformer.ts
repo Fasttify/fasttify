@@ -110,6 +110,36 @@ export class DataTransformer {
         }))
       : [];
   }
+
+  /**
+   * Transforma tags desde JSON string o array y normaliza a string[]
+   */
+  public static transformTags(tags: any): string[] {
+    let tagsArray: any[] = [];
+    if (tags) {
+      if (typeof tags === 'string') {
+        try {
+          tagsArray = JSON.parse(tags);
+        } catch (error) {
+          console.warn('Error parsing product tags JSON:', error);
+          // intentar CSV como fallback
+          tagsArray = tags
+            .split(',')
+            .map((t: string) => t.trim())
+            .filter((t: string) => t.length > 0);
+        }
+      } else if (Array.isArray(tags)) {
+        tagsArray = tags;
+      }
+    }
+
+    if (!Array.isArray(tagsArray)) return [];
+
+    const normalized = tagsArray.map((t) => (typeof t === 'string' ? t.trim() : '')).filter((t) => t.length > 0);
+
+    // remover duplicados preservando orden
+    return Array.from(new Set(normalized));
+  }
 }
 
 export const dataTransformer = DataTransformer;

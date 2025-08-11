@@ -33,3 +33,28 @@ export function normalizeAttributesField(
   }
   return JSON.stringify(normalizeAttributesToLowercase(arr));
 }
+
+/**
+ * Normaliza el campo de etiquetas para ser enviado a la API.
+ * Admite string (JSON serializado) o array de strings y devuelve un string JSON.
+ */
+export function normalizeTagsField(tags: string | string[] | undefined): string {
+  if (typeof tags === 'string') {
+    // Si ya viene como string, se asume JSON serializado válido
+    try {
+      JSON.parse(tags);
+      return tags;
+    } catch {
+      // Si no es un JSON válido, intentar dividir por comas como fallback básico
+      const arr = tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+      return JSON.stringify(arr);
+    }
+  }
+  if (Array.isArray(tags)) {
+    return JSON.stringify(tags);
+  }
+  return JSON.stringify([]);
+}

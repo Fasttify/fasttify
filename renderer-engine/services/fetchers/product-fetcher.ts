@@ -244,6 +244,7 @@ export class ProductFetcher {
     const transformedImages = dataTransformer.transformImages(product.images, product.name);
     const variants = dataTransformer.transformVariants(product.variants, product.price);
     const attributes: ProductAttribute[] = dataTransformer.transformAttributes(product.attributes);
+    const tags: string[] = dataTransformer.transformTags(product.tags);
     const featured_image = transformedImages.length > 0 ? transformedImages[0].url : undefined;
     const images = transformedImages.map((img) => img.url || img);
     const url = collectionHandle ? `/collections/${collectionHandle}/products/${handle}` : `/products/${handle}`;
@@ -267,6 +268,7 @@ export class ProductFetcher {
       category: product.category,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
+      tags,
     };
   }
 }
