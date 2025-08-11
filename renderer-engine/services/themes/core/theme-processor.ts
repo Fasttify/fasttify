@@ -259,6 +259,7 @@ export class ThemeProcessor {
         license: themeInfo.license,
         settings_schema: themeInfo.settings_schema || [],
         settings_defaults: themeInfo.settings_defaults || {},
+        previewUrl: themeInfo.previewUrl,
       };
     } catch (error) {
       throw new Error(`Failed to parse theme settings: ${error instanceof Error ? error.message : 'Unknown error'}`);

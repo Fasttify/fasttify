@@ -14,6 +14,7 @@ export interface ThemeStorageResult {
   storeId: string;
   s3Key: string;
   cdnUrl?: string;
+  previewCdnUrl?: string;
   error?: string;
 }
 
@@ -75,12 +76,21 @@ export class S3StorageService {
         }
       }
 
-      // 4. Generar metadata final del tema
+      // 4. Resolver preview del tema (si existe en los archivos)
+      const previewFile = this.findPreviewFile(theme.files || []);
+      let previewCdnUrl: string | undefined = undefined;
+      if (previewFile) {
+        const previewKey = this.buildS3KeyForFile(previewFile.path, baseKey);
+        previewCdnUrl = getCdnUrlForKey(previewKey);
+      }
+
+      // 5. Generar metadata final del tema
       const finalMetadata = {
         ...this.generateThemeMetadata(theme, storeId),
         status: 'ready',
         stage: 'completed',
         updatedAt: new Date().toISOString(),
+        previewUrl: previewCdnUrl || theme.settings.previewUrl || undefined,
       };
       const metadataResult = await this.uploadJson(finalMetadata, metadataKey);
 
@@ -88,7 +98,7 @@ export class S3StorageService {
         throw new Error(`Failed to upload metadata: ${metadataResult.error}`);
       }
 
-      // 5. Generar URL de CDN
+      // 6. Generar URL de CDN
       const cdnUrl = getCdnUrlForKey(zipKey);
 
       const result: ThemeStorageResult = {
@@ -96,6 +106,7 @@ export class S3StorageService {
         storeId,
         s3Key: baseKey,
         cdnUrl,
+        previewCdnUrl,
       };
 
       this.logger.info('Theme stored successfully in S3', result, 'S3StorageService');
@@ -193,27 +204,7 @@ export class S3StorageService {
   private async uploadThemeFiles(files: ThemeFile[], baseKey: string): Promise<{ success: boolean; error?: string }> {
     try {
       const uploadPromises = files.map(async (file) => {
-        // Organizar archivos por tipo en carpetas separadas
-        let fileKey: string;
-
-        if (file.path.includes('/layout/')) {
-          fileKey = `${baseKey}/layout/${file.path.split('/layout/')[1]}`;
-        } else if (file.path.includes('/templates/')) {
-          fileKey = `${baseKey}/templates/${file.path.split('/templates/')[1]}`;
-        } else if (file.path.includes('/sections/')) {
-          fileKey = `${baseKey}/sections/${file.path.split('/sections/')[1]}`;
-        } else if (file.path.includes('/snippets/')) {
-          fileKey = `${baseKey}/snippets/${file.path.split('/snippets/')[1]}`;
-        } else if (file.path.includes('/assets/')) {
-          fileKey = `${baseKey}/assets/${file.path.split('/assets/')[1]}`;
-        } else if (file.path.includes('/config/')) {
-          fileKey = `${baseKey}/config/${file.path.split('/config/')[1]}`;
-        } else if (file.path.includes('/locales/')) {
-          fileKey = `${baseKey}/locales/${file.path.split('/locales/')[1]}`;
-        } else {
-          // Archivos en la raíz
-          fileKey = `${baseKey}/root/${file.path}`;
-        }
+        const fileKey = this.buildS3KeyForFile(file.path, baseKey);
 
         const content = file.content instanceof Buffer ? file.content : Buffer.from(file.content as string);
         return this.uploadFile(content, fileKey);
@@ -281,6 +272,59 @@ export class S3StorageService {
         hasCollection: theme.files?.some((f) => f.path.includes('/templates/collection.json')) || false,
       },
     };
+  }
+
+  /**
+   * Construye la clave S3 a partir de la ruta del archivo de tema
+   */
+  private buildS3KeyForFile(path: string, baseKey: string): string {
+    if (path.includes('/layout/')) {
+      return `${baseKey}/layout/${path.split('/layout/')[1]}`;
+    }
+    if (path.includes('/templates/')) {
+      return `${baseKey}/templates/${path.split('/templates/')[1]}`;
+    }
+    if (path.includes('/sections/')) {
+      return `${baseKey}/sections/${path.split('/sections/')[1]}`;
+    }
+    if (path.includes('/snippets/')) {
+      return `${baseKey}/snippets/${path.split('/snippets/')[1]}`;
+    }
+    if (path.includes('/assets/')) {
+      return `${baseKey}/assets/${path.split('/assets/')[1]}`;
+    }
+    if (path.includes('/config/')) {
+      return `${baseKey}/config/${path.split('/config/')[1]}`;
+    }
+    if (path.includes('/locales/')) {
+      return `${baseKey}/locales/${path.split('/locales/')[1]}`;
+    }
+    return `${baseKey}/root/${path}`;
+  }
+
+  /**
+   * Busca un archivo de preview dentro del tema
+   */
+  private findPreviewFile(files: ThemeFile[]): ThemeFile | undefined {
+    const candidates = [
+      'assets/preview.png',
+      'assets/preview.jpg',
+      'assets/preview.webp',
+      'assets/screenshot.png',
+      'assets/screenshot.jpg',
+      'assets/screenshot.webp',
+      'preview.png',
+      'preview.jpg',
+      'preview.webp',
+      'screenshot.png',
+      'screenshot.jpg',
+      'screenshot.webp',
+    ];
+
+    // Coincidencia por nombre o fin de ruta para soportar subcarpetas del tema
+    return files.find(
+      (f) => f.type === 'image' && candidates.some((name) => f.path === name || f.path.endsWith('/' + name))
+    );
   }
 
   /**

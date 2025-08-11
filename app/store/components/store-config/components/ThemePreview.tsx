@@ -1,16 +1,36 @@
 import { LogoUploader } from '@/app/store/components/store-config/components/LogoUploader';
 import { ThemeUploader } from '@/app/store/components/store-config/components/ThemeUploader';
 import { ThemeList } from '@/app/store/components/theme-management/components/ThemeList';
+import { useThemeList } from '@/app/store/components/theme-management/hooks/useThemeList';
 import useStoreDataStore from '@/context/core/storeDataStore';
-import { Badge, BlockStack, Button, ButtonGroup, Card, Layout, MediaCard, Page, Tabs, Text } from '@shopify/polaris';
+import {
+  Badge,
+  BlockStack,
+  Button,
+  ButtonGroup,
+  Card,
+  Layout,
+  MediaCard,
+  Page,
+  Spinner,
+  Tabs,
+  Text,
+} from '@shopify/polaris';
 import { MoneyFilledIcon } from '@shopify/polaris-icons';
 import Image from 'next/image';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export function ThemePreview() {
   const { currentStore } = useStoreDataStore();
   const customDomain = currentStore?.defaultDomain || '';
   const [selectedTab, setSelectedTab] = useState(0);
+  const storeId = currentStore?.storeId || '';
+  const { themes, loading } = useThemeList(storeId);
+
+  // Encontrar el tema activo y su preview URL (HTTPS o data URI si aún no se propaga)
+  const activeTheme = useMemo(() => themes.find((t: any) => t.isActive) || themes[0], [themes]);
+  const activePreviewUrl = activeTheme?.previewUrl;
+  const isLoadingPreview = !storeId || loading || themes.length === 0;
 
   const viewStore = `https://${customDomain}`;
 
@@ -40,19 +60,40 @@ export function ThemePreview() {
                     Tema Actual
                   </Text>
                   <div style={{ height: '280px', position: 'relative', overflow: 'hidden' }}>
-                    <Image
-                      src="https://images.unsplash.com/photo-1741482529153-a98d81235d06?q=80&w=2070&auto=format&fit=crop"
-                      alt="Amazonas theme preview"
-                      fill
-                      style={{ objectFit: 'cover' }}
-                    />
+                    {isLoadingPreview ? (
+                      <div
+                        style={{
+                          height: '100%',
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'var(--p-color-bg-subdued)',
+                        }}>
+                        <Spinner accessibilityLabel="Cargando vista previa del tema" size="large" />
+                      </div>
+                    ) : activePreviewUrl ? (
+                      <Image
+                        src={activePreviewUrl}
+                        alt={`Vista previa de ${activeTheme?.name || 'tema'}`}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <Image
+                        src="https://images.unsplash.com/photo-1741482529153-a98d81235d06?q=80&w=2070&auto=format&fit=crop"
+                        alt="Theme preview placeholder"
+                        fill
+                        style={{ objectFit: 'cover' }}
+                      />
+                    )}
                   </div>
                   <BlockStack gap="200">
                     <Layout>
                       <Layout.Section>
                         <BlockStack align="center">
                           <Text variant="headingMd" as="h2">
-                            Amazonas
+                            {activeTheme?.name || 'Tema'}
                           </Text>
                         </BlockStack>
                         <Badge tone="success" size="small">

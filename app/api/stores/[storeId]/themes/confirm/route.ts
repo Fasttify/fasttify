@@ -262,15 +262,16 @@ async function processThemeInBackground(
       settings: JSON.stringify(processedTheme.settings),
       validation: JSON.stringify(themeData.validation),
       analysis: JSON.stringify(themeData.analysis),
-      preview: themeData.theme.preview,
+      preview: storageResult.previewCdnUrl || themeData.theme.preview,
       owner: username,
     };
 
     let savedThemeId: string | undefined = themeId;
     if (themeId) {
+      const { owner: _omitOwner, ...updatePayload } = themeRecord as any;
       const { data: updated, errors: updateErrors } = await cookiesClient.models.UserTheme.update({
         id: themeId,
-        ...themeRecord,
+        ...updatePayload,
       } as any);
       if (updateErrors) {
         logger.error('Failed to update placeholder theme', { processId, errors: updateErrors }, 'ThemeConfirmAPI');
