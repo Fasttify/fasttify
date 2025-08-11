@@ -64,6 +64,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           version: theme.version,
           author: theme.author,
           description: theme.description,
+          previewUrl: theme.preview,
           fileCount: theme.fileCount,
           totalSize: theme.totalSize,
           isActive: theme.isActive,

@@ -99,7 +99,6 @@ const schema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(createStoreTemplate)),
 
-    // Nueva mutación para procesar la configuración de pagos
     processStorePaymentConfig: a
       .mutation()
       .arguments({ action: a.string(), input: PaymentConfigInput })

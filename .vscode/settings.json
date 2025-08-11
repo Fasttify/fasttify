@@ -39,5 +39,38 @@
     "editor.codeActionsOnSave": {
       "source.organizeImports": "always"
     }
-  }
+  },
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/amplify/**": true,
+    "**/.amplify/**": true,
+    "**/public/**": true,
+    "**/template/**": true,
+    "**/coverage/**": true,
+    "**/dist/**": true,
+    "**/build/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/amplify": true,
+    "**/.amplify": true,
+    "**/public": true,
+    "**/template": true,
+    "**/coverage": true,
+    "**/dist": true,
+    "**/build": true
+  },
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "priorityPollingInterval",
+    "watchDirectory": "dynamicPriorityPolling",
+    "fallbackPolling": "dynamicPriorityPolling"
+  },
+  "eslint.workingDirectories": [
+    { "mode": "auto" }
+  ]
 }

@@ -13,6 +13,7 @@ interface Theme {
   totalSize: number;
   createdAt: string;
   updatedAt: string;
+  previewUrl?: string;
 }
 
 interface UseThemeListReturn {

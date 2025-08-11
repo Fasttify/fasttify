@@ -40,6 +40,7 @@ export interface ThemeSettings {
   license?: string;
   settings_schema: any[];
   settings_defaults: Record<string, any>;
+  previewUrl?: string;
 }
 
 export interface ProcessedTheme {

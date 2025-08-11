@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
@@ -23,12 +23,34 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "app/**/*",
+    "components/**/*",
+    "context/**/*",
+    "hooks/**/*",
+    "lib/**/*",
+    "middlewares/**/*",
+    "renderer-engine/**/*",
+    "tenant-domains/**/*",
+    "types/**/*",
+    "utils/**/*",
+    "middleware.ts"
+  ],
   "exclude": [
     "node_modules",
+    ".next/cache/**/*",
     "amplify/**/*",
     ".amplify/**/*",
     "template/**/*",
-    "lambda-edge-host-rewriter/**/*-host-rewriter/**/*"
+    "public/**/*",
+    "scripts/**/*",
+    "coverage/**/*",
+    "dist/**/*",
+    "build/**/*",
+    "test/**/*",
+    "lambda-edge-host-rewriter/**/*",
+    "docs/**/*"
   ]
 }

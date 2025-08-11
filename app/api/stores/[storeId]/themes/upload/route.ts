@@ -91,8 +91,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     processedTheme.validation = validation;
     processedTheme.analysis = validation.analysis as TemplateAnalysis;
 
-    // 7. Generar preview si la validación es exitosa
-    if (validation.isValid) {
+    // 7. Generar preview solo si no existe y la validación es exitosa
+    if (validation.isValid && !processedTheme.preview) {
       processedTheme.preview = await processor.generatePreview(processedTheme);
     }
 
@@ -123,6 +123,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         settings: processedTheme.settings,
         validation: processedTheme.validation,
         analysis: processedTheme.analysis,
+        previewUrl: processedTheme.preview,
       },
       validation: {
         isValid: validation.isValid,
