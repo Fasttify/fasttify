@@ -12,6 +12,9 @@ export interface AddToCartRequest {
   selectedAttributes?: Record<string, string>;
 }
 
+interface UserStoreCurrency {
+  storeCurrency?: string;
+}
 export class CartFetcher {
   /**
    * Obtiene el carrito actual para una tienda.
@@ -19,8 +22,6 @@ export class CartFetcher {
    * Si no existe, creará un nuevo carrito de invitado.
    */
   public async getCart(storeId: string, sessionId: string): Promise<Cart> {
-    logger.info(`[CartFetcher] getCart called with sessionId: ${sessionId}`, null, 'CartFetcher');
-
     try {
       let rawCartData: CartRaw | undefined;
 
@@ -37,7 +38,13 @@ export class CartFetcher {
 
       if (!rawCartData) {
         const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 30); // 30 días de expiración
+        expiresAt.setDate(expiresAt.getDate() + 30);
+
+        let detectedCurrency: string | undefined;
+        try {
+          const { data: store } = await cookiesClient.models.UserStore.get({ storeId });
+          detectedCurrency = (store as UserStoreCurrency)?.storeCurrency || undefined;
+        } catch {}
 
         const newCartData: any = {
           storeId,
@@ -45,13 +52,13 @@ export class CartFetcher {
           totalAmount: 0,
           expiresAt: expiresAt.toISOString(),
           sessionId: sessionId,
+          currency: detectedCurrency,
         };
 
         const { data: createdCart } = await cookiesClient.models.Cart.create(newCartData);
         if (!createdCart) {
           throw new Error('Failed to create new cart.');
         }
-        logger.info(`[CartFetcher] NEW Cart created with sessionId: ${createdCart.sessionId}`, null, 'CartFetcher');
         rawCartData = createdCart;
       }
 
@@ -113,18 +120,15 @@ export class CartFetcher {
         updatedAt: product.updatedAt,
       });
 
-      // Buscar si el item ya existe en el carrito
       const cartItemsResponse = await cookiesClient.models.CartItem.listCartItemByCartId(
         { cartId: currentCart.id },
         { filter: { productId: { eq: productId }, variantId: { eq: variantId || undefined } } }
       );
 
-      // Asegurarse de que data no es nulo/undefined antes de acceder a [0]
       let existingCartItem =
         cartItemsResponse.data && cartItemsResponse.data.length > 0 ? cartItemsResponse.data[0] : undefined;
 
       if (existingCartItem) {
-        // Actualizar cantidad del item existente
         const updatedQuantity = existingCartItem.quantity + quantity;
         const updatedTotalPrice = updatedQuantity * existingCartItem.unitPrice;
 
@@ -138,7 +142,6 @@ export class CartFetcher {
           throw new Error('Failed to update cart item.');
         }
       } else {
-        // Crear nuevo item
         const newItemTotalPrice = productPrice * quantity;
         const { data: createdItem } = await cookiesClient.models.CartItem.create({
           cartId: currentCart.id,
@@ -156,7 +159,6 @@ export class CartFetcher {
         }
       }
 
-      // Recalcular y actualizar totales del carrito
       await this.recalculateCartTotals(currentCart.id);
 
       const updatedCart = await this.getCart(storeId, sessionId || '');
@@ -186,10 +188,8 @@ export class CartFetcher {
       }
 
       if (quantity <= 0) {
-        // Eliminar item si la cantidad es 0 o negativa
         await cookiesClient.models.CartItem.delete({ id: itemId });
       } else {
-        // Actualizar item
         const updatedTotalPrice = existingItem.unitPrice * quantity;
         await cookiesClient.models.CartItem.update({
           id: itemId,
@@ -198,7 +198,6 @@ export class CartFetcher {
         });
       }
 
-      // Recalcular y actualizar totales del carrito
       await this.recalculateCartTotals(currentCart.id);
 
       const updatedCart = await this.getCart(storeId, sessionId || '');
@@ -227,7 +226,6 @@ export class CartFetcher {
 
       await cookiesClient.models.CartItem.delete({ id: itemId });
 
-      // Recalcular y actualizar totales del carrito
       await this.recalculateCartTotals(currentCart.id);
 
       const updatedCart = await this.getCart(storeId, sessionId || '');
@@ -248,7 +246,6 @@ export class CartFetcher {
         return { success: false, error: 'Cart not found.' };
       }
 
-      // Obtener todos los ítems del carrito y eliminarlos
       const { data: cartItems } = await cookiesClient.models.CartItem.listCartItemByCartId({
         cartId: currentCart.id,
       });
@@ -257,7 +254,6 @@ export class CartFetcher {
         await cookiesClient.models.CartItem.delete({ id: item.id });
       }
 
-      // Resetear totales del carrito
       await cookiesClient.models.Cart.update({
         id: currentCart.id,
         itemCount: 0,
@@ -283,10 +279,10 @@ export class CartFetcher {
       id: cart.id,
       item_count: totalItems,
       total_price: totalPrice,
+      currency: cart.currency || 'COP',
       items: Array.isArray(cart.items)
         ? cart.items.map((item) => {
             let productSnapshotParsed: any = {};
-            // Asegurarse de que productSnapshot sea un string antes de intentar parsear
             if (typeof item.productSnapshot === 'string') {
               try {
                 productSnapshotParsed = JSON.parse(item.productSnapshot);

@@ -41,7 +41,7 @@ class LiquidEngine {
    */
   private createEngine(): Liquid {
     const config: LiquidEngineConfig = {
-      cache: false, // Sin cache interno para control manual
+      cache: true,
       greedy: false,
       trimTagLeft: false,
       trimTagRight: false,
