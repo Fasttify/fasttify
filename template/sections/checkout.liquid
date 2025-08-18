@@ -201,7 +201,11 @@
                   <div class="summary-item">
                     <div class="item-image">
                       {% if item.image %}
-                        <img src="{{ item.image | image_url: '80x80' }}" alt="{{ item.title }}" loading="lazy">
+                        <img src="{{ item.image }}" alt="{{ item.title }}" loading="lazy" style="width: 80px; height: 80px; object-fit: cover;">
+                      {% else %}
+                        <div class="item-image-placeholder" style="width: 80px; height: 80px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
+                          Sin imagen
+                        </div>
                       {% endif %}
                     </div>
 
@@ -570,14 +574,15 @@
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('checkout-form');
   const submitBtn = document.getElementById('submit-checkout');
-  const btnText = submitBtn.querySelector('.btn-text');
-  const btnLoading = submitBtn.querySelector('.btn-loading');
 
   if (form && submitBtn) {
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+
     form.addEventListener('submit', function() {
       submitBtn.disabled = true;
-      btnText.style.display = 'none';
-      btnLoading.style.display = 'inline';
+      if (btnText) btnText.style.display = 'none';
+      if (btnLoading) btnLoading.style.display = 'inline';
     });
   }
 });

@@ -68,7 +68,7 @@ class CartTemplates {
         <p>${subtotal}</p>
       </div>
       <div class="cart-actions">
-        <a href="/checkout" class="button button--primary cart-checkout-btn">Finalizar Compra</a>
+        <button type="button" class="button button--primary cart-checkout-btn" data-checkout-direct>Finalizar Compra</button>
         <button type="button" class="button button--danger cart-clear-btn" data-clear-cart>Limpiar Carrito</button>
       </div>
     `;

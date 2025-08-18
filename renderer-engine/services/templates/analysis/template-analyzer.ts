@@ -164,6 +164,11 @@ export class TemplateAnalyzer {
       if (!analysis.requiredData.has('page')) {
         analysis.requiredData.set('page', {});
       }
+    } else if (templatePath.includes('checkout')) {
+      // Página de checkout necesita datos de la sesión de checkout
+      if (!analysis.requiredData.has('checkout')) {
+        analysis.requiredData.set('checkout', {});
+      }
     }
 
     // Los linklists siempre son necesarios para navegación

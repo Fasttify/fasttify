@@ -27,6 +27,8 @@ export interface StartCheckoutRequest {
 export interface CheckoutSession {
   token: string;
   storeId: string;
+  createdAt?: string;
+  updatedAt?: string;
   cartId?: string;
   sessionId: string;
   status: 'open' | 'completed' | 'expired' | 'cancelled';
@@ -58,6 +60,7 @@ export interface CheckoutResponse {
 }
 
 export interface CheckoutContext {
+  storeId: string;
   token: string;
   line_items: any[];
   item_count: number;
@@ -72,6 +75,17 @@ export interface CheckoutContext {
   note?: string;
   requires_shipping: boolean;
   expires_at: string;
+  created_at?: string;
+  updated_at?: string;
+  status?: string;
+  session_id?: string;
+  cart_id?: string;
+  totals?: {
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    total: number;
+  };
 }
 
 export type CheckoutStatus = 'open' | 'completed' | 'expired' | 'cancelled';

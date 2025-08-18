@@ -11,7 +11,8 @@ export class ContextBuilder {
     products: any[],
     storeTemplate?: any,
     cartData?: CartContext,
-    navigationMenus?: any
+    navigationMenus?: any,
+    checkoutData?: any
   ): Promise<RenderContext> {
     // Construir las partes del contexto
     const shop = this.createShopContext(store);
@@ -40,6 +41,7 @@ export class ContextBuilder {
       products,
       linklists,
       cart,
+      checkout: checkoutData, // Agregar datos de checkout al contexto
       _currency_config: currencyConfig,
       _store_template: storeTemplate, // Agregar acceso al storeTemplate
     };

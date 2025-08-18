@@ -21,7 +21,8 @@ export async function buildContextStep(data: RenderingData): Promise<RenderingDa
     data.pageData!.products,
     data.storeTemplate!,
     data.pageData!.cartData,
-    data.navigationMenus
+    data.navigationMenus,
+    data.pageData!.contextData.checkout // Pasar datos de checkout si existen
   );
 
   // Combinar datos dinámicos

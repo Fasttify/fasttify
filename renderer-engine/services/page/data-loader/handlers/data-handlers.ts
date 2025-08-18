@@ -1,4 +1,5 @@
 import { logger } from '@/renderer-engine/lib/logger';
+import { checkoutFetcher } from '@/renderer-engine/services/fetchers/checkout-fetcher';
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 import type { DataLoadOptions, DataRequirement } from '@/renderer-engine/services/templates/analysis/template-analyzer';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';
@@ -213,6 +214,38 @@ export const dataHandlers: Record<DataRequirement, DataHandler> = {
   pagination: async () => {
     // Pagination se maneja a nivel de template/request, no es un dato per se
     return null;
+  },
+
+  checkout: async (storeId, options, pageOptions) => {
+    if (!pageOptions.checkoutToken) {
+      logger.warn('Checkout handler called without checkoutToken', undefined, 'DataHandlers');
+      return null;
+    }
+
+    try {
+      const checkoutSession = await checkoutFetcher.getSessionByToken(pageOptions.checkoutToken);
+
+      if (!checkoutSession) {
+        logger.warn(`Checkout session not found for token: ${pageOptions.checkoutToken}`, undefined, 'DataHandlers');
+        return null;
+      }
+
+      // Validar la sesión antes de transformar
+      if (!checkoutFetcher.validateSession(checkoutSession)) {
+        logger.warn(
+          `Checkout session validation failed for token: ${pageOptions.checkoutToken}`,
+          undefined,
+          'DataHandlers'
+        );
+        return null;
+      }
+
+      // Transformar la sesión a formato compatible con Liquid
+      return checkoutFetcher.transformSessionToContext(checkoutSession);
+    } catch (error) {
+      logger.error('Error loading checkout data', error, 'DataHandlers');
+      return null;
+    }
   },
 };
 

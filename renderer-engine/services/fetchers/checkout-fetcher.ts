@@ -11,6 +11,7 @@ import type {
 } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 import crypto from 'crypto';
+import { checkoutDataTransformer } from './checkout-data-transformer';
 
 interface UserStoreCurrency {
   storeCurrency?: string;
@@ -143,11 +144,25 @@ export class CheckoutFetcher {
    */
   public async updateCustomerInfo(request: UpdateCustomerInfoRequest): Promise<CheckoutResponse> {
     try {
-      const session = await this.getSessionByToken(request.token);
-      if (!session || session.status !== 'open') {
+      // Obtener la sesión raw directamente de la base de datos
+      const rawResponse = await cookiesClient.models.CheckoutSession.listCheckoutSessionByToken(
+        { token: request.token },
+        { limit: 1 }
+      );
+
+      if (!rawResponse.data || rawResponse.data.length === 0) {
         return {
           success: false,
-          error: 'Checkout session not found or not available',
+          error: 'Checkout session not found',
+        };
+      }
+
+      const rawSession = rawResponse.data[0];
+
+      if (rawSession.status !== 'open') {
+        return {
+          success: false,
+          error: 'Checkout session not available',
         };
       }
 
@@ -158,7 +173,7 @@ export class CheckoutFetcher {
       if (request.notes !== undefined) updateData.notes = request.notes;
 
       const response = await cookiesClient.models.CheckoutSession.update({
-        id: (session as any).id,
+        id: rawSession.id,
         ...updateData,
       });
 
@@ -187,16 +202,22 @@ export class CheckoutFetcher {
    */
   public async updateSessionStatus(token: string, status: CheckoutStatus): Promise<CheckoutResponse> {
     try {
-      const session = await this.getSessionByToken(token);
-      if (!session) {
+      // Obtener la sesión raw directamente para tener el ID
+      const rawResponse = await cookiesClient.models.CheckoutSession.listCheckoutSessionByToken(
+        { token },
+        { limit: 1 }
+      );
+
+      if (!rawResponse.data || rawResponse.data.length === 0) {
         return {
           success: false,
           error: 'Checkout session not found',
         };
       }
 
+      const rawSession = rawResponse.data[0];
       const response = await cookiesClient.models.CheckoutSession.update({
-        id: (session as any).id,
+        id: rawSession.id,
         status,
       });
 
@@ -264,22 +285,14 @@ export class CheckoutFetcher {
    * Transforma sesión de checkout para uso en contexto Liquid
    */
   public transformSessionToContext(session: CheckoutSession): CheckoutContext {
-    return {
-      token: session.token,
-      line_items: session.itemsSnapshot?.items || [],
-      item_count: session.itemsSnapshot?.itemCount || 0,
-      total_price: session.totalAmount,
-      subtotal_price: session.subtotal,
-      shipping_price: session.shippingCost,
-      tax_price: session.taxAmount,
-      currency: session.currency,
-      customer: session.customerInfo || {},
-      shipping_address: session.shippingAddress || {},
-      billing_address: session.billingAddress || {},
-      note: session.notes,
-      requires_shipping: true, // Por ahora siempre true
-      expires_at: session.expiresAt,
-    };
+    return checkoutDataTransformer.transformSessionToContext(session);
+  }
+
+  /**
+   * Valida una sesión de checkout
+   */
+  public validateSession(session: CheckoutSession): boolean {
+    return checkoutDataTransformer.validateCheckoutSession(session);
   }
 }
 
