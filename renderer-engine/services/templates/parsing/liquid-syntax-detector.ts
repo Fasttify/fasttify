@@ -186,6 +186,7 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   },
   blog: () => ({}),
   pagination: () => ({}),
+  checkout: () => ({}),
 };
 
 /**
@@ -261,6 +262,10 @@ const objectDetectors: Record<DataRequirement, ObjectDetector> = {
   pagination: {
     pattern: /\{\%\s*paginate/g,
     optionsExtractor: loadOptionsExtractors.pagination,
+  },
+  checkout: {
+    pattern: /\{\{\s*checkout\./g,
+    optionsExtractor: loadOptionsExtractors.checkout,
   },
 };
 
