@@ -116,4 +116,8 @@ export const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
       loadedData[dataType] = data;
     }
   },
+
+  checkout: (data, dataType, loadedData) => {
+    loadedData[dataType] = data;
+  },
 };

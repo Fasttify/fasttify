@@ -20,6 +20,7 @@ Esta documentación cubre desde la personalización de temas y plantillas, hasta
 
 - [Amplify Gen 2 Pagination Gotchas](./engine/amplify-gen2-pagination-gotchas.md) - Problemas conocidos de paginación
 - [Cart System](./engine/cart-system.md) - **Sistema completo de carrito** - Guía para implementar carrito lateral en temas
+- [Checkout System](./engine/checkout-system.md) - **Sistema completo de checkout** - Guía para implementar flujo de pago en temas
 - [Filters System](./engine/filters-system.md) - **Sistema de filtros de productos** - Guía completa para implementar filtros avanzados
 - [Filters & Tags](./engine/filters-tags.md) - Filtros y tags Liquid disponibles
 - [Liquid Data Access](./engine/liquid-data-access.md) - Acceso a datos en templates Liquid
@@ -92,6 +93,21 @@ Sistema de carrito lateral con funcionalidad completa para e-commerce:
 - ✅ **Sistema de templates** para generación de HTML
 - ✅ **Helpers reutilizables** para formateo y utilidades
 
+### Sistema de Checkout Completo
+
+Sistema de checkout tokenizado con pago manual para e-commerce:
+
+- ✅ **Checkout tokenizado** con URLs seguras `checkouts/cn/{token}`
+- ✅ **Sesiones temporales** con expiración automática (24 horas)
+- ✅ **Formularios profesionales** de información del cliente
+- ✅ **Integración automática** con el sistema de carrito
+- ✅ **Pago manual** con captura posterior por el dueño
+- ✅ **Redirección automática** al dominio de la tienda
+- ✅ **Estados de orden** con seguimiento completo
+- ✅ **Flujo responsive** optimizado para móviles
+- ✅ **Snapshot del carrito** preservado en la sesión
+- ✅ **Validación completa** de datos requeridos
+
 ### Sistema de Filtros Avanzado
 
 Sistema de filtros de productos con funcionalidad completa:
@@ -141,10 +157,11 @@ Sistema automatizado para:
 Si estás desarrollando un tema para Fasttify, comienza con:
 
 1. [Cart System](./engine/cart-system.md) - **Sistema completo de carrito** - Implementación de carrito lateral
-2. [Filters System](./engine/filters-system.md) - **Sistema de filtros de productos** - Implementación de filtros avanzados
-3. [Search System](./engine/search-system.md) - Sistema de búsqueda automática
-4. [Theme Development Guide](./engine/theme-development-guide.md) - Guía de desarrollo
-5. [Filters & Tags](./engine/filters-tags.md) - Filtros disponibles
+2. [Checkout System](./engine/checkout-system.md) - **Sistema completo de checkout** - Implementación de flujo de pago
+3. [Filters System](./engine/filters-system.md) - **Sistema de filtros de productos** - Implementación de filtros avanzados
+4. [Search System](./engine/search-system.md) - Sistema de búsqueda automática
+5. [Theme Development Guide](./engine/theme-development-guide.md) - Guía de desarrollo
+6. [Filters & Tags](./engine/filters-tags.md) - Filtros disponibles
 
 ### Para Desarrolladores del Core
 
@@ -172,6 +189,41 @@ Si estás trabajando en el motor de renderizado:
 <button onclick="addToCart('{{ product.id }}', 1)">
   Agregar al Carrito
 </button>
+```
+
+### Implementar Checkout en un Tema
+
+```liquid
+<!-- Template checkout.json -->
+{
+  "sections": {
+    "main": { "type": "sections/checkout" }
+  },
+  "order": ["main"]
+}
+
+<!-- En sections/checkout.liquid -->
+<div class="checkout-container">
+  {% if checkout %}
+    <div class="checkout-order-summary">
+      {% for item in checkout.line_items %}
+        <div class="checkout-item">
+          <img src="{{ item.image }}" alt="{{ item.title }}">
+          <h4>{{ item.title }}</h4>
+          <p>{{ item.line_price | money }}</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <form action="/api/stores/{{ checkout.storeId }}/checkout/complete?token={{ checkout.token }}" method="POST">
+      <input type="email" name="email" required>
+      <input type="text" name="firstName" required>
+      <button type="submit">Completar Pedido</button>
+    </form>
+  {% else %}
+    <p>Sesión de checkout no encontrada</p>
+  {% endif %}
+</div>
 ```
 
 ### Implementar Filtros en un Tema
@@ -254,4 +306,4 @@ Para preguntas sobre la documentación o el sistema:
 
 ---
 
-**Última actualización**: Sistema de filtros monolítico restaurado y optimizado, sistema de carrito modular, y documentación completa actualizada (Enero 2025)
+**Última actualización**: Sistema de checkout completado y documentado.
