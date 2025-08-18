@@ -9,6 +9,7 @@ import { webHookPlan } from '../functions/webHookPlan/resource';
 // Importacion de modelos
 import { cartModel } from './models/cart';
 import { cartItemModel } from './models/cart-item';
+import { checkoutSessionModel } from './models/checkout-session';
 import { collectionModel } from './models/collection';
 import { navigationMenuModel } from './models/navigation-menu';
 import { orderModel } from './models/order';
@@ -116,6 +117,7 @@ const schema = a
     Page: pageModel,
     Cart: cartModel,
     CartItem: cartItemModel,
+    CheckoutSession: checkoutSessionModel,
     Order: orderModel,
     OrderItem: orderItemModel,
     StorePaymentConfig: storePaymentConfigModel,

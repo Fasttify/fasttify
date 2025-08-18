@@ -68,3 +68,16 @@ export type {
   CartResponse,
   UpdateCartRequest,
 } from '@/renderer-engine/types/cart';
+
+// Checkout types
+export type {
+  Address,
+  CartSnapshot,
+  CheckoutContext,
+  CheckoutResponse,
+  CheckoutSession,
+  CheckoutStatus,
+  CustomerInfo,
+  StartCheckoutRequest,
+  UpdateCustomerInfoRequest,
+} from '@/renderer-engine/types/checkout';

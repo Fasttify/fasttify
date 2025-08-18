@@ -1,0 +1,13 @@
+{
+  "sections": {
+    "checkout_start": {
+      "type": "sections/checkout-start",
+      "settings": {
+        "title": "Proceder al Checkout"
+      }
+    }
+  },
+  "order": [
+    "checkout_start"
+  ]
+}

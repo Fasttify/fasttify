@@ -1,0 +1,604 @@
+{% comment %}
+  Sección principal del checkout
+  Muestra el formulario de información del cliente y resumen del pedido
+{% endcomment %}
+
+<section class="checkout-section" data-section-id="{{ section.id }}">
+  <div class="container">
+    {% if checkout %}
+      <div class="checkout-content">
+        <div class="checkout-header">
+          <h1 class="checkout-title">Finalizar Compra</h1>
+          <p class="checkout-subtitle">Completa tu información para procesar tu pedido</p>
+        </div>
+
+        <div class="checkout-layout">
+          <!-- Formulario de información del cliente -->
+          <div class="checkout-form-section">
+            <form action="/api/stores/{{ checkout.storeId }}/checkout/complete?token={{ checkout.token }}" method="post" class="checkout-form" id="checkout-form">
+              <input type="hidden" name="checkout_token" value="{{ checkout.token }}">
+
+              <!-- Información de contacto -->
+              <div class="form-section">
+                <h2 class="form-section-title">Información de Contacto</h2>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="customer_email" class="form-label">Email *</label>
+                    <input
+                      type="email"
+                      id="customer_email"
+                      name="customer[email]"
+                      class="form-input"
+                      value="{{ checkout.customer.email | default: '' }}"
+                      required
+                      placeholder="tu@email.com"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group half">
+                    <label for="customer_first_name" class="form-label">Nombre *</label>
+                    <input
+                      type="text"
+                      id="customer_first_name"
+                      name="customer[firstName]"
+                      class="form-input"
+                      value="{{ checkout.customer.firstName | default: '' }}"
+                      required
+                      placeholder="Tu nombre"
+                    >
+                  </div>
+                  <div class="form-group half">
+                    <label for="customer_last_name" class="form-label">Apellido *</label>
+                    <input
+                      type="text"
+                      id="customer_last_name"
+                      name="customer[lastName]"
+                      class="form-input"
+                      value="{{ checkout.customer.lastName | default: '' }}"
+                      required
+                      placeholder="Tu apellido"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="customer_phone" class="form-label">Teléfono</label>
+                    <input
+                      type="tel"
+                      id="customer_phone"
+                      name="customer[phone]"
+                      class="form-input"
+                      value="{{ checkout.customer.phone | default: '' }}"
+                      placeholder="+57 300 123 4567"
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dirección de envío -->
+              <div class="form-section">
+                <h2 class="form-section-title">Dirección de Envío</h2>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="shipping_address1" class="form-label">Dirección *</label>
+                    <input
+                      type="text"
+                      id="shipping_address1"
+                      name="shipping_address[address1]"
+                      class="form-input"
+                      value="{{ checkout.shipping_address.address1 | default: '' }}"
+                      required
+                      placeholder="Calle 123 #45-67"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="shipping_address2" class="form-label">Apartamento, suite, etc.</label>
+                    <input
+                      type="text"
+                      id="shipping_address2"
+                      name="shipping_address[address2]"
+                      class="form-input"
+                      value="{{ checkout.shipping_address.address2 | default: '' }}"
+                      placeholder="Apt 101, Torre A"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group half">
+                    <label for="shipping_city" class="form-label">Ciudad *</label>
+                    <input
+                      type="text"
+                      id="shipping_city"
+                      name="shipping_address[city]"
+                      class="form-input"
+                      value="{{ checkout.shipping_address.city | default: '' }}"
+                      required
+                      placeholder="Bogotá"
+                    >
+                  </div>
+                  <div class="form-group half">
+                    <label for="shipping_state" class="form-label">Departamento *</label>
+                    <input
+                      type="text"
+                      id="shipping_state"
+                      name="shipping_address[state]"
+                      class="form-input"
+                      value="{{ checkout.shipping_address.state | default: '' }}"
+                      required
+                      placeholder="Cundinamarca"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group half">
+                    <label for="shipping_zip" class="form-label">Código Postal</label>
+                    <input
+                      type="text"
+                      id="shipping_zip"
+                      name="shipping_address[zip]"
+                      class="form-input"
+                      value="{{ checkout.shipping_address.zip | default: '' }}"
+                      placeholder="110111"
+                    >
+                  </div>
+                  <div class="form-group half">
+                    <label for="shipping_country" class="form-label">País</label>
+                    <select id="shipping_country" name="shipping_address[country]" class="form-input">
+                      <option value="CO" {% if checkout.shipping_address.country == 'CO' %}selected{% endif %}>Colombia</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notas adicionales -->
+              <div class="form-section">
+                <h2 class="form-section-title">Notas del Pedido</h2>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="order_notes" class="form-label">Instrucciones especiales (opcional)</label>
+                    <textarea
+                      id="order_notes"
+                      name="notes"
+                      class="form-textarea"
+                      rows="3"
+                      placeholder="Instrucciones de entrega, comentarios especiales, etc."
+                    >{{ checkout.note | default: '' }}</textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botón de envío -->
+              <div class="form-section">
+                <button type="submit" class="btn btn-primary btn-checkout" id="submit-checkout">
+                  <span class="btn-text">Completar Pedido</span>
+                  <span class="btn-loading" style="display: none;">Procesando...</span>
+                </button>
+
+                <p class="checkout-disclaimer">
+                  Al completar el pedido, el dueño de la tienda recibirá los detalles y se pondrá en contacto contigo para coordinar el pago y la entrega.
+                </p>
+              </div>
+            </form>
+          </div>
+
+          <!-- Resumen del pedido -->
+          <div class="checkout-summary-section">
+            <div class="checkout-summary sticky">
+              <h2 class="summary-title">Resumen del Pedido</h2>
+
+              <div class="summary-items">
+                {% for item in checkout.line_items %}
+                  <div class="summary-item">
+                    <div class="item-image">
+                      {% if item.image %}
+                        <img src="{{ item.image | image_url: '80x80' }}" alt="{{ item.title }}" loading="lazy">
+                      {% endif %}
+                    </div>
+
+                    <div class="item-details">
+                      <h3 class="item-title">{{ item.title }}</h3>
+                      {% if item.variant_title and item.variant_title != 'Default Title' %}
+                        <p class="item-variant">{{ item.variant_title }}</p>
+                      {% endif %}
+                      <p class="item-quantity">Cantidad: {{ item.quantity }}</p>
+                    </div>
+
+                    <div class="item-price">
+                      {{ item.line_price | money }}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+
+              <div class="summary-totals">
+                <div class="total-line">
+                  <span>Subtotal</span>
+                  <span>{{ checkout.subtotal_price | money }}</span>
+                </div>
+
+                {% if checkout.shipping_price > 0 %}
+                  <div class="total-line">
+                    <span>Envío</span>
+                    <span>{{ checkout.shipping_price | money }}</span>
+                  </div>
+                {% endif %}
+
+                {% if checkout.tax_price > 0 %}
+                  <div class="total-line">
+                    <span>Impuestos</span>
+                    <span>{{ checkout.tax_price | money }}</span>
+                  </div>
+                {% endif %}
+
+                <div class="total-line total-final">
+                  <strong>
+                    <span>Total</span>
+                    <span>{{ checkout.total_price | money }}</span>
+                  </strong>
+                </div>
+              </div>
+
+              <div class="checkout-security">
+                <p class="security-text">
+                  🔒 Información segura y protegida
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="checkout-error">
+        <h1>Sesión de Checkout No Encontrada</h1>
+        <p>La sesión de checkout ha expirado o no es válida.</p>
+        <a href="{{ routes.cart_url }}" class="btn btn-primary">Volver al Carrito</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% style %}
+.checkout-section {
+  padding: 2rem 0;
+  background: #f9f9f9;
+  min-height: 80vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.checkout-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.checkout-title {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.checkout-subtitle {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.checkout-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .checkout-layout {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.checkout-form-section {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}
+
+.form-section-title {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #eee;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.form-group.half {
+  flex: 0.5;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #007cba;
+  box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  text-align: center;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #007cba;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #005a87;
+}
+
+.btn-checkout {
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 1rem 1.5rem;
+  position: relative;
+}
+
+.btn-checkout:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.checkout-disclaimer {
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  margin-top: 1rem;
+  line-height: 1.4;
+}
+
+/* Resumen del pedido */
+.checkout-summary-section {
+  position: relative;
+}
+
+.checkout-summary {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sticky {
+  position: sticky;
+  top: 2rem;
+}
+
+.summary-title {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #eee;
+}
+
+.summary-items {
+  margin-bottom: 1.5rem;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.item-image {
+  width: 60px;
+  height: 60px;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #333;
+}
+
+.item-variant,
+.item-quantity {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.item-price {
+  font-weight: 600;
+  color: #333;
+}
+
+.summary-totals {
+  border-top: 2px solid #eee;
+  padding-top: 1rem;
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.total-final {
+  font-size: 1.1rem;
+  border-top: 1px solid #eee;
+  padding-top: 0.5rem;
+  margin-top: 1rem;
+}
+
+.checkout-security {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.security-text {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.checkout-error {
+  background: white;
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-error h1 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.checkout-error p {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-group.half {
+    flex: 1;
+  }
+
+  .checkout-title {
+    font-size: 2rem;
+  }
+
+  .checkout-form-section,
+  .checkout-summary {
+    padding: 1.5rem;
+  }
+}
+{% endstyle %}
+
+{% javascript %}
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('checkout-form');
+  const submitBtn = document.getElementById('submit-checkout');
+  const btnText = submitBtn.querySelector('.btn-text');
+  const btnLoading = submitBtn.querySelector('.btn-loading');
+
+  if (form && submitBtn) {
+    form.addEventListener('submit', function() {
+      submitBtn.disabled = true;
+      btnText.style.display = 'none';
+      btnLoading.style.display = 'inline';
+    });
+  }
+});
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Checkout",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Finalizar Compra"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtítulo",
+      "default": "Completa tu información para procesar tu pedido"
+    }
+  ]
+}
+{% endschema %}

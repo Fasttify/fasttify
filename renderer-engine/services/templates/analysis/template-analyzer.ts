@@ -21,7 +21,8 @@ export type DataRequirement =
   | 'related_products' // Productos relacionados
   | 'specific_page' // pages['handle'] o pages.handle
   | 'pages' // {{ pages }} - todas las páginas
-  | 'policies'; // {{ policies }} - todas las páginas de políticas
+  | 'policies' // {{ policies }} - todas las páginas de políticas
+  | 'checkout'; // {{ checkout }} - sesión de checkout
 
 /**
  * Opciones de carga para cada tipo de dato

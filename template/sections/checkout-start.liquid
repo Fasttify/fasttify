@@ -1,0 +1,371 @@
+{% comment %}
+  Sección para iniciar el proceso de checkout
+  Esta sección se usa cuando el usuario presiona "Proceder al checkout"
+{% endcomment %}
+
+<section class="checkout-start-section" data-section-id="{{ section.id }}">
+  <div class="container">
+        <div class="checkout-start-content">
+      <h1 class="checkout-start-title">Proceder al Checkout</h1>
+
+      <div class="checkout-summary">
+        <h2>Resumen del Pedido</h2>
+
+        <!-- Loading state -->
+        <div class="checkout-loading" id="checkout-loading">
+          <div class="loading-spinner"></div>
+          <p>Cargando carrito...</p>
+        </div>
+
+        <!-- Cart items container - populated by JavaScript -->
+        <div class="checkout-items-container" id="checkout-items-container" style="display: none;">
+          <div class="checkout-items" id="checkout-items">
+            <!-- Items will be loaded by JavaScript -->
+          </div>
+
+          <div class="checkout-totals" id="checkout-totals">
+            <!-- Totals will be loaded by JavaScript -->
+          </div>
+
+          <div class="checkout-actions">
+            <button type="button" class="btn btn-primary btn-checkout" onclick="startCheckout()">
+              Iniciar Checkout
+            </button>
+
+            <a href="/cart" class="btn btn-secondary">
+              Volver al Carrito
+            </a>
+          </div>
+        </div>
+
+        <!-- Empty cart message -->
+        <div class="empty-cart-message" id="empty-cart-message" style="display: none;">
+          <h2>Tu carrito está vacío</h2>
+          <p>Agrega productos antes de proceder al checkout.</p>
+          <a href="/" class="btn btn-primary">
+            Seguir Comprando
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% style %}
+.checkout-start-section {
+  padding: 2rem 0;
+  background: #f9f9f9;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.checkout-start-content {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-start-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #333;
+}
+
+.checkout-summary h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.checkout-items {
+  margin-bottom: 2rem;
+}
+
+.checkout-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.checkout-item:last-child {
+  border-bottom: none;
+}
+
+.checkout-item-image {
+  width: 80px;
+  height: 80px;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.checkout-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.checkout-item-details {
+  flex: 1;
+}
+
+.checkout-item-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.checkout-item-variant {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.checkout-item-quantity {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.checkout-item-price {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.checkout-totals {
+  border-top: 2px solid #eee;
+  padding-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.checkout-total-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.checkout-total-final {
+  font-size: 1.2rem;
+  border-top: 1px solid #eee;
+  padding-top: 0.5rem;
+  margin-top: 1rem;
+}
+
+.checkout-actions {
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+}
+
+.checkout-form {
+  width: 100%;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  text-align: center;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-primary {
+  background-color: #007cba;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #005a87;
+}
+
+.btn-secondary {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+  background-color: #eee;
+}
+
+.btn-checkout {
+  font-size: 1.1rem;
+  padding: 1rem 1.5rem;
+}
+
+.empty-cart-message {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.empty-cart-message h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.empty-cart-message p {
+  margin-bottom: 2rem;
+  color: #888;
+}
+
+.checkout-loading {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007cba;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (min-width: 768px) {
+  .checkout-actions {
+    flex-direction: row;
+  }
+
+  .btn {
+    width: auto;
+  }
+}
+{% endstyle %}
+
+{% javascript %}
+document.addEventListener('DOMContentLoaded', function() {
+  loadCheckoutCart();
+});
+
+async function loadCheckoutCart() {
+  const loadingEl = document.getElementById('checkout-loading');
+  const containerEl = document.getElementById('checkout-items-container');
+  const emptyEl = document.getElementById('empty-cart-message');
+
+  try {
+    // Usar la API del carrito existente
+    const data = await window.cartAPI.getCart();
+
+    if (data.success && data.cart && data.cart.item_count > 0) {
+      displayCartItems(data.cart);
+      loadingEl.style.display = 'none';
+      containerEl.style.display = 'block';
+    } else {
+      loadingEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Error loading cart for checkout:', error);
+    loadingEl.style.display = 'none';
+    emptyEl.style.display = 'block';
+  }
+}
+
+function displayCartItems(cart) {
+  const itemsContainer = document.getElementById('checkout-items');
+  const totalsContainer = document.getElementById('checkout-totals');
+
+  // Generar HTML de items
+  const itemsHTML = cart.items.map(item => `
+    <div class="checkout-item">
+      <div class="checkout-item-image">
+        ${item.image ? `<img src="${item.image}" alt="${item.title}" loading="lazy">` : '<div class="checkout-item-image-placeholder"></div>'}
+      </div>
+
+      <div class="checkout-item-details">
+        <h3 class="checkout-item-title">${item.title}</h3>
+        ${item.variant_title && item.variant_title !== 'Default Title' ? `<p class="checkout-item-variant">${item.variant_title}</p>` : ''}
+        <p class="checkout-item-quantity">Cantidad: ${item.quantity}</p>
+        <p class="checkout-item-price">${window.formatMoney ? window.formatMoney(item.line_price) : item.line_price}</p>
+      </div>
+    </div>
+  `).join('');
+
+  // Generar HTML de totales
+  const totalsHTML = `
+    <div class="checkout-total-line">
+      <span>Subtotal:</span>
+      <span>${window.formatMoney ? window.formatMoney(cart.total_price) : cart.total_price}</span>
+    </div>
+    <div class="checkout-total-line checkout-total-final">
+      <strong>
+        <span>Total:</span>
+        <span>${window.formatMoney ? window.formatMoney(cart.total_price) : cart.total_price}</span>
+      </strong>
+    </div>
+  `;
+
+  itemsContainer.innerHTML = itemsHTML;
+  totalsContainer.innerHTML = totalsHTML;
+}
+
+function startCheckout() {
+  // Obtener sessionId de las cookies
+  const sessionId = getCookie('fasttify_cart_session_id');
+
+  if (!sessionId) {
+    alert('No se encontró una sesión de carrito activa. Por favor, agrega productos al carrito primero.');
+    return;
+  }
+
+  // Crear formulario dinámico para enviar el POST
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = `/api/stores/${window.STORE_ID}/checkout/start`;
+
+  const sessionInput = document.createElement('input');
+  sessionInput.type = 'hidden';
+  sessionInput.name = 'session_id';
+  sessionInput.value = sessionId;
+
+  form.appendChild(sessionInput);
+  document.body.appendChild(form);
+  form.submit();
+}
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Checkout Start",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Proceder al Checkout"
+    }
+  ]
+}
+{% endschema %}

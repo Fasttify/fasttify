@@ -2,7 +2,7 @@ import { defineBackend } from '@aws-amplify/backend';
 import { CfnOutput, Stack } from 'aws-cdk-lib';
 import { AuthorizationType, Cors, LambdaIntegration, MethodLoggingLevel, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import * as kms from 'aws-cdk-lib/aws-kms';
+//import * as kms from 'aws-cdk-lib/aws-kms';
 import { postConfirmation } from './auth/post-confirmation/resource';
 import { auth } from './auth/resource';
 import {
@@ -135,7 +135,7 @@ backend.generatePriceSuggestionFunction.resources.lambda.addToRolePolicy(
 );
 
 // Define la clave KMS para la encriptación de las claves de pago
-const paymentKeysKmsKey = new kms.Key(backend.stack, 'PaymentKeysKmsKey', {
+/*const paymentKeysKmsKey = new kms.Key(backend.stack, 'PaymentKeysKmsKey', {
   description: 'KMS key for encrypting payment gateway keys',
   enableKeyRotation: true, // Habilitar la rotación de claves para mayor seguridad
   alias: `alias/FasttifyPaymentKeys-${stageName}`, // Alias amigable para referenciar la clave
@@ -154,7 +154,7 @@ backend.managePaymentKeys.resources.lambda.addToRolePolicy(
 new CfnOutput(backend.stack, 'PaymentKeysKmsKeyArn', {
   value: paymentKeysKmsKey.keyArn,
   description: 'ARN of the KMS key for encrypting payment gateway keys',
-});
+});*/
 
 backend.postConfirmation.resources.lambda.addToRolePolicy(
   new PolicyStatement({
