@@ -280,6 +280,7 @@ export const useUserStoreData = () => {
       | 'storePaymentConfig'
       | 'storeCustomDomain'
       | 'userThemes'
+      | 'checkoutSessions'
     >
   ) => {
     try {

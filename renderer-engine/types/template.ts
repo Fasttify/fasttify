@@ -31,6 +31,7 @@ export interface RenderContext {
   product?: ProductContext;
   collection?: CollectionContext;
   cart?: any;
+  checkout?: any;
   pagination?: PaginationContext;
   preloaded_sections?: Record<string, string>;
   _assetCollector?: AssetCollector;
@@ -241,7 +242,9 @@ export type PageType =
   | 'search'
   | 'cart'
   | '404'
-  | 'policies';
+  | 'policies'
+  | 'checkout_start'
+  | 'checkout';
 
 export interface PageRenderOptions {
   pageType: PageType;
@@ -250,6 +253,7 @@ export interface PageRenderOptions {
   collectionId?: string;
   collectionHandle?: string;
   searchTerm?: string;
+  checkoutToken?: string;
 }
 
 export interface PaginationInfo {

@@ -86,6 +86,19 @@ export const routeMatchers: RouteMatcher[] = [
     handler: () => ({ pageType: '404' }),
   },
 
+  // ===== CHECKOUT =====
+  {
+    pattern: /^\/checkouts\/start$/,
+    handler: () => ({ pageType: 'checkout_start' }),
+  },
+  {
+    pattern: /^\/checkouts\/cn\/([a-zA-Z0-9_-]+)$/,
+    handler: (match) => ({
+      pageType: 'checkout',
+      checkoutToken: match[1],
+    }),
+  },
+
   // ===== CASOS DE COMPATIBILIDAD =====
   {
     pattern: /^\/collections$/,

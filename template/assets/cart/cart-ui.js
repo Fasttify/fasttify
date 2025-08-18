@@ -72,6 +72,7 @@ class CartUI {
     // Setup controls after rendering
     this.setupQuantityControls();
     this.setupRemoveButtons();
+    this.setupCheckoutButtons();
   }
 
   showCartFooter() {
@@ -161,6 +162,39 @@ class CartUI {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         window.sideCart.clearCart();
+      });
+    });
+  }
+
+  setupCheckoutButtons() {
+    // Checkout directo
+    this.sidebar.querySelectorAll('[data-checkout-direct]').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        try {
+          // Cambiar texto del botón a estado de carga
+          const originalText = button.innerHTML;
+          button.innerHTML = 'Procesando...';
+          button.disabled = true;
+
+          // Obtener store ID
+          const storeId = window.STORE_ID;
+          if (!storeId) {
+            throw new Error('Store ID no disponible');
+          }
+
+          // Redireccionar a la API de checkout directo
+          window.location.href = `/api/stores/${storeId}/checkout/direct`;
+
+        } catch (error) {
+          console.error('Error en checkout directo:', error);
+          CartHelpers.showError(`Error al iniciar checkout: ${error.message}`);
+
+          // Restaurar botón
+          button.innerHTML = originalText;
+          button.disabled = false;
+        }
       });
     });
   }

@@ -21,7 +21,8 @@ export type DataRequirement =
   | 'related_products' // Productos relacionados
   | 'specific_page' // pages['handle'] o pages.handle
   | 'pages' // {{ pages }} - todas las páginas
-  | 'policies'; // {{ policies }} - todas las páginas de políticas
+  | 'policies' // {{ policies }} - todas las páginas de políticas
+  | 'checkout'; // {{ checkout }} - sesión de checkout
 
 /**
  * Opciones de carga para cada tipo de dato
@@ -162,6 +163,11 @@ export class TemplateAnalyzer {
       // Página estática necesita datos de la página específica
       if (!analysis.requiredData.has('page')) {
         analysis.requiredData.set('page', {});
+      }
+    } else if (templatePath.includes('checkout')) {
+      // Página de checkout necesita datos de la sesión de checkout
+      if (!analysis.requiredData.has('checkout')) {
+        analysis.requiredData.set('checkout', {});
       }
     }
 

@@ -1,0 +1,742 @@
+# Sistema de Checkout para Desarrolladores de Temas
+
+## Resumen
+
+El sistema de checkout de Fasttify proporciona un flujo completo de pago manual que permite a los usuarios generar órdenes desde su carrito. El sistema incluye sesiones tokenizadas para mayor seguridad, formularios de información del cliente y un proceso de confirmación profesional.
+
+## Características Principales
+
+- ✅ **Checkout tokenizado** con URLs seguras tipo `checkouts/cn/{token}`
+- ✅ **Sesiones temporales** con expiración automática
+- ✅ **Formularios de información** del cliente y dirección de envío
+- ✅ **Integración automática** con el sistema de carrito
+- ✅ **Pago manual** con captura posterior por el dueño de la tienda
+- ✅ **Flujo responsive** optimizado para móviles
+- ✅ **Redirección automática** al dominio de la tienda
+- ✅ **Estados de orden** con seguimiento completo
+
+## Arquitectura del Sistema
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Carrito       │    │  Checkout API   │    │  Sesión Token   │
+│                 │───▶│                 │───▶│                 │
+│ (side-cart.js)  │    │ (start/complete)│    │ (Base de Datos) │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       ▼                       ▼
+         │              ┌─────────────────┐    ┌─────────────────┐
+         │              │  Liquid Templates│    │  Order Creation │
+         │              │                 │    │                 │
+         │              │ (checkout.liquid)│    │ (Manual Payment)│
+         └──────────────└─────────────────┘    └─────────────────┘
+```
+
+## Flujo de Checkout
+
+### 1. Inicio desde el Carrito
+
+El usuario hace clic en "Finalizar Compra" desde el carrito lateral:
+
+```javascript
+// En cart-ui.js
+setupCheckoutButtons() {
+  const checkoutButton = this.sidebar.querySelector('[data-checkout-direct]');
+  if (checkoutButton) {
+    checkoutButton.addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      try {
+        const response = await fetch(`/api/stores/${window.STORE_ID}/checkout/direct`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sessionId: this.getSessionId(),
+          }),
+        });
+
+        if (response.ok) {
+          window.location.href = response.url;
+        }
+      } catch (error) {
+        console.error('Error starting checkout:', error);
+      }
+    });
+  }
+}
+```
+
+### 2. Generación de Token
+
+El sistema crea una sesión de checkout con un token único:
+
+- **Formato del token**: `fs_{base64url}` (Fast Session)
+- **Duración**: 24 horas de expiración
+- **Contenido**: Snapshot del carrito, información de la tienda
+
+### 3. Página de Checkout
+
+El usuario es redirigido a `/checkouts/cn/{token}` donde llena sus datos:
+
+```liquid
+<!-- template/sections/checkout.liquid -->
+<div class="checkout-container">
+  {% if checkout %}
+    <div class="checkout-content">
+      <!-- Información del pedido -->
+      <div class="checkout-order-summary">
+        <h2>Resumen del Pedido</h2>
+        {% for item in checkout.line_items %}
+          <div class="checkout-item">
+            <img src="{{ item.image | default: '/assets/placeholder.png' }}" alt="{{ item.title }}">
+            <div class="item-details">
+              <h4>{{ item.title }}</h4>
+              <p>Cantidad: {{ item.quantity }}</p>
+              <p>{{ item.line_price | money }}</p>
+            </div>
+          </div>
+        {% endfor %}
+
+        <div class="checkout-totals">
+          <div class="total-line">
+            <span>Subtotal:</span>
+            <span>{{ checkout.subtotal_price | money }}</span>
+          </div>
+          <div class="total-line total-final">
+            <span>Total:</span>
+            <span>{{ checkout.total_price | money }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario de información -->
+      <div class="checkout-form-section">
+        <form action="/api/stores/{{ checkout.storeId }}/checkout/complete?token={{ checkout.token }}" method="POST">
+          <div class="form-section">
+            <h3>Información de Contacto</h3>
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">Nombre *</label>
+                <input type="text" id="firstName" name="firstName" required>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Apellido *</label>
+                <input type="text" id="lastName" name="lastName" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="phone">Teléfono</label>
+              <input type="tel" id="phone" name="phone">
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Dirección de Envío</h3>
+            <div class="form-group">
+              <label for="address1">Dirección *</label>
+              <input type="text" id="address1" name="address1" required>
+            </div>
+            <div class="form-group">
+              <label for="address2">Apartamento, suite, etc. (opcional)</label>
+              <input type="text" id="address2" name="address2">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="city">Ciudad *</label>
+                <input type="text" id="city" name="city" required>
+              </div>
+              <div class="form-group">
+                <label for="province">Estado/Provincia *</label>
+                <input type="text" id="province" name="province" required>
+              </div>
+              <div class="form-group">
+                <label for="zip">Código Postal *</label>
+                <input type="text" id="zip" name="zip" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="country">País</label>
+              <select id="country" name="country" required>
+                <option value="CO">Colombia</option>
+                <option value="US">Estados Unidos</option>
+                <option value="MX">México</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Notas del Pedido (Opcional)</h3>
+            <div class="form-group">
+              <label for="notes">Instrucciones especiales</label>
+              <textarea id="notes" name="notes" rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="checkout-actions">
+            <button type="submit" class="btn-primary checkout-submit">
+              <span class="btn-text">Completar Pedido</span>
+              <span class="btn-loading" style="display: none;">Procesando...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% else %}
+    <div class="checkout-error">
+      <h2>Sesión de Checkout No Encontrada</h2>
+      <p>La sesión de checkout ha expirado o no es válida.</p>
+      <a href="/cart" class="btn-secondary">Volver al Carrito</a>
+    </div>
+  {% endif %}
+</div>
+```
+
+### 4. Procesamiento y Confirmación
+
+Después de completar el formulario, el sistema procesa la información y crea la orden.
+
+## Implementación en Temas
+
+### 1. Templates Requeridos
+
+#### `template/templates/checkout.json`
+
+```json
+{
+  "name": "Checkout",
+  "sections": {
+    "main": {
+      "type": "sections/checkout"
+    }
+  },
+  "order": ["main"]
+}
+```
+
+#### `template/sections/checkout.liquid`
+
+El template principal del checkout (ver ejemplo completo arriba).
+
+### 2. Integración con el Carrito
+
+#### Modificar `template/assets/cart/cart-templates.js`
+
+```javascript
+// Generar botón de checkout en el footer del carrito
+generateCartFooterHtml(cart) {
+  return `
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span class="total-label">Total:</span>
+        <span class="total-amount">${CartHelpers.formatMoney(cart.total_price)}</span>
+      </div>
+      <div class="cart-actions">
+        <button
+          type="button"
+          class="btn-primary cart-checkout-btn"
+          data-checkout-direct
+          ${cart.item_count === 0 ? 'disabled' : ''}
+        >
+          Finalizar Compra
+        </button>
+        <button type="button" class="btn-secondary cart-clear-btn" data-clear-cart>
+          Limpiar Carrito
+        </button>
+      </div>
+    </div>
+  `;
+}
+```
+
+#### Actualizar `template/assets/cart/cart-ui.js`
+
+```javascript
+// Configurar botones de checkout
+setupCheckoutButtons() {
+  const checkoutButton = this.sidebar.querySelector('[data-checkout-direct]');
+  if (checkoutButton) {
+    checkoutButton.addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      if (checkoutButton.disabled) return;
+
+      // Mostrar estado de carga
+      const btnText = checkoutButton.querySelector('.btn-text') || checkoutButton;
+      const btnLoading = checkoutButton.querySelector('.btn-loading');
+
+      if (btnText) btnText.style.display = 'none';
+      if (btnLoading) btnLoading.style.display = 'inline';
+      checkoutButton.disabled = true;
+
+      try {
+        const sessionId = CartHelpers.getSessionId();
+        const response = await fetch(`/api/stores/${window.STORE_ID}/checkout/direct`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ sessionId }),
+        });
+
+        if (response.redirected) {
+          window.location.href = response.url;
+        } else if (response.ok) {
+          const result = await response.json();
+          if (result.redirectUrl) {
+            window.location.href = result.redirectUrl;
+          }
+        } else {
+          throw new Error('Error iniciando checkout');
+        }
+      } catch (error) {
+        console.error('Error starting checkout:', error);
+        CartHelpers.showError('Error al iniciar el checkout. Inténtalo de nuevo.');
+
+        // Restaurar estado del botón
+        if (btnText) btnText.style.display = 'inline';
+        if (btnLoading) btnLoading.style.display = 'none';
+        checkoutButton.disabled = false;
+      }
+    });
+  }
+}
+```
+
+### 3. Estilos CSS
+
+#### `template/assets/checkout.css`
+
+```css
+/* Contenedor principal del checkout */
+.checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 3rem;
+}
+
+.checkout-content {
+  display: contents;
+}
+
+/* Resumen del pedido */
+.checkout-order-summary {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+  height: fit-content;
+  position: sticky;
+  top: 2rem;
+}
+
+.checkout-order-summary h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.checkout-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.checkout-item:last-child {
+  border-bottom: none;
+}
+
+.checkout-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.item-details h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.item-details p {
+  margin: 0.25rem 0;
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.checkout-totals {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.total-final {
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Formulario */
+.checkout-form-section {
+  max-width: 600px;
+}
+
+.form-section {
+  margin-bottom: 2.5rem;
+}
+
+.form-section h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Botones */
+.checkout-actions {
+  margin-top: 2rem;
+}
+
+.checkout-submit {
+  width: 100%;
+  padding: 1rem 2rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+  position: relative;
+}
+
+.checkout-submit:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.checkout-submit:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn-loading {
+  display: none;
+}
+
+/* Estados de error */
+.checkout-error {
+  text-align: center;
+  padding: 3rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.checkout-error h2 {
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+.checkout-error p {
+  color: #6c757d;
+  margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .checkout-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 1rem;
+  }
+
+  .checkout-order-summary {
+    position: static;
+    order: -1;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+```
+
+### 4. JavaScript del Checkout
+
+#### `template/sections/checkout.liquid` (JavaScript integrado)
+
+```liquid
+{% javascript %}
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('.checkout-form-section form');
+  const submitBtn = document.querySelector('.checkout-submit');
+
+  if (form && submitBtn) {
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+
+    form.addEventListener('submit', function(e) {
+      // Mostrar estado de carga
+      if (btnText) btnText.style.display = 'none';
+      if (btnLoading) btnLoading.style.display = 'inline';
+      submitBtn.disabled = true;
+    });
+  }
+});
+{% endjavascript %}
+```
+
+## Configuración del Routing
+
+### Router Configuration
+
+El sistema automáticamente maneja las rutas:
+
+- `/checkouts/cn/{token}` - Página de checkout
+- `/api/stores/{storeId}/checkout/direct` - Inicio de checkout directo
+- `/api/stores/{storeId}/checkout/complete` - Completar checkout
+
+### Middleware Configuration
+
+El middleware está configurado para:
+
+1. **No reescribir** URLs de checkout para evitar conflictos
+2. **Resolver** el dominio de la tienda correctamente
+3. **Manejar** redirecciones a dominios personalizados
+
+## Datos Disponibles en Liquid
+
+### Objeto `checkout`
+
+Cuando estás en una página de checkout (`/checkouts/cn/{token}`), tienes acceso al objeto `checkout`:
+
+```liquid
+{{ checkout.token }}          <!-- Token de la sesión -->
+{{ checkout.storeId }}        <!-- ID de la tienda -->
+{{ checkout.line_items }}     <!-- Array de productos -->
+{{ checkout.item_count }}     <!-- Cantidad total de items -->
+{{ checkout.total_price }}    <!-- Precio total -->
+{{ checkout.subtotal_price }} <!-- Subtotal -->
+{{ checkout.currency }}       <!-- Moneda (ej: COP) -->
+{{ checkout.expires_at }}     <!-- Fecha de expiración -->
+{{ checkout.status }}         <!-- Estado de la sesión -->
+```
+
+### Estructura de `line_items`
+
+```liquid
+{% for item in checkout.line_items %}
+  {{ item.id }}           <!-- ID del item -->
+  {{ item.title }}        <!-- Nombre del producto -->
+  {{ item.quantity }}     <!-- Cantidad -->
+  {{ item.price }}        <!-- Precio unitario -->
+  {{ item.line_price }}   <!-- Precio total del item -->
+  {{ item.image }}        <!-- URL de la imagen -->
+  {{ item.url }}          <!-- URL del producto -->
+  {{ item.product_id }}   <!-- ID del producto -->
+{% endfor %}
+```
+
+## Estados del Checkout
+
+### Estados de Sesión
+
+- `open` - Sesión activa, puede ser editada
+- `completed` - Checkout completado, orden creada
+- `expired` - Sesión expirada
+- `cancelled` - Sesión cancelada
+
+### Validaciones
+
+El sistema valida automáticamente:
+
+- ✅ **Existencia de sesión** - Token válido
+- ✅ **Estado abierto** - Solo sesiones `open` pueden editarse
+- ✅ **Expiración** - Sesiones tienen 24 horas de vida
+- ✅ **Campos requeridos** - Email, nombre, dirección
+
+## Mejores Prácticas
+
+### 1. **Manejo de Errores**
+
+```liquid
+{% if checkout %}
+  <!-- Mostrar checkout normal -->
+{% else %}
+  <div class="checkout-error">
+    <h2>Sesión No Encontrada</h2>
+    <p>Tu sesión de checkout ha expirado.</p>
+    <a href="/cart">Volver al Carrito</a>
+  </div>
+{% endif %}
+```
+
+### 2. **Validación de Formularios**
+
+```javascript
+// Validación en tiempo real
+document.querySelectorAll('input[required]').forEach((input) => {
+  input.addEventListener('blur', function () {
+    if (!this.value.trim()) {
+      this.style.borderColor = '#dc3545';
+    } else {
+      this.style.borderColor = '#ced4da';
+    }
+  });
+});
+```
+
+### 3. **Estados de Carga**
+
+```css
+/* Mostrar indicadores de carga durante el proceso */
+.checkout-submit:disabled {
+  position: relative;
+  color: transparent;
+}
+
+.checkout-submit:disabled::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin-left: -10px;
+  margin-top: -10px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+```
+
+### 4. **Responsive Design**
+
+```css
+/* Optimización para móviles */
+@media (max-width: 480px) {
+  .checkout-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .checkout-order-summary {
+    padding: 1rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.875rem;
+    font-size: 16px; /* Evita zoom en iOS */
+  }
+}
+```
+
+## Troubleshooting
+
+### Problemas Comunes
+
+#### 1. Token no encontrado
+
+**Causa**: Sesión expirada o token inválido
+**Solución**: Redirigir al carrito para generar nueva sesión
+
+#### 2. Error 405 en rutas de checkout
+
+**Causa**: Conflicto con middleware de dominio
+**Solución**: Verificar que las rutas `/api/stores/[storeId]/checkout/*` no sean reescritas
+
+#### 3. Redirección a dominio incorrecto
+
+**Causa**: `storeHost` no se resuelve correctamente
+**Solución**: Verificar headers `origin` y `referer` en las APIs
+
+#### 4. Formulario no se envía
+
+**Causa**: JavaScript no encuentra elementos
+**Solución**: Verificar que los selectores coincidan con el HTML
+
+### Debugging
+
+```javascript
+// Verificar que el checkout se carga correctamente
+console.log('Checkout object:', {{ checkout | json }});
+console.log('Store ID:', '{{ checkout.storeId }}');
+console.log('Token:', '{{ checkout.token }}');
+```
+
+## Próximas Mejoras
+
+- [ ] **Métodos de pago** - Integración con Stripe, PayPal
+- [ ] **Checkout de invitado** - Sin registro requerido
+- [ ] **Cálculo de envío** - Integración con APIs de envío
+- [ ] **Códigos de descuento** - Sistema de cupones
+- [ ] **Checkout express** - Un solo clic con información guardada
+
+---
+
+**Última actualización**: Sistema de checkout completamente funcional con flujo tokenizado y formularios profesionales.
+
+El sistema está listo para usar en producción y proporciona una experiencia de checkout segura y profesional para cualquier tema de Fasttify.

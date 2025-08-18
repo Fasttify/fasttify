@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "checkout": {
+      "type": "sections/checkout",
+      "settings": {
+        "title": "Finalizar Compra",
+        "subtitle": "Completa tu información para procesar tu pedido"
+      }
+    }
+  },
+  "order": [
+    "checkout"
+  ]
+}

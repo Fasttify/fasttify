@@ -201,6 +201,30 @@ const pageContextBuilders: Record<string, PageContextBuilder> = {
 
     return baseContext;
   },
+  checkout: (loadedData) => {
+    const baseContext: Record<string, any> = {
+      template: 'checkout',
+      page_title: 'Checkout',
+    };
+
+    if (loadedData.checkout) {
+      baseContext.checkout = loadedData.checkout;
+    }
+
+    return baseContext;
+  },
+  checkout_start: (loadedData) => {
+    const baseContext: Record<string, any> = {
+      template: 'checkout_start',
+      page_title: 'Checkout',
+    };
+
+    if (loadedData.checkout) {
+      baseContext.checkout = loadedData.checkout;
+    }
+
+    return baseContext;
+  },
 };
 
 /**

@@ -25,9 +25,6 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   let sessionId = cookiesStore.get(SESSION_ID_COOKIE_NAME)?.value;
   let newSessionIdGenerated = false;
 
-  // Log para debugging en producción
-  logger.info(`[Cart API] GET request - storeId: ${storeId}, sessionId: ${sessionId || 'NOT_FOUND'}`, null, 'CartAPI');
-
   if (!sessionId) {
     sessionId = uuidv4();
     newSessionIdGenerated = true;
