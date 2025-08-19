@@ -15,44 +15,44 @@
  */
 
 // ===== FACTORY PRINCIPAL =====
-export { StoreRendererFactory } from '@/renderer-engine/factories/store-renderer-factory';
-export { storeRenderer } from '@/renderer-engine/instances';
+export { StoreRendererFactory } from './factories/store-renderer-factory';
+export { storeRenderer } from './instances';
 
 // ===== RENDERERS =====
-export { DynamicPageRenderer } from '@/renderer-engine/renderers/dynamic-page-renderer';
+export { DynamicPageRenderer } from './renderers/dynamic-page-renderer';
 
 // ===== LIQUID ENGINE =====
-export { liquidEngine } from '@/renderer-engine/liquid/engine';
+export { liquidEngine } from './liquid/engine';
 
 // ===== SERVICIOS CORE =====
-export { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
-export { linkListService } from '@/renderer-engine/services/core/navigation-service';
+export { domainResolver } from './services/core/domain-resolver';
+export { linkListService } from './services/core/navigation-service';
 
 // ===== SERVICIOS DE ERRORES =====
-export { errorRenderer } from '@/renderer-engine/services/errors/error-renderer';
+export { errorRenderer } from './services/errors/error-renderer';
 
 // ===== SERVICIOS DE DATOS =====
-export { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
-export { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher';
+export { dataFetcher } from './services/fetchers/data-fetcher';
+export { navigationFetcher } from './services/fetchers/navigation-fetcher';
 
 // ===== SERVICIOS DE PLANTILLAS =====
-export { templateAnalyzer } from '@/renderer-engine/services/templates/analysis/template-analyzer';
-export { templateLoader } from '@/renderer-engine/services/templates/template-loader';
+export { templateAnalyzer } from './services/templates/analysis/template-analyzer';
+export { templateLoader } from './services/templates/template-loader';
 
 // ===== SERVICIOS DINÁMICOS =====
-export { dynamicDataLoader } from '@/renderer-engine/services/page/dynamic-data-loader';
+export { dynamicDataLoader } from './services/page/dynamic-data-loader';
 
 // ===== CONFIGURACIÓN =====
-export { pathToRenderOptions, routeMatchers } from '@/renderer-engine/config/route-matchers';
-export type { RouteMatcher } from '@/renderer-engine/config/route-matchers';
+export { pathToRenderOptions, routeMatchers } from './config/route-matchers';
+export type { RouteMatcher } from './config/route-matchers';
 
 // ===== TIPOS PRINCIPALES =====
-export type { RenderResult } from '@/renderer-engine/types';
+export type { RenderResult } from './types';
 
 // ===== TIPOS DEL SISTEMA DINÁMICO =====
-export type { DynamicLoadResult } from '@/renderer-engine/services/page/dynamic-data-loader';
+export type { DynamicLoadResult } from './services/page/dynamic-data-loader';
 export type {
   DataLoadOptions,
   DataRequirement,
   TemplateAnalysis,
-} from '@/renderer-engine/services/templates/analysis/template-analyzer';
+} from './services/templates/analysis/template-analyzer';

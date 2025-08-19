@@ -12,10 +12,8 @@ export const createDefaultMenus = async (
   try {
     const createdMenuIds: string[] = [];
 
-    // Crear todos los menús definidos en defaultMenus
     for (const menuConfig of defaultMenus as DefaultNavigationMenu[]) {
       try {
-        // Crear el menú con toda la estructura JSON
         const menuResult = await client.models.NavigationMenu.create({
           storeId: storeId,
           domain: domain,

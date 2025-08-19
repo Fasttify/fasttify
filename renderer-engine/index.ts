@@ -29,4 +29,4 @@
  */
 
 // Re-exportar todo desde el archivo de exports organizado
-export * from '@/renderer-engine/exports';
+export * from './exports';
