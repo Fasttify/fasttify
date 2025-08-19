@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { uploadData } from 'aws-amplify/storage';
-import { Amplify } from 'aws-amplify';
-import { v4 as uuidv4 } from 'uuid';
 import outputs from '@/amplify_outputs.json';
+import { getCdnUrlForKey } from '@/utils/client';
+import { Amplify } from 'aws-amplify';
+import { uploadData } from 'aws-amplify/storage';
+import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 Amplify.configure(outputs);
 
@@ -14,21 +15,6 @@ export interface UploadedImage {
 export function useProductImageUpload() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-
-  // Obtener el bucket, la región y el dominio del CDN desde las variables de entorno
-  const bucketName = process.env.NEXT_PUBLIC_S3_URL;
-  const awsRegion = process.env.NEXT_PUBLIC_AWS_REGION;
-  const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN;
-
-  if (!bucketName) {
-    throw new Error('environment variable NEXT_PUBLIC_S3_URL is not defined');
-  }
-  // Es bueno tener awsRegion si se usa el fallback a S3
-  if (!awsRegion && (!cloudFrontDomain || cloudFrontDomain.trim() === '')) {
-    throw new Error(
-      'environment variable NEXT_PUBLIC_AWS_REGION is not defined or NEXT_PUBLIC_CLOUDFRONT_DOMAIN is not defined or empty'
-    );
-  }
 
   const uploadProductImage = async (file: File, storeId: string): Promise<UploadedImage | null> => {
     setIsLoading(true);
@@ -48,18 +34,8 @@ export function useProductImageUpload() {
         data: file,
       }).result;
 
-      // Construir la URL pública condicionalmente
-      let publicUrl: string;
-      const s3Key = result.path;
-
-      if (cloudFrontDomain && cloudFrontDomain.trim() !== '') {
-        // Usar CloudFront (generalmente para producción o cuando esté configurado)
-        publicUrl = `https://${cloudFrontDomain}/${s3Key}`;
-      } else {
-        // Fallback a la URL de S3
-        const regionForS3Url = awsRegion;
-        publicUrl = `https://${bucketName}.s3.${regionForS3Url}.amazonaws.com/${s3Key}`;
-      }
+      // Construir la URL pública usando la utilidad de CDN
+      const publicUrl = getCdnUrlForKey(result.path);
 
       return {
         url: publicUrl,

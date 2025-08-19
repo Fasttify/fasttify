@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { uploadData } from 'aws-amplify/storage';
-import { getCurrentUser } from 'aws-amplify/auth';
-import { Amplify } from 'aws-amplify';
-import { v4 as uuidv4 } from 'uuid';
 import outputs from '@/amplify_outputs.json';
+import { getCdnUrlForKey } from '@/utils/client';
+import { Amplify } from 'aws-amplify';
+import { getCurrentUser } from 'aws-amplify/auth';
+import { uploadData } from 'aws-amplify/storage';
+import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 Amplify.configure(outputs);
 
@@ -25,21 +26,6 @@ interface UseLogoUploadReturn {
 export function useLogoUpload(): UseLogoUploadReturn {
   const [status, setStatus] = useState<UploadStatus>('idle');
   const [error, setError] = useState<string | null>(null);
-
-  // Obtener el bucket y la región desde las variables de entorno
-  const bucketName = process.env.NEXT_PUBLIC_S3_URL;
-  const awsRegion = process.env.NEXT_PUBLIC_AWS_REGION;
-  const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN;
-
-  if (!bucketName) {
-    throw new Error('environment variable NEXT_PUBLIC_S3_URL is not defined');
-  }
-
-  if (!awsRegion && (!cloudFrontDomain || cloudFrontDomain.trim() === '')) {
-    throw new Error(
-      'environment variable NEXT_PUBLIC_AWS_REGION is not defined or NEXT_PUBLIC_CLOUDFRONT_DOMAIN is not defined or empty'
-    );
-  }
 
   const reset = () => {
     setStatus('idle');
@@ -69,17 +55,8 @@ export function useLogoUpload(): UseLogoUploadReturn {
         },
       }).result;
 
-      // Construir la URL pública condicionalmente
-      let publicUrl: string;
-      const s3Key = result.path;
-
-      if (cloudFrontDomain && cloudFrontDomain.trim() !== '') {
-        publicUrl = `https://${cloudFrontDomain}/${s3Key}`;
-      } else {
-        // Fallback a la URL de S3
-        const regionForS3Url = awsRegion;
-        publicUrl = `https://${bucketName}.s3.${regionForS3Url}.amazonaws.com/${s3Key}`;
-      }
+      // Construir la URL pública usando la utilidad CDN
+      const publicUrl = getCdnUrlForKey(result.path);
 
       setStatus('success');
 
