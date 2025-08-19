@@ -25,8 +25,6 @@ import { templateLoader } from '@/renderer-engine/services/templates/template-lo
  * Paso 4: Cargar todos los datos en paralelo
  */
 export async function loadDataStep(data: RenderingData): Promise<RenderingData> {
-  logger.info(`Using dynamic data loading for ${data.options.pageType}`, 'DynamicPageRenderer');
-
   const templatePath = pageConfig.getTemplatePath(data.options.pageType);
   const isJsonTemplate = templatePath.endsWith('.json');
 
@@ -65,17 +63,6 @@ export async function loadDataStep(data: RenderingData): Promise<RenderingData> 
     data.options,
     data.searchParams,
     loadedTemplates
-  );
-
-  logger.debug(
-    `Dynamic analysis results for ${data.options.pageType}:`,
-    {
-      requiredData: Array.from(pageData.analysis.requiredData.keys()),
-      liquidObjects: pageData.analysis.liquidObjects,
-      dependencies: pageData.analysis.dependencies.length,
-      searchProductsCount: pageData.searchProducts?.length,
-    },
-    'DynamicPageRenderer'
   );
 
   return {

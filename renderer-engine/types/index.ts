@@ -15,7 +15,7 @@
  */
 
 // Store types
-export type { DomainResolution, Store, StoreConfig, StoreTemplate, TemplateFiles } from '@/renderer-engine/types/store';
+export type { DomainResolution, Store, StoreConfig, StoreTemplate, TemplateFiles } from './store';
 
 // Product types
 export type {
@@ -28,10 +28,10 @@ export type {
   Product,
   ProductImage,
   ProductVariant,
-} from '@/renderer-engine/types/product';
+} from './product';
 
 // Page types
-export type { Page } from '@/renderer-engine/types/page';
+export type { Page } from './page';
 
 // Template types
 export type {
@@ -51,7 +51,7 @@ export type {
   TemplateError,
   TemplateFile,
   TwitterCardData,
-} from '@/renderer-engine/types/template';
+} from './template';
 
 // Liquid types
 export type {
@@ -72,18 +72,10 @@ export type {
   SectionTag,
   StyleTag,
   UrlFilter,
-} from '@/renderer-engine/types/liquid';
+} from './liquid';
 
 // Cart types
-export type {
-  AddToCartRequest,
-  Cart,
-  CartContext,
-  CartItem,
-  CartRaw,
-  CartResponse,
-  UpdateCartRequest,
-} from '@/renderer-engine/types/cart';
+export type { AddToCartRequest, Cart, CartContext, CartItem, CartRaw, CartResponse, UpdateCartRequest } from './cart';
 
 // Checkout types
 export type {
@@ -96,4 +88,4 @@ export type {
   CustomerInfo,
   StartCheckoutRequest,
   UpdateCustomerInfoRequest,
-} from '@/renderer-engine/types/checkout';
+} from './checkout';
