@@ -1,4 +1,5 @@
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import { getCdnUrlForKey } from '@/utils/client';
 import { updateUserAttributes } from 'aws-amplify/auth';
 import { uploadData } from 'aws-amplify/storage';
 import { useState } from 'react';
@@ -26,26 +27,8 @@ export function useUpdateProfilePicture() {
         },
       }).result;
 
-      // 2. Construir la URL pública condicionalmente.
-      const bucketName = process.env.NEXT_PUBLIC_S3_URL;
-      const awsRegion = process.env.NEXT_PUBLIC_AWS_REGION;
-      const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN;
-
-      if (!bucketName) {
-        throw new Error('NEXT_PUBLIC_S3_URL is not defined in your environment variables');
-      }
-
-      let publicUrl: string;
-      const s3Key = result.path;
-
-      if (cloudFrontDomain && cloudFrontDomain.trim() !== '') {
-        // Usar CloudFront para producción (o cuando esté configurado)
-        publicUrl = `https://${cloudFrontDomain}/${s3Key}`;
-      } else {
-        // Fallback a la URL de S3 para otros entornos
-        const regionForS3Url = awsRegion;
-        publicUrl = `https://${bucketName}.s3.${regionForS3Url}.amazonaws.com/${s3Key}`;
-      }
+      // 2. Construir la URL pública usando la utilidad de CDN.
+      const publicUrl = getCdnUrlForKey(result.path);
 
       // 3. Actualizar el atributo 'picture' del usuario con la URL pública.
       await updateUserAttributes({

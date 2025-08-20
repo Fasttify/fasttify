@@ -11,7 +11,6 @@ export const createDefaultCollections = async (
   try {
     const createdCollectionIds: string[] = [];
 
-    // Crear todas las colecciones definidas en defaultCollections
     for (const collectionConfig of defaultCollections as DefaultCollection[]) {
       try {
         const collection = await client.models.Collection.create({

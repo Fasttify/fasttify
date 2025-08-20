@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Fasttify LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { pageConfig } from '@/renderer-engine/config/page-config';
 import { logger } from '@/renderer-engine/lib/logger';
 import type { RenderingData } from '@/renderer-engine/renderers/dynamic-page-renderer';
@@ -9,8 +25,6 @@ import { templateLoader } from '@/renderer-engine/services/templates/template-lo
  * Paso 4: Cargar todos los datos en paralelo
  */
 export async function loadDataStep(data: RenderingData): Promise<RenderingData> {
-  logger.info(`Using dynamic data loading for ${data.options.pageType}`, 'DynamicPageRenderer');
-
   const templatePath = pageConfig.getTemplatePath(data.options.pageType);
   const isJsonTemplate = templatePath.endsWith('.json');
 
@@ -49,17 +63,6 @@ export async function loadDataStep(data: RenderingData): Promise<RenderingData> 
     data.options,
     data.searchParams,
     loadedTemplates
-  );
-
-  logger.debug(
-    `Dynamic analysis results for ${data.options.pageType}:`,
-    {
-      requiredData: Array.from(pageData.analysis.requiredData.keys()),
-      liquidObjects: pageData.analysis.liquidObjects,
-      dependencies: pageData.analysis.dependencies.length,
-      searchProductsCount: pageData.searchProducts?.length,
-    },
-    'DynamicPageRenderer'
   );
 
   return {

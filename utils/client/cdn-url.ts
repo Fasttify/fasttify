@@ -15,22 +15,27 @@
  */
 
 /**
- * Utilidades para construir URLs de CDN o S3
+ * Utilidades para construir URLs de CDN o S3 en el frontend
  * Reglas:
- * - Producción (APP_ENV === 'production'): usar cdn.fasttify.com
- * - No-producción: usar bucket público de S3 con BUCKET_NAME y AWS_REGION
+ * - Si NEXT_PUBLIC_CLOUDFRONT_DOMAIN está configurado: usar CloudFront
+ * - Si no: usar bucket público de S3 con NEXT_PUBLIC_S3_URL y NEXT_PUBLIC_AWS_REGION
  */
 
 export function getCdnBaseUrl(): string {
-  const appEnv = process.env.APP_ENV || 'development';
+  const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN;
 
-  if (appEnv === 'production') {
-    return 'https://cdn.fasttify.com';
+  if (cloudFrontDomain && cloudFrontDomain.trim() !== '') {
+    return `https://${cloudFrontDomain}`;
   }
 
-  const bucket = process.env.BUCKET_NAME;
-  const region = process.env.AWS_REGION || 'us-east-2';
-  return `https://${bucket}.s3.${region}.amazonaws.com`;
+  const bucketName = process.env.NEXT_PUBLIC_S3_URL;
+  const region = process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-2';
+
+  if (!bucketName) {
+    throw new Error('NEXT_PUBLIC_S3_URL is not defined in your environment variables');
+  }
+
+  return `https://${bucketName}.s3.${region}.amazonaws.com`;
 }
 
 export function getCdnUrlForKey(s3Key: string): string {

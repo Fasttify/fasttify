@@ -1,5 +1,21 @@
+/*
+ * Copyright 2025 Fasttify LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Store types
-export type { DomainResolution, Store, StoreConfig, StoreTemplate, TemplateFiles } from '@/renderer-engine/types/store';
+export type { DomainResolution, Store, StoreConfig, StoreTemplate, TemplateFiles } from './store';
 
 // Product types
 export type {
@@ -12,10 +28,10 @@ export type {
   Product,
   ProductImage,
   ProductVariant,
-} from '@/renderer-engine/types/product';
+} from './product';
 
 // Page types
-export type { Page } from '@/renderer-engine/types/page';
+export type { Page } from './page';
 
 // Template types
 export type {
@@ -35,7 +51,7 @@ export type {
   TemplateError,
   TemplateFile,
   TwitterCardData,
-} from '@/renderer-engine/types/template';
+} from './template';
 
 // Liquid types
 export type {
@@ -56,18 +72,10 @@ export type {
   SectionTag,
   StyleTag,
   UrlFilter,
-} from '@/renderer-engine/types/liquid';
+} from './liquid';
 
 // Cart types
-export type {
-  AddToCartRequest,
-  Cart,
-  CartContext,
-  CartItem,
-  CartRaw,
-  CartResponse,
-  UpdateCartRequest,
-} from '@/renderer-engine/types/cart';
+export type { AddToCartRequest, Cart, CartContext, CartItem, CartRaw, CartResponse, UpdateCartRequest } from './cart';
 
 // Checkout types
 export type {
@@ -80,4 +88,4 @@ export type {
   CustomerInfo,
   StartCheckoutRequest,
   UpdateCustomerInfoRequest,
-} from '@/renderer-engine/types/checkout';
+} from './checkout';
