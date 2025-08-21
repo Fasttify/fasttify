@@ -1,16 +1,10 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": "..",
     "paths": {
       "@/*": ["./*"]
-    },
-    "noEmit": true,
-    "isolatedModules": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "strict": true
+    }
   },
   "include": ["./**/*.ts", "./**/*.tsx"],
   "exclude": ["../node_modules", "../.next", "../dist", "../build"]

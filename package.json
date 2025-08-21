@@ -11,7 +11,8 @@
     "test:watch": "jest --watch",
     "prepare": "husky",
     "test:coverage": "jest --coverage",
-    "template-sync": "node scripts/template-sync.js"
+    "template-sync": "node scripts/template-sync.js",
+    "type-check": "tsc --noEmit"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
