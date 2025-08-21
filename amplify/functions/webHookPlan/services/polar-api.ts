@@ -61,7 +61,7 @@ export class PolarApiService {
         id: response.id,
         status: response.status,
         external_reference: (response.customer?.externalId as string) || '',
-        amount: response.amount,
+        amount: response.totalAmount,
         net_amount: response.netAmount,
         subscription_id: response.subscriptionId || undefined,
         customer_id: response.customerId || undefined,
