@@ -58,7 +58,7 @@ export class CartFetcher {
       const cart: Cart = {
         ...rawCartData,
         items: transformedItems,
-      };
+      } as unknown as Cart;
 
       return cart;
     } catch (error) {

@@ -56,7 +56,7 @@ export async function searchProductsByTerm(
         },
       }
     );
-    return (data || []).map((product) => productTransformer.transformProduct(product));
+    return (data || []).map((product) => productTransformer.transformProduct(product as any));
   } catch (error) {
     logger.error('Failed to search products by term:', error);
     return [];
@@ -114,14 +114,6 @@ export class SearchDataLoader {
           logger.warn('Failed to load search collections', error);
         }
       }
-
-      logger.info(`Search data loaded successfully`, {
-        productsCount: searchProducts.length,
-        collectionsCount: searchCollections.length,
-        productsLimit: searchProductsLimit,
-        collectionsLimit: searchCollectionsLimit,
-        searchTerm: searchTerm || 'N/A',
-      });
 
       return {
         searchProducts,

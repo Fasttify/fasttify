@@ -11,6 +11,7 @@
  */
 
 import { cookiesClient } from '@/utils/server/AmplifyServer';
+import { collectionTransformer } from './collection-transformer';
 import type { CollectionData, CollectionQueryOptions, CollectionsResponse } from './types/collection-types';
 
 export class CollectionQueryManager {
@@ -42,7 +43,7 @@ export class CollectionQueryManager {
     const collections = response.data as CollectionData[];
 
     return {
-      collections,
+      collections: collectionTransformer.transformCollections(collections),
       nextToken: response.nextToken,
     };
   }

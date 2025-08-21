@@ -15,7 +15,7 @@ import type { PageContext, TemplateError } from '@/renderer-engine/types';
 import { pageCacheManager } from './page-cache-manager';
 import { pageQueryManager } from './page-query-manager';
 import { pageTransformer } from './page-transformer';
-import type { PagesResponse, PaginationOptions } from './types/page-types';
+import type { PageData, PagesResponse, PaginationOptions } from './types/page-types';
 
 export class PageFetcher {
   /**
@@ -39,11 +39,8 @@ export class PageFetcher {
         },
       });
 
-      // Transformar páginas
-      const transformedPages = pageTransformer.transformPages(response.pages);
-
       const result: PagesResponse = {
-        pages: transformedPages,
+        pages: response.pages,
         nextToken: response.nextToken,
       };
 
@@ -120,7 +117,7 @@ export class PageFetcher {
       }
 
       const page = response.pages[0];
-      const transformedPage = pageTransformer.transformPage(page);
+      const transformedPage = pageTransformer.transformPage(page as PageData);
 
       // Guardar en caché
       pageCacheManager.setCachedPage(storeId, cacheKey, transformedPage);
@@ -178,11 +175,8 @@ export class PageFetcher {
         },
       });
 
-      // Transformar páginas
-      const transformedPages = pageTransformer.transformPages(response.pages);
-
       const result: PagesResponse = {
-        pages: transformedPages,
+        pages: response.pages,
         nextToken: response.nextToken,
       };
 

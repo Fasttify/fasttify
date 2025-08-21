@@ -16,6 +16,7 @@
 
 export interface UserStoreCurrency {
   storeCurrency?: string;
+  userId?: string;
 }
 
 export interface CheckoutSessionData {
