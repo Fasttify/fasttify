@@ -15,7 +15,13 @@
     "prepare": "husky",
     "test:coverage": "jest --coverage",
     "template-sync": "node scripts/template-sync.js",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "workspace:install": "npm install --workspaces",
+    "workspace:update": "npm update --workspaces",
+    "workspace:audit": "npm audit --workspaces",
+    "build:packages": "npm run build --workspaces",
+    "test:packages": "npm run test --workspaces",
+    "lint:packages": "npm run lint --workspaces"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
