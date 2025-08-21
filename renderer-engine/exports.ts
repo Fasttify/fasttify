@@ -33,7 +33,7 @@ export { errorRenderer } from './services/errors/error-renderer';
 
 // ===== SERVICIOS DE DATOS =====
 export { dataFetcher } from './services/fetchers/data-fetcher';
-export { navigationFetcher } from './services/fetchers/navigation-fetcher';
+export { navigationFetcher } from './services/fetchers/navigation';
 
 // ===== SERVICIOS DE PLANTILLAS =====
 export { templateAnalyzer } from './services/templates/analysis/template-analyzer';

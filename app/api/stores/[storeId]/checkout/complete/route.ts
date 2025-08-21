@@ -15,7 +15,7 @@
  */
 
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { checkoutFetcher } from '@/renderer-engine/services/fetchers/checkout-fetcher';
+import { checkoutFetcher } from '@/renderer-engine/services/fetchers/checkout';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: NextRequest) {

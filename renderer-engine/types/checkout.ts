@@ -72,6 +72,8 @@ export interface CartSnapshot {
 export interface CheckoutResponse {
   success: boolean;
   session?: CheckoutSession;
+  order?: any;
+  warning?: string;
   error?: string;
 }
 

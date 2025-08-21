@@ -15,11 +15,11 @@
  */
 
 import { cacheManager } from '@/renderer-engine/services/core/cache';
-import { cartFetcher } from '@/renderer-engine/services/fetchers/cart-fetcher';
-import { collectionFetcher } from '@/renderer-engine/services/fetchers/collection-fetcher';
-import { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation-fetcher';
-import { pageFetcher } from '@/renderer-engine/services/fetchers/page-fetcher';
-import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher';
+import { cartFetcher } from '@/renderer-engine/services/fetchers/cart';
+import { collectionFetcher } from '@/renderer-engine/services/fetchers/collection';
+import { navigationFetcher } from '@/renderer-engine/services/fetchers/navigation';
+import { pageFetcher } from '@/renderer-engine/services/fetchers/page';
+import { productFetcher } from '@/renderer-engine/services/fetchers/product';
 import type {
   AddToCartRequest,
   Cart,

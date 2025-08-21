@@ -16,7 +16,7 @@
 
 import { logger } from '@/renderer-engine/lib/logger';
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
-import { productFetcher } from '@/renderer-engine/services/fetchers/product-fetcher';
+import { productTransformer } from '@/renderer-engine/services/fetchers/product';
 import { extractSearchLimitsFromSettings } from '@/renderer-engine/services/page/data-loader/search/search-limits-extractor';
 import type { ProductContext } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
@@ -56,7 +56,7 @@ export async function searchProductsByTerm(
         },
       }
     );
-    return (data || []).map((product) => productFetcher.transformProduct(product));
+    return (data || []).map((product) => productTransformer.transformProduct(product));
   } catch (error) {
     logger.error('Failed to search products by term:', error);
     return [];
