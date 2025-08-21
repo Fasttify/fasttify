@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -19,13 +18,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/renderer-engine": ["./renderer-engine"],
-      "@/renderer-engine/*": ["./renderer-engine/*"]
+      "@/*": ["./*"]
     },
-    "incremental": true,
-    "noEmit": true
-  },
-  "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", ".next/cache/**/*", "amplify/**/*", ".amplify/**/*", "dist/**/*", "build/**/*"]
+    "incremental": true
+  }
 }

@@ -1,17 +1,35 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": "..",
+    "outDir": "./dist",
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/renderer-engine/*": ["./*"],
+      "@/utils/*": ["../utils/*"],
+      "@/lib/*": ["../lib/*"],
+      "@/amplify/*": ["../amplify/*"],
+      "@/amplify_outputs.json": ["../amplify_outputs.json"],
+      "@/renderer-engine/dist/*": ["./dist/*"]
     },
-    "noEmit": true,
-    "isolatedModules": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "strict": true
+    "isolatedModules": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
   },
-  "include": ["./**/*.ts", "./**/*.tsx"],
-  "exclude": ["../node_modules", "../.next", "../dist", "../build"]
+  "references": [],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }

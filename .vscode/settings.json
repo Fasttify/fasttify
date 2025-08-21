@@ -8,7 +8,7 @@
     "amplify/backend/amplify-meta.json": true,
     "amplify/backend/awscloudformation": true
   },
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.fontSize": 13,
   "editor.lineHeight": 1.8,
@@ -22,22 +22,22 @@
   "editor.showFoldingControls": "always",
   "outline.showFunctions": true,
   "outline.showVariables": true,
-  "typescript.suggest.autoImports": true,
+  "typescript.suggest.autoImports": false,
   "files.trimTrailingWhitespace": true,
   "typescript.preferences.quoteStyle": "single",
   "[typescript]": {
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "always"
+      "source.organizeImports": "never"
     }
   },
   "[typescriptreact]": {
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "always"
+      "source.organizeImports": "never"
     }
   },
   "[javascript]": {
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "always"
+      "source.organizeImports": "never"
     }
   },
   "files.watcherExclude": {
@@ -50,7 +50,12 @@
     "**/template/**": true,
     "**/coverage/**": true,
     "**/dist/**": true,
-    "**/build/**": true
+    "**/build/**": true,
+    "**/logs/**": true,
+    "**/.vscode/**": true,
+    "**/.idea/**": true,
+    "**/.turbo/**": true,
+    "**/.cache/**": true
   },
   "search.exclude": {
     "**/node_modules": true,
@@ -61,7 +66,12 @@
     "**/template": true,
     "**/coverage": true,
     "**/dist": true,
-    "**/build": true
+    "**/build": true,
+    "**/logs": true,
+    "**/.vscode": true,
+    "**/.idea": true,
+    "**/.turbo": true,
+    "**/.cache": true
   },
   "typescript.tsserver.maxTsServerMemory": 4096,
   "typescript.tsserver.experimental.enableProjectDiagnostics": false,
