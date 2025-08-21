@@ -8,7 +8,6 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "build:prod": "npm run switch:prod && next build && npm run switch:dev",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
@@ -17,8 +16,6 @@
     "test:coverage": "jest --coverage",
     "template-sync": "node scripts/template-sync.js",
     "type-check": "tsc --noEmit",
-    "switch:dev": "cp tsconfig.dev.json tsconfig.json",
-    "switch:prod": "cp tsconfig.prod.json tsconfig.json",
     "workspace:install": "npm install --workspaces",
     "workspace:update": "npm update --workspaces",
     "workspace:audit": "npm audit --workspaces",
