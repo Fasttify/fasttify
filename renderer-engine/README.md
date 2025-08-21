@@ -1,145 +1,110 @@
-# Renderer Engine
+# @fasttify/renderer-engine
 
-Sistema de renderizado de tiendas dinámico usando templates Liquid.
+Motor de renderizado Liquid para la plataforma Fasttify.
 
-## Estructura del Proyecto
+## 🚀 Características
+
+- **Motor Liquid**: Renderizado de templates Liquid con soporte completo
+- **Gestión de Assets**: Inyección automática de CSS y JavaScript
+- **Cache Inteligente**: Sistema de cache con TTL configurable
+- **Análisis de Templates**: Detección automática de dependencias de datos
+- **Soporte Multi-idioma**: Renderizado con contexto de idioma
+- **Optimización**: Minificación y optimización automática de assets
+
+## 📦 Instalación
+
+```bash
+# Desde la raíz del proyecto
+npm install
+
+# O instalar dependencias específicas del paquete
+cd renderer-engine
+npm install
+```
+
+## 🔧 Uso
+
+### Importación Básica
+
+```typescript
+import { LiquidEngine } from '@fasttify/renderer-engine/liquid/engine';
+import { StoreRendererFactory } from '@fasttify/renderer-engine/factories/store-renderer-factory';
+
+// Crear instancia del motor
+const engine = LiquidEngine.getInstance();
+
+// Renderizar template
+const html = await engine.render(templateContent, context);
+```
+
+### Renderizado de Páginas
+
+```typescript
+import { StoreRendererFactory } from '@fasttify/renderer-engine/factories/store-renderer-factory';
+
+const renderer = new StoreRendererFactory();
+const result = await renderer.renderPage(domain, path, searchParams);
+```
+
+## 🏗️ Estructura del Paquete
 
 ```
 renderer-engine/
-├── index.ts                 # Punto de entrada principal (re-exports)
-├── exports.ts              # Organización de todas las exportaciones
-├── instances.ts            # Instancias singleton
-├── config/
-│   └── route-matchers.ts   # Configuración de rutas y matchers
-├── factories/
-│   └── store-renderer-factory.ts  # Factory principal
-├── renderers/
-│   └── dynamic-page-renderer.ts   # Renderizador dinámico
-├── liquid/
-│   ├── engine.ts           # Motor Liquid
-│   ├── filters/            # Filtros Liquid
-│   └── tags/               # Tags Liquid
-├── services/
-│   ├── core/               # Servicios core
-│   ├── errors/             # Manejo de errores
-│   ├── fetchers/           # Obtención de datos
-│   ├── page/               # Servicios de página
-│   ├── rendering/          # Servicios de renderizado
-│   └── templates/          # Servicios de plantillas
-└── types/                  # Definiciones de tipos
+├── liquid/                    # Motor Liquid principal
+│   ├── engine.ts            # Clase principal del motor
+│   ├── filters/             # Filtros personalizados
+│   └── tags/                # Tags personalizados
+├── renderers/                # Renderizadores específicos
+├── services/                 # Servicios de datos
+├── factories/                # Factories para crear instancias
+└── types/                    # Tipos TypeScript
 ```
 
-## Uso Básico
+## 🧪 Testing
 
-```typescript
-import { storeRenderer } from '@/renderer-engine';
+```bash
+# Ejecutar tests
+npm test
 
-// Renderizar una página
-const result = await storeRenderer.renderPage('mystore.com', '/products/my-product');
+# Tests en modo watch
+npm run test:watch
 
-// Verificar si una tienda puede ser renderizada
-const canRender = await storeRenderer.canRenderStore('mystore.com');
+# Coverage
+npm run test:coverage
 ```
 
-## Componentes Principales
+## 🔨 Desarrollo
 
-### StoreRendererFactory
+```bash
+# Compilar TypeScript
+npm run build
 
-Factory principal que coordina el renderizado de páginas de tiendas.
+# Modo desarrollo (watch)
+npm run dev
 
-**Métodos:**
+# Verificar tipos
+npm run type-check
 
-- `renderPage(domain, path, searchParams)` - Renderiza una página
-- `canRenderStore(domain)` - Verifica si una tienda puede ser renderizada
-
-### Route Matchers
-
-Sistema declarativo para mapear URLs a tipos de página.
-
-**Tipos de ruta soportados:**
-
-- Homepage (`/`)
-- Productos (`/products/handle`)
-- Colecciones (`/collections/handle`)
-- Páginas estáticas (`/pages/handle`)
-- Blog (`/blogs/handle`)
-- Carrito (`/cart`)
-- Búsqueda (`/search`)
-- Políticas (`/policies`)
-
-### DynamicPageRenderer
-
-Renderizador que maneja la lógica de renderizado dinámico.
-
-## Servicios Disponibles
-
-### Core Services
-
-- `domainResolver` - Resolución de dominios
-- `linkListService` - Servicio de navegación
-
-### Data Services
-
-- `dataFetcher` - Obtención de datos
-- `navigationFetcher` - Obtención de navegación
-- `dynamicDataLoader` - Carga dinámica de datos
-
-### Template Services
-
-- `templateLoader` - Carga de plantillas
-- `templateAnalyzer` - Análisis de plantillas
-
-### Error Services
-
-- `errorRenderer` - Renderizado de errores
-
-## Configuración
-
-### Agregar Nuevas Rutas
-
-Para agregar una nueva ruta, edita `config/route-matchers.ts`:
-
-```typescript
-{
-  pattern: /^\/my-new-route\/([^\/]+)$/,
-  handler: (match) => ({
-    pageType: 'custom',
-    handle: match[1],
-  }),
-}
+# Limpiar build
+npm run clean
 ```
 
-### Personalizar Renderizado
+## 📚 Dependencias Principales
 
-Extiende `StoreRendererFactory` o usa los servicios individuales para personalizar el comportamiento.
+- **liquidjs**: Motor de templates Liquid
+- **@aws-sdk/client-s3**: Cliente S3 para assets
+- **chokidar**: File watching para desarrollo
+- **jszip**: Manejo de archivos ZIP
+- **uuid**: Generación de IDs únicos
 
-## Tipos Principales
+## 🤝 Contribución
 
-```typescript
-// Resultado del renderizado
-type RenderResult = {
-  html: string;
-  metadata: {
-    title: string;
-    description: string;
-    // ... más metadatos
-  };
-};
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
-// Opciones de renderizado
-type PageRenderOptions = {
-  pageType: 'index' | 'product' | 'collection' | 'page' | 'blog' | 'cart' | 'search' | '404';
-  handle?: string;
-  collectionHandle?: string;
-};
-```
+## 📄 Licencia
 
-## Arquitectura
-
-El sistema sigue el patrón Factory con:
-
-1. **Configuración declarativa** - Rutas definidas en `route-matchers.ts`
-2. **Separación de responsabilidades** - Cada servicio tiene una función específica
-3. **Inyección de dependencias** - Servicios se inyectan en el factory
-4. **Manejo de errores centralizado** - Todos los errores se manejan de forma consistente
-5. **Exportaciones organizadas** - API pública clara y bien documentada
+Este proyecto está bajo la Licencia Apache 2.0 - ver el archivo [LICENSE](../LICENSE) para más detalles.

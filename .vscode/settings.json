@@ -27,17 +27,17 @@
   "typescript.preferences.quoteStyle": "single",
   "[typescript]": {
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "always"
+      "source.organizeImports": "never"
     }
   },
   "[typescriptreact]": {
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "always"
+      "source.organizeImports": "never"
     }
   },
   "[javascript]": {
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "always"
+      "source.organizeImports": "never"
     }
   },
   "files.watcherExclude": {

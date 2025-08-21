@@ -20,8 +20,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@/renderer-engine": ["./renderer-engine"],
-      "@/renderer-engine/*": ["./renderer-engine/*"]
+      "@/renderer-engine": ["./renderer-engine/dist"],
+      "@/renderer-engine/*": ["./renderer-engine/dist/*"]
     },
     "incremental": true,
     "noEmit": true
