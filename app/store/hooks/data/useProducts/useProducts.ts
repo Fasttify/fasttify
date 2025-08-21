@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useProductMutations } from './mutations';
 import { useProductQueries } from './queries';
-import type { UseProductsOptions, UseProductsResult } from './types';
+import type { IProduct, ProductCreateInput, ProductUpdateInput, UseProductsOptions, UseProductsResult } from './types';
 import { useProductPagination } from './utils';
 
 /**
@@ -36,7 +36,12 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   } = mutations;
 
   // Queries
-  const queries = useProductQueries(storeId, { limit, sortDirection, sortField }, currentPage, pageTokens);
+  const queries = useProductQueries(
+    storeId,
+    { limit, sortDirection, sortField: sortField as keyof IProduct },
+    currentPage,
+    pageTokens
+  );
   const { data, isFetching, error: queryError, refetch, fetchProductById } = queries;
 
   // Efectos para manejar la paginación
@@ -52,7 +57,7 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
 
   // Funciones wrapper para las mutaciones
   const createProduct = useCallback(
-    async (productData) => {
+    async (productData: ProductCreateInput) => {
       try {
         return await createProductMutation.mutateAsync(productData);
       } catch (err) {
@@ -64,7 +69,7 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   );
 
   const updateProduct = useCallback(
-    async (productData) => {
+    async (productData: ProductUpdateInput) => {
       try {
         return await updateProductMutation.mutateAsync(productData);
       } catch (err) {
@@ -76,7 +81,7 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   );
 
   const deleteProduct = useCallback(
-    async (id) => {
+    async (id: string) => {
       try {
         if (!id) {
           throw new Error('Product ID is required for deletion');
@@ -92,7 +97,7 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   );
 
   const deleteMultipleProducts = useCallback(
-    async (ids) => {
+    async (ids: string[]) => {
       try {
         await deleteMultipleProductsMutation.mutateAsync(ids);
         return true;
@@ -105,7 +110,7 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   );
 
   const duplicateProduct = useCallback(
-    async (id) => {
+    async (id: string) => {
       try {
         if (!id) {
           throw new Error('Product ID is required for duplication');
