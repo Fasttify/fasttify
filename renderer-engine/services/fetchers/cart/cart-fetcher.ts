@@ -16,21 +16,13 @@
 
 import { logger } from '@/renderer-engine/lib/logger';
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
-import type { Cart, CartContext, CartItem, CartRaw, CartResponse, UpdateCartRequest } from '@/renderer-engine/types';
+import type { Cart, CartRaw } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
+import { cartContextTransformer } from './cart-context-transformer';
+import { cartItemTransformer } from './cart-item-transformer';
+import { cartTotalsCalculator } from './cart-totals-calculator';
+import type { AddToCartRequest, CartResponse, UpdateCartRequest, UserStoreCurrency } from './types/cart-types';
 
-export interface AddToCartRequest {
-  storeId: string;
-  productId: string;
-  variantId?: string | null;
-  quantity: number;
-  sessionId?: string;
-  selectedAttributes?: Record<string, string>;
-}
-
-interface UserStoreCurrency {
-  storeCurrency?: string;
-}
 export class CartFetcher {
   /**
    * Obtiene el carrito actual para una tienda.
@@ -48,34 +40,10 @@ export class CartFetcher {
 
       if (guestCartResponse.data && guestCartResponse.data.length > 0) {
         rawCartData = guestCartResponse.data[0];
-      } else {
-        rawCartData = undefined;
       }
 
       if (!rawCartData) {
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 30);
-
-        let detectedCurrency: string | undefined;
-        try {
-          const { data: store } = await cookiesClient.models.UserStore.get({ storeId });
-          detectedCurrency = (store as UserStoreCurrency)?.storeCurrency || undefined;
-        } catch {}
-
-        const newCartData: any = {
-          storeId,
-          itemCount: 0,
-          totalAmount: 0,
-          expiresAt: expiresAt.toISOString(),
-          sessionId: sessionId,
-          currency: detectedCurrency,
-        };
-
-        const { data: createdCart } = await cookiesClient.models.Cart.create(newCartData);
-        if (!createdCart) {
-          throw new Error('Failed to create new cart.');
-        }
-        rawCartData = createdCart;
+        rawCartData = await this.createNewCart(storeId, sessionId);
       }
 
       if (!rawCartData) {
@@ -84,16 +52,45 @@ export class CartFetcher {
 
       const { data: items } = await cookiesClient.models.CartItem.listCartItemByCartId({ cartId: rawCartData.id });
 
+      // Transformar los items para incluir los atributos del productSnapshot
+      const transformedItems = cartItemTransformer.transformCartItems(items);
+
       const cart: Cart = {
         ...rawCartData,
-        items: items as CartItem[],
-      };
+        items: transformedItems,
+      } as unknown as Cart;
 
       return cart;
     } catch (error) {
       logger.error('Error getting or creating cart', error, 'CartFetcher');
       throw new Error('Failed to retrieve or create cart.');
     }
+  }
+
+  /**
+   * Crea un nuevo carrito
+   */
+  private async createNewCart(storeId: string, sessionId: string): Promise<CartRaw | undefined> {
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+
+    let detectedCurrency: string | undefined;
+    try {
+      const { data: store } = await cookiesClient.models.UserStore.get({ storeId });
+      detectedCurrency = (store as UserStoreCurrency)?.storeCurrency || undefined;
+    } catch {}
+
+    const newCartData: any = {
+      storeId,
+      itemCount: 0,
+      totalAmount: 0,
+      expiresAt: expiresAt.toISOString(),
+      sessionId: sessionId,
+      currency: detectedCurrency,
+    };
+
+    const { data: createdCart } = await cookiesClient.models.Cart.create(newCartData);
+    return createdCart || undefined;
   }
 
   /**
@@ -113,28 +110,7 @@ export class CartFetcher {
         return { success: false, error: 'Product not found.' };
       }
 
-      const productPrice = product.price || 0;
-      const productSnapshot = JSON.stringify({
-        id: product.id,
-        storeId: product.storeId,
-        name: product.name,
-        title: product.name,
-        slug: product.slug,
-        attributes: product.attributes || [],
-        selectedAttributes: selectedAttributes || {},
-        featured_image: product.featured_image,
-        quantity: product.quantity,
-        description: product.description,
-        price: product.price,
-        compare_at_price: product.compare_at_price,
-        url: product.url,
-        images: product.images || [],
-        variants: product.variants || [],
-        status: product.status,
-        category: product.category,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      });
+      const productSnapshot = cartItemTransformer.createProductSnapshot(product, selectedAttributes);
 
       const cartItemsResponse = await cookiesClient.models.CartItem.listCartItemByCartId(
         { cartId: currentCart.id },
@@ -145,43 +121,66 @@ export class CartFetcher {
         cartItemsResponse.data && cartItemsResponse.data.length > 0 ? cartItemsResponse.data[0] : undefined;
 
       if (existingCartItem) {
-        const updatedQuantity = existingCartItem.quantity + quantity;
-        const updatedTotalPrice = updatedQuantity * existingCartItem.unitPrice;
-
-        const { data: updatedItem } = await cookiesClient.models.CartItem.update({
-          id: existingCartItem.id,
-          quantity: updatedQuantity,
-          totalPrice: updatedTotalPrice,
-          owner: currentCart.sessionId || 'public',
-        });
-        if (!updatedItem) {
-          throw new Error('Failed to update cart item.');
-        }
+        await this.updateExistingCartItem(existingCartItem, quantity);
       } else {
-        const newItemTotalPrice = productPrice * quantity;
-        const { data: createdItem } = await cookiesClient.models.CartItem.create({
-          cartId: currentCart.id,
-          storeId: currentCart.storeId,
-          productId: productId,
-          variantId: variantId,
-          quantity: quantity,
-          unitPrice: productPrice,
-          totalPrice: newItemTotalPrice,
-          productSnapshot: productSnapshot,
-          owner: currentCart.sessionId || 'public',
-        });
-        if (!createdItem) {
-          throw new Error('Failed to create cart item.');
-        }
+        await this.createNewCartItem(currentCart, productId, variantId, quantity, product.price || 0, productSnapshot);
       }
 
-      await this.recalculateCartTotals(currentCart.id);
+      await cartTotalsCalculator.recalculateCartTotals(currentCart.id);
 
       const updatedCart = await this.getCart(storeId, sessionId || '');
       return { success: true, cart: updatedCart };
     } catch (error) {
       logger.error('Error adding to cart', error, 'CartFetcher');
       return { success: false, error: 'Failed to add item to cart.' };
+    }
+  }
+
+  /**
+   * Actualiza un item existente del carrito
+   */
+  private async updateExistingCartItem(existingCartItem: any, quantity: number): Promise<void> {
+    const updatedQuantity = existingCartItem.quantity + quantity;
+    const updatedTotalPrice = updatedQuantity * existingCartItem.unitPrice;
+
+    const { data: updatedItem } = await cookiesClient.models.CartItem.update({
+      id: existingCartItem.id,
+      quantity: updatedQuantity,
+      totalPrice: updatedTotalPrice,
+      owner: existingCartItem.owner,
+    });
+
+    if (!updatedItem) {
+      throw new Error('Failed to update cart item.');
+    }
+  }
+
+  /**
+   * Crea un nuevo item del carrito
+   */
+  private async createNewCartItem(
+    cart: Cart,
+    productId: string,
+    variantId: string | null | undefined,
+    quantity: number,
+    productPrice: number,
+    productSnapshot: string
+  ): Promise<void> {
+    const newItemTotalPrice = productPrice * quantity;
+    const { data: createdItem } = await cookiesClient.models.CartItem.create({
+      cartId: cart.id,
+      storeId: cart.storeId,
+      productId: productId,
+      variantId: variantId,
+      quantity: quantity,
+      unitPrice: productPrice,
+      totalPrice: newItemTotalPrice,
+      productSnapshot: productSnapshot,
+      owner: cart.sessionId || 'public',
+    });
+
+    if (!createdItem) {
+      throw new Error('Failed to create cart item.');
     }
   }
 
@@ -214,7 +213,7 @@ export class CartFetcher {
         });
       }
 
-      await this.recalculateCartTotals(currentCart.id);
+      await cartTotalsCalculator.recalculateCartTotals(currentCart.id);
 
       const updatedCart = await this.getCart(storeId, sessionId || '');
       return { success: true, cart: updatedCart };
@@ -242,7 +241,7 @@ export class CartFetcher {
 
       await cookiesClient.models.CartItem.delete({ id: itemId });
 
-      await this.recalculateCartTotals(currentCart.id);
+      await cartTotalsCalculator.recalculateCartTotals(currentCart.id);
 
       const updatedCart = await this.getCart(storeId, sessionId || '');
       return { success: true, cart: updatedCart };
@@ -287,61 +286,8 @@ export class CartFetcher {
   /**
    * Transforma el carrito al formato para Liquid Context.
    */
-  public transformCartToContext(cart: Cart): CartContext {
-    const totalItems = Array.isArray(cart.items) ? cart.items.reduce((total, item) => total + item.quantity, 0) : 0;
-    const totalPrice = Array.isArray(cart.items) ? cart.items.reduce((total, item) => total + item.totalPrice, 0) : 0;
-
-    return {
-      id: cart.id,
-      item_count: totalItems,
-      total_price: totalPrice,
-      currency: cart.currency || 'COP',
-      items: Array.isArray(cart.items)
-        ? cart.items.map((item) => {
-            let productSnapshotParsed: any = {};
-            if (typeof item.productSnapshot === 'string') {
-              try {
-                productSnapshotParsed = JSON.parse(item.productSnapshot);
-              } catch (e) {
-                logger.error('Failed to parse productSnapshot for cart item', e, 'CartFetcher');
-              }
-            }
-
-            return {
-              id: item.id,
-              product_id: item.productId,
-              variant_id: item.variantId || '',
-              title: productSnapshotParsed.name || 'N/A',
-              price: item.unitPrice,
-              quantity: item.quantity,
-              line_price: item.totalPrice,
-              image: productSnapshotParsed.images?.[0] || '',
-              url: `/products/${productSnapshotParsed.slug || productSnapshotParsed.id}`,
-              attributes: productSnapshotParsed.attributes || [],
-              selectedAttributes: productSnapshotParsed.selectedAttributes || {},
-              variant_title: productSnapshotParsed.variant_title || '',
-            };
-          })
-        : [],
-      created_at: cart.createdAt,
-      updated_at: cart.updatedAt,
-    };
-  }
-
-  /**
-   * Recalcula los totales del carrito (cantidad de ítems y precio total).
-   */
-  private async recalculateCartTotals(cartId: string): Promise<void> {
-    const { data: cartItems } = await cookiesClient.models.CartItem.listCartItemByCartId({ cartId });
-
-    const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-    const totalAmount = cartItems.reduce((total, item) => total + item.totalPrice, 0);
-
-    await cookiesClient.models.Cart.update({
-      id: cartId,
-      itemCount: totalItems,
-      totalAmount: totalAmount,
-    });
+  public transformCartToContext(cart: Cart) {
+    return cartContextTransformer.transformCartToContext(cart);
   }
 }
 

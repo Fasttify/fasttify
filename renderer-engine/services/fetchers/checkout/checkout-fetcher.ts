@@ -25,62 +25,29 @@ import type {
   StartCheckoutRequest,
   UpdateCustomerInfoRequest,
 } from '@/renderer-engine/types';
-import { cookiesClient } from '@/utils/server/AmplifyServer';
-import crypto from 'crypto';
 import { checkoutDataTransformer } from './checkout-data-transformer';
-
-interface UserStoreCurrency {
-  storeCurrency?: string;
-}
+import { checkoutOrderCreator } from './checkout-order-creator';
+import { checkoutSessionManager } from './checkout-session-manager';
+import type { CheckoutTotals } from './types/checkout-types';
 
 export class CheckoutFetcher {
-  /**
-   * Genera un token único para la sesión de checkout
-   * Formato: cn_<base64url> similar a Shopify
-   */
-  private generateToken(): string {
-    const raw = crypto.randomBytes(16).toString('base64url');
-    return `fs_${raw}`;
-  }
-
-  /**
-   * Obtiene el storeOwner (userId) basado en storeId
-   */
-  private async getStoreOwner(storeId: string): Promise<string> {
-    try {
-      const { data: store } = await cookiesClient.models.UserStore.get({ storeId });
-      return (store as any)?.userId || '';
-    } catch (error) {
-      logger.error('Error getting store owner:', error);
-      throw new Error('Store not found');
-    }
-  }
-
   /**
    * Inicia una nueva sesión de checkout
    */
   public async startCheckout(request: StartCheckoutRequest, cart: Cart): Promise<CheckoutResponse> {
     try {
-      const token = this.generateToken();
-      const storeOwner = await this.getStoreOwner(request.storeId);
+      const token = checkoutSessionManager.generateToken();
+      const storeOwner = await checkoutSessionManager.getStoreOwner(request.storeId);
 
       // Configurar expiración (2 horas por defecto)
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 2);
 
       // Calcular totales basados en el carrito
-      const subtotal = cart.totalAmount || 0;
-      const shippingCost = 0; // Por ahora, se puede calcular después
-      const taxAmount = 0; // Por ahora, se puede calcular después
-      const totalAmount = subtotal + shippingCost + taxAmount;
+      const totals = this.calculateCheckoutTotals(cart);
 
       // Crear snapshot de los items del carrito
-      const itemsSnapshot: CartSnapshot = {
-        items: cart.items || [],
-        itemCount: cart.itemCount || 0,
-        cartTotal: cart.totalAmount || 0,
-        snapshotAt: new Date().toISOString(),
-      };
+      const itemsSnapshot = this.createItemsSnapshot(cart);
 
       const sessionData = {
         token,
@@ -90,10 +57,7 @@ export class CheckoutFetcher {
         status: 'open' as const,
         expiresAt: expiresAt.toISOString(),
         currency: cart.currency || 'COP',
-        subtotal,
-        shippingCost,
-        taxAmount,
-        totalAmount,
+        ...totals,
         itemsSnapshot: JSON.stringify(itemsSnapshot),
         customerInfo: request.customerInfo ? JSON.stringify(request.customerInfo) : null,
         shippingAddress: request.shippingAddress ? JSON.stringify(request.shippingAddress) : null,
@@ -102,21 +66,12 @@ export class CheckoutFetcher {
         storeOwner,
       };
 
-      const response = await cookiesClient.models.CheckoutSession.create(sessionData);
+      const response = await checkoutSessionManager.createSession(sessionData);
 
-      if (response.data) {
-        logger.info(`Checkout session created: ${token} for store ${request.storeId}`);
-        return {
-          success: true,
-          session: this.transformToSession(response.data),
-        };
-      } else {
-        logger.error('Failed to create checkout session:', response.errors);
-        return {
-          success: false,
-          error: 'Failed to create checkout session',
-        };
-      }
+      return {
+        success: true,
+        session: this.transformToSession(response),
+      };
     } catch (error) {
       logger.error('Error starting checkout:', error);
       return {
@@ -131,24 +86,19 @@ export class CheckoutFetcher {
    */
   public async getSessionByToken(token: string): Promise<CheckoutSession | null> {
     try {
-      const response = await cookiesClient.models.CheckoutSession.listCheckoutSessionByToken({ token }, { limit: 1 });
+      const session = await checkoutSessionManager.getSessionByToken(token);
 
-      if (response.data && response.data.length > 0) {
-        const session = response.data[0];
-
-        // Verificar si la sesión ha expirado
-        if (session.expiresAt && new Date(session.expiresAt) < new Date()) {
-          // Marcar como expirada si no lo está ya
-          if (session.status === 'open') {
-            await this.updateSessionStatus(token, 'expired');
-          }
-          return null;
-        }
-
-        return this.transformToSession(session);
+      if (!session) {
+        return null;
       }
 
-      return null;
+      // Verificar si la sesión ha expirado
+      if (checkoutSessionManager.isSessionExpired(session.expiresAt)) {
+        await checkoutSessionManager.markSessionAsExpiredIfNeeded(session);
+        return null;
+      }
+
+      return this.transformToSession(session);
     } catch (error) {
       logger.error('Error getting checkout session:', error);
       return null;
@@ -161,21 +111,16 @@ export class CheckoutFetcher {
   public async updateCustomerInfo(request: UpdateCustomerInfoRequest): Promise<CheckoutResponse> {
     try {
       // Obtener la sesión raw directamente de la base de datos
-      const rawResponse = await cookiesClient.models.CheckoutSession.listCheckoutSessionByToken(
-        { token: request.token },
-        { limit: 1 }
-      );
+      const session = await checkoutSessionManager.getSessionByToken(request.token);
 
-      if (!rawResponse.data || rawResponse.data.length === 0) {
+      if (!session) {
         return {
           success: false,
           error: 'Checkout session not found',
         };
       }
 
-      const rawSession = rawResponse.data[0];
-
-      if (rawSession.status !== 'open') {
+      if (session.status !== 'open') {
         return {
           success: false,
           error: 'Checkout session not available',
@@ -188,22 +133,12 @@ export class CheckoutFetcher {
       if (request.billingAddress) updateData.billingAddress = JSON.stringify(request.billingAddress);
       if (request.notes !== undefined) updateData.notes = request.notes;
 
-      const response = await cookiesClient.models.CheckoutSession.update({
-        id: rawSession.id,
-        ...updateData,
-      });
+      const updatedSession = await checkoutSessionManager.updateSessionCustomerInfo(session.id, updateData);
 
-      if (response.data) {
-        return {
-          success: true,
-          session: this.transformToSession(response.data),
-        };
-      } else {
-        return {
-          success: false,
-          error: 'Failed to update checkout session',
-        };
-      }
+      return {
+        success: true,
+        session: this.transformToSession(updatedSession),
+      };
     } catch (error) {
       logger.error('Error updating checkout session:', error);
       return {
@@ -219,36 +154,21 @@ export class CheckoutFetcher {
   public async updateSessionStatus(token: string, status: CheckoutStatus): Promise<CheckoutResponse> {
     try {
       // Obtener la sesión raw directamente para tener el ID
-      const rawResponse = await cookiesClient.models.CheckoutSession.listCheckoutSessionByToken(
-        { token },
-        { limit: 1 }
-      );
+      const session = await checkoutSessionManager.getSessionByToken(token);
 
-      if (!rawResponse.data || rawResponse.data.length === 0) {
+      if (!session) {
         return {
           success: false,
           error: 'Checkout session not found',
         };
       }
 
-      const rawSession = rawResponse.data[0];
-      const response = await cookiesClient.models.CheckoutSession.update({
-        id: rawSession.id,
-        status,
-      });
+      const updatedSession = await checkoutSessionManager.updateSessionStatus(session.id, status);
 
-      if (response.data) {
-        logger.info(`Checkout session ${token} updated to status: ${status}`);
-        return {
-          success: true,
-          session: this.transformToSession(response.data),
-        };
-      } else {
-        return {
-          success: false,
-          error: 'Failed to update checkout session status',
-        };
-      }
+      return {
+        success: true,
+        session: this.transformToSession(updatedSession),
+      };
     } catch (error) {
       logger.error('Error updating checkout session status:', error);
       return {
@@ -259,10 +179,48 @@ export class CheckoutFetcher {
   }
 
   /**
-   * Completa una sesión de checkout (la marca como completed)
+   * Completa una sesión de checkout (la marca como completed) y crea la orden
    */
-  public async completeCheckout(token: string): Promise<CheckoutResponse> {
-    return this.updateSessionStatus(token, 'completed');
+  public async completeCheckout(
+    token: string,
+    paymentMethod?: string,
+    paymentId?: string,
+    customerEmail?: string
+  ): Promise<CheckoutResponse> {
+    try {
+      // Primero actualizar el estado a completed
+      const updateResponse = await this.updateSessionStatus(token, 'completed');
+
+      if (!updateResponse.success || !updateResponse.session) {
+        return updateResponse;
+      }
+
+      // Crear la orden automáticamente
+      return await checkoutOrderCreator.completeCheckout(
+        updateResponse.session,
+        paymentMethod,
+        paymentId,
+        customerEmail
+      );
+    } catch (error) {
+      logger.error('Error completing checkout:', error);
+      return {
+        success: false,
+        error: 'Internal error completing checkout',
+      };
+    }
+  }
+
+  /**
+   * Completa una sesión de checkout con información de pago y crea la orden
+   */
+  public async completeCheckoutWithPayment(
+    token: string,
+    paymentMethod: string,
+    paymentId: string,
+    customerEmail?: string
+  ): Promise<CheckoutResponse> {
+    return this.completeCheckout(token, paymentMethod, paymentId, customerEmail);
   }
 
   /**
@@ -309,6 +267,48 @@ export class CheckoutFetcher {
    */
   public validateSession(session: CheckoutSession): boolean {
     return checkoutDataTransformer.validateCheckoutSession(session);
+  }
+
+  /**
+   * Calcula los totales del checkout basados en el carrito
+   */
+  private calculateCheckoutTotals(cart: Cart): CheckoutTotals {
+    const subtotal = cart.totalAmount || 0;
+    const shippingCost = 0; // Por ahora, se puede calcular después
+    const taxAmount = 0; // Por ahora, se puede calcular después
+    const totalAmount = subtotal + shippingCost + taxAmount;
+
+    return {
+      subtotal,
+      shippingCost,
+      taxAmount,
+      totalAmount,
+    };
+  }
+
+  /**
+   * Crea el snapshot de los items del carrito
+   */
+  private createItemsSnapshot(cart: Cart): CartSnapshot {
+    return {
+      items: (cart.items || []).map((item: any) => ({
+        ...item,
+        attributes: item.attributes || [],
+        selectedAttributes: item.selectedAttributes || {},
+        product_id: item.product_id || item.productId,
+        variant_id: item.variant_id || item.variantId,
+        title: item.title,
+        price: item.price,
+        unitPrice: item.unitPrice,
+        quantity: item.quantity,
+        image: item.image,
+        url: item.url,
+        variant_title: item.variant_title || item.variantTitle,
+      })),
+      itemCount: cart.itemCount || 0,
+      cartTotal: cart.totalAmount || 0,
+      snapshotAt: new Date().toISOString(),
+    };
   }
 }
 

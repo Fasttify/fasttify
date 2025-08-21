@@ -77,7 +77,6 @@ class ProductDetails {
 
   // Attribute selection
   selectOption(element) {
-    console.log('selectOption called for:', element.textContent || element.title);
 
     // Remove selected class from siblings (with null check)
     if (element.parentNode) {
@@ -92,8 +91,6 @@ class ProductDetails {
     // Add selected class to clicked element
     element.classList.add('selected');
 
-    console.log('Selected attribute:', element.textContent || element.title);
-    console.log('Data attributes:', element.dataset.optionName, element.dataset.optionValue);
   }
 
   // Quantity controls

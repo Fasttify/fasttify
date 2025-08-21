@@ -25,7 +25,7 @@ export class CheckoutDataTransformer {
   /**
    * Transforma un item del carrito al formato esperado por checkout.liquid
    */
-  private transformCartItem(item: any): any {
+  public transformCartItem(item: any): any {
     try {
       // Parsear el productSnapshot que viene como JSON string
       const productSnapshot = item.productSnapshot ? JSON.parse(item.productSnapshot) : {};
@@ -59,49 +59,46 @@ export class CheckoutDataTransformer {
       logger.error('Error transforming cart item:', error);
 
       // Fallback en caso de error
-      return {
-        id: item.id,
-        title: 'Producto',
-        variant_title: null,
-        quantity: item.quantity || 1,
-        price: item.unitPrice || 0,
-        line_price: item.totalPrice || 0,
-        image: null,
-        url: `/products/${item.productId}`,
-        product_id: item.productId,
-        variant_id: item.variantId,
-        handle: item.productId,
-        selectedAttributes: {},
-        product: {
-          id: item.productId,
-          title: 'Producto',
-          images: [],
-          price: item.unitPrice || 0,
-          compare_at_price: null,
-          description: '',
-          category: '',
-          status: 'active',
-        },
-      };
+      return this.createFallbackCartItem(item);
     }
+  }
+
+  /**
+   * Crea un item de carrito de fallback en caso de error
+   */
+  private createFallbackCartItem(item: any): any {
+    return {
+      id: item.id,
+      title: 'Producto',
+      variant_title: null,
+      quantity: item.quantity || 1,
+      price: item.unitPrice || 0,
+      line_price: item.totalPrice || 0,
+      image: null,
+      url: `/products/${item.productId}`,
+      product_id: item.productId,
+      variant_id: item.variantId,
+      handle: item.productId,
+      selectedAttributes: {},
+      product: {
+        id: item.productId,
+        title: 'Producto',
+        images: [],
+        price: item.unitPrice || 0,
+        compare_at_price: null,
+        description: '',
+        category: '',
+        status: 'active',
+      },
+    };
   }
 
   /**
    * Transforma la dirección al formato esperado por Liquid
    */
-  private transformAddress(address: any): any {
+  public transformAddress(address: any): any {
     if (!address) {
-      return {
-        address1: '',
-        address2: '',
-        city: '',
-        province: '',
-        zip: '',
-        country: 'CO',
-        first_name: '',
-        last_name: '',
-        phone: '',
-      };
+      return this.createDefaultAddress();
     }
 
     return {
@@ -118,16 +115,28 @@ export class CheckoutDataTransformer {
   }
 
   /**
+   * Crea una dirección por defecto
+   */
+  private createDefaultAddress(): any {
+    return {
+      address1: '',
+      address2: '',
+      city: '',
+      province: '',
+      zip: '',
+      country: 'CO',
+      first_name: '',
+      last_name: '',
+      phone: '',
+    };
+  }
+
+  /**
    * Transforma la información del cliente al formato esperado por Liquid
    */
-  private transformCustomerInfo(customerInfo: any): any {
+  public transformCustomerInfo(customerInfo: any): any {
     if (!customerInfo) {
-      return {
-        email: '',
-        firstName: '',
-        lastName: '',
-        phone: '',
-      };
+      return this.createDefaultCustomerInfo();
     }
 
     return {
@@ -135,6 +144,18 @@ export class CheckoutDataTransformer {
       firstName: customerInfo.firstName || '',
       lastName: customerInfo.lastName || '',
       phone: customerInfo.phone || '',
+    };
+  }
+
+  /**
+   * Crea información de cliente por defecto
+   */
+  private createDefaultCustomerInfo(): any {
+    return {
+      email: '',
+      firstName: '',
+      lastName: '',
+      phone: '',
     };
   }
 
@@ -187,24 +208,31 @@ export class CheckoutDataTransformer {
       logger.error('Error transforming checkout session to context:', error);
 
       // Retornar estructura mínima válida en caso de error
-      return {
-        storeId: session.storeId || '',
-        token: session.token || '',
-        line_items: [],
-        item_count: 0,
-        total_price: 0,
-        subtotal_price: 0,
-        shipping_price: 0,
-        tax_price: 0,
-        currency: 'COP',
-        customer: this.transformCustomerInfo(null),
-        shipping_address: this.transformAddress(null),
-        billing_address: this.transformAddress(null),
-        note: '',
-        requires_shipping: true,
-        expires_at: session.expiresAt || new Date().toISOString(),
-      };
+      return this.createFallbackCheckoutContext(session);
     }
+  }
+
+  /**
+   * Crea un contexto de checkout de fallback en caso de error
+   */
+  private createFallbackCheckoutContext(session: CheckoutSession): CheckoutContext {
+    return {
+      storeId: session.storeId || '',
+      token: session.token || '',
+      line_items: [],
+      item_count: 0,
+      total_price: 0,
+      subtotal_price: 0,
+      shipping_price: 0,
+      tax_price: 0,
+      currency: 'COP',
+      customer: this.createDefaultCustomerInfo(),
+      shipping_address: this.createDefaultAddress(),
+      billing_address: this.createDefaultAddress(),
+      note: '',
+      requires_shipping: true,
+      expires_at: session.expiresAt || new Date().toISOString(),
+    };
   }
 
   /**

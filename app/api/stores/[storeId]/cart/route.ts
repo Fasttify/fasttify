@@ -17,7 +17,7 @@
 import { getCartCookieOptions } from '@/lib/cookies/cookiesOption';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { logger } from '@/renderer-engine/lib/logger';
-import { cartFetcher } from '@/renderer-engine/services/fetchers/cart-fetcher';
+import { cartFetcher } from '@/renderer-engine/services/fetchers/cart';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';

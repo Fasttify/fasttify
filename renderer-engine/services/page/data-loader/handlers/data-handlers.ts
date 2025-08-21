@@ -15,7 +15,7 @@
  */
 
 import { logger } from '@/renderer-engine/lib/logger';
-import { checkoutFetcher } from '@/renderer-engine/services/fetchers/checkout-fetcher';
+import { checkoutFetcher } from '@/renderer-engine/services/fetchers/checkout';
 import { dataFetcher } from '@/renderer-engine/services/fetchers/data-fetcher';
 import type { DataLoadOptions, DataRequirement } from '@/renderer-engine/services/templates/analysis/template-analyzer';
 import type { PageRenderOptions } from '@/renderer-engine/types/template';

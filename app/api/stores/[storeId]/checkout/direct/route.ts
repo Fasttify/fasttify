@@ -15,8 +15,8 @@
  */
 
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { cartFetcher } from '@/renderer-engine/services/fetchers/cart-fetcher';
-import { checkoutFetcher } from '@/renderer-engine/services/fetchers/checkout-fetcher';
+import { cartFetcher } from '@/renderer-engine/services/fetchers/cart';
+import { checkoutFetcher } from '@/renderer-engine/services/fetchers/checkout';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 

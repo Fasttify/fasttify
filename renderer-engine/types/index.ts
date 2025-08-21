@@ -89,3 +89,6 @@ export type {
   StartCheckoutRequest,
   UpdateCustomerInfoRequest,
 } from './checkout';
+
+// Order types
+export type { CreateOrderItemRequest, CreateOrderRequest, Order, OrderItem } from './order';

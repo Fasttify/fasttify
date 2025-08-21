@@ -2,30 +2,112 @@ import { a } from '@aws-amplify/backend';
 
 export const orderModel = a
   .model({
-    orderNumber: a.string().required(),
+    orderNumber: a
+      .string()
+      .required()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
     storeId: a
       .string()
       .required()
       .authorization((allow) => [
         allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
-        allow.publicApiKey().to(['read']),
+        allow.publicApiKey().to(['create', 'read']),
       ]),
-    customerId: a.string(), // Puede ser userId o sessionId
+    customerId: a
+      .string()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]), // Puede ser userId o sessionId
     customerType: a.enum(['registered', 'guest']),
-    items: a.hasMany('OrderItem', 'orderId'),
-    subtotal: a.float().required(),
-    shippingCost: a.float().default(0),
-    taxAmount: a.float().default(0),
-    totalAmount: a.float().required(),
-    currency: a.string().default('USD'),
+    customerEmail: a
+      .string()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    items: a
+      .hasMany('OrderItem', 'orderId')
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    subtotal: a
+      .float()
+      .required()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    shippingCost: a
+      .float()
+      .default(0)
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    taxAmount: a
+      .float()
+      .default(0)
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    totalAmount: a
+      .float()
+      .required()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    currency: a
+      .string()
+      .default('COP')
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
     status: a.enum(['pending', 'processing', 'shipped', 'delivered', 'cancelled']),
     paymentStatus: a.enum(['pending', 'paid', 'failed', 'refunded']),
-    paymentMethod: a.string(),
-    paymentId: a.string(), // ID de la transacción del gateway de pago
-    shippingAddress: a.json(),
-    billingAddress: a.json(),
-    customerInfo: a.json(), // Email, nombre, teléfono
-    notes: a.string(),
+    paymentMethod: a
+      .string()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    paymentId: a
+      .string()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]), // ID de la transacción del gateway de pago
+    shippingAddress: a
+      .json()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    billingAddress: a
+      .json()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
+    customerInfo: a
+      .json()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]), // Email, nombre, teléfono
+    notes: a
+      .string()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
     storeOwner: a
       .string()
       .required()
@@ -33,7 +115,12 @@ export const orderModel = a
         allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
         allow.publicApiKey().to(['create', 'read']),
       ]),
-    store: a.belongsTo('UserStore', 'storeId'),
+    store: a
+      .belongsTo('UserStore', 'storeId')
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
   })
   .secondaryIndexes((index) => [
     index('storeId'),
@@ -41,6 +128,7 @@ export const orderModel = a
     index('orderNumber'),
     index('status'),
     index('storeOwner'),
+    index('customerEmail'),
   ])
   .authorization((allow) => [
     allow.ownerDefinedIn('storeOwner').to(['create', 'read', 'update']),
