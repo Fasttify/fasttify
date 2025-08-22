@@ -1,4 +1,4 @@
-import { ScriptTag } from '@/renderer-engine/liquid/tags/styling/script-tag';
+import { ScriptTag } from '@/packages/renderer-engine/liquid/tags/styling/script-tag';
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import { Liquid } from 'liquidjs';
 import { createTestContext, createTestLiquid } from './setup';

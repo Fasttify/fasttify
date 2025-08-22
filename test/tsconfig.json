@@ -6,6 +6,5 @@
     "module": "commonjs",
     "isolatedModules": false
   },
-  "include": ["./**/*.ts", "./**/*.tsx"],
-  "exclude": []
+  "include": ["./**/*.ts", "./**/*.tsx"]
 }

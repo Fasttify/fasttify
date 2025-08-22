@@ -1,5 +1,5 @@
 // Mocks para dependencias
-jest.mock('@/renderer-engine/services/templates/template-loader', () => ({
+jest.mock('@/packages/renderer-engine/services/templates/template-loader', () => ({
   templateLoader: {
     loadMainLayout: jest.fn().mockResolvedValue('layout-content'),
     loadMainLayoutCompiled: jest.fn().mockResolvedValue(['compiled-layout']),
@@ -7,25 +7,25 @@ jest.mock('@/renderer-engine/services/templates/template-loader', () => ({
     loadCompiledTemplate: jest.fn().mockResolvedValue(['compiled-page-template']),
   },
 }));
-jest.mock('@/renderer-engine/services/page/dynamic-data-loader', () => ({
+jest.mock('@/packages/renderer-engine/services/page/dynamic-data-loader', () => ({
   dynamicDataLoader: {
     loadDynamicData: jest
       .fn()
       .mockResolvedValue({ analysis: { requiredData: new Map(), liquidObjects: [], dependencies: [] } }),
   },
 }));
-jest.mock('@/renderer-engine/services/fetchers/data-fetcher', () => ({
+jest.mock('@/packages/renderer-engine/services/fetchers/data-fetcher', () => ({
   dataFetcher: {
     getStoreNavigationMenus: jest.fn().mockResolvedValue('store-template'),
   },
 }));
-jest.mock('@/renderer-engine/config/page-config', () => ({
+jest.mock('@/packages/renderer-engine/config/page-config', () => ({
   pageConfig: {
     getTemplatePath: jest.fn().mockReturnValue('page.liquid'),
   },
 }));
 
-import { loadDataStep } from '@/renderer-engine/renderers/pipeline-steps/load-data-step';
+import { loadDataStep } from '@/packages/renderer-engine/renderers/pipeline-steps/load-data-step';
 
 describe('loadDataStep', () => {
   it('debe cargar layout, compilados, datos dinámicos y template en paralelo', async () => {
