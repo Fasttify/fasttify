@@ -1,4 +1,4 @@
-import type { Schema } from '@/amplify/data/resource';
+import { type StoreSchema } from '@/data-schema';
 import { normalizeAttributesField, normalizeTagsField, withLowercaseName } from '@/app/store/hooks/utils/productUtils';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,7 +6,7 @@ import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
 import type { IProduct, ProductCreateInput, ProductUpdateInput } from '../types';
 
-const client = generateClient<Schema>({
+const client = generateClient<StoreSchema>({
   authMode: 'userPool',
 });
 

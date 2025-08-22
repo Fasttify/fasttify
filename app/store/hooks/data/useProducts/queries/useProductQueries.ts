@@ -1,9 +1,9 @@
-import type { Schema } from '@/data-schema';
+import type { StoreSchema } from '@/data-schema';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
 import type { IProduct, PaginationOptions, ProductsQueryResult } from '../types';
 
-const client = generateClient<Schema>({
+const client = generateClient<StoreSchema>({
   authMode: 'userPool',
 });
 

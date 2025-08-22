@@ -1,10 +1,10 @@
-import type { Schema } from '@/data-schema';
+import type { StoreSchema } from '@/data-schema';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/data';
 import { useState } from 'react';
 
-const client = generateClient<Schema>({
+const client = generateClient<StoreSchema>({
   authMode: 'userPool',
 });
 
@@ -14,7 +14,7 @@ const COLLECTIONS_KEY = 'collections';
 /**
  * Interfaz para los datos de entrada de una colección
  */
-export type Collection = Schema['Collection']['type'];
+export type Collection = StoreSchema['Collection']['type'];
 export type CollectionSummary = Pick<Collection, 'id' | 'title' | 'slug'>;
 export interface CollectionInput {
   storeId: string; // ID de la tienda a la que pertenece la colección

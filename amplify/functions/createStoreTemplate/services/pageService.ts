@@ -1,10 +1,10 @@
 import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '../../../data/resource';
+import type { StoreSchema } from '../../../data/resource';
 import defaultPages from '../config/defaultPages.json';
 import { DefaultPage } from '../types/index';
 
 export const createDefaultPages = async (
-  client: ReturnType<typeof generateClient<Schema>>,
+  client: ReturnType<typeof generateClient<StoreSchema>>,
   storeId: string,
   owner: string
 ): Promise<string[]> => {

@@ -61,8 +61,39 @@ const PaymentConfigResult = a.customType({
   message: a.string(),
 });
 
-const schema = a
+// Schema solo para el store (sin funciones de IA)
+export const storeSchema = a
   .schema({
+    // Solo modelos del store
+    UserProfile: userProfileModel,
+    UserSubscription: userSubscriptionModel,
+    UserStore: userStoreModel,
+    Product: productModel,
+    Collection: collectionModel,
+    NavigationMenu: navigationMenuModel,
+    Page: pageModel,
+    Cart: cartModel,
+    CartItem: cartItemModel,
+    CheckoutSession: checkoutSessionModel,
+    Order: orderModel,
+    OrderItem: orderItemModel,
+    StorePaymentConfig: storePaymentConfigModel,
+    StoreCustomDomain: storeCustomDomainModel,
+    UserTheme: userThemeModel,
+  })
+  .authorization((allow) => [
+    allow.resource(postConfirmation),
+    allow.resource(webHookPlan),
+    allow.resource(planScheduler),
+    allow.resource(checkStoreDomain),
+    allow.resource(createStoreTemplate),
+    allow.resource(managePaymentKeys),
+  ]);
+
+// Schema completo incluyendo funciones de IA
+const fullSchema = a
+  .schema({
+    // Funciones de IA
     generateHaiku: a
       .query()
       .arguments({ prompt: a.string().required() })
@@ -107,7 +138,7 @@ const schema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(managePaymentKeys)),
 
-    // Modelos
+    // Modelos del store
     UserProfile: userProfileModel,
     UserSubscription: userSubscriptionModel,
     UserStore: userStoreModel,
@@ -133,10 +164,15 @@ const schema = a
     allow.resource(managePaymentKeys),
   ]);
 
-export type Schema = ClientSchema<typeof schema>;
+// Tipos separados para mejorar rendimiento del linter
+export type StoreSchema = ClientSchema<typeof storeSchema>;
+export type FullSchema = ClientSchema<typeof fullSchema>;
+
+// Para compatibilidad, mantenemos Schema como el completo
+export type Schema = FullSchema;
 
 export const data = defineData({
-  schema,
+  schema: fullSchema,
   authorizationModes: {
     defaultAuthorizationMode: 'apiKey',
     apiKeyAuthorizationMode: {

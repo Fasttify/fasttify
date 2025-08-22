@@ -1,10 +1,10 @@
-import type { Schema } from '../../../data/resource';
+import type { StoreSchema } from '../../../data/resource';
 import { generateClient } from 'aws-amplify/data';
 import { DefaultCollection } from '../types/index';
 import defaultCollections from '../config/defaultCollections.json';
 
 export const createDefaultCollections = async (
-  client: ReturnType<typeof generateClient<Schema>>,
+  client: ReturnType<typeof generateClient<StoreSchema>>,
   storeId: string,
   owner: string
 ): Promise<string[]> => {

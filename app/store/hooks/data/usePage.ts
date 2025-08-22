@@ -1,4 +1,4 @@
-import type { Schema } from '@/data-schema';
+import type { StoreSchema } from '@/data-schema';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { CreatePageInput, createPageSchema, UpdatePageInput, updatePageSchema } from '@/lib/zod-schemas/page';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
@@ -6,7 +6,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
 import { generateClient } from 'aws-amplify/data';
 import { useCallback, useState } from 'react';
 
-const client = generateClient<Schema>({
+const client = generateClient<StoreSchema>({
   authMode: 'userPool',
 });
 
@@ -17,7 +17,7 @@ const PAGES_KEY = 'pages';
  * Interfaz para los items de página (objetos JavaScript)
  */
 
-export type Page = Schema['Page']['type'];
+export type Page = StoreSchema['Page']['type'];
 export type PageSummary = Pick<Page, 'id' | 'title' | 'slug' | 'isVisible' | 'status' | 'createdAt' | 'pageType'>;
 export type { CreatePageInput, UpdatePageInput };
 

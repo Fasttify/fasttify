@@ -1,13 +1,13 @@
-import type { Schema } from '@/amplify/data/resource';
+import type { StoreSchema } from '@/data-schema';
 import { CONNECTION_STATE_CHANGE, ConnectionState, generateClient } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
 import { create } from 'zustand';
 
-const client = generateClient<Schema>({
+const client = generateClient<StoreSchema>({
   authMode: 'userPool',
 });
 
-type StoreType = Schema['UserStore']['type'];
+type StoreType = StoreSchema['UserStore']['type'];
 
 interface StoreDataState {
   currentStore: StoreType | null;

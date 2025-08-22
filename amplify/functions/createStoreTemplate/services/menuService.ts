@@ -1,10 +1,10 @@
 import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '../../../data/resource';
+import type { StoreSchema } from '../../../data/resource';
 import defaultMenus from '../config/defaultMenus.json';
 import { DefaultNavigationMenu } from '../types/index';
 
 export const createDefaultMenus = async (
-  client: ReturnType<typeof generateClient<Schema>>,
+  client: ReturnType<typeof generateClient<StoreSchema>>,
   storeId: string,
   domain: string,
   owner: string
