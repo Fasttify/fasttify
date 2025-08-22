@@ -1,4 +1,4 @@
-import type { StoreSchema } from '@/data-schema';
+import type { FullSchema, StoreSchema } from '@/data-schema';
 import outputs from '@/amplify_outputs.json';
 import useUserStore from '@/context/core/userStore';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 Amplify.configure(outputs);
 
-const client = generateClient<StoreSchema>({
+const client = generateClient<FullSchema>({
   authMode: 'userPool',
 });
 

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import type { Schema } from '@/data-schema';
+import type { StoreSchema } from '@/data-schema';
 
-export type Cart = Omit<Schema['Cart']['type'], 'items'> & {
+export type Cart = Omit<StoreSchema['Cart']['type'], 'items'> & {
   items: CartItem[];
 };
-export type CartItem = Schema['CartItem']['type'];
-export type CartRaw = Schema['Cart']['type'];
+export type CartItem = StoreSchema['CartItem']['type'];
+export type CartRaw = StoreSchema['Cart']['type'];
 
 export interface AddToCartRequest {
   storeId: string;
