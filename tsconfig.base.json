@@ -18,7 +18,16 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/utils/*": ["./utils/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/amplify/*": ["./amplify/*"],
+      "@/amplify_outputs.json": ["./amplify_outputs.json"],
+      "@/data-schema": ["./amplify/data/resource"],
+      "@/renderer-engine/*": ["./packages/renderer-engine/*"],
+      "@/renderer-engine": ["./packages/renderer-engine"],
+      "@/context/*": ["./context/*"],
+      "@/hooks/*": ["./hooks/*"]
     },
     "incremental": true
   }

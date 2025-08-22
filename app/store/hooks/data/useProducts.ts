@@ -1,4 +1,4 @@
-import type { Schema } from '@/amplify/data/resource';
+import type { Schema } from '@/data-schema';
 import { normalizeAttributesField, normalizeTagsField, withLowercaseName } from '@/app/store/hooks/utils/productUtils';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

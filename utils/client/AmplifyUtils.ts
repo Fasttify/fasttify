@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type Schema } from '@/amplify/data/resource';
+import { type Schema } from '@/data-schema';
 import outputs from '@/amplify_outputs.json';
 import { createServerRunner } from '@aws-amplify/adapter-nextjs';
 import { generateServerClientUsingCookies } from '@aws-amplify/adapter-nextjs/api';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { type Schema } from '@/amplify/data/resource';
+import { type Schema } from '@/data-schema';
 import outputs from '@/amplify_outputs.json';
 import { createServerRunner } from '@aws-amplify/adapter-nextjs';
 import { generateServerClientUsingCookies } from '@aws-amplify/adapter-nextjs/api';
@@ -37,6 +37,7 @@ export async function AuthGetCurrentUserServer() {
       nextServerContext: { cookies },
       operation: (contextSpec) => getCurrentUser(contextSpec),
     });
+
     return currentUser;
   } catch (error) {
     console.error(error);

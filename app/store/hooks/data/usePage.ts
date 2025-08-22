@@ -1,4 +1,4 @@
-import type { Schema } from '@/amplify/data/resource';
+import type { Schema } from '@/data-schema';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { CreatePageInput, createPageSchema, UpdatePageInput, updatePageSchema } from '@/lib/zod-schemas/page';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';

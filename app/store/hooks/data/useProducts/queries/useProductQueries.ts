@@ -1,4 +1,4 @@
-import type { Schema } from '@/amplify/data/resource';
+import type { Schema } from '@/data-schema';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
 import type { IProduct, PaginationOptions, ProductsQueryResult } from '../types';

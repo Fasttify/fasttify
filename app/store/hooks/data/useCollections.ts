@@ -1,4 +1,4 @@
-import type { Schema } from '@/amplify/data/resource';
+import type { Schema } from '@/data-schema';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/data';

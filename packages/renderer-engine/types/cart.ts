@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { Schema } from '@/amplify/data/resource';
+import type { Schema } from '@/data-schema';
 
 export type Cart = Omit<Schema['Cart']['type'], 'items'> & {
   items: CartItem[];

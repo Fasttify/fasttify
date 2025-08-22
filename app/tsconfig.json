@@ -8,19 +8,5 @@
       }
     ]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    ".next/types/**/*.ts",
-    "../utils/**/*.ts",
-    "../utils/**/*.tsx",
-    "../lib/**/*.ts",
-    "../context/**/*.ts",
-    "../hooks/**/*.ts",
-    "../store/**/*.ts",
-    "../amplify/**/*.ts"
-  ],
   "exclude": ["node_modules"]
 }

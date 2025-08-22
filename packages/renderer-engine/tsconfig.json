@@ -1,15 +1,16 @@
 {
-  "extends": "../tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
       "@/*": ["./*"],
       "@/renderer-engine/*": ["./*"],
-      "@/utils/*": ["../utils/*"],
-      "@/lib/*": ["../lib/*"],
-      "@/amplify/*": ["../amplify/*"],
-      "@/amplify_outputs.json": ["../amplify_outputs.json"],
+      "@/utils/*": ["../../utils/*"],
+      "@/lib/*": ["../../lib/*"],
+      "@/amplify/*": ["../../amplify/*"],
+      "@/data-schema": ["../../amplify/data/resource"],
+      "@/amplify_outputs.json": ["../../amplify_outputs.json"],
       "@/renderer-engine/dist/*": ["./dist/*"]
     },
     "target": "ES2020",

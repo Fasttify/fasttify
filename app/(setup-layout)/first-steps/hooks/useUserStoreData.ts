@@ -1,4 +1,4 @@
-import type { Schema } from '@/amplify/data/resource';
+import type { Schema } from '@/data-schema';
 import outputs from '@/amplify_outputs.json';
 import useUserStore from '@/context/core/userStore';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';

@@ -1,4 +1,4 @@
-import type { Schema } from '@/amplify/data/resource';
+import type { Schema } from '@/data-schema';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { validateMenuItems, validateNavigationMenu, validateUpdateNavigationMenu } from '@/lib/zod-schemas/navigation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
