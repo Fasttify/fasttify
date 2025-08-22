@@ -27,7 +27,9 @@
       "@/renderer-engine/*": ["./packages/renderer-engine/*"],
       "@/renderer-engine": ["./packages/renderer-engine"],
       "@/context/*": ["./context/*"],
-      "@/hooks/*": ["./hooks/*"]
+      "@/hooks/*": ["./hooks/*"],
+      "@/tenant-domains/*": ["./packages/tenant-domains/*"],
+      "@/tenant-domains": ["./packages/tenant-domains"]
     },
     "incremental": true
   }

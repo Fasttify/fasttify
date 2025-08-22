@@ -10,6 +10,8 @@ module.exports = {
   moduleNameMapper: {
     '^@/renderer-engine/(.*)$': '<rootDir>/packages/renderer-engine/$1',
     '^@/renderer-engine$': '<rootDir>/packages/renderer-engine',
+    '^@/tenant-domains/(.*)$': '<rootDir>/packages/tenant-domains/$1',
+    '^@/tenant-domains$': '<rootDir>/packages/tenant-domains',
     '^@/(.*)$': '<rootDir>/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
