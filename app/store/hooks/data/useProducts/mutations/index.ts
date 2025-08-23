@@ -1,1 +1,0 @@
-export { useProductMutations } from './useProductMutations';
