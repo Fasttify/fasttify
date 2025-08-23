@@ -36,7 +36,7 @@ export function ProductManager({ storeId, productId }: ProductManagerProps) {
     return <Loading />;
   }
 
-  return products.length === 0 && !loading ? (
+  return products.length === 0 && !loading && !hasPreviousPage ? (
     <ProductsPage />
   ) : (
     <ProductList
