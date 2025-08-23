@@ -8,6 +8,8 @@ const readline = require('readline');
 const config = {
   // Por defecto, asume que está corriendo en localhost:3000
   apiUrl: process.env.API_URL || 'http://localhost:3000',
+  // Ruta local fija para el template
+  localTemplateDir: 'template',
 };
 
 // Crear interfaz para leer líneas de la consola
@@ -62,21 +64,24 @@ async function checkStatus() {
 // Comandos principales
 const commands = {
   async start(args) {
-    if (args.length < 2) {
-      console.error('Error: Se requiere storeId y ruta local.');
-      console.log('Uso: node template-sync.js start <storeId> <rutaLocal>');
+    if (args.length < 1) {
+      console.error('Error: Se requiere storeId.');
+      console.log('Uso: node template-sync.js start <storeId>');
       return;
     }
 
-    const [storeId, localDir] = args;
+    const [storeId] = args;
+    const localDir = path.resolve(config.localTemplateDir);
 
     // Verificar que el directorio existe
-    if (!fs.existsSync(path.resolve(localDir))) {
+    if (!fs.existsSync(localDir)) {
       console.error(`Error: El directorio ${localDir} no existe.`);
+      console.log('Asegúrate de que el directorio "template" esté en la raíz del proyecto.');
       process.exit(1);
     }
 
     console.log(`Iniciando sincronización para la tienda ${storeId} desde ${localDir}...`);
+    console.log('📁 Directorio fuente: template/');
     const result = await callApi('start', { storeId, localDir });
 
     if (result?.status === 'started') {
@@ -200,12 +205,15 @@ const commands = {
   help() {
     console.log('Uso: node template-sync.js <comando> [argumentos]');
     console.log('\nComandos disponibles:');
-    console.log('  start <storeId> <rutaLocal>  Inicia la sincronización');
-    console.log('  stop                        Detiene la sincronización');
-    console.log('  status                      Muestra el estado actual');
-    console.log('  sync                        Sincroniza todos los archivos');
-    console.log('  login                       Verifica autenticación');
-    console.log('  help                        Muestra esta ayuda');
+    console.log('  start <storeId>  Inicia la sincronización desde el directorio "template/"');
+    console.log('  stop            Detiene la sincronización');
+    console.log('  status          Muestra el estado actual');
+    console.log('  sync            Sincroniza todos los archivos');
+    console.log('  login           Verifica autenticación');
+    console.log('  help            Muestra esta ayuda');
+    console.log('\nEjemplo:');
+    console.log('  node template-sync.js start my-store-123');
+    console.log('\nNota: El directorio "template/" se usa automáticamente como fuente.');
   },
 };
 
