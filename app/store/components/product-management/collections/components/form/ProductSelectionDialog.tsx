@@ -117,11 +117,19 @@ export function ProductSelectionDialog({
               );
             }}
             emptyState={
-              <EmptyState
-                heading="No se encontraron productos"
-                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
-                <p>Prueba con un término de búsqueda diferente.</p>
-              </EmptyState>
+              hasPreviousPage ? (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                  <Text variant="bodyMd" tone="subdued" as="p">
+                    No hay productos en esta página. Usa la paginación para navegar a otras páginas.
+                  </Text>
+                </div>
+              ) : (
+                <EmptyState
+                  heading="No se encontraron productos"
+                  image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
+                  <p>Prueba con un término de búsqueda diferente.</p>
+                </EmptyState>
+              )
             }
           />
         )}

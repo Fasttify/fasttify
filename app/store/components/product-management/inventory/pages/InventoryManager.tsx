@@ -52,7 +52,7 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
     return <Loading />;
   }
 
-  return inventoryData.length === 0 ? (
+  return inventoryData.length === 0 && !loading && !hasPreviousPage ? (
     <InventoryPage />
   ) : (
     <InventoryTracking
