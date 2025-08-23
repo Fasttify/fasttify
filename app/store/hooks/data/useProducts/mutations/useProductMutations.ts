@@ -40,9 +40,9 @@ export const useProductMutations = (storeId: string | undefined) => {
       const { data } = await client.models.Product.create(dataToSend);
       return data as IProduct;
     },
-    onSuccess: async () => {
-      // Invalidar React Query cache
-      queryClient.invalidateQueries({ queryKey: ['products', storeId] });
+    onSuccess: async (newProduct) => {
+      // Agregar el nuevo producto al caché de React Query
+      cacheUtils.addProductToCache(newProduct);
 
       // Invalidar caché del motor de renderizado
       if (storeId) {
@@ -156,9 +156,9 @@ export const useProductMutations = (storeId: string | undefined) => {
       const { data } = await client.models.Product.create(duplicatedProduct);
       return data as IProduct;
     },
-    onSuccess: async () => {
-      // Invalidar React Query cache
-      queryClient.invalidateQueries({ queryKey: ['products', storeId] });
+    onSuccess: async (duplicatedProduct) => {
+      // Agregar el producto duplicado al caché de React Query
+      cacheUtils.addProductToCache(duplicatedProduct);
 
       // Invalidar caché del motor de renderizado
       if (storeId) {

@@ -71,10 +71,10 @@ export function InventoryTracking({
     );
   }
 
-  if (data.length === 0) {
+  if (data.length === 0 && !hasPreviousPage) {
     return (
       <>
-        <div className="flex items-center justify-between ">
+        <div className="flex items-center justify-between mt-8">
           <div className="flex items-center justify-between mb-6">
             <InventoryHeader />
           </div>

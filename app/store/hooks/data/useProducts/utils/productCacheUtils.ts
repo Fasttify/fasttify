@@ -77,10 +77,34 @@ export const useProductCacheUtils = (storeId: string | undefined) => {
     queryClient.invalidateQueries({ queryKey: ['products', storeId] });
   };
 
+  /**
+   * Agrega un producto nuevo al caché optimísticamente
+   */
+  const addProductToCache = (newProduct: IProduct) => {
+    if (!storeId) return;
+
+    queryClient
+      .getQueryCache()
+      .findAll({ queryKey: ['products', storeId] })
+      .forEach((query) => {
+        const oldData = query.state.data as { products: IProduct[]; nextToken: string | null } | undefined;
+        if (oldData?.products) {
+          // Agregar el nuevo producto al inicio de la primera página
+          if (query.queryKey.includes(1) || query.queryKey.length === 2) {
+            queryClient.setQueryData(query.queryKey, {
+              ...oldData,
+              products: [newProduct, ...oldData.products],
+            });
+          }
+        }
+      });
+  };
+
   return {
     updateProductInCache,
     removeProductsFromCache,
     findProductInCache,
     invalidateProductsCache,
+    addProductToCache,
   };
 };
