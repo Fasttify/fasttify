@@ -134,7 +134,7 @@ export function ProductSelectionDialog({
           />
         )}
       </Modal.Section>
-      {!loading && products.length > 0 && (
+      {!loading && (products.length > 0 || hasPreviousPage) && (
         <Modal.Section>
           <Box padding="300" background="bg-surface">
             <ProductPagination
