@@ -10,7 +10,7 @@ export const useCheckoutSessionPagination = (options: PaginationOptions) => {
 
   const limit = options.limit || 50;
   const sortDirection = options.sortDirection || 'DESC';
-  const sortField = options.sortField || 'expiresAt';
+  const sortField = options.sortField || 'creationDate';
 
   /**
    * Resetea la paginación a la primera página
@@ -56,9 +56,17 @@ export const useCheckoutSessionPagination = (options: PaginationOptions) => {
   /**
    * Verifica si hay una página siguiente
    */
-  const hasNextPage = useCallback((nextToken: string | null) => {
-    return !!nextToken;
-  }, []);
+  const hasNextPage = useCallback(
+    (nextToken: string | null, productsCount: number = 0) => {
+      // Si no hay nextToken, no hay más páginas
+      if (!nextToken) return false;
+      // Si tenemos menos productos que el límite, no hay más páginas
+      if (productsCount < limit) return false;
+      // Si tenemos exactamente el límite, solo hay más páginas si hay nextToken
+      return true;
+    },
+    [limit]
+  );
 
   /**
    * Verifica si hay una página anterior
