@@ -3,6 +3,7 @@ import { postConfirmation } from '../auth/post-confirmation/resource';
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource';
 import { createStoreTemplate } from '../functions/createStoreTemplate/resource';
 import { managePaymentKeys } from '../functions/managePaymentKeys/resource';
+import { onboardingProgress } from '../functions/onboardingProgress/resource';
 import { planScheduler } from '../functions/planScheduler/resource';
 import { webHookPlan } from '../functions/webHookPlan/resource';
 
@@ -88,6 +89,7 @@ export const storeSchema = a
     allow.resource(checkStoreDomain),
     allow.resource(createStoreTemplate),
     allow.resource(managePaymentKeys),
+    allow.resource(onboardingProgress),
   ]);
 
 // Schema completo incluyendo funciones de IA
@@ -138,6 +140,20 @@ const fullSchema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(managePaymentKeys)),
 
+    trackOnboardingProgress: a
+      .mutation()
+      .arguments({
+        storeId: a.string().required(),
+        taskId: a.integer().required(),
+        taskTitle: a.string().required(),
+        action: a.enum(['completed', 'uncompleted']),
+        userId: a.string(),
+        timestamp: a.string(),
+      })
+      .returns(a.json())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(onboardingProgress)),
+
     // Modelos del store
     UserProfile: userProfileModel,
     UserSubscription: userSubscriptionModel,
@@ -162,6 +178,7 @@ const fullSchema = a
     allow.resource(checkStoreDomain),
     allow.resource(createStoreTemplate),
     allow.resource(managePaymentKeys),
+    allow.resource(onboardingProgress),
   ]);
 
 // Tipos separados para mejorar rendimiento del linter

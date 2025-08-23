@@ -13,6 +13,7 @@ import {
 } from '@shopify/polaris';
 import { CheckIcon, ExternalIcon, ChevronDownIcon, ChevronUpIcon } from '@shopify/polaris-icons';
 import Image from 'next/image';
+import { useOnboardingProgress } from '@/app/store/hooks/useOnboardingProgress';
 
 interface SetupTaskItemProps {
   task: Task;
@@ -20,35 +21,13 @@ interface SetupTaskItemProps {
   isExpanded: boolean;
   isUpdating: boolean;
   onToggleExpand: () => void;
-  onToggleComplete: (event: React.MouseEvent) => void;
 }
 
-export function SetupTaskItem({
-  task,
-  storeId,
-  isExpanded,
-  isUpdating,
-  onToggleExpand,
-  onToggleComplete,
-}: SetupTaskItemProps) {
-  const handleCompleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggleComplete(e);
-  };
-
+export function SetupTaskItem({ task, storeId, isExpanded, isUpdating, onToggleExpand }: SetupTaskItemProps) {
   const checkmarkMarkup = (
     <div
-      role="button"
-      tabIndex={0}
-      className={`h-5 w-5 rounded-full ${task.completed ? 'bg-green-500 border-green-500' : 'border border-gray-300 bg-white'} flex-shrink-0 flex items-center justify-center cursor-pointer`}
-      onClick={handleCompleteClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onToggleComplete(e as unknown as React.MouseEvent);
-        }
-      }}
-      aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}>
+      className={`h-5 w-5 rounded-full ${task.completed ? 'bg-green-500 border-green-500' : 'border border-gray-300 bg-white'} flex-shrink-0 flex items-center justify-center`}
+      aria-label={task.completed ? 'Task completed' : 'Task not completed'}>
       {isUpdating ? <Spinner size="small" /> : task.completed && <Icon source={CheckIcon} />}
     </div>
   );

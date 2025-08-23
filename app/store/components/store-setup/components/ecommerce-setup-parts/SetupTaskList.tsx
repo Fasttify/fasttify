@@ -8,17 +8,9 @@ interface SetupTaskListProps {
   expandedTaskId: string;
   updatingTaskId: number | null;
   onToggleExpand: (taskId: string) => void;
-  onToggleComplete: (taskId: number, event: React.MouseEvent) => void;
 }
 
-export function SetupTaskList({
-  tasks,
-  storeId,
-  expandedTaskId,
-  updatingTaskId,
-  onToggleExpand,
-  onToggleComplete,
-}: SetupTaskListProps) {
+export function SetupTaskList({ tasks, storeId, expandedTaskId, updatingTaskId, onToggleExpand }: SetupTaskListProps) {
   return (
     <BlockStack gap="400">
       <div>
@@ -38,7 +30,6 @@ export function SetupTaskList({
             isExpanded={expandedTaskId === `task-${task.id}`}
             isUpdating={updatingTaskId === task.id}
             onToggleExpand={() => onToggleExpand(`task-${task.id}`)}
-            onToggleComplete={(event) => onToggleComplete(task.id, event)}
           />
         ))}
       </BlockStack>
