@@ -1,9 +1,9 @@
-import type { Schema } from '@/amplify/data/resource';
+import { type StoreSchema } from '@/data-schema';
 
 /**
  * Interfaz para representar un producto
  */
-export type IProduct = Schema['Product']['type'];
+export type IProduct = StoreSchema['Product']['type'];
 
 /**
  * Tipo para los datos necesarios al crear un producto

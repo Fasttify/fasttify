@@ -1,10 +1,10 @@
-import { RenderTag } from '@/renderer-engine/liquid/tags/core/render-tag';
+import { RenderTag } from '@/packages/renderer-engine/liquid/tags/core/render-tag';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Liquid } from 'liquidjs';
 import { createTestContext, createTestLiquid, mockTemplateLoader } from './setup';
 
 // Mock del TemplateLoader
-jest.mock('@/renderer-engine/services/templates/template-loader', () => ({
+jest.mock('@/packages/renderer-engine/services/templates/template-loader', () => ({
   TemplateLoader: {
     getInstance: () => mockTemplateLoader,
   },

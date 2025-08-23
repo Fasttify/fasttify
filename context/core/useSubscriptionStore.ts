@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 import { generateClient } from 'aws-amplify/data';
-import { type Schema } from '@/amplify/data/resource';
+import { type StoreSchema } from '@/data-schema';
 
-const client = generateClient<Schema>({
+const client = generateClient<StoreSchema>({
   authMode: 'userPool',
 });
 
 // tipo con solo los campos necesarios
-export type MinimalSubscription = Schema['UserSubscription']['type'];
+export type MinimalSubscription = StoreSchema['UserSubscription']['type'];
 
 interface SubscriptionState {
   cognitoUsername: string | null;

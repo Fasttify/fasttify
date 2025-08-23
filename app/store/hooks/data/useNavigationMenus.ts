@@ -1,4 +1,4 @@
-import type { Schema } from '@/amplify/data/resource';
+import type { StoreSchema } from '@/data-schema';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { validateMenuItems, validateNavigationMenu, validateUpdateNavigationMenu } from '@/lib/zod-schemas/navigation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
@@ -6,7 +6,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
 import { generateClient } from 'aws-amplify/data';
 import { useCallback, useState } from 'react';
 
-const client = generateClient<Schema>({
+const client = generateClient<StoreSchema>({
   authMode: 'userPool',
 });
 
@@ -68,7 +68,7 @@ export interface NavigationMenuInput {
 /**
  * Tipo para los datos del menú desde la base de datos
  */
-export type NavigationMenu = Schema['NavigationMenu']['type'];
+export type NavigationMenu = StoreSchema['NavigationMenu']['type'];
 export type NavigationMenuSummary = Pick<NavigationMenu, 'id' | 'name' | 'handle' | 'isMain' | 'isActive'>;
 
 /**

@@ -2,7 +2,7 @@ import { env } from '$amplify/env/create-store-template';
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '../../data/resource';
+import type { StoreSchema } from '../../data/resource';
 import { createDefaultCollections } from './services/collectionService';
 import { createDefaultMenus } from './services/menuService';
 import { createDefaultPages } from './services/pageService';
@@ -13,7 +13,7 @@ const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 
 Amplify.configure(resourceConfig, libraryOptions);
 
-const client = generateClient<Schema>();
+const client = generateClient<StoreSchema>();
 
 /**
  * Handler principal para inicializar templates de tienda

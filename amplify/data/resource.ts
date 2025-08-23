@@ -3,6 +3,7 @@ import { postConfirmation } from '../auth/post-confirmation/resource';
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource';
 import { createStoreTemplate } from '../functions/createStoreTemplate/resource';
 import { managePaymentKeys } from '../functions/managePaymentKeys/resource';
+import { onboardingProgress } from '../functions/onboardingProgress/resource';
 import { planScheduler } from '../functions/planScheduler/resource';
 import { webHookPlan } from '../functions/webHookPlan/resource';
 
@@ -61,8 +62,40 @@ const PaymentConfigResult = a.customType({
   message: a.string(),
 });
 
-const schema = a
+// Schema solo para el store (sin funciones de IA)
+export const storeSchema = a
   .schema({
+    // Solo modelos del store
+    UserProfile: userProfileModel,
+    UserSubscription: userSubscriptionModel,
+    UserStore: userStoreModel,
+    Product: productModel,
+    Collection: collectionModel,
+    NavigationMenu: navigationMenuModel,
+    Page: pageModel,
+    Cart: cartModel,
+    CartItem: cartItemModel,
+    CheckoutSession: checkoutSessionModel,
+    Order: orderModel,
+    OrderItem: orderItemModel,
+    StorePaymentConfig: storePaymentConfigModel,
+    StoreCustomDomain: storeCustomDomainModel,
+    UserTheme: userThemeModel,
+  })
+  .authorization((allow) => [
+    allow.resource(postConfirmation),
+    allow.resource(webHookPlan),
+    allow.resource(planScheduler),
+    allow.resource(checkStoreDomain),
+    allow.resource(createStoreTemplate),
+    allow.resource(managePaymentKeys),
+    allow.resource(onboardingProgress),
+  ]);
+
+// Schema completo incluyendo funciones de IA
+const fullSchema = a
+  .schema({
+    // Funciones de IA
     generateHaiku: a
       .query()
       .arguments({ prompt: a.string().required() })
@@ -107,7 +140,21 @@ const schema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(managePaymentKeys)),
 
-    // Modelos
+    trackOnboardingProgress: a
+      .mutation()
+      .arguments({
+        storeId: a.string().required(),
+        taskId: a.integer().required(),
+        taskTitle: a.string().required(),
+        action: a.enum(['completed', 'uncompleted']),
+        userId: a.string(),
+        timestamp: a.string(),
+      })
+      .returns(a.json())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(onboardingProgress)),
+
+    // Modelos del store
     UserProfile: userProfileModel,
     UserSubscription: userSubscriptionModel,
     UserStore: userStoreModel,
@@ -131,12 +178,18 @@ const schema = a
     allow.resource(checkStoreDomain),
     allow.resource(createStoreTemplate),
     allow.resource(managePaymentKeys),
+    allow.resource(onboardingProgress),
   ]);
 
-export type Schema = ClientSchema<typeof schema>;
+// Tipos separados para mejorar rendimiento del linter
+export type StoreSchema = ClientSchema<typeof storeSchema>;
+export type FullSchema = ClientSchema<typeof fullSchema>;
+
+// Para compatibilidad, mantenemos Schema como el completo
+export type Schema = FullSchema;
 
 export const data = defineData({
-  schema,
+  schema: fullSchema,
   authorizationModes: {
     defaultAuthorizationMode: 'apiKey',
     apiKeyAuthorizationMode: {

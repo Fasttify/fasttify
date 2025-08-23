@@ -3,12 +3,12 @@ import { generateClient } from 'aws-amplify/data';
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { env } from '$amplify/env/checkStoreDomain';
 import { getCorsHeaders } from '../shared/cors';
-import { type Schema } from '../../data/resource';
+import { type StoreSchema } from '../../data/resource';
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
 
-const clientSchema = generateClient<Schema>();
+const clientSchema = generateClient<StoreSchema>();
 
 export const handler = async (event: any) => {
   const origin = event.headers?.origin || event.headers?.Origin;

@@ -7,12 +7,12 @@ import {
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import type { EventBridgeHandler } from 'aws-lambda';
-import { type Schema } from '../../data/resource';
+import { type StoreSchema } from '../../data/resource';
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
 
-const clientSchema = generateClient<Schema>();
+const clientSchema = generateClient<StoreSchema>();
 const cognitoClient = new CognitoIdentityProviderClient();
 
 type UserSubscription = {

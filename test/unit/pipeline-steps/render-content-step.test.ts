@@ -1,9 +1,9 @@
-jest.mock('@/renderer-engine/services/rendering/render-page-content', () => ({
+jest.mock('@/packages/renderer-engine/services/rendering/render-page-content', () => ({
   renderPageContent: jest.fn().mockResolvedValue('contenido-renderizado'),
 }));
 
-import { renderContentStep } from '@/renderer-engine/renderers/pipeline-steps/render-content-step';
-import { renderPageContent } from '@/renderer-engine/services/rendering/render-page-content';
+import { renderContentStep } from '@/packages/renderer-engine/renderers/pipeline-steps/render-content-step';
+import { renderPageContent } from '@/packages/renderer-engine/services/rendering/render-page-content';
 
 describe('renderContentStep', () => {
   it('debe renderizar el contenido de la página y asignarlo a renderedContent', async () => {

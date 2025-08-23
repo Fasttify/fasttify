@@ -1,4 +1,4 @@
-import type { Schema } from '@/amplify/data/resource';
+import type { FullSchema, StoreSchema } from '@/data-schema';
 import outputs from '@/amplify_outputs.json';
 import useUserStore from '@/context/core/userStore';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
@@ -8,11 +8,11 @@ import { useState } from 'react';
 
 Amplify.configure(outputs);
 
-const client = generateClient<Schema>({
+const client = generateClient<FullSchema>({
   authMode: 'userPool',
 });
 
-export type UserStore = Schema['UserStore']['type'];
+export type UserStore = StoreSchema['UserStore']['type'];
 
 export type PaymentGatewayType = 'mercadoPago' | 'wompi';
 
@@ -30,7 +30,7 @@ export interface StoreInitializationResult {
   menus?: string[];
 }
 
-export type NavigationMenu = Schema['NavigationMenu']['type'];
+export type NavigationMenu = StoreSchema['NavigationMenu']['type'];
 
 export interface MenuItem {
   label: string;
@@ -180,7 +180,9 @@ export const useUserStoreData = () => {
   /**
    * Crea una tienda (UserStore) en la base de datos.
    */
-  const createUserStore = async (storeInput: Omit<Schema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>) => {
+  const createUserStore = async (
+    storeInput: Omit<StoreSchema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>
+  ) => {
     const result = await performOperation(() => client.models.UserStore.create(storeInput));
     if (result && storeInput.storeId) {
       await invalidateAllStoreCache(storeInput.storeId);
@@ -265,7 +267,7 @@ export const useUserStoreData = () => {
    */
   const createStoreWithTemplate = async (
     storeInput: Omit<
-      Schema['UserStore']['type'],
+      StoreSchema['UserStore']['type'],
       | 'id'
       | 'createdAt'
       | 'updatedAt'
