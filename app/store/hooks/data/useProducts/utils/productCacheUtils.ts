@@ -83,21 +83,45 @@ export const useProductCacheUtils = (storeId: string | undefined) => {
   const addProductToCache = (newProduct: IProduct) => {
     if (!storeId) return;
 
+    let shouldInvalidateCache = false;
+
     queryClient
       .getQueryCache()
       .findAll({ queryKey: ['products', storeId] })
       .forEach((query) => {
         const oldData = query.state.data as { products: IProduct[]; nextToken: string | null } | undefined;
         if (oldData?.products) {
-          // Agregar el nuevo producto al inicio de la primera página
+          // Solo agregar a la primera página si tiene espacio
           if (query.queryKey.includes(1) || query.queryKey.length === 2) {
-            queryClient.setQueryData(query.queryKey, {
-              ...oldData,
-              products: [newProduct, ...oldData.products],
-            });
+            // Detectar el límite dinámicamente basándose en la query key
+            // La query key es: ['products', storeId, limit, sortDirection, sortField, currentPage]
+            // El limit está en la posición 2
+            const limit = (query.queryKey[2] as number) || 50;
+
+            // Validar que el limit sea un número válido
+            if (typeof limit !== 'number' || limit <= 0) {
+              shouldInvalidateCache = true;
+              return;
+            }
+
+            if (oldData.products.length < limit) {
+              // Si la primera página tiene espacio, agregar el producto
+              queryClient.setQueryData(query.queryKey, {
+                ...oldData,
+                products: [newProduct, ...oldData.products],
+              });
+            } else {
+              // Si la primera página está llena, marcar para invalidar caché
+              shouldInvalidateCache = true;
+            }
           }
         }
       });
+
+    // Si la primera página está llena, invalidar el caché para que se recargue correctamente
+    if (shouldInvalidateCache) {
+      queryClient.invalidateQueries({ queryKey: ['products', storeId] });
+    }
   };
 
   return {
