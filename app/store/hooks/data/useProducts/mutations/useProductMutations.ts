@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
 import type { IProduct, ProductCreateInput, ProductUpdateInput } from '../types';
+import { useProductCacheUtils } from '../utils';
 
 const client = generateClient<StoreSchema>({
   authMode: 'userPool',
@@ -16,6 +17,7 @@ const client = generateClient<StoreSchema>({
 export const useProductMutations = (storeId: string | undefined) => {
   const queryClient = useQueryClient();
   const { invalidateProductCache } = useCacheInvalidation();
+  const cacheUtils = useProductCacheUtils(storeId);
 
   /**
    * Mutación para crear un producto
@@ -66,6 +68,9 @@ export const useProductMutations = (storeId: string | undefined) => {
       return data as IProduct;
     },
     onSuccess: async (updatedProduct) => {
+      // Actualizar caché de React Query
+      cacheUtils.updateProductInCache(updatedProduct);
+
       // Invalidar caché del motor de renderizado
       if (storeId) {
         await invalidateProductCache(storeId, updatedProduct.id);
@@ -82,6 +87,9 @@ export const useProductMutations = (storeId: string | undefined) => {
       return id;
     },
     onSuccess: async (deletedId) => {
+      // Remover producto de la caché de React Query
+      cacheUtils.removeProductsFromCache([deletedId]);
+
       // Invalidar caché del motor de renderizado
       if (storeId) {
         await invalidateProductCache(storeId, deletedId);
@@ -98,6 +106,9 @@ export const useProductMutations = (storeId: string | undefined) => {
       return ids;
     },
     onSuccess: async (deletedIds) => {
+      // Remover productos de la caché de React Query
+      cacheUtils.removeProductsFromCache(deletedIds);
+
       // Invalidar caché del motor de renderizado para cada producto eliminado
       if (storeId) {
         await Promise.all(deletedIds.map((id) => invalidateProductCache(storeId, id)));

@@ -119,7 +119,7 @@ export function InventoryTracking({
 
         <InventoryTable data={filteredData} />
 
-        {!loading && !error && filteredData.length > 0 && (
+        {!loading && !error && (filteredData.length > 0 || hasPreviousPage) && (
           <div style={{ padding: 16 }}>
             <ProductPagination
               currentPage={currentPage}

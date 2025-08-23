@@ -57,7 +57,7 @@ export function ProductList({
     duplicateProduct,
     onSuccess: (duplicatedProduct) => {
       // Opcional: redirigir al producto duplicado para editarlo
-      router.push(routes.store.products.edit(storeId, duplicatedProduct.id));
+      // router.push(routes.store.products.edit(storeId, duplicatedProduct.id));//
     },
   });
 
