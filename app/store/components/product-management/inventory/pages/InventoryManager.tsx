@@ -2,11 +2,15 @@ import { useProducts } from '@/app/store/hooks/data/useProducts';
 import { InventoryTracking } from '@/app/store/components/product-management/inventory/pages/InventoryTracking';
 import { InventoryPage } from '@/app/store/components/product-management/inventory/pages/InventoryPage';
 import { Loading } from '@shopify/polaris';
+import { useState } from 'react';
+
 interface InventoryManagerProps {
   storeId: string;
 }
 
 export function InventoryManager({ storeId }: InventoryManagerProps) {
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+
   const {
     products,
     loading,
@@ -17,7 +21,7 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
     previousPage,
     currentPage,
     refreshProducts,
-  } = useProducts(storeId);
+  } = useProducts(storeId, { limit: itemsPerPage });
 
   // Transformar los productos al formato de inventario
   const inventoryData = products.map((product) => {
@@ -65,6 +69,8 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
       previousPage={previousPage}
       refreshInventory={refreshProducts}
       currentPage={currentPage}
+      itemsPerPage={itemsPerPage}
+      setItemsPerPage={setItemsPerPage}
     />
   );
 }

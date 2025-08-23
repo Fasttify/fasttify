@@ -22,6 +22,8 @@ interface InventoryTrackingProps {
   previousPage: () => void;
   refreshInventory: () => void;
   currentPage: number;
+  itemsPerPage: number;
+  setItemsPerPage: (value: number) => void;
 }
 
 export function InventoryTracking({
@@ -33,12 +35,13 @@ export function InventoryTracking({
   nextPage,
   previousPage,
   currentPage,
+  itemsPerPage,
+  setItemsPerPage,
 }: InventoryTrackingProps) {
   const pathname = usePathname();
   const params = useParams();
   const router = useRouter();
   const storeId = getStoreId(params, pathname);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredData = useMemo(() => {
