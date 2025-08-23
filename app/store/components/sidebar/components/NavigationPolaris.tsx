@@ -60,8 +60,13 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             label: 'Pedidos',
             icon: OrderIcon,
             selected: pathname.includes('/orders'),
-            badge: '3', // Ejemplo: número de pedidos pendientes
+            badge: '3',
             subNavigationItems: [
+              {
+                url: `/store/${storeId}/orders/checkout`,
+                label: 'Checkouts',
+                disabled: false,
+              },
               {
                 url: `/store/${storeId}/orders/processing`,
                 label: 'En Proceso',

@@ -1,6 +1,6 @@
 import type { Task } from '@/app/store/components/store-setup/utils/StoreSetup-tasks';
 import { defaultStoreTasks } from '@/app/store/components/store-setup/utils/StoreSetup-tasks';
-import { BlockStack, Box, LegacyCard, Loading, Page } from '@shopify/polaris';
+import { BlockStack, Box, Card, Loading, Page } from '@shopify/polaris';
 import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -91,7 +91,7 @@ export function EcommerceSetup() {
         <SetupAdBanner onActionClick={() => setIsPricingOpen(true)} />
         <SetupHeader />
 
-        <LegacyCard>
+        <Card>
           <SetupProgress completedTasks={completedTasksCount} totalTasks={tasks.length} />
           <Box padding="400">
             <SetupTaskList
@@ -100,10 +100,9 @@ export function EcommerceSetup() {
               expandedTaskId={expandedTaskId}
               updatingTaskId={updatingTaskId}
               onToggleExpand={setExpandedTaskId}
-              onToggleComplete={(taskId: number) => toggleTaskCompletion(taskId)}
             />
           </Box>
-        </LegacyCard>
+        </Card>
 
         <PricingDrawer open={isPricingOpen} onOpenChange={setIsPricingOpen} />
       </BlockStack>
