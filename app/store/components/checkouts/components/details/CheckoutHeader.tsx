@@ -12,7 +12,7 @@ export function CheckoutHeader({ checkout }: CheckoutHeaderProps) {
     <Card>
       <BlockStack gap="400">
         {/* Título y estado */}
-        <InlineStack align="space-between" blockAlign="center">
+        <InlineStack align="start" blockAlign="start">
           <InlineStack gap="300" blockAlign="start">
             <div style={{ marginTop: '2px' }}>
               <Icon source={CreditCardIcon} />
@@ -26,7 +26,11 @@ export function CheckoutHeader({ checkout }: CheckoutHeaderProps) {
               </Text>
             </BlockStack>
           </InlineStack>
-          <Badge tone={getStatusTone(checkout.status ?? '')} size="large">
+        </InlineStack>
+
+        {/* Badge de estado separado */}
+        <InlineStack align="start">
+          <Badge tone={getStatusTone(checkout.status ?? '')} size="small">
             {getStatusText(checkout.status ?? '')}
           </Badge>
         </InlineStack>

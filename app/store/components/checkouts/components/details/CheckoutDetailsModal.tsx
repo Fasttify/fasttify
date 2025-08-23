@@ -44,7 +44,7 @@ export function CheckoutDetailsModal({
     <Modal
       open={open}
       onClose={onClose}
-      title=""
+      title={`Detalles del Checkout #${checkout.token.substring(0, 12)}...`}
       size="large"
       primaryAction={{
         content: 'Cerrar',
@@ -52,7 +52,7 @@ export function CheckoutDetailsModal({
         disabled: isLoading,
       }}>
       <Modal.Section>
-        <BlockStack gap="600">
+        <BlockStack gap="400">
           {/* Header con información principal */}
           <CheckoutHeader checkout={checkout} />
 
