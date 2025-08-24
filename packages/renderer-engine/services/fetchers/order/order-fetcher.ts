@@ -44,6 +44,22 @@ export class OrderFetcher {
       // Extraer email del customerInfo o usar el proporcionado
       const finalCustomerEmail = customerInfoManager.extractCustomerEmail(checkoutSession.customerInfo, customerEmail);
 
+      // Calcular el compareAtPrice total antes de crear la orden
+      let totalCompareAtPrice = 0;
+      if (checkoutSession.itemsSnapshot) {
+        for (const item of checkoutSession.itemsSnapshot.items) {
+          try {
+            if (item.productSnapshot && typeof item.productSnapshot === 'string') {
+              const parsedSnapshot = JSON.parse(item.productSnapshot);
+              const itemCompareAtPrice = parsedSnapshot.compare_at_price || 0;
+              totalCompareAtPrice += itemCompareAtPrice * (item.quantity || 1);
+            }
+          } catch (error) {
+            // Silenciar error de parsing
+          }
+        }
+      }
+
       // Crear datos de la orden
       const orderData = {
         orderNumber,
@@ -55,10 +71,11 @@ export class OrderFetcher {
         shippingCost: checkoutSession.shippingCost,
         taxAmount: checkoutSession.taxAmount,
         totalAmount: checkoutSession.totalAmount,
+        compareAtPrice: totalCompareAtPrice,
         currency: checkoutSession.currency,
         status: 'pending' as const,
         paymentStatus: 'pending' as const,
-        paymentMethod: paymentMethod || 'unknown',
+        paymentMethod: paymentMethod || 'Manual',
         paymentId: paymentId || null,
         shippingAddress: checkoutSession.shippingAddress ? JSON.stringify(checkoutSession.shippingAddress) : null,
         billingAddress: checkoutSession.billingAddress ? JSON.stringify(checkoutSession.billingAddress) : null,

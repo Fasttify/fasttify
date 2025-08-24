@@ -32,6 +32,7 @@ export interface OrderItemData {
   unitPrice: number;
   totalPrice: number;
   productSnapshot: string;
+  compareAtPrice?: number | null;
   storeOwner: string;
 }
 
@@ -43,6 +44,7 @@ export interface ProductSnapshotData {
   image?: string | null;
   handle?: string | null;
   variantHandle?: string | null;
+  compareAtPrice?: number | null;
   attributes: any[];
   selectedAttributes: Record<string, string>;
   snapshotAt: string;

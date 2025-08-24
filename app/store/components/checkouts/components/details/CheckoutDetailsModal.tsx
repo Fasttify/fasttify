@@ -1,5 +1,5 @@
 import { Modal, BlockStack, Divider } from '@shopify/polaris';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ICheckoutSession } from '@/app/store/hooks/data/useCheckoutSessions';
 import { CheckoutHeader } from './CheckoutHeader';
 import { CheckoutCustomerInfo } from './CheckoutCustomerInfo';
@@ -28,13 +28,26 @@ export function CheckoutDetailsModal({
   onDelete,
 }: CheckoutDetailsModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [currentCheckout, setCurrentCheckout] = useState<ICheckoutSession | null>(null);
 
-  if (!checkout) return null;
+  // Actualizar el checkout local cuando cambie el prop o cuando se abra el modal
+  useEffect(() => {
+    if (checkout && open) {
+      setCurrentCheckout(checkout);
+    }
+  }, [checkout, open]);
 
-  const handleAction = async (action: () => Promise<void>) => {
+  if (!currentCheckout) return null;
+
+  const handleAction = async (action: () => Promise<void>, newStatus?: string) => {
     setIsLoading(true);
     try {
       await action();
+      // Después de la acción exitosa, actualizar el checkout local
+      // para reflejar los cambios inmediatamente
+      if (currentCheckout && newStatus) {
+        setCurrentCheckout({ ...currentCheckout, status: newStatus as any });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -44,7 +57,7 @@ export function CheckoutDetailsModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={`Detalles del Checkout #${checkout.token.substring(0, 12)}...`}
+      title={`Detalles del Checkout #${currentCheckout.token.substring(0, 12)}...`}
       size="large"
       primaryAction={{
         content: 'Cerrar',
@@ -54,36 +67,36 @@ export function CheckoutDetailsModal({
       <Modal.Section>
         <BlockStack gap="400">
           {/* Header con información principal */}
-          <CheckoutHeader checkout={checkout} />
+          <CheckoutHeader checkout={currentCheckout} />
 
           <Divider />
 
           {/* Información del cliente */}
-          <CheckoutCustomerInfo checkout={checkout} />
+          <CheckoutCustomerInfo checkout={currentCheckout} />
 
           <Divider />
 
           {/* Lista de productos */}
-          <CheckoutItems checkout={checkout} />
+          <CheckoutItems checkout={currentCheckout} />
 
           <Divider />
 
           {/* Información de precios */}
-          <CheckoutPricing checkout={checkout} />
+          <CheckoutPricing checkout={currentCheckout} />
 
           <Divider />
 
           {/* Timeline de eventos */}
-          <CheckoutTimeline checkout={checkout} />
+          <CheckoutTimeline checkout={currentCheckout} />
 
           {/* Acciones disponibles */}
           <CheckoutActions
-            checkout={checkout}
+            checkout={currentCheckout}
             isLoading={isLoading}
-            onComplete={onComplete ? () => handleAction(() => onComplete(checkout.id)) : undefined}
-            onExpire={onExpire ? () => handleAction(() => onExpire(checkout.id)) : undefined}
-            onCancel={onCancel ? () => handleAction(() => onCancel(checkout.id)) : undefined}
-            onDelete={onDelete ? () => handleAction(() => onDelete(checkout.id)) : undefined}
+            onComplete={onComplete ? () => handleAction(() => onComplete(currentCheckout.id), 'completed') : undefined}
+            onExpire={onExpire ? () => handleAction(() => onExpire(currentCheckout.id), 'expired') : undefined}
+            onCancel={onCancel ? () => handleAction(() => onCancel(currentCheckout.id), 'cancelled') : undefined}
+            onDelete={onDelete ? () => handleAction(() => onDelete(currentCheckout.id)) : undefined}
           />
         </BlockStack>
       </Modal.Section>

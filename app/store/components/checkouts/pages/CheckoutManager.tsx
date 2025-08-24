@@ -92,7 +92,10 @@ export function CheckoutManager({ storeId }: CheckoutManagerProps) {
           await cancelCheckoutSession(id);
         }}
         onDelete={async (id: string) => {
-          await deleteCheckoutSession(id);
+          const result = await deleteCheckoutSession(id);
+          if (result) {
+            closeModal();
+          }
         }}
       />
     </>

@@ -67,16 +67,6 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
                 label: 'Checkouts',
                 disabled: false,
               },
-              {
-                url: `/store/${storeId}/orders/processing`,
-                label: 'En Proceso',
-                disabled: false,
-              },
-              {
-                url: `/store/${storeId}/orders/shipping`,
-                label: 'Envíos',
-                disabled: false,
-              },
             ],
           },
           {
