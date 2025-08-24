@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
 import type { ICheckoutSession, CheckoutSessionCreateInput, CheckoutSessionUpdateInput } from '../types';
+import { useCheckoutSessionCacheUtils } from '../utils/checkoutSessionCacheUtils';
 
 const client = generateClient<StoreSchema>({
   authMode: 'userPool',
@@ -13,6 +14,7 @@ const client = generateClient<StoreSchema>({
  */
 export const useCheckoutSessionMutations = (storeId: string | undefined) => {
   const queryClient = useQueryClient();
+  const cacheUtils = useCheckoutSessionCacheUtils(storeId);
 
   /**
    * Mutación para crear una sesión de checkout
@@ -35,9 +37,9 @@ export const useCheckoutSessionMutations = (storeId: string | undefined) => {
       const { data } = await client.models.CheckoutSession.create(dataToSend);
       return data as ICheckoutSession;
     },
-    onSuccess: async () => {
-      // Invalidar React Query cache
-      queryClient.invalidateQueries({ queryKey: ['checkoutSessions', storeId] });
+    onSuccess: async (newSession) => {
+      // Actualizar caché optimísticamente
+      cacheUtils.updateCheckoutSessionInCache(newSession);
     },
   });
 
@@ -60,9 +62,9 @@ export const useCheckoutSessionMutations = (storeId: string | undefined) => {
       const { data } = await client.models.CheckoutSession.update(dataToSend);
       return data as ICheckoutSession;
     },
-    onSuccess: async () => {
-      // Invalidar React Query cache
-      queryClient.invalidateQueries({ queryKey: ['checkoutSessions', storeId] });
+    onSuccess: async (updatedSession) => {
+      // Actualizar caché optimísticamente
+      cacheUtils.updateCheckoutSessionInCache(updatedSession);
     },
   });
 
@@ -70,13 +72,16 @@ export const useCheckoutSessionMutations = (storeId: string | undefined) => {
    * Mutación para eliminar una sesión de checkout
    */
   const deleteCheckoutSessionMutation = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async ({ id, storeOwner }: { id: string; storeOwner: string }) => {
+      if (!id) {
+        throw new Error('ID is required for deletion');
+      }
       await client.models.CheckoutSession.delete({ id });
       return id;
     },
     onSuccess: async (deletedId) => {
-      // Invalidar React Query cache
-      queryClient.invalidateQueries({ queryKey: ['checkoutSessions', storeId] });
+      // Remover del caché optimísticamente
+      cacheUtils.removeCheckoutSessionsFromCache([deletedId]);
     },
   });
 
@@ -84,13 +89,13 @@ export const useCheckoutSessionMutations = (storeId: string | undefined) => {
    * Mutación para eliminar múltiples sesiones de checkout
    */
   const deleteMultipleCheckoutSessionsMutation = useMutation({
-    mutationFn: async (ids: string[]) => {
+    mutationFn: async ({ ids, storeOwner }: { ids: string[]; storeOwner: string }) => {
       await Promise.all(ids.map((id) => client.models.CheckoutSession.delete({ id })));
       return ids;
     },
     onSuccess: async (deletedIds) => {
-      // Invalidar React Query cache
-      queryClient.invalidateQueries({ queryKey: ['checkoutSessions', storeId] });
+      // Remover del caché optimísticamente
+      cacheUtils.removeCheckoutSessionsFromCache(deletedIds);
     },
   });
 
@@ -105,9 +110,9 @@ export const useCheckoutSessionMutations = (storeId: string | undefined) => {
       });
       return data as ICheckoutSession;
     },
-    onSuccess: async () => {
-      // Invalidar React Query cache
-      queryClient.invalidateQueries({ queryKey: ['checkoutSessions', storeId] });
+    onSuccess: async (updatedSession) => {
+      // Actualizar caché optimísticamente
+      cacheUtils.updateCheckoutSessionInCache(updatedSession);
     },
   });
 
@@ -123,9 +128,9 @@ export const useCheckoutSessionMutations = (storeId: string | undefined) => {
       });
       return data as ICheckoutSession;
     },
-    onSuccess: async () => {
-      // Invalidar React Query cache
-      queryClient.invalidateQueries({ queryKey: ['checkoutSessions', storeId] });
+    onSuccess: async (updatedSession) => {
+      // Actualizar caché optimísticamente
+      cacheUtils.updateCheckoutSessionInCache(updatedSession);
     },
   });
 
@@ -140,9 +145,9 @@ export const useCheckoutSessionMutations = (storeId: string | undefined) => {
       });
       return data as ICheckoutSession;
     },
-    onSuccess: async () => {
-      // Invalidar React Query cache
-      queryClient.invalidateQueries({ queryKey: ['checkoutSessions', storeId] });
+    onSuccess: async (updatedSession) => {
+      // Actualizar caché optimísticamente
+      cacheUtils.updateCheckoutSessionInCache(updatedSession);
     },
   });
 

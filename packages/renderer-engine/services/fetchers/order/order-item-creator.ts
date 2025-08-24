@@ -41,12 +41,24 @@ export class OrderItemCreator {
         // Crear el snapshot del producto
         const productSnapshotData = this.createProductSnapshotData(item, itemPrice);
 
+        // Obtener compareAtPrice del productSnapshot parseado
+        let compareAtPrice = null;
+        try {
+          if (item.productSnapshot && typeof item.productSnapshot === 'string') {
+            const parsedSnapshot = JSON.parse(item.productSnapshot);
+            compareAtPrice = parsedSnapshot.compare_at_price || null;
+          }
+        } catch (error) {
+          // Silenciar error de parsing
+        }
+
         const orderItemData: OrderItemData = {
           orderId,
           storeId,
           productId: item.product_id || item.productId,
           variantId: item.variant_id || item.variantId || null,
           quantity: item.quantity,
+          compareAtPrice: compareAtPrice,
           unitPrice: itemPrice,
           totalPrice: itemPrice * item.quantity,
           productSnapshot: JSON.stringify(productSnapshotData),
@@ -88,6 +100,7 @@ export class OrderItemCreator {
       image: productInfo?.featured_image || productInfo?.image || item.image || null,
       handle: productInfo?.url || item.url || null,
       variantHandle: null,
+      compareAtPrice: productInfo?.compare_at_price || item.compareAtPrice || null,
       attributes: item.attributes || [],
       selectedAttributes: item.selectedAttributes || {},
       snapshotAt: new Date().toISOString(),

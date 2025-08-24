@@ -2,8 +2,8 @@ export const plans = [
   {
     polarId: 'e02f173f-1ca5-4f7b-a900-2e5c9413d8a6',
     name: 'Royal',
-    title: '$20.000 COP/mes',
-    price: '20000',
+    title: '$55.000 COP/mes',
+    price: '55000',
     description: 'Ideal para emprendedores individuales.',
     features: [
       'Asesoría por chat, email y WhatsApp.',
@@ -20,8 +20,8 @@ export const plans = [
   {
     polarId: '149c6595-1611-477d-b0b4-61700d33c069',
     name: 'Majestic',
-    title: '$30.000 COP/mes',
-    price: '30000',
+    title: '$75.000 COP/mes',
+    price: '75000',
     description: 'Para equipos pequeños que quieren crecer.',
     features: [
       'Todo en Royal.',
@@ -39,8 +39,8 @@ export const plans = [
   {
     polarId: '3a85e94a-7deb-4f94-8aa4-99a972406f0f',
     name: 'Imperial',
-    title: '$45.000 COP/mes',
-    price: '45000',
+    title: '$100.000 COP/mes',
+    price: '100000',
     description: 'Para negocios en expansión con alto tráfico.',
     features: [
       'Todo en Majestic.',

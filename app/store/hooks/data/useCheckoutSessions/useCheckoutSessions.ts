@@ -97,7 +97,7 @@ export function useCheckoutSessions(
         if (!id) {
           throw new Error('Checkout session ID is required for deletion');
         }
-        await deleteCheckoutSessionMutation.mutateAsync(id);
+        await deleteCheckoutSessionMutation.mutateAsync({ id, storeOwner: '' });
         return true;
       } catch (err) {
         console.error('Error deleting checkout session:', err);
@@ -110,7 +110,7 @@ export function useCheckoutSessions(
   const deleteMultipleCheckoutSessions = useCallback(
     async (ids: string[]) => {
       try {
-        await deleteMultipleCheckoutSessionsMutation.mutateAsync(ids);
+        await deleteMultipleCheckoutSessionsMutation.mutateAsync({ ids, storeOwner: '' });
         return true;
       } catch (err) {
         console.error('Error deleting multiple checkout sessions:', err);

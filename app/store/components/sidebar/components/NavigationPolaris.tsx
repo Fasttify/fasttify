@@ -63,18 +63,8 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             badge: '3',
             subNavigationItems: [
               {
-                url: `/store/${storeId}/orders/checkout`,
+                url: `/store/${storeId}/orders/checkouts`,
                 label: 'Checkouts',
-                disabled: false,
-              },
-              {
-                url: `/store/${storeId}/orders/processing`,
-                label: 'En Proceso',
-                disabled: false,
-              },
-              {
-                url: `/store/${storeId}/orders/shipping`,
-                label: 'Envíos',
                 disabled: false,
               },
             ],

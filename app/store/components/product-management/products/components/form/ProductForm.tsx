@@ -21,7 +21,7 @@ import { routes } from '@/utils/client/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BlockStack, Card, ContextualSaveBar, Form, Layout, Loading, Page, Select, Text } from '@shopify/polaris';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 interface ProductFormProps {
@@ -54,6 +54,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
   const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(!!productId);
+  const hasLoadedProduct = useRef(false);
 
   const { createProduct, updateProduct, fetchProduct } = useProducts(storeId, {
     skipInitialFetch: true,
@@ -69,27 +70,33 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
     formState: { isDirty },
   } = form;
 
-  const loadProduct = useCallback(async () => {
-    if (!productId) {
-      setIsLoadingProduct(false);
-      return;
-    }
-
-    try {
-      const product = await fetchProduct(productId);
-      if (product) {
-        const formValues = mapProductToFormValues(product);
-        formValues.status = normalizeStatus(formValues.status);
-        formValues.category = formValues.category || '';
-        form.reset(formValues);
+  const loadProduct = useMemo(() => {
+    return async () => {
+      // Evitar cargar múltiples veces
+      if (hasLoadedProduct.current || !productId) {
+        setIsLoadingProduct(false);
+        return;
       }
-    } catch (error) {
-      console.error('Error loading product:', error);
-      showToast('No se pudo cargar el producto. Por favor, inténtelo de nuevo.', true);
-    } finally {
-      setIsLoadingProduct(false);
-    }
-  }, [productId, fetchProduct, form, showToast]);
+
+      hasLoadedProduct.current = true;
+
+      try {
+        const product = await fetchProduct(productId);
+
+        if (product) {
+          const formValues = mapProductToFormValues(product);
+          formValues.status = normalizeStatus(formValues.status);
+          formValues.category = formValues.category || '';
+          form.reset(formValues);
+        }
+      } catch (error) {
+        console.error('Error loading product:', error);
+        showToast('No se pudo cargar el producto. Por favor, inténtelo de nuevo.', true);
+      } finally {
+        setIsLoadingProduct(false);
+      }
+    };
+  }, [productId, fetchProduct, showToast, form]);
 
   useEffect(() => {
     loadProduct();
