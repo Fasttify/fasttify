@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "renderer-engine"
+    "packages/renderer-engine",
+    "packages/orders-app"
   ],
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build --turbopack",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
@@ -59,7 +60,6 @@
     "@tailwindcss/postcss": "^4.1.8",
     "@tanstack/react-query": "^5.82.0",
     "aws-amplify": "^6.15.3",
-    "chokidar": "^4.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -67,8 +67,6 @@
     "framer-motion": "^12.23.1",
     "gsap": "^3.13.0",
     "input-otp": "^1.4.2",
-    "jszip": "^3.10.1",
-    "liquidjs": "^10.21.1",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.1",
     "next": "^15.3.5",

@@ -15,6 +15,26 @@ const nextConfig = {
     'node-fetch',
   ],
   images: {
+    // Configuración para imágenes locales
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+
+    // Configuración para desarrollo
+    unoptimized: process.env.APP_ENV === 'development',
+
+    // Configuración para imágenes locales según documentación oficial
+    localPatterns: [
+      {
+        pathname: '/icons/**',
+      },
+      {
+        pathname: '/api/stores/**',
+      },
+      {
+        pathname: '/**',
+      },
+    ],
+
     remotePatterns: [
       {
         protocol: 'https',
