@@ -65,7 +65,7 @@ export function Navbar() {
       // 4. Navegar usando Next.js router
       router.push('/login');
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+      console.error('Error signing out', error);
       // Fallback: limpiar estado y navegar
       clearUser();
       router.push('/login');

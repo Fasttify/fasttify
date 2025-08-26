@@ -1,0 +1,31 @@
+{
+  "name": "@fasttify/orders-app",
+  "version": "1.0.0",
+  "description": "Package para la gestión y búsqueda de órdenes",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest"
+  },
+  "dependencies": {
+    "styled-components": "^6.1.19"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@types/styled-components": "^5.1.34",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "keywords": ["orders", "fasttify", "styled-components"],
+  "author": "Fasttify Team",
+  "license": "MIT"
+}
+
+

@@ -22,7 +22,7 @@
     "dotenv": "^17.2.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
+    "@types/node": "^24",
     "typescript": "^5.8.3",
     "jest": "^30.0.4",
     "@types/jest": "^30.0.0",

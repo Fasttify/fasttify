@@ -44,7 +44,7 @@
         {% else %}
           <!-- Imagen por defecto one.png -->
           <img
-            src="{{ 'one.png' | asset_url }}"
+            src="{{ 'one.webp' | asset_url }}"
             alt="{{ section.settings.popup_title | escape }}"
             class="newsletter-popup__image">
         {% endif %}
@@ -57,7 +57,7 @@
           <p class="newsletter-popup__subtitle">{{ section.settings.popup_subtitle | default: "be in the know"
 }}</p>
           <p class="newsletter-popup__description">{{ section.settings.popup_description | default: "Sexy and
-                        sustainable goodies? Sign me up" }}</p>
+            sustainable goodies? Sign me up" }}</p>
         </div>
 
         <!-- Formulario -->
@@ -80,8 +80,9 @@
             value="newsletter">
 
           <div class="newsletter-popup__form-group">
-            <label for="newsletter-email" class="newsletter-popup__label visually-hidden">Correo 
-                            electrónico</label>
+            <label for="newsletter-email" class="newsletter-popup__label visually-hidden">Correo
+
+              electrónico</label>
             <input
               type="email"
               id="newsletter-email"
