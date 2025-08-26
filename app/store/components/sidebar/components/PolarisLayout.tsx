@@ -7,7 +7,7 @@ import { AppProvider, Frame } from '@shopify/polaris';
 import translations from '@shopify/polaris/locales/es.json';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 
 interface PolarisLayoutProps {
   children: React.ReactNode;
@@ -16,15 +16,18 @@ interface PolarisLayoutProps {
 }
 
 // Custom Link component for Polaris integration with Next.js
-function PolarisLinkComponent({ children, url = '', external = false, ...rest }: any) {
+const PolarisLinkComponent = memo(({ children, url = '', external = false, ...rest }: any) => {
   const router = useRouter();
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!external && url) {
-      e.preventDefault();
-      router.push(url);
-    }
-  };
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (!external && url) {
+        e.preventDefault();
+        router.push(url);
+      }
+    },
+    [external, url, router]
+  );
 
   if (external) {
     return (
@@ -39,32 +42,50 @@ function PolarisLinkComponent({ children, url = '', external = false, ...rest }:
       {children}
     </Link>
   );
-}
+});
 
-export function PolarisLayout({ children, storeId, prefersReducedMotion = false }: PolarisLayoutProps) {
+PolarisLinkComponent.displayName = 'PolarisLinkComponent';
+
+export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = false }: PolarisLayoutProps) => {
   // Estado para controlar la visibilidad del navigation en móvil
   const [mobileNavigationActive, setMobileNavigationActive] = useState(false);
 
-  // Configuración del logo
-  const logo = {
-    topBarSource: '/icons/fasttify-white.webp',
-    width: 40,
-    url: '/',
-    accessibilityLabel: 'Fasttify',
-  };
+  // Memoizar la configuración del logo para evitar recreaciones
+  const logo = useMemo(
+    () => ({
+      topBarSource: '/icons/fasttify-white.webp',
+      width: 40,
+      url: '/',
+      accessibilityLabel: 'Fasttify',
+    }),
+    []
+  );
 
-  const handleNavigationToggle = () => {
-    setMobileNavigationActive(!mobileNavigationActive);
-  };
+  // Memoizar las funciones de callback para evitar re-renders
+  const handleNavigationToggle = useCallback(() => {
+    setMobileNavigationActive((prev) => !prev);
+  }, []);
+
+  const handleNavigationDismiss = useCallback(() => {
+    setMobileNavigationActive(false);
+  }, []);
+
+  // Memoizar los componentes de navegación para evitar re-renders
+  const topBarComponent = useMemo(
+    () => <TopBarPolaris storeId={storeId} onNavigationToggle={handleNavigationToggle} />,
+    [storeId, handleNavigationToggle]
+  );
+
+  const navigationComponent = useMemo(() => <NavigationPolaris storeId={storeId} />, [storeId]);
 
   return (
     <AppProvider i18n={translations} theme="light" linkComponent={PolarisLinkComponent}>
       <div style={{ height: '100vh' }}>
         <Frame
-          topBar={<TopBarPolaris storeId={storeId} onNavigationToggle={handleNavigationToggle} />}
-          navigation={<NavigationPolaris storeId={storeId} />}
+          topBar={topBarComponent}
+          navigation={navigationComponent}
           showMobileNavigation={mobileNavigationActive}
-          onNavigationDismiss={() => setMobileNavigationActive(false)}
+          onNavigationDismiss={handleNavigationDismiss}
           logo={logo}>
           <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6]">
             <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
@@ -73,4 +94,6 @@ export function PolarisLayout({ children, storeId, prefersReducedMotion = false 
       </div>
     </AppProvider>
   );
-}
+});
+
+PolarisLayout.displayName = 'PolarisLayout';
