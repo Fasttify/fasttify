@@ -9,8 +9,14 @@
     "dev": "tsc --watch",
     "test": "jest"
   },
-  "dependencies": {
+  "resolutions": {
     "styled-components": "^6.1.19"
+  },
+  "dependencies": {
+    "styled-components": "^6.1.19",
+    "@react-email/components": "^0.5.1",
+    "@react-email/render": "^0.0.12",
+    "@react-email/tailwind": "^1.2.2"
   },
   "peerDependencies": {
     "react": "^18.3.1",

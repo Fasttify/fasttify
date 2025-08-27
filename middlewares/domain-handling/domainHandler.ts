@@ -156,6 +156,23 @@ function handleCustomDomainRewrite(request: NextRequest, cleanHostname: string):
 }
 
 /**
+ * Maneja las reescrituras de URL para el subdominio orders
+ */
+function handleOrdersSubdomainRewrite(request: NextRequest): NextResponse | null {
+  const path = request.nextUrl.pathname;
+  const url = request.nextUrl.clone();
+
+  // Reescribir todas las rutas del subdominio orders hacia /orders
+  if (path === '/') {
+    url.pathname = '/orders';
+  } else {
+    url.pathname = `/orders${path}`;
+  }
+
+  return NextResponse.rewrite(url);
+}
+
+/**
  * Función principal que maneja todos los tipos de dominios
  */
 export function handleDomainRouting(request: NextRequest): NextResponse | null {
@@ -166,7 +183,20 @@ export function handleDomainRouting(request: NextRequest): NextResponse | null {
     return null;
   }
 
-  // Manejar subdominios de fasttify.com
+  // Manejar el subdominio orders específicamente
+  if (domainAnalysis.subdomain === 'orders') {
+    return handleOrdersSubdomainRewrite(request);
+  }
+
+  // Lista de otros subdominios del sistema (no son tiendas)
+  const systemSubdomains = ['orders-domain'];
+
+  // Si es un subdominio del sistema, no reescribir (dejar que Next.js lo maneje)
+  if (domainAnalysis.subdomain && systemSubdomains.includes(domainAnalysis.subdomain)) {
+    return null;
+  }
+
+  // Manejar subdominios de fasttify.com (tiendas)
   if (domainAnalysis.subdomain && domainAnalysis.subdomain !== 'www') {
     return handleSubdomainRewrite(request, domainAnalysis.subdomain);
   }
