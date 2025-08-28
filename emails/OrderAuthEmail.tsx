@@ -142,7 +142,7 @@ export const OrderAuthEmail: React.FC<OrderAuthEmailProps> = ({ token, email, st
                 fontSize: '12px',
                 margin: '0',
               }}>
-              © 2024 {storeName}. Todos los derechos reservados.
+              © {new Date().getFullYear()} {storeName}. Todos los derechos reservados.
             </Text>
             <Text
               style={{

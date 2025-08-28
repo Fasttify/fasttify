@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
 interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
-  fullWidth?: boolean;
+  $variant?: 'primary' | 'secondary' | 'outline';
+  $size?: 'sm' | 'md' | 'lg';
+  $fullWidth?: boolean;
 }
 
 export const Button = styled.button<ButtonProps>`
@@ -19,8 +19,8 @@ export const Button = styled.button<ButtonProps>`
   text-decoration: none;
 
   /* Variantes */
-  ${({ variant = 'primary' }) => {
-    switch (variant) {
+  ${({ $variant = 'primary' }) => {
+    switch ($variant) {
       case 'primary':
         return `
           background: #000000;
@@ -60,8 +60,8 @@ export const Button = styled.button<ButtonProps>`
   }}
 
   /* Tamaños */
-  ${({ size = 'md' }) => {
-    switch (size) {
+  ${({ $size = 'md' }) => {
+    switch ($size) {
       case 'sm':
         return `
           padding: 0.5rem 1rem;
@@ -86,7 +86,7 @@ export const Button = styled.button<ButtonProps>`
   }}
 
   /* Ancho completo */
-  ${({ fullWidth }) => fullWidth && 'width: 100%;'}
+  ${({ $fullWidth }) => $fullWidth && 'width: 100%;'}
 
   /* Estados */
   &:active:not(:disabled) {

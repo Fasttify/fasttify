@@ -16,11 +16,14 @@
     "styled-components": "^6.1.19",
     "@react-email/components": "^0.5.1",
     "@react-email/render": "^0.0.12",
-    "@react-email/tailwind": "^1.2.2"
+    "@react-email/tailwind": "^1.2.2",
+    "@tanstack/react-table": "^8.21.3"
   },
   "peerDependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@tanstack/react-query-devtools": "^5.82.0",
+    "@tanstack/react-query": "^5.82.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.1",

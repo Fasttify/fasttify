@@ -8,7 +8,6 @@ import {
   BackgroundImage,
   LogoSection,
   LogoIcon,
-  LogoText,
   TestimonialContent,
   MainHeading,
   Quote,
@@ -41,12 +40,12 @@ export const EmailRequestLayout: React.FC<EmailRequestLayoutProps> = ({
   return (
     <LoginContainer>
       <LoginCard>
-        <LeftPanel hasBackground={!!backgroundImageSrc}>
-          {backgroundImageSrc && <BackgroundImage backgroundSrc={backgroundImageSrc} />}
+        <LeftPanel $hasBackground={!!backgroundImageSrc}>
+          {backgroundImageSrc && <BackgroundImage $backgroundSrc={backgroundImageSrc} />}
           <BackgroundPattern />
           <LogoSection>
             {logoSrc ? <Image src={logoSrc} alt={logoAlt} width={40} height={32} /> : <LogoIcon>🛍️</LogoIcon>}
-            <LogoText>Fasttify</LogoText>
+            <Image src="/icons/letter-white.webp" alt="Fasttify Letters" width={100} height={32} />
           </LogoSection>
 
           <TestimonialContent>

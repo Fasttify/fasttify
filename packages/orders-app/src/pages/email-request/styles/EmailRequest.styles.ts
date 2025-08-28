@@ -63,9 +63,9 @@ export const LoginCard = styled.div`
 `;
 
 // Panel izquierdo
-export const LeftPanel = styled.div<{ hasBackground?: boolean }>`
+export const LeftPanel = styled.div<{ $hasBackground?: boolean }>`
   flex: 1;
-  background: ${(props) => (props.hasBackground ? '#1a1a1a' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')};
+  background: ${(props) => (props.$hasBackground ? '#1a1a1a' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')};
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -96,13 +96,13 @@ export const BackgroundPattern = styled.div`
   pointer-events: none;
 `;
 
-export const BackgroundImage = styled.div<{ backgroundSrc?: string }>`
+export const BackgroundImage = styled.div<{ $backgroundSrc?: string }>`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: ${(props) => (props.backgroundSrc ? `url(${props.backgroundSrc})` : 'none')};
+  background-image: ${(props) => (props.$backgroundSrc ? `url(${props.$backgroundSrc})` : 'none')};
   background-size: cover;
   background-position: center;
   opacity: 0.3;
@@ -195,11 +195,20 @@ export const RightPanel = styled.div`
   @media (max-width: 768px) {
     padding: 1.5rem;
   }
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+  }
 `;
 
 export const FormContainer = styled.div`
   width: 100%;
   max-width: 400px;
+
+  @media (max-width: 480px) {
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
 `;
 
 export const WelcomeTitle = styled.h2`
@@ -208,6 +217,11 @@ export const WelcomeTitle = styled.h2`
   color: #1a1a1a;
   margin: 0 0 0.5rem 0;
   text-align: center;
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    margin: 0 0 0.75rem 0;
+  }
 `;
 
 export const WelcomeSubtitle = styled.p`

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
-import { inter } from '@/config/fonts';
+import { nunitoSans } from '@/config/fonts';
+import StyledComponentsRegistry from './registry';
+import { ReactQueryProvider } from '@/utils/client/ReactQueryProvider';
 
 export const metadata: Metadata = {
   title: 'Sistema de Órdenes - Fasttify',
@@ -9,7 +11,11 @@ export const metadata: Metadata = {
 export default function OrdersLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={inter.className}>{children}</body>
+      <body className={nunitoSans.className}>
+        <ReactQueryProvider>
+          <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+        </ReactQueryProvider>
+      </body>
     </html>
   );
 }

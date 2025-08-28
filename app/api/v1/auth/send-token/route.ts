@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { render } from '@react-email/render';
 import { OrderAuthEmail } from '@/emails/OrderAuthEmail';
 import { generateOrderAccessToken } from '@/lib/auth/token';
+import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { sendEmail } from '@/lib/email/sendEmail';
 import { z } from 'zod';
 
@@ -11,7 +12,13 @@ const sendTokenSchema = z.object({
   storeId: z.string().optional(), // Para personalizar el email
 });
 
+export async function OPTIONS(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
+
 export async function POST(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
   try {
     const body = await request.json();
     const { email, storeId } = sendTokenSchema.parse(body);
@@ -38,22 +45,27 @@ export async function POST(request: NextRequest) {
       html: emailHtml,
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Token sent successfully',
-      data: {
-        email,
-        tokenType: 'JWT',
-        expiresIn: '24h',
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Token sent successfully',
+        data: {
+          email,
+          tokenType: 'JWT',
+          expiresIn: '24h',
+        },
       },
-    });
+      {
+        headers: corsHeaders,
+      }
+    );
   } catch (error) {
     console.error('Error in send-token:', error);
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid data', details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid data', details: error.errors }, { status: 400, headers: corsHeaders });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 }

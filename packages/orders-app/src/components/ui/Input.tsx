@@ -1,15 +1,16 @@
 import styled from 'styled-components';
 
 interface InputProps {
-  size?: 'sm' | 'md' | 'lg';
-  fullWidth?: boolean;
-  error?: boolean;
+  $size?: 'sm' | 'md' | 'lg';
+  $fullWidth?: boolean;
+  $error?: boolean;
 }
 
 export const Input = styled.input<InputProps>`
-  width: ${({ fullWidth }) => (fullWidth ? '100%' : 'auto')};
-  padding: ${({ size = 'md' }) => {
-    switch (size) {
+  width: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'auto')};
+  box-sizing: border-box;
+  padding: ${({ $size = 'md' }) => {
+    switch ($size) {
       case 'sm':
         return '0.5rem 0.75rem';
       case 'md':
@@ -20,10 +21,10 @@ export const Input = styled.input<InputProps>`
         return '0.75rem 1rem';
     }
   }};
-  border: 2px solid ${({ error }) => (error ? '#ef4444' : '#e5e7eb')};
+  border: 2px solid ${({ $error }) => ($error ? '#ef4444' : '#e5e7eb')};
   border-radius: 8px;
-  font-size: ${({ size = 'md' }) => {
-    switch (size) {
+  font-size: ${({ $size = 'md' }) => {
+    switch ($size) {
       case 'sm':
         return '0.875rem';
       case 'md':
@@ -37,6 +38,14 @@ export const Input = styled.input<InputProps>`
   transition: all 0.2s ease;
   background: white;
   color: #1f2937;
+  min-width: 0; /* Evita overflow en flexbox */
+
+  /* Responsive adjustments for mobile */
+  @media (max-width: 480px) {
+    padding: 0.625rem 0.875rem;
+    font-size: 16px; /* Evita zoom en iOS */
+    border-radius: 6px;
+  }
 
   &:focus {
     outline: none;
@@ -55,8 +64,8 @@ export const Input = styled.input<InputProps>`
   }
 
   /* Estado de error */
-  ${({ error }) =>
-    error &&
+  ${({ $error }) =>
+    $error &&
     `
     &:focus {
       border-color: #ef4444;

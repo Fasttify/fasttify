@@ -1,6 +1,2 @@
-// Página principal de AuthVerification
+// Página principal de AuthVerification (solo lógica, sin UI)
 export { AuthVerificationPage } from './pages/AuthVerificationPage';
-
-// Componentes individuales (opcional, para uso directo)
-export { AuthVerificationLayout } from './components/AuthVerificationLayout';
-export { AuthVerificationContent } from './components/AuthVerificationContent';

@@ -82,7 +82,7 @@ export function verifyAuthToken(token: string): AuthTokenPayload | null {
 
     return decoded;
   } catch (error) {
-    console.error('Error verificando token JWT:', error);
+    console.error('Error verifying JWT token:', error);
     return null;
   }
 }
@@ -101,7 +101,7 @@ export function verifySessionToken(token: string): SessionTokenPayload | null {
 
     return decoded;
   } catch (error) {
-    console.error('Error verificando token de sesión JWT:', error);
+    console.error('Error verifying JWT session token:', error);
     return null;
   }
 }
@@ -115,7 +115,7 @@ export function decodeToken(token: string): any {
   try {
     return jwt.decode(token);
   } catch (error) {
-    console.error('Error decodificando token:', error);
+    console.error('Error decoding token:', error);
     return null;
   }
 }

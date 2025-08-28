@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { verifyAuthToken, generateSessionToken } from '@/lib/auth/token';
+import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 
 // Schema de validación
 const verifyTokenSchema = z.object({
@@ -8,7 +9,13 @@ const verifyTokenSchema = z.object({
   email: z.string().email('Email inválido'),
 });
 
+export async function OPTIONS(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
+
 export async function POST(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
   try {
     const body = await request.json();
     const { token, email } = verifyTokenSchema.parse(body);
@@ -21,7 +28,7 @@ export async function POST(request: NextRequest) {
         {
           error: 'Invalid token or expired token',
         },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       );
     }
 
@@ -31,7 +38,7 @@ export async function POST(request: NextRequest) {
         {
           error: 'Token does not correspond to the provided email',
         },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       );
     }
 
@@ -41,7 +48,7 @@ export async function POST(request: NextRequest) {
         {
           error: 'Invalid token type',
         },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       );
     }
 
@@ -51,30 +58,41 @@ export async function POST(request: NextRequest) {
     // TODO: Opcional - Guardar referencia de la sesión en base de datos para tracking
     // await logSessionCreation({ email, sessionToken: jwt.decode(sessionToken)?.jti, storeId: tokenPayload.storeId });
 
-    // Construir URL de redirección
-    const redirectUrl = tokenPayload.storeId
-      ? `/dashboard?email=${encodeURIComponent(email)}&store=${encodeURIComponent(tokenPayload.storeId)}`
-      : `/dashboard?email=${encodeURIComponent(email)}`;
-
-    return NextResponse.json({
-      success: true,
-      message: 'Token verified successfully',
-      data: {
-        sessionToken,
-        email,
-        storeId: tokenPayload.storeId,
-        tokenType: 'JWT',
-        expiresIn: '2h',
-        redirectUrl,
+    // Crear respuesta con cookie HttpOnly segura
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: 'Token verified successfully',
+        data: {
+          email,
+          storeId: tokenPayload.storeId,
+          tokenType: 'JWT',
+          expiresIn: '2h',
+          redirectUrl: '/dashboard',
+        },
       },
+      {
+        headers: corsHeaders,
+      }
+    );
+
+    // Establecer cookie HttpOnly segura
+    response.cookies.set('auth-token', sessionToken, {
+      httpOnly: true,
+      secure: process.env.APP_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 2 * 60 * 60, // 2 horas en segundos
+      path: '/',
     });
+
+    return response;
   } catch (error) {
     console.error('Error in verify-token:', error);
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid data', details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid data', details: error.errors }, { status: 400, headers: corsHeaders });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 }

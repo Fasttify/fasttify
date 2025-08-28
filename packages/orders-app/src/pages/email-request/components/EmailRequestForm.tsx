@@ -23,13 +23,13 @@ export const EmailRequestForm: React.FC<EmailRequestFormProps> = ({ email, setEm
           onChange={(e) => setEmail(e.target.value)}
           disabled={isLoading}
           required
-          fullWidth
+          $fullWidth
         />
       </FormGroup>
 
       {status && <StatusMessage type={status.type}>{status.message}</StatusMessage>}
 
-      <Button type="submit" disabled={isLoading} fullWidth>
+      <Button type="submit" disabled={isLoading} $fullWidth>
         {isLoading && <ButtonSpinner />}
         {isLoading ? 'Enviando...' : 'Enviar enlace de acceso'}
       </Button>

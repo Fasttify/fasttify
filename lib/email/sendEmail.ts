@@ -58,8 +58,8 @@ export async function sendEmail(params: SendEmailParams) {
 
     return result;
   } catch (error) {
-    console.error('Error enviando email:', error);
-    throw new Error(`Error enviando email: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    console.error('Error sending email:', error);
+    throw new Error(`Error sending email: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

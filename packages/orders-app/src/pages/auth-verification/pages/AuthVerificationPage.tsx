@@ -1,73 +1,65 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { AuthVerificationLayout } from '../components/AuthVerificationLayout';
-import { AuthVerificationContent } from '../components/AuthVerificationContent';
 
-// Tipos
-interface AuthVerificationPageProps {
-  /** Función para obtener parámetros de búsqueda */
-  getSearchParam: (key: string) => string | null;
-  /** Función para navegar a una URL */
-  navigate: (url: string) => void;
-  /** URL base para las API calls (opcional, default: '') */
-  apiBaseUrl?: string;
+import React from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useSearchParams, useRouter } from 'next/navigation';
+
+interface VerifyTokenRequest {
+  token: string;
+  email: string;
 }
 
-// Página principal
-export const AuthVerificationPage: React.FC<AuthVerificationPageProps> = (props) => {
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
-  const [message, setMessage] = useState('Verificando token...');
-
-  useEffect(() => {
-    const verifyToken = async () => {
-      const token = props.getSearchParam('token');
-      const email = props.getSearchParam('email');
-
-      if (!token || !email) {
-        setStatus('error');
-        setMessage('Token o email faltante');
-        return;
-      }
-
-      try {
-        const response = await fetch(`${props.apiBaseUrl || ''}/api/v1/auth/verify-token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token, email }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          setStatus('success');
-          setMessage('¡Token verificado! Redirigiendo...');
-
-          // Redirigir al dashboard después de 2 segundos
-          setTimeout(() => {
-            props.navigate(data.data.redirectUrl);
-          }, 2000);
-        } else {
-          setStatus('error');
-          setMessage(data.error || 'Error al verificar token');
-        }
-      } catch (error) {
-        setStatus('error');
-        setMessage('Error de conexión');
-      }
-    };
-
-    verifyToken();
-  }, [props]);
-
-  const handleBackToHome = () => {
-    props.navigate('/');
+interface VerifyTokenResponse {
+  success: boolean;
+  data: {
+    redirectUrl: string;
   };
+}
 
-  return (
-    <AuthVerificationLayout>
-      <AuthVerificationContent status={status} message={message} onBackToHome={handleBackToHome} />
-    </AuthVerificationLayout>
-  );
+const verifyToken = async (request: VerifyTokenRequest): Promise<VerifyTokenResponse> => {
+  const response = await fetch('/api/v1/auth/verify-token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    throw new Error('Token verification failed');
+  }
+
+  return response.json();
+};
+
+export const AuthVerificationPage: React.FC = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const token = searchParams.get('token');
+  const email = searchParams.get('email');
+
+  const mutation = useMutation({
+    mutationFn: verifyToken,
+    onSuccess: (data) => {
+      router.push(data.data.redirectUrl || '/dashboard');
+    },
+    onError: () => {
+      router.push('/');
+    },
+  });
+
+  const handleVerification = React.useCallback(() => {
+    if (!token || !email) {
+      router.push('/');
+      return;
+    }
+    mutation.mutate({ token, email });
+  }, [token, email, router, mutation.mutate]);
+
+  React.useEffect(() => {
+    handleVerification();
+  }, [handleVerification]);
+
+  return null;
 };

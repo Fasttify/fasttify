@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { EmailRequestForm } from '../components/EmailRequestForm';
 import { EmailRequestLayout } from '../components/EmailRequestLayout';
 
@@ -24,45 +25,46 @@ interface EmailRequestPageProps {
 // Página principal
 export const EmailRequestPage: React.FC<EmailRequestPageProps> = (props) => {
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const mutation = useMutation({
+    mutationFn: (email: string) => props.onSubmit(email, props.storeId),
+    onSuccess: () => {
+      setStatus({
+        type: 'success',
+        message: 'Email enviado correctamente. Revisa tu bandeja de entrada.',
+      });
+      setEmail('');
+    },
+    onError: (error: any) => {
+      setStatus({
+        type: 'error',
+        message: error?.message || 'Error al enviar el email. Inténtalo de nuevo.',
+      });
+    },
+  });
 
-    if (!email || !email.includes('@')) {
-      setStatus({ type: 'error', message: 'Por favor ingresa un email válido' });
-      return;
-    }
+  const handleSubmit = React.useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
 
-    setIsLoading(true);
-    setStatus(null);
-
-    try {
-      const result = await props.onSubmit(email, props.storeId);
-
-      if (result.success) {
-        setStatus({
-          type: 'success',
-          message: 'Email enviado correctamente. Revisa tu bandeja de entrada.',
-        });
-        setEmail('');
-      } else {
-        setStatus({ type: 'error', message: result.message });
+      if (!email || !email.includes('@')) {
+        setStatus({ type: 'error', message: 'Por favor ingresa un email válido' });
+        return;
       }
-    } catch (error) {
-      setStatus({ type: 'error', message: 'Error al enviar el email. Inténtalo de nuevo.' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
+      setStatus(null);
+      mutation.mutate(email);
+    },
+    [email, mutation.mutate]
+  );
 
   return (
     <EmailRequestLayout {...props}>
       <EmailRequestForm
         email={email}
         setEmail={setEmail}
-        isLoading={isLoading}
+        isLoading={mutation.isPending}
         status={status}
         onSubmit={handleSubmit}
       />
