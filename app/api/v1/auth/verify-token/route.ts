@@ -1,0 +1,98 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { verifyAuthToken, generateSessionToken } from '@/lib/auth/token';
+import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+
+// Schema de validación
+const verifyTokenSchema = z.object({
+  token: z.string().min(1, 'Token requerido'),
+  email: z.string().email('Email inválido'),
+});
+
+export async function OPTIONS(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
+
+export async function POST(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
+  try {
+    const body = await request.json();
+    const { token, email } = verifyTokenSchema.parse(body);
+
+    // Verificar JWT
+    const tokenPayload = verifyAuthToken(token);
+
+    if (!tokenPayload) {
+      return NextResponse.json(
+        {
+          error: 'Invalid token or expired token',
+        },
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
+    // Verificar que el email coincida
+    if (tokenPayload.email !== email) {
+      return NextResponse.json(
+        {
+          error: 'Token does not correspond to the provided email',
+        },
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
+    // Verificar que sea un token de acceso a órdenes
+    if (tokenPayload.type !== 'order-access') {
+      return NextResponse.json(
+        {
+          error: 'Invalid token type',
+        },
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
+    // Generar sesión JWT (expira en 2 horas)
+    const sessionToken = generateSessionToken(email, '2h');
+
+    // TODO: Opcional - Guardar referencia de la sesión en base de datos para tracking
+    // await logSessionCreation({ email, sessionToken: jwt.decode(sessionToken)?.jti, storeId: tokenPayload.storeId });
+
+    // Crear respuesta con cookie HttpOnly segura
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: 'Token verified successfully',
+        data: {
+          email,
+          storeId: tokenPayload.storeId,
+          tokenType: 'JWT',
+          expiresIn: '2h',
+          redirectUrl: '/dashboard',
+        },
+      },
+      {
+        headers: corsHeaders,
+      }
+    );
+
+    // Establecer cookie HttpOnly segura
+    response.cookies.set('auth-token', sessionToken, {
+      httpOnly: true,
+      secure: process.env.APP_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 2 * 60 * 60, // 2 horas en segundos
+      path: '/',
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Error in verify-token:', error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Invalid data', details: error.errors }, { status: 400, headers: corsHeaders });
+    }
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
+  }
+}

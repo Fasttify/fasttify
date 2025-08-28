@@ -1,5 +1,5 @@
 import { handleAuthenticatedRedirectMiddleware, handleAuthenticationMiddleware } from '@/middlewares/auth/auth';
-import { handleDomainRouting } from '@/middlewares/domain-handling/domainHandler';
+import { handleDomainRouting, analyzeDomain } from '@/middlewares/domain-handling/domainHandler';
 import { handleCollectionOwnershipMiddleware } from '@/middlewares/ownership/collectionOwnership';
 import { handlePagesOwnershipMiddleware } from '@/middlewares/ownership/pagesOwnership';
 import { handleProductOwnershipMiddleware } from '@/middlewares/ownership/productOwnership';
@@ -9,6 +9,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+
+  // Bloquear acceso directo a /orders si no se está usando el subdominio orders
+  if (path.startsWith('/orders')) {
+    const domainAnalysis = analyzeDomain(request);
+    if (domainAnalysis.subdomain !== 'orders') {
+      // Redirigir a 404 o página principal
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
 
   // Manejar el enrutamiento basado en dominios (subdominios y dominios personalizados)
   const domainResponse = handleDomainRouting(request);
@@ -54,5 +63,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|icons).*)'],
 };
