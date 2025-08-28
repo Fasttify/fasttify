@@ -147,9 +147,13 @@ NEXT_PUBLIC_AWS_REGION="tu-region"
 BUCKET_NAME="tu-bucket-name"
 AWS_REGION="tu-region"
 CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID="tu-distribution-id"
+SES_FROM_EMAIL="test@test.com"
+SES_REPLY_TO_EMAIL="test@test.com"
+JWT_SECRET="tu-jwt-secret"
 
 # Desarrollo
 APP_ENV=development
+NEXT_PUBLIC_APP_ENV=development
 ```
 
 ### **4. Ejecutar en desarrollo**
