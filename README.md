@@ -478,7 +478,7 @@ interface StoreDashboard {
 
 ```bash
 # Sincronización en tiempo real
-npm run template-sync -- start STORE_ID ./template
+npm run template-sync -- start STORE_ID
 
 # Observa cambios y sincroniza automáticamente
 ```
