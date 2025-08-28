@@ -1,19 +1,19 @@
 # Fasttify
 
-**Plataforma SaaS completa para crear y gestionar tiendas online con motor de plantillas Liquid avanzado**
+**Plataforma SaaS avanzada para crear y gestionar tiendas online con motor de plantillas Liquid compatible con Shopify**
+
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Fasttify/fasttify)
-[![Next.js](https://img.shields.io/badge/Next.js-15.3.2-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.5-black?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7.3-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![AWS Amplify](https://img.shields.io/badge/AWS%20Amplify-Gen2-orange?logo=aws&logoColor=white)](https://aws.amazon.com/amplify/)
-[![LiquidJS](https://img.shields.io/badge/LiquidJS-10.21.1-blue?logo=liquid&logoColor=white)](https://liquidjs.com/)
 [![Shopify Polaris](https://img.shields.io/badge/Polaris-13.9.5-95BF47?logo=shopify&logoColor=white)](https://polaris.shopify.com/)
 
 ---
 
 ## Descripción General
 
-Fasttify es una **plataforma SaaS avanzada** que permite a emprendedores crear, personalizar y gestionar tiendas de e-commerce con un enfoque en dropshipping y comercio digital. Construida con **Next.js 15**, **AWS Amplify Gen2** y un **motor de plantillas Liquid personalizado**, combina la flexibilidad del desarrollo moderno con la potencia de un sistema multi-tenant empresarial.
+Fasttify es una **plataforma SaaS completa** que permite a emprendedores crear, personalizar y gestionar tiendas de e-commerce multi-tenant. Construida con **Next.js 15**, **AWS Amplify Gen2** y un **motor de plantillas Liquid 100% compatible con Shopify**, ofrece una solución escalable para dropshipping y comercio digital con dominios personalizados automatizados.
 
 > [!WARNING]
 > PROYECTO EN DESARROLLO ACTIVO
@@ -30,35 +30,37 @@ Fasttify es una **plataforma SaaS avanzada** que permite a emprendedores crear, 
 
 ### **Características Principales**
 
-🏪 **Sistema Multi-Tenant Completo**
+🏪 **Sistema Multi-Tenant Avanzado**
 
+- Arquitectura de **Database Sharding** con DynamoDB para escalabilidad infinita
+- **Dominios personalizados automatizados** con CloudFront Multi-Tenant y SSL
+- **Motor Liquid 100% compatible** con Shopify (tags, filtros, plantillas)
 - Gestión independiente de múltiples tiendas por usuario
-- Dominios personalizados automatizados con SSL
-- Motor de plantillas Liquid compatible con Shopify
+
+🛒 **E-commerce Completo**
+
+- **Sistema de carrito avanzado** con side cart, controles de cantidad y persistencia
+- **Checkout tokenizado** con sesiones seguras y formularios profesionales
+- **Filtros de productos automáticos** con scroll infinito y URL persistente
+- **Búsqueda AJAX** en tiempo real con autocompletado inteligente
 
 🤖 **IA Integrada con AWS Bedrock**
 
-- Generación automática de descripciones de productos
-- Sugerencias inteligentes de precios para el mercado colombiano
-- Chat de soporte con Claude 3 Haiku
+- Generación automática de descripciones de productos con Claude
+- Sugerencias inteligentes de precios para mercados locales
+- Chat de soporte integrado con IA
 
-💳 **Pasarelas de Pago Colombianas**
+💳 **Pagos y Facturación**
 
-- Integración nativa con **Wompi** (tarifas desde 2.9%)
-- Soporte completo para **Mercado Pago**
-- Encriptación segura de API keys
+- Integración nativa con **Wompi** y **Mercado Pago**
+- Gestión de suscripciones con **Polar**
+- Encriptación segura de API keys y webhooks automáticos
 
-📊 **Gestión Integral de Suscripciones**
-
-- Integración con **Polar** para facturación
-- Webhooks en tiempo real para sincronización
-- Gestión automática de planes y upgrades
-
-🔐 **Arquitectura de Seguridad Empresarial**
+🔐 **Seguridad y Escalabilidad**
 
 - AWS Cognito con autenticación multifactor
-- Encriptación de extremo a extremo
-- Logs seguros y auditoría completa
+- Logs seguros con AWS Lambda Powertools
+- **Sharding automático** por tienda para rendimiento óptimo
 
 ---
 
@@ -67,41 +69,56 @@ Fasttify es una **plataforma SaaS avanzada** que permite a emprendedores crear, 
 ### **Frontend**
 
 ```
-Next.js 15 (App Router)
-├── React 18.3.1
-├── TypeScript 5.7.3
-├── Tailwind CSS 3.4.17
+Next.js 15.3.5 (App Router + Turbopack)
+├── React 18.3.1 + React DOM
+├── TypeScript 5.8.3 (Strict Mode)
+├── Tailwind CSS 3.4.17 + PostCSS
 ├── Shopify Polaris 13.9.5
-├── Radix UI Components
-├── React Query (TanStack Query)
-├── Zustand (State Management)
-├── React Hook Form + Zod
-└── Framer Motion
+├── Radix UI Complete Suite
+├── TanStack Query 5.82.0 (React Query)
+├── Zustand 5.0.6 (State Management)
+├── React Hook Form 7.60.0 + Zod 3.25.64
+├── Framer Motion 12.23.1
+└── Lucide React Icons
 ```
 
-### **Backend**
+### **Backend & Infrastructure**
 
 ```
-AWS Amplify Gen 2
+AWS Amplify Gen 2 (Serverless)
 ├── AWS AppSync (GraphQL API)
-├── AWS Cognito (Autenticación)
-├── DynamoDB (Base de datos)
-├── AWS Lambda (Funciones serverless)
-├── AWS Bedrock (IA/ML)
-├── AWS S3 (Almacenamiento)
+├── AWS Cognito (Auth + MFA)
+├── DynamoDB (NoSQL + Sharding)
+├── AWS Lambda (Funciones + Powertools)
+├── AWS Bedrock (Claude IA)
+├── AWS S3 (Storage + CDN)
 ├── AWS SES (Email)
-└── AWS ACM (Certificados SSL)
+├── AWS ACM (SSL Automático)
+├── CloudFront Multi-Tenant
+└── AWS IAM (Seguridad)
 ```
 
-### **Motor de Plantillas**
+### **Motor de Plantillas Avanzado**
 
 ```
-LiquidJS 10.21.1
-├── Tags Shopify compatibles
-├── Filtros personalizados
-├── Renderizado SSR optimizado
-├── Cache inteligente multinivel
-└── Sincronización en desarrollo
+Motor Liquid Personalizado
+├── 100% Compatible con Shopify
+├── Tags: {% filters %}, {% paginate %}, {% render %}
+├── Filtros: money, img_url, asset_url
+├── Renderizado SSR/SSG optimizado
+├── Cache multinivel inteligente
+├── Template Sync en desarrollo
+└── Arquitectura modular extensible
+```
+
+### **Workspaces y Packages**
+
+```
+Monorepo con npm workspaces
+├── packages/renderer-engine (Motor Liquid)
+├── packages/orders-app (Gestión pedidos)
+├── packages/lambda-edge-host-rewriter
+└── packages/tenant-domains
 ```
 
 ---
@@ -126,14 +143,17 @@ cd fasttify
 npm install
 ```
 
-### **2. Configurar AWS Amplify**
+### **2. Configurar AWS Amplify Gen 2**
 
 ```bash
-# Inicializar proyecto de Amplify
-npx @aws-amplify/cli@latest init
+# Instalar Amplify CLI Gen 2
+npm install -g @aws-amplify/backend-cli
 
-# Desplegar backend
-npx @aws-amplify/cli@latest deploy
+# Inicializar sandbox de desarrollo
+npx ampx sandbox
+
+# Para producción
+APP_ENV=production npx ampx sandbox
 ```
 
 ### **3. Variables de entorno**
@@ -141,25 +161,46 @@ npx @aws-amplify/cli@latest deploy
 Crear `.env.local`:
 
 ```env
-# AWS Amplify
-NEXT_PUBLIC_S3_URL="tu-s3-url"
-NEXT_PUBLIC_AWS_REGION="tu-region"
-BUCKET_NAME="tu-bucket-name"
-AWS_REGION="tu-region"
-CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID="tu-distribution-id"
-SES_FROM_EMAIL="test@test.com"
-SES_REPLY_TO_EMAIL="test@test.com"
-JWT_SECRET="tu-jwt-secret"
+# AWS Amplify Gen 2
+NEXT_PUBLIC_S3_URL="https://tu-bucket.s3.amazonaws.com"
+NEXT_PUBLIC_AWS_REGION="us-east-1"
+BUCKET_NAME="fasttify-themes"
+AWS_REGION="us-east-1"
 
-# Desarrollo
+# CloudFront Multi-Tenant
+CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID="E2S54QFYG78KRA"
+CUSTOM_DOMAIN_VERIFIER_FUNCTION_NAME="customDomainVerifier"
+
+# Email (SES)
+SES_FROM_EMAIL="noreply@fasttify.com"
+SES_REPLY_TO_EMAIL="support@fasttify.com"
+
+# Seguridad
+JWT_SECRET="tu-jwt-secret-super-seguro"
+
+# Entorno
 APP_ENV=development
 NEXT_PUBLIC_APP_ENV=development
+
+# Opcional: Dominios custom
+COOKIE_DOMAIN=".tudominio.com"
 ```
 
 ### **4. Ejecutar en desarrollo**
 
 ```bash
+# Desarrollo con Turbopack (recomendado)
 npm run dev
+
+# Sincronizar plantillas en tiempo real
+npm run template-sync
+
+# Ejecutar tests
+npm run test
+npm run test:coverage
+
+# Verificar tipos TypeScript
+npm run type-check
 ```
 
 La aplicación estará disponible en `http://localhost:3000`
@@ -267,96 +308,93 @@ fasttify/
 }
 ```
 
-### **3. Motor de Plantillas Liquid Avanzado**
+### **3. Sistema de E-commerce Completo**
 
-**Características técnicas:**
+#### **🛒 Carrito Avanzado**
 
-- **100% compatible con Shopify Liquid**
-- **Tags personalizados**: `{% render %}`, `{% section %}`, `{% paginate %}`
-- **Filtros especializados**: `money`, `img_url`, `asset_url`
-- **Renderizado SSR** optimizado para SEO
-- **Cache multinivel** con invalidación inteligente
-- **Sincronización en tiempo real** para desarrollo
+- **Side Cart modular** con arquitectura separada en 5 módulos
+- **Controles de cantidad** con botones +/- e input manual
+- **Eliminación individual** y limpieza completa
+- **Persistencia por sesión** con cookies seguras
+- **Actualizaciones en tiempo real** sin reload
+- **Soporte para atributos** de producto (color, talla, etc.)
 
-**Ejemplo de uso:**
+#### **💳 Checkout Tokenizado**
+
+- **URLs seguras** tipo `checkouts/cn/{token}`
+- **Sesiones temporales** con expiración automática (24h)
+- **Formularios profesionales** para información del cliente
+- **Redirección automática** al dominio de la tienda
+- **Pago manual** con captura posterior
+
+#### **🔍 Filtros Automáticos**
+
+- **Tag `{% filters %}`** que genera interfaz completa automáticamente
+- **Filtros dinámicos**: categorías, tags, vendors, precio, disponibilidad
+- **Scroll infinito** con carga progresiva
+- **URL persistente** - filtros mantienen estado en navegación
+- **Responsive automático** con sidebar adaptativo
+
+#### **🔎 Búsqueda AJAX**
+
+- **Autocompletado inteligente** en tiempo real
+- **Resultados instantáneos** sin reload de página
+- **Highlighting** de términos de búsqueda
+- **Integración con filtros** para refinamiento
 
 ```liquid
-<!-- Plantilla de producto con IA -->
-{% assign ai_description = product | generate_ai_description %}
-{% assign price_suggestion = product | ai_price_suggestion %}
+<!-- Filtros automáticos - ¡Solo una línea! -->
+{% filters storeId: store.id %}
 
-<div class="product-detail">
-  <h1>{{ product.name }}</h1>
-
-  <!-- Precio con sugerencia IA -->
-  <div class="price-section">
-    <span class="current-price">{{ product.price | money }}</span>
-    {% if price_suggestion.suggestedPrice != product.price %}
-      <small class="ai-suggestion">
-        IA sugiere: {{ price_suggestion.suggestedPrice | money }}
-      </small>
-    {% endif %}
-  </div>
-
-  <!-- Descripción mejorada por IA -->
-  <div class="description">
-    {{ ai_description }}
-  </div>
-</div>
+<!-- El tag genera automáticamente:
+     ✅ Filtros de precio (slider)
+     ✅ Filtros de categorías (checkboxes)
+     ✅ Filtros de etiquetas (pills)
+     ✅ Ordenamiento (dropdown)
+     ✅ Grid de productos con AJAX
+     ✅ JavaScript completo incluido
+-->
 ```
 
-### **4. IA Integrada con AWS Bedrock**
+### **4. Dominios Personalizados Automatizados**
 
-**Funciones disponibles:**
+**Sistema CloudFront Multi-Tenant completamente automatizado:**
+
+- **🔒 SSL automático**: Certificados generados automáticamente vía AWS ACM
+- **🤖 Verificación inteligente**: Validación DNS cada hora automáticamente
+- **⚡ Configuración instantánea**: Creación automática de tenants
+- **📋 Instrucciones específicas**: Guías por proveedor (Cloudflare, GoDaddy, etc.)
+- **🔄 Estados en tiempo real**: `pending` → `active` → `failed`
 
 ```typescript
-// 1. Generación de descripciones
-generateProductDescription(productName: string, category?: string)
-// Retorna: descripción optimizada de 100-150 palabras
+// Flujo automatizado
+POST /api/stores/{storeId}/custom-domain
+{
+  "customDomain": "mitienda.com"
+}
 
-// 2. Sugerencias de precios
-generatePriceSuggestion(productName: string, category?: string)
-// Retorna: {
-//   suggestedPrice: number,
-//   minPrice: number,
-//   maxPrice: number,
-//   confidence: 'high' | 'medium' | 'low',
-//   explanation: string
-// }
-
-// 3. Chat de soporte
-generateHaiku(prompt: string)
-// Chatbot especializado en e-commerce y dropshipping
+// Sistema automáticamente:
+// 1. Crea tenant en CloudFront Multi-Tenant
+// 2. Configura Lambda@Edge para reescritura de headers
+// 3. Genera certificado SSL
+// 4. Proporciona instrucciones DNS específicas
+// 5. Verifica estado cada hora
 ```
 
-### **5. Dominios Personalizados Automatizados**
+### **5. Arquitectura de Database Sharding**
 
-**Sistema completo CloudFront Multi-Tenant:**
+**Sharding automático por tienda con DynamoDB:**
 
-- **Certificados SSL automáticos** vía AWS ACM
-- **Validación DNS inteligente** cada hora
-- **Verificación de propiedad** con tokens únicos
-- **Estados transitórios**: `pending` → `active` → `failed`
-- **Instrucciones DNS** específicas por proveedor
+- **🎯 Clave de partición**: `storeId` para aislamiento completo
+- **🚀 Escalabilidad infinita**: Nuevas tiendas = nuevas particiones automáticas
+- **⚡ Rendimiento aislado**: Evita problemas de "vecino ruidoso"
+- **🔍 Consultas eficientes**: Índices secundarios globales (GSI)
 
 ```typescript
-// API de configuración
-POST /api/stores/[storeId]/custom-domain
-{
-  "domain": "mitienda.com",
-  "storeId": "store_123"
-}
-
-// Respuesta con instrucciones DNS
-{
-  "success": true,
-  "dnsInstructions": {
-    "type": "CNAME",
-    "name": "mitienda.com",
-    "value": "d123abc.cloudfront.net",
-    "provider": "cloudflare" // Instrucciones específicas
-  }
-}
+// Cada tienda obtiene su propia partición
+Product.byStore(storeId); // Ultra-rápido
+Order.byStore(storeId); // Aislado
+Collection.byStore(storeId); // Escalable
 ```
 
 ### **6. Integraciones de Pago Colombianas**
@@ -469,16 +507,19 @@ export const configurePaymentGateway = async (storeId: string, gateway: PaymentG
 
 ## Scripts Disponibles
 
-| Comando                 | Descripción                       |
-| ----------------------- | --------------------------------- |
-| `npm run dev`           | Servidor desarrollo con Turbopack |
-| `npm run build`         | Build optimizado para producción  |
-| `npm run start`         | Servidor de producción            |
-| `npm run test`          | Tests unitarios con Jest          |
-| `npm run test:watch`    | Tests en modo watch               |
-| `npm run test:coverage` | Coverage completo                 |
-| `npm run lint`          | ESLint + Prettier                 |
-| `npm run template-sync` | Sincronización plantillas         |
+| Comando                     | Descripción                                   |
+| --------------------------- | --------------------------------------------- |
+| `npm run dev`               | Servidor desarrollo con Turbopack             |
+| `npm run build`             | Build optimizado para producción              |
+| `npm run start`             | Servidor de producción                        |
+| `npm run test`              | Tests unitarios con Jest                      |
+| `npm run test:watch`        | Tests en modo watch                           |
+| `npm run test:coverage`     | Coverage completo de tests                    |
+| `npm run lint`              | ESLint + Prettier                             |
+| `npm run type-check`        | Verificación de tipos TypeScript              |
+| `npm run template-sync`     | Sincronización de plantillas en tiempo real   |
+| `npm run workspace:install` | Instalar dependencias en todos los workspaces |
+| `npm run build:packages`    | Build de todos los packages                   |
 
 ---
 
@@ -497,56 +538,62 @@ npm run test -- components/ProductForm
 
 **Cobertura actual:**
 
-- ✅ Componentes UI principales
-- ✅ Hooks personalizados
-- ✅ Middlewares de autenticación
-- ✅ Funciones Lambda
-- ✅ Tags Liquid personalizados
+- ✅ **Sistema de carrito** - Tests completos para side cart y módulos
+- ✅ **Motor Liquid** - Tags personalizados y filtros
+- ✅ **Filtros de productos** - API y frontend
+- ✅ **Checkout tokenizado** - Sesiones y formularios
+- ✅ **Dominios personalizados** - CloudFront Multi-Tenant
+- ✅ **Database sharding** - Consultas por tienda
+- ✅ **Middlewares** - Autenticación y dominio
+- ✅ **Funciones Lambda** - Powertools y logging
 
 ---
 
 ## Casos de Uso Reales
 
-### **1. Tienda de Moda**
+### **1. Tienda de Moda con Filtros Avanzados**
 
-```javascript
-const fashionStore = {
-  theme: 'modern-boutique',
-  products: {
-    variants: ['talla', 'color'],
-    aiDescriptions: true,
-    pricingStrategy: 'market-competitive',
-  },
-  payments: ['wompi', 'mercadoPago'],
-  shipping: 'colombia-nationwide',
-};
+```liquid
+<!-- Solo necesitas una línea para filtros completos -->
+{% filters storeId: store.id, style: 'sidebar' %}
+
+<!-- Sistema genera automáticamente:
+     - Filtros por talla, color, marca
+     - Rango de precios con slider
+     - Ordenamiento por popularidad/precio
+     - Grid responsive con carrito integrado
+-->
 ```
 
-### **2. Dropshipping Electrónicos**
+### **2. Dropshipping con Dominio Personalizado**
 
 ```javascript
-const techStore = {
-  theme: 'tech-minimal',
-  products: {
-    aiPricing: true,
-    supplierIntegration: 'mastershop',
-    categories: ['smartphones', 'laptops', 'accesorios'],
-  },
-  targeting: 'colombia-urban',
-};
+// Configuración automática
+POST /api/stores/tech-store-123/custom-domain
+{
+  "customDomain": "tech-gadgets.com"
+}
+
+// Sistema automáticamente:
+// ✅ Crea tenant CloudFront
+// ✅ Genera SSL
+// ✅ Proporciona instrucciones DNS
+// ✅ Verifica configuración cada hora
 ```
 
-### **3. Tienda Local con Delivery**
+### **3. E-commerce Completo con Checkout**
 
 ```javascript
-const localStore = {
-  theme: 'local-business',
-  location: 'bogota-chapinero',
-  delivery: {
-    zones: ['chapinero', 'zona-rosa', 'chicó'],
-    methods: ['delivery-propio', 'rappi', 'uber-eats'],
-  },
-};
+// Flujo automatizado del carrito al checkout
+addProductToCart(productId, quantity)    // Agrega al side cart
+  ↓
+openCart()                              // Abre carrito lateral
+  ↓
+checkout()                              // Inicia checkout tokenizado
+  ↓
+/checkouts/cn/{token}                   // Formulario seguro
+  ↓
+Order created                           // Pedido manual generado
 ```
 
 ---
@@ -573,43 +620,85 @@ const localStore = {
 
 ## Roadmap 2025
 
-### **Q1 2025**
+### **🚀 En Desarrollo (Q1 2025)**
 
-- [ ] **App móvil** (React Native + Expo)
-- [ ] **Multi-idioma** (i18n completo)
-- [ ] **Integración WhatsApp Business** nativa
-- [ ] **Analytics avanzados** con predicciones IA
+- [ ] **IA con AWS Bedrock** - Generación de descripciones y precios
+- [ ] **Motor de plantillas mejorado** - Más tags Shopify compatibles
+- [ ] **Sistema de órdenes completo** - Gestión avanzada de pedidos
+- [ ] **Panel de analytics** - Métricas en tiempo real por tienda
+- [ ] **Sistema de templates marketplace** - Temas premium/gratuitos
 
-### **Q2 2025**
+### **🔮 Futuro (Q2-Q3 2025)**
 
-- [ ] **Marketplace multi-vendor**
+- [ ] **App móvil nativa** (React Native + Expo)
+- [ ] **Multi-idioma completo** (i18n con Liquid)
+- [ ] **Integración WhatsApp Business** para ventas
+- [ ] **Marketplace multi-vendor** con comisiones
 - [ ] **Sistema de afiliados** automático
-- [ ] **Integración Meta Ads** directa
 - [ ] **POS físico** para tiendas híbridas
+
+### **✅ Completado**
+
+- [x] **Sistema de carrito modular** con side cart
+- [x] **Checkout tokenizado** con sesiones seguras
+- [x] **Filtros automáticos** con tag `{% filters %}`
+- [x] **Dominios personalizados** automatizados
+- [x] **Database sharding** por tienda
+- [x] **CloudFront Multi-Tenant** con SSL automático
 
 ---
 
 ## Licencia
 
-Este proyecto está bajo la **Licencia MIT** - ver [LICENSE](LICENSE) para detalles.
+Este proyecto está bajo la **Licencia Apache 2.0** - ver [LICENSE](LICENSE) para detalles.
 
 ---
 
-## Soporte
+## Documentación y Recursos
 
-- 📚 **Documentación**: [./docs/](./docs/)
-- 🐛 **Reportar bugs**: [GitHub Issues](../../issues)
-- 💬 **Comunidad**: [Discord](https://discord.gg/fasttify)
-- 📧 **Contacto**: [soporte@fasttify.com](mailto:soporte@fasttify.com)
+### **📚 Documentación Técnica Completa**
+
+- **[🏗️ Arquitectura](./docs/architecture/)** - Database sharding, S3 storage
+- **[🎨 Motor de Plantillas](./docs/engine/)** - Liquid tags, filtros, carrito, checkout
+- **[🌐 Dominios Personalizados](./docs/domains/)** - CloudFront Multi-Tenant
+- **[🔧 Desarrollo de Temas](./docs/templates/)** - Guías y referencias
+
+### **🛠️ Guías Rápidas**
+
+- **[Filtros en 5 minutos](./docs/engine/filters-quick-start.md)** - Sistema de filtros automáticos
+- **[Sistema de Carrito](./docs/engine/cart-system.md)** - Side cart modular completo
+- **[Checkout Tokenizado](./docs/engine/checkout-system.md)** - Sesiones seguras
+- **[Dominios Automáticos](./docs/domains/automated-custom-domains.md)** - SSL instantáneo
+
+### **🚀 Ejemplos Prácticos**
+
+```bash
+# Clonar y probar inmediatamente
+git clone https://github.com/Fasttify/fasttify.git
+cd fasttify && npm install && npm run dev
+
+# ¡Tienda funcionando en localhost:3000!
+```
+
+---
+
+## Soporte y Comunidad
+
+- 📚 **Documentación**: [./docs/](./docs/) - Guías técnicas completas
+- 🐛 **Reportar bugs**: [GitHub Issues](../../issues) - Sistema de tracking
+- 💬 **Discusiones**: [GitHub Discussions](../../discussions) - Comunidad dev
+- 📧 **Contacto directo**: [soporte@fasttify.com](mailto:soporte@fasttify.com)
 
 ---
 
 <div align="center">
 
-**¿Listo para revolucionar tu e-commerce?**
+**🚀 Plataforma E-commerce de Nueva Generación**
 
-[🚀 Comenzar ahora](https://fasttify.com) | [📖 Documentación](./docs/) | [💬 Comunidad](https://discord.gg/fasttify)
+[📖 Documentación Completa](./docs/) | [🛠️ Comenzar Desarrollo](./docs/engine/theme-development-guide.md) | [🌐 Dominios Automáticos](./docs/domains/)
 
-**Hecho con ❤️ en Colombia**
+**Construido con 💙 para la comunidad dev**
+
+_Shopify-compatible • Multi-tenant • Serverless • Open Source_
 
 </div>
