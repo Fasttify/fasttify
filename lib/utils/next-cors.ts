@@ -59,15 +59,22 @@ async function isAllowedOrigin(origin: string | undefined): Promise<boolean> {
 
 /**
  * Genera los encabezados CORS adecuados para una ruta de API Next.js.
- * Solo retorna el origin si es válido; si no, retorna el dominio principal seguro.
+ * Solo retorna el origin si es válido; si no, no devuelve headers CORS (bloquea).
  */
 export async function getNextCorsHeaders(request: NextRequest): Promise<Record<string, string>> {
   const origin = request.headers.get('origin') ?? undefined;
   const isAllowed = await isAllowedOrigin(origin);
 
+  if (!isAllowed || !origin) {
+    //  No devolvemos headers CORS → el navegador bloquea la request
+    return {};
+  }
+
+  // Solo devolvemos headers si el origin es válido
   return {
-    'Access-Control-Allow-Origin': isAllowed && origin ? origin : staticAllowedOrigins[0],
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With',
+    'Access-Control-Allow-Credentials': 'true',
   };
 }
