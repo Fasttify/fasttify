@@ -24,14 +24,11 @@ JWT_SECRET=tu-super-secreto-jwt-cambia-en-produccion
 JWT_SECRET=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
 
 # Email Configuration
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
+SES_FROM_EMAIL="test@test.com"
+SES_REPLY_TO_EMAIL="test@test.com"
 
 # Environment
 APP_ENV=development
-NEXTAUTH_URL=http://localhost:3000
 ```
 
 ## Flujo de Autenticación JWT
