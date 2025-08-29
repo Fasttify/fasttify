@@ -87,6 +87,7 @@ export class CartFetcher {
       expiresAt: expiresAt.toISOString(),
       sessionId: sessionId,
       currency: detectedCurrency,
+      ttl: Math.floor(expiresAt.getTime() / 1000),
     };
 
     const { data: createdCart } = await cookiesClient.models.Cart.create(newCartData);

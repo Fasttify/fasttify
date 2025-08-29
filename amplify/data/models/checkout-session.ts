@@ -100,6 +100,12 @@ export const checkoutSessionModel = a
         allow.publicApiKey().to(['create', 'read', 'update']),
         allow.ownerDefinedIn('storeOwner').to(['read', 'create', 'update', 'delete']),
       ]),
+    ttl: a
+      .integer()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['read', 'create', 'update', 'delete']),
+        allow.publicApiKey().to(['read', 'create']),
+      ]),
     storeOwner: a
       .string()
       .required()

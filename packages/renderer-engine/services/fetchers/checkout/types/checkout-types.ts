@@ -36,6 +36,7 @@ export interface CheckoutSessionData {
   shippingAddress?: string | null;
   billingAddress?: string | null;
   notes?: string;
+  ttl?: number;
   storeOwner: string;
 }
 
