@@ -1,4 +1,4 @@
-import { env } from '$amplify/env/bulk-email-processor';
+import { env } from '../../../../.amplify/generated/env/bulk-email-processor';
 
 /**
  * Configuración centralizada del servicio de email
