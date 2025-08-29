@@ -3,6 +3,7 @@ import { defineFunction, secret } from '@aws-amplify/backend';
 export const bulkEmailProcessor = defineFunction({
   name: 'bulk-email-processor',
   entry: 'handler.ts',
+  resourceGroupName: 'email-system',
   timeoutSeconds: 900, // 15 minutos para procesamiento de lotes grandes
   memoryMB: 1024,
   environment: {
@@ -19,6 +20,7 @@ export const bulkEmailProcessor = defineFunction({
 export const bulkEmailAPI = defineFunction({
   name: 'bulk-email-api',
   entry: 'api.ts',
+  resourceGroupName: 'email-system',
   timeoutSeconds: 30,
   memoryMB: 512,
   environment: {

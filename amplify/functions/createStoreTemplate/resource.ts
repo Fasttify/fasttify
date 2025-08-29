@@ -4,4 +4,5 @@ export const createStoreTemplate = defineFunction({
   timeoutSeconds: 120,
   name: 'create-store-template',
   entry: 'handler.ts',
+  resourceGroupName: 'store-management',
 });
