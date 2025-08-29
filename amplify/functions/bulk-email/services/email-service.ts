@@ -1,6 +1,6 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { SQSEmailMessage } from '../types';
-// import { env } from '$amplify/env/bulk-email-processor';
+import { env } from '$amplify/env/bulk-email-processor';
 import { CompiledTemplateService } from './compiled-template-service';
 
 const sesClient = new SESClient();
@@ -43,7 +43,7 @@ export class EmailService {
             },
           },
         },
-        ReplyToAddresses: [process.env.SES_REPLY_TO_EMAIL || 'support@fasttify.com'],
+        ReplyToAddresses: [env.SES_REPLY_TO_EMAIL || 'support@fasttify.com'],
       });
 
       await sesClient.send(command);
@@ -65,7 +65,7 @@ export class EmailService {
    */
   static async processBatch(messages: SQSEmailMessage[]): Promise<{ success: number; failed: number }> {
     const results = { success: 0, failed: 0 };
-    const rateLimit = parseInt(process.env.RATE_LIMIT_PER_SECOND || '10');
+    const rateLimit = parseInt(env.RATE_LIMIT_PER_SECOND || '10');
 
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];

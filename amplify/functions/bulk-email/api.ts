@@ -7,7 +7,7 @@ import { validateBulkEmailRequest, sanitizeTemplateVariables } from './utils/val
 import { MetricsCollector, logEmailCampaignMetrics } from './utils/metrics';
 import { getEmailConfig } from './config/email-config';
 import { getCorsHeaders } from '../shared/cors';
-// import { env } from '$amplify/env/bulk-email-processor';
+import { env } from '$amplify/env/bulk-email-processor';
 
 export const handler: Handler = async (event) => {
   const origin = event.headers?.origin || event.headers?.Origin;
@@ -212,7 +212,7 @@ async function handleTestEmail(request: BulkEmailRequest, headers: Record<string
     recipient,
     templateVariables: request.templateVariables || {},
     sender: request.sender || {
-      email: process.env.SES_FROM_EMAIL || 'noreply@fasttify.com',
+      email: env.SES_FROM_EMAIL || 'noreply@fasttify.com',
       name: 'Fasttify',
     },
     priority: 'high',
@@ -256,7 +256,7 @@ async function handleTestEmail(request: BulkEmailRequest, headers: Record<string
  * Calcula tiempo estimado de entrega
  */
 function calculateEstimatedDelivery(emailCount: number): string {
-  const rateLimit = parseInt(process.env.RATE_LIMIT_PER_SECOND || '10');
+  const rateLimit = parseInt(env.RATE_LIMIT_PER_SECOND || '10');
   const estimatedSeconds = Math.ceil(emailCount / rateLimit);
 
   if (estimatedSeconds < 60) {

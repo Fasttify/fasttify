@@ -1,4 +1,4 @@
-// import { env } from '$amplify/env/bulk-email-processor';
+import { env } from '$amplify/env/bulk-email-processor';
 
 /**
  * Configuración centralizada del servicio de email
@@ -35,19 +35,19 @@ export interface EmailServiceConfig {
 export function getEmailConfig(): EmailServiceConfig {
   return {
     // SES Configuration
-    sesRegion: process.env.AWS_REGION || 'us-east-1',
-    defaultFromEmail: process.env.SES_FROM_EMAIL || 'noreply@fasttify.com',
-    defaultReplyToEmail: process.env.SES_REPLY_TO_EMAIL || 'support@fasttify.com',
+    sesRegion: env.AWS_REGION || 'us-east-1',
+    defaultFromEmail: env.SES_FROM_EMAIL || 'noreply@fasttify.com',
+    defaultReplyToEmail: env.SES_REPLY_TO_EMAIL || 'support@fasttify.com',
 
     // Processing Configuration
-    batchSize: parseInt(process.env.EMAIL_BATCH_SIZE || '10'),
-    maxRetries: parseInt(process.env.MAX_RETRIES || '3'),
-    rateLimit: parseInt(process.env.RATE_LIMIT_PER_SECOND || '14'),
+    batchSize: parseInt(env.EMAIL_BATCH_SIZE || '10'),
+    maxRetries: parseInt(env.MAX_RETRIES || '3'),
+    rateLimit: parseInt(env.RATE_LIMIT_PER_SECOND || '14'),
 
     // Queue Configuration
-    useQueue: !!process.env.EMAIL_QUEUE_URL && process.env.EMAIL_QUEUE_URL !== 'placeholder',
-    emailQueueUrl: process.env.EMAIL_QUEUE_URL,
-    highPriorityQueueUrl: process.env.HIGH_PRIORITY_QUEUE_URL,
+    useQueue: !!env.EMAIL_QUEUE_URL && env.EMAIL_QUEUE_URL !== 'placeholder',
+    emailQueueUrl: env.EMAIL_QUEUE_URL,
+    highPriorityQueueUrl: env.HIGH_PRIORITY_QUEUE_URL,
 
     // Timing Configuration
     visibilityTimeoutSeconds: 900, // 15 minutos

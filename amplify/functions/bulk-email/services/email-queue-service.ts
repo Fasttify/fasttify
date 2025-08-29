@@ -1,11 +1,11 @@
 import { SQSClient, SendMessageCommand, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { v4 as uuidv4 } from 'uuid';
 import { SQSEmailMessage, BulkEmailRequest } from '../types';
-// import { env } from '$amplify/env/bulk-email-processor';
+import { env } from '$amplify/env/bulk-email-processor';
 
 const sqsClient = new SQSClient();
-const EMAIL_QUEUE_URL = process.env.EMAIL_QUEUE_URL;
-const HIGH_PRIORITY_QUEUE_URL = process.env.HIGH_PRIORITY_QUEUE_URL;
+const EMAIL_QUEUE_URL = env.EMAIL_QUEUE_URL;
+const HIGH_PRIORITY_QUEUE_URL = env.HIGH_PRIORITY_QUEUE_URL;
 const BATCH_SIZE = 10;
 
 export class EmailQueueService {
@@ -26,7 +26,7 @@ export class EmailQueueService {
         recipient,
         templateVariables: request.templateVariables || {},
         sender: request.sender || {
-          email: process.env.SES_FROM_EMAIL || 'noreply@fasttify.com',
+          email: env.SES_FROM_EMAIL || 'noreply@fasttify.com',
           name: 'Fasttify',
         },
         priority: request.priority || 'normal',
@@ -180,7 +180,7 @@ export class EmailQueueService {
         recipient,
         templateVariables: request.templateVariables || {},
         sender: request.sender || {
-          email: process.env.SES_FROM_EMAIL || 'noreply@fasttify.com',
+          email: env.SES_FROM_EMAIL || 'noreply@fasttify.com',
           name: 'Fasttify',
         },
         priority: request.priority || 'normal',
