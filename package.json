@@ -22,7 +22,16 @@
     "workspace:audit": "npm audit --workspaces",
     "build:packages": "npm run build --workspaces",
     "test:packages": "npm run test --workspaces",
-    "lint:packages": "npm run lint --workspaces"
+    "lint:packages": "npm run lint --workspaces",
+    "email:compile": "tsx scripts/compile-email-templates.ts",
+    "email:test": "node scripts/test-email-system.js",
+    "email:dev": "npm run email:compile && npm run email:test",
+    "sandbox": "npx ampx sandbox --identifier xooty --stream-function-logs",
+    "sandbox:deploy": "npx ampx deploy",
+    "sandbox:logs": "npx ampx logs",
+    "upload-template": "node scripts/upload-base-template.js",
+    "license": "node scripts/add-license-header.js",
+    "license:check": "node scripts/check-license-header.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
