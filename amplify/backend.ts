@@ -284,6 +284,12 @@ backend.bulkEmailProcessor.resources.lambda.addToRolePolicy(
 const apiStack = backend.createStack('api-stack');
 
 /**
+ * Configuración de autorización por entorno:
+ * - DESARROLLO: AuthorizationType.NONE (sin autenticación)
+ * - PRODUCCIÓN: AuthorizationType.IAM (requiere autenticación IAM)
+ */
+
+/**
  *
  * API para Suscripciones
  *
@@ -298,7 +304,9 @@ const subscriptionApi = new RestApi(apiStack, 'SubscriptionApi', {
 const createSubscriptionIntegration = new LambdaIntegration(backend.createSubscription.resources.lambda);
 
 const subscribeResource = subscriptionApi.root.addResource('subscribe', {
-  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
+  defaultMethodOptions: {
+    authorizationType: isProduction ? AuthorizationType.IAM : AuthorizationType.NONE,
+  },
 });
 
 subscribeResource.addMethod('POST', createSubscriptionIntegration);
@@ -337,7 +345,9 @@ const checkStoreDomainApi = new RestApi(apiStack, 'CheckStoreDomainApi', {
 const checkStoreDomainIntegration = new LambdaIntegration(backend.checkStoreDomain.resources.lambda);
 
 const checkStoreDomainResource = checkStoreDomainApi.root.addResource('check-store-domain', {
-  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
+  defaultMethodOptions: {
+    authorizationType: isProduction ? AuthorizationType.IAM : AuthorizationType.NONE,
+  },
 });
 
 checkStoreDomainResource.addMethod('GET', checkStoreDomainIntegration);
@@ -355,7 +365,11 @@ const storeImagesApi = new RestApi(apiStack, 'StoreImagesApi', {
   defaultCorsPreflightOptions: corsConfig,
 });
 const storeImagesIntegration = new LambdaIntegration(backend.storeImages.resources.lambda);
-const storeImagesResource = storeImagesApi.root.addResource('store-images');
+const storeImagesResource = storeImagesApi.root.addResource('store-images', {
+  defaultMethodOptions: {
+    authorizationType: isProduction ? AuthorizationType.IAM : AuthorizationType.NONE,
+  },
+});
 
 storeImagesResource.addMethod('POST', storeImagesIntegration);
 
@@ -373,7 +387,11 @@ const bulkEmailApi = new RestApi(apiStack, 'BulkEmailApi', {
 });
 
 const bulkEmailIntegration = new LambdaIntegration(backend.bulkEmailAPI.resources.lambda);
-const emailResource = bulkEmailApi.root.addResource('email');
+const emailResource = bulkEmailApi.root.addResource('email', {
+  defaultMethodOptions: {
+    authorizationType: isProduction ? AuthorizationType.IAM : AuthorizationType.NONE,
+  },
+});
 
 emailResource.addResource('send-bulk').addMethod('POST', bulkEmailIntegration);
 emailResource.addResource('test-email').addMethod('POST', bulkEmailIntegration);

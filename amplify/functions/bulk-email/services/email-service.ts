@@ -46,14 +46,7 @@ export class EmailService {
         ReplyToAddresses: [env.SES_REPLY_TO_EMAIL || 'support@fasttify.com'],
       });
 
-      const result = await sesClient.send(command);
-
-      console.log('Email enviado exitosamente:', {
-        messageId: result.MessageId,
-        jobId: message.jobId,
-        recipient: message.recipient.email,
-        templateId: message.templateId,
-      });
+      await sesClient.send(command);
 
       return true;
     } catch (error) {

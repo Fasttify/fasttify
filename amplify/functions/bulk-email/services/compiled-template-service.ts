@@ -13,14 +13,10 @@ export class CompiledTemplateService {
    */
   private static getTemplates(): Record<string, CompiledTemplate> {
     try {
-      // Los templates ya están importados como JSON estático
-      console.log(`✅ Templates compilados cargados: ${Object.keys(compiledTemplates).length} templates`);
       return compiledTemplates as Record<string, CompiledTemplate>;
     } catch (error) {
-      console.error('❌ Error accediendo templates compilados:', error);
+      console.error('Error loading compiled templates:', error);
 
-      // Fallback: templates básicos
-      console.log('⚠️  Usando templates fallback');
       return this.getFallbackTemplates();
     }
   }
@@ -40,21 +36,17 @@ export class CompiledTemplateService {
     const template = templates[templateId];
 
     if (!template) {
-      throw new Error(
-        `Template no encontrado: ${templateId}. Templates disponibles: ${Object.keys(templates).join(', ')}`
-      );
+      throw new Error(`Template not found: ${templateId}. Available templates: ${Object.keys(templates).join(', ')}`);
     }
 
-    // Validar variables requeridas
     const missingVars = template.requiredVariables.filter(
       (varName) => !(varName in variables) || variables[varName] === undefined || variables[varName] === null
     );
 
     if (missingVars.length > 0) {
-      console.warn(`⚠️  Variables faltantes para ${templateId}: ${missingVars.join(', ')}`);
+      console.warn(`Missing variables for ${templateId}: ${missingVars.join(', ')}`);
     }
 
-    // Reemplazar variables en HTML, texto y subject
     const html = this.replaceVariables(template.html, variables);
     const text = this.replaceVariables(template.text, variables);
     const subject = this.replaceVariables(template.subject, variables);
@@ -68,13 +60,11 @@ export class CompiledTemplateService {
   private static replaceVariables(template: string, variables: Record<string, any>): string {
     let result = template;
 
-    // Reemplazar variables obligatorias
     Object.entries(variables).forEach(([key, value]) => {
       const regex = new RegExp(`{{${key}}}`, 'g');
       result = result.replace(regex, String(value || ''));
     });
 
-    // Limpiar variables no reemplazadas (opcional)
     result = result.replace(/{{[^}]+}}/g, '');
 
     return result;

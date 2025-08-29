@@ -16,7 +16,6 @@ export class EmailQueueService {
     const jobIds: string[] = [];
     const messages: SQSEmailMessage[] = [];
 
-    // Crear mensajes para cada destinatario
     for (const recipient of request.recipients) {
       const jobId = uuidv4();
       jobIds.push(jobId);
