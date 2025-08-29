@@ -1,7 +1,7 @@
 import { SQSClient, SendMessageCommand, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { v4 as uuidv4 } from 'uuid';
 import { SQSEmailMessage, BulkEmailRequest } from '../types';
-import { env } from '$amplify/env/bulk-email-processor';
+import { env } from '../../../../.amplify/generated/env/bulk-email-processor';
 
 const sqsClient = new SQSClient();
 const EMAIL_QUEUE_URL = env.EMAIL_QUEUE_URL;

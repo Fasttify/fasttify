@@ -1,6 +1,6 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { SQSEmailMessage } from '../types';
-import { env } from '$amplify/env/bulk-email-processor';
+import { env } from '../../../../.amplify/generated/env/bulk-email-processor';
 import { CompiledTemplateService } from './compiled-template-service';
 
 const sesClient = new SESClient();
