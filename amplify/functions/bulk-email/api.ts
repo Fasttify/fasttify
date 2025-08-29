@@ -7,7 +7,7 @@ import { validateBulkEmailRequest, sanitizeTemplateVariables } from './utils/val
 import { MetricsCollector, logEmailCampaignMetrics } from './utils/metrics';
 import { getEmailConfig } from './config/email-config';
 import { getCorsHeaders } from '../shared/cors';
-import { env } from '../../../.amplify/generated/env/bulk-email-processor';
+import { env } from '$amplify/env/bulk-email-processor';
 
 export const handler: Handler = async (event) => {
   const origin = event.headers?.origin || event.headers?.Origin;
