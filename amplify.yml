@@ -17,6 +17,7 @@ frontend:
       - '**/*'
   cache:
     paths:
+      - .amplify/**/*
       - .next/cache/**/*
       - .npm/**/*
       - node_modules/**/*
