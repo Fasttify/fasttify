@@ -1,7 +1,10 @@
 import { defineBackend } from '@aws-amplify/backend';
-import { CfnOutput, Stack } from 'aws-cdk-lib';
+import { Stack, Duration } from 'aws-cdk-lib';
 import { AuthorizationType, Cors, LambdaIntegration, MethodLoggingLevel, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { CfnFunction } from 'aws-cdk-lib/aws-lambda';
+import { Queue } from 'aws-cdk-lib/aws-sqs';
+import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 //import * as kms from 'aws-cdk-lib/aws-kms';
 import { postConfirmation } from './auth/post-confirmation/resource';
 import { auth } from './auth/resource';
@@ -11,6 +14,7 @@ import {
   generatePriceSuggestionFunction,
   generateProductDescriptionFunction,
 } from './data/resource';
+import { bulkEmailAPI, bulkEmailProcessor } from './functions/bulk-email/resource';
 import { checkStoreDomain } from './functions/checkStoreDomain/resource';
 import { createSubscription } from './functions/createSubscription/resource';
 import { managePaymentKeys } from './functions/managePaymentKeys/resource';
@@ -75,6 +79,8 @@ const backend = defineBackend({
   generateHaikuFunction,
   checkStoreDomain,
   generateProductDescriptionFunction,
+  bulkEmailAPI,
+  bulkEmailProcessor,
   generatePriceSuggestionFunction,
   storeImages,
   managePaymentKeys,
@@ -166,6 +172,66 @@ cfnResources.amplifyDynamoDbTables['CheckoutSession'].timeToLiveAttribute = {
   enabled: true,
 };
 
+// Configuración de colas SQS para email masivo
+const emailQueue = new Queue(backend.stack, 'EmailQueue', {
+  queueName: `email-queue-${stageName}`,
+  visibilityTimeout: Duration.minutes(15), // Tiempo para procesar emails
+  receiveMessageWaitTime: Duration.seconds(20), // Long polling
+  deadLetterQueue: {
+    queue: new Queue(backend.stack, 'EmailDeadLetterQueue', {
+      queueName: `email-dlq-${stageName}`,
+    }),
+    maxReceiveCount: 3, // Máximo 3 reintentos antes de DLQ
+  },
+});
+
+const highPriorityEmailQueue = new Queue(backend.stack, 'HighPriorityEmailQueue', {
+  queueName: `email-high-priority-queue-${stageName}`,
+  visibilityTimeout: Duration.minutes(15),
+  receiveMessageWaitTime: Duration.seconds(20),
+  deadLetterQueue: {
+    queue: new Queue(backend.stack, 'HighPriorityEmailDeadLetterQueue', {
+      queueName: `email-high-priority-dlq-${stageName}`,
+    }),
+    maxReceiveCount: 3,
+  },
+});
+
+// Conectar las colas al procesador de emails
+backend.bulkEmailProcessor.resources.lambda.addEventSource(
+  new SqsEventSource(emailQueue, {
+    batchSize: 10, // Procesar hasta 10 mensajes por vez
+    maxBatchingWindow: Duration.seconds(30),
+  })
+);
+
+backend.bulkEmailProcessor.resources.lambda.addEventSource(
+  new SqsEventSource(highPriorityEmailQueue, {
+    batchSize: 5, // Menor batch para alta prioridad = más rápido
+    maxBatchingWindow: Duration.seconds(10),
+  })
+);
+
+// Configurar variables de entorno usando node context
+backend.bulkEmailAPI.resources.lambda.node.addDependency(emailQueue);
+backend.bulkEmailAPI.resources.lambda.node.addDependency(highPriorityEmailQueue);
+backend.bulkEmailProcessor.resources.lambda.node.addDependency(emailQueue);
+backend.bulkEmailProcessor.resources.lambda.node.addDependency(highPriorityEmailQueue);
+
+// Usar CfnFunction para configurar variables de entorno
+const apiLambda = backend.bulkEmailAPI.resources.lambda.node.defaultChild as CfnFunction;
+const processorLambda = backend.bulkEmailProcessor.resources.lambda.node.defaultChild as CfnFunction;
+
+if (apiLambda) {
+  apiLambda.addPropertyOverride('Environment.Variables.EMAIL_QUEUE_URL', emailQueue.queueUrl);
+  apiLambda.addPropertyOverride('Environment.Variables.HIGH_PRIORITY_QUEUE_URL', highPriorityEmailQueue.queueUrl);
+}
+
+if (processorLambda) {
+  processorLambda.addPropertyOverride('Environment.Variables.EMAIL_QUEUE_URL', emailQueue.queueUrl);
+  processorLambda.addPropertyOverride('Environment.Variables.HIGH_PRIORITY_QUEUE_URL', highPriorityEmailQueue.queueUrl);
+}
+
 backend.postConfirmation.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
@@ -181,7 +247,47 @@ backend.storeImages.resources.lambda.addToRolePolicy(
   })
 );
 
+// Permisos SES para funciones de email masivo
+backend.bulkEmailAPI.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+    resources: ['*'],
+  })
+);
+
+backend.bulkEmailProcessor.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+    resources: ['*'],
+  })
+);
+
+// Permisos SQS para funciones de email
+backend.bulkEmailAPI.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ['sqs:SendMessage', 'sqs:GetQueueAttributes'],
+    resources: [emailQueue.queueArn, highPriorityEmailQueue.queueArn],
+  })
+);
+
+backend.bulkEmailProcessor.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ['sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes', 'sqs:ChangeMessageVisibility'],
+    resources: [emailQueue.queueArn, highPriorityEmailQueue.queueArn],
+  })
+);
+
 const apiStack = backend.createStack('api-stack');
+
+/**
+ * Configuración de autorización por entorno:
+ * - DESARROLLO: AuthorizationType.NONE (sin autenticación)
+ * - PRODUCCIÓN: AuthorizationType.IAM (requiere autenticación IAM)
+ */
 
 /**
  *
@@ -198,7 +304,9 @@ const subscriptionApi = new RestApi(apiStack, 'SubscriptionApi', {
 const createSubscriptionIntegration = new LambdaIntegration(backend.createSubscription.resources.lambda);
 
 const subscribeResource = subscriptionApi.root.addResource('subscribe', {
-  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
+  defaultMethodOptions: {
+    authorizationType: isProduction ? AuthorizationType.IAM : AuthorizationType.NONE,
+  },
 });
 
 subscribeResource.addMethod('POST', createSubscriptionIntegration);
@@ -237,7 +345,9 @@ const checkStoreDomainApi = new RestApi(apiStack, 'CheckStoreDomainApi', {
 const checkStoreDomainIntegration = new LambdaIntegration(backend.checkStoreDomain.resources.lambda);
 
 const checkStoreDomainResource = checkStoreDomainApi.root.addResource('check-store-domain', {
-  defaultMethodOptions: { authorizationType: AuthorizationType.NONE },
+  defaultMethodOptions: {
+    authorizationType: isProduction ? AuthorizationType.IAM : AuthorizationType.NONE,
+  },
 });
 
 checkStoreDomainResource.addMethod('GET', checkStoreDomainIntegration);
@@ -255,9 +365,36 @@ const storeImagesApi = new RestApi(apiStack, 'StoreImagesApi', {
   defaultCorsPreflightOptions: corsConfig,
 });
 const storeImagesIntegration = new LambdaIntegration(backend.storeImages.resources.lambda);
-const storeImagesResource = storeImagesApi.root.addResource('store-images');
+const storeImagesResource = storeImagesApi.root.addResource('store-images', {
+  defaultMethodOptions: {
+    authorizationType: isProduction ? AuthorizationType.IAM : AuthorizationType.NONE,
+  },
+});
 
 storeImagesResource.addMethod('POST', storeImagesIntegration);
+
+/**
+ *
+ * API para Email Masivo
+ *
+ */
+
+const bulkEmailApi = new RestApi(apiStack, 'BulkEmailApi', {
+  restApiName: `BulkEmailApi-${stageName}`,
+  deploy: true,
+  deployOptions: deployConfig,
+  defaultCorsPreflightOptions: corsConfig,
+});
+
+const bulkEmailIntegration = new LambdaIntegration(backend.bulkEmailAPI.resources.lambda);
+const emailResource = bulkEmailApi.root.addResource('email', {
+  defaultMethodOptions: {
+    authorizationType: isProduction ? AuthorizationType.IAM : AuthorizationType.NONE,
+  },
+});
+
+emailResource.addResource('send-bulk').addMethod('POST', bulkEmailIntegration);
+emailResource.addResource('test-email').addMethod('POST', bulkEmailIntegration);
 
 /**
  *
@@ -273,6 +410,7 @@ const apiRestPolicy = new Policy(apiStack, 'RestApiPolicy', {
         `${webHookApi.arnForExecuteApi('*', '/webhook', stageName)}`,
         `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', stageName)}`,
         `${storeImagesApi.arnForExecuteApi('*', '/store-images', stageName)}`,
+        `${bulkEmailApi.arnForExecuteApi('*', '/email/*', stageName)}`,
       ],
     }),
   ],
@@ -319,6 +457,16 @@ backend.addOutput({
         apiName: storeImagesApi.restApiName,
         stage: stageName,
       },
+      BulkEmailApi: {
+        endpoint: bulkEmailApi.url,
+        region: Stack.of(bulkEmailApi).region,
+        apiName: bulkEmailApi.restApiName,
+        stage: stageName,
+      },
+    },
+    EmailQueues: {
+      emailQueueUrl: emailQueue.queueUrl,
+      highPriorityQueueUrl: highPriorityEmailQueue.queueUrl,
     },
   },
 });
