@@ -98,7 +98,7 @@ export const handler: Handler = async (event) => {
  */
 async function handleSendBulkEmail(request: BulkEmailRequest, headers: Record<string, string>) {
   const campaignId = uuidv4();
-  const config = getEmailConfig();
+  const config = getEmailConfig(env);
   const metricsCollector = new MetricsCollector();
   const startTime = Date.now();
 
@@ -125,7 +125,7 @@ async function handleSendBulkEmail(request: BulkEmailRequest, headers: Record<st
   try {
     if (config.useQueue) {
       // Usar SQS para procesamiento asíncrono
-      const jobIds = await EmailQueueService.enqueueEmailJobs(enrichedRequest);
+      const jobIds = await EmailQueueService.enqueueEmailJobs(enrichedRequest, env);
       const estimatedDeliveryTime = calculateEstimatedDelivery(request.recipients.length);
 
       return {
@@ -142,8 +142,8 @@ async function handleSendBulkEmail(request: BulkEmailRequest, headers: Record<st
       };
     } else {
       // Fallback: procesamiento directo
-      const messages = await EmailQueueService.createEmailMessages(enrichedRequest);
-      const results = await EmailService.processBatch(messages);
+      const messages = await EmailQueueService.createEmailMessages(enrichedRequest, env);
+      const results = await EmailService.processBatch(messages, env);
 
       const estimatedDeliveryTime = calculateEstimatedDelivery(messages.length);
 
@@ -225,7 +225,7 @@ async function handleTestEmail(request: BulkEmailRequest, headers: Record<string
   };
 
   try {
-    const success = await EmailService.sendEmail(message);
+    const success = await EmailService.sendEmail(message, env);
 
     return {
       statusCode: 200,

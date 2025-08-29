@@ -1,6 +1,7 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { SQSEmailMessage } from '../types';
-import { env } from '$amplify/env/bulk-email-processor';
+// Archivo compartido entre bulk-email-api y bulk-email-processor
+import { EmailEnvVars } from '../config/email-config';
 import { CompiledTemplateService } from './compiled-template-service';
 
 const sesClient = new SESClient();
@@ -9,7 +10,7 @@ export class EmailService {
   /**
    * Envía un email individual usando SES
    */
-  static async sendEmail(message: SQSEmailMessage): Promise<boolean> {
+  static async sendEmail(message: SQSEmailMessage, envVars: EmailEnvVars): Promise<boolean> {
     try {
       // Validar que el template existe
       if (!CompiledTemplateService.isValidTemplate(message.templateId)) {
@@ -43,7 +44,7 @@ export class EmailService {
             },
           },
         },
-        ReplyToAddresses: [env.SES_REPLY_TO_EMAIL || 'support@fasttify.com'],
+        ReplyToAddresses: [envVars.SES_REPLY_TO_EMAIL || 'support@fasttify.com'],
       });
 
       await sesClient.send(command);
@@ -63,15 +64,18 @@ export class EmailService {
   /**
    * Procesa un lote de emails
    */
-  static async processBatch(messages: SQSEmailMessage[]): Promise<{ success: number; failed: number }> {
+  static async processBatch(
+    messages: SQSEmailMessage[],
+    envVars: EmailEnvVars
+  ): Promise<{ success: number; failed: number }> {
     const results = { success: 0, failed: 0 };
-    const rateLimit = parseInt(env.RATE_LIMIT_PER_SECOND || '10');
+    const rateLimit = parseInt(envVars.RATE_LIMIT_PER_SECOND || '10');
 
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
 
       try {
-        const sent = await this.sendEmail(message);
+        const sent = await this.sendEmail(message, envVars);
         if (sent) {
           results.success++;
         } else {
