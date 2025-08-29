@@ -11,7 +11,6 @@ export const bulkEmailProcessor = defineFunction({
     EMAIL_BATCH_SIZE: '10',
     MAX_RETRIES: '3',
     RATE_LIMIT_PER_SECOND: '14',
-    // Las URLs de SQS se agregarán dinámicamente en backend.ts
     EMAIL_QUEUE_URL: 'placeholder',
     HIGH_PRIORITY_QUEUE_URL: 'placeholder',
   },
@@ -25,7 +24,6 @@ export const bulkEmailAPI = defineFunction({
   environment: {
     SES_FROM_EMAIL: secret('SES_FROM_EMAIL'),
     EMAIL_BATCH_SIZE: '10',
-    // Las URLs de SQS se agregarán dinámicamente en backend.ts
     EMAIL_QUEUE_URL: 'placeholder',
     HIGH_PRIORITY_QUEUE_URL: 'placeholder',
   },
