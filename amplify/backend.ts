@@ -155,6 +155,16 @@ new CfnOutput(backend.stack, 'PaymentKeysKmsKeyArn', {
   value: paymentKeysKmsKey.keyArn,
   description: 'ARN of the KMS key for encrypting payment gateway keys',
 });*/
+const { cfnResources } = backend.data.resources;
+cfnResources.amplifyDynamoDbTables['Cart'].timeToLiveAttribute = {
+  attributeName: 'ttl',
+  enabled: true,
+};
+
+cfnResources.amplifyDynamoDbTables['CheckoutSession'].timeToLiveAttribute = {
+  attributeName: 'ttl',
+  enabled: true,
+};
 
 backend.postConfirmation.resources.lambda.addToRolePolicy(
   new PolicyStatement({

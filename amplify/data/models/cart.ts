@@ -44,6 +44,12 @@ export const cartModel = a
         allow.ownerDefinedIn('userId').to(['read', 'create', 'update', 'delete']),
         allow.publicApiKey().to(['read', 'create', 'update', 'delete']),
       ]), // Para limpiar carritos abandonados
+    ttl: a
+      .integer()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('userId').to(['read', 'create', 'update', 'delete']),
+        allow.publicApiKey().to(['read', 'create']),
+      ]), // TTL para DynamoDB
     store: a.belongsTo('UserStore', 'storeId'),
   })
   .secondaryIndexes((index) => [index('userId'), index('sessionId'), index('storeId'), index('expiresAt')])

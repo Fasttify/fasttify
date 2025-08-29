@@ -39,9 +39,9 @@ export class CheckoutFetcher {
       const token = checkoutSessionManager.generateToken();
       const storeOwner = await checkoutSessionManager.getStoreOwner(request.storeId);
 
-      // Configurar expiración (2 horas por defecto)
+      // Configurar expiración (24 horas por defecto)
       const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 2);
+      expiresAt.setHours(expiresAt.getHours() + 24);
 
       // Calcular totales basados en el carrito
       const totals = this.calculateCheckoutTotals(cart);

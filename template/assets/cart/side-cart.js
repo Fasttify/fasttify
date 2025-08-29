@@ -8,13 +8,10 @@ class SideCart {
     this.overlay = document.querySelector('[data-cart-overlay]');
     this.sidebar = document.querySelector('[data-cart-sidebar]');
     this.closeBtn = document.querySelector('[data-cart-close]');
-
     this.isOpen = false;
     this.isUpdating = false;
-
-    // Initialize modules
+    this.isRefreshing = false;
     this.ui = new CartUI(this.sidebar);
-
     this.init();
   }
 
@@ -144,6 +141,11 @@ class SideCart {
   }
 
   async refresh() {
+    if (this.isRefreshing) {
+      return;
+    }
+
+    this.isRefreshing = true;
     this.ui.setLoadingState(true);
 
     try {
@@ -160,6 +162,7 @@ class SideCart {
       console.error('[SideCart] Error refreshing cart from API:', error);
       this.ui.updateCartDisplay({ items: [], item_count: 0, total_price: 0 });
     } finally {
+      this.isRefreshing = false;
       this.ui.setLoadingState(false);
     }
   }
@@ -220,7 +223,6 @@ window.addProductToCart = async function(productId, quantity = 1) {
 window.addToCart = async function(productId, quantity = 1, selectedAttributes = {}) {
   try {
     const data = await cartAPI.addToCart(productId, quantity, selectedAttributes);
-    // Siempre abrir el carrito cuando se añade un producto
     document.dispatchEvent(new CustomEvent('cart:open'));
     document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data.cart } }));
     return data.cart;
@@ -230,15 +232,21 @@ window.addToCart = async function(productId, quantity = 1, selectedAttributes = 
   }
 };
 
-// Initialize when DOM is ready
 let sideCartInstance = null;
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    sideCartInstance = new SideCart();
-    window.sideCart = sideCartInstance;
-  });
-} else {
-  sideCartInstance = new SideCart();
-  window.sideCart = sideCartInstance;
+if (!window.sideCartInitialized) {
+  window.sideCartInitialized = true;
+
+  const initializeSideCart = () => {
+    if (!sideCartInstance) {
+      sideCartInstance = new SideCart();
+      window.sideCart = sideCartInstance;
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSideCart);
+  } else {
+    initializeSideCart();
+  }
 }

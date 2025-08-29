@@ -47,10 +47,19 @@ export class CheckoutSessionManager {
    */
   public async createSession(sessionData: CheckoutSessionData): Promise<any> {
     try {
-      const response = await cookiesClient.models.CheckoutSession.create(sessionData);
+      // Agregar TTL para DynamoDB
+      const expiresAt = new Date(sessionData.expiresAt);
+      const sessionDataWithTtl = {
+        ...sessionData,
+        ttl: Math.floor(expiresAt.getTime() / 1000),
+      };
+
+      const response = await cookiesClient.models.CheckoutSession.create(sessionDataWithTtl);
 
       if (response.data) {
-        logger.info(`Checkout session created: ${sessionData.token} for store ${sessionData.storeId}`);
+        logger.info(
+          `Checkout session created: ${sessionData.token} for store ${sessionData.storeId} (expires: ${sessionData.expiresAt})`
+        );
         return response.data;
       } else {
         logger.error('Failed to create checkout session:', response.errors);
