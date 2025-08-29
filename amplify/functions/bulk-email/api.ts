@@ -7,7 +7,7 @@ import { validateBulkEmailRequest, sanitizeTemplateVariables } from './utils/val
 import { MetricsCollector, logEmailCampaignMetrics } from './utils/metrics';
 import { getEmailConfig } from './config/email-config';
 import { getCorsHeaders } from '../shared/cors';
-import { env } from '$amplify/env/bulk-email-processor';
+// import { env } from '$amplify/env/bulk-email-processor';
 
 export const handler: Handler = async (event) => {
   const origin = event.headers?.origin || event.headers?.Origin;
@@ -98,7 +98,7 @@ export const handler: Handler = async (event) => {
  */
 async function handleSendBulkEmail(request: BulkEmailRequest, headers: Record<string, string>) {
   const campaignId = uuidv4();
-  const config = getEmailConfig(env);
+  const config = getEmailConfig();
   const metricsCollector = new MetricsCollector();
   const startTime = Date.now();
 
@@ -125,7 +125,7 @@ async function handleSendBulkEmail(request: BulkEmailRequest, headers: Record<st
   try {
     if (config.useQueue) {
       // Usar SQS para procesamiento asíncrono
-      const jobIds = await EmailQueueService.enqueueEmailJobs(enrichedRequest, env);
+      const jobIds = await EmailQueueService.enqueueEmailJobs(enrichedRequest);
       const estimatedDeliveryTime = calculateEstimatedDelivery(request.recipients.length);
 
       return {
@@ -142,8 +142,8 @@ async function handleSendBulkEmail(request: BulkEmailRequest, headers: Record<st
       };
     } else {
       // Fallback: procesamiento directo
-      const messages = await EmailQueueService.createEmailMessages(enrichedRequest, env);
-      const results = await EmailService.processBatch(messages, env);
+      const messages = await EmailQueueService.createEmailMessages(enrichedRequest);
+      const results = await EmailService.processBatch(messages);
 
       const estimatedDeliveryTime = calculateEstimatedDelivery(messages.length);
 
@@ -212,7 +212,7 @@ async function handleTestEmail(request: BulkEmailRequest, headers: Record<string
     recipient,
     templateVariables: request.templateVariables || {},
     sender: request.sender || {
-      email: env.SES_FROM_EMAIL || 'noreply@fasttify.com',
+      email: process.env.SES_FROM_EMAIL || 'noreply@fasttify.com',
       name: 'Fasttify',
     },
     priority: 'high',
@@ -225,7 +225,7 @@ async function handleTestEmail(request: BulkEmailRequest, headers: Record<string
   };
 
   try {
-    const success = await EmailService.sendEmail(message, env);
+    const success = await EmailService.sendEmail(message);
 
     return {
       statusCode: 200,
@@ -256,7 +256,7 @@ async function handleTestEmail(request: BulkEmailRequest, headers: Record<string
  * Calcula tiempo estimado de entrega
  */
 function calculateEstimatedDelivery(emailCount: number): string {
-  const rateLimit = parseInt(env.RATE_LIMIT_PER_SECOND || '10');
+  const rateLimit = parseInt(process.env.RATE_LIMIT_PER_SECOND || '10');
   const estimatedSeconds = Math.ceil(emailCount / rateLimit);
 
   if (estimatedSeconds < 60) {

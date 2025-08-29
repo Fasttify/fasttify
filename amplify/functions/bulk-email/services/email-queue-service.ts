@@ -1,17 +1,18 @@
 import { SQSClient, SendMessageCommand, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { v4 as uuidv4 } from 'uuid';
 import { SQSEmailMessage, BulkEmailRequest } from '../types';
-// Archivo compartido entre bulk-email-api y bulk-email-processor
-import { EmailEnvVars } from '../config/email-config';
+// import { env } from '$amplify/env/bulk-email-processor';
 
 const sqsClient = new SQSClient();
+const EMAIL_QUEUE_URL = process.env.EMAIL_QUEUE_URL;
+const HIGH_PRIORITY_QUEUE_URL = process.env.HIGH_PRIORITY_QUEUE_URL;
 const BATCH_SIZE = 10;
 
 export class EmailQueueService {
   /**
    * Envía trabajos de email a la cola SQS apropiada
    */
-  static async enqueueEmailJobs(request: BulkEmailRequest, envVars: EmailEnvVars): Promise<string[]> {
+  static async enqueueEmailJobs(request: BulkEmailRequest): Promise<string[]> {
     const jobIds: string[] = [];
     const messages: SQSEmailMessage[] = [];
 
@@ -25,7 +26,7 @@ export class EmailQueueService {
         recipient,
         templateVariables: request.templateVariables || {},
         sender: request.sender || {
-          email: envVars.SES_FROM_EMAIL || 'noreply@fasttify.com',
+          email: process.env.SES_FROM_EMAIL || 'noreply@fasttify.com',
           name: 'Fasttify',
         },
         priority: request.priority || 'normal',
@@ -43,7 +44,7 @@ export class EmailQueueService {
     }
 
     // Enviar mensajes a SQS en lotes
-    await this.sendMessagesInBatches(messages, request.priority || 'normal', envVars);
+    await this.sendMessagesInBatches(messages, request.priority || 'normal');
     return jobIds;
   }
 
@@ -52,10 +53,9 @@ export class EmailQueueService {
    */
   private static async sendMessagesInBatches(
     messages: SQSEmailMessage[],
-    priority: 'low' | 'normal' | 'high',
-    envVars: EmailEnvVars
+    priority: 'low' | 'normal' | 'high'
   ): Promise<void> {
-    const queueUrl = priority === 'high' ? envVars.HIGH_PRIORITY_QUEUE_URL : envVars.EMAIL_QUEUE_URL;
+    const queueUrl = priority === 'high' ? HIGH_PRIORITY_QUEUE_URL : EMAIL_QUEUE_URL;
 
     if (!queueUrl) {
       throw new Error(`SQS queue not configured for priority: ${priority}`);
@@ -144,7 +144,7 @@ export class EmailQueueService {
   /**
    * Reintentar trabajo fallido
    */
-  static async requeueFailedJob(message: SQSEmailMessage, envVars: EmailEnvVars): Promise<void> {
+  static async requeueFailedJob(message: SQSEmailMessage): Promise<void> {
     if (message.attempt >= message.maxAttempts) {
       console.error(`Job ${message.jobId} exceeded maximum attempts`);
       return;
@@ -155,7 +155,7 @@ export class EmailQueueService {
       attempt: message.attempt + 1,
     };
 
-    const queueUrl = message.priority === 'high' ? envVars.HIGH_PRIORITY_QUEUE_URL : envVars.EMAIL_QUEUE_URL;
+    const queueUrl = message.priority === 'high' ? HIGH_PRIORITY_QUEUE_URL : EMAIL_QUEUE_URL;
 
     if (!queueUrl) {
       throw new Error(`SQS queue not configured for priority: ${message.priority}`);
@@ -167,7 +167,7 @@ export class EmailQueueService {
   /**
    * Crea mensajes de email para procesamiento directo (fallback)
    */
-  static async createEmailMessages(request: BulkEmailRequest, envVars: EmailEnvVars): Promise<SQSEmailMessage[]> {
+  static async createEmailMessages(request: BulkEmailRequest): Promise<SQSEmailMessage[]> {
     const messages: SQSEmailMessage[] = [];
 
     // Crear mensajes para cada destinatario
@@ -180,7 +180,7 @@ export class EmailQueueService {
         recipient,
         templateVariables: request.templateVariables || {},
         sender: request.sender || {
-          email: envVars.SES_FROM_EMAIL || 'noreply@fasttify.com',
+          email: process.env.SES_FROM_EMAIL || 'noreply@fasttify.com',
           name: 'Fasttify',
         },
         priority: request.priority || 'normal',
