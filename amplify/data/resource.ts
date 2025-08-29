@@ -28,6 +28,8 @@ export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0';
 
 export const generateHaikuFunction = defineFunction({
   entry: './functions/chat-generate/generateHaiku.ts',
+  resourceGroupName: 'ai-functions',
+  timeoutSeconds: 30,
   environment: {
     MODEL_ID,
   },
@@ -35,6 +37,8 @@ export const generateHaikuFunction = defineFunction({
 
 export const generateProductDescriptionFunction = defineFunction({
   entry: './functions/description-generate/generateProductDescription.ts',
+  resourceGroupName: 'ai-functions',
+  timeoutSeconds: 30,
   environment: {
     MODEL_ID,
   },
@@ -42,6 +46,8 @@ export const generateProductDescriptionFunction = defineFunction({
 
 export const generatePriceSuggestionFunction = defineFunction({
   entry: './functions/price-suggestion/generatePriceSuggestion.ts',
+  resourceGroupName: 'ai-functions',
+  timeoutSeconds: 30,
   environment: {
     MODEL_ID,
   },
