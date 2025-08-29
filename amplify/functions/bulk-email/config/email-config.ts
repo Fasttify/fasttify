@@ -1,4 +1,4 @@
-import { env } from '$amplify/env/bulk-email-processor';
+// Archivo compartido entre bulk-email-api y bulk-email-processor
 
 /**
  * Configuración centralizada del servicio de email
@@ -30,24 +30,38 @@ export interface EmailServiceConfig {
 }
 
 /**
+ * Interface para variables de entorno necesarias
+ */
+export interface EmailEnvVars {
+  AWS_REGION?: string;
+  SES_FROM_EMAIL?: string;
+  SES_REPLY_TO_EMAIL?: string;
+  EMAIL_BATCH_SIZE?: string;
+  MAX_RETRIES?: string;
+  RATE_LIMIT_PER_SECOND?: string;
+  EMAIL_QUEUE_URL?: string;
+  HIGH_PRIORITY_QUEUE_URL?: string;
+}
+
+/**
  * Obtiene la configuración del servicio desde variables de entorno
  */
-export function getEmailConfig(): EmailServiceConfig {
+export function getEmailConfig(envVars: EmailEnvVars): EmailServiceConfig {
   return {
     // SES Configuration
-    sesRegion: env.AWS_REGION || 'us-east-1',
-    defaultFromEmail: env.SES_FROM_EMAIL || 'noreply@fasttify.com',
-    defaultReplyToEmail: env.SES_REPLY_TO_EMAIL || 'support@fasttify.com',
+    sesRegion: envVars.AWS_REGION || 'us-east-1',
+    defaultFromEmail: envVars.SES_FROM_EMAIL || 'noreply@fasttify.com',
+    defaultReplyToEmail: envVars.SES_REPLY_TO_EMAIL || 'support@fasttify.com',
 
     // Processing Configuration
-    batchSize: parseInt(env.EMAIL_BATCH_SIZE || '10'),
-    maxRetries: parseInt(env.MAX_RETRIES || '3'),
-    rateLimit: parseInt(env.RATE_LIMIT_PER_SECOND || '14'),
+    batchSize: parseInt(envVars.EMAIL_BATCH_SIZE || '10'),
+    maxRetries: parseInt(envVars.MAX_RETRIES || '3'),
+    rateLimit: parseInt(envVars.RATE_LIMIT_PER_SECOND || '14'),
 
     // Queue Configuration
-    useQueue: !!env.EMAIL_QUEUE_URL && env.EMAIL_QUEUE_URL !== 'placeholder',
-    emailQueueUrl: env.EMAIL_QUEUE_URL,
-    highPriorityQueueUrl: env.HIGH_PRIORITY_QUEUE_URL,
+    useQueue: !!envVars.EMAIL_QUEUE_URL && envVars.EMAIL_QUEUE_URL !== 'placeholder',
+    emailQueueUrl: envVars.EMAIL_QUEUE_URL,
+    highPriorityQueueUrl: envVars.HIGH_PRIORITY_QUEUE_URL,
 
     // Timing Configuration
     visibilityTimeoutSeconds: 900, // 15 minutos

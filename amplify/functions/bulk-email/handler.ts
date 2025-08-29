@@ -2,6 +2,7 @@ import { Handler } from 'aws-lambda';
 import { EmailService } from './services/email-service';
 import { SQSEmailMessage } from './types';
 import { getCorsHeaders } from '../shared/cors';
+import { env } from '$amplify/env/bulk-email-processor';
 
 export const handler: Handler = async (event) => {
   const origin = event.headers?.origin || event.headers?.Origin;
@@ -55,7 +56,7 @@ async function processSQSMessages(records: any[]) {
     return { success: 0, failed: 0, message: 'No valid messages to process' };
   }
 
-  const results = await EmailService.processBatch(messages);
+  const results = await EmailService.processBatch(messages, env);
 
   return {
     ...results,
@@ -67,7 +68,7 @@ async function processSQSMessages(records: any[]) {
  * Procesa mensajes enviados directamente (para testing)
  */
 async function processDirectMessages(messages: SQSEmailMessage[]) {
-  const results = await EmailService.processBatch(messages);
+  const results = await EmailService.processBatch(messages, env);
 
   return {
     ...results,
@@ -79,7 +80,7 @@ async function processDirectMessages(messages: SQSEmailMessage[]) {
  * Procesa un solo mensaje
  */
 async function processSingleMessage(message: SQSEmailMessage) {
-  const success = await EmailService.sendEmail(message);
+  const success = await EmailService.sendEmail(message, env);
 
   return {
     success: success ? 1 : 0,
