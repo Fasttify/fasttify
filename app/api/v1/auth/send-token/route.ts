@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { render } from '@react-email/render';
-import { OrderAuthEmail } from '@/emails/OrderAuthEmail';
+import { OrderAuthEmail } from '@/emails/templates/OrderAuthEmail';
 import { generateOrderAccessToken } from '@/lib/auth/token';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { sendEmail } from '@/lib/email/sendEmail';
