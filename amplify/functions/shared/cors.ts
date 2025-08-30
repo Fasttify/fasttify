@@ -1,6 +1,9 @@
 const exactOrigins: string[] = ['https://www.fasttify.com', 'http://localhost:3000'];
 
-const wildcardRegexes: RegExp[] = [/\.fasttify\.com$/];
+const wildcardRegexes: RegExp[] = [
+  /\.fasttify\.com$/, // Subdominios de fasttify.com
+  /^[a-zA-Z0-9-]+\.localhost:\d+$/, // Subdominios de localhost con puerto
+];
 
 /**
  * Verifica si el origen es válido

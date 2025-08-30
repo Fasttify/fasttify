@@ -17,6 +17,7 @@ import { orderItemCreator } from './order-item-creator';
 import { orderNumberGenerator } from './order-number-generator';
 import { orderValidator } from './order-validator';
 import type { CreateOrderRequest, CreateOrderResponse } from './types/order-types';
+import { EmailOrderService } from '../../notifications/email-order-service';
 
 export class OrderFetcher {
   /**
@@ -133,6 +134,10 @@ export class OrderFetcher {
         );
       }
 
+      if (finalCustomerEmail) {
+        this.sendOrderConfirmationEmail(order, checkoutSession);
+      }
+
       return {
         success: true,
         order,
@@ -225,6 +230,13 @@ export class OrderFetcher {
     } catch (error) {
       return false;
     }
+  }
+
+  /**
+   * Envía email de confirmación al cliente cuando se crea una orden
+   */
+  private async sendOrderConfirmationEmail(order: Order, checkoutSession: any): Promise<void> {
+    EmailOrderService.sendOrderConfirmationEmail(order, checkoutSession);
   }
 }
 
