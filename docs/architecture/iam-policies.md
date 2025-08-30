@@ -47,7 +47,7 @@ aws s3 ls
 
 **4. ID de Distribución CloudFront:**
 
-````bash
+```bash
 # Listar distribuciones CloudFront
 aws cloudfront list-distributions --query 'DistributionList.Items[?Comment==`Multi-Tenant Distribution`].Id' --output text
 
@@ -64,10 +64,104 @@ export const bulkEmailLambdaInvokePolicy = new PolicyStatement({
   actions: ['lambda:InvokeFunction'],
   resources: ['arn:aws:lambda:*:TU_ACCOUNT_ID:function:TU_FUNCTION_NAME'],
 });
-````
+```
 
 **Nota**: Reemplaza `TU_ACCOUNT_ID` y `TU_FUNCTION_NAME` con los valores reales de tu cuenta AWS.
 
+**Verificación del permiso:**
+
+```bash
+# Ver los permisos de la función Lambda
+aws lambda get-policy --function-name TU_FUNCTION_NAME
+
+# Ver el rol específico
+aws lambda get-policy --function-name TU_FUNCTION_NAME | grep -A 5 -B 5 "amplify-ssr-access"
 ```
 
+## Checklist de Verificación
+
+### Antes del Despliegue
+
+- [ ] Todas las políticas reutilizables están definidas
+- [ ] La política de bulk email está agregada (si es necesaria)
+- [ ] Las variables de entorno están configuradas
+- [ ] Los roles IAM tienen las políticas correctas
+
+### Después del Despliegue
+
+- [ ] Verificar que las políticas estén activas
+- [ ] **Ejecutar `aws lambda add-permission`** para la función de bulk email
+- [ ] Verificar permisos Lambda con `aws lambda get-policy`
+- [ ] Probar la funcionalidad de emails
+- [ ] Verificar permisos de CloudFront
+- [ ] Confirmar acceso a S3
+
+## Troubleshooting
+
+### Error: Access Denied en Lambda
+
+**Síntoma**: Error 403 al invocar función Lambda
+**Solución**: Verificar que la política `bulkEmailLambdaInvokePolicy` esté aplicada
+
+### Error: Lambda Function Policy Not Found
+
+**Síntoma**: Error "The resource-based policy does not allow the action"
+**Solución**: Ejecutar `aws lambda add-permission` para agregar el rol `amplify-ssr-access`
+
+```bash
+aws lambda add-permission \
+  --function-name TU_FUNCTION_NAME \
+  --principal arn:aws:iam::TU_ACCOUNT_ID:role/amplify-ssr-access \
+  --action lambda:InvokeFunction \
+  --statement-id AllowAmplifySSRInvoke
 ```
+
+### Error: No Permission para SES
+
+**Síntoma**: Error al enviar emails
+**Solución**: Verificar que `sesPolicyStatement` esté en el rol de ejecución
+
+### Error: S3 Access Denied
+
+**Síntoma**: Error al acceder a bucket de temas
+**Solución**: Verificar que `themesBucketPolicy` esté configurada
+
+## Comandos de Verificación
+
+### Verificar Políticas de Rol
+
+```bash
+# Listar políticas adjuntas a un rol
+aws iam list-attached-role-policies --role-name ROLE_NAME
+
+# Ver políticas inline
+aws iam list-role-policies --role-name ROLE_NAME
+
+# Ver política específica
+aws iam get-role-policy --role-name ROLE_NAME --policy-name POLICY_NAME
+```
+
+### Verificar Permisos de Lambda
+
+```bash
+# Ver configuración de función Lambda
+aws lambda get-function --function-name FUNCTION_NAME
+
+# Ver logs de errores de permisos
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/FUNCTION_NAME \
+  --filter-pattern "AccessDenied"
+```
+
+## Próximas Mejoras
+
+- [ ] Automatización de políticas con CDK
+- [ ] Validación automática de permisos
+- [ ] Dashboard de permisos IAM
+- [ ] Alertas de permisos faltantes
+
+---
+
+**Nota Importante**: La política `bulkEmailLambdaInvokePolicy` debe agregarse MANUALMENTE después del despliegue de la función Lambda de bulk email. Esta es una configuración específica que no puede ser automatizada completamente.
+
+**Última actualización**: Enero 2025
