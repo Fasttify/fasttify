@@ -1,17 +1,17 @@
-import ImageGallery from '@/app/store/components/images-selector/components/ImageGallery';
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
 import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import { useToast } from '@/app/store/context/ToastContext';
 import { useS3ImagesWithOperations } from '@/app/store/hooks/storage/useS3ImagesWithOperations';
-import { Banner, BlockStack, Box, Modal, ProgressBar, Spinner, Text } from '@shopify/polaris';
-import { useCallback, useMemo, useState } from 'react';
+import { Banner, BlockStack, Box, Modal, ProgressBar, Spinner, Text, InlineStack } from '@shopify/polaris';
+
+// Lazy load de componentes pesados
+const ImageGallery = lazy(() => import('./ImageGallery'));
+const SearchAndFilters = lazy(() => import('./SearchAndFilters'));
+const UploadDropZone = lazy(() => import('./UploadDropZone'));
 
 // Hooks
 import { useImageSelection } from '@/app/store/components/images-selector/hooks/useImageSelection';
 import { useImageUpload } from '@/app/store/components/images-selector/hooks/useImageUpload';
-
-// Componentes modulares
-import SearchAndFilters from '@/app/store/components/images-selector/components/SearchAndFilters';
-import UploadDropZone from '@/app/store/components/images-selector/components/UploadDropZone';
 
 interface ImageSelectorModalProps {
   open: boolean;
@@ -185,8 +185,15 @@ export default function ImageSelectorModal({
               </Banner>
             )}
 
-            <SearchAndFilters searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-            <UploadDropZone onDrop={handleDrop} allowMultipleSelection={allowMultipleSelection} />
+            {/* Lazy load de SearchAndFilters */}
+            <Suspense>
+              <SearchAndFilters searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+            </Suspense>
+
+            {/* Lazy load de UploadDropZone */}
+            <Suspense>
+              <UploadDropZone onDrop={handleDrop} allowMultipleSelection={allowMultipleSelection} />
+            </Suspense>
 
             {/* Indicador de progreso de carga */}
             {isUploading && (
@@ -209,17 +216,39 @@ export default function ImageSelectorModal({
               </Box>
             )}
 
-            <ImageGallery
-              images={filteredImages}
-              selectedImage={selectedImage}
-              allowMultipleSelection={allowMultipleSelection}
-              loading={loading}
-              error={error}
-              searchTerm={searchTerm}
-              onImageSelect={handleImageSelect}
-              onDeleteImage={handleDeleteImage}
-              onDeleteMultiple={handleDeleteMultiple}
-            />
+            {/* Lazy load de ImageGallery - el componente más pesado */}
+            <Suspense
+              fallback={
+                <Box padding="800" background="bg-surface-secondary">
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      minHeight: '600px',
+                      width: '100%',
+                    }}>
+                    <InlineStack gap="400" align="center">
+                      <Spinner accessibilityLabel="Cargando galería de imágenes" size="small" />
+                      <Text as="p" variant="bodyMd" tone="subdued">
+                        Preparando galería de imágenes...
+                      </Text>
+                    </InlineStack>
+                  </div>
+                </Box>
+              }>
+              <ImageGallery
+                images={filteredImages}
+                selectedImage={selectedImage}
+                allowMultipleSelection={allowMultipleSelection}
+                loading={loading}
+                error={error}
+                searchTerm={searchTerm}
+                onImageSelect={handleImageSelect}
+                onDeleteImage={handleDeleteImage}
+                onDeleteMultiple={handleDeleteMultiple}
+              />
+            </Suspense>
 
             {loadingMore && (
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>

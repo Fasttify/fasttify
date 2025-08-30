@@ -13,7 +13,7 @@ import {
   Thumbnail,
 } from '@shopify/polaris';
 import { DeleteIcon, SelectIcon } from '@shopify/polaris-icons';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, memo } from 'react';
 
 interface ImageGalleryProps {
   images: S3Image[];
@@ -27,7 +27,7 @@ interface ImageGalleryProps {
   onDeleteMultiple?: (keys: string[]) => Promise<void>;
 }
 
-export default function ImageGallery({
+const ImageGallery = memo(function ImageGallery({
   images,
   selectedImage,
   allowMultipleSelection,
@@ -44,6 +44,7 @@ export default function ImageGallery({
 
   const { showToast } = useToast();
 
+  // Memoizar funciones para evitar re-creaciones
   const isSelected = useCallback(
     (image: S3Image) => {
       if (allowMultipleSelection && Array.isArray(selectedImage)) {
@@ -114,6 +115,145 @@ export default function ImageGallery({
     setImagesToDelete(new Set());
   }, []);
 
+  // Memoizar controles de eliminación múltiple
+  const deleteControls = useCallback(() => {
+    if (images.length <= 1 || !onDeleteMultiple) return null;
+
+    if (!deleteMode) {
+      return (
+        <Box paddingBlockEnd="400">
+          <InlineStack align="end">
+            <Button icon={DeleteIcon} variant="tertiary" onClick={() => setDeleteMode(true)}>
+              Eliminar múltiples
+            </Button>
+          </InlineStack>
+        </Box>
+      );
+    }
+
+    return (
+      <Box paddingBlockEnd="400">
+        <InlineStack gap="200" align="space-between">
+          <InlineStack gap="200">
+            <Text as="p" variant="bodySm">
+              {imagesToDelete.size} imagen(es) seleccionada(s)
+              {imagesToDelete.size >= 25 && (
+                <Text as="span" variant="bodySm" tone="critical">
+                  {' '}
+                  (Máximo 25)
+                </Text>
+              )}
+            </Text>
+            {imagesToDelete.size > 0 && (
+              <ButtonGroup>
+                <Button size="slim" onClick={deselectAllForDeletion}>
+                  Deseleccionar todo
+                </Button>
+              </ButtonGroup>
+            )}
+            {imagesToDelete.size < Math.min(images.length, 25) && (
+              <Button size="slim" onClick={selectAllForDeletion}>
+                Seleccionar todo{images.length > 25 ? ' (25 máx.)' : ''}
+              </Button>
+            )}
+          </InlineStack>
+          <ButtonGroup>
+            <Button onClick={cancelDeleteMode}>Cancelar</Button>
+            <Button
+              variant="primary"
+              tone="critical"
+              onClick={handleDeleteMultiple}
+              disabled={imagesToDelete.size === 0 || isDeleting}
+              loading={isDeleting}>
+              Eliminar {imagesToDelete.size > 0 ? `(${imagesToDelete.size})` : ''}
+            </Button>
+          </ButtonGroup>
+        </InlineStack>
+      </Box>
+    );
+  }, [
+    images,
+    deleteMode,
+    imagesToDelete,
+    isDeleting,
+    onDeleteMultiple,
+    cancelDeleteMode,
+    deselectAllForDeletion,
+    handleDeleteMultiple,
+    selectAllForDeletion,
+  ]);
+
+  // Memoizar renderizado de imágenes individuales
+  const renderImage = useCallback(
+    (image: S3Image) => (
+      <Grid.Cell key={image.id || image.key} columnSpan={{ xs: 2, sm: 2, md: 2, lg: 4, xl: 4 }}>
+        <div
+          onClick={() => {
+            if (deleteMode) {
+              toggleDeleteSelection(image.key);
+            } else {
+              onImageSelect(image);
+            }
+          }}
+          style={{
+            cursor: 'pointer',
+            outline: deleteMode
+              ? isMarkedForDeletion(image.key)
+                ? '2px solid #d72c0d'
+                : '1px solid #e1e3e5'
+              : isSelected(image)
+                ? '2px solid #2962ff'
+                : 'none',
+            outlineOffset: '2px',
+            borderRadius: 'var(--p-border-radius-200)',
+            opacity: deleteMode && isMarkedForDeletion(image.key) ? 0.7 : 1,
+          }}>
+          <Card padding="0">
+            <Box position="relative" borderRadius="200">
+              {deleteMode && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    left: '8px',
+                    zIndex: 2,
+                    backgroundColor: isMarkedForDeletion(image.key) ? '#d72c0d' : 'rgba(255,255,255,0.9)',
+                    borderRadius: '50%',
+                    padding: '4px',
+                  }}>
+                  <SelectIcon />
+                </div>
+              )}
+
+              {!deleteMode && isSelected(image) && (
+                <div
+                  style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1 }}
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                  <Button
+                    icon={DeleteIcon}
+                    size="slim"
+                    variant="primary"
+                    tone="critical"
+                    onClick={() => onDeleteImage(image.key)}
+                    accessibilityLabel="Eliminar imagen"
+                  />
+                </div>
+              )}
+
+              <Thumbnail source={image.url || ''} alt={image.filename} size="large" />
+            </Box>
+            <Box padding="200">
+              <Text as="p" variant="bodySm" truncate>
+                {image.filename}
+              </Text>
+            </Box>
+          </Card>
+        </div>
+      </Grid.Cell>
+    ),
+    [deleteMode, isMarkedForDeletion, isSelected, onImageSelect, onDeleteImage, toggleDeleteSelection]
+  );
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-full">
@@ -146,126 +286,10 @@ export default function ImageGallery({
 
   return (
     <Box>
-      {/* Controles para eliminación múltiple */}
-      {images.length > 1 && onDeleteMultiple && (
-        <Box paddingBlockEnd="400">
-          {!deleteMode ? (
-            <InlineStack align="end">
-              <Button icon={DeleteIcon} variant="tertiary" onClick={() => setDeleteMode(true)}>
-                Eliminar múltiples
-              </Button>
-            </InlineStack>
-          ) : (
-            <InlineStack gap="200" align="space-between">
-              <InlineStack gap="200">
-                <Text as="p" variant="bodySm">
-                  {imagesToDelete.size} imagen(es) seleccionada(s)
-                  {imagesToDelete.size >= 25 && (
-                    <Text as="span" variant="bodySm" tone="critical">
-                      {' '}
-                      (Máximo 25)
-                    </Text>
-                  )}
-                </Text>
-                {imagesToDelete.size > 0 && (
-                  <ButtonGroup>
-                    <Button size="slim" onClick={deselectAllForDeletion}>
-                      Deseleccionar todo
-                    </Button>
-                  </ButtonGroup>
-                )}
-                {imagesToDelete.size < Math.min(images.length, 25) && (
-                  <Button size="slim" onClick={selectAllForDeletion}>
-                    Seleccionar todo{images.length > 25 ? ' (25 máx.)' : ''}
-                  </Button>
-                )}
-              </InlineStack>
-              <ButtonGroup>
-                <Button onClick={cancelDeleteMode}>Cancelar</Button>
-                <Button
-                  variant="primary"
-                  tone="critical"
-                  onClick={handleDeleteMultiple}
-                  disabled={imagesToDelete.size === 0 || isDeleting}
-                  loading={isDeleting}>
-                  Eliminar {imagesToDelete.size > 0 ? `(${imagesToDelete.size})` : ''}
-                </Button>
-              </ButtonGroup>
-            </InlineStack>
-          )}
-        </Box>
-      )}
-
-      <Grid>
-        {images.map((image) => (
-          <Grid.Cell key={image.key} columnSpan={{ xs: 2, sm: 2, md: 2, lg: 4, xl: 4 }}>
-            <div
-              onClick={() => {
-                if (deleteMode) {
-                  toggleDeleteSelection(image.key);
-                } else {
-                  onImageSelect(image);
-                }
-              }}
-              style={{
-                cursor: 'pointer',
-                outline: deleteMode
-                  ? isMarkedForDeletion(image.key)
-                    ? '2px solid #d72c0d'
-                    : '1px solid #e1e3e5'
-                  : isSelected(image)
-                    ? '2px solid #2962ff'
-                    : 'none',
-                outlineOffset: '2px',
-                borderRadius: 'var(--p-border-radius-200)',
-                opacity: deleteMode && isMarkedForDeletion(image.key) ? 0.7 : 1,
-              }}>
-              <Card padding="0">
-                <Box position="relative" borderRadius="200">
-                  {/* Indicador de selección para eliminación */}
-                  {deleteMode && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '8px',
-                        left: '8px',
-                        zIndex: 2,
-                        backgroundColor: isMarkedForDeletion(image.key) ? '#d72c0d' : 'rgba(255,255,255,0.9)',
-                        borderRadius: '50%',
-                        padding: '4px',
-                      }}>
-                      <SelectIcon />
-                    </div>
-                  )}
-
-                  {/* Botón de eliminación individual (solo si no está en modo delete y la imagen está seleccionada) */}
-                  {!deleteMode && isSelected(image) && (
-                    <div
-                      style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1 }}
-                      onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                      <Button
-                        icon={DeleteIcon}
-                        size="slim"
-                        variant="primary"
-                        tone="critical"
-                        onClick={() => onDeleteImage(image.key)}
-                        accessibilityLabel="Eliminar imagen"
-                      />
-                    </div>
-                  )}
-
-                  <Thumbnail source={image.url || ''} alt={image.filename} size="large" />
-                </Box>
-                <Box padding="200">
-                  <Text as="p" variant="bodySm" truncate>
-                    {image.filename}
-                  </Text>
-                </Box>
-              </Card>
-            </div>
-          </Grid.Cell>
-        ))}
-      </Grid>
+      {deleteControls()}
+      <Grid>{images.map(renderImage)}</Grid>
     </Box>
   );
-}
+});
+
+export default ImageGallery;

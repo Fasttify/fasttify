@@ -14,8 +14,9 @@ import {
   Text,
   TextField,
   Thumbnail,
+  Icon,
 } from '@shopify/polaris';
-import { SearchIcon } from '@shopify/polaris-icons';
+import { SearchIcon, ImageIcon } from '@shopify/polaris-icons';
 
 interface ProductSelectionDialogProps {
   isOpen: boolean;
@@ -56,6 +57,32 @@ export function ProductSelectionDialog({
   nextPage,
   previousPage,
 }: ProductSelectionDialogProps) {
+  // Función para renderizar el media con fallback
+  const renderMedia = (product: IProduct) => {
+    const imageUrl = getProductImageUrl(product);
+
+    if (imageUrl) {
+      return <Thumbnail source={imageUrl} alt={product.name} />;
+    }
+
+    // Fallback cuando no hay imagen
+    return (
+      <div
+        style={{
+          width: '40px',
+          height: '40px',
+          backgroundColor: '#f6f6f7',
+          borderRadius: 'var(--p-border-radius-200)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid #e1e3e5',
+        }}>
+        <Icon source={ImageIcon} tone="subdued" />
+      </div>
+    );
+  };
+
   return (
     <Modal
       size="large"
@@ -98,8 +125,7 @@ export function ProductSelectionDialog({
             selectable
             renderItem={(item) => {
               const { id, name, price } = item;
-              const imageUrl = getProductImageUrl(item);
-              const media = <Thumbnail source={imageUrl || ''} alt={name} />;
+              const media = renderMedia(item);
 
               return (
                 <ResourceItem
