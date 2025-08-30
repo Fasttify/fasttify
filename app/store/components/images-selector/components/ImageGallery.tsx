@@ -186,7 +186,7 @@ const ImageGallery = memo(function ImageGallery({
   // Memoizar renderizado de imágenes individuales
   const renderImage = useCallback(
     (image: S3Image) => (
-      <Grid.Cell key={image.key} columnSpan={{ xs: 2, sm: 2, md: 2, lg: 4, xl: 4 }}>
+      <Grid.Cell key={image.id || image.key} columnSpan={{ xs: 2, sm: 2, md: 2, lg: 4, xl: 4 }}>
         <div
           onClick={() => {
             if (deleteMode) {
