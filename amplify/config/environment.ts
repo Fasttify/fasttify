@@ -15,7 +15,11 @@ export const stageName = isProduction ? 'prod' : 'dev';
  */
 export const corsConfig = isProduction
   ? {
-      allowOrigins: ['https://fasttify.com', 'https://www.fasttify.com'],
+      allowOrigins: [
+        'https://fasttify.com',
+        'https://www.fasttify.com',
+        'https://*.fasttify.com', // Aceptar todos los subdominios
+      ],
       allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
       allowCredentials: true,

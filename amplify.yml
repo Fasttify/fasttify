@@ -9,12 +9,12 @@ frontend:
   phases:
     build:
       commands:
-        - env | grep -e BUCKET_NAME -e CLOUDFRONT_DOMAIN_NAME -e APP_ENV -e REGION_BUCKET -e CLOUDFRONT_DISTRIBUTION_ID -e CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID -e JWT_SECRET >> .env.production
+        - env | grep -e BUCKET_NAME -e CLOUDFRONT_DOMAIN_NAME -e APP_ENV -e REGION_BUCKET -e CLOUDFRONT_DISTRIBUTION_ID -e CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID -e JWT_SECRET -e LAMBDA_EMAIL_BULK >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - .amplify/**/*

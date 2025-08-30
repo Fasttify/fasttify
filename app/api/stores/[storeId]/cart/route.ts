@@ -48,16 +48,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 
   try {
-    logger.info(`[Cart API] Fetching fresh cart from database for sessionId: ${sessionId}`, null, 'CartAPI');
-
     const cart = await cartFetcher.getCart(storeId, sessionId);
     const transformedCart = cartFetcher.transformCartToContext(cart);
-
-    logger.info(
-      `[Cart API] Fresh cart data retrieved for sessionId: ${sessionId}, items: ${transformedCart?.item_count || 0}`,
-      null,
-      'CartAPI'
-    );
 
     const response = NextResponse.json({ success: true, cart: transformedCart }, { headers: corsHeaders });
 

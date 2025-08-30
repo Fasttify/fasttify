@@ -174,6 +174,7 @@ CUSTOM_DOMAIN_VERIFIER_FUNCTION_NAME="customDomainVerifier"
 # Email (SES)
 SES_FROM_EMAIL="noreply@fasttify.com"
 SES_REPLY_TO_EMAIL="support@fasttify.com"
+LAMBDA_EMAIL_BULK="You lambda function name"
 
 # Seguridad
 JWT_SECRET="tu-jwt-secret-super-seguro"

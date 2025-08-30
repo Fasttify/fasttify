@@ -47,7 +47,15 @@ function htmlToText(html: string): string {
 
 function getRequiredVariables(templateId: keyof TemplateVariables): string[] {
   const variables = {
-    'order-confirmation': ['customerName', 'orderId', 'total', 'orderDate', 'storeName'],
+    'order-confirmation': [
+      'customerName',
+      'orderId',
+      'total',
+      'orderDate',
+      'storeName',
+      'shippingAddress',
+      'billingAddress',
+    ],
     'shipping-update': ['customerName', 'orderId', 'trackingNumber', 'carrier', 'storeName'],
     promotion: ['customerName', 'title', 'content', 'storeName'],
   };

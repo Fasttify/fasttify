@@ -21,6 +21,8 @@ export interface OrderConfirmationEmailProps {
   total: string;
   orderDate: string;
   storeName: string;
+  shippingAddress?: string;
+  billingAddress?: string;
 }
 
 const OrderConfirmationEmail = ({
@@ -29,6 +31,8 @@ const OrderConfirmationEmail = ({
   total = '{{total}}',
   orderDate = '{{orderDate}}',
   storeName = '{{storeName}}',
+  shippingAddress = '{{shippingAddress}}',
+  billingAddress = '{{billingAddress}}',
 }: OrderConfirmationEmailProps) => (
   <Html>
     <Head />
@@ -56,6 +60,22 @@ const OrderConfirmationEmail = ({
           </Text>
         </Section>
         <Hr style={global.hr} />
+        <Section style={global.defaultPadding}>
+          <Text style={adressTitle}>Envío a: {customerName}</Text>
+          <Text style={{ ...global.text, fontSize: 14 }}>{shippingAddress}</Text>
+        </Section>
+        <Hr style={global.hr} />
+
+        {/* Dirección de facturación */}
+        {billingAddress && billingAddress !== shippingAddress && (
+          <>
+            <Section style={global.defaultPadding}>
+              <Text style={adressTitle}>Facturación:</Text>
+              <Text style={{ ...global.text, fontSize: 14 }}>{billingAddress}</Text>
+            </Section>
+            <Hr style={global.hr} />
+          </>
+        )}
         <Section style={global.defaultPadding}>
           <Text style={adressTitle}>Cliente: {customerName}</Text>
           <Text style={{ ...global.text, fontSize: 14 }}>Tienda: {storeName}</Text>
@@ -119,12 +139,12 @@ const OrderConfirmationEmail = ({
           </Row>
           <Row style={menu.content}>
             <Column style={{ width: '33%' }} colSpan={1}>
-              <Link href="https://fasttify.com/orders" style={menu.text}>
+              <Link href="https://orders.fasttify.com" style={menu.text}>
                 Estado del Pedido
               </Link>
             </Column>
             <Column style={{ width: '33%' }} colSpan={1}>
-              <Link href="https://fasttify.com/shipping" style={menu.text}>
+              <Link href="https://orders.fasttify.com" style={menu.text}>
                 Envíos y Entregas
               </Link>
             </Column>
@@ -184,7 +204,7 @@ const OrderConfirmationEmail = ({
               </Link>
             </Column>
             <Column align="center">
-              <Link href="https://fasttify.com/about" style={categories.text}>
+              <Link href="https://fasttify.com/terms" style={categories.text}>
                 Acerca de
               </Link>
             </Column>
