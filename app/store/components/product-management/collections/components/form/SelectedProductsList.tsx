@@ -1,4 +1,5 @@
-import { ResourceList, ResourceItem, Thumbnail, Text, EmptyState } from '@shopify/polaris';
+import { ResourceList, ResourceItem, Thumbnail, Text, EmptyState, Icon } from '@shopify/polaris';
+import { ImageIcon } from '@shopify/polaris-icons';
 import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types';
 import { getProductImageUrl } from '@/app/store/components/product-management/collections/utils/collectionUtils';
 
@@ -9,19 +10,43 @@ interface SelectedProductsListProps {
 }
 
 export function SelectedProductsList({ selectedProducts, onRemoveProduct, onOpenDialog }: SelectedProductsListProps) {
+  // Función para renderizar el media con fallback
+  const renderMedia = (product: IProduct) => {
+    const imageUrl = getProductImageUrl(product);
+
+    if (imageUrl) {
+      return <Thumbnail source={imageUrl} alt={product.name} />;
+    }
+
+    // Fallback cuando no hay imagen
+    return (
+      <div
+        style={{
+          width: '40px',
+          height: '40px',
+          backgroundColor: '#f6f6f7',
+          borderRadius: 'var(--p-border-radius-200)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid #e1e3e5',
+        }}>
+        <Icon source={ImageIcon} tone="subdued" />
+      </div>
+    );
+  };
+
   return (
     <ResourceList
       resourceName={{ singular: 'producto', plural: 'productos' }}
       items={selectedProducts}
       renderItem={(item) => {
         const { id, name } = item;
-        const imageUrl = getProductImageUrl(item);
-        const media = <Thumbnail source={imageUrl || ''} alt={name} />;
 
         return (
           <ResourceItem
             id={id}
-            media={media}
+            media={renderMedia(item)}
             onClick={() => onOpenDialog()}
             accessibilityLabel={`Ver detalles de ${name}`}
             shortcutActions={[
