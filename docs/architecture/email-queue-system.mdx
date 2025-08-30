@@ -458,3 +458,17 @@ aws sqs get-queue-attributes --queue-url [URL_COLA]
 **Implementado exitosamente en Enero 2025**
 
 El sistema está completamente funcional y optimizado para producción, proporcionando una infraestructura robusta para el envío de emails transaccionales y de marketing en Fasttify.
+
+### 3. ⚠️ IMPORTANTE: Política para Lambda de Bulk Email
+
+**Esta política debe agregarse MANUALMENTE** después del despliegue:
+
+```typescript
+export const bulkEmailLambdaInvokePolicy = new PolicyStatement({
+  effect: Effect.ALLOW,
+  actions: ['lambda:InvokeFunction'],
+  resources: ['arn:aws:lambda:*:TU_ACCOUNT_ID:function:TU_FUNCTION_NAME'],
+});
+```
+
+**Nota**: Reemplaza `TU_ACCOUNT_ID` y `TU_FUNCTION_NAME` con los valores reales de tu cuenta AWS.
