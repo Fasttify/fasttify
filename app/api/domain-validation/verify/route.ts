@@ -19,6 +19,7 @@ import { CustomDomainService } from '@/tenant-domains/services/custom-domain-ser
 import { SecurityConfig } from '@/tenant-domains/config/security-config';
 import { SecureLogger } from '@/lib/utils/secure-logger';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 
 const customDomainService = new CustomDomainService();
 
@@ -30,8 +31,20 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(req);
   try {
-    const { domain, validationToken } = await req.json();
-
+    const { domain, validationToken, storeId } = await req.json();
+    const session = await AuthGetCurrentUserServer();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+    }
+    const { data: userStore } = await cookiesClient.models.UserStore.get({
+      storeId: storeId,
+    });
+    if (!userStore) {
+      return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
+    }
+    if (userStore.userId !== session.username) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
+    }
     if (!domain || !validationToken) {
       return NextResponse.json(
         { error: 'Domain and validation token are required' },
@@ -62,7 +75,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verificar validación del dominio y preparar certificado SSL
-    const result = await customDomainService.verifyDomainValidation(domain, validationToken);
+    const result = await customDomainService.verifyDomainValidation(domain, validationToken, storeId);
 
     if (!result.success) {
       SecureLogger.info('Domain validation failed for %s: %s', domain, result.error);

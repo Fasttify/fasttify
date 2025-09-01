@@ -61,7 +61,7 @@ export function AutomatedCustomDomainDialog({
     resetValidation();
   };
 
-  const validation = validateDomain(domainName);
+  const validation = validateDomain(domainName, storeId);
 
   // Manejo del primer paso: solicitar token de validación
   const handleRequestValidation = async () => {
@@ -70,7 +70,7 @@ export function AutomatedCustomDomainDialog({
       return;
     }
 
-    const result = await generateValidationToken(domainName);
+    const result = await generateValidationToken(domainName, storeId);
     if (result.success) {
       setCurrentStep('validation');
       showToast('Token de validación generado. Configura tu DNS o archivo HTTP.', false);
@@ -83,7 +83,7 @@ export function AutomatedCustomDomainDialog({
   const handleValidateDomain = async () => {
     if (!validationToken) return;
 
-    const result = await verifyDomainValidation(domainName, validationToken);
+    const result = await verifyDomainValidation(domainName, validationToken, storeId);
     if (result.success) {
       showToast('¡Dominio validado! Verificando certificado SSL...', false);
 
@@ -104,7 +104,7 @@ export function AutomatedCustomDomainDialog({
   const handleValidateACM = async () => {
     if (!certificateArn) return;
 
-    const result = await verifyACMCertificate(certificateArn);
+    const result = await verifyACMCertificate(certificateArn, storeId);
     if (result.success && result.data?.isReady) {
       setCurrentStep('cloudfront');
       showToast('¡Certificado SSL validado! Conectando con tu tienda...', false);
@@ -201,7 +201,7 @@ export function AutomatedCustomDomainDialog({
             }}
             onBack={() => setCurrentStep('validation')}
             onVerifyACM={async (certArn) => {
-              const result = await verifyACMCertificate(certArn);
+              const result = await verifyACMCertificate(certArn, storeId);
               return result;
             }}
             isLoading={isValidationLoading}

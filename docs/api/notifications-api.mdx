@@ -1,0 +1,362 @@
+# API de Notificaciones para Panel Admin
+
+Esta documentación describe las APIs disponibles para que el panel admin pueda enviar correos electrónicos relacionados con pedidos y actualizaciones de estado.
+
+## Endpoints Disponibles
+
+### 1. Enviar Email de Confirmación de Pedido
+
+**Endpoint:** `POST /api/v1/notifications/send-order-confirmation`
+
+**Descripción:** Envía un email de confirmación de pedido al cliente.
+
+**Autenticación:** Requiere sesión de usuario autenticado y permisos sobre la tienda.
+
+**Headers:**
+
+```
+Content-Type: application/json
+```
+
+**Body:**
+
+```json
+{
+  "orderId": "ORD-123456",
+  "customerEmail": "cliente@ejemplo.com",
+  "customerName": "Juan Pérez",
+  "storeName": "Mi Tienda",
+  "orderStatus": "confirmed",
+  "paymentStatus": "paid",
+  "orderTotal": "$89.900,00",
+  "orderDate": "29 de agosto de 2025",
+  "shippingAddress": "Calle 123 #45-67, Bogotá, Colombia",
+  "billingAddress": "Calle 123 #45-67, Bogotá, Colombia",
+  "storeId": "tienda123"
+}
+```
+
+**Respuesta Exitosa (200):**
+
+```json
+{
+  "success": true,
+  "message": "Email de confirmación de pedido enviado exitosamente",
+  "data": {
+    "orderId": "ORD-123456",
+    "customerEmail": "cliente@ejemplo.com",
+    "emailSent": true,
+    "timestamp": "2025-08-30T01:00:00.000Z"
+  }
+}
+```
+
+### 2. Enviar Email de Actualización de Estado
+
+**Endpoint:** `POST /api/v1/notifications/send-order-status-update`
+
+**Descripción:** Envía un email al cliente cuando se actualiza el estado de su pedido.
+
+**Autenticación:** Requiere sesión de usuario autenticado y permisos sobre la tienda.
+
+**Headers:**
+
+```
+Content-Type: application/json
+```
+
+**Body:**
+
+```json
+{
+  "orderId": "ORD-123456",
+  "customerEmail": "cliente@ejemplo.com",
+  "customerName": "Juan Pérez",
+  "storeName": "Mi Tienda",
+  "previousOrderStatus": "confirmed",
+  "newOrderStatus": "shipped",
+  "previousPaymentStatus": "paid",
+  "newPaymentStatus": "paid",
+  "orderTotal": "$89.900,00",
+  "orderDate": "29 de agosto de 2025",
+  "shippingAddress": "Calle 123 #45-67, Bogotá, Colombia",
+  "billingAddress": "Calle 123 #45-67, Bogotá, Colombia",
+  "updateNotes": "Tu pedido ha sido enviado y está en camino",
+  "storeId": "tienda123"
+}
+```
+
+**Respuesta Exitosa (200):**
+
+```json
+{
+  "success": true,
+  "message": "Email de actualización de estado enviado exitosamente",
+  "data": {
+    "orderId": "ORD-123456",
+    "customerEmail": "cliente@ejemplo.com",
+    "emailSent": true,
+    "timestamp": "2025-08-30T01:00:00.000Z"
+  }
+}
+```
+
+## Códigos de Error
+
+### 400 - Bad Request
+
+```json
+{
+  "error": "Datos inválidos",
+  "details": [
+    {
+      "code": "invalid_type",
+      "expected": "string",
+      "received": "undefined",
+      "path": ["customerEmail"],
+      "message": "Email del cliente inválido"
+    }
+  ]
+}
+```
+
+### 401 - Unauthorized
+
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+### 403 - Forbidden
+
+```json
+{
+  "error": "Forbidden"
+}
+```
+
+### 404 - Not Found
+
+```json
+{
+  "error": "Store not found"
+}
+```
+
+### 500 - Internal Server Error
+
+```json
+{
+  "error": "Error interno del servidor"
+}
+```
+
+## Estados de Pedido y Pago
+
+### Estados de Pedido
+
+- `pending` - Pendiente
+- `confirmed` - Confirmado
+- `processing` - Procesando
+- `shipped` - Enviado
+- `delivered` - Entregado
+- `cancelled` - Cancelado
+- `refunded` - Reembolsado
+
+### Estados de Pago
+
+- `pending` - Pendiente
+- `paid` - Pagado
+- `failed` - Fallido
+- `refunded` - Reembolsado
+- `partially_refunded` - Parcialmente Reembolsado
+
+## Integración con el Sistema de Emails
+
+Estas APIs utilizan el sistema de notificaciones por email existente que incluye:
+
+- **Templates React Email:** Para generar HTML y texto plano
+- **AWS Lambda:** Para procesamiento asíncrono de emails
+- **AWS SES:** Para envío de emails
+- **AWS SQS:** Para cola de mensajes
+- **Utilidades de Formateo:** Para formateo consistente de monedas, fechas y direcciones
+
+## Ejemplo de Uso en el Frontend
+
+```typescript
+// Enviar email de confirmación
+const sendConfirmationEmail = async (orderData: any) => {
+  try {
+    const response = await fetch('/api/v1/notifications/send-order-confirmation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        orderId: orderData.id,
+        customerEmail: orderData.customerEmail,
+        customerName: orderData.customerName,
+        storeName: orderData.storeName,
+        orderStatus: orderData.status,
+        paymentStatus: orderData.paymentStatus,
+        orderTotal: orderData.total,
+        orderDate: orderData.createdAt,
+        shippingAddress: orderData.shippingAddress,
+        billingAddress: orderData.billingAddress,
+        storeId: orderData.storeId,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log('Email enviado exitosamente');
+    } else {
+      console.error('Error enviando email:', result.error);
+    }
+  } catch (error) {
+    console.error('Error de red:', error);
+  }
+};
+
+// Enviar email de actualización de estado
+const sendStatusUpdateEmail = async (orderData: any, previousStatus: any) => {
+  try {
+    const response = await fetch('/api/v1/notifications/send-order-status-update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        orderId: orderData.id,
+        customerEmail: orderData.customerEmail,
+        customerName: orderData.customerName,
+        storeName: orderData.storeName,
+        previousOrderStatus: previousStatus.orderStatus,
+        newOrderStatus: orderData.status,
+        previousPaymentStatus: previousStatus.paymentStatus,
+        newPaymentStatus: orderData.paymentStatus,
+        orderTotal: orderData.total,
+        orderDate: orderData.createdAt,
+        shippingAddress: orderData.shippingAddress,
+        billingAddress: orderData.billingAddress,
+        updateNotes: 'Tu pedido ha sido actualizado',
+        storeId: orderData.storeId,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log('Email de actualización enviado exitosamente');
+    } else {
+      console.error('Error enviando email:', result.error);
+    }
+  } catch (error) {
+    console.error('Error de red:', error);
+  }
+};
+```
+
+## Notas Importantes
+
+1. **Autenticación:** Todas las APIs requieren que el usuario esté autenticado y tenga permisos sobre la tienda especificada.
+
+2. **Validación:** Los datos se validan usando Zod schemas para asegurar la integridad.
+
+3. **Formato de Moneda:** El campo `orderTotal` debe incluir el símbolo de moneda y formato apropiado (ej: "$89.900,00").
+
+4. **Fechas:** El campo `orderDate` debe estar en formato legible en español (ej: "29 de agosto de 2025").
+
+5. **Direcciones:** Los campos `shippingAddress` y `billingAddress` son opcionales y deben ser strings formateados.
+
+6. **Logs:** Todas las operaciones se registran en los logs del servidor para debugging y monitoreo.
+
+## Utilidades de Formateo
+
+El sistema incluye utilidades centralizadas para el formateo de datos en emails:
+
+### EmailFormattingUtils
+
+```typescript
+import { EmailFormattingUtils } from '@/packages/renderer-engine/services/notifications';
+
+// Formatear moneda
+const formattedAmount = EmailFormattingUtils.formatCurrency(89900, 'COP');
+// Resultado: "$89.900,00"
+
+// Formatear fecha
+const formattedDate = EmailFormattingUtils.formatDate('2025-08-30');
+// Resultado: "30 de agosto de 2025"
+
+// Formatear dirección
+const formattedAddress = EmailFormattingUtils.formatAddress({
+  address1: 'Calle 123',
+  city: 'Bogotá',
+  country: 'Colombia',
+});
+// Resultado: "Calle 123, Bogotá, Colombia"
+
+// Parsear cantidad de moneda
+const amount = EmailFormattingUtils.parseCurrencyAmount('$89.900,00');
+// Resultado: 89900
+
+// Formatear dirección con saltos de línea
+const addressWithBreaks = EmailFormattingUtils.formatAddressWithLineBreaks({
+  address1: 'Calle 123',
+  address2: 'Apto 456',
+  city: 'Bogotá',
+  province: 'Cundinamarca',
+  zip: '110111',
+  country: 'Colombia',
+});
+// Resultado: "Calle 123\nApto 456\nBogotá, Cundinamarca\n110111, Colombia"
+
+// Extraer dirección de datos del checkout
+const extractedAddress = EmailFormattingUtils.extractAddress({
+  street: 'Calle 123',
+  city: 'Bogotá',
+  state: 'Cundinamarca',
+  postalCode: '110111',
+  country: 'Colombia',
+});
+// Resultado: { address1: 'Calle 123', city: 'Bogotá', province: 'Cundinamarca', zip: '110111', country: 'Colombia' }
+
+// Normalizar dirección a formato estándar
+const normalizedAddress = EmailFormattingUtils.normalizeAddress({
+  line1: 'Calle 123',
+  line2: 'Apto 456',
+  city: 'Bogotá',
+  region: 'Cundinamarca',
+  postcode: '110111',
+  country: 'Colombia',
+});
+// Resultado: { address1: 'Calle 123', address2: 'Apto 456', city: 'Bogotá', province: 'Cundinamarca', zip: '110111', country: 'Colombia' }
+
+// Extraer nombre del cliente
+const customerName = EmailFormattingUtils.extractCustomerName({
+  name: 'Juan Pérez',
+  email: 'juan@ejemplo.com',
+});
+// Resultado: "Juan Pérez"
+
+// También funciona con string JSON
+const customerNameFromString = EmailFormattingUtils.extractCustomerName(
+  JSON.stringify({ firstName: 'María', lastName: 'García' })
+);
+// Resultado: "María"
+```
+
+### Métodos Disponibles
+
+- `formatCurrency(amount: number, currency: string): string` - Formatea moneda
+- `formatDate(dateString?: string): string` - Formatea fecha en español
+- `formatAddress(address: Address | string): string` - Formatea dirección
+- `formatAddressForTemplate(address: Address): AddressInfo` - Formatea dirección para template
+- `formatAddressWithLineBreaks(address: Address): string` - Formatea dirección con saltos de línea
+- `extractAddress(addressData: any): Address | undefined` - Extrae y normaliza dirección de datos del checkout
+- `normalizeAddress(address: any): Address` - Normaliza estructura de dirección a formato estándar
+- `extractCustomerName(customerInfo: any): string | null` - Extrae nombre del cliente de información del checkout
+- `parseCurrencyAmount(currencyString: string): number` - Extrae valor numérico de string de moneda
+- `formatCurrencyString(currencyString: string, currency?: string): string` - Formatea string de moneda

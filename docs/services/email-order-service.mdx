@@ -1,0 +1,141 @@
+# EmailOrderService
+
+El `EmailOrderService` es un servicio especializado para manejar el envío de emails relacionados con órdenes, específicamente diseñado para integrarse con el flujo de checkout.
+
+## Características
+
+- **Envío asíncrono:** Los emails se envían en background para no bloquear la respuesta del checkout
+- **Extracción automática de datos:** Extrae información de direcciones y datos del cliente del checkout session
+- **Normalización de direcciones:** Convierte diferentes formatos de dirección a un formato estándar
+- **Integración con EmailNotificationService:** Utiliza el servicio principal de notificaciones
+
+## Métodos
+
+### `sendOrderConfirmationEmail(order: Order, checkoutSession: any): Promise<void>`
+
+Envía un email de confirmación al cliente cuando se crea una orden.
+
+**Parámetros:**
+
+- `order: Order` - La orden creada
+- `checkoutSession: any` - La sesión de checkout con información del cliente y direcciones
+
+**Flujo:**
+
+1. Ejecuta en background usando `setImmediate`
+2. Extrae información de la tienda
+3. Extrae nombre del cliente
+4. Extrae y normaliza direcciones de envío y facturación
+5. Envía el email usando `EmailNotificationService`
+
+### `getStoreInfo(storeId: string): Promise<{ storeName: string }>`
+
+Obtiene información básica de la tienda.
+
+**Parámetros:**
+
+- `storeId: string` - ID de la tienda
+
+**Retorna:**
+
+- `Promise<{ storeName: string }>` - Información de la tienda
+
+### Utilidades de Cliente
+
+El servicio utiliza `EmailFormattingUtils` para el procesamiento de datos del cliente:
+
+- `EmailFormattingUtils.extractCustomerName()` - Extrae nombre del cliente de información del checkout
+
+**Campos soportados para nombres:**
+
+- `name` (prioridad alta)
+- `firstName` (prioridad media)
+- `lastName` (prioridad baja)
+
+### Utilidades de Dirección
+
+El servicio utiliza `EmailFormattingUtils` para el procesamiento de direcciones:
+
+- `EmailFormattingUtils.extractAddress()` - Extrae y normaliza información de dirección del checkout
+- `EmailFormattingUtils.normalizeAddress()` - Normaliza la estructura de dirección para el formato estándar
+- `EmailFormattingUtils.formatAddress()` - Formatea dirección para mostrar en emails
+
+**Mapeo de campos soportados:**
+
+- `address1` ← `address1`, `street`, `line1`
+- `address2` ← `address2`, `street2`, `line2`
+- `city` ← `city`
+- `province` ← `province`, `state`, `region`
+- `zip` ← `zip`, `postalCode`, `postcode`
+- `country` ← `country`
+
+## Ejemplo de Uso
+
+```typescript
+import { EmailOrderService } from '@/packages/renderer-engine/services/notifications';
+
+// En el flujo de checkout
+const order = {
+  id: 'ORD-123456',
+  customerEmail: 'cliente@ejemplo.com',
+  totalAmount: 89900,
+  currency: 'COP',
+  status: 'confirmed',
+  paymentStatus: 'paid',
+  // ... otros campos
+};
+
+const checkoutSession = {
+  storeId: 'tienda123',
+  customerInfo: JSON.stringify({
+    name: 'Juan Pérez',
+    email: 'cliente@ejemplo.com',
+  }),
+  shippingAddress: {
+    address1: 'Calle 123',
+    city: 'Bogotá',
+    province: 'Cundinamarca',
+    zip: '110111',
+    country: 'Colombia',
+  },
+  billingAddress: {
+    address1: 'Calle 123',
+    city: 'Bogotá',
+    province: 'Cundinamarca',
+    zip: '110111',
+    country: 'Colombia',
+  },
+};
+
+// Enviar email de confirmación
+await EmailOrderService.sendOrderConfirmationEmail(order, checkoutSession);
+```
+
+## Integración con el Sistema
+
+El `EmailOrderService` se integra con:
+
+1. **EmailNotificationService:** Para el envío real de emails
+2. **EmailFormattingUtils:** Para formateo de direcciones
+3. **Amplify DataStore:** Para obtener información de la tienda
+4. **AWS Lambda:** Para procesamiento asíncrono de emails
+
+## Manejo de Errores
+
+- Los errores se registran en los logs pero no interrumpen el flujo principal
+- Si falla la obtención de información de la tienda, usa un nombre por defecto
+- Si falla la extracción de datos del cliente, usa "Customer" como nombre por defecto
+- Si falla el envío del email, se registra el error pero no se propaga
+
+## Consideraciones de Rendimiento
+
+- **Ejecución asíncrona:** Usa `setImmediate` para no bloquear la respuesta del checkout
+- **Manejo de errores:** Los errores no afectan la experiencia del usuario
+- **Logs detallados:** Facilita el debugging en caso de problemas
+
+## Dependencias
+
+- `@/renderer-engine/types` - Tipos de Order
+- `@/utils/server/AmplifyServer` - Cliente de Amplify
+- `./email-notification-service` - Servicio principal de notificaciones
+- `./email-formatting-utils` - Utilidades de formateo
