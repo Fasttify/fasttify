@@ -26,7 +26,7 @@ export function useOrderNotifications() {
       const request = {
         orderId: order.orderNumber || order.id,
         customerEmail: order.customerEmail || '',
-        customerName: order.customerName || 'Cliente',
+        customerName: EmailFormattingUtils.extractCustomerName(order.customerInfo) || 'Cliente',
         storeName,
         orderTotal: EmailFormattingUtils.formatCurrency(order.totalAmount || 0, order.currency || 'COP'),
         orderDate: EmailFormattingUtils.formatDate(order.createdAt || new Date().toISOString()),
@@ -69,7 +69,7 @@ export function useOrderNotifications() {
       const request = {
         orderId: order.orderNumber || order.id,
         customerEmail: order.customerEmail || '',
-        customerName: order.customerName || 'Cliente',
+        customerName: EmailFormattingUtils.extractCustomerName(order.customerInfo) || 'Cliente',
         storeName,
         storeId,
         previousOrderStatus: getOrderStatus(previousOrderStatus),
@@ -116,7 +116,7 @@ export function useOrderNotifications() {
       const request = {
         orderId: order.orderNumber || order.id,
         customerEmail: order.customerEmail || '',
-        customerName: order.customerName || 'Cliente',
+        customerName: EmailFormattingUtils.extractCustomerName(order.customerInfo) || 'Cliente',
         storeName,
         storeId,
         previousOrderStatus: getOrderStatus(order.status || 'pending'),
