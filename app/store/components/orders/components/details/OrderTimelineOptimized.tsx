@@ -1,4 +1,4 @@
-import { BlockStack, InlineStack, Text, Card, Badge, Icon, IconSource } from '@shopify/polaris';
+import { BlockStack, InlineStack, Text, Card, Badge, Icon } from '@shopify/polaris';
 import {
   PageClockFilledIcon,
   DeliveryIcon,
@@ -8,155 +8,41 @@ import {
   CreditCardIcon,
   LocationIcon,
 } from '@shopify/polaris-icons';
-import { memo, useMemo } from 'react';
-import type { IOrder } from '@/app/store/hooks/data/useOrders';
+import { memo } from 'react';
+import type { ProcessedTimelineEvent } from '../../hooks/useOrderDataPreprocessing';
 import { formatDate } from '../../utils/order-utils';
 
-interface OrderTimelineProps {
-  order: IOrder;
+interface OrderTimelineOptimizedProps {
+  timelineEvents: ProcessedTimelineEvent[];
+  status: string;
+  paymentStatus: string;
 }
 
-export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelineProps) {
-  // Memoizar las funciones helper para evitar recrearlas en cada render
-  const getStatusIcon = useMemo(
-    () => (status: string) => {
-      switch (status) {
-        case 'pending':
-          return OrderDraftFilledIcon;
-        case 'processing':
-          return InfoIcon;
-        case 'shipped':
-        case 'delivered':
-          return DeliveryIcon;
-        case 'cancelled':
-          return UndoIcon;
-        default:
-          return InfoIcon;
-      }
-    },
-    []
-  );
-
-  const getStatusTone = useMemo(
-    () => (status: string) => {
-      switch (status) {
-        case 'processing':
-          return 'info';
-        case 'shipped':
-        case 'delivered':
-          return 'success';
-        case 'cancelled':
-          return 'critical';
-        case 'pending':
-        default:
-          return 'warning';
-      }
-    },
-    []
-  );
-
-  const getPaymentStatusIcon = useMemo(
-    () => (status: string) => {
-      switch (status) {
-        case 'paid':
-          return CreditCardIcon;
-        case 'pending':
-          return PageClockFilledIcon;
-        case 'failed':
-          return UndoIcon;
-        case 'refunded':
-          return UndoIcon;
-        default:
-          return InfoIcon;
-      }
-    },
-    []
-  );
-
-  const getPaymentStatusTone = useMemo(
-    () => (status: string) => {
-      switch (status) {
-        case 'paid':
-          return 'success';
-        case 'pending':
-          return 'warning';
-        case 'failed':
-          return 'critical';
-        case 'refunded':
-          return 'info';
-        default:
-          return 'info';
-      }
-    },
-    []
-  );
-
-  // Memoizar el array de eventos para evitar recrearlo en cada render
-  const timelineEvents = useMemo(
-    () =>
-      [
-        {
-          id: 'created',
-          title: 'Orden Creada',
-          description: 'La orden fue creada exitosamente',
-          date: order.createdAt,
-          icon: <PageClockFilledIcon />,
-          tone: 'info' as const,
-        },
-        {
-          id: 'customer',
-          title: 'Cliente Registrado',
-          description: `Cliente ${order.customerType === 'guest' ? 'invitado' : 'registrado'} agregado`,
-          date: order.createdAt,
-          icon: <PageClockFilledIcon />,
-          tone: 'info' as const,
-        },
-        {
-          id: 'payment_method',
-          title: 'Método de Pago Seleccionado',
-          description: `Método: ${order.paymentMethod || 'No especificado'}`,
-          date: order.createdAt,
-          icon: <CreditCardIcon />,
-          tone: 'info' as const,
-        },
-        {
-          id: 'shipping_address',
-          title: 'Dirección de Envío Configurada',
-          description: 'Dirección de envío configurada para la orden',
-          date: order.createdAt,
-          icon: <LocationIcon />,
-          tone: 'info' as const,
-        },
-        {
-          id: 'updated',
-          title: 'Última Actualización',
-          description: 'La orden fue modificada por última vez',
-          date: order.updatedAt,
-          icon: <PageClockFilledIcon />,
-          tone: 'info' as const,
-          show: !!order.updatedAt && order.updatedAt !== order.createdAt,
-        },
-        {
-          id: 'status',
-          title: `Estado: ${order.status}`,
-          description: `La orden está actualmente ${order.status}`,
-          date: order.updatedAt || order.createdAt,
-          icon: getStatusIcon(order.status || ''),
-          tone: getStatusTone(order.status || '') as any,
-          show: true,
-        },
-        {
-          id: 'payment_status',
-          title: `Estado del Pago: ${order.paymentStatus}`,
-          description: `El pago está ${order.paymentStatus}`,
-          date: order.updatedAt || order.createdAt,
-          icon: getPaymentStatusIcon(order.paymentStatus || ''),
-          tone: getPaymentStatusTone(order.paymentStatus || '') as any,
-          show: true,
-        },
-      ].filter((event) => event.show !== false),
-    [order]
-  );
+export const OrderTimelineOptimized = memo(function OrderTimelineOptimized({
+  timelineEvents,
+  status,
+  paymentStatus,
+}: OrderTimelineOptimizedProps) {
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'PageClockFilledIcon':
+        return PageClockFilledIcon;
+      case 'DeliveryIcon':
+        return DeliveryIcon;
+      case 'UndoIcon':
+        return UndoIcon;
+      case 'InfoIcon':
+        return InfoIcon;
+      case 'OrderDraftFilledIcon':
+        return OrderDraftFilledIcon;
+      case 'CreditCardIcon':
+        return CreditCardIcon;
+      case 'LocationIcon':
+        return LocationIcon;
+      default:
+        return InfoIcon;
+    }
+  };
 
   return (
     <Card>
@@ -201,7 +87,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
                     justifyContent: 'center',
                     zIndex: 1,
                   }}>
-                  <Icon source={event.icon as unknown as IconSource} />
+                  <Icon source={getIconComponent(event.icon)} />
                 </div>
 
                 {/* Contenido del evento */}
@@ -210,8 +96,8 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
                     <Text variant="bodyMd" fontWeight="medium" as="span">
                       {event.title}
                     </Text>
-                    <Badge tone={event.tone} size="small">
-                      {event.date ? formatDate(event.date) : 'N/A'}
+                    <Badge tone={event.tone as any} size="small">
+                      {formatDate(event.date)}
                     </Badge>
                   </InlineStack>
                   <Text variant="bodySm" tone="subdued" as="span">
@@ -224,7 +110,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
         </BlockStack>
 
         {/* Información adicional del estado */}
-        {order.status === 'pending' && (
+        {status === 'pending' && (
           <Card background="bg-surface-secondary">
             <BlockStack gap="200">
               <Text variant="bodySm" fontWeight="medium" as="span">
@@ -238,7 +124,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
           </Card>
         )}
 
-        {order.status === 'processing' && (
+        {status === 'processing' && (
           <Card background="bg-surface-info">
             <BlockStack gap="200">
               <Text variant="bodySm" fontWeight="medium" tone="subdued" as="span">
@@ -251,7 +137,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
           </Card>
         )}
 
-        {order.status === 'shipped' && (
+        {status === 'shipped' && (
           <Card background="bg-surface-success">
             <BlockStack gap="200">
               <Text variant="bodySm" fontWeight="medium" tone="success" as="span">
@@ -264,7 +150,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
           </Card>
         )}
 
-        {order.status === 'delivered' && (
+        {status === 'delivered' && (
           <Card background="bg-surface-success">
             <BlockStack gap="200">
               <Text variant="bodySm" fontWeight="medium" tone="success" as="span">
@@ -277,7 +163,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
           </Card>
         )}
 
-        {order.status === 'cancelled' && (
+        {status === 'cancelled' && (
           <Card background="bg-surface-critical">
             <BlockStack gap="200">
               <Text variant="bodySm" fontWeight="medium" tone="critical" as="span">
@@ -291,7 +177,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
         )}
 
         {/* Información del estado de pago */}
-        {order.paymentStatus === 'pending' && (
+        {paymentStatus === 'pending' && (
           <Card background="bg-surface-warning">
             <BlockStack gap="200">
               <Text variant="bodySm" fontWeight="medium" tone="caution" as="span">
@@ -304,7 +190,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
           </Card>
         )}
 
-        {order.paymentStatus === 'paid' && (
+        {paymentStatus === 'paid' && (
           <Card background="bg-surface-success">
             <BlockStack gap="200">
               <Text variant="bodySm" fontWeight="medium" tone="success" as="span">
@@ -317,7 +203,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
           </Card>
         )}
 
-        {order.paymentStatus === 'failed' && (
+        {paymentStatus === 'failed' && (
           <Card background="bg-surface-critical">
             <BlockStack gap="200">
               <Text variant="bodySm" fontWeight="medium" tone="critical" as="span">

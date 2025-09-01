@@ -5,7 +5,7 @@ import useStoreDataStore from '@/context/core/storeDataStore';
 import { Loading } from '@shopify/polaris';
 import { useState } from 'react';
 import { useOrderDetailsModal } from '../hooks/useOrderDetailsModal';
-import { OrderDetailsModal } from '../components/details/OrderDetailsModal';
+import { OrderDetailsModalOptimized } from '../components/details/OrderDetailsModalOptimized';
 
 interface OrderManagerProps {
   storeId: string;
@@ -82,8 +82,8 @@ export function OrderManager({ storeId }: OrderManagerProps) {
         onViewDetails={openModal}
       />
 
-      {/* Modal de detalles */}
-      <OrderDetailsModal
+      {/* Modal de detalles optimizado */}
+      <OrderDetailsModalOptimized
         open={isModalOpen}
         onClose={closeModal}
         order={selectedOrder}

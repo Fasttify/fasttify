@@ -1,61 +1,13 @@
 import { BlockStack, InlineStack, Text, Card, Icon } from '@shopify/polaris';
 import { MoneyIcon, DeliveryIcon, DiscountIcon, TaxIcon } from '@shopify/polaris-icons';
-import { memo, useMemo } from 'react';
-import type { IOrder } from '@/app/store/hooks/data/useOrders';
-import { formatCurrency } from '../../utils/order-utils';
+import { memo } from 'react';
+import type { ProcessedPricingData } from '../../hooks/useOrderDataPreprocessing';
 
-interface OrderPricingProps {
-  order: IOrder;
+interface OrderPricingOptimizedProps {
+  pricingData: ProcessedPricingData;
 }
 
-export const OrderPricing = memo(function OrderPricing({ order }: OrderPricingProps) {
-  // Memoizar los cálculos de precios para evitar recalcular en cada render
-  const pricingData = useMemo(() => {
-    const {
-      subtotal = 0,
-      shippingCost = 0,
-      taxAmount = 0,
-      totalAmount = 0,
-      currency = 'COP',
-      compareAtPrice = 0,
-    } = order;
-
-    // Calcular descuentos basados en compareAtPrice vs subtotal
-    const hasDiscount = (compareAtPrice ?? 0) > 0 && (compareAtPrice ?? 0) > (subtotal ?? 0);
-    const discountAmount = hasDiscount ? (compareAtPrice ?? 0) - (subtotal ?? 0) : 0;
-
-    // Calcular el ahorro total
-    const savingsAmount = hasDiscount ? discountAmount : 0;
-    const savingsPercentage =
-      hasDiscount && (compareAtPrice ?? 0) > 0 ? Math.round((savingsAmount / (compareAtPrice ?? 1)) * 100) : 0;
-
-    return {
-      subtotal,
-      shippingCost,
-      taxAmount,
-      totalAmount,
-      currency,
-      compareAtPrice,
-      hasDiscount,
-      discountAmount,
-      savingsAmount,
-      savingsPercentage,
-    };
-  }, [order]);
-
-  const {
-    subtotal,
-    shippingCost,
-    taxAmount,
-    totalAmount,
-    currency,
-    compareAtPrice,
-    hasDiscount,
-    discountAmount,
-    savingsAmount,
-    savingsPercentage,
-  } = pricingData;
-
+export const OrderPricingOptimized = memo(function OrderPricingOptimized({ pricingData }: OrderPricingOptimizedProps) {
   return (
     <Card>
       <BlockStack gap="400">
@@ -70,14 +22,14 @@ export const OrderPricing = memo(function OrderPricing({ order }: OrderPricingPr
 
         <BlockStack gap="300">
           {/* Precio original (compareAtPrice) si hay descuento */}
-          {hasDiscount && (
+          {pricingData.hasDiscount && (
             <InlineStack align="space-between">
               <Text variant="bodyMd" tone="subdued" as="span">
                 Precio Original
               </Text>
               <div style={{ textDecoration: 'line-through' }}>
                 <Text variant="bodyMd" tone="subdued" as="span">
-                  {formatCurrency(Number(compareAtPrice) || 0, currency ?? 'COP')}
+                  {pricingData.formattedCompareAtPrice}
                 </Text>
               </div>
             </InlineStack>
@@ -89,12 +41,12 @@ export const OrderPricing = memo(function OrderPricing({ order }: OrderPricingPr
               Subtotal
             </Text>
             <Text variant="bodyMd" fontWeight="medium" as="span">
-              {formatCurrency(Number(subtotal) || 0, currency ?? 'COP')}
+              {pricingData.formattedSubtotal}
             </Text>
           </InlineStack>
 
           {/* Descuentos */}
-          {hasDiscount && (
+          {pricingData.hasDiscount && (
             <InlineStack align="space-between">
               <InlineStack gap="200" blockAlign="start">
                 <div style={{ marginTop: '2px' }}>
@@ -106,10 +58,10 @@ export const OrderPricing = memo(function OrderPricing({ order }: OrderPricingPr
               </InlineStack>
               <BlockStack gap="050" align="end">
                 <Text variant="bodyMd" tone="success" fontWeight="medium" as="span">
-                  -{formatCurrency(Number(savingsAmount) || 0, currency ?? 'COP')}
+                  -{pricingData.formattedSavingsAmount}
                 </Text>
                 <Text variant="bodySm" tone="success" as="span">
-                  ({Number(savingsPercentage) || 0}% de ahorro)
+                  ({pricingData.savingsPercentage}% de ahorro)
                 </Text>
               </BlockStack>
             </InlineStack>
@@ -126,14 +78,12 @@ export const OrderPricing = memo(function OrderPricing({ order }: OrderPricingPr
               </Text>
             </InlineStack>
             <Text variant="bodyMd" fontWeight="medium" as="span">
-              {(Number(shippingCost) || 0) > 0
-                ? formatCurrency(Number(shippingCost) || 0, currency ?? 'COP')
-                : 'Gratis'}
+              {pricingData.shippingCost > 0 ? pricingData.formattedShippingCost : 'Gratis'}
             </Text>
           </InlineStack>
 
           {/* Impuestos */}
-          {(Number(taxAmount) || 0) > 0 && (
+          {pricingData.taxAmount > 0 && (
             <InlineStack align="space-between">
               <InlineStack gap="200" blockAlign="start">
                 <div style={{ marginTop: '2px' }}>
@@ -144,7 +94,7 @@ export const OrderPricing = memo(function OrderPricing({ order }: OrderPricingPr
                 </Text>
               </InlineStack>
               <Text variant="bodyMd" fontWeight="medium" as="span">
-                {formatCurrency(Number(taxAmount) || 0, currency ?? 'COP')}
+                {pricingData.formattedTaxAmount}
               </Text>
             </InlineStack>
           )}
@@ -156,7 +106,7 @@ export const OrderPricing = memo(function OrderPricing({ order }: OrderPricingPr
                 Total
               </Text>
               <Text variant="headingMd" fontWeight="bold" as="span">
-                {formatCurrency(Number(totalAmount) || 0, currency ?? 'COP')}
+                {pricingData.formattedTotalAmount}
               </Text>
             </InlineStack>
           </Card>
@@ -165,33 +115,32 @@ export const OrderPricing = memo(function OrderPricing({ order }: OrderPricingPr
         {/* Información adicional */}
         <BlockStack gap="200">
           <Text variant="bodySm" tone="subdued" as="span">
-            Moneda: {currency}
+            Moneda: {pricingData.currency}
           </Text>
 
           {/* Resumen de cantidades */}
           <InlineStack gap="400" wrap>
-            {hasDiscount && (
+            {pricingData.hasDiscount && (
               <Text variant="bodySm" tone="subdued" as="span">
-                Precio Original: {formatCurrency(Number(compareAtPrice) || 0, currency ?? 'COP')}
+                Precio Original: {pricingData.formattedCompareAtPrice}
               </Text>
             )}
             <Text variant="bodySm" tone="subdued" as="span">
-              Subtotal: {formatCurrency(Number(subtotal) || 0, currency ?? 'COP')}
+              Subtotal: {pricingData.formattedSubtotal}
             </Text>
-            {hasDiscount && (
+            {pricingData.hasDiscount && (
               <Text variant="bodySm" tone="success" as="span">
-                - Descuentos: {formatCurrency(Number(savingsAmount) || 0, currency ?? 'COP')} (
-                {Number(savingsPercentage) || 0}%)
+                - Descuentos: {pricingData.formattedSavingsAmount} ({pricingData.savingsPercentage}%)
               </Text>
             )}
-            {(Number(shippingCost) || 0) > 0 && (
+            {pricingData.shippingCost > 0 && (
               <Text variant="bodySm" tone="subdued" as="span">
-                + Envío: {formatCurrency(Number(shippingCost) || 0, currency ?? 'COP')}
+                + Envío: {pricingData.formattedShippingCost}
               </Text>
             )}
-            {(Number(taxAmount) || 0) > 0 && (
+            {pricingData.taxAmount > 0 && (
               <Text variant="bodySm" tone="subdued" as="span">
-                + Impuestos: {formatCurrency(Number(taxAmount) || 0, currency ?? 'COP')}
+                + Impuestos: {pricingData.formattedTaxAmount}
               </Text>
             )}
           </InlineStack>

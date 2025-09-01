@@ -6,42 +6,14 @@ import {
   CreditCardIcon,
   PersonIcon,
 } from '@shopify/polaris-icons';
-import { memo, useMemo } from 'react';
-import type { IOrder } from '@/app/store/hooks/data/useOrders';
-import {
-  formatDate,
-  getStatusText,
-  getStatusTone,
-  getPaymentStatusText,
-  getPaymentStatusTone,
-} from '../../utils/order-utils';
+import { memo } from 'react';
+import type { ProcessedOrderData } from '../../hooks/useOrderDataPreprocessing';
 
-interface OrderHeaderProps {
-  order: IOrder;
+interface OrderHeaderOptimizedProps {
+  orderData: ProcessedOrderData;
 }
 
-export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps) {
-  // Memoizar la función de mapeo de métodos de pago
-  const getPaymentMethodText = useMemo(
-    () => (method: string | null | undefined) => {
-      if (!method) return 'No especificado';
-
-      const methodMap: Record<string, string> = {
-        Manual: 'Pago Manual',
-        CreditCard: 'Tarjeta de Crédito',
-        DebitCard: 'Tarjeta de Débito',
-        PayPal: 'PayPal',
-        Stripe: 'Stripe',
-        MercadoPago: 'MercadoPago',
-        Cash: 'Efectivo',
-        BankTransfer: 'Transferencia Bancaria',
-      };
-
-      return methodMap[method] || method;
-    },
-    []
-  );
-
+export const OrderHeaderOptimized = memo(function OrderHeaderOptimized({ orderData }: OrderHeaderOptimizedProps) {
   return (
     <Card>
       <BlockStack gap="400">
@@ -53,10 +25,10 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
             </div>
             <BlockStack gap="100">
               <Text as="h2" variant="headingLg" fontWeight="semibold">
-                Orden #{order.orderNumber}
+                Orden #{orderData.orderNumber}
               </Text>
               <Text variant="bodySm" tone="subdued" as="span">
-                ID: {order.id}
+                ID: {orderData.id}
               </Text>
             </BlockStack>
           </InlineStack>
@@ -72,8 +44,8 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
               <Text variant="bodySm" tone="subdued" as="span">
                 Estado de la Orden
               </Text>
-              <Badge tone={getStatusTone(order.status || '')} size="small">
-                {getStatusText(order.status || '')}
+              <Badge tone={orderData.statusTone as any} size="small">
+                {orderData.statusText}
               </Badge>
             </BlockStack>
 
@@ -81,8 +53,8 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
               <Text variant="bodySm" tone="subdued" as="span">
                 Estado del Pago
               </Text>
-              <Badge tone={getPaymentStatusTone(order.paymentStatus || '')} size="small">
-                {getPaymentStatusText(order.paymentStatus || '')}
+              <Badge tone={orderData.paymentStatusTone as any} size="small">
+                {orderData.paymentStatusText}
               </Badge>
             </BlockStack>
           </InlineStack>
@@ -103,7 +75,7 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
               ID:
             </Text>
             <Text variant="bodySm" fontWeight="medium" as="span">
-              {order.customerId}
+              {orderData.customerId}
             </Text>
           </InlineStack>
         </BlockStack>
@@ -121,7 +93,7 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
                   Creado
                 </Text>
                 <Text variant="bodyMd" fontWeight="medium" as="span">
-                  {formatDate(order.createdAt)}
+                  {orderData.formattedCreatedAt}
                 </Text>
               </BlockStack>
             </InlineStack>
@@ -133,7 +105,7 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
                   Actualizado
                 </Text>
                 <Text variant="bodyMd" fontWeight="medium" as="span">
-                  {formatDate(order.updatedAt)}
+                  {orderData.formattedUpdatedAt}
                 </Text>
               </BlockStack>
             </InlineStack>
@@ -145,7 +117,7 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
                   Moneda
                 </Text>
                 <Text variant="bodyMd" fontWeight="medium" as="span">
-                  {order.currency}
+                  {orderData.currency}
                 </Text>
               </BlockStack>
             </InlineStack>
@@ -157,7 +129,7 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
                   Método de Pago
                 </Text>
                 <Text variant="bodyMd" fontWeight="medium" as="span">
-                  {getPaymentMethodText(order.paymentMethod)}
+                  {orderData.paymentMethodText}
                 </Text>
               </BlockStack>
             </InlineStack>
@@ -165,7 +137,7 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
         </BlockStack>
 
         {/* ID de Pago si existe */}
-        {order.paymentId && (
+        {orderData.paymentId && (
           <BlockStack gap="200">
             <Text variant="bodyMd" fontWeight="medium" as="span">
               Información de Pago
@@ -176,7 +148,7 @@ export const OrderHeader = memo(function OrderHeader({ order }: OrderHeaderProps
                 ID de Pago:
               </Text>
               <Text variant="bodySm" fontWeight="medium" as="span">
-                {order.paymentId}
+                {orderData.paymentId}
               </Text>
             </InlineStack>
           </BlockStack>
