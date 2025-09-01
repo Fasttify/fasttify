@@ -26,6 +26,7 @@ export interface OrderStatusUpdateEmailRequest {
   shippingAddress?: string;
   billingAddress?: string;
   updateNotes?: string;
+  storeId: string;
 }
 
 /**

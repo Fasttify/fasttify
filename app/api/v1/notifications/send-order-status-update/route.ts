@@ -3,24 +3,7 @@ import { z } from 'zod';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 import { EmailAdminService } from '@/app/store/services';
-
-// Schema de validación para la solicitud
-const sendOrderStatusUpdateSchema = z.object({
-  orderId: z.string().min(1, 'ID del pedido requerido'),
-  customerEmail: z.string().email('Email del cliente inválido'),
-  customerName: z.string().min(1, 'Nombre del cliente requerido'),
-  storeName: z.string().min(1, 'Nombre de la tienda requerido'),
-  previousOrderStatus: z.string().min(1, 'Estado anterior del pedido requerido'),
-  newOrderStatus: z.string().min(1, 'Nuevo estado del pedido requerido'),
-  previousPaymentStatus: z.string().min(1, 'Estado anterior de pago requerido'),
-  newPaymentStatus: z.string().min(1, 'Nuevo estado de pago requerido'),
-  orderTotal: z.string().min(1, 'Total del pedido requerido'),
-  orderDate: z.string().min(1, 'Fecha del pedido requerida'),
-  shippingAddress: z.string().optional(),
-  billingAddress: z.string().optional(),
-  updateNotes: z.string().optional(),
-  storeId: z.string().min(1, 'ID de la tienda requerido'),
-});
+import { sendOrderStatusUpdateSchema } from '@/lib/zod-schemas/notification-api';
 
 export async function OPTIONS(request: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(request);
@@ -73,23 +56,13 @@ export async function POST(request: NextRequest) {
     const emailSent = await EmailAdminService.sendOrderStatusUpdate(emailRequest);
 
     if (!emailSent) {
-      return NextResponse.json(
-        { error: 'Error enviando email de actualización de estado' },
-        { status: 500, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: 'Error sending email status update' }, { status: 500, headers: corsHeaders });
     }
-
-    console.log('📧 Email de actualización de estado enviado exitosamente:', {
-      orderId: validatedData.orderId,
-      customerEmail: validatedData.customerEmail,
-      statusChange: `${validatedData.previousOrderStatus} → ${validatedData.newOrderStatus}`,
-      paymentChange: `${validatedData.previousPaymentStatus} → ${validatedData.newPaymentStatus}`,
-    });
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Email de actualización de estado enviado exitosamente',
+        message: 'Email status update sent successfully',
         data: {
           orderId: validatedData.orderId,
           customerEmail: validatedData.customerEmail,
@@ -102,18 +75,18 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error('Error enviando email de actualización de estado:', error);
+    console.error('Error sending email status update:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
-          error: 'Datos inválidos',
+          error: 'Invalid data',
           details: error.errors,
         },
         { status: 400, headers: corsHeaders }
       );
     }
 
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500, headers: corsHeaders });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 }

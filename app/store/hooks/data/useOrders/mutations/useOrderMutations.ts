@@ -4,6 +4,7 @@ import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
 import type { IOrder, OrderCreateInput, OrderUpdateInput, OrderStatus, PaymentStatus } from '../types';
 import { useOrderCacheUtils } from '../utils/orderCacheUtils';
+import { useOrderNotifications } from '../notifications/useOrderNotifications';
 
 const client = generateClient<StoreSchema>({
   authMode: 'userPool',
@@ -12,9 +13,10 @@ const client = generateClient<StoreSchema>({
 /**
  * Hook para manejar todas las mutaciones de órdenes
  */
-export const useOrderMutations = (storeId: string | undefined) => {
+export const useOrderMutations = (storeId: string | undefined, storeName?: string) => {
   const queryClient = useQueryClient();
   const cacheUtils = useOrderCacheUtils(storeId);
+  const orderNotifications = useOrderNotifications();
 
   /**
    * Mutación para crear una orden
@@ -40,6 +42,15 @@ export const useOrderMutations = (storeId: string | undefined) => {
     onSuccess: async (newOrder) => {
       // Actualizar caché optimísticamente
       cacheUtils.updateOrderInCache(newOrder);
+
+      // Enviar notificación de confirmación de orden si hay storeName
+      if (storeName && newOrder.customerEmail) {
+        try {
+          await orderNotifications.sendOrderConfirmationNotification(newOrder, storeName);
+        } catch (error) {
+          console.error('Error sending order confirmation notification:', error);
+        }
+      }
     },
   });
 
@@ -101,16 +112,49 @@ export const useOrderMutations = (storeId: string | undefined) => {
    * Mutación para actualizar el estado de una orden
    */
   const updateOrderStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: OrderStatus }) => {
+    mutationFn: async ({
+      id,
+      status,
+      previousStatus,
+      updateNotes,
+    }: {
+      id: string;
+      status: OrderStatus;
+      previousStatus?: OrderStatus;
+      updateNotes?: string;
+    }) => {
       const { data } = await client.models.Order.update({
         id,
         status,
       });
-      return data as IOrder;
+      return { order: data as IOrder, previousStatus, updateNotes };
     },
-    onSuccess: async (updatedOrder) => {
+    onSuccess: async ({ order: updatedOrder, previousStatus, updateNotes }) => {
       // Actualizar caché optimísticamente
       cacheUtils.updateOrderInCache(updatedOrder);
+
+      // Enviar notificación de actualización de estado si hay storeName y el estado cambió
+      if (storeName && previousStatus && previousStatus !== updatedOrder.status) {
+        try {
+          const prevStatus: OrderStatus = previousStatus || 'pending';
+          const newStatus: OrderStatus = updatedOrder.status || 'pending';
+          const prevPaymentStatus: PaymentStatus = updatedOrder.paymentStatus || 'pending';
+          const newPaymentStatus: PaymentStatus = updatedOrder.paymentStatus || 'pending';
+
+          await orderNotifications.sendOrderStatusUpdateNotification(
+            updatedOrder,
+            storeName,
+            storeId || '',
+            prevStatus,
+            newStatus,
+            prevPaymentStatus,
+            newPaymentStatus,
+            updateNotes
+          );
+        } catch (error) {
+          console.error('Error sending order status update notification:', error);
+        }
+      }
     },
   });
 
@@ -118,16 +162,42 @@ export const useOrderMutations = (storeId: string | undefined) => {
    * Mutación para actualizar el estado del pago
    */
   const updatePaymentStatusMutation = useMutation({
-    mutationFn: async ({ id, paymentStatus }: { id: string; paymentStatus: PaymentStatus }) => {
+    mutationFn: async ({
+      id,
+      paymentStatus,
+      previousPaymentStatus,
+      updateNotes,
+    }: {
+      id: string;
+      paymentStatus: PaymentStatus;
+      previousPaymentStatus?: PaymentStatus;
+      updateNotes?: string;
+    }) => {
       const { data } = await client.models.Order.update({
         id,
         paymentStatus,
       });
-      return data as IOrder;
+      return { order: data as IOrder, previousPaymentStatus, updateNotes };
     },
-    onSuccess: async (updatedOrder) => {
+    onSuccess: async ({ order: updatedOrder, previousPaymentStatus, updateNotes }) => {
       // Actualizar caché optimísticamente
       cacheUtils.updateOrderInCache(updatedOrder);
+
+      // Enviar notificación de actualización de estado de pago si hay storeName y el estado cambió
+      if (storeName && previousPaymentStatus && previousPaymentStatus !== updatedOrder.paymentStatus) {
+        try {
+          await orderNotifications.sendPaymentStatusUpdateNotification(
+            updatedOrder,
+            storeName,
+            storeId || '',
+            (previousPaymentStatus || 'pending') as PaymentStatus,
+            (updatedOrder.paymentStatus || 'pending') as PaymentStatus,
+            updateNotes
+          );
+        } catch (error) {
+          console.error('Error sending payment status update notification:', error);
+        }
+      }
     },
   });
 

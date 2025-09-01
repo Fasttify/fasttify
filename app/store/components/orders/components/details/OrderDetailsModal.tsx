@@ -1,12 +1,17 @@
 import { Modal, BlockStack, Divider } from '@shopify/polaris';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import type { IOrder } from '@/app/store/hooks/data/useOrders';
 import { OrderHeader } from './OrderHeader';
-import { OrderCustomerInfo } from './OrderCustomerInfo';
-import { OrderItems } from './OrderItems';
-import { OrderPricing } from './OrderPricing';
-import { OrderTimeline } from './OrderTimeline';
-import { OrderActions } from './OrderActions';
+import { OrderSectionSkeleton, OrderItemsSkeleton } from './OrderSectionSkeleton';
+
+// Lazy load de componentes pesados
+const OrderCustomerInfo = lazy(() =>
+  import('./OrderCustomerInfo').then((module) => ({ default: module.OrderCustomerInfo }))
+);
+const OrderItems = lazy(() => import('./OrderItems').then((module) => ({ default: module.OrderItems })));
+const OrderPricing = lazy(() => import('./OrderPricing').then((module) => ({ default: module.OrderPricing })));
+const OrderTimeline = lazy(() => import('./OrderTimeline').then((module) => ({ default: module.OrderTimeline })));
+const OrderActions = lazy(() => import('./OrderActions').then((module) => ({ default: module.OrderActions })));
 
 interface OrderDetailsModalProps {
   open: boolean;
@@ -48,38 +53,48 @@ export function OrderDetailsModal({
       }}>
       <Modal.Section>
         <BlockStack gap="400">
-          {/* Header con información principal */}
+          {/* Header con información principal - Se carga inmediatamente */}
           <OrderHeader order={currentOrder} />
 
           <Divider />
 
-          {/* Información del cliente */}
-          <OrderCustomerInfo order={currentOrder} />
+          {/* Información del cliente - Lazy loaded */}
+          <Suspense fallback={<OrderSectionSkeleton title="Información del Cliente" lines={4} />}>
+            <OrderCustomerInfo order={currentOrder} />
+          </Suspense>
 
           <Divider />
 
-          {/* Lista de productos */}
-          <OrderItems order={currentOrder} />
+          {/* Lista de productos - Lazy loaded */}
+          <Suspense fallback={<OrderItemsSkeleton />}>
+            <OrderItems order={currentOrder} />
+          </Suspense>
 
           <Divider />
 
-          {/* Información de precios */}
-          <OrderPricing order={currentOrder} />
+          {/* Información de precios - Lazy loaded */}
+          <Suspense fallback={<OrderSectionSkeleton title="Resumen de Precios" lines={6} />}>
+            <OrderPricing order={currentOrder} />
+          </Suspense>
 
           <Divider />
 
-          {/* Timeline de eventos */}
-          <OrderTimeline order={currentOrder} />
+          {/* Timeline de eventos - Lazy loaded */}
+          <Suspense fallback={<OrderSectionSkeleton title="Línea de Tiempo" lines={5} />}>
+            <OrderTimeline order={currentOrder} />
+          </Suspense>
 
-          {/* Acciones disponibles */}
-          <OrderActions
-            order={currentOrder}
-            onUpdateStatus={onUpdateStatus}
-            onUpdatePaymentStatus={onUpdatePaymentStatus}
-            onDelete={onDelete}
-            onOrderUpdate={setCurrentOrder}
-            onClose={onClose}
-          />
+          {/* Acciones disponibles - Lazy loaded */}
+          <Suspense fallback={<OrderSectionSkeleton title="Acciones Disponibles" lines={3} />}>
+            <OrderActions
+              order={currentOrder}
+              onUpdateStatus={onUpdateStatus}
+              onUpdatePaymentStatus={onUpdatePaymentStatus}
+              onDelete={onDelete}
+              onOrderUpdate={setCurrentOrder}
+              onClose={onClose}
+            />
+          </Suspense>
         </BlockStack>
       </Modal.Section>
     </Modal>

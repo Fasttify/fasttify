@@ -17,6 +17,7 @@ export { OrderItems } from './components/details/OrderItems';
 export { OrderPricing } from './components/details/OrderPricing';
 export { OrderTimeline } from './components/details/OrderTimeline';
 export { OrderActions } from './components/details/OrderActions';
+export { OrderSectionSkeleton, OrderItemsSkeleton } from './components/details/OrderSectionSkeleton';
 
 // Exportar hooks
 export { useOrderFilters } from './hooks/useOrderFilters';

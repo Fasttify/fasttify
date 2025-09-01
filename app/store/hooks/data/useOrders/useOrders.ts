@@ -18,7 +18,11 @@ import { useOrderPagination } from './utils';
  * @param options - Opciones de paginación y configuración (opcional)
  * @returns Objeto con órdenes, estado de carga, error, funciones CRUD y funciones de paginación
  */
-export function useOrders(storeId: string | undefined, options?: UseOrdersOptions): UseOrdersResult {
+export function useOrders(
+  storeId: string | undefined,
+  options?: UseOrdersOptions,
+  storeName?: string
+): UseOrdersResult {
   // Configuración de paginación
   const pagination = useOrderPagination(options || {});
   const {
@@ -34,7 +38,7 @@ export function useOrders(storeId: string | undefined, options?: UseOrdersOption
   } = pagination;
 
   // Mutaciones
-  const mutations = useOrderMutations(storeId);
+  const mutations = useOrderMutations(storeId, storeName);
   const {
     createOrderMutation,
     updateOrderMutation,
@@ -120,12 +124,18 @@ export function useOrders(storeId: string | undefined, options?: UseOrdersOption
 
   // Funciones específicas para el manejo de estados
   const updateOrderStatus = useCallback(
-    async (id: string, status: OrderStatus) => {
+    async (id: string, status: OrderStatus, previousStatus?: OrderStatus, updateNotes?: string) => {
       try {
         if (!id) {
           throw new Error('Order ID is required');
         }
-        return await updateOrderStatusMutation.mutateAsync({ id, status });
+        const result = await updateOrderStatusMutation.mutateAsync({
+          id,
+          status,
+          previousStatus,
+          updateNotes,
+        });
+        return result.order;
       } catch (err) {
         console.error('Error updating order status:', err);
         return null;
@@ -135,12 +145,18 @@ export function useOrders(storeId: string | undefined, options?: UseOrdersOption
   );
 
   const updatePaymentStatus = useCallback(
-    async (id: string, paymentStatus: PaymentStatus) => {
+    async (id: string, paymentStatus: PaymentStatus, previousPaymentStatus?: PaymentStatus, updateNotes?: string) => {
       try {
         if (!id) {
           throw new Error('Order ID is required');
         }
-        return await updatePaymentStatusMutation.mutateAsync({ id, paymentStatus });
+        const result = await updatePaymentStatusMutation.mutateAsync({
+          id,
+          paymentStatus,
+          previousPaymentStatus,
+          updateNotes,
+        });
+        return result.order;
       } catch (err) {
         console.error('Error updating payment status:', err);
         return null;

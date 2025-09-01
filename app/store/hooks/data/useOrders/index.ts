@@ -12,3 +12,6 @@ export * from './mutations';
 
 // Exportar queries
 export * from './queries';
+
+// Exportar notificaciones
+export * from './notifications';

@@ -8,21 +8,7 @@ import {
   getOrderStatus,
   getPaymentStatus,
 } from '@/packages/renderer-engine/services/notifications';
-
-// Schema de validación para la solicitud
-const sendOrderConfirmationSchema = z.object({
-  orderId: z.string().min(1, 'ID del pedido requerido'),
-  customerEmail: z.string().email('Email del cliente inválido'),
-  customerName: z.string().min(1, 'Nombre del cliente requerido'),
-  storeName: z.string().min(1, 'Nombre de la tienda requerido'),
-  orderStatus: z.string().min(1, 'Estado del pedido requerido'),
-  paymentStatus: z.string().min(1, 'Estado de pago requerido'),
-  orderTotal: z.string().min(1, 'Total del pedido requerido'),
-  orderDate: z.string().min(1, 'Fecha del pedido requerida'),
-  shippingAddress: z.string().optional(),
-  billingAddress: z.string().optional(),
-  storeId: z.string().min(1, 'ID de la tienda requerido'),
-});
+import { sendOrderConfirmationSchema } from '@/lib/zod-schemas/notification-api';
 
 export async function OPTIONS(request: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(request);
@@ -75,23 +61,13 @@ export async function POST(request: NextRequest) {
     const emailSent = await EmailNotificationService.sendOrderConfirmation(emailRequest);
 
     if (!emailSent) {
-      return NextResponse.json(
-        { error: 'Error enviando email de confirmación' },
-        { status: 500, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: 'Error sending email confirmation' }, { status: 500, headers: corsHeaders });
     }
-
-    console.log('📧 Email de confirmación de pedido enviado exitosamente:', {
-      orderId: validatedData.orderId,
-      customerEmail: validatedData.customerEmail,
-      orderStatus: validatedData.orderStatus,
-      paymentStatus: validatedData.paymentStatus,
-    });
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Email de confirmación de pedido enviado exitosamente',
+        message: 'Email confirmation sent successfully',
         data: {
           orderId: validatedData.orderId,
           customerEmail: validatedData.customerEmail,
@@ -104,18 +80,18 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error('Error enviando email de confirmación de pedido:', error);
+    console.error('Error sending email confirmation:', error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
-          error: 'Datos inválidos',
+          error: 'Invalid data',
           details: error.errors,
         },
         { status: 400, headers: corsHeaders }
       );
     }
 
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500, headers: corsHeaders });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 }
