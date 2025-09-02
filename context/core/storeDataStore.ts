@@ -123,50 +123,42 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
   },
 
   setupSubscription: (id: string) => {
-    const subscription = client.models.UserStore.observeQuery({
+    // Suscripción a actualizaciones específicas del store
+    const updateSub = client.models.UserStore.onUpdate({
       filter: { storeId: { eq: id } },
-      selectionSet: [
-        'storeId',
-        'storeName',
-        'storeLogo',
-        'defaultDomain',
-        'contactPhone',
-        'contactEmail',
-        'storeFavicon',
-        'storeTheme',
-        'onboardingData',
-        'storeAdress',
-        'storeDescription',
-        'storeCurrency',
-        'currencyFormat',
-        'currencyLocale',
-        'currencyDecimalPlaces',
-      ],
     }).subscribe({
-      next: ({ items, isSynced }) => {
-        if (items.length > 0) {
-          set({
-            currentStore: items[0] as StoreType,
-            isLoading: false,
-          });
-        } else if (isSynced) {
-          set({
-            currentStore: null,
-            error: new Error('Store not found or deleted'),
-            isLoading: false,
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Error in data subscription:', error);
+      next: (data) => {
         set({
-          error: new Error('Error in data subscription'),
+          currentStore: data as StoreType,
           isLoading: false,
         });
       },
+      error: (error) => {
+        console.error('Error in update subscription:', error);
+      },
     });
 
-    return () => subscription.unsubscribe();
+    // Suscripción a eliminaciones del store
+    const deleteSub = client.models.UserStore.onDelete({
+      filter: { storeId: { eq: id } },
+    }).subscribe({
+      next: () => {
+        set({
+          currentStore: null,
+          error: new Error('Store has been deleted'),
+          isLoading: false,
+        });
+      },
+      error: (error) => {
+        console.error('Error in delete subscription:', error);
+      },
+    });
+
+    // Función para limpiar ambas suscripciones
+    return () => {
+      updateSub.unsubscribe();
+      deleteSub.unsubscribe();
+    };
   },
 }));
 
