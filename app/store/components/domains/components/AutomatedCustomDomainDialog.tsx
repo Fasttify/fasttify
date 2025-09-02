@@ -61,7 +61,7 @@ export function AutomatedCustomDomainDialog({
     resetValidation();
   };
 
-  const validation = validateDomain(domainName, storeId);
+  const validation = validateDomain(domainName);
 
   // Manejo del primer paso: solicitar token de validación
   const handleRequestValidation = async () => {
