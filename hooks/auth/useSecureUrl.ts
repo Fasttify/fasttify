@@ -8,6 +8,25 @@ interface UseSecureUrlOptions {
   refetchInterval?: number;
 }
 
+// Función para extraer la ruta del S3 de una URL completa
+function extractS3Path(url: string): string {
+  if (!url) return url;
+
+  // Si ya es una ruta relativa (sin dominio), devolverla tal como está
+  if (!url.includes('://')) {
+    return url;
+  }
+
+  try {
+    const urlObj = new URL(url);
+    // Extraer la ruta después del dominio
+    return urlObj.pathname.substring(1); // Remover el '/' inicial
+  } catch (error) {
+    console.error('Error parsing URL:', error);
+    return url;
+  }
+}
+
 // Función para obtener URL firmada
 async function fetchSecureUrl(path: string): Promise<string> {
   if (!path) return path;
@@ -16,8 +35,10 @@ async function fetchSecureUrl(path: string): Promise<string> {
   if (process.env.NEXT_PUBLIC_APP_ENV === 'development') {
     return path;
   }
+  // Extraer solo la ruta del S3
+  const s3Path = extractS3Path(path);
 
-  const response = await fetch(`/api/secure-url?path=${encodeURIComponent(path)}`);
+  const response = await fetch(`/api/secure-url?path=${encodeURIComponent(s3Path)}`);
 
   if (!response.ok) {
     throw new Error(`Failed to get secure URL: ${response.status}`);
