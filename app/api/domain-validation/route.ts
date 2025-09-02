@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generar token de validación
-    const result = await customDomainService.generateDomainValidationToken(domain, storeId);
+    const result = await customDomainService.generateDomainValidationToken(domain);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 500, headers: corsHeaders });

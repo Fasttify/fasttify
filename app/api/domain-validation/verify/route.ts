@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verificar validación del dominio y preparar certificado SSL
-    const result = await customDomainService.verifyDomainValidation(domain, validationToken, storeId);
+    const result = await customDomainService.verifyDomainValidation(domain, validationToken);
 
     if (!result.success) {
       SecureLogger.info('Domain validation failed for %s: %s', domain, result.error);
