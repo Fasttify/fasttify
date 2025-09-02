@@ -40,11 +40,16 @@ export async function POST(request: NextRequest) {
       orderNumber: validatedData.orderId,
       customerEmail: validatedData.customerEmail,
       customerId: 'admin-generated',
+      customerType: 'guest' as const,
       storeId: validatedData.storeId,
+      subtotal: EmailFormattingUtils.parseCurrencyAmount(validatedData.orderTotal),
+      shippingCost: 0,
+      taxAmount: 0,
       totalAmount: EmailFormattingUtils.parseCurrencyAmount(validatedData.orderTotal),
       currency: 'COP',
-      status: validatedData.orderStatus,
-      paymentStatus: validatedData.paymentStatus,
+      status: validatedData.orderStatus as 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled',
+      paymentStatus: validatedData.paymentStatus as 'pending' | 'paid' | 'failed' | 'refunded',
+      storeOwner: session.username,
       createdAt: validatedData.orderDate,
     };
 

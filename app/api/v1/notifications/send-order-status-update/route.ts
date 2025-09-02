@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
     // Preparar la solicitud para el servicio de email
     const emailRequest = {
       orderId: validatedData.orderId,
+      storeId: validatedData.storeId,
       customerEmail: validatedData.customerEmail,
       customerName: validatedData.customerName,
       storeName: validatedData.storeName,
