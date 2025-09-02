@@ -19,7 +19,7 @@ import {
   getCustomerPhone,
 } from '../utils/order-utils';
 
-interface ProcessedOrderItem {
+export interface ProcessedOrderItem {
   id: string;
   productId: string;
   productTitle: string;
@@ -39,7 +39,7 @@ interface ProcessedOrderItem {
   handle?: string;
 }
 
-interface ProcessedTimelineEvent {
+export interface ProcessedTimelineEvent {
   id: string;
   title: string;
   description: string;
@@ -49,7 +49,7 @@ interface ProcessedTimelineEvent {
   show: boolean;
 }
 
-interface ProcessedAddress {
+export interface ProcessedAddress {
   address1: string;
   address2?: string;
   city: string;
@@ -60,16 +60,16 @@ interface ProcessedAddress {
   formattedAddress: string;
 }
 
-interface ProcessedCustomerData {
+export interface ProcessedCustomerData {
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
   customerType: string;
-  shipping?: ProcessedAddress;
-  billing?: ProcessedAddress;
+  shipping?: ProcessedAddress | null;
+  billing?: ProcessedAddress | null;
 }
 
-interface ProcessedPricingData {
+export interface ProcessedPricingData {
   subtotal: number;
   shippingCost: number;
   taxAmount: number;
@@ -88,19 +88,19 @@ interface ProcessedPricingData {
   formattedSavingsAmount: string;
 }
 
-interface ProcessedOrderData {
+export interface ProcessedOrderData {
   // Datos básicos
   id: string;
   orderNumber: string;
   status: string;
   paymentStatus: string;
-  customerId: string;
+  customerId: string | null | undefined;
   createdAt: string;
   updatedAt: string;
   currency: string;
   paymentMethod: string;
-  paymentId?: string;
-  notes?: string;
+  paymentId?: string | null;
+  notes?: string | null;
 
   // Datos procesados
   items: ProcessedOrderItem[];
@@ -307,22 +307,22 @@ export function useOrderDataPreprocessing(order: IOrder | null): ProcessedOrderD
       hasDiscount && (compareAtPrice ?? 0) > 0 ? Math.round((savingsAmount / (compareAtPrice ?? 1)) * 100) : 0;
 
     const pricingData: ProcessedPricingData = {
-      subtotal,
-      shippingCost,
-      taxAmount,
-      totalAmount,
-      currency,
-      compareAtPrice,
+      subtotal: Number(subtotal) || 0,
+      shippingCost: Number(shippingCost) || 0,
+      taxAmount: Number(taxAmount) || 0,
+      totalAmount: Number(totalAmount) || 0,
+      currency: currency || 'COP',
+      compareAtPrice: Number(compareAtPrice) || 0,
       hasDiscount,
       discountAmount,
       savingsAmount,
       savingsPercentage,
-      formattedSubtotal: formatCurrency(Number(subtotal) || 0, currency),
-      formattedShippingCost: formatCurrency(Number(shippingCost) || 0, currency),
-      formattedTaxAmount: formatCurrency(Number(taxAmount) || 0, currency),
-      formattedTotalAmount: formatCurrency(Number(totalAmount) || 0, currency),
-      formattedCompareAtPrice: formatCurrency(Number(compareAtPrice) || 0, currency),
-      formattedSavingsAmount: formatCurrency(Number(savingsAmount) || 0, currency),
+      formattedSubtotal: formatCurrency(Number(subtotal) || 0, currency || 'COP'),
+      formattedShippingCost: formatCurrency(Number(shippingCost) || 0, currency || 'COP'),
+      formattedTaxAmount: formatCurrency(Number(taxAmount) || 0, currency || 'COP'),
+      formattedTotalAmount: formatCurrency(Number(totalAmount) || 0, currency || 'COP'),
+      formattedCompareAtPrice: formatCurrency(Number(compareAtPrice) || 0, currency || 'COP'),
+      formattedSavingsAmount: formatCurrency(Number(savingsAmount) || 0, currency || 'COP'),
     };
 
     return {

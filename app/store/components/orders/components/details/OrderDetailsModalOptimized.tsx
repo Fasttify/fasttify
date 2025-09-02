@@ -72,7 +72,7 @@ export function OrderDetailsModalOptimized({
           <Suspense fallback={<OrderSectionSkeleton title="Información del Cliente" lines={4} />}>
             <OrderCustomerInfoOptimized
               customerData={processedOrderData.customerData}
-              notes={processedOrderData.notes}
+              notes={processedOrderData.notes || ''}
             />
           </Suspense>
 
