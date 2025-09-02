@@ -77,7 +77,7 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
     // Si todo está bien (plan válido y tienda pertenece al usuario), permitir el acceso
     return NextResponse.next();
   } catch (error) {
-    console.error('Error verificando acceso a tienda:', error);
+    console.error('Error verifying store access:', error);
     return NextResponse.redirect(new URL('/my-store', request.url));
   }
 }

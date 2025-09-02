@@ -1,5 +1,6 @@
 import { BlockStack, InlineStack, Text, Card, Thumbnail, Icon, Badge, Link } from '@shopify/polaris';
 import { PackageIcon, ImageIcon, ExternalIcon } from '@shopify/polaris-icons';
+import { memo, useMemo } from 'react';
 import type { IOrder } from '@/app/store/hooks/data/useOrders';
 import {
   getOrderItems,
@@ -16,8 +17,9 @@ interface OrderItemsProps {
   order: IOrder;
 }
 
-export function OrderItems({ order }: OrderItemsProps) {
-  const items = getOrderItems(order.items);
+export const OrderItems = memo(function OrderItems({ order }: OrderItemsProps) {
+  // Memoizar el procesamiento de items para evitar recalcular en cada render
+  const items = useMemo(() => getOrderItems(order.items), [order.items]);
 
   if (items.length === 0) {
     return (
@@ -53,15 +55,22 @@ export function OrderItems({ order }: OrderItemsProps) {
 
         <BlockStack gap="300">
           {items.map((item) => {
-            const productTitle = getProductTitle(item);
-            const productImage = getProductImage(item);
-            const quantity = getItemQuantity(item);
-            const unitPrice = getItemUnitPrice(item);
-            const totalPrice = getItemTotalPrice(item);
-            const productSnapshot = getProductSnapshot(item);
+            // Memoizar el procesamiento de cada item
+            const itemData = useMemo(
+              () => ({
+                productTitle: getProductTitle(item),
+                productImage: getProductImage(item),
+                quantity: getItemQuantity(item),
+                unitPrice: getItemUnitPrice(item),
+                totalPrice: getItemTotalPrice(item),
+                productSnapshot: getProductSnapshot(item),
+                productUrl: `/store/${order.storeId}/products/${item.productId}`,
+              }),
+              [item, order.storeId]
+            );
 
-            // Construir la URL del producto
-            const productUrl = `/store/${order.storeId}/products/${item.productId}`;
+            const { productTitle, productImage, quantity, unitPrice, totalPrice, productSnapshot, productUrl } =
+              itemData;
 
             return (
               <Card key={item.id} background="bg-surface-secondary">
@@ -231,4 +240,4 @@ export function OrderItems({ order }: OrderItemsProps) {
       </BlockStack>
     </Card>
   );
-}
+});

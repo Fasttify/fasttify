@@ -17,11 +17,21 @@ export { OrderItems } from './components/details/OrderItems';
 export { OrderPricing } from './components/details/OrderPricing';
 export { OrderTimeline } from './components/details/OrderTimeline';
 export { OrderActions } from './components/details/OrderActions';
+export { OrderSectionSkeleton, OrderItemsSkeleton } from './components/details/OrderSectionSkeleton';
+
+// Exportar componentes optimizados con pre-procesamiento
+export { OrderDetailsModalOptimized } from './components/details/OrderDetailsModalOptimized';
+export { OrderHeaderOptimized } from './components/details/OrderHeaderOptimized';
+export { OrderCustomerInfoOptimized } from './components/details/OrderCustomerInfoOptimized';
+export { OrderItemsOptimized } from './components/details/OrderItemsOptimized';
+export { OrderPricingOptimized } from './components/details/OrderPricingOptimized';
+export { OrderTimelineOptimized } from './components/details/OrderTimelineOptimized';
 
 // Exportar hooks
 export { useOrderFilters } from './hooks/useOrderFilters';
 export { useOrderSelection } from './hooks/useOrderSelection';
 export { useOrderDetailsModal } from './hooks/useOrderDetailsModal';
+export { useOrderDataPreprocessing } from './hooks/useOrderDataPreprocessing';
 
 // Exportar tipos
 export type * from './types/order-types';

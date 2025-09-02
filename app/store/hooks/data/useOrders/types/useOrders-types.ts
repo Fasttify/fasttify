@@ -61,8 +61,18 @@ export interface UseOrdersResult {
   updateOrder: (orderData: OrderUpdateInput) => Promise<IOrder | null>;
   deleteOrder: (id: string) => Promise<boolean>;
   deleteMultipleOrders: (ids: string[]) => Promise<boolean>;
-  updateOrderStatus: (id: string, status: OrderStatus) => Promise<IOrder | null>;
-  updatePaymentStatus: (id: string, paymentStatus: PaymentStatus) => Promise<IOrder | null>;
+  updateOrderStatus: (
+    id: string,
+    status: OrderStatus,
+    previousStatus?: OrderStatus,
+    updateNotes?: string
+  ) => Promise<IOrder | null>;
+  updatePaymentStatus: (
+    id: string,
+    paymentStatus: PaymentStatus,
+    previousPaymentStatus?: PaymentStatus,
+    updateNotes?: string
+  ) => Promise<IOrder | null>;
   refreshOrders: () => void;
   fetchOrder: (id: string) => Promise<IOrder | null>;
 }

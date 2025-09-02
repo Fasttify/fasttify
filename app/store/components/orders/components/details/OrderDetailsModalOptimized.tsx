@@ -1,19 +1,26 @@
 import { Modal, BlockStack, Divider } from '@shopify/polaris';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import type { IOrder } from '@/app/store/hooks/data/useOrders';
-import { OrderHeader } from './OrderHeader';
+import { OrderHeaderOptimized } from './OrderHeaderOptimized';
 import { OrderSectionSkeleton, OrderItemsSkeleton } from './OrderSectionSkeleton';
+import { useOrderDataPreprocessing } from '../../hooks/useOrderDataPreprocessing';
 
-// Lazy load de componentes pesados
-const OrderCustomerInfo = lazy(() =>
-  import('./OrderCustomerInfo').then((module) => ({ default: module.OrderCustomerInfo }))
+// Lazy load de componentes optimizados
+const OrderCustomerInfoOptimized = lazy(() =>
+  import('./OrderCustomerInfoOptimized').then((module) => ({ default: module.OrderCustomerInfoOptimized }))
 );
-const OrderItems = lazy(() => import('./OrderItems').then((module) => ({ default: module.OrderItems })));
-const OrderPricing = lazy(() => import('./OrderPricing').then((module) => ({ default: module.OrderPricing })));
-const OrderTimeline = lazy(() => import('./OrderTimeline').then((module) => ({ default: module.OrderTimeline })));
+const OrderItemsOptimized = lazy(() =>
+  import('./OrderItemsOptimized').then((module) => ({ default: module.OrderItemsOptimized }))
+);
+const OrderPricingOptimized = lazy(() =>
+  import('./OrderPricingOptimized').then((module) => ({ default: module.OrderPricingOptimized }))
+);
+const OrderTimelineOptimized = lazy(() =>
+  import('./OrderTimelineOptimized').then((module) => ({ default: module.OrderTimelineOptimized }))
+);
 const OrderActions = lazy(() => import('./OrderActions').then((module) => ({ default: module.OrderActions })));
 
-interface OrderDetailsModalProps {
+interface OrderDetailsModalOptimizedProps {
   open: boolean;
   onClose: () => void;
   order: IOrder | null;
@@ -22,15 +29,18 @@ interface OrderDetailsModalProps {
   onDelete?: () => Promise<boolean>;
 }
 
-export function OrderDetailsModal({
+export function OrderDetailsModalOptimized({
   open,
   onClose,
   order,
   onUpdateStatus,
   onUpdatePaymentStatus,
   onDelete,
-}: OrderDetailsModalProps) {
+}: OrderDetailsModalOptimizedProps) {
   const [currentOrder, setCurrentOrder] = useState<IOrder | null>(null);
+
+  // Pre-procesar todos los datos de la orden
+  const processedOrderData = useOrderDataPreprocessing(currentOrder);
 
   // Actualizar la orden local cuando cambie el prop o cuando se abra el modal
   useEffect(() => {
@@ -39,13 +49,13 @@ export function OrderDetailsModal({
     }
   }, [order, open]);
 
-  if (!currentOrder) return null;
+  if (!currentOrder || !processedOrderData) return null;
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title={`Detalles de la Orden #${currentOrder.orderNumber}`}
+      title={`Detalles de la Orden #${processedOrderData.orderNumber}`}
       size="large"
       primaryAction={{
         content: 'Cerrar',
@@ -53,35 +63,42 @@ export function OrderDetailsModal({
       }}>
       <Modal.Section>
         <BlockStack gap="400">
-          {/* Header con información principal - Se carga inmediatamente */}
-          <OrderHeader order={currentOrder} />
+          {/* Header con información principal - Se carga inmediatamente con datos pre-procesados */}
+          <OrderHeaderOptimized orderData={processedOrderData} />
 
           <Divider />
 
-          {/* Información del cliente - Lazy loaded */}
+          {/* Información del cliente - Lazy loaded con datos pre-procesados */}
           <Suspense fallback={<OrderSectionSkeleton title="Información del Cliente" lines={4} />}>
-            <OrderCustomerInfo order={currentOrder} />
+            <OrderCustomerInfoOptimized
+              customerData={processedOrderData.customerData}
+              notes={processedOrderData.notes || ''}
+            />
           </Suspense>
 
           <Divider />
 
-          {/* Lista de productos - Lazy loaded */}
+          {/* Lista de productos - Lazy loaded con datos pre-procesados */}
           <Suspense fallback={<OrderItemsSkeleton />}>
-            <OrderItems order={currentOrder} />
+            <OrderItemsOptimized items={processedOrderData.items} />
           </Suspense>
 
           <Divider />
 
-          {/* Información de precios - Lazy loaded */}
+          {/* Información de precios - Lazy loaded con datos pre-procesados */}
           <Suspense fallback={<OrderSectionSkeleton title="Resumen de Precios" lines={6} />}>
-            <OrderPricing order={currentOrder} />
+            <OrderPricingOptimized pricingData={processedOrderData.pricingData} />
           </Suspense>
 
           <Divider />
 
-          {/* Timeline de eventos - Lazy loaded */}
+          {/* Timeline de eventos - Lazy loaded con datos pre-procesados */}
           <Suspense fallback={<OrderSectionSkeleton title="Línea de Tiempo" lines={5} />}>
-            <OrderTimeline order={currentOrder} />
+            <OrderTimelineOptimized
+              timelineEvents={processedOrderData.timelineEvents}
+              status={processedOrderData.status}
+              paymentStatus={processedOrderData.paymentStatus}
+            />
           </Suspense>
 
           {/* Acciones disponibles - Lazy loaded */}

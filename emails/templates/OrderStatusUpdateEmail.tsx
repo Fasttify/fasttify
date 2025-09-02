@@ -15,33 +15,39 @@ import {
   Text,
 } from '@react-email/components';
 
-export interface OrderConfirmationEmailProps {
+export interface OrderStatusUpdateEmailProps {
   customerName: string;
   orderId: string;
   total: string;
   orderDate: string;
   storeName: string;
-  orderStatus: string;
-  paymentStatus: string;
+  previousOrderStatus: string;
+  newOrderStatus: string;
+  previousPaymentStatus: string;
+  newPaymentStatus: string;
   shippingAddress?: string;
   billingAddress?: string;
+  updateNotes?: string;
 }
 
-const OrderConfirmationEmail = ({
+const OrderStatusUpdateEmail = ({
   customerName = '{{customerName}}',
   orderId = '{{orderId}}',
   total = '{{total}}',
   orderDate = '{{orderDate}}',
   storeName = '{{storeName}}',
-  orderStatus = '{{orderStatus}}',
-  paymentStatus = '{{paymentStatus}}',
+  previousOrderStatus = '{{previousOrderStatus}}',
+  newOrderStatus = '{{newOrderStatus}}',
+  previousPaymentStatus = '{{previousPaymentStatus}}',
+  newPaymentStatus = '{{newPaymentStatus}}',
   shippingAddress = '{{shippingAddress}}',
   billingAddress = '{{billingAddress}}',
-}: OrderConfirmationEmailProps) => (
+  updateNotes = '{{updateNotes}}',
+}: OrderStatusUpdateEmailProps) => (
   <Html>
     <Head />
     <Body style={main}>
-      <Preview>¡Gracias por tu pedido! Tu confirmación y detalles dentro.</Preview>
+      <Preview>Actualización del estado de tu pedido - {storeName}</Preview>
       <Container style={container}>
         <Section style={track.container}>
           <Row>
@@ -58,13 +64,61 @@ const OrderConfirmationEmail = ({
         </Section>
         <Hr style={global.hr} />
         <Section style={message}>
-          <Heading style={global.heading}>¡Pedido Confirmado!</Heading>
-          <Text style={global.text}>Hola {customerName}, hemos recibido tu pedido correctamente.</Text>
+          <Heading style={global.heading}>¡Estado del Pedido Actualizado!</Heading>
+          <Text style={global.text}>Hola {customerName}, tu pedido ha sido actualizado.</Text>
           <Text style={{ ...global.text, marginTop: 24 }}>
-            Tu pedido está siendo procesado por {storeName}. Recibirás una notificación cuando sea enviado con la
-            información de seguimiento.
+            {storeName} ha actualizado el estado de tu pedido. Aquí tienes los detalles de la actualización.
           </Text>
         </Section>
+        <Hr style={global.hr} />
+
+        {/* Cambios en el estado del pedido */}
+        <Section style={global.defaultPadding}>
+          <Text style={updateTitle}>Cambios en el Estado del Pedido</Text>
+          <Row style={{ display: 'inline-flex', marginBottom: 20 }}>
+            <Column style={{ width: '200px' }}>
+              <Text style={global.paragraphWithBold}>Estado Anterior</Text>
+              <Text style={statusText.previous}>{previousOrderStatus}</Text>
+            </Column>
+            <Column style={{ width: '50px', textAlign: 'center' }}>
+              <Text style={statusText.arrow}>→</Text>
+            </Column>
+            <Column style={{ width: '200px' }}>
+              <Text style={global.paragraphWithBold}>Nuevo Estado</Text>
+              <Text style={statusText.new}>{newOrderStatus}</Text>
+            </Column>
+          </Row>
+        </Section>
+
+        {/* Cambios en el estado de pago */}
+        <Section style={global.defaultPadding}>
+          <Text style={updateTitle}>Cambios en el Estado de Pago</Text>
+          <Row style={{ display: 'inline-flex', marginBottom: 20 }}>
+            <Column style={{ width: '200px' }}>
+              <Text style={global.paragraphWithBold}>Estado Anterior</Text>
+              <Text style={statusText.previous}>{previousPaymentStatus}</Text>
+            </Column>
+            <Column style={{ width: '50px', textAlign: 'center' }}>
+              <Text style={statusText.arrow}>→</Text>
+            </Column>
+            <Column style={{ width: '200px' }}>
+              <Text style={global.paragraphWithBold}>Nuevo Estado</Text>
+              <Text style={statusText.new}>{newPaymentStatus}</Text>
+            </Column>
+          </Row>
+        </Section>
+
+        {/* Notas de actualización */}
+        {updateNotes && (
+          <>
+            <Hr style={global.hr} />
+            <Section style={global.defaultPadding}>
+              <Text style={updateTitle}>Notas de la Actualización</Text>
+              <Text style={{ ...global.text, fontSize: 14, fontStyle: 'italic' }}>{updateNotes}</Text>
+            </Section>
+          </>
+        )}
+
         <Hr style={global.hr} />
         <Section style={global.defaultPadding}>
           <Text style={adressTitle}>Envío a: {customerName}</Text>
@@ -82,11 +136,13 @@ const OrderConfirmationEmail = ({
             <Hr style={global.hr} />
           </>
         )}
+
         <Section style={global.defaultPadding}>
           <Text style={adressTitle}>Cliente: {customerName}</Text>
           <Text style={{ ...global.text, fontSize: 14 }}>Tienda: {storeName}</Text>
         </Section>
         <Hr style={global.hr} />
+
         <Section style={global.defaultPadding}>
           <Row style={{ display: 'inline-flex', marginBottom: 40 }}>
             <Column style={{ width: '170px' }}>
@@ -99,13 +155,9 @@ const OrderConfirmationEmail = ({
               <Text style={global.paragraphWithBold}>Total</Text>
               <Text style={track.number}>{total}</Text>
             </Column>
-            <Column style={{ width: '170px', marginLeft: '20px' }}>
-              <Text style={global.paragraphWithBold}>Estado de Envío</Text>
-              <Text style={track.number}>{orderStatus}</Text>
-            </Column>
-            <Column style={{ width: '170px', marginLeft: '20px' }}>
-              <Text style={global.paragraphWithBold}>Estado de Pago</Text>
-              <Text style={track.number}>{paymentStatus}</Text>
+            <Column>
+              <Text style={global.paragraphWithBold}>Estado Actual</Text>
+              <Text style={track.number}>{newOrderStatus}</Text>
             </Column>
           </Row>
           <Row style={{ display: 'inline-flex', marginBottom: 40 }}>
@@ -114,8 +166,8 @@ const OrderConfirmationEmail = ({
               <Text style={track.number}>{storeName}</Text>
             </Column>
             <Column>
-              <Text style={global.paragraphWithBold}>Fecha del Pedido</Text>
-              <Text style={track.number}>{orderDate}</Text>
+              <Text style={global.paragraphWithBold}>Estado de Pago</Text>
+              <Text style={track.number}>{newPaymentStatus}</Text>
             </Column>
           </Row>
           <Row>
@@ -127,30 +179,32 @@ const OrderConfirmationEmail = ({
           </Row>
         </Section>
         <Hr style={global.hr} />
+
         <Section style={paddingY}>
           <Row>
-            <Text style={global.heading}>Próximos Pasos</Text>
+            <Text style={global.heading}>¿Qué significa este cambio?</Text>
           </Row>
           <Row style={recomendations.container}>
             <Column style={{ ...recomendations.product, paddingLeft: '4px' }} align="center">
               <Text style={recomendations.title}>📦 Procesamiento</Text>
-              <Text style={recomendations.text}>Tu pedido está siendo preparado por {storeName}</Text>
+              <Text style={recomendations.text}>Tu pedido está siendo preparado</Text>
             </Column>
             <Column style={recomendations.product} align="center">
               <Text style={recomendations.title}>🚚 Envío</Text>
-              <Text style={recomendations.text}>Recibirás el número de seguimiento cuando sea enviado</Text>
+              <Text style={recomendations.text}>Tu pedido está en camino</Text>
             </Column>
             <Column style={recomendations.product} align="center">
-              <Text style={recomendations.title}>📱 Notificaciones</Text>
-              <Text style={recomendations.text}>Te mantendremos informado del estado</Text>
+              <Text style={recomendations.title}>💳 Pago</Text>
+              <Text style={recomendations.text}>Estado de tu transacción</Text>
             </Column>
             <Column style={{ ...recomendations.product, paddingRight: '4px' }} align="center">
               <Text style={recomendations.title}>✅ Entrega</Text>
-              <Text style={recomendations.text}>Recibirás tu pedido en la dirección indicada</Text>
+              <Text style={recomendations.text}>Tu pedido ha llegado</Text>
             </Column>
           </Row>
         </Section>
         <Hr style={global.hr} />
+
         <Section style={menu.container}>
           <Row>
             <Text style={menu.title}>¿Necesitas Ayuda?</Text>
@@ -255,7 +309,7 @@ const OrderConfirmationEmail = ({
   </Html>
 );
 
-export default OrderConfirmationEmail;
+export default OrderStatusUpdateEmail;
 
 const paddingX = {
   paddingLeft: '40px',
@@ -344,6 +398,35 @@ const adressTitle = {
   ...paragraph,
   fontSize: '15px',
   fontWeight: 'bold',
+};
+
+const updateTitle = {
+  ...paragraph,
+  fontSize: '18px',
+  fontWeight: 'bold',
+  marginBottom: '16px',
+  color: '#333',
+};
+
+const statusText = {
+  previous: {
+    ...paragraph,
+    fontSize: '14px',
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  new: {
+    ...paragraph,
+    fontSize: '14px',
+    color: '#28a745',
+    fontWeight: '600',
+  },
+  arrow: {
+    ...paragraph,
+    fontSize: '20px',
+    color: '#666',
+    fontWeight: 'bold',
+  },
 };
 
 const recomendationsText = {

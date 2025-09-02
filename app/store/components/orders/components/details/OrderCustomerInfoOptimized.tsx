@@ -1,96 +1,17 @@
 import { BlockStack, InlineStack, Text, Card, Icon } from '@shopify/polaris';
 import { PersonIcon, LocationIcon, EmailIcon, PhoneIcon, GlobeIcon } from '@shopify/polaris-icons';
-import { memo, useMemo } from 'react';
-import type { IOrder } from '@/app/store/hooks/data/useOrders';
-import { getCustomerName, getCustomerEmail, getCustomerPhone } from '../../utils/order-utils';
+import { memo } from 'react';
+import type { ProcessedCustomerData } from '../../hooks/useOrderDataPreprocessing';
 
-interface OrderCustomerInfoProps {
-  order: IOrder;
+interface OrderCustomerInfoOptimizedProps {
+  customerData: ProcessedCustomerData;
+  notes?: string;
 }
 
-export const OrderCustomerInfo = memo(function OrderCustomerInfo({ order }: OrderCustomerInfoProps) {
-  // Memoizar el procesamiento de datos del cliente
-  const customerData = useMemo(
-    () => ({
-      customerName: getCustomerName(order.customerInfo),
-      customerEmail: getCustomerEmail(order.customerInfo),
-      customerPhone: getCustomerPhone(order.customerInfo),
-    }),
-    [order.customerInfo]
-  );
-
-  const { customerName, customerEmail, customerPhone } = customerData;
-
-  // Memoizar las funciones de parsing para evitar recrearlas
-  const parseAddress = useMemo(
-    () => (addressData: any) => {
-      if (!addressData) return null;
-
-      try {
-        if (typeof addressData === 'string') {
-          return JSON.parse(addressData);
-        }
-        return addressData;
-      } catch {
-        return null;
-      }
-    },
-    []
-  );
-
-  const parseCustomerInfo = useMemo(
-    () => (customerData: any) => {
-      if (!customerData) return null;
-
-      try {
-        if (typeof customerData === 'string') {
-          return JSON.parse(customerData);
-        }
-        return customerData;
-      } catch {
-        return null;
-      }
-    },
-    []
-  );
-
-  const getCountryName = useMemo(
-    () => (countryCode: string) => {
-      const countries: Record<string, string> = {
-        CO: 'Colombia',
-        US: 'Estados Unidos',
-        MX: 'México',
-        ES: 'España',
-        AR: 'Argentina',
-        BR: 'Brasil',
-        CL: 'Chile',
-        PE: 'Perú',
-        VE: 'Venezuela',
-        EC: 'Ecuador',
-        BO: 'Bolivia',
-        PY: 'Paraguay',
-        UY: 'Uruguay',
-        GY: 'Guyana',
-        SR: 'Surinam',
-        GF: 'Guayana Francesa',
-      };
-      return countries[countryCode] || countryCode;
-    },
-    []
-  );
-
-  // Memoizar el parsing de direcciones
-  const addresses = useMemo(
-    () => ({
-      shipping: parseAddress(order.shippingAddress),
-      billing: parseAddress(order.billingAddress),
-      customer: parseCustomerInfo(order.customerInfo),
-    }),
-    [order.shippingAddress, order.billingAddress, order.customerInfo, parseAddress, parseCustomerInfo]
-  );
-
-  const { shipping, billing, customer } = addresses;
-
+export const OrderCustomerInfoOptimized = memo(function OrderCustomerInfoOptimized({
+  customerData,
+  notes,
+}: OrderCustomerInfoOptimizedProps) {
   return (
     <Card>
       <BlockStack gap="400">
@@ -106,16 +27,16 @@ export const OrderCustomerInfo = memo(function OrderCustomerInfo({ order }: Orde
             </div>
             <BlockStack gap="100">
               <Text variant="bodyMd" fontWeight="medium" as="span">
-                {customerName}
+                {customerData.customerName}
               </Text>
               <Text variant="bodySm" tone="subdued" as="span">
-                {customerEmail}
+                {customerData.customerEmail}
               </Text>
             </BlockStack>
           </InlineStack>
 
           {/* Teléfono del cliente */}
-          {customerPhone && (
+          {customerData.customerPhone && (
             <InlineStack gap="300" blockAlign="start">
               <div style={{ marginTop: '2px' }}>
                 <Icon source={PhoneIcon} />
@@ -125,7 +46,7 @@ export const OrderCustomerInfo = memo(function OrderCustomerInfo({ order }: Orde
                   Teléfono
                 </Text>
                 <Text variant="bodySm" tone="subdued" as="span">
-                  {customerPhone}
+                  {customerData.customerPhone}
                 </Text>
               </BlockStack>
             </InlineStack>
@@ -141,14 +62,14 @@ export const OrderCustomerInfo = memo(function OrderCustomerInfo({ order }: Orde
                 Tipo de Cliente
               </Text>
               <Text variant="bodySm" tone="subdued" as="span">
-                {order.customerType === 'guest' ? 'Cliente Invitado' : 'Cliente Registrado'}
+                {customerData.customerType}
               </Text>
             </BlockStack>
           </InlineStack>
         </BlockStack>
 
         {/* Dirección de envío */}
-        {shipping && (
+        {customerData.shipping && (
           <BlockStack gap="200">
             <InlineStack gap="200" blockAlign="start">
               <div style={{ marginTop: '2px' }}>
@@ -161,19 +82,13 @@ export const OrderCustomerInfo = memo(function OrderCustomerInfo({ order }: Orde
             <Card background="bg-surface-secondary">
               <BlockStack gap="200">
                 <Text variant="bodySm" as="span">
-                  {shipping.address1}
-                  {shipping.address2 && `, ${shipping.address2}`}
+                  {customerData.shipping.formattedAddress}
                 </Text>
                 <InlineStack gap="200" blockAlign="center">
-                  <Text variant="bodySm" as="span">
-                    {shipping.city}, {shipping.province} {shipping.zip}
+                  <Icon source={GlobeIcon} />
+                  <Text variant="bodySm" fontWeight="medium" as="span">
+                    {customerData.shipping.countryName}
                   </Text>
-                  <InlineStack gap="200" blockAlign="center">
-                    <Icon source={GlobeIcon} />
-                    <Text variant="bodySm" fontWeight="medium" as="span">
-                      {getCountryName(shipping.country)}
-                    </Text>
-                  </InlineStack>
                 </InlineStack>
               </BlockStack>
             </Card>
@@ -181,7 +96,7 @@ export const OrderCustomerInfo = memo(function OrderCustomerInfo({ order }: Orde
         )}
 
         {/* Dirección de facturación */}
-        {billing && (
+        {customerData.billing && (
           <BlockStack gap="200">
             <InlineStack gap="200" blockAlign="start">
               <div style={{ marginTop: '2px' }}>
@@ -194,19 +109,13 @@ export const OrderCustomerInfo = memo(function OrderCustomerInfo({ order }: Orde
             <Card background="bg-surface-secondary">
               <BlockStack gap="200">
                 <Text variant="bodySm" as="span">
-                  {billing.address1}
-                  {billing.address2 && `, ${billing.address2}`}
+                  {customerData.billing.formattedAddress}
                 </Text>
                 <InlineStack gap="200" blockAlign="center">
-                  <Text variant="bodySm" as="span">
-                    {billing.city}, {billing.province} {billing.zip}
+                  <Icon source={GlobeIcon} />
+                  <Text variant="bodySm" fontWeight="medium" as="span">
+                    {customerData.billing.countryName}
                   </Text>
-                  <InlineStack gap="200" blockAlign="center">
-                    <Icon source={GlobeIcon} />
-                    <Text variant="bodySm" fontWeight="medium" as="span">
-                      {getCountryName(billing.country)}
-                    </Text>
-                  </InlineStack>
                 </InlineStack>
               </BlockStack>
             </Card>
@@ -214,14 +123,14 @@ export const OrderCustomerInfo = memo(function OrderCustomerInfo({ order }: Orde
         )}
 
         {/* Notas del cliente */}
-        {order.notes && (
+        {notes && (
           <BlockStack gap="200">
             <Text variant="bodyMd" fontWeight="medium" as="span">
               Notas del Cliente
             </Text>
             <Card background="bg-surface-secondary">
               <Text variant="bodySm" as="span">
-                {order.notes}
+                {notes}
               </Text>
             </Card>
           </BlockStack>

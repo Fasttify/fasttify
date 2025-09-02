@@ -11,28 +11,12 @@
  */
 
 import type { Order } from '@/renderer-engine/types';
-import { getCurrencyConfig } from './currency-config';
+import { getOrderStatus, getPaymentStatus } from './status-translations';
+import { EmailFormattingUtils, type Address, type AddressInfo } from './email-formatting-utils';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 
-// Interfaces para direcciones
-export interface Address {
-  address1?: string;
-  address2?: string;
-  city?: string;
-  province?: string;
-  zip?: string;
-  country?: string;
-}
-
-export interface AddressInfo {
-  fullAddress: string;
-  address1?: string;
-  address2?: string;
-  city?: string;
-  province?: string;
-  zip?: string;
-  country?: string;
-}
+// Re-exportar interfaces desde email-formatting-utils
+export type { Address, AddressInfo } from './email-formatting-utils';
 
 export interface EmailRecipient {
   email: string;
@@ -48,6 +32,8 @@ export interface EmailTemplateVariables {
   total: string;
   orderDate: string;
   storeName: string;
+  orderStatus: string;
+  paymentStatus: string;
   shippingAddress?: string;
   billingAddress?: string;
 }
@@ -112,11 +98,15 @@ export class EmailNotificationService {
     return {
       customerName: request.customerName || 'Customer',
       orderId: request.order.orderNumber || request.order.id,
-      total: this.formatCurrency(request.order.totalAmount, request.order.currency),
-      orderDate: this.formatDate(request.order.createdAt),
+      total: EmailFormattingUtils.formatCurrency(request.order.totalAmount, request.order.currency),
+      orderDate: EmailFormattingUtils.formatDate(request.order.createdAt),
       storeName: request.storeName,
-      shippingAddress: request.shippingAddress ? this.formatAddress(request.shippingAddress) : undefined,
-      billingAddress: request.billingAddress ? this.formatAddress(request.billingAddress) : undefined,
+      orderStatus: getOrderStatus(request.order.status),
+      paymentStatus: getPaymentStatus(request.order.paymentStatus),
+      shippingAddress: request.shippingAddress
+        ? EmailFormattingUtils.formatAddress(request.shippingAddress)
+        : undefined,
+      billingAddress: request.billingAddress ? EmailFormattingUtils.formatAddress(request.billingAddress) : undefined,
     };
   }
 
@@ -124,39 +114,7 @@ export class EmailNotificationService {
    * Formatea una dirección para usar en el template del email
    */
   private static formatAddressForTemplate(address: Address): AddressInfo {
-    return {
-      fullAddress: this.formatAddress(address),
-      address1: address.address1,
-      address2: address.address2,
-      city: address.city,
-      province: address.province,
-      zip: address.zip,
-      country: address.country,
-    };
-  }
-
-  /**
-   * Formatea una dirección completa como string legible
-   */
-  private static formatAddress(address: Address | string): string {
-    if (typeof address === 'string') {
-      return address;
-    }
-
-    if (!address.address1) return 'Address not specified';
-
-    const addressParts = [
-      address.address1,
-      address.address2,
-      address.city,
-      address.province,
-      address.zip,
-      address.country,
-    ].filter(Boolean);
-
-    const result = addressParts.join(', ');
-
-    return result;
+    return EmailFormattingUtils.formatAddressForTemplate(address);
   }
 
   /**
@@ -166,7 +124,7 @@ export class EmailNotificationService {
     try {
       const requestData = {
         ...emailData,
-        priority: 'high' as const,
+        priority: 'high',
       };
 
       const lambdaClient = new LambdaClient({ region: 'us-east-2' });
@@ -194,47 +152,6 @@ export class EmailNotificationService {
     } catch (error) {
       console.error('Error request to lambda bulk-email:', error);
       return false;
-    }
-  }
-
-  /**
-   * Formatea moneda usando la configuración existente (basada en useCurrencyConfig)
-   */
-  private static formatCurrency(amount: number, currency: string): string {
-    try {
-      if (typeof amount !== 'number') return 'N/A';
-
-      const config = getCurrencyConfig(currency);
-
-      const formattedAmount = new Intl.NumberFormat(config.locale, {
-        minimumFractionDigits: config.decimalPlaces,
-        maximumFractionDigits: config.decimalPlaces,
-      }).format(amount);
-
-      return config.format.replace('{{amount}}', formattedAmount);
-    } catch (error) {
-      console.warn('Error formatting currency:', error);
-      return `${amount} ${currency}`;
-    }
-  }
-
-  /**
-   * Formatea fecha para mostrar en el email
-   */
-  private static formatDate(dateString?: string): string {
-    try {
-      if (!dateString) {
-        return new Date().toLocaleDateString('es-ES');
-      }
-      const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    } catch (error) {
-      console.warn('Error formatting date:', error);
-      return new Date().toLocaleDateString('es-ES');
     }
   }
 }

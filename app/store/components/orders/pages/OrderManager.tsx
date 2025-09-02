@@ -1,10 +1,11 @@
 import { OrderList } from '../components/listing/OrderList';
 import { OrderPage } from './OrderPage';
 import { useOrders } from '@/app/store/hooks/data/useOrders';
+import useStoreDataStore from '@/context/core/storeDataStore';
 import { Loading } from '@shopify/polaris';
 import { useState } from 'react';
 import { useOrderDetailsModal } from '../hooks/useOrderDetailsModal';
-import { OrderDetailsModal } from '../components/details/OrderDetailsModal';
+import { OrderDetailsModalOptimized } from '../components/details/OrderDetailsModalOptimized';
 
 interface OrderManagerProps {
   storeId: string;
@@ -12,6 +13,8 @@ interface OrderManagerProps {
 
 export function OrderManager({ storeId }: OrderManagerProps) {
   const [itemsPerPage, setItemsPerPage] = useState(50);
+  const { currentStore } = useStoreDataStore();
+  const storeName = currentStore?.storeName || 'Mi Tienda';
 
   const {
     orders,
@@ -27,7 +30,7 @@ export function OrderManager({ storeId }: OrderManagerProps) {
     deleteOrder,
     updateOrderStatus,
     updatePaymentStatus,
-  } = useOrders(storeId, { limit: itemsPerPage });
+  } = useOrders(storeId, { limit: itemsPerPage }, storeName);
 
   const { isModalOpen, selectedOrder, openModal, closeModal } = useOrderDetailsModal();
 
@@ -59,11 +62,19 @@ export function OrderManager({ storeId }: OrderManagerProps) {
           return !!result;
         }}
         updateOrderStatus={async (id: string, status: string) => {
-          const result = await updateOrderStatus(id, status as any);
+          // Encontrar la orden actual para obtener el estado anterior
+          const currentOrder = orders.find((order) => order.id === id);
+          const previousStatus = currentOrder?.status;
+
+          const result = await updateOrderStatus(id, status as any, previousStatus as any);
           return !!result;
         }}
         updatePaymentStatus={async (id: string, paymentStatus: string) => {
-          const result = await updatePaymentStatus(id, paymentStatus as any);
+          // Encontrar la orden actual para obtener el estado anterior
+          const currentOrder = orders.find((order) => order.id === id);
+          const previousPaymentStatus = currentOrder?.paymentStatus;
+
+          const result = await updatePaymentStatus(id, paymentStatus as any, previousPaymentStatus as any);
           return !!result;
         }}
         itemsPerPage={itemsPerPage}
@@ -71,15 +82,15 @@ export function OrderManager({ storeId }: OrderManagerProps) {
         onViewDetails={openModal}
       />
 
-      {/* Modal de detalles */}
-      <OrderDetailsModal
+      {/* Modal de detalles optimizado */}
+      <OrderDetailsModalOptimized
         open={isModalOpen}
         onClose={closeModal}
         order={selectedOrder}
         onUpdateStatus={
           selectedOrder
             ? async (status) => {
-                const result = await updateOrderStatus(selectedOrder.id, status as any);
+                const result = await updateOrderStatus(selectedOrder.id, status as any, selectedOrder.status as any);
                 return !!result;
               }
             : undefined
@@ -87,7 +98,11 @@ export function OrderManager({ storeId }: OrderManagerProps) {
         onUpdatePaymentStatus={
           selectedOrder
             ? async (paymentStatus) => {
-                const result = await updatePaymentStatus(selectedOrder.id, paymentStatus as any);
+                const result = await updatePaymentStatus(
+                  selectedOrder.id,
+                  paymentStatus as any,
+                  selectedOrder.paymentStatus as any
+                );
                 return !!result;
               }
             : undefined

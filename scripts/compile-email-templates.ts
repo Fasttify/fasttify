@@ -5,12 +5,14 @@ import { join } from 'path';
 
 // Importar templates
 import OrderConfirmationEmail, { type OrderConfirmationEmailProps } from '../emails/templates/OrderConfirmationEmail';
+import OrderStatusUpdateEmail, { type OrderStatusUpdateEmailProps } from '../emails/templates/OrderStatusUpdateEmail';
 import ShippingUpdateEmail, { type ShippingUpdateEmailProps } from '../emails/templates/ShippingUpdateEmail';
 import PromotionEmail, { type PromotionEmailProps } from '../emails/templates/PromotionEmail';
 
 // Tipos de templates
 export type TemplateVariables = {
   'order-confirmation': OrderConfirmationEmailProps;
+  'order-status-update': OrderStatusUpdateEmailProps;
   'shipping-update': ShippingUpdateEmailProps;
   promotion: PromotionEmailProps;
 };
@@ -18,6 +20,7 @@ export type TemplateVariables = {
 // Components map
 const TEMPLATES = {
   'order-confirmation': OrderConfirmationEmail,
+  'order-status-update': OrderStatusUpdateEmail,
   'shipping-update': ShippingUpdateEmail,
   promotion: PromotionEmail,
 } as const;
@@ -25,6 +28,7 @@ const TEMPLATES = {
 // Subjects templates
 const SUBJECTS = {
   'order-confirmation': 'Pedido confirmado #{{orderId}} - {{storeName}}',
+  'order-status-update': 'Estado del pedido actualizado #{{orderId}} - {{storeName}}',
   'shipping-update': 'Tu pedido #{{orderId}} está en camino - {{storeName}}',
   promotion: '{{title}} - {{storeName}}',
 } as const;
@@ -53,8 +57,24 @@ function getRequiredVariables(templateId: keyof TemplateVariables): string[] {
       'total',
       'orderDate',
       'storeName',
+      'orderStatus',
+      'paymentStatus',
       'shippingAddress',
       'billingAddress',
+    ],
+    'order-status-update': [
+      'customerName',
+      'orderId',
+      'total',
+      'orderDate',
+      'storeName',
+      'previousOrderStatus',
+      'newOrderStatus',
+      'previousPaymentStatus',
+      'newPaymentStatus',
+      'shippingAddress',
+      'billingAddress',
+      'updateNotes',
     ],
     'shipping-update': ['customerName', 'orderId', 'trackingNumber', 'carrier', 'storeName'],
     promotion: ['customerName', 'title', 'content', 'storeName'],

@@ -17,6 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CertificateManager } from '@/tenant-domains/services/ssl/certificate-manager';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 
 const certificateManager = new CertificateManager();
 
@@ -28,8 +29,20 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(req);
   try {
-    const { certificateArn } = await req.json();
-
+    const { certificateArn, storeId } = await req.json();
+    const session = await AuthGetCurrentUserServer();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+    }
+    const { data: userStore } = await cookiesClient.models.UserStore.get({
+      storeId: storeId,
+    });
+    if (!userStore) {
+      return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
+    }
+    if (userStore.userId !== session.username) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
+    }
     if (!certificateArn) {
       return NextResponse.json({ error: 'Certificate ARN is required' }, { status: 400, headers: corsHeaders });
     }
