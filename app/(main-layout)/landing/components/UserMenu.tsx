@@ -10,6 +10,7 @@ import {
 import { BadgeCheckIcon, HelpCircle, Store, LogOut, Settings, User2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { useSecureUrl } from '@/hooks/auth/useSecureUrl';
 
 interface User {
   picture?: string;
@@ -24,6 +25,36 @@ interface UserMenuProps {
   loading: boolean;
   className?: string;
   onSignOut: () => Promise<void>;
+}
+
+// Componente para Avatar con URL segura
+function SecureAvatar({
+  pictureUrl,
+  alt,
+  className,
+  fallback,
+}: {
+  pictureUrl?: string;
+  alt: string;
+  className?: string;
+  fallback: string;
+}) {
+  const { url, isLoading } = useSecureUrl({
+    baseUrl: pictureUrl || '',
+    type: 'profile-image',
+    enabled: !!pictureUrl,
+  });
+
+  if (isLoading && pictureUrl) {
+    return <Skeleton className={`w-9 h-9 rounded-full ${className}`} />;
+  }
+
+  return (
+    <Avatar className={className}>
+      {pictureUrl && <AvatarImage src={url} alt={alt} referrerPolicy="no-referrer" className="object-cover" />}
+      <AvatarFallback className="bg-pink-100 text-pink-700">{fallback}</AvatarFallback>
+    </Avatar>
+  );
 }
 
 export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuProps) {
@@ -52,27 +83,23 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
   }
 
   const displayName = user.preferredUsername || user.nickName || user.email?.split('@')[0] || 'Usuario';
+  const userInitials = getUserInitials();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className={`h-9 w-9 ${className}`}>
-            {user.picture && (
-              <AvatarImage src={user.picture} alt={displayName} referrerPolicy="no-referrer" className="object-cover" />
-            )}
-            <AvatarFallback className="bg-pink-100 text-pink-700">{getUserInitials()}</AvatarFallback>
-          </Avatar>
+          <SecureAvatar
+            pictureUrl={user.picture}
+            alt={displayName}
+            className={`h-9 w-9 ${className}`}
+            fallback={userInitials}
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80" align="end">
         <div className="flex items-center gap-3 p-4">
-          <Avatar className="h-10 w-10">
-            {user.picture && (
-              <AvatarImage src={user.picture} alt={displayName} referrerPolicy="no-referrer" className="object-cover" />
-            )}
-            <AvatarFallback className="bg-pink-100 text-pink-700">{getUserInitials()}</AvatarFallback>
-          </Avatar>
+          <SecureAvatar pictureUrl={user.picture} alt={displayName} className="h-10 w-10" fallback={userInitials} />
           <div className="flex flex-col space-y-0.5">
             <div className="flex items-center gap-1">
               <span className="text-sm font-medium">{displayName}</span>

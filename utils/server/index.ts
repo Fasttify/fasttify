@@ -15,3 +15,9 @@
  */
 
 export { getCdnBaseUrl, getCdnUrlForKey } from './cdn-url';
+export {
+  generateSignedTemplateUrl,
+  generateSignedThemeZipUrl,
+  generateSignedMetadataUrl,
+  generateSignedAssetUrl,
+} from './cloudfront-signed-urls';
