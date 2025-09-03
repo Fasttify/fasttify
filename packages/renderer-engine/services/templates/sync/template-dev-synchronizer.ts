@@ -23,6 +23,11 @@ import * as chokidar from 'chokidar';
 import fs from 'fs';
 import path from 'path';
 
+// Define the root directory for allowed local template development folders.
+// You may change this to a different directory as appropriate for your setup.
+// E.g., use process.env.TEMPLATES_DEV_ROOT or a predetermined safe location.
+const TEMPLATES_DEV_ROOT = path.resolve(process.env.TEMPLATES_DEV_ROOT || '/srv/app/templates-dev-root');
+
 interface SyncOptions {
   localDir: string;
   storeId: string;
@@ -75,7 +80,15 @@ export class TemplateDevSynchronizer {
       await this.stop();
     }
 
-    this.localDir = path.resolve(options.localDir);
+    // Always resolve relative to our safe root
+    const requestedDir = path.resolve(options.localDir);
+    // Strict containment check: normalized requestedDir must start with the normalized root
+    if (!requestedDir.startsWith(TEMPLATES_DEV_ROOT + path.sep)) {
+      throw new Error(
+        `Directorio local ilegal: ${options.localDir}. Solo se permiten carpetas dentro de ${TEMPLATES_DEV_ROOT}.`
+      );
+    }
+    this.localDir = requestedDir;
     this.storeId = options.storeId;
 
     if (options.bucketName) {
