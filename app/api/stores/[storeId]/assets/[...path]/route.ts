@@ -75,12 +75,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Determinar content type
     const contentType = getContentTypeFromFilename(assetPath);
 
-    logger.debug(
-      `[AssetsAPI] Serving asset: ${assetPath} (${contentType}) - ${buffer.length} bytes`,
-      undefined,
-      'AssetsAPI'
-    );
-
     // 4. Retornar el archivo con headers apropiados y buffer directo
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
@@ -118,7 +112,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 async function loadAssetFromCloudFront(storeId: string, assetPath: string): Promise<{ buffer: Buffer; etag?: string }> {
   const assetUrl = `https://${cloudFrontDomain}/templates/${storeId}/assets/${assetPath}`;
 
-  const response = await fetch(assetUrl);
+  const response = await fetch(assetUrl, {
+    headers: {
+      'User-Agent': 'Fasttify-API/1.0',
+      'X-API-Source': 'fasttify-server',
+    },
+  });
 
   if (!response.ok) {
     throw new Error(`Asset not found: ${assetPath} (CloudFront returned ${response.status})`);
