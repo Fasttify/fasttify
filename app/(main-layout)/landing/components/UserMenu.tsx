@@ -27,37 +27,42 @@ interface UserMenuProps {
   onSignOut: () => Promise<void>;
 }
 
-// Componente para Avatar con URL segura
+// Componente para Avatar (sin hook interno)
 function SecureAvatar({
   pictureUrl,
+  secureUrl,
   alt,
   className,
   fallback,
+  isLoading,
 }: {
   pictureUrl?: string;
+  secureUrl: string;
   alt: string;
   className?: string;
   fallback: string;
+  isLoading: boolean;
 }) {
-  const { url, isLoading } = useSecureUrl({
-    baseUrl: pictureUrl || '',
-    type: 'profile-image',
-    enabled: !!pictureUrl,
-  });
-
   if (isLoading && pictureUrl) {
     return <Skeleton className={`w-9 h-9 rounded-full ${className}`} />;
   }
 
   return (
     <Avatar className={className}>
-      {pictureUrl && <AvatarImage src={url} alt={alt} referrerPolicy="no-referrer" className="object-cover" />}
+      {pictureUrl && <AvatarImage src={secureUrl} alt={alt} referrerPolicy="no-referrer" className="object-cover" />}
       <AvatarFallback className="bg-pink-100 text-pink-700">{fallback}</AvatarFallback>
     </Avatar>
   );
 }
 
 export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuProps) {
+  // Hook para obtener URL segura (solo se ejecuta una vez)
+  const { url: secureUserPicture, isLoading: isPictureLoading } = useSecureUrl({
+    baseUrl: user?.picture || '',
+    type: 'profile-image',
+    enabled: !!user?.picture,
+  });
+
   const getUserInitials = () => {
     if (!user) return '';
 
@@ -74,7 +79,7 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
     return (firstInitial + secondInitial).toUpperCase() || 'U';
   };
 
-  if (loading) {
+  if (loading || isPictureLoading) {
     return <Skeleton className={`w-11 h-11 rounded-full ${className}`} />;
   }
 
@@ -91,15 +96,24 @@ export function UserMenu({ user, loading, className = '', onSignOut }: UserMenuP
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <SecureAvatar
             pictureUrl={user.picture}
+            secureUrl={secureUserPicture || user.picture || ''}
             alt={displayName}
             className={`h-9 w-9 ${className}`}
             fallback={userInitials}
+            isLoading={isPictureLoading}
           />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80" align="end">
         <div className="flex items-center gap-3 p-4">
-          <SecureAvatar pictureUrl={user.picture} alt={displayName} className="h-10 w-10" fallback={userInitials} />
+          <SecureAvatar
+            pictureUrl={user.picture}
+            secureUrl={secureUserPicture || user.picture || ''}
+            alt={displayName}
+            className="h-10 w-10"
+            fallback={userInitials}
+            isLoading={isPictureLoading}
+          />
           <div className="flex flex-col space-y-0.5">
             <div className="flex items-center gap-1">
               <span className="text-sm font-medium">{displayName}</span>

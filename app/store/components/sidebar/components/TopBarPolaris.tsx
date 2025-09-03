@@ -10,6 +10,7 @@ import useStoreDataStore from '@/context/core/storeDataStore';
 import useUserStore from '@/context/core/userStore';
 import { ChatTrigger } from '@/app/store/components/ai-chat/components/ChatTrigger';
 import { NotificationPopover } from '@/app/store/components/notifications/components/NotificationPopover';
+import { useSecureUrl } from '@/hooks/auth/useSecureUrl';
 
 interface TopBarPolarisProps {
   storeId: string;
@@ -26,6 +27,13 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
   const { clearStore, currentStore } = useStoreDataStore();
   const storeName = currentStore?.storeName;
   const userPicture = user?.picture;
+
+  // Usar hook para obtener URL segura de la foto de perfil
+  const { url: secureUserPicture, isLoading: isPictureLoading } = useSecureUrl({
+    baseUrl: userPicture || '',
+    type: 'profile-image',
+    enabled: !!userPicture,
+  });
 
   useAuth();
 
@@ -86,7 +94,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
 
   // User Menu - Con estado de carga e hidratación
   const userMenuMarkup =
-    !isClient || loading ? (
+    !isClient || loading || isPictureLoading ? (
       <div
         style={{
           display: 'flex',
@@ -125,7 +133,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
         initials={storeId?.charAt(0) || 'T'}
         open={isUserMenuOpen}
         onToggle={toggleIsUserMenuOpen}
-        avatar={userPicture || ''}
+        avatar={secureUserPicture || ''}
       />
     );
 
