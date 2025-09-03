@@ -23,6 +23,7 @@ import { userProfileModel } from './models/user-profile';
 import { userStoreModel } from './models/user-store';
 import { userSubscriptionModel } from './models/user-subscription';
 import { userThemeModel } from './models/user-theme';
+import { notificationModel } from './models/notification';
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0';
 
@@ -87,6 +88,7 @@ export const storeSchema = a
     StorePaymentConfig: storePaymentConfigModel,
     StoreCustomDomain: storeCustomDomainModel,
     UserTheme: userThemeModel,
+    Notification: notificationModel,
   })
   .authorization((allow) => [
     allow.resource(postConfirmation),
@@ -176,6 +178,7 @@ const fullSchema = a
     StorePaymentConfig: storePaymentConfigModel,
     StoreCustomDomain: storeCustomDomainModel,
     UserTheme: userThemeModel,
+    Notification: notificationModel,
   })
   .authorization((allow) => [
     allow.resource(postConfirmation),
