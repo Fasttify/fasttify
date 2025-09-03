@@ -1,107 +1,60 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { getSecureImageUrl } from '@/lib/actions/secure-image';
 
 interface UseSecureUrlOptions {
   baseUrl: string;
   type?: 'template' | 'profile-image' | 'asset' | 'store-logo' | 'product' | 'base-template';
   enabled?: boolean;
-  staleTime?: number;
-  refetchInterval?: number;
 }
 
-// Función para extraer la ruta del S3 de una URL completa
-function extractS3Path(url: string): string {
-  if (!url) return url;
-
-  // Si ya es una ruta relativa (sin dominio), devolverla tal como está
-  if (!url.includes('://')) {
-    return url;
-  }
-
-  try {
-    const urlObj = new URL(url);
-    // Extraer la ruta después del dominio
-    return urlObj.pathname.substring(1); // Remover el '/' inicial
-  } catch (error) {
-    console.error('Error parsing URL:', error);
-    return url;
-  }
+interface UseSecureUrlReturn {
+  url: string;
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => void;
 }
 
-// Función para obtener URL firmada
-async function fetchSecureUrl(path: string): Promise<string> {
-  if (!path) return path;
+export function useSecureUrl({ baseUrl, type = 'asset', enabled = true }: UseSecureUrlOptions): UseSecureUrlReturn {
+  const [url, setUrl] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // En desarrollo, usar URL directa
-  if (process.env.NEXT_PUBLIC_APP_ENV === 'development') {
-    return path;
-  }
-  // Extraer solo la ruta del S3
-  const s3Path = extractS3Path(path);
+  const fetchUrl = async () => {
+    if (!enabled || !baseUrl) {
+      setUrl('');
+      setIsLoading(false);
+      setError(null);
+      return;
+    }
 
-  const response = await fetch(`/api/secure-url?path=${encodeURIComponent(s3Path)}`);
+    setIsLoading(true);
+    setError(null);
 
-  if (!response.ok) {
-    throw new Error(`Failed to get secure URL: ${response.status}`);
-  }
-
-  const { url } = await response.json();
-  return url;
-}
-
-export function useSecureUrl({
-  baseUrl,
-  type = 'asset',
-  enabled = true,
-  staleTime,
-  refetchInterval,
-}: UseSecureUrlOptions) {
-  // Determinar configuración según el tipo
-  const getConfigForType = (type: string) => {
-    switch (type) {
-      case 'template':
-      case 'base-template':
-        return {
-          staleTime: 6 * 24 * 60 * 60 * 1000, // 6 días
-          refetchInterval: 6 * 24 * 60 * 60 * 1000,
-        };
-      case 'profile-image':
-      case 'store-logo':
-      case 'product':
-      case 'asset':
-      default:
-        return {
-          staleTime: 29 * 24 * 60 * 60 * 1000, // 29 días
-          refetchInterval: 29 * 24 * 60 * 60 * 1000,
-        };
+    try {
+      // Next.js maneja el cache automáticamente
+      const secureUrl = await getSecureImageUrl(baseUrl);
+      setUrl(secureUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error getting secure URL');
+      setUrl(baseUrl); // Fallback a la URL original
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const typeConfig = getConfigForType(type);
+  const refetch = async () => {
+    // Forzar refresh llamando de nuevo (Next.js cache se encarga del resto)
+    await fetchUrl();
+  };
 
-  const {
-    data: url,
+  useEffect(() => {
+    fetchUrl();
+  }, [baseUrl, enabled, type]);
+
+  return {
+    url,
     isLoading,
     error,
     refetch,
-    isFetching,
-  } = useQuery({
-    queryKey: ['secure-url', baseUrl, type],
-    queryFn: () => fetchSecureUrl(baseUrl),
-    enabled: enabled && !!baseUrl,
-    staleTime: staleTime || typeConfig.staleTime,
-    refetchInterval: refetchInterval || typeConfig.refetchInterval,
-    refetchIntervalInBackground: true,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    gcTime: 30 * 24 * 60 * 60 * 1000,
-  });
-
-  return {
-    url: url || baseUrl,
-    isLoading,
-    error: error?.message || null,
-    refetch,
-    isFetching,
-    isStale: isFetching && !isLoading,
   };
 }
