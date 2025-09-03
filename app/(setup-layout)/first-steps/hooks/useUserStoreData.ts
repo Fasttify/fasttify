@@ -283,6 +283,7 @@ export const useUserStoreData = () => {
       | 'storeCustomDomain'
       | 'userThemes'
       | 'checkoutSessions'
+      | 'notifications'
     >
   ) => {
     try {
