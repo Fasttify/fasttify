@@ -134,7 +134,12 @@ class TemplateLoader {
     try {
       // Usar CDN en producción para mejor rendimiento
       if (this.isProduction) {
-        const response = await fetch(getCdnUrlForKey(s3Key));
+        const response = await fetch(getCdnUrlForKey(s3Key), {
+          headers: {
+            'User-Agent': 'Fasttify-API/1.0',
+            'X-API-Source': 'fasttify-server',
+          },
+        });
         if (!response.ok) {
           throw new Error(`Template not found: ${s3Key}`);
         }
@@ -242,7 +247,12 @@ class TemplateLoader {
     let assetBuffer: Buffer;
     try {
       if (this.isProduction) {
-        const response = await fetch(getCdnUrlForKey(`templates/${storeId}/assets/${assetPath}`));
+        const response = await fetch(getCdnUrlForKey(`templates/${storeId}/assets/${assetPath}`), {
+          headers: {
+            'User-Agent': 'Fasttify-API/1.0',
+            'X-API-Source': 'fasttify-server',
+          },
+        });
         if (!response.ok) {
           throw new Error(`Asset not found: ${assetPath}`);
         }
