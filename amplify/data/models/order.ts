@@ -128,6 +128,12 @@ export const orderModel = a
         allow.ownerDefinedIn('storeOwner').to(['create', 'read', 'delete']),
         allow.publicApiKey().to(['create', 'read']),
       ]),
+    notifications: a
+      .hasMany('Notification', 'orderId')
+      .authorization((allow) => [
+        allow.ownerDefinedIn('storeOwner').to(['create', 'read', 'delete']),
+        allow.publicApiKey().to(['create', 'read']),
+      ]),
   })
   .secondaryIndexes((index) => [
     index('storeId'),

@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const dotenv = require('dotenv');
 const readline = require('readline');
+
+dotenv.config();
 
 // Configuración
 const config = {
@@ -10,6 +12,8 @@ const config = {
   apiUrl: process.env.API_URL || 'http://localhost:3000',
   // Ruta local fija para el template
   localTemplateDir: 'template',
+  // Define the root directory for allowed local template development folders
+  templatesDevRoot: process.env.TEMPLATES_DEV_ROOT || process.cwd(),
 };
 
 // Crear interfaz para leer líneas de la consola
@@ -17,6 +21,21 @@ const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
+
+// Función para validar que el directorio esté dentro del área permitida
+function validateDirectorySecurity(requestedDir) {
+  const templatesDevRoot = path.resolve(config.templatesDevRoot);
+  const resolvedDir = path.resolve(requestedDir);
+
+  // Strict containment check: normalized requestedDir must be the root or start with the normalized root + separator
+  if (resolvedDir !== templatesDevRoot && !resolvedDir.startsWith(templatesDevRoot + path.sep)) {
+    throw new Error(
+      `Directorio local ilegal: ${requestedDir}. Solo se permiten carpetas dentro de ${templatesDevRoot}.`
+    );
+  }
+
+  return resolvedDir;
+}
 
 // Función para hacer una solicitud al API
 async function callApi(action, data = {}) {
@@ -71,12 +90,22 @@ const commands = {
     }
 
     const [storeId] = args;
-    const localDir = path.resolve(config.localTemplateDir);
+    let localDir;
 
-    // Verificar que el directorio existe
-    if (!fs.existsSync(localDir)) {
-      console.error(`Error: El directorio ${localDir} no existe.`);
-      console.log('Asegúrate de que el directorio "template" esté en la raíz del proyecto.');
+    try {
+      // Validar seguridad del directorio
+      localDir = validateDirectorySecurity(config.localTemplateDir);
+
+      // Verificar que el directorio existe
+      if (!fs.existsSync(localDir)) {
+        console.error(`Error: El directorio ${localDir} no existe.`);
+        console.log('Asegúrate de que el directorio "template" esté en la raíz del proyecto.');
+        process.exit(1);
+      }
+    } catch (error) {
+      console.error(`Error de seguridad: ${error.message}`);
+      console.log(`Para usar este script, configura la variable de entorno TEMPLATES_DEV_ROOT`);
+      console.log(`o mueve tu directorio template a ${config.templatesDevRoot}`);
       process.exit(1);
     }
 

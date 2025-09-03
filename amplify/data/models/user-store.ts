@@ -61,6 +61,7 @@ export const userStoreModel = a
     storeCustomDomain: a.hasOne('StoreCustomDomain', 'storeId'),
     userThemes: a.hasMany('UserTheme', 'storeId'),
     checkoutSessions: a.hasMany('CheckoutSession', 'storeId'),
+    notifications: a.hasMany('Notification', 'storeId'),
   })
   .identifier(['storeId'])
   .secondaryIndexes((index) => [index('userId'), index('storeName'), index('defaultDomain')])
