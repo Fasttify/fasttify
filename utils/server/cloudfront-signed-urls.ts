@@ -2,7 +2,8 @@ import { getSignedUrl } from '@aws-sdk/cloudfront-signer';
 
 const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN_NAME;
 const CLOUDFRONT_KEY_PAIR_ID = process.env.CLOUDFRONT_KEY_PAIR_ID;
-const CLOUDFRONT_PRIVATE_KEY = process.env.CLOUDFRONT_PRIVATE_KEY;
+// Reemplazamos `\n` por saltos de línea reales
+const CLOUDFRONT_PRIVATE_KEY = process.env.CLOUDFRONT_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
 /**
  * Genera una URL firmada de CloudFront para cualquier archivo
