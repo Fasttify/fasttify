@@ -1,70 +1,51 @@
-import { useState, useCallback } from 'react';
-import { TopBar, Badge, Icon } from '@shopify/polaris';
+import { memo } from 'react';
+import { TopBar, Badge, Icon, Spinner } from '@shopify/polaris';
 import { NotificationIcon } from '@shopify/polaris-icons';
+import { useNotificationPopover } from '../hooks';
 
-export type Notification = {
-  id: string;
-  title: string;
-  description: string;
-  timestamp: Date;
-  read: boolean;
+// Función para formatear la fecha de las notificaciones
+const formatNotificationTime = (createdAt: string): string => {
+  const date = new Date(createdAt);
+  const now = new Date();
+  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+
+  if (diffInMinutes < 1) {
+    return 'Ahora';
+  } else if (diffInMinutes < 60) {
+    return `Hace ${diffInMinutes} min`;
+  } else if (diffInMinutes < 1440) {
+    // 24 horas
+    const hours = Math.floor(diffInMinutes / 60);
+    return `Hace ${hours}h`;
+  } else {
+    const days = Math.floor(diffInMinutes / 1440);
+    return `Hace ${days}d`;
+  }
 };
 
 interface NotificationPopoverProps {
-  notifications?: Notification[];
-  onNotificationsChange?: (notifications: Notification[]) => void;
+  storeId?: string;
 }
 
-const dummyNotifications: Notification[] = [
-  {
-    id: '1',
-    title: 'Nuevo mensaje',
-    description: 'Has recibido un nuevo mensaje de John Doe',
-    timestamp: new Date(),
-    read: false,
-  },
-  {
-    id: '2',
-    title: 'Actualización del sistema',
-    description: 'Mantenimiento programado para mañana',
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    read: false,
-  },
-  {
-    id: '3',
-    title: 'Recordatorio',
-    description: 'Reunión con el equipo a las 2 PM',
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    read: true,
-  },
-];
-
-export const NotificationPopover = ({
-  notifications: initialNotifications = dummyNotifications,
-  onNotificationsChange,
-}: NotificationPopoverProps) => {
-  const [popoverActive, setPopoverActive] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
-
-  const togglePopoverActive = useCallback(() => setPopoverActive((active) => !active), []);
-
-  const markAsRead = (id: string) => {
-    const updatedNotifications = notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
-    setNotifications(updatedNotifications);
-    onNotificationsChange?.(updatedNotifications);
-  };
-
-  const markAllAsRead = () => {
-    const updatedNotifications = notifications.map((n) => ({
-      ...n,
-      read: true,
-    }));
-    setNotifications(updatedNotifications);
-    onNotificationsChange?.(updatedNotifications);
-    setPopoverActive(false);
-  };
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
+export const NotificationPopover = memo(({ storeId }: NotificationPopoverProps) => {
+  // Usar el hook personalizado para manejar toda la lógica
+  const {
+    popoverActive,
+    togglePopoverActive,
+    handlePopoverClose,
+    notifications,
+    loading,
+    error,
+    unreadCount,
+    markAsRead,
+    handleMarkAllAsRead,
+    hasNextPage,
+    loadMore,
+    scrollContainerRef,
+  } = useNotificationPopover({
+    storeId,
+    limit: 50,
+  });
 
   return (
     <TopBar.Menu
@@ -79,36 +60,126 @@ export const NotificationPopover = ({
                 right: '0px',
                 transform: 'translate(25%, -25%)',
               }}>
-              <Badge tone="critical-strong">{unreadCount.toString()}</Badge>
+              <Badge tone="critical-strong">{unreadCount > 9 ? '+9' : unreadCount.toString()}</Badge>
             </div>
           )}
         </div>
       }
       open={popoverActive}
       onOpen={togglePopoverActive}
-      onClose={togglePopoverActive}
+      onClose={handlePopoverClose}
       actions={[
         {
           items:
-            notifications.length > 0
-              ? notifications.map((notification) => ({
-                  content: notification.title,
-                  helpText: notification.description,
-                  prefix: !notification.read ? <Badge tone="info-strong"> </Badge> : <div style={{ width: '21px' }} />,
-                  onAction: () => markAsRead(notification.id),
-                }))
-              : [
+            loading && notifications.length === 0
+              ? [
                   {
-                    content: 'No tienes notificaciones',
+                    content: 'Cargando notificaciones...',
                     disabled: true,
+                    prefix: <Spinner size="small" />,
                   },
-                ],
+                ]
+              : error
+                ? [
+                    {
+                      content: 'Error al cargar notificaciones',
+                      disabled: true,
+                    },
+                  ]
+                : notifications.length > 0
+                  ? [
+                      // Contenedor con scroll para las notificaciones
+                      {
+                        content: (
+                          <div
+                            ref={scrollContainerRef}
+                            style={{
+                              maxHeight: '300px',
+                              overflowY: 'auto',
+                              padding: '8px 0',
+                            }}>
+                            {notifications.map((notification) => (
+                              <div
+                                key={notification.id}
+                                style={{
+                                  padding: '8px 12px',
+                                  borderBottom: '1px solid #e1e3e5',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                }}
+                                onClick={() => markAsRead(notification.id)}>
+                                {!notification.read && (
+                                  <div
+                                    style={{
+                                      width: '8px',
+                                      height: '8px',
+                                      borderRadius: '50%',
+                                      backgroundColor: '#007ace',
+                                      flexShrink: 0,
+                                    }}
+                                  />
+                                )}
+                                <div style={{ flex: 1 }}>
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'flex-start',
+                                    }}>
+                                    <div style={{ fontWeight: 'bold', fontSize: '14px', flex: 1 }}>
+                                      {notification.title || 'Sin título'}
+                                    </div>
+                                    <div
+                                      style={{ fontSize: '11px', color: '#8c9196', marginLeft: '8px', flexShrink: 0 }}>
+                                      {formatNotificationTime(notification.createdAt)}
+                                    </div>
+                                  </div>
+                                  <div style={{ fontSize: '12px', color: '#6d7175', marginTop: '2px' }}>
+                                    {notification.message || 'Sin descripción'}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                            {loading && notifications.length > 0 && (
+                              <div style={{ padding: '12px', textAlign: 'center' }}>
+                                <Spinner size="small" />
+                                <div style={{ fontSize: '12px', marginTop: '4px' }}>Cargando más...</div>
+                              </div>
+                            )}
+                            {hasNextPage && !loading && (
+                              <div
+                                style={{
+                                  padding: '12px',
+                                  textAlign: 'center',
+                                  cursor: 'pointer',
+                                  backgroundColor: '#f6f6f7',
+                                  borderTop: '1px solid #e1e3e5',
+                                }}
+                                onClick={() => {
+                                  loadMore();
+                                }}>
+                                <div style={{ fontSize: '12px', color: '#007ace' }}>Cargar más notificaciones</div>
+                              </div>
+                            )}
+                          </div>
+                        ),
+                        disabled: true, // Para que no sea clickeable
+                      },
+                    ]
+                  : [
+                      {
+                        content: 'No tienes notificaciones',
+                        disabled: true,
+                      },
+                    ],
         },
         {
           items: [
             {
               content: 'Marcar todas como leídas',
-              onAction: markAllAsRead,
+              onAction: handleMarkAllAsRead,
               disabled: unreadCount === 0,
             },
           ],
@@ -116,4 +187,6 @@ export const NotificationPopover = ({
       ]}
     />
   );
-};
+});
+
+NotificationPopover.displayName = 'NotificationPopover';

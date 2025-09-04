@@ -44,6 +44,11 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   );
   const { data, isFetching, error: queryError, refetch, fetchProductById } = queries;
 
+  // Datos derivados
+  const products = data?.products || [];
+  const hasNextPage = !!(data?.nextToken && data.products.length >= pagination.limit);
+  const hasPreviousPage = currentPage > 1;
+
   // Efectos para manejar la paginación
   useEffect(() => {
     resetPagination();
@@ -100,13 +105,26 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     async (ids: string[]) => {
       try {
         await deleteMultipleProductsMutation.mutateAsync(ids);
+
+        // Verificar si la página actual quedó vacía después de la eliminación
+        const remainingProducts = products.filter((product) => !ids.includes(product.id));
+
+        // Si no quedan productos en la página actual y hay página anterior, ir a la anterior
+        if (remainingProducts.length === 0 && hasPreviousPage) {
+          previousPage();
+        }
+        // Si no quedan productos y no hay página anterior, refrescar para mostrar la siguiente página
+        else if (remainingProducts.length === 0 && !hasPreviousPage) {
+          refetch();
+        }
+
         return true;
       } catch (err) {
         console.error('Error deleting multiple products:', err);
         return false;
       }
     },
-    [deleteMultipleProductsMutation]
+    [deleteMultipleProductsMutation, products, hasPreviousPage, previousPage, refetch]
   );
 
   const duplicateProduct = useCallback(
@@ -123,11 +141,6 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
     },
     [duplicateProductMutation]
   );
-
-  // Datos derivados
-  const products = data?.products || [];
-  const hasNextPage = !!(data?.nextToken && data.products.length >= pagination.limit);
-  const hasPreviousPage = currentPage > 1;
 
   // Función para resetear paginación y refrescar
   const resetPaginationAndRefetch = useCallback(() => {

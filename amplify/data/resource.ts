@@ -24,6 +24,10 @@ import { userStoreModel } from './models/user-store';
 import { userSubscriptionModel } from './models/user-subscription';
 import { userThemeModel } from './models/user-theme';
 import { notificationModel } from './models/notification';
+import { notificationReturnModel } from './models/notification-return';
+import { productDeleteReturnModel } from './models/product-delete-return';
+import { orderDeleteReturnModel } from './models/order-delete-return';
+import { checkoutDeleteReturnModel } from './models/checkout-delete-return';
 
 export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0';
 
@@ -89,6 +93,7 @@ export const storeSchema = a
     StoreCustomDomain: storeCustomDomainModel,
     UserTheme: userThemeModel,
     Notification: notificationModel,
+    NotificationReturn: notificationReturnModel,
   })
   .authorization((allow) => [
     allow.resource(postConfirmation),
@@ -162,6 +167,62 @@ const fullSchema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(onboardingProgress)),
 
+    BatchMarkNotificationsAsRead: a
+      .mutation()
+      .arguments({
+        notificationIds: a.string().array().required(),
+      })
+      .returns(a.ref('NotificationReturn').array())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(
+        a.handler.custom({
+          dataSource: a.ref('Notification'),
+          entry: './functions/batchs/BatchMarkNotificationsAsReadHandler.js',
+        })
+      ),
+
+    BatchDeleteProducts: a
+      .mutation()
+      .arguments({
+        productIds: a.string().array().required(),
+      })
+      .returns(a.ref('ProductDeleteReturn').array())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(
+        a.handler.custom({
+          dataSource: a.ref('Product'),
+          entry: './functions/batchs/BatchDeleteProductsHandler.js',
+        })
+      ),
+
+    BatchDeleteOrders: a
+      .mutation()
+      .arguments({
+        orderIds: a.string().array().required(),
+      })
+      .returns(a.ref('OrderDeleteReturn').array())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(
+        a.handler.custom({
+          dataSource: a.ref('Order'),
+          entry: './functions/batchs/BatchDeleteOrdersHandler.js',
+        })
+      ),
+
+    BatchDeleteCheckouts: a
+      .mutation()
+      .arguments({
+        checkoutIds: a.string().array().required(),
+      })
+      .returns(a.ref('CheckoutDeleteReturn').array())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(
+        a.handler.custom({
+          dataSource: a.ref('CheckoutSession'),
+          entry: './functions/batchs/BatchDeleteCheckoutsHandler.js',
+        })
+      ),
+
     // Modelos del store
     UserProfile: userProfileModel,
     UserSubscription: userSubscriptionModel,
@@ -179,6 +240,10 @@ const fullSchema = a
     StoreCustomDomain: storeCustomDomainModel,
     UserTheme: userThemeModel,
     Notification: notificationModel,
+    NotificationReturn: notificationReturnModel,
+    ProductDeleteReturn: productDeleteReturnModel,
+    OrderDeleteReturn: orderDeleteReturnModel,
+    CheckoutDeleteReturn: checkoutDeleteReturnModel,
   })
   .authorization((allow) => [
     allow.resource(postConfirmation),

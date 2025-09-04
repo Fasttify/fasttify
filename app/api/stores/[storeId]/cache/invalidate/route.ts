@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
-    const { changeType, entityId } = await request.json();
+    const { changeType, entityId, entityIds } = await request.json();
 
     if (!changeType) {
       return NextResponse.json({ error: 'changeType is required' }, { status: 400, headers: corsHeaders });
@@ -73,7 +73,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Invalidar caché usando el servicio inteligente
-    cacheInvalidationService.invalidateCache(changeType as ChangeType, storeId, entityId);
+    if (entityIds && Array.isArray(entityIds)) {
+      // Invalidación por lotes
+      entityIds.forEach((id: string) => {
+        cacheInvalidationService.invalidateCache(changeType as ChangeType, storeId, id);
+      });
+    } else {
+      // Invalidación individual
+      cacheInvalidationService.invalidateCache(changeType as ChangeType, storeId, entityId);
+    }
 
     return NextResponse.json(
       {
@@ -82,6 +90,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         changeType,
         storeId,
         entityId,
+        entityIds,
       },
       { headers: corsHeaders }
     );

@@ -57,6 +57,11 @@ export function useOrders(
   );
   const { data, isFetching, error: queryError, refetch, fetchOrderById } = queries;
 
+  // Datos derivados
+  const orders = data?.orders || [];
+  const hasNextPage = !!data?.nextToken;
+  const hasPreviousPage = currentPage > 1;
+
   // Efectos para manejar la paginación
   useEffect(() => {
     resetPagination();
@@ -113,13 +118,26 @@ export function useOrders(
     async (ids: string[]) => {
       try {
         await deleteMultipleOrdersMutation.mutateAsync({ ids, storeOwner: '' });
+
+        // Verificar si la página actual quedó vacía después de la eliminación
+        const remainingOrders = orders.filter((order) => !ids.includes(order.id));
+
+        // Si no quedan órdenes en la página actual y hay página anterior, ir a la anterior
+        if (remainingOrders.length === 0 && hasPreviousPage) {
+          previousPage();
+        }
+        // Si no quedan órdenes y no hay página anterior, refrescar para mostrar la siguiente página
+        else if (remainingOrders.length === 0 && !hasPreviousPage) {
+          refetch();
+        }
+
         return true;
       } catch (err) {
         console.error('Error deleting multiple orders:', err);
         return false;
       }
     },
-    [deleteMultipleOrdersMutation]
+    [deleteMultipleOrdersMutation, orders, hasPreviousPage, previousPage, refetch]
   );
 
   // Funciones específicas para el manejo de estados
@@ -164,11 +182,6 @@ export function useOrders(
     },
     [updatePaymentStatusMutation]
   );
-
-  // Datos derivados
-  const orders = data?.orders || [];
-  const hasNextPage = !!data?.nextToken;
-  const hasPreviousPage = currentPage > 1;
 
   // Función para resetear paginación y refrescar
   const resetPaginationAndRefetch = useCallback(() => {
