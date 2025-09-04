@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 export function request(ctx) {
-  var tableName = `Product-${ctx.stash.awsAppsyncApiId}-${ctx.stash.amplifyApiEnvironmentName}`;
+  var tableName = `Product-${ctx.stash.awsAppsyncApiId}-NONE`;
 
   // Limitar a máximo 25 elementos (límite de DynamoDB)
   var limitedIds = ctx.args.productIds.slice(0, 25);

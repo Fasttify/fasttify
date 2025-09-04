@@ -1,4 +1,4 @@
-import '../global.css';
+import '@/app/global.css';
 import { inter } from '@/config/fonts';
 import { Navbar } from '@/app/(main-layout)/landing/components/NavBar';
 import { Amplify } from 'aws-amplify';

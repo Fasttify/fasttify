@@ -79,6 +79,13 @@ export const createDynamoDbBatchPolicyStatement = (apiId: string) =>
       'dynamodb:Scan',
     ],
     resources: [
+      // Tablas principales
+      `arn:aws:dynamodb:*:*:table/Notification-${apiId}-*`,
+      `arn:aws:dynamodb:*:*:table/Product-${apiId}-*`,
+      `arn:aws:dynamodb:*:*:table/Order-${apiId}-*`,
+      `arn:aws:dynamodb:*:*:table/CheckoutSession-${apiId}-*`,
+
+      // Índices secundarios
       `arn:aws:dynamodb:*:*:table/Notification-${apiId}-*/index/*`,
       `arn:aws:dynamodb:*:*:table/Product-${apiId}-*/index/*`,
       `arn:aws:dynamodb:*:*:table/Order-${apiId}-*/index/*`,
