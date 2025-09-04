@@ -8,6 +8,7 @@ import {
   createS3PolicyStatement,
   createSqsSendPolicyStatement,
   createSqsReceivePolicyStatement,
+  createDynamoDbBatchPolicyStatement,
 } from './policies';
 
 /**
@@ -58,4 +59,18 @@ export function applyApiAccessPolicies(backend: any, apiRestPolicy: any): void {
   // Adjuntar la política a los roles autenticados y no autenticados
   backend.auth.resources.authenticatedUserIamRole.attachInlinePolicy(apiRestPolicy);
   backend.auth.resources.unauthenticatedUserIamRole.attachInlinePolicy(apiRestPolicy);
+}
+
+/**
+ * Aplica permisos de DynamoDB para custom handlers de AppSync
+ */
+export function applyDynamoDbPermissions(backend: any): void {
+  // Obtener el rol de AppSync
+  const appSyncRole = backend.data.resources.cfnResources.amplifyDynamoDbTablesRole;
+
+  if (appSyncRole) {
+    // Crear y aplicar la política de DynamoDB
+    const dynamoDbPolicy = createDynamoDbBatchPolicyStatement(backend.data.resources.cfnResources.awsAppsyncApiId);
+    appSyncRole.addToPolicy(dynamoDbPolicy);
+  }
 }
