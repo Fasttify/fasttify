@@ -61,3 +61,27 @@ export const createSqsReceivePolicyStatement = (queueArns: string[]) =>
     actions: ['sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes', 'sqs:ChangeMessageVisibility'],
     resources: queueArns,
   });
+
+/**
+ * Política para operaciones batch de DynamoDB
+ */
+export const createDynamoDbBatchPolicyStatement = (apiId: string) =>
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: [
+      'dynamodb:BatchGetItem',
+      'dynamodb:BatchWriteItem',
+      'dynamodb:PutItem',
+      'dynamodb:GetItem',
+      'dynamodb:UpdateItem',
+      'dynamodb:DeleteItem',
+      'dynamodb:Query',
+      'dynamodb:Scan',
+    ],
+    resources: [
+      `arn:aws:dynamodb:*:*:table/Notification-${apiId}-*`,
+      `arn:aws:dynamodb:*:*:table/Product-${apiId}-*`,
+      `arn:aws:dynamodb:*:*:table/Order-${apiId}-*`,
+      `arn:aws:dynamodb:*:*:table/CheckoutSession-${apiId}-*`,
+    ],
+  });

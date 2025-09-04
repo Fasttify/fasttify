@@ -25,6 +25,7 @@ import {
   applyS3Permissions,
   applySqsPermissions,
   applyApiAccessPolicies,
+  applyDynamoDbPermissions,
 } from './config/permissions';
 import { createBackendOutputs } from './config/outputs';
 // import { createPaymentKeysKmsKey } from './config/kms'; // PAUSADO - Descomentar cuando sea necesario
@@ -82,6 +83,7 @@ configureEmailEnvironmentVariables(
 applySesPermissions(backend);
 applyS3Permissions(backend);
 applySqsPermissions(backend, emailQueue.queueArn, highPriorityEmailQueue.queueArn);
+applyDynamoDbPermissions(backend);
 
 // Crear el stack para las APIs
 const apiStack = backend.createStack('api-stack');
