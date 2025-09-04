@@ -70,110 +70,112 @@ export const NotificationPopover = memo(({ storeId }: NotificationPopoverProps) 
       onClose={handlePopoverClose}
       actions={[
         {
-          items:
-            loading && notifications.length === 0
+          items: (loading && notifications.length === 0
+            ? [
+                {
+                  content: 'Cargando notificaciones...',
+                  disabled: true,
+                  prefix: <Spinner size="small" />,
+                },
+              ]
+            : error
               ? [
                   {
-                    content: 'Cargando notificaciones...',
+                    content: 'Error al cargar notificaciones',
                     disabled: true,
-                    prefix: <Spinner size="small" />,
                   },
                 ]
-              : error
+              : notifications.length > 0
                 ? [
+                    // Contenedor con scroll para las notificaciones
                     {
-                      content: 'Error al cargar notificaciones',
-                      disabled: true,
-                    },
-                  ]
-                : notifications.length > 0
-                  ? [
-                      // Contenedor con scroll para las notificaciones
-                      {
-                        content: (
-                          <div
-                            ref={scrollContainerRef}
-                            style={{
-                              maxHeight: '300px',
-                              overflowY: 'auto',
-                              padding: '8px 0',
-                            }}>
-                            {notifications.map((notification) => (
-                              <div
-                                key={notification.id}
-                                style={{
-                                  padding: '8px 12px',
-                                  borderBottom: '1px solid #e1e3e5',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                }}
-                                onClick={() => markAsRead(notification.id)}>
-                                {!notification.read && (
-                                  <div
-                                    style={{
-                                      width: '8px',
-                                      height: '8px',
-                                      borderRadius: '50%',
-                                      backgroundColor: '#007ace',
-                                      flexShrink: 0,
-                                    }}
-                                  />
-                                )}
-                                <div style={{ flex: 1 }}>
-                                  <div
-                                    style={{
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      alignItems: 'flex-start',
-                                    }}>
-                                    <div style={{ fontWeight: 'bold', fontSize: '14px', flex: 1 }}>
-                                      {notification.title || 'Sin título'}
-                                    </div>
-                                    <div
-                                      style={{ fontSize: '11px', color: '#8c9196', marginLeft: '8px', flexShrink: 0 }}>
-                                      {formatNotificationTime(notification.createdAt)}
-                                    </div>
+                      content: (
+                        <div
+                          ref={scrollContainerRef}
+                          style={{
+                            maxHeight: '300px',
+                            overflowY: 'auto',
+                            padding: '8px 0',
+                          }}>
+                          {notifications.map((notification) => (
+                            <div
+                              key={notification.id}
+                              style={{
+                                padding: '8px 12px',
+                                borderBottom: '1px solid #e1e3e5',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markAsRead(notification.id);
+                              }}>
+                              {!notification.read && (
+                                <div
+                                  style={{
+                                    width: '8px',
+                                    height: '8px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#007ace',
+                                    flexShrink: 0,
+                                  }}
+                                />
+                              )}
+                              <div style={{ flex: 1 }}>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'flex-start',
+                                  }}>
+                                  <div style={{ fontWeight: 'bold', fontSize: '14px', flex: 1 }}>
+                                    {notification.title || 'Sin título'}
                                   </div>
-                                  <div style={{ fontSize: '12px', color: '#6d7175', marginTop: '2px' }}>
-                                    {notification.message || 'Sin descripción'}
+                                  <div style={{ fontSize: '11px', color: '#8c9196', marginLeft: '8px', flexShrink: 0 }}>
+                                    {formatNotificationTime(notification.createdAt)}
                                   </div>
                                 </div>
+                                <div style={{ fontSize: '12px', color: '#6d7175', marginTop: '2px' }}>
+                                  {notification.message || 'Sin descripción'}
+                                </div>
                               </div>
-                            ))}
-                            {loading && notifications.length > 0 && (
-                              <div style={{ padding: '12px', textAlign: 'center' }}>
-                                <Spinner size="small" />
-                                <div style={{ fontSize: '12px', marginTop: '4px' }}>Cargando más...</div>
-                              </div>
-                            )}
-                            {hasNextPage && !loading && (
-                              <div
-                                style={{
-                                  padding: '12px',
-                                  textAlign: 'center',
-                                  cursor: 'pointer',
-                                  backgroundColor: '#f6f6f7',
-                                  borderTop: '1px solid #e1e3e5',
-                                }}
-                                onClick={() => {
-                                  loadMore();
-                                }}>
-                                <div style={{ fontSize: '12px', color: '#007ace' }}>Cargar más notificaciones</div>
-                              </div>
-                            )}
-                          </div>
-                        ),
-                        disabled: true, // Para que no sea clickeable
-                      },
-                    ]
-                  : [
-                      {
-                        content: 'No tienes notificaciones',
-                        disabled: true,
-                      },
-                    ],
+                            </div>
+                          ))}
+                          {loading && notifications.length > 0 && (
+                            <div style={{ padding: '12px', textAlign: 'center' }}>
+                              <Spinner size="small" />
+                              <div style={{ fontSize: '12px', marginTop: '4px' }}>Cargando más...</div>
+                            </div>
+                          )}
+                          {hasNextPage && !loading && (
+                            <div
+                              style={{
+                                padding: '12px',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                backgroundColor: '#f6f6f7',
+                                borderTop: '1px solid #e1e3e5',
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                loadMore();
+                              }}>
+                              <div style={{ fontSize: '12px', color: '#007ace' }}>Cargar más notificaciones</div>
+                            </div>
+                          )}
+                        </div>
+                      ),
+                      disabled: false, // Para que no sea clickeable
+                    },
+                  ]
+                : [
+                    {
+                      content: 'No tienes notificaciones',
+                      disabled: true,
+                    },
+                  ]) as any,
         },
         {
           items: [
