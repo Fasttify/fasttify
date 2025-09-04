@@ -12,7 +12,7 @@ export const useNotificationSound = (): UseNotificationSoundResult => {
   const playNotificationSound = useCallback((notificationType?: string) => {
     try {
       // Intentar usar archivo de audio primero
-      const audio = new Audio('/sounds/cash-register.mp3');
+      const audio = new Audio('https://cdn.fasttify.com/assets/sounds/cash-register.mp3');
       let volume = 0.6;
 
       // Ajustar volumen según el tipo

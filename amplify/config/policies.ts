@@ -79,9 +79,9 @@ export const createDynamoDbBatchPolicyStatement = (apiId: string) =>
       'dynamodb:Scan',
     ],
     resources: [
-      `arn:aws:dynamodb:*:*:table/Notification-${apiId}-*`,
-      `arn:aws:dynamodb:*:*:table/Product-${apiId}-*`,
-      `arn:aws:dynamodb:*:*:table/Order-${apiId}-*`,
-      `arn:aws:dynamodb:*:*:table/CheckoutSession-${apiId}-*`,
+      `arn:aws:dynamodb:*:*:table/Notification-${apiId}-*/index/*`,
+      `arn:aws:dynamodb:*:*:table/Product-${apiId}-*/index/*`,
+      `arn:aws:dynamodb:*:*:table/Order-${apiId}-*/index/*`,
+      `arn:aws:dynamodb:*:*:table/CheckoutSession-${apiId}-*/index/*`,
     ],
   });
