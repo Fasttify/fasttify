@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 export function request(ctx) {
-  var tableName = `Notification-${ctx.stash.awsAppsyncApiId}-${ctx.stash.amplifyApiEnvironmentName}`;
+  var tableName = `Notification-${ctx.stash.awsAppsyncApiId}-NONE`;
 
   // Crear objetos de notificación actualizados para BatchPutItem
   var now = util.time.nowISO8601();
@@ -33,7 +33,7 @@ export function response(ctx) {
     util.error(ctx.error.message, ctx.error.type);
   }
 
-  var tableName = `Notification-${ctx.stash.awsAppsyncApiId}-${ctx.stash.amplifyApiEnvironmentName}`;
+  var tableName = `Notification-${ctx.stash.awsAppsyncApiId}-NONE`;
   var now = util.time.nowISO8601();
 
   // Retornar información sobre las notificaciones procesadas
