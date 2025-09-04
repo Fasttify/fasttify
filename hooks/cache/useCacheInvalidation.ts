@@ -27,6 +27,40 @@ export function useCacheInvalidation() {
   }, []);
 
   /**
+   * Invalida caché de múltiples productos por lotes
+   */
+  const invalidateMultipleProductsCache = useCallback(async (storeId: string, productIds: string[]) => {
+    try {
+      // Procesar en lotes de 25 para evitar límites de payload
+      const batchSize = 25;
+      const batches = [];
+
+      for (let i = 0; i < productIds.length; i += batchSize) {
+        const batch = productIds.slice(i, i + batchSize);
+        batches.push(batch);
+      }
+
+      // Ejecutar todas las invalidaciones en paralelo
+      await Promise.all(
+        batches.map((batch) =>
+          fetch(`/api/stores/${storeId}/cache/invalidate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              changeType: 'product_deleted',
+              entityIds: batch,
+            }),
+          })
+        )
+      );
+    } catch (error) {
+      console.error('Error invalidating multiple products cache:', error);
+    }
+  }, []);
+
+  /**
    * Invalida caché de colecciones
    */
   const invalidateCollectionCache = useCallback(async (storeId: string, collectionId?: string) => {
@@ -127,6 +161,7 @@ export function useCacheInvalidation() {
 
   return {
     invalidateProductCache,
+    invalidateMultipleProductsCache,
     invalidateCollectionCache,
     invalidatePageCache,
     invalidateNavigationCache,

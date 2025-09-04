@@ -55,6 +55,11 @@ export function useCheckoutSessions(
   );
   const { data, isFetching, error: queryError, refetch, fetchCheckoutSessionById } = queries;
 
+  // Datos derivados
+  const checkoutSessions = data?.checkoutSessions || [];
+  const hasNextPage = !!data?.nextToken;
+  const hasPreviousPage = currentPage > 1;
+
   // Efectos para manejar la paginación
   useEffect(() => {
     resetPagination();
@@ -111,13 +116,26 @@ export function useCheckoutSessions(
     async (ids: string[]) => {
       try {
         await deleteMultipleCheckoutSessionsMutation.mutateAsync({ ids, storeOwner: '' });
+
+        // Verificar si la página actual quedó vacía después de la eliminación
+        const remainingSessions = checkoutSessions.filter((session) => !ids.includes(session.id));
+
+        // Si no quedan sesiones en la página actual y hay página anterior, ir a la anterior
+        if (remainingSessions.length === 0 && hasPreviousPage) {
+          previousPage();
+        }
+        // Si no quedan sesiones y no hay página anterior, refrescar para mostrar la siguiente página
+        else if (remainingSessions.length === 0 && !hasPreviousPage) {
+          refetch();
+        }
+
         return true;
       } catch (err) {
         console.error('Error deleting multiple checkout sessions:', err);
         return false;
       }
     },
-    [deleteMultipleCheckoutSessionsMutation]
+    [deleteMultipleCheckoutSessionsMutation, checkoutSessions, hasPreviousPage, previousPage, refetch]
   );
 
   // Funciones específicas para el manejo de estados
@@ -165,11 +183,6 @@ export function useCheckoutSessions(
     },
     [cancelCheckoutSessionMutation]
   );
-
-  // Datos derivados
-  const checkoutSessions = data?.checkoutSessions || [];
-  const hasNextPage = !!data?.nextToken;
-  const hasPreviousPage = currentPage > 1;
 
   // Función para resetear paginación y refrescar
   const resetPaginationAndRefetch = useCallback(() => {

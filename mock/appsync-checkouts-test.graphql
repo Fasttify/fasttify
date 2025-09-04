@@ -1,0 +1,387 @@
+# Código para introducir en la consola de AppSync - Checkout Sessions de prueba
+
+# ===========================================
+# CHECKOUT SESSIONS ACTIVAS
+# ===========================================
+
+# 1. Checkout Session Abierta - Cliente en proceso de compra
+mutation CreateCheckout1 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_001_abc123"
+      storeId: "ea2c931"
+      cartId: "cart_001_xyz789"
+      sessionId: "session_001_def456"
+      status: open
+      expiresAt: "2024-12-31T23:59:59.000Z"
+      currency: "COP"
+      subtotal: 125000.0
+      shippingCost: 10000.0
+      taxAmount: 20250.0
+      totalAmount: 155250.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-001\",\"name\":\"Traje de baño azul\",\"price\":45000,\"quantity\":2,\"total\":90000},{\"id\":\"prod-002\",\"name\":\"Gafas de sol\",\"price\":35000,\"quantity\":1,\"total\":35000}],\"totalItems\":3}"
+      customerInfo: "{\"name\":\"Juan Pérez\",\"email\":\"cliente@ejemplo.com\",\"phone\":\"+57 300 123 4567\",\"type\":\"registered\"}"
+      shippingAddress: "{\"street\":\"Calle 123 #45-67\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110111\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Calle 123 #45-67\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110111\",\"country\":\"Colombia\"}"
+      notes: "Cliente solicita entrega en horario de oficina"
+      ttl: 1735689599
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# 2. Checkout Session Completada - Compra exitosa
+mutation CreateCheckout2 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_002_ghi789"
+      storeId: "ea2c931"
+      cartId: "cart_002_abc123"
+      sessionId: "session_002_jkl012"
+      status: completed
+      expiresAt: "2024-12-31T23:59:59.000Z"
+      currency: "COP"
+      subtotal: 80000.0
+      shippingCost: 8000.0
+      taxAmount: 14080.0
+      totalAmount: 102080.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-003\",\"name\":\"Vestido de verano floral\",\"price\":80000,\"quantity\":1,\"total\":80000}],\"totalItems\":1}"
+      customerInfo: "{\"name\":\"María García\",\"email\":\"maria@ejemplo.com\",\"phone\":\"+57 310 987 6543\",\"type\":\"guest\"}"
+      shippingAddress: "{\"street\":\"Carrera 15 #93-47\",\"city\":\"Medellín\",\"state\":\"Antioquia\",\"zipCode\":\"050001\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Carrera 15 #93-47\",\"city\":\"Medellín\",\"state\":\"Antioquia\",\"zipCode\":\"050001\",\"country\":\"Colombia\"}"
+      notes: "Pago procesado exitosamente"
+      ttl: 1735689599
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# 3. Checkout Session Abierta - Cliente agregando más productos
+mutation CreateCheckout3 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_003_mno345"
+      storeId: "ea2c931"
+      cartId: "cart_003_def456"
+      sessionId: "session_003_pqr678"
+      status: open
+      expiresAt: "2024-12-31T23:59:59.000Z"
+      currency: "COP"
+      subtotal: 185000.0
+      shippingCost: 12000.0
+      taxAmount: 31540.0
+      totalAmount: 228540.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-001\",\"name\":\"Traje de baño azul\",\"price\":45000,\"quantity\":3,\"total\":135000},{\"id\":\"prod-004\",\"name\":\"Sandalias cómodas\",\"price\":25000,\"quantity\":2,\"total\":50000}],\"totalItems\":5}"
+      customerInfo: "{\"name\":\"Carlos López\",\"email\":\"carlos@ejemplo.com\",\"phone\":\"+57 320 555 1234\",\"type\":\"registered\"}"
+      shippingAddress: "{\"street\":\"Avenida 68 #25-30\",\"city\":\"Cali\",\"state\":\"Valle del Cauca\",\"zipCode\":\"760001\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Avenida 68 #25-30\",\"city\":\"Cali\",\"state\":\"Valle del Cauca\",\"zipCode\":\"760001\",\"country\":\"Colombia\"}"
+      notes: "Cliente solicitó entrega rápida"
+      ttl: 1735689599
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# ===========================================
+# CHECKOUT SESSIONS EXPIRADAS
+# ===========================================
+
+# 4. Checkout Session Expirada - Cliente no completó la compra
+mutation CreateCheckout4 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_004_stu901"
+      storeId: "ea2c931"
+      cartId: "cart_004_ghi789"
+      sessionId: "session_004_vwx234"
+      status: expired
+      expiresAt: "2024-12-20T10:30:00.000Z"
+      currency: "COP"
+      subtotal: 60000.0
+      shippingCost: 8000.0
+      taxAmount: 10880.0
+      totalAmount: 78880.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-005\",\"name\":\"Bolso de playa\",\"price\":60000,\"quantity\":1,\"total\":60000}],\"totalItems\":1}"
+      customerInfo: "{\"name\":\"Ana Rodríguez\",\"email\":\"ana@ejemplo.com\",\"phone\":\"+57 315 444 5555\",\"type\":\"guest\"}"
+      shippingAddress: "{\"street\":\"Carrera 7 #32-16\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110311\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Carrera 7 #32-16\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110311\",\"country\":\"Colombia\"}"
+      notes: "Sesión expirada por inactividad"
+      ttl: 1734687000
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# 5. Checkout Session Expirada - Tiempo límite alcanzado
+mutation CreateCheckout5 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_005_yza567"
+      storeId: "ea2c931"
+      cartId: "cart_005_jkl012"
+      sessionId: "session_005_bcd890"
+      status: expired
+      expiresAt: "2024-12-19T15:45:00.000Z"
+      currency: "COP"
+      subtotal: 110000.0
+      shippingCost: 10000.0
+      taxAmount: 19200.0
+      totalAmount: 139200.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-001\",\"name\":\"Traje de baño azul\",\"price\":45000,\"quantity\":1,\"total\":45000},{\"id\":\"prod-002\",\"name\":\"Gafas de sol\",\"price\":35000,\"quantity\":1,\"total\":35000},{\"id\":\"prod-006\",\"name\":\"Protector solar\",\"price\":15000,\"quantity\":2,\"total\":30000}],\"totalItems\":4}"
+      customerInfo: "{\"name\":\"Luis Martínez\",\"email\":\"luis@ejemplo.com\",\"phone\":\"+57 301 777 8888\",\"type\":\"registered\"}"
+      shippingAddress: "{\"street\":\"Calle 80 #11-42\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110221\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Calle 80 #11-42\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110221\",\"country\":\"Colombia\"}"
+      notes: "Sesión expirada por tiempo límite"
+      ttl: 1734619500
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# ===========================================
+# CHECKOUT SESSIONS CANCELADAS
+# ===========================================
+
+# 6. Checkout Session Cancelada - Cliente canceló la compra
+mutation CreateCheckout6 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_006_efg123"
+      storeId: "ea2c931"
+      cartId: "cart_006_mno345"
+      sessionId: "session_006_hij456"
+      status: cancelled
+      expiresAt: "2024-12-31T23:59:59.000Z"
+      currency: "COP"
+      subtotal: 75000.0
+      shippingCost: 8000.0
+      taxAmount: 13160.0
+      totalAmount: 96160.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-007\",\"name\":\"Sombrero de playa\",\"price\":30000,\"quantity\":1,\"total\":30000},{\"id\":\"prod-008\",\"name\":\"Toalla de playa\",\"price\":40000,\"quantity\":1,\"total\":40000},{\"id\":\"prod-006\",\"name\":\"Protector solar\",\"price\":15000,\"quantity\":1,\"total\":15000}],\"totalItems\":3}"
+      customerInfo: "{\"name\":\"Sofia Herrera\",\"email\":\"sofia@ejemplo.com\",\"phone\":\"+57 312 999 8888\",\"type\":\"guest\"}"
+      shippingAddress: "{\"street\":\"Carrera 50 #25-30\",\"city\":\"Barranquilla\",\"state\":\"Atlántico\",\"zipCode\":\"080001\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Carrera 50 #25-30\",\"city\":\"Barranquilla\",\"state\":\"Atlántico\",\"zipCode\":\"080001\",\"country\":\"Colombia\"}"
+      notes: "Cliente canceló la compra por cambio de opinión"
+      ttl: 1735689599
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# 7. Checkout Session Cancelada - Error en el pago
+mutation CreateCheckout7 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_007_klm789"
+      storeId: "ea2c931"
+      cartId: "cart_007_pqr678"
+      sessionId: "session_007_nop012"
+      status: cancelled
+      expiresAt: "2024-12-31T23:59:59.000Z"
+      currency: "COP"
+      subtotal: 95000.0
+      shippingCost: 10000.0
+      taxAmount: 16800.0
+      totalAmount: 121800.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-001\",\"name\":\"Traje de baño azul\",\"price\":45000,\"quantity\":2,\"total\":90000},{\"id\":\"prod-006\",\"name\":\"Protector solar\",\"price\":15000,\"quantity\":1,\"total\":15000}],\"totalItems\":3}"
+      customerInfo: "{\"name\":\"Diego Ramírez\",\"email\":\"diego@ejemplo.com\",\"phone\":\"+57 318 777 6666\",\"type\":\"registered\"}"
+      shippingAddress: "{\"street\":\"Calle 100 #15-20\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110221\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Calle 100 #15-20\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110221\",\"country\":\"Colombia\"}"
+      notes: "Error en el procesamiento del pago - tarjeta declinada"
+      ttl: 1735689599
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# ===========================================
+# CHECKOUT SESSIONS ADICIONALES
+# ===========================================
+
+# 8. Checkout Session Abierta - Cliente nuevo
+mutation CreateCheckout8 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_008_qrs345"
+      storeId: "ea2c931"
+      cartId: "cart_008_stu901"
+      sessionId: "session_008_tuv678"
+      status: open
+      expiresAt: "2024-12-31T23:59:59.000Z"
+      currency: "COP"
+      subtotal: 40000.0
+      shippingCost: 8000.0
+      taxAmount: 7680.0
+      totalAmount: 55680.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-008\",\"name\":\"Toalla de playa\",\"price\":40000,\"quantity\":1,\"total\":40000}],\"totalItems\":1}"
+      customerInfo: "{\"name\":\"Laura Morales\",\"email\":\"laura@ejemplo.com\",\"phone\":\"+57 315 123 4567\",\"type\":\"guest\"}"
+      shippingAddress: "{\"street\":\"Carrera 30 #45-60\",\"city\":\"Pereira\",\"state\":\"Risaralda\",\"zipCode\":\"660001\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Carrera 30 #45-60\",\"city\":\"Pereira\",\"state\":\"Risaralda\",\"zipCode\":\"660001\",\"country\":\"Colombia\"}"
+      notes: "Primera compra del cliente"
+      ttl: 1735689599
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# 9. Checkout Session Completada - Compra grande
+mutation CreateCheckout9 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_009_wxy901"
+      storeId: "ea2c931"
+      cartId: "cart_009_vwx234"
+      sessionId: "session_009_yza567"
+      status: completed
+      expiresAt: "2024-12-31T23:59:59.000Z"
+      currency: "COP"
+      subtotal: 200000.0
+      shippingCost: 15000.0
+      taxAmount: 34400.0
+      totalAmount: 249400.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-001\",\"name\":\"Traje de baño azul\",\"price\":45000,\"quantity\":2,\"total\":90000},{\"id\":\"prod-002\",\"name\":\"Gafas de sol\",\"price\":35000,\"quantity\":1,\"total\":35000},{\"id\":\"prod-003\",\"name\":\"Vestido de verano\",\"price\":80000,\"quantity\":1,\"total\":80000},{\"id\":\"prod-008\",\"name\":\"Toalla de playa\",\"price\":40000,\"quantity\":1,\"total\":40000}],\"totalItems\":5}"
+      customerInfo: "{\"name\":\"Patricia Silva\",\"email\":\"patricia@ejemplo.com\",\"phone\":\"+57 310 555 9999\",\"type\":\"registered\"}"
+      shippingAddress: "{\"street\":\"Avenida 19 #120-45\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110111\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Avenida 19 #120-45\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110111\",\"country\":\"Colombia\"}"
+      notes: "Compra grande - cliente VIP"
+      ttl: 1735689599
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# 10. Checkout Session Abierta - Cliente indeciso
+mutation CreateCheckout10 {
+  createCheckoutSession(
+    input: {
+      token: "checkout_token_010_bcd234"
+      storeId: "ea2c931"
+      cartId: "cart_010_efg567"
+      sessionId: "session_010_hij890"
+      status: open
+      expiresAt: "2024-12-31T23:59:59.000Z"
+      currency: "COP"
+      subtotal: 30000.0
+      shippingCost: 8000.0
+      taxAmount: 6080.0
+      totalAmount: 44080.0
+      itemsSnapshot: "{\"items\":[{\"id\":\"prod-007\",\"name\":\"Sombrero de playa\",\"price\":30000,\"quantity\":1,\"total\":30000}],\"totalItems\":1}"
+      customerInfo: "{\"name\":\"Roberto Castro\",\"email\":\"roberto@ejemplo.com\",\"phone\":\"+57 317 888 7777\",\"type\":\"guest\"}"
+      shippingAddress: "{\"street\":\"Calle 25 #80-15\",\"city\":\"Cartagena\",\"state\":\"Bolívar\",\"zipCode\":\"130001\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Calle 25 #80-15\",\"city\":\"Cartagena\",\"state\":\"Bolívar\",\"zipCode\":\"130001\",\"country\":\"Colombia\"}"
+      notes: "Cliente está comparando precios"
+      ttl: 1735689599
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    token
+    sessionId
+    status
+    totalAmount
+    currency
+    expiresAt
+    createdAt
+  }
+}
+
+# ===========================================
+# QUERIES DE VERIFICACIÓN
+# ===========================================
+
+# Query para verificar todas las checkout sessions
+query GetTestCheckoutSessions {
+  listCheckoutSessions(filter: { storeId: { eq: "ea2c931" } }) {
+    items {
+      id
+      token
+      sessionId
+      status
+      totalAmount
+      currency
+      expiresAt
+      createdAt
+    }
+  }
+}

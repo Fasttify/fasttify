@@ -29,3 +29,7 @@ export type {
   EmailTemplateVariables,
   OrderConfirmationEmailRequest,
 } from './email-notification-service';
+
+// Exportar servicios de notificación para el panel admin
+export { NotificationCreator, notificationCreator } from './notification-creator';
+export type { CreateAdminNotificationRequest } from './types/notification-types';

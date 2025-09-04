@@ -18,6 +18,7 @@ import { orderNumberGenerator } from './order-number-generator';
 import { orderValidator } from './order-validator';
 import type { CreateOrderRequest, CreateOrderResponse } from './types/order-types';
 import { EmailOrderService } from '../../notifications/email-order-service';
+import { notificationCreator } from '../../notifications';
 
 export class OrderFetcher {
   /**
@@ -137,6 +138,13 @@ export class OrderFetcher {
       if (finalCustomerEmail) {
         this.sendOrderConfirmationEmail(order, checkoutSession);
       }
+
+      // Crear notificación para el panel de administración
+      await notificationCreator.createAdminNotification({
+        order: order,
+        storeOwner: checkoutSession.storeOwner,
+        type: 'new_order',
+      });
 
       return {
         success: true,

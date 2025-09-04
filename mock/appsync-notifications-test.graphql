@@ -1,0 +1,590 @@
+# Código para introducir en la consola de AppSync - Notificaciones de prueba
+
+# ===========================================
+# NOTIFICACIONES DE NUEVAS ÓRDENES
+# ===========================================
+
+# 1. Nueva orden recibida
+mutation CreateNotification1 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "new_order"
+      title: "Nueva orden recibida"
+      message: "Has recibido una nueva orden #ORD-2024-001 por $155,250 COP de Juan Pérez"
+      orderId: "ORDER_ID_1_AQUI"
+      orderNumber: "ORD-2024-001"
+      totalAmount: 155250.0
+      currency: "COP"
+      customerEmail: "cliente@ejemplo.com"
+      read: false
+      priority: "high"
+      metadata: "{\"customerName\":\"Juan Pérez\",\"itemsCount\":3,\"paymentMethod\":\"credit_card\",\"shippingAddress\":\"Bogotá, Cundinamarca\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# 2. Nueva orden de cliente VIP
+mutation CreateNotification2 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "new_order"
+      title: "Nueva orden VIP recibida"
+      message: "Orden #ORD-2024-003 por $228,540 COP de Carlos López - Cliente VIP"
+      orderId: "ORDER_ID_3_AQUI"
+      orderNumber: "ORD-2024-003"
+      totalAmount: 228540.0
+      currency: "COP"
+      customerEmail: "carlos@ejemplo.com"
+      read: false
+      priority: "urgent"
+      metadata: "{\"customerName\":\"Carlos López\",\"itemsCount\":5,\"paymentMethod\":\"bank_transfer\",\"shippingAddress\":\"Cali, Valle del Cauca\",\"isVip\":true}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# ===========================================
+# NOTIFICACIONES DE PAGOS CONFIRMADOS
+# ===========================================
+
+# 3. Pago confirmado
+mutation CreateNotification3 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "payment_confirmed"
+      title: "Pago confirmado"
+      message: "El pago de la orden #ORD-2024-002 por $102,080 COP ha sido confirmado"
+      orderId: "ORDER_ID_2_AQUI"
+      orderNumber: "ORD-2024-002"
+      totalAmount: 102080.0
+      currency: "COP"
+      customerEmail: "maria@ejemplo.com"
+      read: false
+      priority: "high"
+      metadata: "{\"customerName\":\"María García\",\"paymentId\":\"pay_987654321\",\"paymentMethod\":\"debit_card\",\"confirmationTime\":\"2024-12-21T10:30:00Z\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# 4. Pago de orden grande confirmado
+mutation CreateNotification4 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "payment_confirmed"
+      title: "Pago de orden grande confirmado"
+      message: "Pago confirmado para orden #ORD-2024-009 por $249,400 COP - Patricia Silva"
+      orderId: "ORDER_ID_9_AQUI"
+      orderNumber: "ORD-2024-009"
+      totalAmount: 249400.0
+      currency: "COP"
+      customerEmail: "patricia@ejemplo.com"
+      read: true
+      priority: "high"
+      metadata: "{\"customerName\":\"Patricia Silva\",\"paymentId\":\"pay_vip_001\",\"paymentMethod\":\"credit_card\",\"confirmationTime\":\"2024-12-21T14:15:00Z\",\"isLargeOrder\":true}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# ===========================================
+# NOTIFICACIONES DE ACTUALIZACIÓN DE ESTADO
+# ===========================================
+
+# 5. Orden enviada
+mutation CreateNotification5 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "status_updated"
+      title: "Orden enviada"
+      message: "La orden #ORD-2024-003 ha sido enviada. Número de seguimiento: TRK123456789"
+      orderId: "ORDER_ID_3_AQUI"
+      orderNumber: "ORD-2024-003"
+      totalAmount: 228540.0
+      currency: "COP"
+      customerEmail: "carlos@ejemplo.com"
+      read: false
+      priority: "medium"
+      metadata: "{\"customerName\":\"Carlos López\",\"newStatus\":\"shipped\",\"trackingNumber\":\"TRK123456789\",\"carrier\":\"Servientrega\",\"estimatedDelivery\":\"2024-12-23\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# 6. Orden entregada
+mutation CreateNotification6 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "status_updated"
+      title: "Orden entregada"
+      message: "La orden #ORD-2024-004 ha sido entregada exitosamente a Ana Rodríguez"
+      orderId: "ORDER_ID_4_AQUI"
+      orderNumber: "ORD-2024-004"
+      totalAmount: 78880.0
+      currency: "COP"
+      customerEmail: "ana@ejemplo.com"
+      read: true
+      priority: "medium"
+      metadata: "{\"customerName\":\"Ana Rodríguez\",\"newStatus\":\"delivered\",\"deliveryTime\":\"2024-12-20T16:45:00Z\",\"deliveryAddress\":\"Bogotá, Cundinamarca\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# 7. Orden cancelada
+mutation CreateNotification7 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "status_updated"
+      title: "Orden cancelada"
+      message: "La orden #ORD-2024-005 ha sido cancelada por solicitud del cliente"
+      orderId: "ORDER_ID_5_AQUI"
+      orderNumber: "ORD-2024-005"
+      totalAmount: 139200.0
+      currency: "COP"
+      customerEmail: "luis@ejemplo.com"
+      read: false
+      priority: "high"
+      metadata: "{\"customerName\":\"Luis Martínez\",\"newStatus\":\"cancelled\",\"cancellationReason\":\"customer_request\",\"refundAmount\":139200.0,\"refundStatus\":\"processed\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# ===========================================
+# NOTIFICACIONES DEL SISTEMA
+# ===========================================
+
+# 8. Alerta de stock bajo
+mutation CreateNotification8 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "system_alert"
+      title: "Stock bajo - Traje de baño azul"
+      message: "El producto 'Traje de baño azul' tiene solo 5 unidades en stock. Considera reabastecer."
+      read: false
+      priority: "medium"
+      metadata: "{\"productId\":\"prod-001\",\"productName\":\"Traje de baño azul\",\"currentStock\":5,\"minimumStock\":10,\"alertType\":\"low_stock\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    priority
+    read
+    createdAt
+  }
+}
+
+# 9. Alerta de sistema
+mutation CreateNotification9 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "system_alert"
+      title: "Mantenimiento programado"
+      message: "El sistema estará en mantenimiento el domingo 22 de diciembre de 2:00 AM a 4:00 AM"
+      read: true
+      priority: "low"
+      metadata: "{\"alertType\":\"maintenance\",\"scheduledDate\":\"2024-12-22\",\"startTime\":\"02:00\",\"endTime\":\"04:00\",\"timezone\":\"America/Bogota\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    priority
+    read
+    createdAt
+  }
+}
+
+# 10. Alerta de pago fallido
+mutation CreateNotification10 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "system_alert"
+      title: "Pago fallido detectado"
+      message: "Se detectó un pago fallido en la orden #ORD-2024-007. Revisar detalles del cliente."
+      orderId: "ORDER_ID_7_AQUI"
+      orderNumber: "ORD-2024-007"
+      totalAmount: 121800.0
+      currency: "COP"
+      customerEmail: "diego@ejemplo.com"
+      read: false
+      priority: "urgent"
+      metadata: "{\"customerName\":\"Diego Ramírez\",\"paymentId\":\"pay_failed_001\",\"errorCode\":\"CARD_DECLINED\",\"retryCount\":2,\"alertType\":\"payment_failure\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# ===========================================
+# NOTIFICACIONES ADICIONALES
+# ===========================================
+
+# 11. Nueva orden de cliente frecuente
+mutation CreateNotification11 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "new_order"
+      title: "Nueva orden de cliente frecuente"
+      message: "Orden #ORD-2024-008 por $55,680 COP de Laura Morales - Cliente frecuente"
+      orderId: "ORDER_ID_8_AQUI"
+      orderNumber: "ORD-2024-008"
+      totalAmount: 55680.0
+      currency: "COP"
+      customerEmail: "laura@ejemplo.com"
+      read: false
+      priority: "medium"
+      metadata: "{\"customerName\":\"Laura Morales\",\"itemsCount\":1,\"paymentMethod\":\"credit_card\",\"shippingAddress\":\"Pereira, Risaralda\",\"isFrequentCustomer\":true,\"orderCount\":5}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# 12. Orden en proceso
+mutation CreateNotification12 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "status_updated"
+      title: "Orden en proceso"
+      message: "La orden #ORD-2024-002 está siendo preparada para envío"
+      orderId: "ORDER_ID_2_AQUI"
+      orderNumber: "ORD-2024-002"
+      totalAmount: 102080.0
+      currency: "COP"
+      customerEmail: "maria@ejemplo.com"
+      read: true
+      priority: "low"
+      metadata: "{\"customerName\":\"María García\",\"newStatus\":\"processing\",\"estimatedShipping\":\"2024-12-22\",\"warehouseLocation\":\"Bogotá\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# 13. Alerta de ventas del día
+mutation CreateNotification13 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "system_alert"
+      title: "Resumen de ventas del día"
+      message: "Hoy has vendido $703,950 COP en 4 órdenes. ¡Excelente día!"
+      read: true
+      priority: "low"
+      metadata: "{\"alertType\":\"daily_summary\",\"date\":\"2024-12-21\",\"totalSales\":703950.0,\"orderCount\":4,\"currency\":\"COP\",\"topProduct\":\"Traje de baño azul\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    priority
+    read
+    createdAt
+  }
+}
+
+# 14. Notificación de reembolso
+mutation CreateNotification14 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "status_updated"
+      title: "Reembolso procesado"
+      message: "El reembolso de $139,200 COP para la orden #ORD-2024-005 ha sido procesado exitosamente"
+      orderId: "ORDER_ID_5_AQUI"
+      orderNumber: "ORD-2024-005"
+      totalAmount: 139200.0
+      currency: "COP"
+      customerEmail: "luis@ejemplo.com"
+      read: false
+      priority: "medium"
+      metadata: "{\"customerName\":\"Luis Martínez\",\"refundId\":\"ref_001\",\"refundAmount\":139200.0,\"refundMethod\":\"original_payment\",\"processingTime\":\"2-3 business days\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    orderNumber
+    totalAmount
+    priority
+    read
+    createdAt
+  }
+}
+
+# 15. Alerta de cliente nuevo
+mutation CreateNotification15 {
+  createNotification(
+    input: {
+      storeId: "ea2c931"
+      type: "system_alert"
+      title: "Nuevo cliente registrado"
+      message: "Roberto Castro se ha registrado como nuevo cliente desde Cartagena"
+      read: false
+      priority: "low"
+      metadata: "{\"alertType\":\"new_customer\",\"customerName\":\"Roberto Castro\",\"customerEmail\":\"roberto@ejemplo.com\",\"registrationDate\":\"2024-12-21\",\"location\":\"Cartagena, Bolívar\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    type
+    title
+    message
+    priority
+    read
+    createdAt
+  }
+}
+
+# ===========================================
+# QUERIES DE VERIFICACIÓN
+# ===========================================
+
+# Query para verificar todas las notificaciones
+query GetTestNotifications {
+  listNotifications(filter: { storeId: { eq: "ea2c931" } }) {
+    items {
+      id
+      type
+      title
+      message
+      orderNumber
+      totalAmount
+      priority
+      read
+      createdAt
+    }
+  }
+}
+
+# Query para verificar notificaciones por tipo
+query GetNotificationsByType($type: String!) {
+  listNotifications(filter: { storeId: { eq: "ea2c931" }, type: { eq: $type } }) {
+    items {
+      id
+      type
+      title
+      message
+      orderNumber
+      priority
+      read
+    }
+  }
+}
+
+# Query para verificar notificaciones no leídas
+query GetUnreadNotifications {
+  listNotifications(filter: { storeId: { eq: "ea2c931" }, read: { eq: false } }) {
+    items {
+      id
+      type
+      title
+      message
+      orderNumber
+      priority
+      createdAt
+    }
+  }
+}
+
+# Query para verificar notificaciones de alta prioridad
+query GetHighPriorityNotifications {
+  listNotifications(filter: { storeId: { eq: "ea2c931" }, priority: { eq: "high" } }) {
+    items {
+      id
+      type
+      title
+      message
+      orderNumber
+      totalAmount
+      read
+      createdAt
+    }
+  }
+}
+
+# Query para verificar notificaciones urgentes
+query GetUrgentNotifications {
+  listNotifications(filter: { storeId: { eq: "ea2c931" }, priority: { eq: "urgent" } }) {
+    items {
+      id
+      type
+      title
+      message
+      orderNumber
+      totalAmount
+      read
+      createdAt
+    }
+  }
+}
+
+# Query para verificar notificaciones de nuevas órdenes
+query GetNewOrderNotifications {
+  listNotifications(filter: { storeId: { eq: "ea2c931" }, type: { eq: "new_order" } }) {
+    items {
+      id
+      title
+      message
+      orderNumber
+      totalAmount
+      customerEmail
+      priority
+      read
+      createdAt
+    }
+  }
+}
+
+# Query para verificar notificaciones de pagos confirmados
+query GetPaymentConfirmedNotifications {
+  listNotifications(filter: { storeId: { eq: "ea2c931" }, type: { eq: "payment_confirmed" } }) {
+    items {
+      id
+      title
+      message
+      orderNumber
+      totalAmount
+      customerEmail
+      priority
+      read
+      createdAt
+    }
+  }
+}
+
+# Query para verificar notificaciones del sistema
+query GetSystemNotifications {
+  listNotifications(filter: { storeId: { eq: "ea2c931" }, type: { eq: "system_alert" } }) {
+    items {
+      id
+      title
+      message
+      priority
+      read
+      metadata
+      createdAt
+    }
+  }
+}

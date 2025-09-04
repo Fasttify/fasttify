@@ -1,0 +1,467 @@
+# Código para introducir en la consola de AppSync - Órdenes completas con items
+
+# INSTRUCCIONES:
+# 1. Ejecuta primero la mutation de la orden
+# 2. Copia el ID de la orden del resultado
+# 3. Ejecuta la mutation de OrderItems usando ese ID
+
+# ===========================================
+# ORDEN 1: Juan Pérez - $155,250 COP
+# ===========================================
+
+# Paso 1: Crear la orden
+mutation CreateOrder1 {
+  createOrder(
+    input: {
+      orderNumber: "ORD-2024-001"
+      storeId: "ea2c931"
+      customerId: "customer-123"
+      customerType: registered
+      customerEmail: "cliente@ejemplo.com"
+      subtotal: 125000.0
+      shippingCost: 10000.0
+      taxAmount: 20250.0
+      totalAmount: 155250.0
+      compareAtPrice: 0.0
+      currency: "COP"
+      status: pending
+      paymentStatus: pending
+      paymentMethod: "credit_card"
+      paymentId: "pay_123456789"
+      shippingAddress: "{\"street\":\"Calle 123 #45-67\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110111\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Calle 123 #45-67\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110111\",\"country\":\"Colombia\"}"
+      customerInfo: "{\"name\":\"Juan Pérez\",\"phone\":\"+57 300 123 4567\",\"email\":\"cliente@ejemplo.com\"}"
+      notes: "Entregar en horario de oficina"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderNumber
+    storeId
+    customerEmail
+    totalAmount
+    status
+    paymentStatus
+    createdAt
+  }
+}
+
+# Paso 2: Crear OrderItems para la orden 1 (reemplaza ORDER_ID_1 con el ID real)
+mutation CreateOrderItems1($orderId: String!) {
+  item1: createOrderItem(
+    input: {
+      orderId: $orderId
+      storeId: "ea2c931"
+      productId: "prod-001"
+      variantId: "variant-001"
+      quantity: 2
+      unitPrice: 45000.0
+      totalPrice: 90000.0
+      compareAtPrice: 50000.0
+      productSnapshot: "{\"id\":\"prod-001\",\"name\":\"Traje de baño\",\"description\":\"Traje de baño azul\",\"images\":[\"https://ejemplo.com/traje-bano.jpg\"],\"category\":\"ropa\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+
+  item2: createOrderItem(
+    input: {
+      orderId: $orderId
+      storeId: "ea2c931"
+      productId: "prod-002"
+      variantId: "variant-002"
+      quantity: 1
+      unitPrice: 35000.0
+      totalPrice: 35000.0
+      compareAtPrice: 40000.0
+      productSnapshot: "{\"id\":\"prod-002\",\"name\":\"Gafas de sol\",\"description\":\"Gafas de sol con protección UV\",\"images\":[\"https://ejemplo.com/gafas-sol.jpg\"],\"category\":\"accesorios\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+}
+
+# ===========================================
+# ORDEN 2: María García - $102,080 COP
+# ===========================================
+
+# Paso 1: Crear la orden
+mutation CreateOrder2 {
+  createOrder(
+    input: {
+      orderNumber: "ORD-2024-002"
+      storeId: "ea2c931"
+      customerId: "customer-456"
+      customerType: guest
+      customerEmail: "maria@ejemplo.com"
+      subtotal: 80000.0
+      shippingCost: 8000.0
+      taxAmount: 14080.0
+      totalAmount: 102080.0
+      compareAtPrice: 0.0
+      currency: "COP"
+      status: processing
+      paymentStatus: paid
+      paymentMethod: "debit_card"
+      paymentId: "pay_987654321"
+      shippingAddress: "{\"street\":\"Carrera 15 #93-47\",\"city\":\"Medellín\",\"state\":\"Antioquia\",\"zipCode\":\"050001\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Carrera 15 #93-47\",\"city\":\"Medellín\",\"state\":\"Antioquia\",\"zipCode\":\"050001\",\"country\":\"Colombia\"}"
+      customerInfo: "{\"name\":\"María García\",\"phone\":\"+57 310 987 6543\",\"email\":\"maria@ejemplo.com\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderNumber
+    storeId
+    customerEmail
+    totalAmount
+    status
+    paymentStatus
+    createdAt
+  }
+}
+
+# Paso 2: Crear OrderItems para la orden 2 (reemplaza ORDER_ID_2 con el ID real)
+mutation CreateOrderItems2($orderId: String!) {
+  item1: createOrderItem(
+    input: {
+      orderId: $orderId
+      storeId: "ea2c931"
+      productId: "prod-003"
+      variantId: "variant-003"
+      quantity: 1
+      unitPrice: 80000.0
+      totalPrice: 80000.0
+      compareAtPrice: 90000.0
+      productSnapshot: "{\"id\":\"prod-003\",\"name\":\"Vestido de verano\",\"description\":\"Vestido ligero para el verano\",\"images\":[\"https://ejemplo.com/vestido-verano.jpg\"],\"category\":\"ropa\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+}
+
+# ===========================================
+# ORDEN 3: Carlos López - $228,540 COP
+# ===========================================
+
+# Paso 1: Crear la orden
+mutation CreateOrder3 {
+  createOrder(
+    input: {
+      orderNumber: "ORD-2024-003"
+      storeId: "ea2c931"
+      customerId: "customer-789"
+      customerType: registered
+      customerEmail: "carlos@ejemplo.com"
+      subtotal: 185000.0
+      shippingCost: 12000.0
+      taxAmount: 31540.0
+      totalAmount: 228540.0
+      compareAtPrice: 0.0
+      currency: "COP"
+      status: shipped
+      paymentStatus: paid
+      paymentMethod: "bank_transfer"
+      paymentId: "pay_456789123"
+      shippingAddress: "{\"street\":\"Avenida 68 #25-30\",\"city\":\"Cali\",\"state\":\"Valle del Cauca\",\"zipCode\":\"760001\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Avenida 68 #25-30\",\"city\":\"Cali\",\"state\":\"Valle del Cauca\",\"zipCode\":\"760001\",\"country\":\"Colombia\"}"
+      customerInfo: "{\"name\":\"Carlos López\",\"phone\":\"+57 320 555 1234\",\"email\":\"carlos@ejemplo.com\"}"
+      notes: "Cliente solicita entrega rápida"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderNumber
+    storeId
+    customerEmail
+    totalAmount
+    status
+    paymentStatus
+    createdAt
+  }
+}
+
+# Paso 2: Crear OrderItems para la orden 3 (reemplaza ORDER_ID_3 con el ID real)
+mutation CreateOrderItems3($orderId: String!) {
+  item1: createOrderItem(
+    input: {
+      orderId: $orderId
+      storeId: "ea2c931"
+      productId: "prod-001"
+      variantId: "variant-001"
+      quantity: 3
+      unitPrice: 45000.0
+      totalPrice: 135000.0
+      compareAtPrice: 50000.0
+      productSnapshot: "{\"id\":\"prod-001\",\"name\":\"Traje de baño\",\"description\":\"Traje de baño azul\",\"images\":[\"https://ejemplo.com/traje-bano.jpg\"],\"category\":\"ropa\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+
+  item2: createOrderItem(
+    input: {
+      orderId: $orderId
+      storeId: "ea2c931"
+      productId: "prod-004"
+      variantId: "variant-004"
+      quantity: 2
+      unitPrice: 25000.0
+      totalPrice: 50000.0
+      compareAtPrice: 30000.0
+      productSnapshot: "{\"id\":\"prod-004\",\"name\":\"Sandalias\",\"description\":\"Sandalias cómodas para la playa\",\"images\":[\"https://ejemplo.com/sandalias.jpg\"],\"category\":\"calzado\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+}
+
+# ===========================================
+# ORDEN 4: Ana Rodríguez - $78,880 COP
+# ===========================================
+
+# Paso 1: Crear la orden
+mutation CreateOrder4 {
+  createOrder(
+    input: {
+      orderNumber: "ORD-2024-004"
+      storeId: "ea2c931"
+      customerId: "customer-012"
+      customerType: guest
+      customerEmail: "ana@ejemplo.com"
+      subtotal: 60000.0
+      shippingCost: 8000.0
+      taxAmount: 10880.0
+      totalAmount: 78880.0
+      compareAtPrice: 0.0
+      currency: "COP"
+      status: delivered
+      paymentStatus: paid
+      paymentMethod: "credit_card"
+      paymentId: "pay_789123456"
+      shippingAddress: "{\"street\":\"Carrera 7 #32-16\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110311\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Carrera 7 #32-16\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110311\",\"country\":\"Colombia\"}"
+      customerInfo: "{\"name\":\"Ana Rodríguez\",\"phone\":\"+57 315 444 5555\",\"email\":\"ana@ejemplo.com\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderNumber
+    storeId
+    customerEmail
+    totalAmount
+    status
+    paymentStatus
+    createdAt
+  }
+}
+
+# Paso 2: Crear OrderItems para la orden 4 (reemplaza ORDER_ID_4 con el ID real)
+mutation CreateOrderItems4($orderId: String!) {
+  item1: createOrderItem(
+    input: {
+      orderId: $orderId
+      storeId: "ea2c931"
+      productId: "prod-005"
+      variantId: "variant-005"
+      quantity: 1
+      unitPrice: 60000.0
+      totalPrice: 60000.0
+      compareAtPrice: 70000.0
+      productSnapshot: "{\"id\":\"prod-005\",\"name\":\"Bolso de playa\",\"description\":\"Bolso resistente al agua\",\"images\":[\"https://ejemplo.com/bolso-playa.jpg\"],\"category\":\"accesorios\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+}
+
+# ===========================================
+# ORDEN 5: Luis Martínez - $139,200 COP
+# ===========================================
+
+# Paso 1: Crear la orden
+mutation CreateOrder5 {
+  createOrder(
+    input: {
+      orderNumber: "ORD-2024-005"
+      storeId: "ea2c931"
+      customerId: "customer-345"
+      customerType: registered
+      customerEmail: "luis@ejemplo.com"
+      subtotal: 110000.0
+      shippingCost: 10000.0
+      taxAmount: 19200.0
+      totalAmount: 139200.0
+      compareAtPrice: 0.0
+      currency: "COP"
+      status: cancelled
+      paymentStatus: refunded
+      paymentMethod: "debit_card"
+      paymentId: "pay_321654987"
+      shippingAddress: "{\"street\":\"Calle 80 #11-42\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110221\",\"country\":\"Colombia\"}"
+      billingAddress: "{\"street\":\"Calle 80 #11-42\",\"city\":\"Bogotá\",\"state\":\"Cundinamarca\",\"zipCode\":\"110221\",\"country\":\"Colombia\"}"
+      customerInfo: "{\"name\":\"Luis Martínez\",\"phone\":\"+57 301 777 8888\",\"email\":\"luis@ejemplo.com\"}"
+      notes: "Orden cancelada por solicitud del cliente"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderNumber
+    storeId
+    customerEmail
+    totalAmount
+    status
+    paymentStatus
+    createdAt
+  }
+}
+
+# Paso 2: Crear OrderItems para la orden 5 (reemplaza ORDER_ID_5 con el ID real)
+mutation CreateOrderItems5($orderId: String!) {
+  item1: createOrderItem(
+    input: {
+      orderId: $orderId
+      storeId: "ea2c931"
+      productId: "prod-001"
+      variantId: "variant-001"
+      quantity: 1
+      unitPrice: 45000.0
+      totalPrice: 45000.0
+      compareAtPrice: 50000.0
+      productSnapshot: "{\"id\":\"prod-001\",\"name\":\"Traje de baño\",\"description\":\"Traje de baño azul\",\"images\":[\"https://ejemplo.com/traje-bano.jpg\"],\"category\":\"ropa\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+
+  item2: createOrderItem(
+    input: {
+      orderId: $orderId
+      storeId: "ea2c931"
+      productId: "prod-002"
+      variantId: "variant-002"
+      quantity: 1
+      unitPrice: 35000.0
+      totalPrice: 35000.0
+      compareAtPrice: 40000.0
+      productSnapshot: "{\"id\":\"prod-002\",\"name\":\"Gafas de sol\",\"description\":\"Gafas de sol con protección UV\",\"images\":[\"https://ejemplo.com/gafas-sol.jpg\"],\"category\":\"accesorios\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+
+  item3: createOrderItem(
+    input: {
+      orderId: $orderId
+      storeId: "ea2c931"
+      productId: "prod-006"
+      variantId: "variant-006"
+      quantity: 2
+      unitPrice: 15000.0
+      totalPrice: 30000.0
+      compareAtPrice: 18000.0
+      productSnapshot: "{\"id\":\"prod-006\",\"name\":\"Protector solar\",\"description\":\"Protector solar SPF 50+\",\"images\":[\"https://ejemplo.com/protector-solar.jpg\"],\"category\":\"cuidado\"}"
+      storeOwner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    orderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+}
+
+# ===========================================
+# QUERIES DE VERIFICACIÓN
+# ===========================================
+
+# Query para verificar las órdenes con sus items
+query GetTestOrdersWithItems {
+  listOrders(filter: { storeId: { eq: "ea2c931" } }) {
+    items {
+      id
+      orderNumber
+      customerEmail
+      customerInfo
+      totalAmount
+      status
+      paymentStatus
+      createdAt
+      items {
+        items {
+          id
+          productId
+          quantity
+          unitPrice
+          totalPrice
+          productSnapshot
+        }
+      }
+    }
+  }
+}
+
+# Query para verificar solo los OrderItems
+query GetTestOrderItems {
+  listOrderItems(filter: { storeId: { eq: "ea2c931" } }) {
+    items {
+      id
+      orderId
+      productId
+      quantity
+      unitPrice
+      totalPrice
+      productSnapshot
+    }
+  }
+}

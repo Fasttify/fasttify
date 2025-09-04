@@ -1,0 +1,335 @@
+# Código para introducir en la consola de AppSync - Colecciones de prueba
+
+# ===========================================
+# COLECCIONES PRINCIPALES
+# ===========================================
+
+# 1. Colección de Ropa de Verano
+mutation CreateCollection1 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Ropa de Verano"
+      nameLowercase: "ropa de verano"
+      description: "Descubre nuestra colección de ropa perfecta para el verano. Trajes de baño, vestidos ligeros y prendas cómodas para disfrutar del sol y la playa."
+      image: "https://ejemplo.com/coleccion-ropa-verano.jpg"
+      slug: "ropa-verano"
+      isActive: true
+      sortOrder: 1
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# 2. Colección de Accesorios de Playa
+mutation CreateCollection2 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Accesorios de Playa"
+      nameLowercase: "accesorios de playa"
+      description: "Todo lo que necesitas para disfrutar de un día perfecto en la playa. Gafas de sol, bolsos, sombreros y toallas de alta calidad."
+      image: "https://ejemplo.com/coleccion-accesorios-playa.jpg"
+      slug: "accesorios-playa"
+      isActive: true
+      sortOrder: 2
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# 3. Colección de Calzado
+mutation CreateCollection3 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Calzado Cómodo"
+      nameLowercase: "calzado cómodo"
+      description: "Calzado diseñado para la comodidad y durabilidad. Sandalias ergonómicas y zapatos perfectos para caminar por la playa o la ciudad."
+      image: "https://ejemplo.com/coleccion-calzado.jpg"
+      slug: "calzado-comodo"
+      isActive: true
+      sortOrder: 3
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# 4. Colección de Cuidado Personal
+mutation CreateCollection4 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Cuidado Personal"
+      nameLowercase: "cuidado personal"
+      description: "Productos esenciales para el cuidado de tu piel bajo el sol. Protectores solares de alta protección y productos de calidad premium."
+      image: "https://ejemplo.com/coleccion-cuidado-personal.jpg"
+      slug: "cuidado-personal"
+      isActive: true
+      sortOrder: 4
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# ===========================================
+# COLECCIONES ESPECIALES
+# ===========================================
+
+# 5. Colección de Productos Destacados
+mutation CreateCollection5 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Productos Destacados"
+      nameLowercase: "productos destacados"
+      description: "Nuestros productos más populares y mejor valorados por nuestros clientes. Selección especial de artículos que no pueden faltar en tu guardarropa de verano."
+      image: "https://ejemplo.com/coleccion-destacados.jpg"
+      slug: "productos-destacados"
+      isActive: true
+      sortOrder: 5
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# 6. Colección de Ofertas Especiales
+mutation CreateCollection6 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Ofertas Especiales"
+      nameLowercase: "ofertas especiales"
+      description: "¡Aprovecha nuestras ofertas especiales! Productos con descuentos increíbles para que disfrutes del verano sin gastar de más."
+      image: "https://ejemplo.com/coleccion-ofertas.jpg"
+      slug: "ofertas-especiales"
+      isActive: true
+      sortOrder: 6
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# 7. Colección de Productos Nuevos
+mutation CreateCollection7 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Productos Nuevos"
+      nameLowercase: "productos nuevos"
+      description: "Descubre las últimas incorporaciones a nuestro catálogo. Productos nuevos y tendencias actuales para estar siempre a la moda."
+      image: "https://ejemplo.com/coleccion-nuevos.jpg"
+      slug: "productos-nuevos"
+      isActive: true
+      sortOrder: 7
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# 8. Colección de Temporada
+mutation CreateCollection8 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Temporada de Verano 2024"
+      nameLowercase: "temporada de verano 2024"
+      description: "La colección más completa para esta temporada de verano. Productos seleccionados especialmente para disfrutar del sol, la playa y las vacaciones."
+      image: "https://ejemplo.com/coleccion-temporada-verano.jpg"
+      slug: "temporada-verano-2024"
+      isActive: true
+      sortOrder: 8
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# ===========================================
+# COLECCIONES INACTIVAS (para pruebas)
+# ===========================================
+
+# 9. Colección Inactiva - Temporada Pasada
+mutation CreateCollection9 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Temporada Pasada"
+      nameLowercase: "temporada pasada"
+      description: "Productos de temporadas anteriores. Esta colección está actualmente inactiva."
+      image: "https://ejemplo.com/coleccion-temporada-pasada.jpg"
+      slug: "temporada-pasada"
+      isActive: false
+      sortOrder: 9
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# 10. Colección de Prueba
+mutation CreateCollection10 {
+  createCollection(
+    input: {
+      storeId: "ea2c931"
+      title: "Colección de Prueba"
+      nameLowercase: "colección de prueba"
+      description: "Esta es una colección creada para pruebas del sistema. Contiene productos de ejemplo para desarrollo y testing."
+      image: "https://ejemplo.com/coleccion-prueba.jpg"
+      slug: "coleccion-prueba"
+      isActive: false
+      sortOrder: 10
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    title
+    slug
+    isActive
+    sortOrder
+    createdAt
+  }
+}
+
+# ===========================================
+# QUERIES DE VERIFICACIÓN
+# ===========================================
+
+# Query para verificar todas las colecciones
+query GetTestCollections {
+  listCollections(filter: { storeId: { eq: "ea2c931" } }) {
+    items {
+      id
+      title
+      slug
+      isActive
+      sortOrder
+      createdAt
+    }
+  }
+}
+
+# Query para verificar solo colecciones activas
+query GetActiveCollections {
+  listCollections(filter: { storeId: { eq: "ea2c931" }, isActive: { eq: true } }) {
+    items {
+      id
+      title
+      slug
+      sortOrder
+    }
+  }
+}
+
+# Query para verificar colecciones inactivas
+query GetInactiveCollections {
+  listCollections(filter: { storeId: { eq: "ea2c931" }, isActive: { eq: false } }) {
+    items {
+      id
+      title
+      slug
+      sortOrder
+    }
+  }
+}
+
+# Query para buscar colecciones por título
+query SearchCollections($searchTerm: String!) {
+  listCollections(filter: { storeId: { eq: "ea2c931" }, nameLowercase: { contains: $searchTerm } }) {
+    items {
+      id
+      title
+      slug
+      isActive
+    }
+  }
+}
+
+# Query para obtener colección por slug
+query GetCollectionBySlug($slug: String!) {
+  listCollections(filter: { storeId: { eq: "ea2c931" }, slug: { eq: $slug } }) {
+    items {
+      id
+      title
+      description
+      image
+      slug
+      isActive
+      sortOrder
+      createdAt
+    }
+  }
+}
+
+# Query para obtener colecciones ordenadas por sortOrder
+query GetCollectionsOrdered {
+  listCollections(filter: { storeId: { eq: "ea2c931" }, isActive: { eq: true } }) {
+    items {
+      id
+      title
+      slug
+      sortOrder
+    }
+  }
+}

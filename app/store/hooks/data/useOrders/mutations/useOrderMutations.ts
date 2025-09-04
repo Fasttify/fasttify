@@ -1,4 +1,4 @@
-import { type StoreSchema } from '@/data-schema';
+import { type Schema } from '@/data-schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -6,7 +6,7 @@ import type { IOrder, OrderCreateInput, OrderUpdateInput, OrderStatus, PaymentSt
 import { useOrderCacheUtils } from '../utils/orderCacheUtils';
 import { useOrderNotifications } from '../notifications/useOrderNotifications';
 
-const client = generateClient<StoreSchema>({
+const client = generateClient<Schema>({
   authMode: 'userPool',
 });
 
@@ -95,16 +95,36 @@ export const useOrderMutations = (storeId: string | undefined, storeName?: strin
   });
 
   /**
-   * Mutación para eliminar múltiples órdenes
+   * Mutación para eliminar múltiples órdenes usando batch delete (máximo 25 por lote)
    */
   const deleteMultipleOrdersMutation = useMutation({
     mutationFn: async ({ ids, storeOwner }: { ids: string[]; storeOwner: string }) => {
-      await Promise.all(ids.map((id) => client.models.Order.delete({ id })));
-      return ids;
+      const batchSize = 25;
+      const deletedIds: string[] = [];
+
+      // Procesar en lotes de 25 (límite de DynamoDB)
+      for (let i = 0; i < ids.length; i += batchSize) {
+        const batch = ids.slice(i, i + batchSize);
+        const result = await client.mutations.BatchDeleteOrders({
+          orderIds: batch,
+        });
+
+        // Agregar los IDs procesados al resultado
+        if (result.data) {
+          deletedIds.push(...(result.data.map((item) => item?.id).filter(Boolean) as string[]));
+        }
+      }
+
+      return deletedIds;
     },
     onSuccess: async (deletedIds) => {
       // Remover del caché optimísticamente
       cacheUtils.removeOrdersFromCache(deletedIds);
+
+      // Invalidar todas las queries de órdenes para refrescar la paginación (sin await)
+      queryClient.invalidateQueries({
+        queryKey: ['orders', storeId],
+      });
     },
   });
 

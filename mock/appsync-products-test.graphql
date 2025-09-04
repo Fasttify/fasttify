@@ -1,0 +1,370 @@
+# Código para introducir en la consola de AppSync - Productos de prueba
+
+# ===========================================
+# PRODUCTOS DE ROPA
+# ===========================================
+
+# 1. Traje de baño
+mutation CreateProduct1 {
+  createProduct(
+    input: {
+      storeId: "ea2c931"
+      name: "Traje de baño azul"
+      nameLowercase: "traje de baño azul"
+      description: "Traje de baño de una pieza en color azul marino, perfecto para la playa o piscina. Material resistente al cloro y secado rápido."
+      price: 45000.0
+      compareAtPrice: 50000.0
+      costPerItem: 25000.0
+      sku: "TB-AZ-001"
+      barcode: "1234567890123"
+      quantity: 50
+      category: "ropa"
+      images: "[\"https://ejemplo.com/traje-bano-azul-1.jpg\", \"https://ejemplo.com/traje-bano-azul-2.jpg\"]"
+      attributes: "{\"talla\":[\"S\",\"M\",\"L\",\"XL\"],\"color\":\"azul marino\",\"material\":\"poliéster\",\"cuidado\":\"lavar a mano\"}"
+      status: "active"
+      slug: "traje-bano-azul"
+      featured: true
+      tags: "[\"playa\",\"piscina\",\"verano\",\"mujer\"]"
+      variants: "{\"talla-s\":{\"price\":45000,\"quantity\":15,\"sku\":\"TB-AZ-001-S\"},\"talla-m\":{\"price\":45000,\"quantity\":20,\"sku\":\"TB-AZ-001-M\"},\"talla-l\":{\"price\":45000,\"quantity\":10,\"sku\":\"TB-AZ-001-L\"},\"talla-xl\":{\"price\":45000,\"quantity\":5,\"sku\":\"TB-AZ-001-XL\"}}"
+      collectionId: "col-001"
+      supplier: "Proveedor Ropa Deportiva"
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    name
+    price
+    status
+    featured
+    createdAt
+  }
+}
+
+# 2. Vestido de verano
+mutation CreateProduct2 {
+  createProduct(
+    input: {
+      storeId: "ea2c931"
+      name: "Vestido de verano floral"
+      nameLowercase: "vestido de verano floral"
+      description: "Vestido ligero y cómodo con estampado floral, ideal para días calurosos. Corte A-line que favorece a todas las siluetas."
+      price: 80000.0
+      compareAtPrice: 90000.0
+      costPerItem: 40000.0
+      sku: "VD-FL-002"
+      barcode: "1234567890124"
+      quantity: 30
+      category: "ropa"
+      images: "[\"https://ejemplo.com/vestido-floral-1.jpg\", \"https://ejemplo.com/vestido-floral-2.jpg\"]"
+      attributes: "{\"talla\":[\"XS\",\"S\",\"M\",\"L\"],\"color\":\"floral multicolor\",\"material\":\"algodón\",\"cuidado\":\"lavar en frío\"}"
+      status: "active"
+      slug: "vestido-verano-floral"
+      featured: true
+      tags: "[\"verano\",\"floral\",\"cómodo\",\"mujer\"]"
+      variants: "{\"talla-xs\":{\"price\":80000,\"quantity\":5,\"sku\":\"VD-FL-002-XS\"},\"talla-s\":{\"price\":80000,\"quantity\":10,\"sku\":\"VD-FL-002-S\"},\"talla-m\":{\"price\":80000,\"quantity\":10,\"sku\":\"VD-FL-002-M\"},\"talla-l\":{\"price\":80000,\"quantity\":5,\"sku\":\"VD-FL-002-L\"}}"
+      collectionId: "col-001"
+      supplier: "Proveedor Ropa Casual"
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    name
+    price
+    status
+    featured
+    createdAt
+  }
+}
+
+# ===========================================
+# PRODUCTOS DE ACCESORIOS
+# ===========================================
+
+# 3. Gafas de sol
+mutation CreateProduct3 {
+  createProduct(
+    input: {
+      storeId: "ea2c931"
+      name: "Gafas de sol con protección UV"
+      nameLowercase: "gafas de sol con protección uv"
+      description: "Gafas de sol con lentes polarizadas y protección UV 400. Marco de acetato resistente y cómodo para uso prolongado."
+      price: 35000.0
+      compareAtPrice: 40000.0
+      costPerItem: 18000.0
+      sku: "GS-UV-003"
+      barcode: "1234567890125"
+      quantity: 25
+      category: "accesorios"
+      images: "[\"https://ejemplo.com/gafas-sol-1.jpg\", \"https://ejemplo.com/gafas-sol-2.jpg\"]"
+      attributes: "{\"color\":\"negro\",\"material\":\"acetato\",\"proteccion\":\"UV 400\",\"polarizado\":true}"
+      status: "active"
+      slug: "gafas-sol-proteccion-uv"
+      featured: false
+      tags: "[\"gafas\",\"sol\",\"protección\",\"unisex\"]"
+      variants: "{\"color-negro\":{\"price\":35000,\"quantity\":15,\"sku\":\"GS-UV-003-NEGRO\"},\"color-marron\":{\"price\":35000,\"quantity\":10,\"sku\":\"GS-UV-003-MARRON\"}}"
+      collectionId: "col-002"
+      supplier: "Proveedor Accesorios"
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    name
+    price
+    status
+    featured
+    createdAt
+  }
+}
+
+# 4. Bolso de playa
+mutation CreateProduct4 {
+  createProduct(
+    input: {
+      storeId: "ea2c931"
+      name: "Bolso de playa resistente al agua"
+      nameLowercase: "bolso de playa resistente al agua"
+      description: "Bolso de playa grande con múltiples compartimentos, resistente al agua y arena. Perfecto para llevar todo lo necesario a la playa."
+      price: 60000.0
+      compareAtPrice: 70000.0
+      costPerItem: 30000.0
+      sku: "BP-AG-004"
+      barcode: "1234567890126"
+      quantity: 20
+      category: "accesorios"
+      images: "[\"https://ejemplo.com/bolso-playa-1.jpg\", \"https://ejemplo.com/bolso-playa-2.jpg\"]"
+      attributes: "{\"color\":[\"azul\",\"rojo\",\"verde\"],\"material\":\"nylon resistente al agua\",\"capacidad\":\"30L\",\"compartimentos\":3}"
+      status: "active"
+      slug: "bolso-playa-resistente-agua"
+      featured: true
+      tags: "[\"playa\",\"bolso\",\"resistente\",\"agua\"]"
+      variants: "{\"color-azul\":{\"price\":60000,\"quantity\":8,\"sku\":\"BP-AG-004-AZUL\"},\"color-rojo\":{\"price\":60000,\"quantity\":7,\"sku\":\"BP-AG-004-ROJO\"},\"color-verde\":{\"price\":60000,\"quantity\":5,\"sku\":\"BP-AG-004-VERDE\"}}"
+      collectionId: "col-002"
+      supplier: "Proveedor Accesorios"
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    name
+    price
+    status
+    featured
+    createdAt
+  }
+}
+
+# ===========================================
+# PRODUCTOS DE CALZADO
+# ===========================================
+
+# 5. Sandalias
+mutation CreateProduct5 {
+  createProduct(
+    input: {
+      storeId: "ea2c931"
+      name: "Sandalias cómodas para la playa"
+      nameLowercase: "sandalias cómodas para la playa"
+      description: "Sandalias ergonómicas con suela antideslizante, perfectas para caminar por la playa o piscina. Material resistente al agua salada."
+      price: 25000.0
+      compareAtPrice: 30000.0
+      costPerItem: 12000.0
+      sku: "SD-PL-005"
+      barcode: "1234567890127"
+      quantity: 40
+      category: "calzado"
+      images: "[\"https://ejemplo.com/sandalias-1.jpg\", \"https://ejemplo.com/sandalias-2.jpg\"]"
+      attributes: "{\"talla\":[\"35\",\"36\",\"37\",\"38\",\"39\",\"40\",\"41\",\"42\"],\"color\":\"negro\",\"material\":\"goma\",\"antideslizante\":true}"
+      status: "active"
+      slug: "sandalias-comodas-playa"
+      featured: false
+      tags: "[\"sandalias\",\"playa\",\"cómodas\",\"unisex\"]"
+      variants: "{\"talla-35\":{\"price\":25000,\"quantity\":5,\"sku\":\"SD-PL-005-35\"},\"talla-36\":{\"price\":25000,\"quantity\":5,\"sku\":\"SD-PL-005-36\"},\"talla-37\":{\"price\":25000,\"quantity\":5,\"sku\":\"SD-PL-005-37\"},\"talla-38\":{\"price\":25000,\"quantity\":5,\"sku\":\"SD-PL-005-38\"},\"talla-39\":{\"price\":25000,\"quantity\":5,\"sku\":\"SD-PL-005-39\"},\"talla-40\":{\"price\":25000,\"quantity\":5,\"sku\":\"SD-PL-005-40\"},\"talla-41\":{\"price\":25000,\"quantity\":5,\"sku\":\"SD-PL-005-41\"},\"talla-42\":{\"price\":25000,\"quantity\":5,\"sku\":\"SD-PL-005-42\"}}"
+      collectionId: "col-003"
+      supplier: "Proveedor Calzado"
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    name
+    price
+    status
+    featured
+    createdAt
+  }
+}
+
+# ===========================================
+# PRODUCTOS DE CUIDADO
+# ===========================================
+
+# 6. Protector solar
+mutation CreateProduct6 {
+  createProduct(
+    input: {
+      storeId: "ea2c931"
+      name: "Protector solar SPF 50+"
+      nameLowercase: "protector solar spf 50+"
+      description: "Protector solar de amplio espectro con SPF 50+, resistente al agua hasta 80 minutos. Fórmula no grasa y de rápida absorción."
+      price: 15000.0
+      compareAtPrice: 18000.0
+      costPerItem: 8000.0
+      sku: "PS-50-006"
+      barcode: "1234567890128"
+      quantity: 100
+      category: "cuidado"
+      images: "[\"https://ejemplo.com/protector-solar-1.jpg\", \"https://ejemplo.com/protector-solar-2.jpg\"]"
+      attributes: "{\"spf\":\"50+\",\"resistente_agua\":\"80 minutos\",\"tipo\":\"amplio espectro\",\"formula\":\"no grasa\"}"
+      status: "active"
+      slug: "protector-solar-spf-50"
+      featured: true
+      tags: "[\"protector\",\"solar\",\"spf50\",\"cuidado\"]"
+      variants: "{\"tamaño-100ml\":{\"price\":15000,\"quantity\":50,\"sku\":\"PS-50-006-100ML\"},\"tamaño-200ml\":{\"price\":25000,\"quantity\":50,\"sku\":\"PS-50-006-200ML\"}}"
+      collectionId: "col-004"
+      supplier: "Proveedor Cuidado Personal"
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    name
+    price
+    status
+    featured
+    createdAt
+  }
+}
+
+# ===========================================
+# PRODUCTOS ADICIONALES
+# ===========================================
+
+# 7. Sombrero de playa
+mutation CreateProduct7 {
+  createProduct(
+    input: {
+      storeId: "ea2c931"
+      name: "Sombrero de playa de ala ancha"
+      nameLowercase: "sombrero de playa de ala ancha"
+      description: "Sombrero de paja con ala ancha para máxima protección solar. Incluye cordón ajustable para evitar que se vuele con el viento."
+      price: 30000.0
+      compareAtPrice: 35000.0
+      costPerItem: 15000.0
+      sku: "SH-PL-007"
+      barcode: "1234567890129"
+      quantity: 15
+      category: "accesorios"
+      images: "[\"https://ejemplo.com/sombrero-playa-1.jpg\", \"https://ejemplo.com/sombrero-playa-2.jpg\"]"
+      attributes: "{\"color\":\"natural\",\"material\":\"paja\",\"ala\":\"ancha\",\"cordón\":true}"
+      status: "active"
+      slug: "sombrero-playa-ala-ancha"
+      featured: false
+      tags: "[\"sombrero\",\"playa\",\"protección\",\"sol\"]"
+      variants: "{\"color-natural\":{\"price\":30000,\"quantity\":15,\"sku\":\"SH-PL-007-NATURAL\"}}"
+      collectionId: "col-002"
+      supplier: "Proveedor Accesorios"
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    name
+    price
+    status
+    featured
+    createdAt
+  }
+}
+
+# 8. Toalla de playa
+mutation CreateProduct8 {
+  createProduct(
+    input: {
+      storeId: "ea2c931"
+      name: "Toalla de playa extra grande"
+      nameLowercase: "toalla de playa extra grande"
+      description: "Toalla de playa de microfibra, extra grande (150x200cm), de secado rápido y resistente a la arena. Incluye bolsa de transporte."
+      price: 40000.0
+      compareAtPrice: 45000.0
+      costPerItem: 20000.0
+      sku: "TB-PL-008"
+      barcode: "1234567890130"
+      quantity: 35
+      category: "accesorios"
+      images: "[\"https://ejemplo.com/toalla-playa-1.jpg\", \"https://ejemplo.com/toalla-playa-2.jpg\"]"
+      attributes: "{\"tamaño\":\"150x200cm\",\"material\":\"microfibra\",\"secado\":\"rápido\",\"bolsa\":true}"
+      status: "active"
+      slug: "toalla-playa-extra-grande"
+      featured: true
+      tags: "[\"toalla\",\"playa\",\"microfibra\",\"grande\"]"
+      variants: "{\"color-azul\":{\"price\":40000,\"quantity\":12,\"sku\":\"TB-PL-008-AZUL\"},\"color-rojo\":{\"price\":40000,\"quantity\":10,\"sku\":\"TB-PL-008-ROJO\"},\"color-verde\":{\"price\":40000,\"quantity\":8,\"sku\":\"TB-PL-008-VERDE\"},\"color-amarillo\":{\"price\":40000,\"quantity\":5,\"sku\":\"TB-PL-008-AMARILLO\"}}"
+      collectionId: "col-002"
+      supplier: "Proveedor Accesorios"
+      owner: "google_101468658238362697147"
+    }
+  ) {
+    id
+    name
+    price
+    status
+    featured
+    createdAt
+  }
+}
+
+# ===========================================
+# QUERIES DE VERIFICACIÓN
+# ===========================================
+
+# Query para verificar todos los productos
+query GetTestProducts {
+  listProducts(filter: { storeId: { eq: "ea2c931" } }) {
+    items {
+      id
+      name
+      price
+      compareAtPrice
+      quantity
+      category
+      status
+      featured
+      createdAt
+    }
+  }
+}
+
+# Query para verificar productos por categoría
+query GetProductsByCategory($category: String!) {
+  listProducts(filter: { storeId: { eq: "ea2c931" }, category: { eq: $category } }) {
+    items {
+      id
+      name
+      price
+      quantity
+      status
+    }
+  }
+}
+
+# Query para verificar productos destacados
+query GetFeaturedProducts {
+  listProducts(filter: { storeId: { eq: "ea2c931" }, featured: { eq: true } }) {
+    items {
+      id
+      name
+      price
+      compareAtPrice
+      category
+      featured
+    }
+  }
+}
+
+# Query para buscar productos por nombre
+query SearchProducts($searchTerm: String!) {
+  listProducts(filter: { storeId: { eq: "ea2c931" }, nameLowercase: { contains: $searchTerm } }) {
+    items {
+      id
+      name
+      price
+      category
+      status
+    }
+  }
+}

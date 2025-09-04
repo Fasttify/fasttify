@@ -1,4 +1,4 @@
-import { type StoreSchema } from '@/data-schema';
+import { type Schema } from '@/data-schema';
 import { normalizeAttributesField, normalizeTagsField, withLowercaseName } from '@/app/store/hooks/utils/productUtils';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,7 +7,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
 import type { IProduct, ProductCreateInput, ProductUpdateInput } from '../types';
 import { useProductCacheUtils } from '../utils';
 
-const client = generateClient<StoreSchema>({
+const client = generateClient<Schema>({
   authMode: 'userPool',
 });
 
@@ -16,7 +16,7 @@ const client = generateClient<StoreSchema>({
  */
 export const useProductMutations = (storeId: string | undefined) => {
   const queryClient = useQueryClient();
-  const { invalidateProductCache } = useCacheInvalidation();
+  const { invalidateProductCache, invalidateMultipleProductsCache } = useCacheInvalidation();
   const cacheUtils = useProductCacheUtils(storeId);
 
   /**
@@ -98,20 +98,40 @@ export const useProductMutations = (storeId: string | undefined) => {
   });
 
   /**
-   * Mutación para eliminar múltiples productos
+   * Mutación para eliminar múltiples productos usando batch delete (máximo 25 por lote)
    */
   const deleteMultipleProductsMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      await Promise.all(ids.map((id) => client.models.Product.delete({ id })));
-      return ids;
+      const batchSize = 25;
+      const deletedIds: string[] = [];
+
+      // Procesar en lotes de 25 (límite de DynamoDB)
+      for (let i = 0; i < ids.length; i += batchSize) {
+        const batch = ids.slice(i, i + batchSize);
+        const result = await client.mutations.BatchDeleteProducts({
+          productIds: batch,
+        });
+
+        // Agregar los IDs procesados al resultado
+        if (result.data) {
+          deletedIds.push(...(result.data.map((item) => item?.id).filter(Boolean) as string[]));
+        }
+      }
+
+      return deletedIds;
     },
     onSuccess: async (deletedIds) => {
       // Remover productos de la caché de React Query
       cacheUtils.removeProductsFromCache(deletedIds);
 
-      // Invalidar caché del motor de renderizado para cada producto eliminado
-      if (storeId) {
-        await Promise.all(deletedIds.map((id) => invalidateProductCache(storeId, id)));
+      // Invalidar todas las queries de productos para refrescar la paginación (sin await)
+      queryClient.invalidateQueries({
+        queryKey: ['products', storeId],
+      });
+
+      // Invalidar caché del motor de renderizado para múltiples productos (en background)
+      if (storeId && deletedIds.length > 0) {
+        invalidateMultipleProductsCache(storeId, deletedIds);
       }
     },
   });
