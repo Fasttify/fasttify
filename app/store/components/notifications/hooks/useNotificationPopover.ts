@@ -152,7 +152,7 @@ export const useNotificationPopover = ({
       if (hasRecentNotification) {
         // Obtener el tipo de la notificación más reciente
         const mostRecentNotification = recentNotifications[0];
-        playNotificationSound(mostRecentNotification.type);
+        playNotificationSound(mostRecentNotification.type || '');
       }
     }
 
