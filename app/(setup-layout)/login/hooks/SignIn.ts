@@ -1,6 +1,7 @@
 import { resendSignUpCode, signIn, type SignInInput } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
+import { useAuth } from '@/context/hooks/useAuth';
 
 interface UseAuthReturn {
   login: (email: string, password: string) => Promise<void>;
@@ -21,11 +22,11 @@ interface UseAuthProps {
   onVerificationNeeded?: (email: string, password: string) => void;
 }
 
-export function useAuth({ redirectPath = '/', onVerificationNeeded }: UseAuthProps = {}): UseAuthReturn {
+export function useSignIn({ redirectPath = '/', onVerificationNeeded }: UseAuthProps = {}): UseAuthReturn {
   const router = useRouter();
+  const { refreshUser, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const getErrorMessage = (error: AuthError): string => {
     switch (error.message) {
@@ -81,7 +82,8 @@ export function useAuth({ redirectPath = '/', onVerificationNeeded }: UseAuthPro
         const { isSignedIn, nextStep } = await signIn(signInInput);
 
         if (isSignedIn) {
-          setIsAuthenticated(true);
+          // Refrescar el estado del usuario en el store global
+          await refreshUser();
           router.push(redirectPath);
         } else if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
           // Si el usuario no ha confirmado su registro, reenvía el código
@@ -102,12 +104,11 @@ export function useAuth({ redirectPath = '/', onVerificationNeeded }: UseAuthPro
         }
       } catch (err) {
         setError(getErrorMessage(err as AuthError));
-        setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
       }
     },
-    [redirectPath, onVerificationNeeded, resendConfirmationCode, router]
+    [redirectPath, onVerificationNeeded, resendConfirmationCode, router, refreshUser]
   );
 
   return {

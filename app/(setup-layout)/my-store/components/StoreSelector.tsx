@@ -4,7 +4,7 @@ import { getUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import { useAuth } from '@/context/hooks/useAuth';
 import { routes } from '@/utils/client/routes';
 import { AnimatePresence, motion } from 'framer-motion';
 import { PlusCircle } from 'lucide-react';
@@ -115,9 +115,9 @@ function StoreData({ userId, userPlan }: { userId: string | null; userPlan?: str
 
 // Componente principal
 export function StoreSelector() {
-  const { userData, isLoading } = useAuthUser();
-  const cognitoUsername = userData?.['cognito:username'];
-  const userPlan = userData?.['custom:plan'];
+  const { user, loading: isLoading } = useAuth();
+  const cognitoUsername = user?.userId;
+  const userPlan = user?.plan;
 
   if (isLoading) {
     return (
@@ -158,7 +158,7 @@ export function StoreSelector() {
             className="bg-gray-50 p-6 rounded-xl shadow-sm"
           />
         }>
-        <StoreData userId={cognitoUsername} userPlan={userPlan} />
+        <StoreData userId={cognitoUsername || null} userPlan={userPlan} />
       </Suspense>
 
       <motion.div

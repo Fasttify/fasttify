@@ -12,7 +12,7 @@ import { Loader } from '@/components/ui/loader';
 import { useToast } from '@/hooks/ui/use-toasts';
 import { Toast } from '@/components/ui/toasts';
 import { formSchema } from '@/lib/zod-schemas/email-change';
-import useAuthStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
 
 interface EditProfileDialogProps {
   open: boolean;
@@ -21,7 +21,7 @@ interface EditProfileDialogProps {
 
 export function EditProfileDialog({ open, onOpenChange }: EditProfileDialogProps) {
   const { toasts, addToast, removeToast } = useToast();
-  const { user } = useAuthStore();
+  const { user } = useAuth();
   const { updateAttributes, loading, nextStep } = useUserAttributes();
 
   const fullName = user?.nickName;

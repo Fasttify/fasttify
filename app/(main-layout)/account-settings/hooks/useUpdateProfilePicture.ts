@@ -1,4 +1,4 @@
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import { useAuth } from '@/context/hooks/useAuth';
 import { getCdnUrlForKey } from '@/utils/client';
 import { updateUserAttributes } from 'aws-amplify/auth';
 import { uploadData } from 'aws-amplify/storage';
@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export function useUpdateProfilePicture() {
   const [isLoading, setIsLoading] = useState(false);
-  const { userData } = useAuthUser();
+  const { user } = useAuth();
 
   const updateProfilePicture = async (file: File) => {
     setIsLoading(true);
@@ -19,7 +19,7 @@ export function useUpdateProfilePicture() {
 
       // 1. Subir la imagen a S3 en una carpeta pública con el nombre único.
       const result = await uploadData({
-        path: `profile-pictures/${userData?.sub}/${uniqueFileName}`,
+        path: `profile-pictures/${user?.userId}/${uniqueFileName}`,
         data: file,
         options: {
           contentType: file.type,

@@ -2,7 +2,7 @@ import { useUpdateProfilePicture } from '@/app/(main-layout)/account-settings/ho
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { ImagePlus } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useRef, useState, memo } from 'react';
 import { useSecureUrl } from '@/hooks/auth/useSecureUrl';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -13,7 +13,7 @@ interface UserAvatarProps {
   className?: string;
 }
 
-export function UserAvatar({ imageUrl, fallback, className }: UserAvatarProps) {
+function UserAvatarComponent({ imageUrl, fallback, className }: UserAvatarProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { updateProfilePicture, isLoading } = useUpdateProfilePicture();
@@ -115,3 +115,6 @@ export function UserAvatar({ imageUrl, fallback, className }: UserAvatarProps) {
     </div>
   );
 }
+
+// Memoizar el componente para evitar re-renders innecesarios
+export const UserAvatar = memo(UserAvatarComponent);

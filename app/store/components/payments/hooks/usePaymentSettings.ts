@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStoreData, PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
-import useUserStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
 import { useToast } from '@/app/store/context/ToastContext';
 
 export function usePaymentSettings() {
@@ -11,7 +11,7 @@ export function usePaymentSettings() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGateway, setSelectedGateway] = useState<PaymentGatewayType>('mercadoPago');
   const { getStorePaymentInfo, configurePaymentGateway } = useUserStoreData();
-  const { user, loading: userLoading } = useUserStore();
+  const { user, loading: userLoading } = useAuth();
   const queryClient = useQueryClient();
   const userId = user?.userId;
   const { showToast } = useToast();

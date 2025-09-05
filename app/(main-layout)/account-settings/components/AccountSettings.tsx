@@ -15,21 +15,19 @@ import {
 import { Button } from '@/components/ui/button';
 import CustomToolTip from '@/components/ui/custom-tooltip';
 import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import useUserStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
 import { deleteUser } from 'aws-amplify/auth';
 import { BadgeCheck, Pencil } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export function AccountSettings() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isChangeEmailOpen, setIsChangeEmailOpen] = useState(false);
-  const { user, loading } = useUserStore();
+  const { user, loading } = useAuth();
   const router = useRouter();
-
-  const isGoogleUser = user?.identities;
 
   async function handleDeleteUser() {
     try {
@@ -41,13 +39,16 @@ export function AccountSettings() {
     }
   }
 
-  // Obtén el nombre completo del usuario
-  const fullName = user?.nickName;
+  // Memoizar cálculos para evitar re-renders innecesarios
+  const { fullName, firstName, lastName, isGoogleUser } = useMemo(() => {
+    const fullName = user?.nickName || '';
+    const nameParts = fullName ? fullName.split(' ') : [];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts[nameParts.length - 1] || '';
+    const isGoogleUser = user?.identities;
 
-  // Separa el nombre en partes
-  const nameParts = fullName ? fullName.split(' ') : [];
-  const firstName = nameParts[0] || '';
-  const lastName = nameParts[nameParts.length - 1] || '';
+    return { fullName, firstName, lastName, isGoogleUser };
+  }, [user?.nickName, user?.identities]);
 
   // Verifica si el usuario ha iniciado sesión con Google
 

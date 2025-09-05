@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import { useIsClient } from '@/hooks/ui/useIsClient';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -26,11 +27,7 @@ const generateDailyData = (days = 30, baseValue = 1000, variance = 200) => {
 };
 
 export function SalesDashboard() {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isClient = useIsClient();
 
   // State management
   const [dateRange, setDateRange] = useState({

@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/app/store/context/ToastContext';
 import { plans } from '@/app/(main-layout)/pricing/components/plans';
 import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem';
+import { useIsClient } from '@/hooks/ui/useIsClient';
 import { Amplify } from 'aws-amplify';
 import { post } from 'aws-amplify/api';
-import useUserStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
 import outputs from '@/amplify_outputs.json';
 
 Amplify.configure(outputs);
@@ -26,14 +27,10 @@ interface PricingDrawerProps {
 }
 
 export function PricingDrawer({ open, onOpenChange }: PricingDrawerProps) {
-  const { user } = useUserStore();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showToast } = useToast();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isClient = useIsClient();
 
   const handleClose = () => {
     onOpenChange(false);

@@ -1,4 +1,4 @@
-import { useAuth } from '@/app/(setup-layout)/login/hooks/SignIn';
+import { useSignIn } from '@/app/(setup-layout)/login/hooks/SignIn';
 import { act, renderHook } from '@testing-library/react';
 import { resendSignUpCode, signIn } from 'aws-amplify/auth';
 
@@ -26,9 +26,21 @@ jest.mock('aws-amplify', () => ({
   },
 }));
 
+// Mock del hook useAuth global
+const mockRefreshUser = jest.fn();
+let mockIsAuthenticated = false;
+
+jest.mock('@/context/hooks/useAuth', () => ({
+  useAuth: jest.fn(() => ({
+    refreshUser: mockRefreshUser,
+    isAuthenticated: mockIsAuthenticated,
+  })),
+}));
+
 describe('useAuth hook', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsAuthenticated = false; // Reset to false before each test
   });
 
   test('should handle successful login', async () => {
@@ -39,7 +51,10 @@ describe('useAuth hook', () => {
       nextStep: { signInStep: 'DONE' },
     });
 
-    const { result } = renderHook(() => useAuth({ redirectPath: '/dashboard' }));
+    // Mock refreshUser
+    mockRefreshUser.mockResolvedValueOnce(undefined);
+
+    const { result } = renderHook(() => useSignIn({ redirectPath: '/dashboard' }));
 
     await act(async () => {
       await result.current.login('test@example.com', 'password123');
@@ -49,10 +64,11 @@ describe('useAuth hook', () => {
       username: 'test@example.com',
       password: 'password123',
     });
-    expect(result.current.isAuthenticated).toBe(true);
+    expect(mockRefreshUser).toHaveBeenCalled();
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
     expect(mockPush).toHaveBeenCalledWith('/dashboard');
+    expect(result.current.isAuthenticated).toBe(false);
   });
 
   test('should handle unconfirmed user', async () => {
@@ -67,7 +83,7 @@ describe('useAuth hook', () => {
     mockResendCode.mockResolvedValueOnce({});
 
     const onVerificationNeeded = jest.fn();
-    const { result } = renderHook(() => useAuth({ redirectPath: '/dashboard', onVerificationNeeded }));
+    const { result } = renderHook(() => useSignIn({ redirectPath: '/dashboard', onVerificationNeeded }));
 
     await act(async () => {
       await result.current.login('test@example.com', 'password123');
@@ -89,7 +105,7 @@ describe('useAuth hook', () => {
       message: 'Incorrect username or password.',
     });
 
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useSignIn());
 
     await act(async () => {
       await result.current.login('test@example.com', 'wrong-password');
@@ -110,7 +126,7 @@ describe('useAuth hook', () => {
       message: 'Incorrect username or password.',
     });
 
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useSignIn());
 
     await act(async () => {
       await result.current.login('test@example.com', 'wrong-password');
@@ -129,7 +145,7 @@ describe('useAuth hook', () => {
     const mockResendCode = resendSignUpCode as jest.Mock;
     mockResendCode.mockResolvedValueOnce({});
 
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useSignIn());
 
     await act(async () => {
       await result.current.resendConfirmationCode('test@example.com');
@@ -148,7 +164,7 @@ describe('useAuth hook', () => {
     });
 
     const onVerificationNeeded = jest.fn();
-    const { result } = renderHook(() => useAuth({ onVerificationNeeded }));
+    const { result } = renderHook(() => useSignIn({ onVerificationNeeded }));
 
     await act(async () => {
       await result.current.login('test@example.com', 'password123');

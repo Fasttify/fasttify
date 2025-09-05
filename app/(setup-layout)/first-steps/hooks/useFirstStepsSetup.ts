@@ -4,13 +4,13 @@ import { useStepManager } from '@/app/(setup-layout)/first-steps/hooks/useStepMa
 import { useStoreCreation } from '@/app/(setup-layout)/first-steps/hooks/useStoreCreation';
 import { useTemplateUpload } from '@/app/(setup-layout)/first-steps/hooks/useTemplateUpload';
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import { useAuth } from '@/context/hooks/useAuth';
 import { routes } from '@/utils/client/routes';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export const useFirstStepsSetup = () => {
-  const { userData } = useAuthUser();
+  const { user } = useAuth();
   const { createStoreWithTemplate } = useUserStoreData();
   const { uploadTemplate } = useTemplateUpload();
 
@@ -26,7 +26,7 @@ export const useFirstStepsSetup = () => {
     uploadTemplate,
   });
 
-  const cognitoUsername = userData?.['cognito:username'] ?? null;
+  const cognitoUsername = user?.userId ?? null;
 
   const handleNextStep = async () => {
     if (step >= 2 && step <= 3) {

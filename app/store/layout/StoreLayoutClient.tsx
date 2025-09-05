@@ -4,6 +4,7 @@ import { PolarisLayout } from '@/app/store/components/sidebar/components/Polaris
 import { ToastProvider } from '@/app/store/context/ToastContext';
 import { useStore } from '@/app/store/hooks/data/useStore';
 import { getStoreId } from '@/utils/client/store-utils';
+import { useAuthInitializer } from '@/hooks/auth/useAuthInitializer';
 import { AppProvider } from '@shopify/polaris';
 import '@shopify/polaris/build/esm/styles.css';
 import esTranslations from '@shopify/polaris/locales/es.json';
@@ -28,6 +29,7 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   const params = useParams();
   const storeId = getStoreId(params, pathname);
 
+  useAuthInitializer();
   useStore(storeId);
 
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);

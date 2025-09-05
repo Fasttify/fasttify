@@ -2,8 +2,8 @@ import outputs from '@/amplify_outputs.json';
 import { Button } from '@/components/ui/button';
 import { LoadingIndicator } from '@/components/ui/loading-indicator';
 import { Toast } from '@/components/ui/toasts';
-import useUserStore from '@/context/core/userStore';
 import { useAuth } from '@/context/hooks/useAuth';
+import { useIsClient } from '@/hooks/ui/useIsClient';
 import { useToast } from '@/hooks/ui/use-toasts';
 import { Amplify } from 'aws-amplify';
 import { post } from 'aws-amplify/api';
@@ -44,15 +44,10 @@ interface SubscriptionResponse {
 
 export function PricingCard({ plan }: PricingCardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const { user, loading } = useUserStore();
+  const isClient = useIsClient();
+  const { user, loading } = useAuth();
   const { toasts, addToast, removeToast } = useToast();
   const router = useRouter();
-  useAuth();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const cognitoUsername = user?.userId;
   const hasActivePlan = user && user.plan ? user.plan === plan.name : false;

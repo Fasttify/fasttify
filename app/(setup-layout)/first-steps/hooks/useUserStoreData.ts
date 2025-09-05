@@ -1,6 +1,6 @@
 import type { FullSchema, StoreSchema } from '@/data-schema';
 import outputs from '@/amplify_outputs.json';
-import useUserStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
@@ -44,7 +44,7 @@ export interface MenuItem {
 export const useUserStoreData = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>(null);
-  const { user } = useUserStore();
+  const { user } = useAuth();
   const { invalidateAllStoreCache, invalidateNavigationCache } = useCacheInvalidation();
 
   /**
