@@ -53,7 +53,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
 
   // Filtrar rutas basado en el texto de búsqueda
   const filteredRoutes = useMemo(() => {
-    if (!searchValue) return searchRoutes.slice(0, 8); // Mostrar las primeras 8 rutas por defecto
+    if (!searchValue) return searchRoutes.slice(0, 14); // Mostrar las primeras 14 rutas por defecto
 
     return searchRoutes
       .filter((route) => {
@@ -63,8 +63,8 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
           route.keywords?.some((keyword) => keyword.toLowerCase().includes(searchValue.toLowerCase()))
         );
       })
-      .slice(0, 8); // Limitar a 8 resultados
-  }, [searchValue, searchRoutes]);
+      .slice(0, 14); // Limitar a 8 resultados
+  }, [searchValue, searchRoutes]); // Limitar a 14 resultados
 
   // Callbacks para TopBar
   const toggleIsUserMenuOpen = useCallback(() => setIsUserMenuOpen((prev) => !prev), []);
@@ -76,7 +76,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchValue(value);
-    setIsSearchActive(value.length > 0);
+    setIsSearchActive(value.length > 0); // Activar el buscador si el valor es mayor a 0
   }, []);
 
   const handleNavigationToggle = useCallback(() => {
@@ -144,6 +144,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
       value={searchValue}
       placeholder={!isClient || loading ? 'Cargando...' : 'Buscar rutas y páginas... '}
       showFocusBorder
+      focused={isSearchActive}
     />
   );
 
@@ -165,6 +166,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
           content: route.label,
           onAction: () => handleSearchResultSelect(route.path),
           suffix: route.section,
+          prefix: route.icon ? <route.icon size={16} /> : undefined,
         }))}
       />
     );

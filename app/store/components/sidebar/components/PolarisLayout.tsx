@@ -15,7 +15,6 @@ interface PolarisLayoutProps {
   prefersReducedMotion?: boolean;
 }
 
-// Custom Link component for Polaris integration with Next.js
 const PolarisLinkComponent = memo(({ children, url = '', external = false, ...rest }: any) => {
   const router = useRouter();
 

@@ -72,7 +72,6 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
 
   const loadProduct = useMemo(() => {
     return async () => {
-      // Evitar cargar múltiples veces
       if (hasLoadedProduct.current || !productId) {
         setIsLoadingProduct(false);
         return;

@@ -46,7 +46,6 @@ export const useNotificationPopover = ({
   storeId,
   limit = 50,
 }: UseNotificationPopoverProps): UseNotificationPopoverResult => {
-  // Estado del popover
   const [popoverActive, setPopoverActive] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +53,6 @@ export const useNotificationPopover = ({
   const { storeId: contextStoreId } = useStoreDataStore();
   const currentStoreId = storeId || contextStoreId;
 
-  // Hook de notificaciones
   const { notifications, loading, error, markAsRead, markAllAsRead, hasNextPage, loadMore, refreshNotifications } =
     useNotifications(currentStoreId || undefined, {
       limit,
@@ -71,7 +69,9 @@ export const useNotificationPopover = ({
   const previousNotificationCountRef = useRef(0);
   const isInitialLoadRef = useRef(true);
 
-  // Hook para manejar sonidos de notificaciones
+  const isLoadingMoreRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const { playNotificationSound } = useNotificationSound();
 
   // Funciones del popover
@@ -91,42 +91,48 @@ export const useNotificationPopover = ({
 
   // Scroll infinito: cargar más notificaciones cuando se llega al final
   const handleScroll = useCallback(() => {
-    if (!scrollContainerRef.current || !hasNextPage || loading) {
-      return;
+    // Limpiar timeout anterior
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
     }
 
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100; // 100px antes del final
+    // Debounce de 100ms para evitar ejecuciones excesivas
+    scrollTimeoutRef.current = setTimeout(() => {
+      if (!scrollContainerRef.current || !hasNextPage || loading || isLoadingMoreRef.current) {
+        return;
+      }
 
-    if (isNearBottom) {
-      loadMore();
-    }
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+      const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100; // 100px antes del final
+
+      if (isNearBottom) {
+        isLoadingMoreRef.current = true;
+        loadMore().finally(() => {
+          isLoadingMoreRef.current = false;
+        });
+      }
+    }, 100);
   }, [hasNextPage, loading, loadMore]);
 
-  // Efecto para agregar el listener de scroll
+  // Efecto para agregar el listener de scroll solo cuando el popover esté activo
   useEffect(() => {
+    if (!popoverActive) return;
+
     const scrollContainer = scrollContainerRef.current;
-    if (scrollContainer) {
+    if (!scrollContainer) return;
+
+    // Pequeño delay para asegurar que el DOM esté listo
+    const timer = setTimeout(() => {
       scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-      return () => {
-        scrollContainer.removeEventListener('scroll', handleScroll);
-      };
-    }
-  }, [handleScroll, popoverActive]);
+    }, 100);
 
-  // Efecto adicional para asegurar que el listener se agregue cuando el popover se abra
-  useEffect(() => {
-    if (popoverActive) {
-      // Pequeño delay para asegurar que el DOM esté listo
-      const timer = setTimeout(() => {
-        const scrollContainer = scrollContainerRef.current;
-        if (scrollContainer) {
-          scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-        }
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
+    return () => {
+      clearTimeout(timer);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollContainer.removeEventListener('scroll', handleScroll);
+    };
   }, [popoverActive, handleScroll]);
 
   // Efecto para detectar nuevas notificaciones y reproducir sonido

@@ -32,7 +32,10 @@ export const routes = {
       collectionsEdit: (storeId: string, collectionId: string) =>
         `/store/${storeId}/products/collections/${collectionId}`,
     },
-    orders: (storeId: string) => `/store/${storeId}/orders`,
+    orders: {
+      main: (storeId: string) => `/store/${storeId}/orders`,
+      checkouts: (storeId: string) => `/store/${storeId}/orders/checkouts`,
+    },
     customers: (storeId: string) => `/store/${storeId}/customers`,
     masterShop: (storeId: string) => `/store/${storeId}/mastershop`,
     collections: (storeId: string) => `/store/${storeId}/collections`,

@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useRef, useEffect } from 'react';
+import { type ReactNode, useRef, useEffect, useCallback, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 
 interface PageTransitionProps {
@@ -12,27 +12,56 @@ interface PageTransitionProps {
 export function PageTransition({ children, enabled = true, duration = 300 }: PageTransitionProps) {
   const pathname = usePathname();
   const containerRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<Animation | null>(null);
 
-  useEffect(() => {
-    if (!enabled || !containerRef.current) return;
+  // Memoizar la configuración de la animación para evitar recreaciones
+  const animationConfig = useMemo(
+    () => ({
+      keyframes: [{ opacity: 0 }, { opacity: 1 }],
+      options: {
+        duration,
+        easing: 'ease-out',
+        fill: 'forwards' as FillMode,
+      },
+    }),
+    [duration]
+  );
 
-    // Usar directamente la API de animación del navegador es más eficiente
-    // que cambiar clases o estados de React
+  // Función optimizada para crear animaciones
+  const createAnimation = useCallback(() => {
+    if (!containerRef.current || !enabled) return;
+
     const container = containerRef.current;
 
-    // Detener cualquier animación en curso
-    container.getAnimations().forEach((animation) => animation.cancel());
+    // Cancelar animación anterior de forma más eficiente
+    if (animationRef.current) {
+      animationRef.current.cancel();
+    }
 
-    // Crear y ejecutar una nueva animación
-    container.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration,
-      easing: 'ease-out',
-      fill: 'forwards',
+    // Crear nueva animación y guardar referencia
+    animationRef.current = container.animate(animationConfig.keyframes, animationConfig.options);
+
+    // Limpiar referencia cuando termine
+    animationRef.current.addEventListener('finish', () => {
+      animationRef.current = null;
+    });
+  }, [enabled, animationConfig]);
+
+  useEffect(() => {
+    // Usar requestAnimationFrame para mejor sincronización con el navegador
+    const rafId = requestAnimationFrame(() => {
+      createAnimation();
     });
 
-    // No necesitamos limpiar nada ya que las animaciones se detienen
-    // automáticamente cuando el componente se desmonta
-  }, [pathname, enabled, duration]);
+    return () => {
+      cancelAnimationFrame(rafId);
+      // Limpiar animación al desmontar
+      if (animationRef.current) {
+        animationRef.current.cancel();
+        animationRef.current = null;
+      }
+    };
+  }, [pathname, createAnimation]);
 
   // Si la animación está desactivada, simplemente renderizamos los hijos
   if (!enabled) return <>{children}</>;
