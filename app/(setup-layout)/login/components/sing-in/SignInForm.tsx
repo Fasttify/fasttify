@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/app/(setup-layout)/login/hooks/SignIn';
+import { useSignIn } from '@/app/(setup-layout)/login/hooks/SignIn';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -20,7 +20,7 @@ interface SignInFormProps {
 
 export function SignInForm({ onForgotPassword, onVerificationNeeded, redirectPath = '/' }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading, error, clearError } = useAuth({
+  const { login, isLoading, error, clearError } = useSignIn({
     redirectPath,
     onVerificationNeeded,
   });

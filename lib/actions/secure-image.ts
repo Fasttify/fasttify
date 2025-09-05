@@ -85,6 +85,12 @@ export const getSecureImageUrl = async (imageUrl: string): Promise<string> => {
     cachedFunctions.set(imageUrl, createCachedSecureImageUrl(imageUrl));
   }
 
-  const cachedFunction = cachedFunctions.get(imageUrl)!;
-  return await cachedFunction();
+  const cachedFunction = cachedFunctions.get(imageUrl);
+
+  if (typeof cachedFunction === 'function') {
+    return await cachedFunction();
+  } else {
+    // Fallback: return original imageUrl if cache entry is not a function
+    return imageUrl;
+  }
 };

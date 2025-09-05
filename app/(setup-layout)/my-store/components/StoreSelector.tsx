@@ -158,7 +158,7 @@ export function StoreSelector() {
             className="bg-gray-50 p-6 rounded-xl shadow-sm"
           />
         }>
-        <StoreData userId={cognitoUsername} userPlan={userPlan} />
+        <StoreData userId={cognitoUsername || null} userPlan={userPlan} />
       </Suspense>
 
       <motion.div
