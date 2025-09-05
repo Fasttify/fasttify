@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useMemo, useState, memo } from 'react';
 import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import { useToast } from '@/app/store/context/ToastContext';
 import { useS3ImagesWithOperations } from '@/app/store/hooks/storage/useS3ImagesWithOperations';
@@ -21,7 +21,7 @@ interface ImageSelectorModalProps {
   allowMultipleSelection?: boolean;
 }
 
-export default function ImageSelectorModal({
+const ImageSelectorModal = memo(function ImageSelectorModal({
   open,
   onOpenChange,
   onSelect,
@@ -32,8 +32,9 @@ export default function ImageSelectorModal({
   const s3Options = useMemo(() => ({ limit: 18 }), []);
   const { showToast } = useToast();
 
+  // Solo ejecutar el hook cuando el modal esté abierto
   const { images, loading, error, uploadImages, deleteImages, fetchMoreImages, loadingMore, nextContinuationToken } =
-    useS3ImagesWithOperations(s3Options);
+    useS3ImagesWithOperations(open ? s3Options : { limit: 0 });
 
   const { selectedImage, handleImageSelect, getSelectedImages, removeFromSelection, addToSelection } =
     useImageSelection({
@@ -262,4 +263,6 @@ export default function ImageSelectorModal({
       </div>
     </Modal>
   );
-}
+});
+
+export default ImageSelectorModal;

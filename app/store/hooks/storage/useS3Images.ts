@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { post } from 'aws-amplify/api';
 import useStoreDataStore from '@/context/core/storeDataStore';
 
@@ -29,6 +29,10 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
   const [nextContinuationToken, setNextContinuationToken] = useState<string | undefined>(undefined);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  // Ref para evitar peticiones duplicadas
+  const isFetching = useRef(false);
+  const lastFetchParams = useRef<string>('');
+
   // Memoizar las opciones para evitar re-renders innecesarios
   const memoizedOptions = useMemo(
     () => ({
@@ -40,12 +44,24 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
 
   const fetchImages = useCallback(
     async (token?: string) => {
-      if (!storeId) {
+      // Crear una clave única para esta petición
+      const fetchKey = `${storeId}-${memoizedOptions.limit}-${memoizedOptions.prefix}-${token || 'initial'}`;
+
+      // Si ya hay una petición en curso con los mismos parámetros, no hacer otra
+      if (isFetching.current && lastFetchParams.current === fetchKey) {
+        return;
+      }
+
+      if (!storeId || memoizedOptions.limit <= 0) {
         setLoading(false);
         setImages([]);
         setNextContinuationToken(undefined);
         return;
       }
+
+      // Marcar que estamos haciendo una petición
+      isFetching.current = true;
+      lastFetchParams.current = fetchKey;
 
       if (!token) {
         setLoading(true);
@@ -94,6 +110,9 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
         setError(err instanceof Error ? err : new Error('Unknown error occurred'));
         setNextContinuationToken(undefined);
       } finally {
+        // Resetear el flag de petición
+        isFetching.current = false;
+
         if (!token) {
           setLoading(false);
         } else {
@@ -104,10 +123,12 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
     [storeId, memoizedOptions.limit, memoizedOptions.prefix]
   );
 
-  // useEffect optimizado con dependencias estables
+  // useEffect optimizado - solo se ejecuta cuando es necesario
   useEffect(() => {
-    fetchImages();
-  }, [fetchImages]);
+    if (storeId && memoizedOptions.limit > 0) {
+      fetchImages();
+    }
+  }, [storeId, memoizedOptions.limit, memoizedOptions.prefix]);
 
   const fetchMoreImages = useCallback(() => {
     if (nextContinuationToken && !loadingMore && !loading) {

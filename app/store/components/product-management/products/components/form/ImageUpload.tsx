@@ -1,6 +1,6 @@
 import ImageSelectorModal from '@/app/store/components/images-selector/components/ImageSelectorModal';
 import { BlockStack, Button, Card, TextField, Thumbnail } from '@shopify/polaris';
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
 interface ImageFile {
   url: string;
@@ -32,14 +32,29 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
     onChange(newImages);
   };
 
-  const handleSelectImages = (selectedImages: any) => {
-    const imagesToAdd: ImageFile[] = (Array.isArray(selectedImages) ? selectedImages : [selectedImages]).map((img) => ({
-      url: img.url,
-      alt: img.filename || '',
-    }));
-    onChange([...value, ...imagesToAdd]);
-    setIsModalOpen(false);
-  };
+  const handleSelectImages = useCallback(
+    (selectedImages: any) => {
+      const imagesToAdd: ImageFile[] = (Array.isArray(selectedImages) ? selectedImages : [selectedImages]).map(
+        (img) => ({
+          url: img.url,
+          alt: img.filename || '',
+        })
+      );
+      onChange([...value, ...imagesToAdd]);
+      setIsModalOpen(false);
+    },
+    [value, onChange]
+  );
+
+  // Memoizar las props del modal para evitar re-renders
+  const modalProps = useMemo(
+    () => ({
+      allowMultipleSelection: true,
+      onSelect: handleSelectImages,
+      initialSelectedImage: value.length > 0 ? value[0].url : null,
+    }),
+    [handleSelectImages, value]
+  );
 
   return (
     <>
@@ -89,13 +104,7 @@ export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
         )}
       </BlockStack>
 
-      <ImageSelectorModal
-        allowMultipleSelection
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        onSelect={handleSelectImages}
-        initialSelectedImage={value.length > 0 ? value[0].url : null}
-      />
+      <ImageSelectorModal {...modalProps} open={isModalOpen} onOpenChange={setIsModalOpen} />
     </>
   );
 }
