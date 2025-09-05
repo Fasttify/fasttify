@@ -15,7 +15,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Logo Column */}
           <div className="mb-8 md:mb-0">
-            <Image src="/icons/fasttify-white.webp" alt="Fasttify" width={80} height={80} className="mb-6" />
+            <Image
+              src="https://cdn.fasttify.com/assets/b/fasttify-white.webp"
+              alt="Fasttify"
+              width={80}
+              height={80}
+              className="mb-6"
+            />
           </div>
 
           {/* Fasttify Column */}

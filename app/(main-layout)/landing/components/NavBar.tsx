@@ -94,9 +94,15 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <Image src="/icons/fast@4x.webp" alt="Logo" width={32} height={32} className="h-8 w-8" />
               <Image
-                src="/icons/fastletras@4x.webp"
+                src="https://cdn.fasttify.com/assets/b/fast@4x.webp"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8"
+              />
+              <Image
+                src="https://cdn.fasttify.com/assets/b/fastletras@4x.webp"
                 alt="Fasttify"
                 width={96}
                 height={32}
@@ -165,9 +171,15 @@ export function Navbar() {
                   <div className="flex flex-col h-full">
                     <div className="flex items-center justify-between py-4">
                       <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
-                        <Image src="/icons/fast@4x.webp" alt="Logo" width={32} height={32} className="h-8 w-8" />
                         <Image
-                          src="/icons/fastletras@4x.webp"
+                          src="https://cdn.fasttify.com/assets/b/fast@4x.webp"
+                          alt="Logo"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8"
+                        />
+                        <Image
+                          src="https://cdn.fasttify.com/assets/b/fastletras@4x.webp"
                           alt="Fasttify"
                           width={96}
                           height={32}

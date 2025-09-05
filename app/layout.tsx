@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: 'Fasttify',
     images: [
       {
-        url: 'https://www.fasttify.com/icons/fast@4x.webp',
+        url: 'https://cdn.fasttify.com/assets/b/fast@4x.webp',
         width: 800,
         height: 600,
         alt: 'Fasttify ',
@@ -29,10 +29,10 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Fasttify - Ecommerce Dropshipping',
     description: 'Fasttify potencia tu tienda online de dropshipping.',
-    images: ['https://www.fasttify.com/icons/fast@4x.webp'],
+    images: ['https://cdn.fasttify.com/assets/b/fast@4x.webp'],
   },
   icons: {
-    icon: '/icons/fast@4x.webp',
+    icon: 'https://cdn.fasttify.com/assets/b/fast@4x.webp',
   },
 };
 

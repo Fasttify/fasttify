@@ -137,7 +137,13 @@ export function StoreSelector() {
       animate={{ opacity: 1, scale: 1 }}
       className="w-full max-w-md mx-auto p-4 sm:p-6 space-y-5 bg-white rounded-xl shadow-lg">
       <div className="text-center space-y-2">
-        <Image src="/icons/fast@4x.webp" alt="Logo" width={100} height={32} className="h-8 w-auto mx-auto" />
+        <Image
+          src="https://cdn.fasttify.com/assets/b/fast@4x.webp"
+          alt="Logo"
+          width={100}
+          height={32}
+          className="h-8 w-auto mx-auto"
+        />
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Selecciona una tienda</h1>
         <p className="text-xs sm:text-sm text-gray-500">para continuar a tu dashboard</p>
       </div>
