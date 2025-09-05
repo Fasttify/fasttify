@@ -11,6 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { verificationSchema, type VerificationFormData } from '@/lib/zod-schemas/schemas';
 import { OTPInput, type SlotProps } from 'input-otp';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/hooks/useAuth';
+import { getConfirmSignUpErrorMessage } from '@/lib/auth-error-messages';
 
 interface VerificationFormProps {
   email: string;
@@ -21,6 +23,7 @@ interface VerificationFormProps {
 export function VerificationForm({ email, password, onBack }: VerificationFormProps) {
   const [error, setError] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { refreshUser } = useAuth();
 
   const form = useForm<VerificationFormData>({
     resolver: zodResolver(verificationSchema),
@@ -29,51 +32,19 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
     },
   });
 
-  const getErrorMessage = (error: any): string => {
-    // Manejo por código de error
-    if (error.code) {
-      switch (error.code) {
-        case 'CodeMismatchException':
-          return 'El código ingresado no es válido. Por favor, verifica e intenta nuevamente';
-        case 'ExpiredCodeException':
-          return 'El código ha expirado. Por favor, solicita un nuevo código';
-        case 'TooManyRequestsException':
-          return 'Demasiados intentos. Por favor, espera unos minutos antes de intentar nuevamente';
-        case 'NotAuthorizedException':
-          return 'No se pudo autorizar la verificación. Por favor, intenta nuevamente';
-        case 'UserNotFoundException':
-          return 'No se encontró el usuario asociado a este correo';
-        case 'LimitExceededException':
-          return 'Has excedido el límite de intentos permitidos. Por favor, espera unos minutos';
-      }
-    }
-
-    // Manejo por mensaje de error
-    switch (error.message) {
-      case 'Invalid verification code provided, please try again.':
-        return 'Código de verificación inválido, por favor intenta nuevamente';
-      case 'Attempt limit exceeded, please try after some time.':
-        return 'Límite de intentos excedido, por favor intenta más tarde';
-      case 'User cannot be confirmed. Current status is CONFIRMED':
-        return 'El usuario ya ha sido confirmado anteriormente';
-      case 'Network error':
-        return 'Error de conexión. Por favor, verifica tu conexión a internet';
-      default:
-        return 'Ha ocurrido un error durante la verificación. Por favor, intenta nuevamente';
-    }
-  };
-
   const onSubmit = async (data: VerificationFormData) => {
     setIsSubmitted(true);
     try {
-      const isCompleted = await handleConfirmSignUp(email, data.code);
+      const isCompleted = await handleConfirmSignUp(email, data.code, refreshUser);
       if (isCompleted) {
         // Iniciar sesión automáticamente
         await signIn({ username: email, password: password });
+        // Refrescar el estado del usuario después del login
+        await refreshUser();
         window.location.href = '/';
       }
     } catch (err: any) {
-      setError(getErrorMessage(err));
+      setError(getConfirmSignUpErrorMessage(err));
       setIsSubmitted(false);
     }
   };

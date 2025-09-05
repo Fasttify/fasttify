@@ -11,6 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { signUpSchema, type SignUpFormData } from '@/lib/zod-schemas/schemas';
 import Link from 'next/link';
+import { useAuth } from '@/context/hooks/useAuth';
+import { getSignUpErrorMessage } from '@/lib/auth-error-messages';
 
 interface SignUpFormProps {
   onVerificationNeeded: (email: string, password: string) => void;
@@ -19,6 +21,7 @@ interface SignUpFormProps {
 export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { refreshUser } = useAuth();
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -30,47 +33,15 @@ export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
     },
   });
 
-  const getErrorMessage = (error: any): string => {
-    // Manejo por código de error
-    if (error.code) {
-      switch (error.code) {
-        case 'UsernameExistsException':
-          return 'Este correo electrónico ya está registrado';
-        case 'InvalidParameterException':
-          return 'Uno o más campos contienen datos inválidos';
-        case 'InvalidPasswordException':
-          return 'La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y símbolos';
-        case 'TooManyRequestsException':
-          return 'Demasiados intentos. Por favor, espera unos minutos antes de intentar nuevamente';
-      }
-    }
-
-    // Manejo por mensaje de error
-    switch (error.message) {
-      case 'Username should be an email.':
-        return 'El correo electrónico no tiene un formato válido';
-      case 'Password did not conform with policy: Password not long enough':
-        return 'La contraseña debe tener al menos 8 caracteres';
-      case 'User already exists':
-        return 'Este usuario ya existe';
-      case 'Attempt limit exceeded, please try after some time.':
-        return 'Límite de intentos excedido, por favor intenta más tarde';
-      case 'Invalid verification code provided, please try again.':
-        return 'Código de verificación inválido, por favor intenta nuevamente';
-      default:
-        return 'Ha ocurrido un error. Por favor, intenta nuevamente';
-    }
-  };
-
   const onSubmit = async (data: SignUpFormData) => {
     setIsSubmitted(true);
     try {
-      const result = await handleSignUp(data.email, data.password, data.nickName);
+      const result = await handleSignUp(data.email, data.password, data.nickName, refreshUser);
       if (result.nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
         onVerificationNeeded(data.email, data.password);
       }
     } catch (err: any) {
-      const errorMessage = getErrorMessage(err);
+      const errorMessage = getSignUpErrorMessage(err);
       form.setError('root', { message: errorMessage });
       setIsSubmitted(false);
     }

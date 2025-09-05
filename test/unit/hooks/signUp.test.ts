@@ -13,6 +13,15 @@ jest.mock('aws-amplify', () => ({
   },
 }));
 
+// Mock del hook useAuth global
+const mockRefreshUser = jest.fn();
+
+jest.mock('@/context/hooks/useAuth', () => ({
+  useAuth: () => ({
+    refreshUser: mockRefreshUser,
+  }),
+}));
+
 describe('Funciones de registro', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -29,7 +38,7 @@ describe('Funciones de registro', () => {
       });
 
       // Ejecutar la función
-      const resultado = await handleSignUp('test@example.com', 'password123', 'Usuario Test');
+      const resultado = await handleSignUp('test@example.com', 'password123', 'Usuario Test', mockRefreshUser);
 
       // Verificar que se llamó a signUp con los parámetros correctos
       expect(mockSignUp).toHaveBeenCalledWith({
@@ -43,11 +52,49 @@ describe('Funciones de registro', () => {
         },
       });
 
+      // Verificar que NO se llamó a refreshUser porque isSignUpComplete es false
+      expect(mockRefreshUser).not.toHaveBeenCalled();
+
       // Verificar el resultado
       expect(resultado).toEqual({
         isSignUpComplete: false,
         userId: 'usuario-123',
         nextStep: { signUpStep: 'CONFIRM_SIGN_UP' },
+      });
+    });
+
+    test('debería registrar un usuario y refrescar cuando se completa automáticamente', async () => {
+      // Configurar el mock para simular un registro que se completa automáticamente
+      const mockSignUp = signUp as jest.Mock;
+      mockSignUp.mockResolvedValueOnce({
+        isSignUpComplete: true,
+        userId: 'usuario-123',
+        nextStep: { signUpStep: 'DONE' },
+      });
+
+      // Ejecutar la función
+      const resultado = await handleSignUp('test@example.com', 'password123', 'Usuario Test', mockRefreshUser);
+
+      // Verificar que se llamó a signUp con los parámetros correctos
+      expect(mockSignUp).toHaveBeenCalledWith({
+        username: 'test@example.com',
+        password: 'password123',
+        options: {
+          userAttributes: {
+            email: 'test@example.com',
+            nickname: 'Usuario Test',
+          },
+        },
+      });
+
+      // Verificar que se llamó a refreshUser porque isSignUpComplete es true
+      expect(mockRefreshUser).toHaveBeenCalled();
+
+      // Verificar el resultado
+      expect(resultado).toEqual({
+        isSignUpComplete: true,
+        userId: 'usuario-123',
+        nextStep: { signUpStep: 'DONE' },
       });
     });
 
@@ -58,7 +105,7 @@ describe('Funciones de registro', () => {
       mockSignUp.mockRejectedValueOnce(mockError);
 
       // Verificar que la función lanza el error
-      await expect(handleSignUp('test@example.com', 'password123', 'Usuario Test')).rejects.toThrow(
+      await expect(handleSignUp('test@example.com', 'password123', 'Usuario Test', mockRefreshUser)).rejects.toThrow(
         'Error de registro'
       );
 
@@ -85,13 +132,16 @@ describe('Funciones de registro', () => {
       });
 
       // Ejecutar la función
-      const resultado = await handleConfirmSignUp('test@example.com', '123456');
+      const resultado = await handleConfirmSignUp('test@example.com', '123456', mockRefreshUser);
 
       // Verificar que se llamó a confirmSignUp con los parámetros correctos
       expect(mockConfirmSignUp).toHaveBeenCalledWith({
         username: 'test@example.com',
         confirmationCode: '123456',
       });
+
+      // Verificar que se llamó a refreshUser cuando la confirmación fue exitosa
+      expect(mockRefreshUser).toHaveBeenCalled();
 
       // Verificar el resultado
       expect(resultado).toBe(true);
@@ -104,7 +154,7 @@ describe('Funciones de registro', () => {
       mockConfirmSignUp.mockRejectedValueOnce(mockError);
 
       // Verificar que la función lanza el error
-      await expect(handleConfirmSignUp('test@example.com', '123456')).rejects.toThrow(
+      await expect(handleConfirmSignUp('test@example.com', '123456', mockRefreshUser)).rejects.toThrow(
         'Código de confirmación inválido'
       );
 
