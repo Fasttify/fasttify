@@ -12,7 +12,7 @@ export default function CustomToolTip() {
           <div className="space-y-2">
             <img
               className="w-9/12 rounded"
-              src="/imgs/profile/external-auth.png"
+              src="https://cdn.fasttify.com/assets/b/external-auth.png"
               width={100}
               height={100}
               alt="Google Sync Info"

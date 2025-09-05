@@ -52,7 +52,7 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
   // Memoizar la configuración del logo para evitar recreaciones
   const logo = useMemo(
     () => ({
-      topBarSource: '/icons/fasttify-white.webp',
+      topBarSource: 'https://cdn.fasttify.com/assets/b/fasttify-white.webp',
       width: 40,
       url: '/',
       accessibilityLabel: 'Fasttify',

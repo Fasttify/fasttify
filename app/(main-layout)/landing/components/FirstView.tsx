@@ -17,15 +17,15 @@ import type { Swiper as SwiperType } from 'swiper';
 const slides = [
   {
     bgColor: '#9FA051',
-    image: 'https://images.unsplash.com/photo-1522199755839-a2bacb67c546?q=80&w=2072&auto=format&fit=crop',
+    image: 'https://cdn.fasttify.com/assets/landing/6407758.jpg',
   },
   {
     bgColor: '#9B89C5',
-    image: 'https://images.unsplash.com/photo-1726066012751-2adfb5485977?q=80&w=2070&auto=format&fit=crop',
+    image: 'https://cdn.fasttify.com/assets/landing/5410069.jpg',
   },
   {
     bgColor: '#D7A594',
-    image: 'https://images.unsplash.com/photo-1728044849321-4cbffc50cc1d?q=80&w=2070&auto=format&fit=crop',
+    image: 'https://cdn.fasttify.com/assets/landing/7679474.jpg',
   },
 ];
 

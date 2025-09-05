@@ -38,7 +38,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => `${routes.store.products.main(storeId)}/import`,
       },
     },
-    imageUrl: '/svgs/product.svg',
+    imageUrl: 'https://cdn.fasttify.com/assets/b/product.svg',
     completed: false,
   },
   {
@@ -53,7 +53,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => routes.store.setup.main(storeId),
       },
     },
-    imageUrl: '/svgs/personalized.svg',
+    imageUrl: 'https://cdn.fasttify.com/assets/b/personalized.svg',
     completed: false,
   },
   {
@@ -71,7 +71,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => `${routes.store.setup.domain(storeId)}/buy`,
       },
     },
-    imageUrl: '/svgs/domain.svg',
+    imageUrl: 'https://cdn.fasttify.com/assets/b/domain.svg',
     completed: false,
   },
   {
@@ -84,7 +84,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => routes.store.setup.domain(storeId),
       },
     },
-    imageUrl: '/svgs/name.svg',
+    imageUrl: 'https://cdn.fasttify.com/assets/b/name.svg',
     completed: false,
   },
   {
@@ -98,7 +98,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => routes.store.setup.shipping(storeId),
       },
     },
-    imageUrl: '/svgs/shipping.svg',
+    imageUrl: 'https://cdn.fasttify.com/assets/b/shipping.svg',
     completed: false,
   },
   {
@@ -125,7 +125,7 @@ export const defaultStoreTasks: Task[] = [
         getHref: (storeId: string) => routes.store.setup.testOrder(storeId),
       },
     },
-    imageUrl: '/svgs/test.svg',
+    imageUrl: 'https://cdn.fasttify.com/assets/b/test.svg',
     completed: false,
   },
 ];

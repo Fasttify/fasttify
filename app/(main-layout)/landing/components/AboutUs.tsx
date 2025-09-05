@@ -22,7 +22,7 @@ export function AboutUs() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="relative rounded-2xl w-full h-[500px] overflow-hidden">
             <Image
-              src="/imgs/landing/sdsd@4x.webp"
+              src="https://cdn.fasttify.com/assets/b/sdsd@4x.webp"
               alt="Empresario gestionando su tienda online"
               fill
               className="object-contain"

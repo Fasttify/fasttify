@@ -56,29 +56,50 @@ export function MarqueeLogos({ className }: { className?: string }) {
         <div className="flex size-full flex-row items-stretch justify-between gap-6 sm:gap-10">
           <div className="flex flex-col justify-center gap-2">
             <Circle ref={div1Ref}>
-              <Image src="/icons/strapi-icon.webp" alt="Strapi" width={30} height={30} className="object-contain" />
+              <Image
+                src="https://cdn.fasttify.com/assets/b/strapi-icon.webp"
+                alt="Strapi"
+                width={30}
+                height={30}
+                className="object-contain"
+              />
             </Circle>
             <Circle ref={div2Ref}>
-              <Image src="/icons/wompi.webp" alt="Google Docs" width={48} height={48} />
+              <Image src="https://cdn.fasttify.com/assets/b/wompi.webp" alt="Google Docs" width={48} height={48} />
             </Circle>
             <Circle ref={div3Ref}>
-              <Image src="/icons/mercadopago-logo.webp" alt="mercadopago" width={50} height={50} />
+              <Image
+                src="https://cdn.fasttify.com/assets/b/mercadopago-logo.webp"
+                alt="mercadopago"
+                width={50}
+                height={50}
+              />
             </Circle>
             <Circle ref={div4Ref}>
-              <Image src="/placeholder.svg?height=48&width=48" alt="Messenger" width={48} height={48} />
+              <Image
+                src="https://cdn.fasttify.com/assets/b/placeholder.svg?height=48&width=48"
+                alt="Messenger"
+                width={48}
+                height={48}
+              />
             </Circle>
             <Circle ref={div5Ref}>
-              <Image src="/placeholder.svg?height=48&width=48" alt="Notion" width={48} height={48} />
+              <Image
+                src="https://cdn.fasttify.com/assets/b/placeholder.svg?height=48&width=48"
+                alt="Notion"
+                width={48}
+                height={48}
+              />
             </Circle>
           </div>
           <div className="flex flex-col justify-center">
             <Circle ref={div6Ref} className="size-16">
-              <Image src="/icons/fast@4x.webp" alt="Fasttify" width={40} height={40} />
+              <Image src="https://cdn.fasttify.com/assets/b/fast@4x.webp" alt="Fasttify" width={40} height={40} />
             </Circle>
           </div>
           <div className="flex flex-col justify-center">
             <Circle ref={div7Ref}>
-              <Image src="/icons/store.webp" alt="Store" width={30} height={30} />
+              <Image src="https://cdn.fasttify.com/assets/b/store.webp" alt="Store" width={30} height={30} />
             </Circle>
           </div>
         </div>
