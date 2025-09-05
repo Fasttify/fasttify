@@ -1,27 +1,12 @@
-'use client';
+import EditProductClient from './EditProductClient';
 
-import outputs from '@/amplify_outputs.json';
-import { ProductForm } from '@/app/store/components/product-management/products/components/form/ProductForm';
-import { getStoreId } from '@/utils/client/store-utils';
-import { Amplify } from 'aws-amplify';
-import { useParams, usePathname } from 'next/navigation';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Editar Producto - Admin Panel',
+    description: 'Edita los detalles de tu producto',
+  };
+}
 
-Amplify.configure(outputs);
-const existingConfig = Amplify.getConfig();
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-});
-
-export default function EditProductPage() {
-  const params = useParams();
-  const pathname = usePathname();
-
-  const storeId = getStoreId(params, pathname);
-  const productId = params.productId as string;
-
-  return <ProductForm storeId={storeId} productId={productId} />;
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  return <EditProductClient />;
 }

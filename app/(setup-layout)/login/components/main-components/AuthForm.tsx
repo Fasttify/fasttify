@@ -64,8 +64,20 @@ export function AuthForm() {
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[450px]">
         <div className="flex flex-col items-center space-y-1 text-center">
           <div className="flex items-center gap-2">
-            <Image src="/icons/fast@4x.webp" alt="Logo" width={30} height={30} className="mb-6" />
-            <Image src="/icons/fastletras@4x.webp" alt="Logo" width={90} height={90} className="mb-6" />
+            <Image
+              src="https://cdn.fasttify.com/assets/b/fast@4x.webp"
+              alt="Logo"
+              width={30}
+              height={30}
+              className="mb-6"
+            />
+            <Image
+              src="https://cdn.fasttify.com/assets/b/fastletras@4x.webp"
+              alt="Logo"
+              width={90}
+              height={90}
+              className="mb-6"
+            />
           </div>
 
           <motion.h1

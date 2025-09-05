@@ -13,12 +13,12 @@ export function PaymentGatewayCard({ gateway, isConfigured, onActivate }: Paymen
   const gatewayConfig = {
     wompi: {
       name: 'Wompi',
-      logo: '/icons/wompi.webp',
+      logo: 'https://cdn.fasttify.com/assets/b/wompi.webp',
       PaymentIcons: WompiPaymentIcons,
     },
     mercadoPago: {
       name: 'Mercado Pago',
-      logo: '/icons/mercadopago-logo.webp',
+      logo: 'https://cdn.fasttify.com/assets/b/mercadopago-logo.webp',
       PaymentIcons: MercadoPagoIcons,
     },
   };

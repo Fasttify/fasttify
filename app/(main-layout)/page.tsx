@@ -25,8 +25,6 @@ export default function Home() {
 
   useEffect(() => {
     const unsubscribe = Hub.listen('auth', async ({ payload }) => {
-      console.log('Auth event:', payload.event);
-
       switch (payload.event) {
         case 'signInWithRedirect':
           await getUser();
@@ -36,12 +34,10 @@ export default function Home() {
           break;
         case 'customOAuthState':
           const state = payload.data;
-          console.log('OAuth state:', state);
           break;
       }
     });
 
-    // Check initial auth state
     getUser();
 
     return unsubscribe;
@@ -53,9 +49,7 @@ export default function Home() {
       const currentUser = await getCurrentUser();
       const userAttributes = await fetchUserAttributes();
       setUser({ ...currentUser, ...userAttributes });
-      console.log('User authenticated:', currentUser);
     } catch (error) {
-      console.log('Not signed in:', error);
       setUser(null);
     } finally {
       setIsLoading(false);

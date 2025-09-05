@@ -1,13 +1,12 @@
-'use client';
+import PagesClient from './PagesClient';
 
-import { PageManager } from '@/app/store/components/page-management';
-import { getStoreId } from '@/utils/client/store-utils';
-import { useParams, usePathname } from 'next/navigation';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Páginas - Admin Panel',
+    description: 'Gestiona las páginas de tu tienda',
+  };
+}
 
-export default function PagesMainPage() {
-  const pathname = usePathname();
-  const params = useParams();
-  const storeId = getStoreId(params, pathname);
-
-  return <PageManager storeId={storeId} />;
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  return <PagesClient />;
 }

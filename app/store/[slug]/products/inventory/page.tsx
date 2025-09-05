@@ -1,12 +1,12 @@
-'use client';
+import InventoryClient from './InventoryClient';
 
-import { InventoryManager } from '@/app/store/components/product-management/inventory/pages/InventoryManager';
-import { getStoreId } from '@/utils/client/store-utils';
-import { useParams, usePathname } from 'next/navigation';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Inventario - Admin Panel',
+    description: 'Gestiona el inventario de tus productos',
+  };
+}
 
-export default function InventoryPage() {
-  const pathname = usePathname();
-  const params = useParams();
-  const storeId = getStoreId(params, pathname);
-  return <InventoryManager storeId={storeId} />;
+export default async function InventoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  return <InventoryClient />;
 }

@@ -1,14 +1,12 @@
-'use client';
+import EditPageClient from './EditPageClient';
 
-import { PageManager } from '@/app/store/components/page-management';
-import { getStoreId } from '@/utils/client/store-utils';
-import { useParams, usePathname } from 'next/navigation';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Editar Página - Admin Panel',
+    description: 'Edita los detalles de tu página',
+  };
+}
 
-export default function EditPagePage() {
-  const pathname = usePathname();
-  const params = useParams();
-  const storeId = getStoreId(params, pathname);
-  const pageId = params.pageId as string;
-
-  return <PageManager pageId={pageId} storeId={storeId} />;
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  return <EditPageClient />;
 }
