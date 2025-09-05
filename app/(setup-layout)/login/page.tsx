@@ -1,12 +1,12 @@
-'use client';
+import LoginClient from './LoginClient';
 
-import { useEffect } from 'react';
-import AuthClient from '@/app/(setup-layout)/login/components/main-components/AuthClient';
+export async function generateMetadata() {
+  return {
+    title: 'Creando tu cuenta | Fasttify',
+    description: 'Crea tu cuenta en Fasttify para comenzar a vender online',
+  };
+}
 
 export default function LoginPage() {
-  useEffect(() => {
-    document.title = 'Creando tu cuenta | Fasttify';
-  }, []);
-
-  return <AuthClient />;
+  return <LoginClient />;
 }

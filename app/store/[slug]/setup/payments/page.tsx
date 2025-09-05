@@ -1,5 +1,12 @@
-import { PaymentSettings } from '@/app/store/components/payments/components/PaymentSettings';
+import PaymentsClient from './PaymentsClient';
 
-export default function PaymentsPage() {
-  return <PaymentSettings />;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Pagos - Admin Panel',
+    description: 'Configura los métodos de pago de tu tienda',
+  };
+}
+
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  return <PaymentsClient />;
 }

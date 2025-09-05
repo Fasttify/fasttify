@@ -1,19 +1,12 @@
-'use client';
+import GeneralClient from './GeneralClient';
 
-import { DomainManagement } from '@/app/store/components/domains/pages/DomainManagement';
-import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify_outputs.json';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Configuración General - Admin Panel',
+    description: 'Configura los aspectos generales de tu tienda',
+  };
+}
 
-Amplify.configure(outputs);
-const existingConfig = Amplify.getConfig();
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-});
-
-export default function DomainManagementPage() {
-  return <DomainManagement />;
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  return <GeneralClient />;
 }

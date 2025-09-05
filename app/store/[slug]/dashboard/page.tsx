@@ -1,7 +1,12 @@
-'use client';
+import DashboardClient from './DashboardClient';
 
-import { EcommerceSetup } from '@/app/store/components/store-setup/components/EcommerceSetup';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Dashboard - Admin Panel',
+    description: 'Panel de control de tu tienda',
+  };
+}
 
-export default function DashboardPage() {
-  return <EcommerceSetup />;
+export default async function DashboardPage({ params }: { params: Promise<{ slug: string }> }) {
+  return <DashboardClient />;
 }

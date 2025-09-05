@@ -1,12 +1,12 @@
-'use client';
+import ProductsClient from './ProductsClient';
 
-import { ProductManager } from '@/app/store/components/product-management/products/pages/ProductManager';
-import { getStoreId } from '@/utils/client/store-utils';
-import { useParams, usePathname } from 'next/navigation';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Productos - Admin Panel',
+    description: 'Gestiona los productos de tu tienda',
+  };
+}
 
-export default function StoreProductsPage() {
-  const pathname = usePathname();
-  const params = useParams();
-  const storeId = getStoreId(params, pathname);
-  return <ProductManager storeId={storeId} />;
+export default async function StoreProductsPage({ params }: { params: Promise<{ slug: string }> }) {
+  return <ProductsClient />;
 }

@@ -1,7 +1,12 @@
-'use client';
+import CollectionsClient from './CollectionsClient';
 
-import { CollectionsPage } from '@/app/store/components/product-management/collections/pages/CollectionsPage';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Colecciones - Admin Panel',
+    description: 'Gestiona las colecciones de productos de tu tienda',
+  };
+}
 
-export default function CollectionsPages() {
-  return <CollectionsPage />;
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  return <CollectionsClient />;
 }

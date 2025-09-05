@@ -1,13 +1,12 @@
-'use client';
+import NewPageClient from './NewPageClient';
 
-import { PageManager } from '@/app/store/components/page-management';
-import { getStoreId } from '@/utils/client/store-utils';
-import { useParams, usePathname } from 'next/navigation';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Nueva Página - Admin Panel',
+    description: 'Crea una nueva página para tu tienda',
+  };
+}
 
-export default function NewPagePage() {
-  const pathname = usePathname();
-  const params = useParams();
-  const storeId = getStoreId(params, pathname);
-
-  return <PageManager isCreating storeId={storeId} />;
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  return <NewPageClient />;
 }

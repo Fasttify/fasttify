@@ -1,7 +1,12 @@
-'use client';
+import StatisticsClient from './StatisticsClient';
 
-import { SalesDashboard } from '@/app/store/components/statistics/components/SalesDashboard';
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Estadísticas - Admin Panel',
+    description: 'Analiza el rendimiento de tu tienda',
+  };
+}
 
-export default function GeneralStatistics() {
-  return <SalesDashboard />;
+export default async function GeneralStatistics({ params }: { params: Promise<{ slug: string }> }) {
+  return <StatisticsClient />;
 }

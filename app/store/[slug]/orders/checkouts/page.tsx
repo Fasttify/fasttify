@@ -1,13 +1,12 @@
-'use client';
-import { CheckoutManager } from '@/app/store/components/checkouts';
-import { getStoreId } from '@/utils/client/store-utils';
-import { useParams, usePathname } from 'next/navigation';
+import CheckoutsClient from './CheckoutsClient';
 
-export default function CheckoutsPage() {
-  const params = useParams();
-  const pathname = usePathname();
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  return {
+    title: 'Checkouts - Admin Panel',
+    description: 'Gestiona los procesos de checkout de tu tienda',
+  };
+}
 
-  const storeId = getStoreId(params, pathname);
-
-  return <CheckoutManager storeId={storeId} />;
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  return <CheckoutsClient />;
 }

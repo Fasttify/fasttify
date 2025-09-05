@@ -5,6 +5,7 @@ import { ImagePlus } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useSecureUrl } from '@/hooks/auth/useSecureUrl';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface UserAvatarProps {
   imageUrl?: string;
@@ -26,7 +27,35 @@ export function UserAvatar({ imageUrl, fallback, className }: UserAvatarProps) {
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    // Validar que sea una imagen
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona solo archivos de imagen (JPG, PNG, GIF, etc.)');
+      return;
+    }
+
+    // Validar tamaño del archivo (máximo 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert('La imagen es demasiado grande. El tamaño máximo permitido es 5MB');
+      return;
+    }
+
+    // Validar dimensiones de la imagen
+    const img = new Image();
+    img.onload = async () => {
+      // Validar dimensiones mínimas y máximas
+      if (img.width < 100 || img.height < 100) {
+        alert('La imagen debe tener al menos 100x100 píxeles');
+        return;
+      }
+
+      if (img.width > 2048 || img.height > 2048) {
+        alert('La imagen no puede ser mayor a 2048x2048 píxeles');
+        return;
+      }
+
       // Mostrar una vista previa de la imagen seleccionada
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -36,7 +65,14 @@ export function UserAvatar({ imageUrl, fallback, className }: UserAvatarProps) {
 
       // Subir la imagen a S3 y actualizar el atributo `picture`
       await updateProfilePicture(file);
-    }
+    };
+
+    img.onerror = () => {
+      alert('El archivo seleccionado no es una imagen válida');
+      return;
+    };
+
+    img.src = URL.createObjectURL(file);
   };
 
   // Mostrar loading mientras se obtiene la URL firmada
@@ -51,17 +87,27 @@ export function UserAvatar({ imageUrl, fallback, className }: UserAvatarProps) {
         <AvatarFallback>{fallback}</AvatarFallback>
       </Avatar>
 
-      <button
-        onClick={() => fileInputRef.current?.click()}
-        className="absolute bottom-0 right-0 rounded-full bg-black p-1.5 text-primary-foreground hover:bg-gray-900 transition-colors"
-        disabled={isLoading}>
-        <ImagePlus className="h-4 w-4" />
-      </button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute bottom-0 right-0 rounded-full bg-black p-1.5 text-primary-foreground hover:bg-gray-900 transition-colors"
+              disabled={isLoading}>
+              <ImagePlus className="h-4 w-4" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Cambiar foto de perfil</p>
+            <p className="text-xs text-gray-400">JPG, PNG, GIF, WebP (máx. 5MB, 100x100 - 2048x2048px)</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
         className="hidden"
         onChange={handleFileSelect}
         disabled={isLoading}
