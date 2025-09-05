@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { StoreSelector } from '@/app/(setup-layout)/my-store/components/StoreSelector';
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import { useAuth } from '@/context/hooks/useAuth';
 import { getUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores';
 
-jest.mock('@/hooks/auth/useAuthUser', () => ({
-  useAuthUser: jest.fn(),
+jest.mock('@/context/hooks/useAuth', () => ({
+  useAuth: jest.fn(),
 }));
 
 jest.mock('@/app/(setup-layout)/my-store/hooks/useUserStores', () => ({
@@ -40,11 +40,12 @@ jest.mock('framer-motion', () => ({
 describe('StoreSelector', () => {
   beforeEach(() => {
     // Configuración por defecto para los mocks
-    (useAuthUser as jest.Mock).mockReturnValue({
-      userData: {
-        'cognito:username': 'usuario-test',
-        'custom:plan': 'Royal',
+    (useAuth as jest.Mock).mockReturnValue({
+      user: {
+        userId: 'usuario-test',
+        plan: 'Royal',
       },
+      loading: false,
     });
 
     // Mock para getUserStores que devuelve datos de prueba

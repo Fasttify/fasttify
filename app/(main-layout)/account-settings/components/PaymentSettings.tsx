@@ -3,7 +3,7 @@ import { post } from 'aws-amplify/api';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Amplify } from 'aws-amplify';
-import useUserStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
 import outputs from '@/amplify_outputs.json';
 
 Amplify.configure(outputs);
@@ -18,7 +18,7 @@ Amplify.configure({
 
 export function PaymentSettings() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useUserStore();
+  const { user } = useAuth();
 
   const cognitoUsername = user?.userId;
   const userEmail = user?.email;

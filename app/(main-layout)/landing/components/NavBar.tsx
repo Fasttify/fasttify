@@ -13,8 +13,8 @@ import {
 } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
-import useUserStore from '@/context/core/userStore';
 import { useAuth } from '@/context/hooks/useAuth';
+import { useIsClient } from '@/hooks/ui/useIsClient';
 import { signOut } from 'aws-amplify/auth';
 import { ChevronDown, Menu } from 'lucide-react';
 import Image from 'next/image';
@@ -23,17 +23,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export function Navbar() {
-  const { user, loading, clearUser } = useUserStore();
+  const { user, loading, isAuthenticated, clearUser } = useAuth();
+  const isClient = useIsClient();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
-  useAuth();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {

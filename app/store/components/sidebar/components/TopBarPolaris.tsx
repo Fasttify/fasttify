@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { generateSearchRoutes } from '@/app/store/components/search-bar/components/SearchRoutes';
 import { useAuth } from '@/context/hooks/useAuth';
 import useStoreDataStore from '@/context/core/storeDataStore';
-import useUserStore from '@/context/core/userStore';
+import { useIsClient } from '@/hooks/ui/useIsClient';
 import { ChatTrigger } from '@/app/store/components/ai-chat/components/ChatTrigger';
 import { NotificationPopover } from '@/app/store/components/notifications/components/NotificationPopover';
 import { useSecureUrl } from '@/hooks/auth/useSecureUrl';
@@ -19,11 +19,11 @@ interface TopBarPolarisProps {
 
 export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProps) {
   const router = useRouter();
-  const { user, loading } = useUserStore();
+  const { user, loading } = useAuth();
+  const isClient = useIsClient();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const [isClient, setIsClient] = useState(false);
   const { clearStore, currentStore } = useStoreDataStore();
   const storeName = currentStore?.storeName;
   const userPicture = user?.picture;
@@ -34,12 +34,6 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
     type: 'profile-image',
     enabled: !!userPicture,
   });
-
-  useAuth();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleChangeStore = async () => {
     await clearStore();

@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useEffect, useCallback, useMemo, useRef } from 'react';
 import useStoreDataStore from '@/context/core/storeDataStore';
-import useUserStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
+import { useIsClient } from '@/hooks/ui/useIsClient';
 
 interface UseStoreReturn {
   store: any;
@@ -14,8 +15,8 @@ interface UseStoreReturn {
  */
 export function useStore(storeId: string): UseStoreReturn {
   const { currentStore, isLoading, error, fetchStoreData } = useStoreDataStore();
-  const { user } = useUserStore();
-  const [isClient, setIsClient] = useState(false);
+  const { user } = useAuth();
+  const isClient = useIsClient();
 
   // Ref para evitar múltiples llamadas simultáneas
   const fetchInProgress = useRef(false);
@@ -23,11 +24,6 @@ export function useStore(storeId: string): UseStoreReturn {
 
   // Debounce para evitar múltiples fetches en navegación rápida
   const DEBOUNCE_DELAY = 300; // 300ms de debounce
-
-  // Efecto para manejar la hidratación del cliente
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   // Memoizar la función de fetch con debouncing y control de concurrencia
   const memoizedFetchStoreData = useCallback(() => {

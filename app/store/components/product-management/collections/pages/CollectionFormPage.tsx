@@ -3,7 +3,7 @@ import { CollectionSidebar } from '@/app/store/components/product-management/col
 import { useCollectionForm } from '@/app/store/components/product-management/collections/utils/formUtils';
 import { useCollections } from '@/app/store/hooks/data/useCollections';
 import useStoreDataStore from '@/context/core/storeDataStore';
-import useUserStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
 import { BlockStack, Card, ContextualSaveBar, Layout, Loading, Page, Text } from '@shopify/polaris';
@@ -15,7 +15,7 @@ export function FormPage() {
   const params = useParams();
   const storeId = getStoreId(params, pathname);
   const { currentStore } = useStoreDataStore();
-  const { user } = useUserStore();
+  const { user } = useAuth();
 
   const collectionId = (params?.collectionId as string) || (params?.id as string);
   const isEditing = !!collectionId;

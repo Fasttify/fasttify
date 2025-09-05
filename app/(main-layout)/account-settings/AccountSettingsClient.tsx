@@ -5,10 +5,10 @@ import { AccountSettings } from '@/app/(main-layout)/account-settings/components
 import { ActiveSessions } from '@/app/(main-layout)/account-settings/components/ActiveSessions';
 import { PaymentSettings } from '@/app/(main-layout)/account-settings/components/PaymentSettings';
 import { Sidebar } from '@/app/(main-layout)/account-settings/components/SideBar';
-import useUserStore from '@/context/core/userStore';
+import { useAuth } from '@/context/hooks/useAuth';
 import { Amplify } from 'aws-amplify';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useState } from 'react';
 
 Amplify.configure(outputs);
 const existingConfig = Amplify.getConfig();
@@ -24,21 +24,11 @@ function AccountSettingsContent() {
   const searchParams = useSearchParams();
   const sectionParam = searchParams.get('section');
   const [currentView, setCurrentView] = useState(sectionParam || 'cuenta');
-  const { user, loading } = useUserStore();
+  const { user, loading } = useAuth();
 
   const isGoogleUser = user?.identities?.some(
     (identity) => identity.providerType === 'Google' || identity.providerName === 'Google'
   );
-
-  useEffect(() => {
-    if (sectionParam && ['cuenta', 'pagos', 'sesiones'].includes(sectionParam)) {
-      if (isGoogleUser && sectionParam === 'sesiones') {
-        setCurrentView('cuenta');
-      } else {
-        setCurrentView(sectionParam);
-      }
-    }
-  }, [sectionParam, isGoogleUser]);
 
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
@@ -52,6 +42,8 @@ function AccountSettingsContent() {
         {currentView === 'cuenta' && <AccountSettings />}
         {currentView === 'pagos' && <PaymentSettings />}
         {!isGoogleUser && currentView === 'sesiones' && <ActiveSessions />}
+        {/* Si es Google user y está en sesiones, mostrar cuenta */}
+        {isGoogleUser && currentView === 'sesiones' && <AccountSettings />}
       </div>
     </div>
   );

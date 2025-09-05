@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getSecureImageUrl } from '@/lib/actions/secure-image';
 
 interface UseSecureUrlOptions {
@@ -14,16 +14,27 @@ interface UseSecureUrlReturn {
   refetch: () => void;
 }
 
+// Cache global para URLs seguras
+const urlCache = new Map<string, string>();
+
 export function useSecureUrl({ baseUrl, type = 'asset', enabled = true }: UseSecureUrlOptions): UseSecureUrlReturn {
   const [url, setUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUrl = async () => {
+  const fetchUrl = useCallback(async () => {
     if (!enabled || !baseUrl) {
       setUrl('');
       setIsLoading(false);
       setError(null);
+      return;
+    }
+
+    // Verificar cache global primero
+    const cacheKey = `${baseUrl}-${type}`;
+    if (urlCache.has(cacheKey)) {
+      setUrl(urlCache.get(cacheKey)!);
+      setIsLoading(false);
       return;
     }
 
@@ -33,6 +44,9 @@ export function useSecureUrl({ baseUrl, type = 'asset', enabled = true }: UseSec
     try {
       // Next.js maneja el cache automáticamente
       const secureUrl = await getSecureImageUrl(baseUrl);
+
+      // Guardar en cache global
+      urlCache.set(cacheKey, secureUrl);
       setUrl(secureUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error getting secure URL');
@@ -40,16 +54,28 @@ export function useSecureUrl({ baseUrl, type = 'asset', enabled = true }: UseSec
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [enabled, baseUrl, type]);
 
   const refetch = async () => {
-    // Forzar refresh llamando de nuevo (Next.js cache se encarga del resto)
+    // Limpiar cache y forzar refresh
+    const cacheKey = `${baseUrl}-${type}`;
+    urlCache.delete(cacheKey);
     await fetchUrl();
   };
 
   useEffect(() => {
-    fetchUrl();
-  }, [baseUrl, enabled, type]);
+    // Verificar cache primero
+    const cacheKey = `${baseUrl}-${type}`;
+    if (enabled && baseUrl && urlCache.has(cacheKey)) {
+      setUrl(urlCache.get(cacheKey)!);
+      return;
+    }
+
+    // Solo hacer fetch si no está en cache
+    if (enabled && baseUrl && !urlCache.has(cacheKey)) {
+      fetchUrl();
+    }
+  }, [enabled, baseUrl, type, fetchUrl]);
 
   return {
     url,

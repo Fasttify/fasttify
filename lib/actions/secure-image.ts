@@ -65,12 +65,26 @@ async function _getSecureImageUrl(imageUrl: string): Promise<string> {
   return generateSignedUrl(s3Path, 30 * 24 * 60); // 30 días
 }
 
-// Función con cache nativo de Next.js
-export const getSecureImageUrl = unstable_cache(
-  _getSecureImageUrl,
-  ['secure-image-url'], // Cache key
-  {
-    revalidate: 24 * 60 * 60, // 24 horas
-    tags: ['secure-urls'], // Para invalidar cache específico
+// Función con cache nativo de Next.js - crear una función por URL única
+const createCachedSecureImageUrl = (imageUrl: string) => {
+  return unstable_cache(
+    () => _getSecureImageUrl(imageUrl),
+    [`secure-image-url-${imageUrl}`], // Cache key única por URL
+    {
+      revalidate: 24 * 60 * 60, // 24 horas
+      tags: ['secure-urls'], // Para invalidar cache específico
+    }
+  );
+};
+
+// Cache de funciones para evitar recrear la función cada vez
+const cachedFunctions = new Map<string, () => Promise<string>>();
+
+export const getSecureImageUrl = async (imageUrl: string): Promise<string> => {
+  if (!cachedFunctions.has(imageUrl)) {
+    cachedFunctions.set(imageUrl, createCachedSecureImageUrl(imageUrl));
   }
-);
+
+  const cachedFunction = cachedFunctions.get(imageUrl)!;
+  return await cachedFunction();
+};
