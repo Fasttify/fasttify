@@ -30,12 +30,8 @@ export const auth = defineAuth({
         },
       },
 
-      callbackUrls: ['http://localhost:3000', 'https://www.dev.fasttify.com/', 'https://www.fasttify.com/'],
-      logoutUrls: [
-        'http://localhost:3000/login',
-        'https://www.dev.fasttify.com/login',
-        'https://www.fasttify.com/login',
-      ],
+      callbackUrls: ['http://localhost:3000', 'https://www.fasttify.com/'],
+      logoutUrls: ['http://localhost:3000/login', 'https://www.fasttify.com/login'],
     },
   },
 

@@ -2,6 +2,7 @@ import { resendSignUpCode, signIn, type SignInInput } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { useAuth } from '@/context/hooks/useAuth';
+import { getSignInErrorMessage } from '@/lib/auth-error-messages';
 
 interface UseAuthReturn {
   login: (email: string, password: string) => Promise<void>;
@@ -28,25 +29,6 @@ export function useSignIn({ redirectPath = '/', onVerificationNeeded }: UseAuthP
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getErrorMessage = (error: AuthError): string => {
-    switch (error.message) {
-      case 'Incorrect username or password.':
-        return 'Email o contraseña incorrectos';
-      case 'Password attempts exceeded':
-        return 'Demasiados intentos. Por favor, intenta más tarde';
-      case 'UserNotConfirmedException':
-        return 'Por favor confirma tu cuenta primero';
-      case 'Attempt limit exceeded, please try after some time.':
-        return 'Número de intentos excedido. Intenta más tarde';
-      case 'NetworkError':
-        return 'Error de conexión. Por favor, verifica tu internet';
-      case 'There is already a signed in user.':
-        return 'Ya hay un usuario autenticado. Por favor, cierra la sesión primero';
-      default:
-        return error.message || 'Ha ocurrido un error durante el inicio de sesión';
-    }
-  };
-
   const clearError = useCallback(() => {
     setError(null);
   }, []);
@@ -62,7 +44,7 @@ export function useSignIn({ redirectPath = '/', onVerificationNeeded }: UseAuthP
       setError('Se ha reenviado el código de verificación. Por favor, revisa tu correo.');
     } catch (err) {
       console.error('[Auth] Error resending confirmation code:', err);
-      setError(getErrorMessage(err as AuthError));
+      setError(getSignInErrorMessage(err as AuthError));
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +85,7 @@ export function useSignIn({ redirectPath = '/', onVerificationNeeded }: UseAuthP
           setError('Se requiere una acción adicional para completar el inicio de sesión');
         }
       } catch (err) {
-        setError(getErrorMessage(err as AuthError));
+        setError(getSignInErrorMessage(err as AuthError));
       } finally {
         setIsLoading(false);
       }
