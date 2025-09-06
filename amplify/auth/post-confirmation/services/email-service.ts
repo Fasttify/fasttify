@@ -55,16 +55,15 @@ export async function sendWelcomeEmail(email: string, trialEndDate: Date): Promi
           Data: '¡Bienvenido a Fasttify! Tu prueba gratuita del plan Royal está activa',
         },
       },
-      Source: 'no-reply@fasttify.com',
+      Source: 'noreply@fasttify.com',
     };
 
     // Envía el correo
     const command = new SendEmailCommand(params);
     await sesClient.send(command);
-    console.log(`Email de bienvenida enviado a ${email}`);
     return true;
   } catch (error) {
-    console.error('Error al enviar email de bienvenida:', error);
+    console.error('Error sending welcome email:', error);
     return false;
   }
 }
