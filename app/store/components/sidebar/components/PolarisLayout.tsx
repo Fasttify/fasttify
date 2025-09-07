@@ -4,6 +4,7 @@ import { NavigationPolaris } from '@/app/store/components/sidebar/components/Nav
 import { TopBarPolaris } from '@/app/store/components/sidebar/components/TopBarPolaris';
 import { PageTransition } from '@/components/ui/page-transition';
 import { AppProvider, Frame } from '@shopify/polaris';
+import { routes } from '@/utils/client/routes';
 import translations from '@shopify/polaris/locales/es.json';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -54,7 +55,7 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
     () => ({
       topBarSource: 'https://cdn.fasttify.com/assets/b/fasttify-white.webp',
       width: 40,
-      url: '/',
+      url: routes.store.dashboard.main(storeId),
       accessibilityLabel: 'Fasttify',
     }),
     []
@@ -78,8 +79,8 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
   const navigationComponent = useMemo(() => <NavigationPolaris storeId={storeId} />, [storeId]);
 
   return (
-    <AppProvider i18n={translations} theme="light" linkComponent={PolarisLinkComponent}>
-      <div style={{ height: '100vh' }}>
+    <AppProvider i18n={translations} theme="light" linkComponent={PolarisLinkComponent} features={{ topBar: true }}>
+      <div style={{ height: '250px' }}>
         <Frame
           topBar={topBarComponent}
           navigation={navigationComponent}

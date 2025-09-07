@@ -57,7 +57,8 @@ export function SetupTaskItem({ task, storeId, isExpanded, isUpdating, onToggleE
       <Collapsible
         open={isExpanded}
         id={`task-content-${task.id}`}
-        transition={{ duration: '300ms', timingFunction: 'ease-in-out' }}>
+        transition={{ duration: '500ms', timingFunction: 'ease-in-out' }}
+        expandOnPrint>
         <Box padding="400" paddingBlockStart="0">
           <InlineStack gap="300" blockAlign="start" wrap={false}>
             <Box width="20px" />

@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  ActionList,
   Badge,
   Banner,
   BlockStack,
@@ -134,43 +135,42 @@ export function ThemeList({ storeId }: { storeId: string }) {
       onClose={() => setActivePopover(null)}
       preferredPosition="below"
       preferredAlignment="right">
-      <BlockStack gap="100">
-        {!theme.isActive && (
-          <Button
-            size="micro"
-            variant="tertiary"
-            icon={StatusActiveIcon}
-            onClick={() => {
-              setSelectedTheme(theme);
-              setShowActivateModal(true);
+      <ActionList
+        actionRole="menuitem"
+        items={[
+          ...(!theme.isActive
+            ? [
+                {
+                  content: 'Activar',
+                  icon: StatusActiveIcon,
+                  onAction: () => {
+                    setSelectedTheme(theme);
+                    setShowActivateModal(true);
+                    setActivePopover(null);
+                  },
+                },
+              ]
+            : []),
+          {
+            content: 'Editar',
+            icon: EditIcon,
+            onAction: () => {
+              // TODO: Implementar edición
               setActivePopover(null);
-            }}>
-            Activar
-          </Button>
-        )}
-        <Button
-          size="micro"
-          variant="tertiary"
-          icon={EditIcon}
-          onClick={() => {
-            // TODO: Implementar edición
-            setActivePopover(null);
-          }}>
-          Editar
-        </Button>
-        <Button
-          size="micro"
-          variant="tertiary"
-          icon={DeleteIcon}
-          tone="critical"
-          onClick={() => {
-            setSelectedTheme(theme);
-            setShowDeleteModal(true);
-            setActivePopover(null);
-          }}>
-          Eliminar
-        </Button>
-      </BlockStack>
+            },
+          },
+          {
+            content: 'Eliminar',
+            icon: DeleteIcon,
+            destructive: true,
+            onAction: () => {
+              setSelectedTheme(theme);
+              setShowDeleteModal(true);
+              setActivePopover(null);
+            },
+          },
+        ]}
+      />
     </Popover>,
   ]);
 

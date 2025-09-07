@@ -6,7 +6,6 @@ import { EmptyState } from '@/app/store/components/ai-chat/components/EmptyState
 import { MessageList } from '@/app/store/components/ai-chat/components/MessageList';
 import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll';
 import { RefinedAIAssistantSheetProps } from '@/app/store/components/ai-chat/types/chat-types';
-import { useMediaQuery } from '@/hooks/ui/use-media-query';
 import { Box, Button, Scrollable, Sheet } from '@shopify/polaris';
 import { XIcon } from '@shopify/polaris-icons';
 import { useCallback, useEffect, useRef } from 'react';
@@ -20,7 +19,6 @@ export function RefinedAIAssistantSheet({
   onSuggestionClick,
 }: RefinedAIAssistantSheetProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isMobile = useMediaQuery('(max-width: 640px)');
 
   const { scrollableRef, contentRef, scrollToBottom } = useAutoScroll(messages.length);
 
@@ -37,9 +35,20 @@ export function RefinedAIAssistantSheet({
 
   const hasMessages = messages.length > 0;
 
+  const handleContentClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleContentTouchStart = useCallback((e: React.TouchEvent) => {
+    e.stopPropagation();
+  }, []);
+
   return (
     <Sheet open={open} onClose={handleClose} accessibilityLabel="AI Assistant Chat">
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div
+        style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+        onClick={handleContentClick}
+        onTouchStart={handleContentTouchStart}>
         {/* Header */}
         <Box padding="400" borderBlockEndWidth="025" borderColor="border">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

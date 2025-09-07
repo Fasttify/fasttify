@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { TopBar, ActionList, SkeletonThumbnail, SkeletonBodyText } from '@shopify/polaris';
 import { ExitIcon } from '@shopify/polaris-icons';
 import { useRouter } from 'next/navigation';
@@ -167,7 +167,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
 
   // Secondary Menu con acciones personalizadas integradas
   const secondaryMenuMarkup = (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-0">
       {/* Acciones personalizadas integradas */}
       <ChatTrigger />
       <NotificationPopover />
