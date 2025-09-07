@@ -32,6 +32,7 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
           <div className="space-y-3">
             {SUGGESTIONS.map((suggestion, index) => (
               <div
+                key={index}
                 onClick={() => onSuggestionClick(suggestion.text)}
                 className="bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 p-3 flex items-center justify-between cursor-pointer">
                 <div className="flex items-center">

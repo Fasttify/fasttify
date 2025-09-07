@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { Button } from '@shopify/polaris';
+import { TopBar, Icon } from '@shopify/polaris';
 import { RefinedAIAssistantSheet } from '@/app/store/components/ai-chat/components/RefinedAiAssistant';
 import { useChat } from '@/app/store/components/ai-chat/hooks/useChat';
 import { MagicIcon } from '@shopify/polaris-icons';
@@ -36,13 +36,31 @@ export function ChatTrigger() {
     [chat]
   );
 
+  const handleMenuToggle = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
+
+  const handleMenuClose = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
   return (
     <>
-      <Button
-        variant="primary"
-        size="medium"
-        icon={<MagicIcon width={25} height={27} style={{ color: 'white' }} />}
-        onClick={() => setIsOpen(true)}
+      <TopBar.Menu
+        activatorContent={<Icon source={MagicIcon} tone="base" />}
+        open={isOpen}
+        onOpen={handleMenuToggle}
+        onClose={handleMenuClose}
+        actions={[
+          {
+            items: [
+              {
+                content: 'Abrir Asistente de IA',
+                onAction: () => setIsOpen(true),
+              },
+            ],
+          },
+        ]}
       />
 
       <RefinedAIAssistantSheet
