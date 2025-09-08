@@ -21,15 +21,15 @@ import {
   ListObjectsV2CommandOutput,
   S3Client,
 } from '@aws-sdk/client-s3';
-import type { TemplateObject, CopyResult, TemplateMetadata } from '../types';
+import type { TemplateObject, CopyResult, TemplateMetadata } from '@/api/stores/template/types';
 
-export class S3Service {
+export class S3TemplateController {
   private s3Client: S3Client;
   private bucketName: string;
 
   constructor() {
     this.s3Client = new S3Client({
-      region: process.env.REGION_BUCKET || 'us-east-2',
+      region: process.env.REGION_BUCKET,
     });
     this.bucketName = process.env.BUCKET_NAME || '';
   }

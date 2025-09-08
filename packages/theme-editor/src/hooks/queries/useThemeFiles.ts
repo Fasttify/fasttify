@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { themeFileApi } from '../../api/themeFileApi';
+import { themeFileApi } from '../../api';
 
 export const THEME_FILES_KEY = 'theme-files';
 

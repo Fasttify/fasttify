@@ -15,62 +15,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { CustomDomainService } from '@/tenant-domains/services/custom-domain-service';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
-
-const customDomainService = new CustomDomainService();
+import { withAuthHandler } from '@/api/_lib/auth-middleware';
+import { postRequestValidationToken } from './_lib/controllers/request-token-controller';
 
 export async function OPTIONS(req: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(req);
   return new Response(null, { status: 204, headers: corsHeaders });
 }
 
-export async function POST(req: NextRequest) {
-  const corsHeaders = await getNextCorsHeaders(req);
-  try {
-    const { domain, storeId } = await req.json();
-    const session = await AuthGetCurrentUserServer();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
-    }
-    const { data: userStore } = await cookiesClient.models.UserStore.get({
-      storeId: storeId,
-    });
-    if (!userStore) {
-      return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
-    }
-    if (userStore.userId !== session.username) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
-    }
-    if (!domain) {
-      return NextResponse.json({ error: 'Domain is required' }, { status: 400, headers: corsHeaders });
-    }
-
-    // Validar reglas de dominio (formato y prohibiciones)
-    const validation = customDomainService.validateDomainRules(domain);
-    if (!validation.valid) {
-      return NextResponse.json({ error: validation.error }, { status: 400, headers: corsHeaders });
-    }
-
-    // Generar token de validación
-    const result = await customDomainService.generateDomainValidationToken(domain);
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 500, headers: corsHeaders });
-    }
-
-    return NextResponse.json(
-      {
-        success: true,
-        domain,
-        validationToken: result.validationToken,
-        instructions: result.instructions,
-      },
-      { headers: corsHeaders }
-    );
-  } catch (error) {
-    console.error('Error generating domain validation token:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
-  }
-}
+export const POST = withAuthHandler(
+  async (request: NextRequest, { storeId }) => {
+    return postRequestValidationToken(request, storeId);
+  },
+  { requireStoreOwnership: true, storeIdSource: 'body', storeIdParamName: 'storeId' }
+);

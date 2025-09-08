@@ -16,15 +16,15 @@
 
 import { getCdnUrlForKey } from '@/utils/server';
 import type { ThemeFile } from '@/renderer-engine/services/themes/types';
-import type { TemplateObject, CopyResult, StoreConfig, TemplateMetadata } from '../types';
-import { S3Service } from './s3-service';
+import type { TemplateObject, CopyResult, StoreConfig, TemplateMetadata } from '@/api/stores/template/types';
+import { S3TemplateController } from '@/api/stores/_lib/template/controllers/s3-template-controller';
 
-export class TemplateService {
-  private s3Service: S3Service;
+export class TemplateProcessingController {
+  private s3Controller: S3TemplateController;
   private readonly BASE_TEMPLATE_PREFIX = 'base-templates/default/';
 
   constructor() {
-    this.s3Service = new S3Service();
+    this.s3Controller = new S3TemplateController();
   }
 
   /**
@@ -35,7 +35,7 @@ export class TemplateService {
 
     for (const obj of templateObjects) {
       try {
-        const body = await this.s3Service.getObjectContent(obj.key);
+        const body = await this.s3Controller.getObjectContent(obj.key);
         if (!body) continue;
 
         const isText = this.isTextLike(obj.relativePath);
@@ -68,13 +68,13 @@ export class TemplateService {
     templateUrls: Record<string, string>;
   }> {
     // 1. Listar todos los objetos de la plantilla base
-    const templateObjects = await this.s3Service.listBaseTemplateObjects(this.BASE_TEMPLATE_PREFIX);
+    const templateObjects = await this.s3Controller.listBaseTemplateObjects(this.BASE_TEMPLATE_PREFIX);
 
     // 2. Crear metadatos para personalización
     const metadata = this.createTemplateMetadata(storeId, storeConfig);
 
     // 3. Copiar cada objeto a la carpeta del usuario
-    const copyResults = await this.s3Service.copyTemplateToUserStore(templateObjects, storeId, metadata);
+    const copyResults = await this.s3Controller.copyTemplateToUserStore(templateObjects, storeId, metadata);
 
     // 4. Generar URLs de las plantillas
     const templateUrls = this.generateTemplateUrls(copyResults);

@@ -15,60 +15,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { CertificateManager } from '@/tenant-domains/services/ssl/certificate-manager';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
-
-const certificateManager = new CertificateManager();
+import { withAuthHandler } from '@/api/_lib/auth-middleware';
+import { postVerifyAcm } from '@/api/domain-validation/_lib/controllers/verify-acm-controller';
 
 export async function OPTIONS(req: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(req);
   return new Response(null, { status: 204, headers: corsHeaders });
 }
 
-export async function POST(req: NextRequest) {
-  const corsHeaders = await getNextCorsHeaders(req);
-  try {
-    const { certificateArn, storeId } = await req.json();
-    const session = await AuthGetCurrentUserServer();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
-    }
-    const { data: userStore } = await cookiesClient.models.UserStore.get({
-      storeId: storeId,
-    });
-    if (!userStore) {
-      return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
-    }
-    if (userStore.userId !== session.username) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
-    }
-    if (!certificateArn) {
-      return NextResponse.json({ error: 'Certificate ARN is required' }, { status: 400, headers: corsHeaders });
-    }
-
-    // Verificar si el certificado está listo
-    const isReady = await certificateManager.isCertificateReady(certificateArn);
-
-    // Obtener información completa del certificado
-    const certificateInfo = await certificateManager.getCertificateInfo(certificateArn);
-
-    if (!certificateInfo) {
-      return NextResponse.json({ error: 'Certificate not found' }, { status: 404, headers: corsHeaders });
-    }
-
-    return NextResponse.json(
-      {
-        success: true,
-        isReady,
-        certificateArn,
-        status: certificateInfo.status,
-        validationRecords: certificateInfo.validationRecords,
-      },
-      { headers: corsHeaders }
-    );
-  } catch (error) {
-    console.error('Error verifying ACM certificate:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
-  }
-}
+export const POST = withAuthHandler(
+  async (request: NextRequest, { storeId }) => {
+    return postVerifyAcm(request, storeId);
+  },
+  { requireStoreOwnership: true, storeIdSource: 'body', storeIdParamName: 'storeId' }
+);

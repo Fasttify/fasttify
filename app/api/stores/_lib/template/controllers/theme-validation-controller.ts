@@ -19,9 +19,9 @@ import { ThemeValidator } from '@/renderer-engine/services/themes';
 import type { ThemeFile, ValidationResult } from '@/renderer-engine/services/themes/types';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
 import { getCdnBaseUrl } from '@/utils/server';
-import type { StoreConfig } from '../types';
+import type { StoreConfig } from '@/api/stores/template/types';
 
-export class ThemeService {
+export class ThemeValidationController {
   private validator: ThemeValidator;
 
   constructor() {

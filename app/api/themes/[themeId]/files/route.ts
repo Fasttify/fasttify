@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-export { S3Service } from './s3-service';
-export { TemplateService } from './template-service';
-export { ThemeService } from './theme-service';
+import { NextRequest, NextResponse } from 'next/server';
+import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { getListFiles } from '@/api/themes/_lib/controllers/files-controller';
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ themeId: string }> }) {
+  const { themeId } = await params;
+  return getListFiles(request, themeId);
+}
+
+export async function OPTIONS(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
+  return new Response(null, { status: 204, headers: corsHeaders });
+}

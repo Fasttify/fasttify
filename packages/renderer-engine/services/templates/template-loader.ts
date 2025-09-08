@@ -38,10 +38,9 @@ class TemplateLoader {
     this.bucketName = process.env.BUCKET_NAME || '';
     this.isProduction = process.env.APP_ENV === 'production';
 
-    // Solo inicializar S3 si tenemos bucket configurado
     if (this.bucketName) {
       this.s3Client = new S3Client({
-        region: process.env.REGION_BUCKET || 'us-east-2',
+        region: process.env.REGION_BUCKET,
       });
     }
   }
