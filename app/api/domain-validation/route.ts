@@ -17,7 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { withAuthHandler } from '@/api/_lib/auth-middleware';
-import { postRequestValidationToken } from './_lib/controllers/request-token-controller';
+import { postRequestValidationToken } from '@/api/domain-validation/_lib/controllers/request-token-controller';
 
 export async function OPTIONS(req: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(req);
