@@ -10,9 +10,11 @@ class CartHelpers {
 
   static getSelectedAttributes() {
     const selectedAttributes = {};
-    const selectedOptions = document.querySelectorAll('.product-option-group .selected, .attribute-values-list .selected');
+    const selectedOptions = document.querySelectorAll(
+      '.product-option-group .selected, .attribute-values-list .selected'
+    );
 
-    selectedOptions.forEach(option => {
+    selectedOptions.forEach((option) => {
       const optionName = option.dataset.optionName;
       const optionValue = option.dataset.optionValue;
       if (optionName && optionValue) {

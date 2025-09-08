@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const carousel = document.querySelector('.products-carousel');
   const track = document.querySelector('.products-carousel-track');
   const slides = document.querySelectorAll('.carousel-slide');
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const slideWidthCalc = `calc((100% - ${totalSlides - 1} * ${gap}px) / ${totalSlides})`;
 
     // Aplicar a todos los slides
-    slides.forEach(slide => {
+    slides.forEach((slide) => {
       slide.style.flex = `0 0 ${slideWidthCalc}`;
     });
   }
@@ -93,31 +93,43 @@ document.addEventListener('DOMContentLoaded', function() {
   let endX = 0;
   let isDragging = false;
 
-  track.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-    isDragging = true;
-  }, { passive: true });
+  track.addEventListener(
+    'touchstart',
+    (e) => {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+    },
+    { passive: true }
+  );
 
-  track.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    endX = e.touches[0].clientX;
-  }, { passive: true });
+  track.addEventListener(
+    'touchmove',
+    (e) => {
+      if (!isDragging) return;
+      endX = e.touches[0].clientX;
+    },
+    { passive: true }
+  );
 
-  track.addEventListener('touchend', () => {
-    if (!isDragging) return;
-    isDragging = false;
+  track.addEventListener(
+    'touchend',
+    () => {
+      if (!isDragging) return;
+      isDragging = false;
 
-    const threshold = 50;
-    const diff = startX - endX;
+      const threshold = 50;
+      const diff = startX - endX;
 
-    if (Math.abs(diff) > threshold) {
-      if (diff > 0) {
-        goToNext();
-      } else {
-        goToPrev();
+      if (Math.abs(diff) > threshold) {
+        if (diff > 0) {
+          goToNext();
+        } else {
+          goToPrev();
+        }
       }
-    }
-  }, { passive: true });
+    },
+    { passive: true }
+  );
 
   // Navegación por teclado
   document.addEventListener('keydown', (e) => {

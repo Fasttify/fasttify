@@ -295,7 +295,9 @@
   width: 24px;
   height: 2px;
   background-color: var(--header-text);
-  transition: transform 0.2s, top 0.2s;
+  transition:
+    transform 0.2s,
+    top 0.2s;
   left: 0;
 }
 
@@ -519,7 +521,9 @@ body.menu-open {
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .search-dialog-overlay.is-active {
@@ -705,7 +709,6 @@ body.menu-open {
   }
 }
 
-
 body.search-open {
   overflow: hidden;
 }
@@ -778,4 +781,3 @@ body.search-open {
     gap: 8px;
   }
 }
-

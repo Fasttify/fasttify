@@ -39,7 +39,6 @@
     font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-normal);
     margin-bottom: 1.5rem;
-
   }
 }
 
@@ -93,7 +92,6 @@
   margin: 0 auto;
   color: #ffffff;
 }
-
 
 @media (max-width: 1200px) {
   .product-page-banner {
@@ -269,13 +267,13 @@
 }
 
 /* Mejoras para productos con atributos */
-.product-btn[data-has-attributes="true"] {
+.product-btn[data-has-attributes='true'] {
   background-color: #f0f0f0;
   color: #333;
   border: 1px solid #ddd;
 }
 
-.product-btn[data-has-attributes="true"]:hover {
+.product-btn[data-has-attributes='true']:hover {
   background-color: #e0e0e0;
 }
 

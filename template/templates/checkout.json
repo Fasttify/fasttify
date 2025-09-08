@@ -8,7 +8,5 @@
       }
     }
   },
-  "order": [
-    "checkout"
-  ]
+  "order": ["checkout"]
 }
