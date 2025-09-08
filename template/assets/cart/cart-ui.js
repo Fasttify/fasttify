@@ -48,20 +48,19 @@ class CartUI {
       this.renderCartItems(cart);
       this.showCartFooter();
     }
-
   }
 
   updateCartCounters(cart) {
-    this.cartCountElements.forEach(el => {
+    this.cartCountElements.forEach((el) => {
       el.textContent = cart.item_count;
     });
-    this.cartTotalElements.forEach(el => {
+    this.cartTotalElements.forEach((el) => {
       el.textContent = CartHelpers.formatMoney(cart.total_price);
     });
   }
 
   renderCartItems(cart) {
-    const itemsHtml = cart.items.map(item => CartTemplates.generateCartItemHtml(item)).join('');
+    const itemsHtml = cart.items.map((item) => CartTemplates.generateCartItemHtml(item)).join('');
     const footerHtml = CartTemplates.generateCartFooterHtml(cart);
 
     this.cartContentContainer.innerHTML = `
@@ -93,7 +92,7 @@ class CartUI {
   setupQuantityButtons() {
     // Plus buttons
     const plusButtons = this.sidebar.querySelectorAll('[data-quantity-plus]');
-    plusButtons.forEach(button => {
+    plusButtons.forEach((button) => {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         const itemId = button.getAttribute('data-item-id');
@@ -107,7 +106,7 @@ class CartUI {
 
     // Minus buttons
     const minusButtons = this.sidebar.querySelectorAll('[data-quantity-minus]');
-    minusButtons.forEach(button => {
+    minusButtons.forEach((button) => {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         const itemId = button.getAttribute('data-item-id');
@@ -125,7 +124,7 @@ class CartUI {
   }
 
   setupQuantityInputs() {
-    this.sidebar.querySelectorAll('.quantity-input').forEach(input => {
+    this.sidebar.querySelectorAll('.quantity-input').forEach((input) => {
       const debouncedUpdate = CartHelpers.debounce((itemId, quantity) => {
         if (quantity <= 0) {
           window.sideCart.removeItem(itemId);
@@ -150,7 +149,7 @@ class CartUI {
   }
 
   setupRemoveButtons() {
-    this.sidebar.querySelectorAll('[data-remove-item]').forEach(button => {
+    this.sidebar.querySelectorAll('[data-remove-item]').forEach((button) => {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         const itemId = button.getAttribute('data-item-id');
@@ -158,7 +157,7 @@ class CartUI {
       });
     });
 
-    this.sidebar.querySelectorAll('[data-clear-cart]').forEach(button => {
+    this.sidebar.querySelectorAll('[data-clear-cart]').forEach((button) => {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         window.sideCart.clearCart();
@@ -168,7 +167,7 @@ class CartUI {
 
   setupCheckoutButtons() {
     // Checkout directo
-    this.sidebar.querySelectorAll('[data-checkout-direct]').forEach(button => {
+    this.sidebar.querySelectorAll('[data-checkout-direct]').forEach((button) => {
       button.addEventListener('click', async (e) => {
         e.preventDefault();
 
@@ -186,7 +185,6 @@ class CartUI {
 
           // Redireccionar a la API de checkout directo
           window.location.href = `/api/stores/${storeId}/checkout/direct`;
-
         } catch (error) {
           console.error('Error en checkout directo:', error);
           CartHelpers.showError(`Error al iniciar checkout: ${error.message}`);

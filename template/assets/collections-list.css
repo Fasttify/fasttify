@@ -331,9 +331,21 @@
   animation: fadeInUp 0.6s ease forwards;
 }
 
-.catalog-item:nth-child(1) { animation-delay: 0.1s; }
-.catalog-item:nth-child(2) { animation-delay: 0.2s; }
-.catalog-item:nth-child(3) { animation-delay: 0.3s; }
-.catalog-item:nth-child(4) { animation-delay: 0.4s; }
-.catalog-item:nth-child(5) { animation-delay: 0.5s; }
-.catalog-item:nth-child(6) { animation-delay: 0.6s; }
+.catalog-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.catalog-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.catalog-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.catalog-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.catalog-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.catalog-item:nth-child(6) {
+  animation-delay: 0.6s;
+}

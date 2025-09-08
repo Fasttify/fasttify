@@ -143,7 +143,7 @@ class FilterProductRenderer {
 
     let html = '<div class="product-attributes-summary">';
 
-    product.attributes.forEach(attribute => {
+    product.attributes.forEach((attribute) => {
       html += `
         <div class="attribute-display attribute-display--${attribute.name.toLowerCase().replace(/\s+/g, '-')}">
           <div class="attribute-values-list">
@@ -151,7 +151,7 @@ class FilterProductRenderer {
 
       if (attribute.name.toLowerCase() === 'color') {
         // Renderizar colores como swatches
-        attribute.values.slice(0, 4).forEach(value => {
+        attribute.values.slice(0, 4).forEach((value) => {
           html += `<span class="color-swatch" style="background-color: ${value.toLowerCase()};" title="${value}"></span>`;
         });
         if (attribute.values.length > 4) {
@@ -159,7 +159,7 @@ class FilterProductRenderer {
         }
       } else {
         // Renderizar otros atributos como texto
-        attribute.values.slice(0, 3).forEach(value => {
+        attribute.values.slice(0, 3).forEach((value) => {
           html += `<span class="attribute-value-item">${value}</span>`;
         });
         if (attribute.values.length > 3) {
@@ -216,7 +216,7 @@ class FilterProductRenderer {
       return '<p class="no-products">No se encontraron productos.</p>';
     }
 
-    return products.map(product => this.renderProduct(product)).join('');
+    return products.map((product) => this.renderProduct(product)).join('');
   }
 
   /**
@@ -235,7 +235,7 @@ class FilterProductRenderer {
   appendProducts(products, container) {
     if (!container || !products || products.length === 0) return;
 
-    const productsHTML = products.map(product => this.renderProduct(product)).join('');
+    const productsHTML = products.map((product) => this.renderProduct(product)).join('');
     container.insertAdjacentHTML('beforeend', productsHTML);
   }
 }

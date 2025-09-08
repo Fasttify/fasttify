@@ -1,9 +1,9 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const menuToggles = document.querySelectorAll('.js-menu-toggle');
   const mobileMenu = document.getElementById('mobile-menu');
 
-  menuToggles.forEach(function(toggle) {
-    toggle.addEventListener('click', function() {
+  menuToggles.forEach(function (toggle) {
+    toggle.addEventListener('click', function () {
       const expanded = toggle.getAttribute('aria-expanded') === 'true';
       toggle.setAttribute('aria-expanded', !expanded);
       mobileMenu.classList.toggle('is-active');
@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const searchToggles = document.querySelectorAll('.js-search-toggle');
   const searchDialogOverlay = document.getElementById('search-dialog-overlay');
 
-  searchToggles.forEach(function(toggle) {
-    toggle.addEventListener('click', function() {
+  searchToggles.forEach(function (toggle) {
+    toggle.addEventListener('click', function () {
       if (toggle.classList.contains('search-toggle')) {
         const expanded = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', !expanded);
@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const submenuToggles = document.querySelectorAll('.mobile-submenu-toggle');
 
-  submenuToggles.forEach(function(toggle) {
-    toggle.addEventListener('click', function() {
+  submenuToggles.forEach(function (toggle) {
+    toggle.addEventListener('click', function () {
       const parent = toggle.closest('.has-submenu');
       parent.classList.add('is-active');
     });
@@ -37,8 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const backButtons = document.querySelectorAll('.mobile-submenu-back');
 
-  backButtons.forEach(function(button) {
-    button.addEventListener('click', function() {
+  backButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
       const parent = button.closest('.has-submenu');
       parent.classList.remove('is-active');
     });
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const header = document.getElementById('site-header');
   const scrollThreshold = 50;
 
-  window.addEventListener('scroll', function() {
+  window.addEventListener('scroll', function () {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
     if (scrollTop > scrollThreshold) {
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  document.addEventListener('click', function(event) {
+  document.addEventListener('click', function (event) {
     const target = event.target;
 
     if (!target.closest('.search-dialog-content') && !target.closest('.search-toggle')) {
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let debounceTimeout = null;
 
   if (searchInput && productsGrid && storeId) {
-    searchInput.addEventListener('input', function(e) {
+    searchInput.addEventListener('input', function (e) {
       const query = e.target.value.trim();
       clearTimeout(debounceTimeout);
 
@@ -108,31 +108,38 @@ document.addEventListener('DOMContentLoaded', function() {
         productsGrid.innerHTML = skeletonHtml;
 
         fetch(`/api/stores/${storeId}/search?q=${encodeURIComponent(query)}&limit=${window.SEARCH_PRODUCTS_LIMIT}`)
-          .then(res => res.json())
-          .then(data => {
+          .then((res) => res.json())
+          .then((data) => {
             if (data.products && data.products.length > 0) {
-              productsGrid.innerHTML = data.products.map(product => {
-                const hasMultipleImages = product.images && product.images.length > 1;
-                const hasSingleImage = product.images && product.images.length > 0;
-                const saleBadge = product.compare_at_price > product.price
-                  ? `<span class="product-badge badge-sale">SAVE ${Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}%</span>`
-                  : '';
-                const newBadge = product.tags && (product.tags.includes('new') || (new Date(product.createdAt).getTime() > (Date.now() - 2592000000)))
-                  ? `<span class="product-badge badge-new">NEW</span>`
-                  : '';
-                const bestsellerBadge = product.tags && product.tags.includes('bestseller')
-                  ? `<span class="product-badge badge-bestseller">BESTSELLER</span>`
-                  : '';
-                const trendingBadge = product.tags && product.tags.includes('trending')
-                  ? `<span class="product-badge badge-trending">TRENDING</span>`
-                  : '';
+              productsGrid.innerHTML = data.products
+                .map((product) => {
+                  const hasMultipleImages = product.images && product.images.length > 1;
+                  const hasSingleImage = product.images && product.images.length > 0;
+                  const saleBadge =
+                    product.compare_at_price > product.price
+                      ? `<span class="product-badge badge-sale">SAVE ${Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}%</span>`
+                      : '';
+                  const newBadge =
+                    product.tags &&
+                    (product.tags.includes('new') || new Date(product.createdAt).getTime() > Date.now() - 2592000000)
+                      ? `<span class="product-badge badge-new">NEW</span>`
+                      : '';
+                  const bestsellerBadge =
+                    product.tags && product.tags.includes('bestseller')
+                      ? `<span class="product-badge badge-bestseller">BESTSELLER</span>`
+                      : '';
+                  const trendingBadge =
+                    product.tags && product.tags.includes('trending')
+                      ? `<span class="product-badge badge-trending">TRENDING</span>`
+                      : '';
 
-                return `
+                  return `
                   <div class="product-card">
                     <div class="product-image-wrapper">
                       <a href="${product.url}" class="product-link">
-                        ${hasMultipleImages
-                          ? `
+                        ${
+                          hasMultipleImages
+                            ? `
                             <img class="product-image product-image-primary" src="${product.featured_image}" alt="${product.title}" loading="lazy">
                             <img class="product-image product-image-secondary" src="${product.images[1]}" alt="${product.title}" loading="lazy">
                             <div class="multiple-images-indicator">
@@ -141,11 +148,11 @@ document.addEventListener('DOMContentLoaded', function() {
                               ${product.images.length > 2 ? '<div class="indicator-dot"></div>' : ''}
                             </div>
                           `
-                          : hasSingleImage
-                          ? `
+                            : hasSingleImage
+                              ? `
                             <img class="product-image" src="${product.featured_image}" alt="${product.title}" loading="lazy">
                           `
-                          : `
+                              : `
                             <div class="product-placeholder">
                               <div class="placeholder-content">
                                 <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -170,18 +177,20 @@ document.addEventListener('DOMContentLoaded', function() {
                       <div class="product-vendor">${product.vendor ? product.vendor.toUpperCase() : ''}</div>
                       <h3 class="product-title">${product.title}</h3>
                       <div class="product-price">
-                        ${product.compare_at_price > product.price
-                          ? `
+                        ${
+                          product.compare_at_price > product.price
+                            ? `
                             <span class="price-compare">${window.formatMoney(product.compare_at_price)}</span>
                             <span class="price-current price-sale">${window.formatMoney(product.price)}</span>
                           `
-                          : `<span class="price-current">${window.formatMoney(product.price)}</span>`
+                            : `<span class="price-current">${window.formatMoney(product.price)}</span>`
                         }
                       </div>
                     </div>
                   </div>
                 `;
-              }).join('');
+                })
+                .join('');
             } else {
               productsGrid.innerHTML = '<div class="no-results">No se encontraron productos.</div>';
             }
@@ -196,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const cartCountElement = document.querySelector('[data-cart-count]');
 
   if (cartCountElement) {
-    document.addEventListener('cart:updated', function(event) {
+    document.addEventListener('cart:updated', function (event) {
       const cart = event.detail.cart;
       if (cart && typeof cart.item_count !== 'undefined') {
         cartCountElement.textContent = cart.item_count;
@@ -204,10 +213,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     if (window.sideCart) {
-      window.sideCart.refresh().then(() => {
-      }).catch(error => {
-        console.error('Error refreshing cart on header load:', error);
-      });
+      window.sideCart
+        .refresh()
+        .then(() => {})
+        .catch((error) => {
+          console.error('Error refreshing cart on header load:', error);
+        });
     }
   }
 });
