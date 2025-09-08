@@ -63,7 +63,7 @@
     "**/amplify": true,
     "**/.amplify": true,
     "**/public": true,
-    "**/template": true,
+    "template": false,
     "**/coverage": true,
     "**/dist": true,
     "**/build": true,

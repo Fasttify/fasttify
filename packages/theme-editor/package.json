@@ -1,0 +1,29 @@
+{
+  "name": "@fasttify/theme-editor",
+  "version": "1.0.0",
+  "description": "Editor de código para temas con Monaco Editor",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "monaco-editor": "^0.52.2",
+    "@tanstack/react-query": "^5.82.0"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.8.3"
+  },
+  "keywords": ["theme", "editor", "monaco", "liquid", "fasttify"],
+  "author": "Fasttify Team",
+  "license": "MIT"
+}

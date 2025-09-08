@@ -4,7 +4,9 @@
   "private": true,
   "workspaces": [
     "packages/renderer-engine",
-    "packages/orders-app"
+    "packages/orders-app",
+    "packages/theme-editor",
+    "packages/tenant-domains"
   ],
   "scripts": {
     "dev": "next dev --turbopack",
@@ -99,7 +101,8 @@
     "uuidv4": "^6.2.13",
     "vaul": "^1.1.2",
     "zod": "^3.25.64",
-    "zustand": "^5.0.6"
+    "zustand": "^5.0.6",
+    "@fasttify/theme-editor": "workspace:*"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.16.1",

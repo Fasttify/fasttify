@@ -1,180 +1,32 @@
 'use client';
 
-import {
-  ActionList,
-  Badge,
-  Banner,
-  BlockStack,
-  Button,
-  Card,
-  DataTable,
-  EmptyState,
-  InlineStack,
-  Modal,
-  Popover,
-  Spinner,
-  Text,
-} from '@shopify/polaris';
-import {
-  AlertCircleIcon,
-  DeleteIcon,
-  EditIcon,
-  MenuHorizontalIcon,
-  PlusIcon,
-  StatusActiveIcon,
-} from '@shopify/polaris-icons';
+import { Banner, BlockStack, Button, Card, EmptyState, InlineStack, Modal, Spinner, Text } from '@shopify/polaris';
+import { AlertCircleIcon, PlusIcon } from '@shopify/polaris-icons';
 import { useState } from 'react';
 import { useThemeList } from '../hooks/useThemeList';
+import { useThemeActions } from '../hooks/useThemeActions';
+import { ThemeTable } from './ThemeTable';
+import { ThemeModals } from './ThemeModals';
 import { ThemeUploadForm } from './ThemeUploadForm';
 
-interface Theme {
-  id: string;
-  name: string;
-  version: string;
-  author: string;
-  description: string;
-  isActive: boolean;
-  fileCount: number;
-  totalSize: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export function ThemeList({ storeId }: { storeId: string }) {
-  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showActivateModal, setShowActivateModal] = useState(false);
-  const [activePopover, setActivePopover] = useState<string | null>(null);
-  const [isActivating, setIsActivating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-
   const { themes, loading, error, activateTheme, deleteTheme, refreshThemes } = useThemeList(storeId);
 
-  const handleActivateTheme = async () => {
-    if (selectedTheme) {
-      try {
-        setIsActivating(true);
-        await activateTheme(selectedTheme.id);
-        setShowActivateModal(false);
-        setSelectedTheme(null);
-      } catch (error) {
-        console.error('Error activating theme:', error);
-      } finally {
-        setIsActivating(false);
-      }
-    }
-  };
-
-  const handleDeleteTheme = async () => {
-    if (selectedTheme) {
-      try {
-        setIsDeleting(true);
-        await deleteTheme(selectedTheme.id);
-        setShowDeleteModal(false);
-        setSelectedTheme(null);
-      } catch (error) {
-        console.error('Error deleting theme:', error);
-      } finally {
-        setIsDeleting(false);
-      }
-    }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const rows = themes.map((theme) => [
-    <BlockStack key={theme.id} gap="100">
-      <Text as="p" variant="bodyMd" fontWeight="semibold">
-        {theme.name}
-      </Text>
-      <Text as="p" variant="bodySm" tone="subdued">
-        v{theme.version} • {theme.author}
-      </Text>
-    </BlockStack>,
-    <Text as="p" variant="bodySm" tone="subdued">
-      {theme.description || 'Sin descripción'}
-    </Text>,
-    <BlockStack gap="100">
-      <Text as="p" variant="bodySm">
-        {theme.fileCount} archivos
-      </Text>
-      <Text as="p" variant="bodySm" tone="subdued">
-        {formatFileSize(theme.totalSize)}
-      </Text>
-    </BlockStack>,
-    <Badge tone={theme.isActive ? 'success' : 'info'}>{theme.isActive ? 'Activo' : 'Inactivo'}</Badge>,
-    <Text as="p" variant="bodySm" tone="subdued">
-      {formatDate(theme.updatedAt)}
-    </Text>,
-    <Popover
-      active={activePopover === theme.id}
-      activator={
-        <Button
-          size="micro"
-          icon={MenuHorizontalIcon}
-          onClick={() => setActivePopover(activePopover === theme.id ? null : theme.id)}
-        />
-      }
-      onClose={() => setActivePopover(null)}
-      preferredPosition="below"
-      preferredAlignment="right">
-      <ActionList
-        actionRole="menuitem"
-        items={[
-          ...(!theme.isActive
-            ? [
-                {
-                  content: 'Activar',
-                  icon: StatusActiveIcon,
-                  onAction: () => {
-                    setSelectedTheme(theme);
-                    setShowActivateModal(true);
-                    setActivePopover(null);
-                  },
-                },
-              ]
-            : []),
-          {
-            content: 'Editar',
-            icon: EditIcon,
-            onAction: () => {
-              // TODO: Implementar edición
-              setActivePopover(null);
-            },
-          },
-          {
-            content: 'Eliminar',
-            icon: DeleteIcon,
-            destructive: true,
-            onAction: () => {
-              setSelectedTheme(theme);
-              setShowDeleteModal(true);
-              setActivePopover(null);
-            },
-          },
-        ]}
-      />
-    </Popover>,
-  ]);
-
-  const headers = ['Tema', 'Descripción', 'Archivos', 'Estado', 'Última modificación', 'Acciones'];
+  const {
+    selectedTheme,
+    showActivateModal,
+    showDeleteModal,
+    isActivating,
+    isDeleting,
+    openActivateModal,
+    openDeleteModal,
+    handleEditTheme,
+    handleActivateTheme,
+    handleDeleteTheme,
+    closeActivateModal,
+    closeDeleteModal,
+  } = useThemeActions({ storeId, activateTheme, deleteTheme, refreshThemes });
 
   if (loading) {
     return (
@@ -234,11 +86,11 @@ export function ThemeList({ storeId }: { storeId: string }) {
             </Button>
           </EmptyState>
         ) : (
-          <DataTable
-            columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text']}
-            headings={headers}
-            rows={rows}
-            hoverable
+          <ThemeTable
+            themes={themes}
+            onActivateTheme={openActivateModal}
+            onEditTheme={handleEditTheme}
+            onDeleteTheme={openDeleteModal}
           />
         )}
       </Card>
@@ -285,8 +137,6 @@ export function ThemeList({ storeId }: { storeId: string }) {
                   const confirmResult = await response.json();
 
                   if (confirmResult.success && confirmResult.processId) {
-                    // No cerramos aún; el formulario hará polling y cerrará automático tras completar
-                    // Lanzar un refresh eventual por si ya aparece
                     setTimeout(() => refreshThemes(), 2000);
                     return { ok: true, processId: confirmResult.processId as string };
                   }
@@ -305,72 +155,17 @@ export function ThemeList({ storeId }: { storeId: string }) {
         </Modal>
       )}
 
-      {/* Modal de confirmación de activación */}
-      {showActivateModal && selectedTheme && (
-        <Modal
-          open={showActivateModal}
-          onClose={() => setShowActivateModal(false)}
-          title="Activar tema"
-          primaryAction={{
-            content: 'Activar',
-            onAction: handleActivateTheme,
-            icon: StatusActiveIcon,
-            loading: isActivating,
-            disabled: isActivating,
-          }}
-          secondaryActions={[
-            {
-              content: 'Cancelar',
-              onAction: () => setShowActivateModal(false),
-              disabled: isActivating,
-            },
-          ]}>
-          <Modal.Section>
-            <BlockStack gap="400">
-              <Text as="p" variant="bodyMd">
-                ¿Estás seguro de que quieres activar el tema "{selectedTheme.name}"?
-              </Text>
-              <Text as="p" variant="bodySm" tone="subdued">
-                Este tema reemplazará el tema actualmente activo.
-              </Text>
-            </BlockStack>
-          </Modal.Section>
-        </Modal>
-      )}
-
-      {/* Modal de confirmación de eliminación */}
-      {showDeleteModal && selectedTheme && (
-        <Modal
-          open={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          title="Eliminar tema"
-          primaryAction={{
-            content: 'Eliminar',
-            onAction: handleDeleteTheme,
-            destructive: true,
-            icon: DeleteIcon,
-            loading: isDeleting,
-            disabled: isDeleting,
-          }}
-          secondaryActions={[
-            {
-              content: 'Cancelar',
-              onAction: () => setShowDeleteModal(false),
-              disabled: isDeleting,
-            },
-          ]}>
-          <Modal.Section>
-            <BlockStack gap="400">
-              <Text as="p" variant="bodyMd">
-                ¿Estás seguro de que quieres eliminar el tema "{selectedTheme.name}"?
-              </Text>
-              <Text as="p" variant="bodySm" tone="subdued">
-                Esta acción no se puede deshacer. El tema se eliminará permanentemente.
-              </Text>
-            </BlockStack>
-          </Modal.Section>
-        </Modal>
-      )}
+      <ThemeModals
+        selectedTheme={selectedTheme}
+        showActivateModal={showActivateModal}
+        showDeleteModal={showDeleteModal}
+        isActivating={isActivating}
+        isDeleting={isDeleting}
+        onCloseActivateModal={closeActivateModal}
+        onCloseDeleteModal={closeDeleteModal}
+        onConfirmActivate={handleActivateTheme}
+        onConfirmDelete={handleDeleteTheme}
+      />
     </>
   );
 }
