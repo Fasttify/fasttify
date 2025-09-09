@@ -15,7 +15,7 @@ interface Order {
 }
 
 // Página principal
-export const OrderSearchPage: React.FC = () => {
+export const OrderSearchPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [orders, setOrders] = useState<Order[]>([]);

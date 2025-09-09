@@ -1,6 +1,6 @@
 'use client';
 
-import { getUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores';
+import { useUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
@@ -99,7 +99,7 @@ function StoreList({ stores, canCreateStore }: { stores: any[]; canCreateStore: 
 // Componente que carga los datos con Suspense
 function StoreData({ userId, userPlan }: { userId: string | null; userPlan?: string }) {
   // Obtenemos los datos directamente
-  const result = getUserStores(userId, userPlan);
+  const result = useUserStores(userId, userPlan);
   const {
     stores = [],
     canCreateStore = false,

@@ -5,7 +5,7 @@ interface IconProps {
   className?: string;
 }
 
-export const ShoppingBagIcon: React.FC<IconProps> = ({ size = 24, className }) => (
+export const ShoppingBagIcon = ({ size = 24, className }: IconProps) => (
   <svg
     width={size}
     height={size}
@@ -22,7 +22,7 @@ export const ShoppingBagIcon: React.FC<IconProps> = ({ size = 24, className }) =
   </svg>
 );
 
-export const ListIcon: React.FC<IconProps> = ({ size = 24, className }) => (
+export const ListIcon = ({ size = 24, className }: IconProps) => (
   <svg
     width={size}
     height={size}
@@ -42,7 +42,7 @@ export const ListIcon: React.FC<IconProps> = ({ size = 24, className }) => (
   </svg>
 );
 
-export const SearchIcon: React.FC<IconProps> = ({ size = 24, className }) => (
+export const SearchIcon = ({ size = 24, className }: IconProps) => (
   <svg
     width={size}
     height={size}
@@ -58,7 +58,7 @@ export const SearchIcon: React.FC<IconProps> = ({ size = 24, className }) => (
   </svg>
 );
 
-export const HelpCircleIcon: React.FC<IconProps> = ({ size = 24, className }) => (
+export const HelpCircleIcon = ({ size = 24, className }: IconProps) => (
   <svg
     width={size}
     height={size}
@@ -75,7 +75,7 @@ export const HelpCircleIcon: React.FC<IconProps> = ({ size = 24, className }) =>
   </svg>
 );
 
-export const LogOutIcon: React.FC<IconProps> = ({ size = 24, className }) => (
+export const LogOutIcon = ({ size = 24, className }: IconProps) => (
   <svg
     width={size}
     height={size}

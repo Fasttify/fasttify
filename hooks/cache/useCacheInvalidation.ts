@@ -17,6 +17,7 @@ export function useCacheInvalidation() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          storeId,
           changeType,
           entityId: productId,
         }),
@@ -49,6 +50,7 @@ export function useCacheInvalidation() {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+              storeId,
               changeType: 'product_deleted',
               entityIds: batch,
             }),
@@ -72,6 +74,7 @@ export function useCacheInvalidation() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          storeId,
           changeType,
           entityId: collectionId,
         }),
@@ -93,6 +96,7 @@ export function useCacheInvalidation() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          storeId,
           changeType,
           entityId: pageId,
         }),
@@ -113,6 +117,7 @@ export function useCacheInvalidation() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          storeId,
           changeType: 'navigation_updated',
         }),
       });
@@ -132,6 +137,7 @@ export function useCacheInvalidation() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          storeId,
           changeType: 'template_updated',
         }),
       });
@@ -151,6 +157,7 @@ export function useCacheInvalidation() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          storeId,
           changeType: 'store_settings_updated',
         }),
       });

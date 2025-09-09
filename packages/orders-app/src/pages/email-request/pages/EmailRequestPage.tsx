@@ -23,7 +23,7 @@ interface EmailRequestPageProps {
 }
 
 // Página principal
-export const EmailRequestPage: React.FC<EmailRequestPageProps> = (props) => {
+export const EmailRequestPage = (props: EmailRequestPageProps) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 

@@ -16,10 +16,10 @@ const STORE_LIMITS = {
 const storeCache = new Map();
 
 /**
- * Función para obtener las tiendas de un usuario
+ * Hook para obtener las tiendas de un usuario
  * Esta función es compatible con Suspense
  */
-export function getUserStores(userId: string | null, userPlan?: string) {
+export function useUserStores(userId: string | null, userPlan?: string) {
   // Si no hay userId, devolver datos vacíos
   if (!userId) {
     return {

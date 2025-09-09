@@ -29,14 +29,14 @@ interface EmailRequestLayoutProps {
   backgroundImageSrc?: string;
 }
 
-export const EmailRequestLayout: React.FC<EmailRequestLayoutProps> = ({
+export const EmailRequestLayout = ({
   children,
   title = 'Accede a tus Órdenes',
   subtitle = 'Ingresa tu email para recibir un enlace de acceso seguro a tus órdenes de compra.',
   logoSrc,
   logoAlt = 'Logo',
   backgroundImageSrc,
-}) => {
+}: EmailRequestLayoutProps) => {
   return (
     <LoginContainer>
       <LoginCard>
@@ -45,7 +45,12 @@ export const EmailRequestLayout: React.FC<EmailRequestLayoutProps> = ({
           <BackgroundPattern />
           <LogoSection>
             {logoSrc ? <Image src={logoSrc} alt={logoAlt} width={40} height={32} /> : <LogoIcon>🛍️</LogoIcon>}
-            <Image src="/icons/letter-white.webp" alt="Fasttify Letters" width={100} height={32} />
+            <Image
+              src="https://cdn.fasttify.com/assets/b/letter-white.webp"
+              alt="Fasttify Letters"
+              width={100}
+              height={32}
+            />
           </LogoSection>
 
           <TestimonialContent>

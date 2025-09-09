@@ -27,12 +27,12 @@ class SideCart {
     this.closeBtn?.addEventListener('click', () => this.close());
 
     // Overlay click
-    this.overlay.addEventListener('click', e => {
+    this.overlay.addEventListener('click', (e) => {
       if (e.target === this.overlay) this.close();
     });
 
     // Keyboard events
-    document.addEventListener('keydown', e => {
+    document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.isOpen) this.close();
     });
 
@@ -43,12 +43,12 @@ class SideCart {
     document.addEventListener('cart:close', () => {
       this.close();
     });
-    document.addEventListener('cart:updated', e => {
+    document.addEventListener('cart:updated', (e) => {
       this.ui.updateCartDisplay(e.detail.cart);
     });
 
     // Open cart buttons
-    document.addEventListener('click', e => {
+    document.addEventListener('click', (e) => {
       if (e.target.closest('[data-open-cart]')) {
         e.preventDefault();
         this.open();
@@ -64,9 +64,7 @@ class SideCart {
     this.overlay.classList.add('active');
 
     setTimeout(() => {
-      const firstFocusable = this.sidebar.querySelector(
-        'button, input, [tabindex]:not([tabindex="-1"])'
-      );
+      const firstFocusable = this.sidebar.querySelector('button, input, [tabindex]:not([tabindex="-1"])');
       firstFocusable?.focus();
     }, 300);
   }
@@ -175,7 +173,7 @@ window.openCart = () => {
 window.closeCart = () => document.dispatchEvent(new CustomEvent('cart:close'));
 
 // Product cart functions
-window.addProductToCart = async function(productId, quantity = 1) {
+window.addProductToCart = async function (productId, quantity = 1) {
   try {
     const addToCartBtn = document.querySelector('.add-to-cart-btn');
     if (addToCartBtn) {
@@ -220,7 +218,7 @@ window.addProductToCart = async function(productId, quantity = 1) {
   }
 };
 
-window.addToCart = async function(productId, quantity = 1, selectedAttributes = {}) {
+window.addToCart = async function (productId, quantity = 1, selectedAttributes = {}) {
   try {
     const data = await cartAPI.addToCart(productId, quantity, selectedAttributes);
     document.dispatchEvent(new CustomEvent('cart:open'));

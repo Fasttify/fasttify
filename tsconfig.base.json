@@ -29,7 +29,8 @@
       "@/context/*": ["./context/*"],
       "@/hooks/*": ["./hooks/*"],
       "@/tenant-domains/*": ["./packages/tenant-domains/*"],
-      "@/tenant-domains": ["./packages/tenant-domains"]
+      "@/tenant-domains": ["./packages/tenant-domains"],
+      "@/api/*": ["./app/api/*"]
     },
     "incremental": true
   }

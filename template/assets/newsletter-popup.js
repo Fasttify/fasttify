@@ -5,16 +5,16 @@
 // Función de inicialización que se ejecuta cuando todo está listo
 function initNewsletterPopup() {
   // Buscar elementos del DOM
-  const popup = document.querySelector('[data-popup]')
-  const overlay = document.querySelector('[data-popup-overlay]')
-  const closeBtn = document.querySelector('[data-popup-close]')
-  const form = popup?.querySelector('.newsletter-popup__form')
-  const messageEl = document.querySelector('[data-message]')
-  const emailInput = popup?.querySelector('#newsletter-email')
-  const submitBtn = form?.querySelector('.newsletter-popup__submit')
+  const popup = document.querySelector('[data-popup]');
+  const overlay = document.querySelector('[data-popup-overlay]');
+  const closeBtn = document.querySelector('[data-popup-close]');
+  const form = popup?.querySelector('.newsletter-popup__form');
+  const messageEl = document.querySelector('[data-message]');
+  const emailInput = popup?.querySelector('#newsletter-email');
+  const submitBtn = form?.querySelector('.newsletter-popup__submit');
 
   if (!popup) {
-    return
+    return;
   }
 
   // Configuración
@@ -26,129 +26,129 @@ function initNewsletterPopup() {
     cookieName: 'newsletter_popup_dismissed',
     cookieNameSubscribed: 'newsletter_subscribed',
     closeCountKey: 'newsletter_popup_close_count',
-  }
+  };
 
-  let isVisible = false
+  let isVisible = false;
 
   // Función para mostrar el popup
   function showPopup() {
     if (!popup || isVisible) {
-      return
+      return;
     }
 
-    isVisible = true
-    document.body.style.overflow = 'hidden'
-    popup.style.display = 'flex'
+    isVisible = true;
+    document.body.style.overflow = 'hidden';
+    popup.style.display = 'flex';
 
     // Forzar reflow antes de agregar la clase
-    popup.offsetHeight
-    popup.classList.add('is-visible')
+    popup.offsetHeight;
+    popup.classList.add('is-visible');
 
     // Focus en el input después de la animación
     setTimeout(() => {
-      emailInput?.focus()
-    }, 400)
+      emailInput?.focus();
+    }, 400);
   }
 
   // Función para cerrar el popup
   function closePopup() {
     if (!popup) {
-      return
+      return;
     }
 
-    isVisible = false
-    document.body.style.overflow = ''
-    popup.classList.remove('is-visible')
+    isVisible = false;
+    document.body.style.overflow = '';
+    popup.classList.remove('is-visible');
 
     // Esperar a que termine la animación antes de ocultar
     setTimeout(() => {
-      popup.style.display = 'none'
-    }, 300)
+      popup.style.display = 'none';
+    }, 300);
 
     // Incrementar contador de cierres
-    incrementCloseCount()
+    incrementCloseCount();
 
     // Guardar timestamp del cierre
-    localStorage.setItem(config.cookieName, Date.now().toString())
+    localStorage.setItem(config.cookieName, Date.now().toString());
   }
 
   // Función para incrementar el contador de cierres
   function incrementCloseCount() {
-    const currentCount = parseInt(localStorage.getItem(config.closeCountKey) || '0')
-    const newCount = currentCount + 1
-    localStorage.setItem(config.closeCountKey, newCount.toString())
+    const currentCount = parseInt(localStorage.getItem(config.closeCountKey) || '0');
+    const newCount = currentCount + 1;
+    localStorage.setItem(config.closeCountKey, newCount.toString());
 
     // Si alcanza el máximo, establecer un bloqueo
     if (newCount >= config.maxCloseCount) {
-      const blockUntil = Date.now() + config.blockTime
-      localStorage.setItem('newsletter_popup_blocked_until', blockUntil.toString())
+      const blockUntil = Date.now() + config.blockTime;
+      localStorage.setItem('newsletter_popup_blocked_until', blockUntil.toString());
     }
   }
 
   // Función para validar email
   function validateEmail() {
-    if (!emailInput) return false
+    if (!emailInput) return false;
 
-    const email = emailInput.value.trim()
-    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    const email = emailInput.value.trim();
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    emailInput.classList.toggle('invalid', !isValid && email.length > 0)
-    return isValid
+    emailInput.classList.toggle('invalid', !isValid && email.length > 0);
+    return isValid;
   }
 
   // Función para mostrar mensajes
   function showMessage(text, type) {
-    if (!messageEl) return
+    if (!messageEl) return;
 
-    messageEl.textContent = text
-    messageEl.className = `newsletter-popup__message ${type}`
+    messageEl.textContent = text;
+    messageEl.className = `newsletter-popup__message ${type}`;
 
     if (type === 'error') {
       setTimeout(() => {
-        messageEl.className = 'newsletter-popup__message'
-      }, 5000)
+        messageEl.className = 'newsletter-popup__message';
+      }, 5000);
     }
   }
 
   // Eventos de cierre con debugging
   if (closeBtn) {
-    closeBtn.addEventListener('click', e => {
-      e.preventDefault()
-      e.stopPropagation()
-      closePopup()
-    })
+    closeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closePopup();
+    });
   } else {
-    console.warn('Close button not found')
+    console.warn('Close button not found');
   }
 
   if (overlay) {
-    overlay.addEventListener('click', e => {
-      e.preventDefault()
-      e.stopPropagation()
-      closePopup()
-    })
+    overlay.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closePopup();
+    });
   } else {
-    console.warn('Overlay not found')
+    console.warn('Overlay not found');
   }
 
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isVisible) {
-      closePopup()
+      closePopup();
     }
-  })
+  });
 
   // Manejo del formulario
-  form?.addEventListener('submit', async e => {
-    e.preventDefault()
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    if (!validateEmail()) return
+    if (!validateEmail()) return;
 
-    const formData = new FormData(form)
-    const originalText = submitBtn.textContent
+    const formData = new FormData(form);
+    const originalText = submitBtn.textContent;
 
     // Estado de carga
-    submitBtn.textContent = 'Enviando...'
-    submitBtn.disabled = true
+    submitBtn.textContent = 'Enviando...';
+    submitBtn.disabled = true;
 
     try {
       const response = await fetch(form.action, {
@@ -157,74 +157,74 @@ function initNewsletterPopup() {
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
         },
-      })
+      });
 
       if (response.ok) {
-        showMessage('¡Gracias por suscribirte! Revisa tu correo para confirmar.', 'success')
-        form.reset()
+        showMessage('¡Gracias por suscribirte! Revisa tu correo para confirmar.', 'success');
+        form.reset();
 
         // Marcar como suscrito y limpiar contadores
-        localStorage.setItem(config.cookieNameSubscribed, 'true')
-        localStorage.removeItem(config.closeCountKey)
-        localStorage.removeItem('newsletter_popup_blocked_until')
-        localStorage.removeItem(config.cookieName)
+        localStorage.setItem(config.cookieNameSubscribed, 'true');
+        localStorage.removeItem(config.closeCountKey);
+        localStorage.removeItem('newsletter_popup_blocked_until');
+        localStorage.removeItem(config.cookieName);
 
-        setTimeout(() => closePopup(), 3000)
+        setTimeout(() => closePopup(), 3000);
       } else {
-        throw new Error('Error en la respuesta del servidor')
+        throw new Error('Error en la respuesta del servidor');
       }
     } catch (error) {
-      console.error('Error en suscripción:', error)
-      showMessage('Ha ocurrido un error. Por favor, intenta nuevamente.', 'error')
+      console.error('Error en suscripción:', error);
+      showMessage('Ha ocurrido un error. Por favor, intenta nuevamente.', 'error');
     } finally {
-      submitBtn.textContent = originalText
-      submitBtn.disabled = false
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
     }
-  })
+  });
 
   // Validación en tiempo real
-  emailInput?.addEventListener('input', validateEmail)
+  emailInput?.addEventListener('input', validateEmail);
 
   // Programar la aparición del popup
   function schedulePopup() {
     // Debug del localStorage
-    const subscribed = localStorage.getItem(config.cookieNameSubscribed)
-    const dismissed = localStorage.getItem(config.cookieName)
-    const closeCount = parseInt(localStorage.getItem(config.closeCountKey) || '0')
-    const blockedUntil = localStorage.getItem('newsletter_popup_blocked_until')
+    const subscribed = localStorage.getItem(config.cookieNameSubscribed);
+    const dismissed = localStorage.getItem(config.cookieName);
+    const closeCount = parseInt(localStorage.getItem(config.closeCountKey) || '0');
+    const blockedUntil = localStorage.getItem('newsletter_popup_blocked_until');
 
     // Verificar si ya está suscrito
     if (subscribed) {
-      return
+      return;
     }
 
     // Verificar si está bloqueado por demasiados cierres
     if (blockedUntil) {
-      const blockTime = parseInt(blockedUntil)
+      const blockTime = parseInt(blockedUntil);
       if (Date.now() < blockTime) {
-        return
+        return;
       } else {
         // El bloqueo ha expirado, limpiar
-        localStorage.removeItem('newsletter_popup_blocked_until')
-        localStorage.removeItem(config.closeCountKey)
+        localStorage.removeItem('newsletter_popup_blocked_until');
+        localStorage.removeItem(config.closeCountKey);
       }
     }
 
     // Verificar tiempo desde último descarte
     if (dismissed) {
-      const dismissedTime = parseInt(dismissed)
-      const currentTime = Date.now()
-      const timeDiff = currentTime - dismissedTime
+      const dismissedTime = parseInt(dismissed);
+      const currentTime = Date.now();
+      const timeDiff = currentTime - dismissedTime;
 
       if (timeDiff < config.showAgainDelay) {
-        return
+        return;
       }
     }
 
     // Mostrar después del delay
     setTimeout(() => {
-      showPopup()
-    }, config.delay)
+      showPopup();
+    }, config.delay);
   }
 
   // Exponer funciones globalmente para debugging
@@ -232,22 +232,22 @@ function initNewsletterPopup() {
     show: showPopup,
     hide: closePopup,
     reset: () => {
-      localStorage.removeItem(config.cookieName)
-      localStorage.removeItem(config.cookieNameSubscribed)
-      localStorage.removeItem(config.closeCountKey)
-      localStorage.removeItem('newsletter_popup_blocked_until')
+      localStorage.removeItem(config.cookieName);
+      localStorage.removeItem(config.cookieNameSubscribed);
+      localStorage.removeItem(config.closeCountKey);
+      localStorage.removeItem('newsletter_popup_blocked_until');
     },
     forceShow: () => {
       // Resetear y mostrar inmediatamente
-      localStorage.removeItem(config.cookieName)
-      localStorage.removeItem(config.cookieNameSubscribed)
-      localStorage.removeItem(config.closeCountKey)
-      localStorage.removeItem('newsletter_popup_blocked_until')
-      setTimeout(showPopup, 100)
+      localStorage.removeItem(config.cookieName);
+      localStorage.removeItem(config.cookieNameSubscribed);
+      localStorage.removeItem(config.closeCountKey);
+      localStorage.removeItem('newsletter_popup_blocked_until');
+      setTimeout(showPopup, 100);
     },
     testCloseButton: () => {
       if (closeBtn) {
-        closeBtn.click()
+        closeBtn.click();
       }
     },
     getStatus: () => {
@@ -258,20 +258,20 @@ function initNewsletterPopup() {
         dismissed: localStorage.getItem(config.cookieName),
         blockedUntil: localStorage.getItem('newsletter_popup_blocked_until'),
         isBlocked: false,
-      }
+      };
 
       if (status.blockedUntil) {
-        const blockTime = parseInt(status.blockedUntil)
-        status.isBlocked = Date.now() < blockTime
-        status.blockedUntilDate = new Date(blockTime).toLocaleString()
+        const blockTime = parseInt(status.blockedUntil);
+        status.isBlocked = Date.now() < blockTime;
+        status.blockedUntilDate = new Date(blockTime).toLocaleString();
       }
 
-      return status
+      return status;
     },
-    simulateCloses: count => {
+    simulateCloses: (count) => {
       // Simular múltiples cierres para testing
       for (let i = 0; i < count; i++) {
-        incrementCloseCount()
+        incrementCloseCount();
       }
     },
     elements: {
@@ -280,32 +280,32 @@ function initNewsletterPopup() {
       overlay,
       form,
     },
-  }
+  };
 
   // Iniciar la programación
-  schedulePopup()
+  schedulePopup();
 }
 
 // Múltiples formas de inicialización para asegurar que funcione
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initNewsletterPopup)
+  document.addEventListener('DOMContentLoaded', initNewsletterPopup);
 } else {
   // El DOM ya está listo
-  initNewsletterPopup()
+  initNewsletterPopup();
 }
 
 // También intentar después de que todo esté cargado
 window.addEventListener('load', () => {
   if (!window.newsletterPopupDebug) {
-    initNewsletterPopup()
+    initNewsletterPopup();
   }
-})
+});
 
 // Función para mostrar el popup manualmente (para testing)
 window.showNewsletterPopup = function () {
   if (window.newsletterPopupDebug) {
-    window.newsletterPopupDebug.forceShow()
+    window.newsletterPopupDebug.forceShow();
   } else {
-    console.error('Newsletter popup not initialized')
+    console.error('Newsletter popup not initialized');
   }
-}
+};

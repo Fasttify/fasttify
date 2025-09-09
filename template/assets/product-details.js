@@ -32,9 +32,13 @@ class ProductDetails {
         touchStartY = event.touches[0].clientY;
       });
 
-      productCarousel.addEventListener('touchmove', (event) => {
-        event.preventDefault();
-      }, { passive: false });
+      productCarousel.addEventListener(
+        'touchmove',
+        (event) => {
+          event.preventDefault();
+        },
+        { passive: false }
+      );
 
       productCarousel.addEventListener('touchend', (event) => {
         touchEndX = event.changedTouches[0].clientX;
@@ -77,11 +81,10 @@ class ProductDetails {
 
   // Attribute selection
   selectOption(element) {
-
     // Remove selected class from siblings (with null check)
     if (element.parentNode) {
       const siblings = Array.from(element.parentNode.children);
-      siblings.forEach(sibling => {
+      siblings.forEach((sibling) => {
         if (sibling.classList.contains('attribute-value-item') || sibling.classList.contains('color-swatch')) {
           sibling.classList.remove('selected');
         }
@@ -90,7 +93,6 @@ class ProductDetails {
 
     // Add selected class to clicked element
     element.classList.add('selected');
-
   }
 
   // Quantity controls
@@ -118,10 +120,14 @@ class ProductDetails {
   closeImageModal() {
     const modal = document.getElementById('productImageModal');
     modal.classList.remove('is-open');
-    modal.addEventListener('transitionend', function handler() {
-      modal.style.display = 'none';
-      modal.removeEventListener('transitionend', handler);
-    }, { once: true });
+    modal.addEventListener(
+      'transitionend',
+      function handler() {
+        modal.style.display = 'none';
+        modal.removeEventListener('transitionend', handler);
+      },
+      { once: true }
+    );
   }
 
   updateModalImage() {
@@ -173,25 +179,25 @@ class ProductDetails {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   // Make functions globally available for onclick attributes
-  window.selectOption = function(element) {
+  window.selectOption = function (element) {
     window.productDetails.selectOption(element);
   };
 
-  window.updateQuantity = function(change) {
+  window.updateQuantity = function (change) {
     window.productDetails.updateQuantity(change);
   };
 
-  window.openImageModal = function(index) {
+  window.openImageModal = function (index) {
     window.productDetails.openImageModal(index);
   };
 
-  window.closeImageModal = function() {
+  window.closeImageModal = function () {
     window.productDetails.closeImageModal();
   };
 
-  window.changeImage = function(direction) {
+  window.changeImage = function (direction) {
     window.productDetails.changeImage(direction);
   };
 

@@ -36,11 +36,11 @@ export function DuplicateConfirmModal({
       <Modal.Section>
         <BlockStack gap="400">
           <Text as="p">
-            ¿Estás seguro de que deseas duplicar el producto <strong>"{productName}"</strong>?
+            ¿Estás seguro de que deseas duplicar el producto <strong>&ldquo;{productName}&rdquo;</strong>?
           </Text>
           <Text as="p" tone="subdued">
-            Se creará una copia del producto con el nombre "{productName} (Copia)" y se establecerá como borrador.
-            Podrás editar la copia después de crearla.
+            Se creará una copia del producto con el nombre &ldquo;{productName} (Copia)&rdquo; y se establecerá como
+            borrador. Podrás editar la copia después de crearla.
           </Text>
           <BlockStack gap="200">
             <Text as="h4" variant="headingSm">
@@ -59,8 +59,8 @@ export function DuplicateConfirmModal({
             <ul style={{ margin: 0, paddingLeft: '20px' }}>
               <li>Estado (se establecerá como borrador)</li>
               <li>Cantidad en inventario (se establecerá en 0)</li>
-              <li>SKU (se agregará "-copy" al final)</li>
-              <li>Slug (se agregará "-copy" al final)</li>
+              <li>SKU (se agregará &quot;-copy&quot; al final)</li>
+              <li>Slug (se agregará &quot;-copy&quot; al final)</li>
             </ul>
           </BlockStack>
         </BlockStack>

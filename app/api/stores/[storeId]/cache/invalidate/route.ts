@@ -15,87 +15,22 @@
  */
 
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { cacheInvalidationService, type ChangeType } from '@/renderer-engine/services/core/cache';
-import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
-import { NextRequest, NextResponse } from 'next/server';
+import { withAuthHandler } from '@/api/_lib/auth-middleware';
+import { postInvalidateCache } from '@/api/stores/_lib/cache/controllers/invalidate-controller';
+import { NextRequest } from 'next/server';
 
 export async function OPTIONS(request: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(request);
   return new Response(null, { status: 204, headers: corsHeaders });
 }
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ storeId: string }> }) {
-  const corsHeaders = await getNextCorsHeaders(request);
-  const session = await AuthGetCurrentUserServer();
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+export const POST = withAuthHandler(
+  async (request: NextRequest, { storeId, corsHeaders }) => {
+    return postInvalidateCache(request, storeId, corsHeaders);
+  },
+  {
+    requireStoreOwnership: true,
+    storeIdSource: 'params',
+    storeIdParamName: 'storeId',
   }
-  const { storeId } = await params;
-  const { data: userStore } = await cookiesClient.models.UserStore.get({
-    storeId,
-  });
-  if (!userStore) {
-    return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
-  }
-  if (userStore.userId !== session.username) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
-  }
-
-  try {
-    const { changeType, entityId, entityIds } = await request.json();
-
-    if (!changeType) {
-      return NextResponse.json({ error: 'changeType is required' }, { status: 400, headers: corsHeaders });
-    }
-
-    // Validar que el changeType sea válido
-    const validChangeTypes: ChangeType[] = [
-      'product_created',
-      'product_updated',
-      'product_deleted',
-      'collection_created',
-      'collection_updated',
-      'collection_deleted',
-      'page_created',
-      'page_updated',
-      'page_deleted',
-      'navigation_updated',
-      'template_updated',
-      'store_settings_updated',
-      'domain_updated',
-    ];
-
-    if (!validChangeTypes.includes(changeType)) {
-      return NextResponse.json(
-        { error: `Invalid changeType. Must be one of: ${validChangeTypes.join(', ')}` },
-        { status: 400, headers: corsHeaders }
-      );
-    }
-
-    // Invalidar caché usando el servicio inteligente
-    if (entityIds && Array.isArray(entityIds)) {
-      // Invalidación por lotes
-      entityIds.forEach((id: string) => {
-        cacheInvalidationService.invalidateCache(changeType as ChangeType, storeId, id);
-      });
-    } else {
-      // Invalidación individual
-      cacheInvalidationService.invalidateCache(changeType as ChangeType, storeId, entityId);
-    }
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Cache invalidated successfully',
-        changeType,
-        storeId,
-        entityId,
-        entityIds,
-      },
-      { headers: corsHeaders }
-    );
-  } catch (error) {
-    console.error('Error invalidating cache:', error);
-    return NextResponse.json({ error: 'Error invalidating cache' }, { status: 500, headers: corsHeaders });
-  }
-}
+);

@@ -2,7 +2,9 @@
   display: flex;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+  transition:
+    opacity 0.3s ease-out,
+    visibility 0.3s ease-out;
 
   position: fixed;
   z-index: 1000;
@@ -34,7 +36,9 @@
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: scale(0.95);
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
 }
 
 .product-image-modal.is-open .modal-content {
@@ -58,7 +62,10 @@
   justify-content: center;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
   font-family: var(--font-body); /* Ajustado a variable */
 }
 
@@ -82,7 +89,10 @@
   cursor: pointer;
   font-size: var(--font-size-2xl); /* Ajustado a variable: 24px */
   color: #333;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
   width: 45px;
   height: 45px;
   display: flex;

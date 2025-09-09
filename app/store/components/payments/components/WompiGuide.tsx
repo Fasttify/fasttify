@@ -102,7 +102,7 @@ export function WompiGuide({ trigger }: WompiGuideProps) {
             <GuideSection
               title="Recursos adicionales"
               items={resources.map((resource) => (
-                <Link url={resource.url} target="_blank">
+                <Link url={resource.url} target="_blank" key={resource.text}>
                   <LegacyStack alignment="center" spacing="extraTight">
                     <Text as="span">{resource.text}</Text>
                     <Icon source={ExternalIcon} />

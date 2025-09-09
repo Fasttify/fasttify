@@ -162,7 +162,7 @@ export function DomainValidationStep({
 
       <Banner tone="warning">
         <p>
-          <strong>El token expira en 24 horas.</strong> Una vez configurado, haz clic en "Verificar Dominio".
+          <strong>El token expira en 24 horas.</strong> Una vez configurado, haz clic en &quot;Verificar Dominio&quot;.
         </p>
       </Banner>
 

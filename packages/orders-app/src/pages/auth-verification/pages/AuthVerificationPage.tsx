@@ -32,7 +32,7 @@ const verifyToken = async (request: VerifyTokenRequest): Promise<VerifyTokenResp
   return response.json();
 };
 
-export const AuthVerificationPage: React.FC = () => {
+export const AuthVerificationPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
