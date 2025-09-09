@@ -2,14 +2,14 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { StoreSelector } from '@/app/(setup-layout)/my-store/components/StoreSelector';
 import { useAuth } from '@/context/hooks/useAuth';
-import { getUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores';
+import { useUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores';
 
 jest.mock('@/context/hooks/useAuth', () => ({
   useAuth: jest.fn(),
 }));
 
 jest.mock('@/app/(setup-layout)/my-store/hooks/useUserStores', () => ({
-  getUserStores: jest.fn(),
+  useUserStores: jest.fn(),
 }));
 
 // Mock para lucide-react
@@ -49,7 +49,7 @@ describe('StoreSelector', () => {
     });
 
     // Mock para getUserStores que devuelve datos de prueba
-    (getUserStores as jest.Mock).mockReturnValue({
+    (useUserStores as jest.Mock).mockReturnValue({
       stores: [
         {
           storeId: 'store-1',
@@ -77,7 +77,7 @@ describe('StoreSelector', () => {
 
   it('muestra el mensaje de no tiendas cuando no hay tiendas', () => {
     // Cambiamos el mock para simular que no hay tiendas
-    (getUserStores as jest.Mock).mockReturnValue({
+    (useUserStores as jest.Mock).mockReturnValue({
       stores: [],
       canCreateStore: true,
       error: null,
@@ -94,7 +94,7 @@ describe('StoreSelector', () => {
 
   it('muestra el mensaje de límite alcanzado cuando no se pueden crear más tiendas', () => {
     // Cambiamos el mock para simular que no se pueden crear más tiendas
-    (getUserStores as jest.Mock).mockReturnValue({
+    (useUserStores as jest.Mock).mockReturnValue({
       stores: [
         {
           storeId: 'store-1',
@@ -113,7 +113,7 @@ describe('StoreSelector', () => {
 
   it('muestra un mensaje de error cuando hay un error', () => {
     // Cambiamos el mock para simular un error
-    (getUserStores as jest.Mock).mockReturnValue({
+    (useUserStores as jest.Mock).mockReturnValue({
       stores: [],
       canCreateStore: false,
       error: 'Error de prueba',
