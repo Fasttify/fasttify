@@ -47,7 +47,7 @@ export function ProductList({
   // Hook para manejar duplicación de productos
   const {
     isDuplicating,
-    duplicatingProductId,
+    duplicatingProductId: _duplicatingProductId,
     showConfirmModal,
     pendingProduct,
     handleDuplicateProduct,
@@ -55,7 +55,7 @@ export function ProductList({
     cancelDuplication,
   } = useProductDuplication({
     duplicateProduct,
-    onSuccess: (duplicatedProduct) => {
+    onSuccess: (_duplicatedProduct) => {
       // Opcional: redirigir al producto duplicado para editarlo
       // router.push(routes.store.products.edit(storeId, duplicatedProduct.id));//
     },

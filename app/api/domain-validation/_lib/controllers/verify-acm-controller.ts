@@ -20,7 +20,7 @@ import { CertificateManager } from '@/tenant-domains/services/ssl/certificate-ma
 
 const certificateManager = new CertificateManager();
 
-export async function postVerifyAcm(request: NextRequest, storeId: string): Promise<NextResponse> {
+export async function postVerifyAcm(request: NextRequest, _storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);
   try {
     const { certificateArn } = await request.json();

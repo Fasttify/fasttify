@@ -19,7 +19,7 @@ mutation CreateProduct1 {
       barcode: "1234567890123"
       quantity: 50
       category: "ropa"
-      images: "[\"https://ejemplo.com/traje-bano-azul-1.jpg\", \"https://ejemplo.com/traje-bano-azul-2.jpg\"]"
+      images: "[\"https://images.unsplash.com/photo-1755147047358-7786e1de7061?q=80&w=687&auto=format&fit=crop\", \"https://images.unsplash.com/photo-1755147047358-7786e1de7061?q=80&w=687&auto=format&fit=crop\"]"
       attributes: "{\"talla\":[\"S\",\"M\",\"L\",\"XL\"],\"color\":\"azul marino\",\"material\":\"poliéster\",\"cuidado\":\"lavar a mano\"}"
       status: "active"
       slug: "traje-bano-azul"

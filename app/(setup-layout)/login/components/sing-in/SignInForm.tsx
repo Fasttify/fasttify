@@ -38,7 +38,7 @@ export function SignInForm({ onForgotPassword, onVerificationNeeded, redirectPat
     try {
       await login(data.email, data.password);
       // Si el login es exitoso, la redirección la maneja el hook useAuth
-    } catch (err) {
+    } catch (_err) {
       // Los errores ya los maneja el hook useAuth
       form.setError('root', {
         type: 'manual',

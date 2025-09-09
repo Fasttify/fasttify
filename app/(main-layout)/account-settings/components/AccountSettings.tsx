@@ -40,7 +40,7 @@ export function AccountSettings() {
   }
 
   // Memoizar cálculos para evitar re-renders innecesarios
-  const { fullName, firstName, lastName, isGoogleUser } = useMemo(() => {
+  const { firstName, lastName, isGoogleUser } = useMemo(() => {
     const fullName = user?.nickName || '';
     const nameParts = fullName ? fullName.split(' ') : [];
     const firstName = nameParts[0] || '';

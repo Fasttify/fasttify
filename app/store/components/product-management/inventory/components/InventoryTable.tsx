@@ -54,7 +54,7 @@ export default function InventoryTable({ data }: InventoryTableProps) {
       const newEditingRows = { ...editingRows };
       delete newEditingRows[productId];
       setEditingRows(newEditingRows);
-    } catch (error) {
+    } catch (_error) {
       showToast('Error al actualizar el inventario', true);
     }
   };

@@ -20,7 +20,12 @@ interface UseThemeActionsProps {
   refreshThemes: () => void;
 }
 
-export function useThemeActions({ storeId, activateTheme, deleteTheme, refreshThemes }: UseThemeActionsProps) {
+export function useThemeActions({
+  storeId: _storeId,
+  activateTheme,
+  deleteTheme,
+  refreshThemes: _refreshThemes,
+}: UseThemeActionsProps) {
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [showActivateModal, setShowActivateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

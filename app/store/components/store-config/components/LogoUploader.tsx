@@ -81,7 +81,7 @@ export function LogoUploader() {
         showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} subido correctamente`);
         toggleActive();
       }
-    } catch (err) {
+    } catch (_err) {
       showToast(`Error al subir el ${type}`, true);
     } finally {
       reset();

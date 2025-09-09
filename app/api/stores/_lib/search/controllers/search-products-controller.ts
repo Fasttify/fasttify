@@ -63,7 +63,7 @@ export async function searchProducts(request: NextRequest, storeId: string): Pro
     cacheManager.setCached(cacheKey, { products: simplifiedProducts }, cacheManager.getDataTTL('search'));
 
     return NextResponse.json({ products: simplifiedProducts }, { headers: corsHeaders });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal error searching products.' }, { status: 500, headers: corsHeaders });
   }
 }

@@ -1,6 +1,6 @@
 import { CheckIcon } from '@shopify/polaris-icons';
-import { Modal, Text, Button, Box, Card, InlineStack, Badge, BlockStack } from '@shopify/polaris';
-import { useState, useEffect } from 'react';
+import { Modal, Text, Button, Box, Card, Badge, BlockStack } from '@shopify/polaris';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/app/store/context/ToastContext';
 import { plans } from '@/app/(main-layout)/pricing/components/plans';

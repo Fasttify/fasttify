@@ -201,7 +201,7 @@ export const useNavigationMenus = () => {
   const useUpdateNavigationMenu = () => {
     return useMutation({
       mutationFn: ({ id, data }: { id: string; data: Partial<NavigationMenuInput> }) => {
-        const { owner, ...updateDataWithoutOwner } = data;
+        const { owner: _owner, ...updateDataWithoutOwner } = data;
 
         const updateData = updateDataWithoutOwner.menuData
           ? { ...updateDataWithoutOwner, menuData: JSON.stringify(updateDataWithoutOwner.menuData) }

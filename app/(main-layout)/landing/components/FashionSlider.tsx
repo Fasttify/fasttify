@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Image from 'next/image';
 import type { Swiper as SwiperType } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Parallax, Autoplay } from 'swiper/modules';
@@ -137,7 +138,13 @@ export function FashionSlider() {
             </div>
 
             <div className="fashion-slider-image absolute w-full h-full overflow-hidden">
-              <img src={slide.image || '/placeholder.svg'} alt={slide.title} className="w-full h-full object-cover" />
+              <Image
+                src={slide.image || '/placeholder.svg'}
+                alt={slide.title}
+                fill
+                className="object-cover"
+                priority={index === 0}
+              />
             </div>
           </SwiperSlide>
         ))}

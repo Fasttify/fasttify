@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export function Navbar() {
-  const { user, loading, isAuthenticated, clearUser } = useAuth();
+  const { user, loading, clearUser } = useAuth();
   const isClient = useIsClient();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);

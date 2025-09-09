@@ -144,7 +144,7 @@ export function MenuItemForm({
           ...item,
           originalIndex: index,
         }))}
-        renderItem={(item, id, index) => (
+        renderItem={(item, _id, _index) => (
           <ResourceItem key={item.id} id={item.id} onClick={() => !disabled && setEditingIndex(item.originalIndex)}>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-3">

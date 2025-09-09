@@ -22,7 +22,7 @@ import { SecureLogger } from '@/lib/utils/secure-logger';
 
 const customDomainService = new CustomDomainService();
 
-export async function postVerifyDomain(request: NextRequest, storeId: string): Promise<NextResponse> {
+export async function postVerifyDomain(request: NextRequest, _storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);
   try {
     const { domain, validationToken } = await request.json();

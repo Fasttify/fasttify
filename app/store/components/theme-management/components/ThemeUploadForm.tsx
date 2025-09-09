@@ -16,7 +16,7 @@ import { useThemeUpload } from '../hooks/useThemeUpload';
 import type { ThemeUploadFormProps } from '../types/theme-types';
 import { formatFileSize, getValidationTone } from '../utils/theme-utils';
 
-export function ThemeUploadForm({ storeId, onUpload, onConfirm, onCancel }: ThemeUploadFormProps) {
+export function ThemeUploadForm({ storeId, onUpload, onConfirm, onCancel: _onCancel }: ThemeUploadFormProps) {
   const {
     selectedFile,
     uploadResult,

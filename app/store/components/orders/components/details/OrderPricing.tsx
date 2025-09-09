@@ -51,7 +51,7 @@ export const OrderPricing = memo(function OrderPricing({ order }: OrderPricingPr
     currency,
     compareAtPrice,
     hasDiscount,
-    discountAmount,
+    discountAmount: _discountAmount,
     savingsAmount,
     savingsPercentage,
   } = pricingData;

@@ -13,10 +13,10 @@ interface ImageUploadProps {
   storeId: string;
 }
 
-export function ImageUpload({ value, onChange, storeId }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, storeId: _storeId }: ImageUploadProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleDropZoneDrop = () => {
+  const _handleDropZoneDrop = () => {
     setIsModalOpen(true);
   };
 

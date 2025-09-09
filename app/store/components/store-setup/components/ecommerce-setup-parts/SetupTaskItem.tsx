@@ -13,7 +13,6 @@ import {
 } from '@shopify/polaris';
 import { CheckIcon, ExternalIcon, ChevronDownIcon, ChevronUpIcon } from '@shopify/polaris-icons';
 import Image from 'next/image';
-import { useOnboardingProgress } from '@/app/store/hooks/useOnboardingProgress';
 
 interface SetupTaskItemProps {
   task: Task;

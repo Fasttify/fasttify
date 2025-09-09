@@ -6,7 +6,7 @@ import {
   MIN_API_KEY_LENGTH,
 } from '@/app/store/components/app-integration/constants/connectModal';
 
-export function useConnectModal(onClose: () => void) {
+export function useConnectModal(_onClose: () => void) {
   const [step, setStep] = useState<Step>(1);
   const [option, setOption] = useState<Option>(null);
   const [apiKey, setApiKey] = useState('');

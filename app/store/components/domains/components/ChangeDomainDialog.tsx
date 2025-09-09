@@ -53,7 +53,7 @@ export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdate
       } else {
         showToast('No se pudo actualizar el dominio', true);
       }
-    } catch (error) {
+    } catch (_error) {
       showToast('Ocurrió un error al actualizar el dominio', true);
     }
   };

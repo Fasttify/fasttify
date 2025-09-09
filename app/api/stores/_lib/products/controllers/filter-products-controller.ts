@@ -48,8 +48,14 @@ export async function filterProducts(request: NextRequest, storeId: string): Pro
 
     // Extraer parámetros de filtro
     const filters: FilterParams = {
-      price_min: searchParams.get('price_min') ? parseFloat(searchParams.get('price_min')!) : undefined,
-      price_max: searchParams.get('price_max') ? parseFloat(searchParams.get('price_max')!) : undefined,
+      price_min: (() => {
+        const value = searchParams.get('price_min');
+        return value ? parseFloat(value) : undefined;
+      })(),
+      price_max: (() => {
+        const value = searchParams.get('price_max');
+        return value ? parseFloat(value) : undefined;
+      })(),
       category: searchParams.get('category') || undefined,
       categories: searchParams.get('categories') || undefined,
       tags: searchParams.get('tags') || undefined,
@@ -59,7 +65,10 @@ export async function filterProducts(request: NextRequest, storeId: string): Pro
       featured: searchParams.get('featured') === 'true' ? true : undefined,
       sort_by: searchParams.get('sort_by') || 'createdAt',
       token: searchParams.get('token') || undefined,
-      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 20,
+      limit: (() => {
+        const value = searchParams.get('limit');
+        return value ? parseInt(value) : 20;
+      })(),
     };
 
     // Filtrar productos directamente a nivel de base de datos
@@ -131,7 +140,7 @@ async function getFilteredProducts(storeId: string, filters: FilterParams): Prom
     const response = await cookiesClient.models.Product.listProductByStoreId(
       { storeId },
       {
-        limit: filters.limit!,
+        limit: filters.limit || 20,
         nextToken: filters.token,
         filter: amplifyFilters,
       }

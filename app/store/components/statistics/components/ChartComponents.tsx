@@ -72,7 +72,11 @@ export function MetricLineChart({
   );
 }
 
-export function DistributionPieChart({ data, dataKey = 'value', nameKey = 'name' }: DistributionPieChartProps) {
+export function DistributionPieChart({
+  data,
+  dataKey = 'value',
+  nameKey: _nameKey = 'name',
+}: DistributionPieChartProps) {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
   return (

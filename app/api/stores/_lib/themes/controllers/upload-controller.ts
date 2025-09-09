@@ -45,8 +45,6 @@ export async function postUploadTheme(request: NextRequest, storeId: string): Pr
 
     const formData = await request.formData();
     const themeFile = formData.get('theme') as File;
-    const themeName = formData.get('name') as string;
-    const themeDescription = formData.get('description') as string;
 
     if (!themeFile) {
       return NextResponse.json({ error: 'Theme file is required' }, { status: 400, headers: corsHeaders });
@@ -159,7 +157,7 @@ export async function getUploadInfo(request: NextRequest, storeId: string): Prom
       },
       { status: 200, headers: corsHeaders }
     );
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to get upload info' }, { status: 500, headers: corsHeaders });
   }
 }

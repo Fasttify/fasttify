@@ -26,7 +26,7 @@ export default function OrdersPage() {
           message: data.error || 'Error al enviar el email',
         };
       }
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
         message: 'Error de conexión. Inténtalo de nuevo.',

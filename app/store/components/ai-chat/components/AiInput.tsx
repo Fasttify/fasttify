@@ -21,8 +21,8 @@ export function AIInputWithSearch({
   placeholder = 'Search the web...',
   minHeight = 48,
   maxHeight = 164,
-  onSubmit,
-  onFileSelect,
+  onSubmit: _onSubmit,
+  onFileSelect: _onFileSelect,
   className,
 }: AIInputWithSearchProps) {
   const [value, setValue] = useState('');
@@ -30,11 +30,11 @@ export function AIInputWithSearch({
     minHeight,
     maxHeight,
   });
-  const [showSearch, setShowSearch] = useState(true);
+  const [showSearch, _setShowSearch] = useState(true);
 
   const handleSubmit = () => {
     if (value.trim()) {
-      onSubmit?.(value, showSearch);
+      _onSubmit?.(value, showSearch);
       setValue('');
       adjustHeight(true);
     }

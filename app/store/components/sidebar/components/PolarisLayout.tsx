@@ -58,7 +58,7 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
       url: routes.store.dashboard.main(storeId),
       accessibilityLabel: 'Fasttify',
     }),
-    []
+    [storeId]
   );
 
   // Memoizar las funciones de callback para evitar re-renders

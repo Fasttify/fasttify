@@ -54,7 +54,7 @@ export function NavigationManager({ storeId }: NavigationManagerProps) {
       showToast('Menú eliminado exitosamente');
       setShowDeleteModal(false);
       setSelectedMenuId(null);
-    } catch (error) {
+    } catch (_error) {
       showToast('Error al eliminar el menú', true);
     }
   };

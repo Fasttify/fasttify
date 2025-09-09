@@ -20,7 +20,7 @@ import { CustomDomainService } from '@/tenant-domains/services/custom-domain-ser
 
 const customDomainService = new CustomDomainService();
 
-export async function postRequestValidationToken(request: NextRequest, storeId: string): Promise<NextResponse> {
+export async function postRequestValidationToken(request: NextRequest, _storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);
   try {
     const { domain } = await request.json();

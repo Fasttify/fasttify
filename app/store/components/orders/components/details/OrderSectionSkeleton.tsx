@@ -1,4 +1,4 @@
-import { Card, SkeletonBodyText, SkeletonDisplayText, SkeletonPage } from '@shopify/polaris';
+import { Card, SkeletonBodyText, SkeletonDisplayText } from '@shopify/polaris';
 
 interface OrderSectionSkeletonProps {
   title?: string;
