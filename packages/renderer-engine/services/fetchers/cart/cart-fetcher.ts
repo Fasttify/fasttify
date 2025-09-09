@@ -118,7 +118,7 @@ export class CartFetcher {
         { filter: { productId: { eq: productId }, variantId: { eq: variantId || undefined } } }
       );
 
-      let existingCartItem =
+      const existingCartItem =
         cartItemsResponse.data && cartItemsResponse.data.length > 0 ? cartItemsResponse.data[0] : undefined;
 
       if (existingCartItem) {

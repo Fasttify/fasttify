@@ -25,13 +25,7 @@ const eslintConfig = [
       'scripts/**',
     ],
   },
-  {
-    files: ['*.config.{js,ts,mjs}', 'tailwind.config.*'],
-    rules: {
-      '@typescript-eslint/no-var-requires': 'off',
-      'no-console': 'off',
-    },
-  },
+
   {
     files: ['**/*.test.{js,ts,jsx,tsx}', '**/test/**/*.{js,ts,jsx,tsx}'],
     rules: {
@@ -41,7 +35,6 @@ const eslintConfig = [
   },
   {
     rules: {
-      // Configuración gradual - empezar con warnings en lugar de errores
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': [
         'warn',
