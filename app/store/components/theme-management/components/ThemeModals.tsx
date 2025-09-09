@@ -1,6 +1,6 @@
 'use client';
 
-import { BlockStack, Button, Modal, Text } from '@shopify/polaris';
+import { BlockStack, Modal, Text } from '@shopify/polaris';
 import { DeleteIcon, StatusActiveIcon } from '@shopify/polaris-icons';
 
 interface Theme {
@@ -64,7 +64,7 @@ export function ThemeModals({
           <Modal.Section>
             <BlockStack gap="400">
               <Text as="p" variant="bodyMd">
-                ¿Estás seguro de que quieres activar el tema "{selectedTheme.name}"?
+                ¿Estás seguro de que quieres activar el tema &quot;{selectedTheme.name}&quot;?
               </Text>
               <Text as="p" variant="bodySm" tone="subdued">
                 Este tema reemplazará el tema actualmente activo.
@@ -98,7 +98,7 @@ export function ThemeModals({
           <Modal.Section>
             <BlockStack gap="400">
               <Text as="p" variant="bodyMd">
-                ¿Estás seguro de que quieres eliminar el tema "{selectedTheme.name}"?
+                ¿Estás seguro de que quieres eliminar el tema &quot;{selectedTheme.name}&quot;?
               </Text>
               <Text as="p" variant="bodySm" tone="subdued">
                 Esta acción no se puede deshacer. El tema se eliminará permanentemente.

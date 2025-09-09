@@ -10,14 +10,14 @@ interface OrderSearchFormProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-export const OrderSearchForm: React.FC<OrderSearchFormProps> = ({
+export const OrderSearchForm = ({
   searchTerm,
   setSearchTerm,
   statusFilter,
   setStatusFilter,
   isSearching,
   onSubmit,
-}) => {
+}: OrderSearchFormProps) => {
   return (
     <>
       <SearchForm onSubmit={onSubmit}>

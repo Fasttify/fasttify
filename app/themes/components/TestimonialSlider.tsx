@@ -163,7 +163,7 @@ export function TestimonialSlider() {
                         : 'opacity-0 translate-x-full'
                   )}
                   aria-hidden={index !== currentSlide}>
-                  <div className="text-4xl font-serif">"</div>
+                  <div className="text-4xl font-serif">&quot;</div>
                   <blockquote className="text-xl md:text-2xl font-medium">{testimonial.quote}</blockquote>
                   <footer className="flex items-center gap-2">
                     <span className="text-muted-foreground">—</span>

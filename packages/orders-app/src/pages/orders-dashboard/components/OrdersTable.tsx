@@ -26,7 +26,7 @@ interface OrdersTableProps {
 
 const columnHelper = createColumnHelper<Order>();
 
-export const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
+export const OrdersTable = ({ orders }: OrdersTableProps) => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const columns = useMemo(

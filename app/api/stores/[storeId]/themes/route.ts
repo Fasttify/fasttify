@@ -19,7 +19,7 @@ import { withAuthHandler } from '@/api/_lib/auth-middleware';
 import { listThemes } from '@/api/stores/_lib/themes/controllers/list-controller';
 import { activateTheme } from '@/api/stores/_lib/themes/controllers/activate-controller';
 import { deleteTheme } from '@/api/stores/_lib/themes/controllers/delete-controller';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 /**
  * GET /api/stores/[storeId]/themes

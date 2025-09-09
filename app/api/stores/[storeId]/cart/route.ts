@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { getCart } from '@/api/stores/_lib/cart/controllers/get-cart-controller';
 import { addToCart } from '@/api/stores/_lib/cart/controllers/add-to-cart-controller';

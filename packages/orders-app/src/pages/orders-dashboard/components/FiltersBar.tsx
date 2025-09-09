@@ -5,7 +5,7 @@ interface FiltersBarProps {
   onFiltersChange: (filters: { search: string; status: string; dateFrom: string; dateTo: string }) => void;
 }
 
-export const FiltersBar: React.FC<FiltersBarProps> = ({ onFiltersChange }) => {
+export const FiltersBar = ({ onFiltersChange }: FiltersBarProps) => {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [dateFrom, setDateFrom] = useState('');

@@ -18,19 +18,19 @@ interface OrdersDashboardLayoutProps {
   userEmail?: string;
 }
 
-export const OrdersDashboardLayout: React.FC<OrdersDashboardLayoutProps> = ({
+export const OrdersDashboardLayout = ({
   children,
   activeTab = 'orders',
   onTabChange,
   onLogout,
   userEmail,
-}) => {
+}: OrdersDashboardLayoutProps) => {
   return (
     <DashboardContainer>
       <TopNavigation>
         <NavBrand>
           <ShoppingBagIcon size={32} />
-          <img src="/icons/letter-white.webp" alt="Fasttify" width={100} height={24} />
+          <img src="https://cdn.fasttify.com/assets/b/letter-white.webp" alt="Fasttify" width={100} height={24} />
         </NavBrand>
 
         <NavTabs>

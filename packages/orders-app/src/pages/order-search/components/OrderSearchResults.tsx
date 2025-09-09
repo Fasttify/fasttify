@@ -17,7 +17,7 @@ interface OrderSearchResultsProps {
   searchTerm: string;
 }
 
-export const OrderSearchResults: React.FC<OrderSearchResultsProps> = ({ orders, isSearching, searchTerm }) => {
+export const OrderSearchResults = ({ orders, isSearching, searchTerm }: OrderSearchResultsProps) => {
   if (isSearching) {
     return (
       <ResultsContainer>

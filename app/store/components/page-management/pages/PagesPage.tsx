@@ -12,7 +12,8 @@ export function PagesPage({ storeId }: { storeId: string }) {
             Páginas
           </Text>
           <Text as="p" variant="bodySm" tone="subdued">
-            Crea y gestiona páginas adicionales para tu tienda como "Acerca de", "Contacto", políticas, etc.
+            Crea y gestiona páginas adicionales para tu tienda como &quot;Acerca de&quot;, &quot;Contacto&quot;,
+            políticas, etc.
           </Text>
         </div>
       </div>
@@ -30,8 +31,8 @@ export function PagesPage({ storeId }: { storeId: string }) {
           }}
           image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
           <p>
-            Añade páginas importantes como "Acerca de nosotros", "Política de privacidad", "Términos de servicio" y más
-            para proporcionar información esencial a tus clientes.
+            Añade páginas importantes como &quot;Acerca de nosotros&quot;, &quot;Política de privacidad&quot;,
+            &quot;Términos de servicio&quot; y más para proporcionar información esencial a tus clientes.
           </p>
         </EmptyState>
       </LegacyCard>

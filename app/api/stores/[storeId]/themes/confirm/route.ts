@@ -17,7 +17,7 @@
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { withAuthHandler } from '@/api/_lib/auth-middleware';
 import { postConfirmTheme, getConfirmStatus } from '@/api/stores/_lib/themes/controllers/confirm-controller';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 type ProcessStatus = {
   status: 'processing' | 'completed' | 'error';

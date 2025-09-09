@@ -16,7 +16,7 @@
 
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { getAsset } from '@/api/stores/_lib/assets/controllers/get-asset-controller';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 export async function OPTIONS(request: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(request);

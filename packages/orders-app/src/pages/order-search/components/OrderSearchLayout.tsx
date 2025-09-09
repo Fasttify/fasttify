@@ -5,7 +5,7 @@ interface OrderSearchLayoutProps {
   children: React.ReactNode;
 }
 
-export const OrderSearchLayout: React.FC<OrderSearchLayoutProps> = ({ children }) => {
+export const OrderSearchLayout = ({ children }: OrderSearchLayoutProps) => {
   return (
     <SearchContainer>
       <SearchTitle>Búsqueda de Órdenes</SearchTitle>

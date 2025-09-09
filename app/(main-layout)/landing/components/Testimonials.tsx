@@ -32,8 +32,8 @@ export function Testimonials() {
               ))}
             </div>
             <blockquote className="text-xl text-gray-900 font-medium italic">
-              "Fasttify me ha permitido lanzar mi tienda online sin complicaciones. La integración con proveedores y
-              pagos es increíblemente sencilla. ¡Totalmente recomendado!"
+              &ldquo;Fasttify me ha permitido lanzar mi tienda online sin complicaciones. La integración con proveedores
+              y pagos es increíblemente sencilla. ¡Totalmente recomendado!&rdquo;
             </blockquote>
             <div>
               <p className="font-medium text-gray-900">María Gómez</p>
@@ -70,7 +70,7 @@ export function Testimonials() {
                   <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 ))}
               </div>
-              <p className="text-gray-700 mb-6">"{review.comment}"</p>
+              <p className="text-gray-700 mb-6">&ldquo;{review.comment}&rdquo;</p>
               <div>
                 <p className="font-medium text-gray-900">{review.name}</p>
                 <p className="text-sm text-gray-600">

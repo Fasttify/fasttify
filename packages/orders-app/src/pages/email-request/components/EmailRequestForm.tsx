@@ -10,7 +10,7 @@ interface EmailRequestFormProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-export const EmailRequestForm: React.FC<EmailRequestFormProps> = ({ email, setEmail, isLoading, status, onSubmit }) => {
+export const EmailRequestForm = ({ email, setEmail, isLoading, status, onSubmit }: EmailRequestFormProps) => {
   return (
     <Form onSubmit={onSubmit}>
       <FormGroup>

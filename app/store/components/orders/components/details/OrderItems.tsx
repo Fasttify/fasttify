@@ -55,22 +55,13 @@ export const OrderItems = memo(function OrderItems({ order }: OrderItemsProps) {
 
         <BlockStack gap="300">
           {items.map((item) => {
-            // Memoizar el procesamiento de cada item
-            const itemData = useMemo(
-              () => ({
-                productTitle: getProductTitle(item),
-                productImage: getProductImage(item),
-                quantity: getItemQuantity(item),
-                unitPrice: getItemUnitPrice(item),
-                totalPrice: getItemTotalPrice(item),
-                productSnapshot: getProductSnapshot(item),
-                productUrl: `/store/${order.storeId}/products/${item.productId}`,
-              }),
-              [item, order.storeId]
-            );
-
-            const { productTitle, productImage, quantity, unitPrice, totalPrice, productSnapshot, productUrl } =
-              itemData;
+            const productTitle = getProductTitle(item);
+            const productImage = getProductImage(item);
+            const quantity = getItemQuantity(item);
+            const unitPrice = getItemUnitPrice(item);
+            const totalPrice = getItemTotalPrice(item);
+            const productSnapshot = getProductSnapshot(item);
+            const productUrl = `/store/${order.storeId}/products/${item.productId}`;
 
             return (
               <Card key={item.id} background="bg-surface-secondary">

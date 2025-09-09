@@ -14,7 +14,7 @@ interface SummaryCardsProps {
   orders: Order[];
 }
 
-export const SummaryCards: React.FC<SummaryCardsProps> = ({ orders }) => {
+export const SummaryCards = ({ orders }: SummaryCardsProps) => {
   const totalOrders = orders.length;
   const totalAmount = orders.reduce((sum, order) => sum + order.total, 0);
   const pendingOrders = orders.filter(

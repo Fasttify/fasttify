@@ -17,7 +17,7 @@
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { withAuthHandler } from '@/api/_lib/auth-middleware';
 import { postUploadTheme, getUploadInfo } from '@/api/stores/_lib/themes/controllers/upload-controller';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 /**
  * POST /api/stores/[storeId]/themes/upload

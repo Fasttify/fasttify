@@ -39,7 +39,7 @@ export default function OrdersPage() {
       onSubmit={handleEmailSubmit}
       title="Accede a tus Órdenes"
       subtitle="Ingresa tu email para recibir un enlace de acceso seguro a tus órdenes de compra."
-      logoSrc="/icons/fasttify-white.webp"
+      logoSrc="https://cdn.fasttify.com/assets/b/fasttify-white.webp"
       logoAlt="Fasttify Logo"
       backgroundImageSrc="https://images.unsplash.com/photo-1755308482556-9e8383a5be97?q=80&w=687&auto=format&fit=crop"
     />

@@ -105,10 +105,10 @@ export function withAuthHandler(
   handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>,
   options?: AuthMiddlewareOptions
 ) {
-  return async (request: NextRequest, nextContext?: { params?: Record<string, string> }): Promise<NextResponse> => {
+  return async (request: NextRequest, context: { params: Promise<Record<string, string>> }): Promise<NextResponse> => {
     // Inyectar params de Next.js en el request para que withAuth pueda leerlos
-    if (nextContext && nextContext.params) {
-      (request as any).params = nextContext.params;
+    if (context && context.params) {
+      (request as any).params = await context.params;
     }
 
     const authResult = await withAuth(request, options);

@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionList, Badge, BlockStack, Button, DataTable, InlineStack, Popover, Text } from '@shopify/polaris';
+import { ActionList, Badge, BlockStack, Button, DataTable, Popover, Text } from '@shopify/polaris';
 import { DeleteIcon, EditIcon, MenuHorizontalIcon, StatusActiveIcon } from '@shopify/polaris-icons';
 import { useState } from 'react';
 
@@ -46,7 +46,7 @@ export function ThemeTable({ themes, onActivateTheme, onEditTheme, onDeleteTheme
   };
 
   const rows = themes.map((theme) => [
-    <BlockStack key={theme.id} gap="100">
+    <BlockStack key={`${theme.id}-name`} gap="100">
       <Text as="p" variant="bodyMd" fontWeight="semibold">
         {theme.name}
       </Text>
@@ -54,10 +54,10 @@ export function ThemeTable({ themes, onActivateTheme, onEditTheme, onDeleteTheme
         v{theme.version} • {theme.author}
       </Text>
     </BlockStack>,
-    <Text as="p" variant="bodySm" tone="subdued">
+    <Text key={`${theme.id}-description`} as="p" variant="bodySm" tone="subdued">
       {theme.description || 'Sin descripción'}
     </Text>,
-    <BlockStack gap="100">
+    <BlockStack key={`${theme.id}-files`} gap="100">
       <Text as="p" variant="bodySm">
         {theme.fileCount} archivos
       </Text>
@@ -65,11 +65,14 @@ export function ThemeTable({ themes, onActivateTheme, onEditTheme, onDeleteTheme
         {formatFileSize(theme.totalSize)}
       </Text>
     </BlockStack>,
-    <Badge tone={theme.isActive ? 'success' : 'info'}>{theme.isActive ? 'Activo' : 'Inactivo'}</Badge>,
-    <Text as="p" variant="bodySm" tone="subdued">
+    <Badge key={`${theme.id}-status`} tone={theme.isActive ? 'success' : 'info'}>
+      {theme.isActive ? 'Activo' : 'Inactivo'}
+    </Badge>,
+    <Text key={`${theme.id}-date`} as="p" variant="bodySm" tone="subdued">
       {formatDate(theme.updatedAt)}
     </Text>,
     <Popover
+      key={`${theme.id}-actions`}
       active={activePopover === theme.id}
       activator={
         <Button

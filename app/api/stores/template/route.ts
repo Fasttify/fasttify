@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { withAuthHandler } from '@/api/_lib/auth-middleware';
 import { createTemplate } from '@/api/stores/_lib/template/controllers/create-template-controller';
