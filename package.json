@@ -31,6 +31,7 @@
     "email:compile": "tsx scripts/compile-email-templates.ts",
     "email:test": "node scripts/test-email-system.js",
     "email:dev": "npm run email:compile && npm run email:test",
+    "analyze": "ANALYZE=true npm run build",
     "sandbox": "npx ampx sandbox --identifier xooty --stream-function-logs",
     "sandbox:deploy": "npx ampx deploy",
     "sandbox:logs": "npx ampx logs",
