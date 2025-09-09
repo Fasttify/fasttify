@@ -128,7 +128,7 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
     if (storeId && memoizedOptions.limit > 0) {
       fetchImages();
     }
-  }, [storeId, memoizedOptions.limit, memoizedOptions.prefix]);
+  }, [storeId, memoizedOptions.limit, memoizedOptions.prefix, fetchImages]);
 
   const fetchMoreImages = useCallback(() => {
     if (nextContinuationToken && !loadingMore && !loading) {
@@ -172,7 +172,7 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
  * Genera un ID único para compatibilidad hacia atrás cuando las imágenes
  * existentes no tienen el campo id
  */
-function generateFallbackId(key: string, filename: string): string {
+function generateFallbackId(key: string, _filename: string): string {
   // Crear hash simple del key
   let hash = 0;
   for (let i = 0; i < key.length; i++) {

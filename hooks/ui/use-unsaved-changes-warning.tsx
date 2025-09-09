@@ -66,6 +66,9 @@ export function useUnsavedChangesWarning({
   }, []);
 
   useEffect(() => {
+    const currentPush = originalPush.current;
+    const currentBack = originalBack.current;
+
     router.push = (href: string) => {
       confirmNavigation(() => originalPush.current(href));
       return Promise.resolve(true);
@@ -77,8 +80,8 @@ export function useUnsavedChangesWarning({
     };
 
     return () => {
-      router.push = originalPush.current;
-      router.back = originalBack.current;
+      router.push = currentPush;
+      router.back = currentBack;
     };
   }, [router, confirmNavigation]);
 

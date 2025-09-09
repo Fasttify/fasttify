@@ -33,9 +33,12 @@ export function useSecureUrl({ baseUrl, type = 'asset', enabled = true }: UseSec
     // Verificar cache global primero
     const cacheKey = `${baseUrl}-${type}`;
     if (urlCache.has(cacheKey)) {
-      setUrl(urlCache.get(cacheKey)!);
-      setIsLoading(false);
-      return;
+      const cachedUrl = urlCache.get(cacheKey);
+      if (cachedUrl) {
+        setUrl(cachedUrl);
+        setIsLoading(false);
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -67,8 +70,11 @@ export function useSecureUrl({ baseUrl, type = 'asset', enabled = true }: UseSec
     // Verificar cache primero
     const cacheKey = `${baseUrl}-${type}`;
     if (enabled && baseUrl && urlCache.has(cacheKey)) {
-      setUrl(urlCache.get(cacheKey)!);
-      return;
+      const cachedUrl = urlCache.get(cacheKey);
+      if (cachedUrl) {
+        setUrl(cachedUrl);
+        return;
+      }
     }
 
     // Solo hacer fetch si no está en cache

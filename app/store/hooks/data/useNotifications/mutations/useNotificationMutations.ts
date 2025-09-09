@@ -1,5 +1,5 @@
 import { type StoreSchema } from '@/amplify/data/resource';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { generateClient } from 'aws-amplify/api';
 import type { Notification } from '../types';
 import { useNotificationCacheUtils } from '../utils/notificationCacheUtils';
@@ -12,7 +12,6 @@ const client = generateClient<StoreSchema>({
  * Hook para manejar todas las mutaciones de notificaciones
  */
 export const useNotificationMutations = (storeId: string | undefined) => {
-  const queryClient = useQueryClient();
   const cacheUtils = useNotificationCacheUtils(storeId);
 
   /**

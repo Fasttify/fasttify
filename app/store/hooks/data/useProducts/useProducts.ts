@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useProductMutations } from './mutations';
 import { useProductQueries } from './queries';
 import type { IProduct, ProductCreateInput, ProductUpdateInput, UseProductsOptions, UseProductsResult } from './types';
@@ -45,8 +45,8 @@ export function useProducts(storeId: string | undefined, options?: UseProductsOp
   const { data, isFetching, error: queryError, refetch, fetchProductById } = queries;
 
   // Datos derivados
-  const products = data?.products || [];
-  const hasNextPage = !!(data?.nextToken && data.products.length >= pagination.limit);
+  const products = useMemo(() => data?.products || [], [data?.products]);
+  const hasNextPage = !!(data?.nextToken && products.length >= pagination.limit);
   const hasPreviousPage = currentPage > 1;
 
   // Efectos para manejar la paginación

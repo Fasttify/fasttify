@@ -36,7 +36,7 @@ export function fileToBase64(file: File): Promise<string> {
  * Genera un ID único para compatibilidad hacia atrás cuando las imágenes
  * existentes no tienen el campo id
  */
-export function generateFallbackId(key: string, filename: string): string {
+export function generateFallbackId(key: string, _filename: string): string {
   // Crear hash simple del key
   let hash = 0;
   for (let i = 0; i < key.length; i++) {

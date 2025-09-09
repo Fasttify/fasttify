@@ -24,7 +24,7 @@ export function FeatureSteps({
   features,
   className,
   autoPlayInterval = 3000,
-  imageHeight = 'h-[400px]',
+  _imageHeight = 'h-[400px]',
 }: FeatureStepsProps) {
   const [currentFeature, setCurrentFeature] = useState(0);
   const [progress, setProgress] = useState(0);

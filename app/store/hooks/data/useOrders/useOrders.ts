@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useOrderMutations } from './mutations';
 import { useOrderQueries } from './queries';
 import type {
@@ -58,7 +58,7 @@ export function useOrders(
   const { data, isFetching, error: queryError, refetch, fetchOrderById } = queries;
 
   // Datos derivados
-  const orders = data?.orders || [];
+  const orders = useMemo(() => data?.orders || [], [data?.orders]);
   const hasNextPage = !!data?.nextToken;
   const hasPreviousPage = currentPage > 1;
 

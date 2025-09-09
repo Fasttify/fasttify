@@ -80,9 +80,9 @@ async function fetchSubscriptionData(username: string): Promise<MinimalSubscript
     }
 
     return sortedData[0];
-  } catch (error) {
-    console.error('Error fetching subscription:', error);
-    throw error;
+  } catch (_error) {
+    console.error('Error fetching subscription:', _error);
+    throw _error;
   }
 }
 
@@ -118,7 +118,7 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => {
           loading: false,
         });
         return subscription;
-      } catch (error) {
+      } catch (_error) {
         set({ error: 'Error loading subscription', loading: false });
         return null;
       }

@@ -43,22 +43,20 @@ const eslintConfig = [
     rules: {
       // Configuración gradual - empezar con warnings en lugar de errores
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-inferrable-types': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-non-null-assertion': 'warn',
-
-      // Reglas básicas pero no tan estrictas
-      'no-console': 'off',
       'prefer-const': 'warn',
       'no-var': 'error',
       'no-undef': 'off',
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/no-require-imports': 'off',
-
-      // Reglas de Next.js más permisivas
       '@next/next/no-img-element': 'warn',
       '@next/next/no-html-link-for-pages': 'warn',
     },
