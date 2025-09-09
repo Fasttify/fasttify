@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 interface ValidationState {
   isLoading: boolean;
@@ -107,7 +107,7 @@ export function useDomainValidation() {
     }
   };
 
-  const resetValidation = () => {
+  const resetValidation = useCallback(() => {
     setState({
       isLoading: false,
       error: null,
@@ -121,7 +121,7 @@ export function useDomainValidation() {
       needsACMValidation: false,
       isCertificateReady: false,
     });
-  };
+  }, []);
 
   const verifyACMCertificate = async (certificateArn: string, storeId: string) => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
