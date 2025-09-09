@@ -4,7 +4,7 @@ import type React from 'react';
 import { useState } from 'react';
 import { useServerInsertedHTML } from 'next/navigation';
 import { ServerStyleSheet, StyleSheetManager } from 'styled-components';
-//@ts-ignore
+//@ts-expect-error-ignore
 import { unstable_ViewTransition as ViewTransition } from 'react';
 
 export default function StyledComponentsRegistry({ children }: { children: React.ReactNode }) {

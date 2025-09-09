@@ -17,7 +17,7 @@ import { OrderTableDesktop } from './OrderTableDesktop';
 import type { OrderListProps } from '../../types/order-types';
 
 export function OrderList({
-  storeId,
+  storeId: _storeId,
   orders,
   error,
   hasNextPage,
@@ -61,7 +61,7 @@ export function OrderList({
       } else {
         showToast('Error al actualizar el estado de la orden', true);
       }
-    } catch (error) {
+    } catch (_error) {
       showToast('Error al actualizar el estado de la orden', true);
     }
   };
@@ -74,7 +74,7 @@ export function OrderList({
       } else {
         showToast('Error al actualizar el estado del pago', true);
       }
-    } catch (error) {
+    } catch (_error) {
       showToast('Error al actualizar el estado del pago', true);
     }
   };

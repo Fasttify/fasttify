@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useCheckoutSessionMutations } from './mutations';
 import { useCheckoutSessionQueries } from './queries';
 import type {
@@ -56,7 +56,7 @@ export function useCheckoutSessions(
   const { data, isFetching, error: queryError, refetch, fetchCheckoutSessionById } = queries;
 
   // Datos derivados
-  const checkoutSessions = data?.checkoutSessions || [];
+  const checkoutSessions = useMemo(() => data?.checkoutSessions || [], [data?.checkoutSessions]);
   const hasNextPage = !!data?.nextToken;
   const hasPreviousPage = currentPage > 1;
 
@@ -102,7 +102,7 @@ export function useCheckoutSessions(
         if (!id) {
           throw new Error('Checkout session ID is required for deletion');
         }
-        await deleteCheckoutSessionMutation.mutateAsync({ id, storeOwner: '' });
+        await deleteCheckoutSessionMutation.mutateAsync({ id, _storeOwner: '' });
         return true;
       } catch (err) {
         console.error('Error deleting checkout session:', err);
@@ -115,7 +115,7 @@ export function useCheckoutSessions(
   const deleteMultipleCheckoutSessions = useCallback(
     async (ids: string[]) => {
       try {
-        await deleteMultipleCheckoutSessionsMutation.mutateAsync({ ids, storeOwner: '' });
+        await deleteMultipleCheckoutSessionsMutation.mutateAsync({ ids, _storeOwner: '' });
 
         // Verificar si la página actual quedó vacía después de la eliminación
         const remainingSessions = checkoutSessions.filter((session) => !ids.includes(session.id));

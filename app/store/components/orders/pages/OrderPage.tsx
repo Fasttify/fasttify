@@ -1,12 +1,8 @@
-import { routes } from '@/utils/client/routes';
 import { Card, Text } from '@shopify/polaris';
 import { PackageIcon } from '@shopify/polaris-icons';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
 
 export function OrderPage() {
-  const params = useParams();
-
   return (
     <div className="bg-gray-100 mt-8">
       <div className="flex items-start gap-3 mb-4">

@@ -43,7 +43,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
 
   setConnectionState: (state: ConnectionState) => set({ connectionState: state }),
 
-  fetchStoreData: async (storeId, userId) => {
+  fetchStoreData: async (storeId, _userId) => {
     const currentState = get();
 
     if (currentState.currentStore?.storeId === storeId && !currentState.isLoading) {

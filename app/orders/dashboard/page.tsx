@@ -56,7 +56,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, isLoading, isAuthenticated, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'orders' | 'search' | 'help'>('orders');
-  const [filteredOrders, setFilteredOrders] = useState(mockOrders);
+  const [filteredOrders, _setFilteredOrders] = useState(mockOrders);
 
   // Verificar autenticación
   useEffect(() => {

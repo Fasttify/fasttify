@@ -120,7 +120,7 @@ export const usePages = (storeId: string) => {
         const validatedInput = createPageSchema.parse(pageInput);
         return performOperation(() => client.models.Page.create({ ...validatedInput, owner: username }));
       },
-      onSuccess: async (newPage) => {
+      onSuccess: async (_newPage) => {
         queryClient.invalidateQueries({ queryKey: [PAGES_KEY, 'list', storeId] });
 
         // Invalidar caché del motor de renderizado

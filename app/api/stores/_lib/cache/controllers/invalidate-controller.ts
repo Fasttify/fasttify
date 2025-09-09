@@ -15,7 +15,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthContext } from '@/api/_lib/auth-middleware';
 import { cacheInvalidationService, type ChangeType } from '@/renderer-engine/services/core/cache';
 
 function errorResponse(code: number, message: string, corsHeaders: Record<string, string>) {

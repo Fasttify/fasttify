@@ -19,15 +19,6 @@ import { withAuthHandler } from '@/api/_lib/auth-middleware';
 import { postConfirmTheme, getConfirmStatus } from '@/api/stores/_lib/themes/controllers/confirm-controller';
 import { NextRequest } from 'next/server';
 
-type ProcessStatus = {
-  status: 'processing' | 'completed' | 'error';
-  message?: string;
-  themeId?: string;
-  updatedAt: number;
-};
-
-const themeProcessStatus: Map<string, ProcessStatus> = new Map();
-
 /**
  * POST /api/stores/[storeId]/themes/confirm
  * Confirma y almacena un tema procesado - responde inmediatamente con 202

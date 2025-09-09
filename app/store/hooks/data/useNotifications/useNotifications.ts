@@ -26,7 +26,7 @@ export function useNotifications(
   storeId: string | undefined,
   options?: UseNotificationsOptions
 ): UseNotificationsResult {
-  const { limit = 50, filterOptions = {}, enabled = true } = options || {};
+  const { limit = 50, filterOptions = {} } = options || {};
 
   // Estado para scroll infinito
   const { allNotifications, setAllNotifications, nextToken, setNextToken, isLoadingMore, setIsLoadingMore } =
@@ -36,7 +36,7 @@ export function useNotifications(
 
   // Mutaciones
   const mutations = useNotificationMutations(storeId);
-  const { markAsReadMutation, markAllAsReadMutation, deleteNotificationMutation } = mutations;
+  const { markAsReadMutation, deleteNotificationMutation } = mutations;
 
   // Queries - usar solo la primera página para scroll infinito
   const queries = useNotificationQueries(
@@ -54,7 +54,7 @@ export function useNotifications(
       setAllNotifications((prev) => initializeNotificationsWithoutDuplicates(prev, data.notifications));
       setNextToken(data.nextToken);
     }
-  }, [data]);
+  }, [data, setAllNotifications, setNextToken]);
 
   // Función para cargar más notificaciones (scroll infinito)
   const loadMore = useCallback(async () => {
@@ -85,7 +85,7 @@ export function useNotifications(
     } finally {
       setIsLoadingMore(false);
     }
-  }, [storeId, nextToken, isLoadingMore, limit, filterOptions]);
+  }, [storeId, nextToken, isLoadingMore, limit, filterOptions, setAllNotifications, setIsLoadingMore, setNextToken]);
 
   // Efectos para manejar las suscripciones de AppSync
   useEffect(() => {
@@ -144,7 +144,7 @@ export function useNotifications(
       deleteSub.unsubscribe();
       connectionListener();
     };
-  }, [storeId]);
+  }, [storeId, setAllNotifications]);
 
   // Funciones wrapper para las mutaciones
   const markAsRead = useCallback(
@@ -159,7 +159,7 @@ export function useNotifications(
         return false;
       }
     },
-    [markAsReadMutation]
+    [markAsReadMutation, setAllNotifications]
   );
 
   const markAllAsRead = useCallback(async () => {
@@ -200,7 +200,7 @@ export function useNotifications(
       console.error('Error marking all notifications as read:', err);
       return false;
     }
-  }, [storeId, allNotifications]);
+  }, [storeId, allNotifications, setAllNotifications]);
 
   const deleteNotification = useCallback(
     async (id: string) => {
@@ -217,7 +217,7 @@ export function useNotifications(
         return false;
       }
     },
-    [deleteNotificationMutation]
+    [deleteNotificationMutation, setAllNotifications]
   );
 
   // Función para refrescar
@@ -225,7 +225,7 @@ export function useNotifications(
     setAllNotifications([]);
     setNextToken(null);
     refetch();
-  }, [refetch]);
+  }, [refetch, setNextToken, setAllNotifications]);
 
   return {
     notifications: removeDuplicates(allNotifications),

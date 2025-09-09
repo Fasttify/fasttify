@@ -64,7 +64,7 @@ export const exportProductsToCSV = (products: IProduct[], fileName: string): boo
         if (!value) return '';
         try {
           return escapeCsvValue(JSON.stringify(value));
-        } catch (e) {
+        } catch (_e) {
           return '';
         }
       };

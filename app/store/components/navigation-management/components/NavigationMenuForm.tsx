@@ -165,8 +165,6 @@ export function NavigationMenuForm({ storeId, domain, menuId, onSuccess, onCance
     storeId,
     domain,
     menuId,
-    validateNavigationMenu,
-    validateUpdateNavigationMenu,
   ]);
 
   // Manejar cambios en campos de texto

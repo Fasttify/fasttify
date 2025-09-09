@@ -155,7 +155,7 @@ export const OrderTimeline = memo(function OrderTimeline({ order }: OrderTimelin
           show: true,
         },
       ].filter((event) => event.show !== false),
-    [order]
+    [order, getStatusIcon, getStatusTone, getPaymentStatusIcon, getPaymentStatusTone]
   );
 
   return (

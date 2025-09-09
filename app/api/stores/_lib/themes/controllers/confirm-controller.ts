@@ -17,10 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { logger } from '@/renderer-engine/lib/logger';
-import {
-  S3StorageService,
-  type ThemeStorageResult,
-} from '@/renderer-engine/services/themes/storage/s3-storage-service';
+import { S3StorageService } from '@/renderer-engine/services/themes/storage/s3-storage-service';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 import { getCdnUrlForKey } from '@/utils/server';
 import { GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';

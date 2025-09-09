@@ -33,7 +33,7 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
         if (Array.isArray(parsedImages)) {
           images = parsedImages;
         }
-      } catch (e) {
+      } catch (_e) {
         images = undefined;
       }
     } else if (Array.isArray(product.images)) {

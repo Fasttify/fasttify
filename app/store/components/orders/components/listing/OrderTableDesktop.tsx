@@ -39,8 +39,8 @@ export function OrderTableDesktop({
   toggleSort,
   sortDirection,
   sortField,
-  selectedOrders,
-  handleSelectOrder,
+  selectedOrders: _selectedOrders,
+  handleSelectOrder: _handleSelectOrder,
   onViewDetails,
 }: OrderTableDesktopProps) {
   const [activePopover, setActivePopover] = useState<string | null>(null);

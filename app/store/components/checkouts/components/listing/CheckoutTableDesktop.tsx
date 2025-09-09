@@ -48,8 +48,8 @@ export function CheckoutTableDesktop({
   toggleSort,
   sortDirection,
   sortField,
-  selectedCheckouts,
-  handleSelectCheckout,
+  selectedCheckouts: _selectedCheckouts,
+  handleSelectCheckout: _handleSelectCheckout,
   onViewDetails,
 }: CheckoutTableDesktopProps) {
   const [activePopover, setActivePopover] = useState<string | null>(null);

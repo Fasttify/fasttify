@@ -24,7 +24,7 @@ import { useState } from 'react';
 type FilterType = 'all' | 'active' | 'inactive';
 
 // Skeleton component for the collections table using Polaris
-function CollectionsTableSkeleton() {
+function _CollectionsTableSkeleton() {
   const resourceName = {
     singular: 'colección',
     plural: 'colecciones',

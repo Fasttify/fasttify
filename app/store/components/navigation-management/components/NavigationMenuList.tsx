@@ -8,15 +8,13 @@ import { Badge, Banner, Button, ButtonGroup, Card, DataTable, EmptyState, Loadin
  * Componente para mostrar la lista de menús de navegación
  */
 export function NavigationMenuList({ storeId, onEdit, onDelete, onView }: NavigationMenuListProps) {
-  const { useListNavigationMenus, parseMenuData } = useNavigationMenus();
+  const { useListNavigationMenus } = useNavigationMenus();
 
   // Obtener menús de la tienda
   const { data: menus = [], isLoading, error } = useListNavigationMenus(storeId);
 
   // Preparar datos para la tabla
   const tableRows = menus.map((menu) => {
-    const menuItems = parseMenuData((menu as unknown as string) || '[]');
-
     return [
       <Text key={`name-${menu.id}`} variant="bodyMd" fontWeight="semibold" as="span">
         {menu.name}

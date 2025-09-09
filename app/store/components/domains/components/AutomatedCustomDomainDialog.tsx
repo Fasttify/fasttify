@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Modal, BlockStack } from '@shopify/polaris';
 import { useCustomDomain } from '@/app/store/hooks/api/useCustomDomain';
 import { useDomainValidation } from '@/app/store/hooks/api/useDomainValidation';
@@ -49,17 +49,17 @@ export function AutomatedCustomDomainDialog({
     isCertificateReady,
   } = useDomainValidation();
 
+  const resetDialog = useCallback(() => {
+    setDomainName('');
+    setCurrentStep('input');
+    resetValidation();
+  }, [resetValidation]);
+
   useEffect(() => {
     if (!open) {
       resetDialog();
     }
-  }, [open]);
-
-  const resetDialog = () => {
-    setDomainName('');
-    setCurrentStep('input');
-    resetValidation();
-  };
+  }, [open, resetDialog]);
 
   const validation = validateDomain(domainName);
 
@@ -128,7 +128,7 @@ export function AutomatedCustomDomainDialog({
         showToast('Error conectando con tu tienda', true);
         setCurrentStep('validation');
       }
-    } catch (err) {
+    } catch (_err) {
       showToast('Error inesperado al conectar con tu tienda', true);
       setCurrentStep('validation');
     }

@@ -137,7 +137,7 @@ export function CurrencySelector({
   helpText,
   error,
   disabled = false,
-  required = false,
+  required: _required = false,
   showSymbol = true,
   showBadge = true,
 }: CurrencySelectorProps) {

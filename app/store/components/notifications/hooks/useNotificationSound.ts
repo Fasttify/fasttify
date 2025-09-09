@@ -8,45 +8,6 @@ interface UseNotificationSoundResult {
  * Hook para manejar los sonidos de notificaciones
  */
 export const useNotificationSound = (): UseNotificationSoundResult => {
-  // Función para reproducir sonido según el tipo de notificación
-  const playNotificationSound = useCallback((notificationType?: string) => {
-    try {
-      // Intentar usar archivo de audio primero
-      const audio = new Audio('https://cdn.fasttify.com/assets/sounds/cash-register.mp3');
-      let volume = 0.6;
-
-      // Ajustar volumen según el tipo
-      switch (notificationType) {
-        case 'new_order':
-          volume = 0.7; // Volumen medio para nuevas órdenes
-          break;
-        case 'payment_confirmed':
-          volume = 0.8; // Volumen alto para pagos confirmados
-          break;
-        case 'status_updated':
-          volume = 0.5; // Volumen bajo para actualizaciones
-          break;
-        case 'system_alert':
-          volume = 0.9; // Volumen alto para alertas
-          break;
-        default:
-          volume = 0.6; // Volumen por defecto
-      }
-
-      audio.volume = volume;
-
-      // Reproducir el sonido
-      audio.play().catch(() => {
-        // Si falla el archivo, generar sonido programáticamente
-        generateNotificationSound(notificationType);
-      });
-    } catch (error) {
-      console.warn('Error creating audio:', error);
-      // Fallback a sonido programático
-      generateNotificationSound(notificationType);
-    }
-  }, []);
-
   // Función para generar sonidos programáticamente según el tipo
   const generateNotificationSound = useCallback((notificationType?: string) => {
     try {
@@ -104,6 +65,48 @@ export const useNotificationSound = (): UseNotificationSoundResult => {
       console.warn('Error generating notification sound:', error);
     }
   }, []);
+
+  // Función para reproducir sonido según el tipo de notificación
+  const playNotificationSound = useCallback(
+    (notificationType?: string) => {
+      try {
+        // Intentar usar archivo de audio primero
+        const audio = new Audio('https://cdn.fasttify.com/assets/sounds/cash-register.mp3');
+        let volume = 0.6;
+
+        // Ajustar volumen según el tipo
+        switch (notificationType) {
+          case 'new_order':
+            volume = 0.7; // Volumen medio para nuevas órdenes
+            break;
+          case 'payment_confirmed':
+            volume = 0.8; // Volumen alto para pagos confirmados
+            break;
+          case 'status_updated':
+            volume = 0.5; // Volumen bajo para actualizaciones
+            break;
+          case 'system_alert':
+            volume = 0.9; // Volumen alto para alertas
+            break;
+          default:
+            volume = 0.6; // Volumen por defecto
+        }
+
+        audio.volume = volume;
+
+        // Reproducir el sonido
+        audio.play().catch(() => {
+          // Si falla el archivo, generar sonido programáticamente
+          generateNotificationSound(notificationType);
+        });
+      } catch (error) {
+        console.warn('Error creating audio:', error);
+        // Fallback a sonido programático
+        generateNotificationSound(notificationType);
+      }
+    },
+    [generateNotificationSound]
+  );
 
   return {
     playNotificationSound,

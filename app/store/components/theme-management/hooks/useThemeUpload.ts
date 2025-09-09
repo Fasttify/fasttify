@@ -34,7 +34,7 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
   const [processingError, setProcessingError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [processId, setProcessId] = useState<string | null>(null);
+  const [_processId, setProcessId] = useState<string | null>(null);
 
   const handleFileSelect = useCallback((file: File) => {
     if (!file.name.endsWith('.zip')) {
@@ -149,7 +149,7 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
                 } catch (_) {}
               }
             }
-          } catch (err) {}
+          } catch (_err) {}
 
           if (Date.now() - start < 90_000) {
             setTimeout(poll, 2000);
@@ -169,7 +169,7 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
     } finally {
       setIsConfirming(false);
     }
-  }, [uploadResult, selectedFile, onConfirm]);
+  }, [uploadResult, selectedFile, onConfirm, storeId]);
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null);

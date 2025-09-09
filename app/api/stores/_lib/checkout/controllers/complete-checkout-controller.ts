@@ -18,7 +18,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { checkoutFetcher } from '@/renderer-engine/services/fetchers/checkout';
 
-export async function completeCheckout(request: NextRequest, storeId: string): Promise<NextResponse> {
+export async function completeCheckout(request: NextRequest, _storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);
 
   // Obtener el host original de la tienda para las redirecciones

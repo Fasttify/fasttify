@@ -35,7 +35,7 @@ export function SalesDashboard() {
     to: new Date(),
   });
   const [compareWith, setCompareWith] = useState('yesterday');
-  const [timeframe, setTimeframe] = useState('daily');
+  const [_timeframe, setTimeframe] = useState('daily');
   const [autoRefresh, setAutoRefresh] = useState(false);
 
   // Generate sample data

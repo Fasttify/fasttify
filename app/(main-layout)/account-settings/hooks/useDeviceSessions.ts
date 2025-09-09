@@ -71,13 +71,13 @@ export function useDeviceSessions() {
     return 'unknown';
   };
 
-  const parseDeviceInfo = (deviceName: string = '') => {
+  const parseDeviceInfo = useCallback((deviceName: string = '') => {
     return {
       os: getOSInfo(deviceName),
       browser: getBrowserInfo(deviceName),
       deviceType: getDeviceType(deviceName),
     };
-  };
+  }, []);
 
   const fetchSessions = useCallback(async () => {
     setIsLoading(true);
@@ -131,7 +131,7 @@ export function useDeviceSessions() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [parseDeviceInfo]);
 
   const forgetDeviceSession = async (deviceKey: string) => {
     setIsLoading(true);

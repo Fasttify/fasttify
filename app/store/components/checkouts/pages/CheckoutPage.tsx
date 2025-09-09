@@ -1,12 +1,8 @@
-import { routes } from '@/utils/client/routes';
 import { Card, Text } from '@shopify/polaris';
 import { CreditCardIcon } from '@shopify/polaris-icons';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
 
 export function CheckoutPage() {
-  const params = useParams();
-
   return (
     <div className="bg-gray-100 mt-8">
       <div className="flex items-start gap-3 mb-4">

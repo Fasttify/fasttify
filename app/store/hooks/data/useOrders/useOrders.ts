@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useOrderMutations } from './mutations';
 import { useOrderQueries } from './queries';
 import type {
@@ -58,7 +58,7 @@ export function useOrders(
   const { data, isFetching, error: queryError, refetch, fetchOrderById } = queries;
 
   // Datos derivados
-  const orders = data?.orders || [];
+  const orders = useMemo(() => data?.orders || [], [data?.orders]);
   const hasNextPage = !!data?.nextToken;
   const hasPreviousPage = currentPage > 1;
 
@@ -104,7 +104,7 @@ export function useOrders(
         if (!id) {
           throw new Error('Order ID is required for deletion');
         }
-        await deleteOrderMutation.mutateAsync({ id, storeOwner: '' });
+        await deleteOrderMutation.mutateAsync({ id, _storeOwner: '' });
         return true;
       } catch (err) {
         console.error('Error deleting order:', err);
@@ -117,7 +117,7 @@ export function useOrders(
   const deleteMultipleOrders = useCallback(
     async (ids: string[]) => {
       try {
-        await deleteMultipleOrdersMutation.mutateAsync({ ids, storeOwner: '' });
+        await deleteMultipleOrdersMutation.mutateAsync({ ids, _storeOwner: '' });
 
         // Verificar si la página actual quedó vacía después de la eliminación
         const remainingOrders = orders.filter((order) => !ids.includes(order.id));

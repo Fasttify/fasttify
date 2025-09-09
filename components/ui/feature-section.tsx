@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -17,14 +17,14 @@ interface FeatureStepsProps {
   className?: string;
   title?: string;
   autoPlayInterval?: number;
-  imageHeight?: string;
+  _imageHeight?: string;
 }
 
 export function FeatureSteps({
   features,
   className,
   autoPlayInterval = 3000,
-  imageHeight = 'h-[400px]',
+  _imageHeight = 'h-[400px]',
 }: FeatureStepsProps) {
   const [currentFeature, setCurrentFeature] = useState(0);
   const [progress, setProgress] = useState(0);

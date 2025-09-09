@@ -138,7 +138,41 @@ export class DomainValidator {
       /^100\.100\.100\.200$/, // Alibaba metadata
     ];
 
-    return prohibitedPatterns.some((pattern) => pattern.test(domain));
+    // Verificar patrones básicos
+    if (prohibitedPatterns.some((pattern) => pattern.test(domain))) {
+      return true;
+    }
+
+    // Verificar ataques de subdominio - palabras prohibidas en cualquier parte del dominio
+    const prohibitedSubstrings = [
+      'localhost',
+      '127.0.0.1',
+      'metadata.google.internal',
+      '169.254.169.254',
+      '100.100.100.200',
+      '10.0.0.',
+      '172.16.',
+      '172.17.',
+      '172.18.',
+      '172.19.',
+      '172.20.',
+      '172.21.',
+      '172.22.',
+      '172.23.',
+      '172.24.',
+      '172.25.',
+      '172.26.',
+      '172.27.',
+      '172.28.',
+      '172.29.',
+      '172.30.',
+      '172.31.',
+      '192.168.',
+      '169.254.',
+    ];
+
+    // Verificar si el dominio contiene alguna de estas subcadenas prohibidas
+    return prohibitedSubstrings.some((substring) => domain.includes(substring));
   }
 
   /**

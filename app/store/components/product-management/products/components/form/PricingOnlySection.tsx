@@ -43,7 +43,7 @@ export function PricingOnlySection({ form }: PricingOnlySectionProps) {
       if (typeof rawResult === 'string') {
         try {
           parsedResult = JSON.parse(rawResult);
-        } catch (e) {
+        } catch (_e) {
           throw new Error('Formato de respuesta inválido');
         }
       }
@@ -51,7 +51,7 @@ export function PricingOnlySection({ form }: PricingOnlySectionProps) {
         setLocalPriceResult(parsedResult);
         showToast('Se ha generado una sugerencia de precio basada en el mercado.');
       }
-    } catch (error) {
+    } catch (_error) {
       showToast('No se pudo generar la sugerencia de precio. Inténtelo de nuevo más tarde.', true);
     }
   };

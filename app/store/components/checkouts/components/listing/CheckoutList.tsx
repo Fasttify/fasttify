@@ -17,7 +17,7 @@ import { CheckoutTableDesktop } from './CheckoutTableDesktop';
 import type { CheckoutListProps } from '../../types/checkout-types';
 
 export function CheckoutList({
-  storeId,
+  storeId: _storeId,
   checkouts,
   error,
   hasNextPage,
@@ -70,7 +70,7 @@ export function CheckoutList({
       } else {
         showToast('Error al completar el checkout', true);
       }
-    } catch (error) {
+    } catch (_error) {
       showToast('Error al completar el checkout', true);
     }
   };
@@ -83,7 +83,7 @@ export function CheckoutList({
       } else {
         showToast('Error al marcar como expirado', true);
       }
-    } catch (error) {
+    } catch (_error) {
       showToast('Error al marcar como expirado', true);
     }
   };
@@ -96,7 +96,7 @@ export function CheckoutList({
       } else {
         showToast('Error al cancelar el checkout', true);
       }
-    } catch (error) {
+    } catch (_error) {
       showToast('Error al cancelar el checkout', true);
     }
   };

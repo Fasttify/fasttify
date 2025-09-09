@@ -172,13 +172,9 @@ describe('SSRF Protection Tests', () => {
 
       for (const domain of attackDomains) {
         const result = validator.validateDomainRules(domain);
-        // Algunos de estos podrían pasar la validación de formato
-        // pero deberían ser bloqueados en la verificación HTTP real
+
         if (result.valid) {
-          // Si pasan la validación inicial, deben ser bloqueados en HTTP
-          const httpResult = verifier.verifyHTTPValidation(domain, 'test-token');
-          // No podemos await aquí fácilmente, pero el punto es que
-          // el sistema tiene múltiples capas de protección
+          expect(result.valid).toBe(false);
         }
       }
     });
@@ -203,7 +199,8 @@ describe('SSRF Protection Tests', () => {
         expect(endpoint).toBeTruthy();
         expect(endpoint).toMatch(/^http:\/\/[^\/]+\/\.well-known\/fasttify-validation\.txt$/);
         // Verificar que no hay componentes adicionales
-        const url = new URL(endpoint!);
+        expect(endpoint).toBeTruthy();
+        const url = new URL(endpoint);
         expect(url.search).toBe('');
         expect(url.hash).toBe('');
         expect(url.username).toBe('');

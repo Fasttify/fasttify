@@ -50,7 +50,7 @@ export function EcommerceSetup() {
     }
   }, [currentStore]);
 
-  const toggleTaskCompletion = async (taskId: number) => {
+  const _toggleTaskCompletion = async (taskId: number) => {
     if (!currentStore || updatingTaskId !== null) return;
 
     setUpdatingTaskId(taskId);

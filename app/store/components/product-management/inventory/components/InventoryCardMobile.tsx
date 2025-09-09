@@ -31,7 +31,7 @@ export function InventoryCardMobile({ data }: InventoryCardMobileProps) {
       });
       showToast(`Inventario de "${name}" actualizado correctamente`);
       setEditingId(null);
-    } catch (error) {
+    } catch (_error) {
       showToast('Error al actualizar el inventario', true);
       setInStockValues((prev) => ({ ...prev, [id]: data.find((item) => item.id === id)?.inStock || 0 }));
     }

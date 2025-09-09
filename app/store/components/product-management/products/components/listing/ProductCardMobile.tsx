@@ -30,7 +30,7 @@ export function ProductCardMobile({
       try {
         const parsedImages = JSON.parse(images);
         return Array.isArray(parsedImages) ? parsedImages[0]?.url : undefined;
-      } catch (e) {
+      } catch (_e) {
         return undefined;
       }
     }

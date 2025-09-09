@@ -60,7 +60,7 @@ export async function handleSSEConnection(request: NextRequest): Promise<Respons
       const pingInterval = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'ping' })}\n\n`));
-        } catch (error) {
+        } catch (_error) {
           clearInterval(pingInterval);
         }
       }, 30000);

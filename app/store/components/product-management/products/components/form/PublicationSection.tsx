@@ -7,7 +7,7 @@ interface PublicationSectionProps {
   form: UseFormReturn<ProductFormValues>;
 }
 
-export function PublicationSection({ form }: PublicationSectionProps) {
+export function PublicationSection({ form: _form }: PublicationSectionProps) {
   const [salesChannel, setSalesChannel] = useState(['online-store']);
   const [markets, setMarkets] = useState(['colombia-international']);
 

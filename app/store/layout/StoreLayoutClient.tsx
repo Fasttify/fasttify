@@ -32,7 +32,7 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   useAuthInitializer();
   useStore(storeId);
 
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [prefersReducedMotion, _setPrefersReducedMotion] = useState(false);
 
   return (
     <AppProvider i18n={esTranslations}>

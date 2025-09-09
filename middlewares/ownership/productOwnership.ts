@@ -128,7 +128,7 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
     }
 
     return NextResponse.next();
-  } catch (error) {
+  } catch (_error) {
     const redirectUrl = new URL(`/my-store`, request.url);
     const response = NextResponse.redirect(redirectUrl);
     response.headers.set('x-redirect-check', 'true');

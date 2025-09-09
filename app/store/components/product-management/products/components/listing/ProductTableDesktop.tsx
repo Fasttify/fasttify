@@ -48,8 +48,8 @@ export function ProductTableDesktop({
   toggleSort,
   sortDirection,
   sortField,
-  selectedProducts,
-  handleSelectProduct,
+  selectedProducts: _selectedProducts,
+  handleSelectProduct: _handleSelectProduct,
 }: ProductTableDesktopProps) {
   const pathname = usePathname();
   const params = useParams();
@@ -77,7 +77,7 @@ export function ProductTableDesktop({
       try {
         const parsedImages = JSON.parse(images);
         imageUrl = parsedImages[0]?.url;
-      } catch (e) {
+      } catch (_e) {
         imageUrl = undefined;
       }
     } else if (Array.isArray(images) && images.length > 0) {

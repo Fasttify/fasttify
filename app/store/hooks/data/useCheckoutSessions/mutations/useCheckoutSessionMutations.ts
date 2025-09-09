@@ -72,7 +72,7 @@ export const useCheckoutSessionMutations = (storeId: string | undefined) => {
    * Mutación para eliminar una sesión de checkout
    */
   const deleteCheckoutSessionMutation = useMutation({
-    mutationFn: async ({ id, storeOwner }: { id: string; storeOwner: string }) => {
+    mutationFn: async ({ id, _storeOwner }: { id: string; _storeOwner: string }) => {
       if (!id) {
         throw new Error('ID is required for deletion');
       }
@@ -89,7 +89,7 @@ export const useCheckoutSessionMutations = (storeId: string | undefined) => {
    * Mutación para eliminar múltiples sesiones de checkout usando batch delete (máximo 25 por lote)
    */
   const deleteMultipleCheckoutSessionsMutation = useMutation({
-    mutationFn: async ({ ids, storeOwner }: { ids: string[]; storeOwner: string }) => {
+    mutationFn: async ({ ids, _storeOwner }: { ids: string[]; _storeOwner: string }) => {
       const batchSize = 25;
       const deletedIds: string[] = [];
 

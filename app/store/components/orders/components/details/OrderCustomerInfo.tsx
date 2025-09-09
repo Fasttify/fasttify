@@ -89,7 +89,7 @@ export const OrderCustomerInfo = memo(function OrderCustomerInfo({ order }: Orde
     [order.shippingAddress, order.billingAddress, order.customerInfo, parseAddress, parseCustomerInfo]
   );
 
-  const { shipping, billing, customer } = addresses;
+  const { shipping, billing, customer: _customer } = addresses;
 
   return (
     <Card>

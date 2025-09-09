@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 type LoadingIndicatorProps = {
   text?: string;
   size?: 'sm' | 'md' | 'lg';
-  showBackdrop?: boolean;
+  _showBackdrop?: boolean;
   className?: string;
   textClassName?: string;
 };
@@ -12,7 +12,7 @@ type LoadingIndicatorProps = {
 export function LoadingIndicator({
   text = 'Loading',
   size = 'md',
-  showBackdrop = true,
+  _showBackdrop = true,
   className,
   textClassName,
 }: LoadingIndicatorProps) {

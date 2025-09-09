@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade } from 'swiper/modules';
 import 'swiper/css';
@@ -64,10 +65,12 @@ const ImageSlider = () => {
         {slides.map((slide, index) => (
           <SwiperSlide key={index}>
             <div className="h-screen">
-              <img
+              <Image
                 src={slide.image || '/placeholder.svg'}
                 alt={`Slide ${index + 1}`}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                priority={index === 0}
               />
             </div>
           </SwiperSlide>

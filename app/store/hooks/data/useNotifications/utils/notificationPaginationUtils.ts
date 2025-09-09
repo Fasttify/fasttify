@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import type { Notification, PaginationOptions } from '../types';
+import type { PaginationOptions } from '../types';
 
 /**
  * Hook personalizado para manejar la paginación de notificaciones

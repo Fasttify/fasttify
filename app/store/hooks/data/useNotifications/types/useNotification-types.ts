@@ -59,7 +59,7 @@ export interface UseNotificationsResult {
  */
 export interface UseNotificationsOptions extends PaginationOptions {
   skipInitialFetch?: boolean;
-  enabled?: boolean;
+  _enabled?: boolean;
   filterOptions?: NotificationFilterOptions;
 }
 

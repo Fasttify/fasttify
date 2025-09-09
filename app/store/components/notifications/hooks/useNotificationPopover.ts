@@ -59,7 +59,7 @@ export const useNotificationPopover = ({
       filterOptions: {
         read: false,
       },
-      enabled: !!currentStoreId,
+      _enabled: !!currentStoreId,
     });
 
   // Calcular el conteo de no leídas
