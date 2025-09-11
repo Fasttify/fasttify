@@ -46,7 +46,11 @@ export const useThemeEditor = (props: ThemeEditorProps) => {
   const fileOperations = useFileOperations({
     files: files,
     storeId,
-    onSave,
+    onSave: onSave
+      ? (file: ThemeFile) => {
+          onSave(file.path, file.content);
+        }
+      : undefined,
     onError,
   });
 
