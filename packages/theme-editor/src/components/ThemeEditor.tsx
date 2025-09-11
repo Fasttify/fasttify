@@ -24,10 +24,16 @@ const ThemeEditorContent = (props: ThemeEditorProps) => {
     handleContentChange,
     handleSaveAll,
     handleClose,
+    handleCreateItem,
+    handleRenameFile,
+    handleDeleteFile,
+    handleCopyFile,
+    handleDownloadFile,
     theme,
     fontSize,
     wordWrap,
     minimap,
+    isLoadingFile,
   } = useThemeEditor(props);
 
   const animations = useEditorAnimations();
@@ -56,8 +62,17 @@ const ThemeEditorContent = (props: ThemeEditorProps) => {
         onTabClose={closeFile}
       />
 
-      <div className={`flex-1 flex ${animations.mainArea}`} style={{ height: '500px', minHeight: '400px' }}>
-        <EditorSidebar storeId={props.storeId} activeFileId={activeFile?.id} onFileSelect={(file) => openFile(file)} />
+      <div className={`flex-1 flex ${animations.mainArea}`}>
+        <EditorSidebar
+          storeId={props.storeId}
+          activeFileId={activeFile?.id}
+          onFileSelect={(file) => openFile(file)}
+          onCreateItem={handleCreateItem}
+          onRenameFile={handleRenameFile}
+          onDeleteFile={handleDeleteFile}
+          onCopyFile={handleCopyFile}
+          onDownloadFile={handleDownloadFile}
+        />
 
         <EditorMainArea
           activeFile={activeFile || null}
@@ -65,6 +80,7 @@ const ThemeEditorContent = (props: ThemeEditorProps) => {
           fontSize={fontSize}
           wordWrap={wordWrap}
           minimap={minimap}
+          isLoadingFile={activeFile ? isLoadingFile(activeFile.id) : false}
           onContentChange={(content) => activeFile && handleContentChange(activeFile.id, content)}
           onEditorReady={() => {}}
           onError={(error) => console.error('Editor error:', error)}

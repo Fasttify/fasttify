@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { File, Folder, Tree } from './file-tree';
+import { Folder, Tree } from './file-tree';
+import { FileWithContextMenu } from './FileWithContextMenu';
 import { useThemeFiles } from '../hooks/queries';
 import { ThemeFile } from '../types/editor-types';
 
@@ -10,9 +11,22 @@ interface ThemeFileTreeProps {
   onFileSelect?: (file: ThemeFile) => void;
   selectedFileId?: string;
   className?: string;
+  onRename?: (fileId: string, newName: string) => void;
+  onDelete?: (fileId: string) => void;
+  onCopy?: (file: ThemeFile) => void;
+  onDownload?: (file: ThemeFile) => void;
 }
 
-export function ThemeFileTree({ storeId, onFileSelect, selectedFileId, className }: ThemeFileTreeProps) {
+export function ThemeFileTree({
+  storeId,
+  onFileSelect,
+  selectedFileId,
+  className,
+  onRename,
+  onDelete,
+  onCopy,
+  onDownload,
+}: ThemeFileTreeProps) {
   const { data: files = [], isLoading, error } = useThemeFiles(storeId);
 
   // Convertir archivos del tema en estructura de árbol con niveles de indentación
@@ -85,15 +99,18 @@ export function ThemeFileTree({ storeId, onFileSelect, selectedFileId, className
       );
     } else if (!element.isFolder && element.file) {
       return (
-        <File
+        <FileWithContextMenu
           key={element.id}
-          value={element.id}
-          isSelect={selectedFileId === element.id}
-          level={element.level}
           file={element.file}
-          handleSelect={() => onFileSelect?.(element.file)}>
-          {element.name}
-        </File>
+          isSelected={selectedFileId === element.id}
+          level={element.level}
+          existingItems={files.map((f) => f.path)}
+          onFileSelect={onFileSelect}
+          onRename={onRename}
+          onDelete={onDelete}
+          onCopy={onCopy}
+          onDownload={onDownload}
+        />
       );
     }
     return null;

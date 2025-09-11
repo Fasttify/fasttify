@@ -1,3 +1,7 @@
+// Hooks originales
 export { useFileManagement } from './useFileManagement';
-export { useFileContent } from './useFileContent';
 export { useFileOperations } from './useFileOperations';
+
+// Nuevos hooks especializados
+export { useFileOperationsActions } from './useFileOperationsActions';
+export { useFileActions } from './useFileActions';

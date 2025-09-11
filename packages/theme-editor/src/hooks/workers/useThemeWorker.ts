@@ -25,6 +25,8 @@ interface WorkerMessage {
 export const useThemeWorker = () => {
   const workerRef = useRef<Worker | null>(null);
   const pendingResolvers = useRef<Map<string, (value: any) => void>>(new Map());
+  const contentCache = useRef<Map<string, string>>(new Map());
+  const loadingRequests = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     // Crear el worker
@@ -35,23 +37,35 @@ export const useThemeWorker = () => {
       const { type, data } = e.data;
 
       if (type === 'THEME_FILES_LOADED') {
-        // Resolver promesas de archivos
-        pendingResolvers.current.forEach((resolve) => {
-          resolve(data.files);
-        });
-        pendingResolvers.current.clear();
+        // Resolver promesa específica por requestId
+        const resolver = pendingResolvers.current.get(data.requestId);
+        if (resolver) {
+          resolver(data.files);
+          pendingResolvers.current.delete(data.requestId);
+        }
       } else if (type === 'FILE_CONTENT_LOADED') {
-        // Resolver promesas de contenido
-        pendingResolvers.current.forEach((resolve) => {
-          resolve(data.content);
-        });
-        pendingResolvers.current.clear();
+        // Resolver promesa específica por requestId
+        const resolver = pendingResolvers.current.get(data.requestId);
+        if (resolver) {
+          // Guardar en cache
+          const cacheKey = `${data.storeId}:${data.filePath}`;
+          contentCache.current.set(cacheKey, data.content);
+          loadingRequests.current.delete(cacheKey);
+
+          resolver(data.content);
+          pendingResolvers.current.delete(data.requestId);
+        }
       } else if (type === 'ERROR') {
-        // Rechazar todas las promesas pendientes
-        pendingResolvers.current.forEach((resolve) => {
-          resolve(null);
-        });
-        pendingResolvers.current.clear();
+        // Rechazar promesa específica por requestId
+        const resolver = pendingResolvers.current.get(data.requestId);
+        if (resolver) {
+          // Limpiar el estado de carga
+          const cacheKey = `${data.storeId}:${data.filePath}`;
+          loadingRequests.current.delete(cacheKey);
+
+          resolver(null);
+          pendingResolvers.current.delete(data.requestId);
+        }
       }
     };
 
@@ -62,6 +76,8 @@ export const useThemeWorker = () => {
         workerRef.current = null;
       }
       pendingResolvers.current.clear();
+      contentCache.current.clear();
+      loadingRequests.current.clear();
     };
   }, []);
 
@@ -79,6 +95,7 @@ export const useThemeWorker = () => {
       workerRef.current.postMessage({
         type: 'LOAD_THEME_FILES',
         data: { storeId },
+        requestId,
       });
     });
   }, []);
@@ -90,6 +107,39 @@ export const useThemeWorker = () => {
         return;
       }
 
+      const cacheKey = `${storeId}:${filePath}`;
+
+      // Verificar si ya está en cache
+      if (contentCache.current.has(cacheKey)) {
+        resolve(contentCache.current.get(cacheKey) || null);
+        return;
+      }
+
+      // Verificar si ya hay una request en progreso para este archivo
+      if (loadingRequests.current.has(cacheKey)) {
+        // Esperar a que termine la request existente
+        const checkInterval = setInterval(() => {
+          if (contentCache.current.has(cacheKey)) {
+            clearInterval(checkInterval);
+            resolve(contentCache.current.get(cacheKey) || null);
+          } else if (!loadingRequests.current.has(cacheKey)) {
+            clearInterval(checkInterval);
+            resolve(null);
+          }
+        }, 100);
+
+        // Timeout después de 10 segundos
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          resolve(null);
+        }, 10000);
+
+        return;
+      }
+
+      // Marcar como en carga
+      loadingRequests.current.add(cacheKey);
+
       const requestId = Date.now().toString();
       pendingResolvers.current.set(requestId, resolve);
 
@@ -97,6 +147,7 @@ export const useThemeWorker = () => {
       workerRef.current.postMessage({
         type: 'LOAD_FILE_CONTENT',
         data: { storeId, filePath },
+        requestId,
       });
     });
   }, []);
