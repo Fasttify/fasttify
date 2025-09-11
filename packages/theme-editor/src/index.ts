@@ -9,7 +9,7 @@ export {
   useFileManagement,
   useFileOperations,
   useEditorState,
-  useFileContent,
+  useEditorContent,
   useThemeWorker,
   useThemeFiles,
   THEME_FILES_KEY,

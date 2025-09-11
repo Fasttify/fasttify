@@ -47,8 +47,8 @@ export const useThemeEditor = (props: ThemeEditorProps) => {
     files: files,
     storeId,
     onSave: onSave
-      ? (file: ThemeFile) => {
-          onSave(file.path, file.content);
+      ? async (file: ThemeFile) => {
+          await onSave(file.path, file.content);
         }
       : undefined,
     onError,
