@@ -50,39 +50,6 @@ const MonacoEditorComponent = ({
 
   const language = useMemo(() => getLanguage(file?.type || 'other'), [file?.type]);
 
-  const editorOptions = useMemo(
-    () => ({
-      fontSize,
-      wordWrap: wordWrap ? 'on' : 'off',
-      minimap: { enabled: minimap },
-      automaticLayout: true,
-      scrollBeyondLastLine: false,
-      selectOnLineNumbers: true,
-      roundedSelection: false,
-      readOnly: false,
-      quickSuggestions: {
-        other: true,
-        comments: true,
-        strings: true,
-      },
-      cursorStyle: 'line',
-      cursorBlinking: 's',
-      folding: true,
-      lineNumbers: 'on',
-      renderLineHighlight: 'all',
-      scrollbar: {
-        vertical: 'auto',
-        horizontal: 'auto',
-        useShadows: false,
-        verticalHasArrows: false,
-        horizontalHasArrows: false,
-        verticalScrollbarSize: 10,
-        horizontalScrollbarSize: 10,
-      },
-    }),
-    [fontSize, wordWrap, minimap]
-  );
-
   if (!file) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-gray-500">
@@ -109,7 +76,34 @@ const MonacoEditorComponent = ({
         value={content}
         onChange={handleEditorChange}
         onMount={handleEditorDidMount}
-        options={editorOptions}
+        options={{
+          fontSize,
+          wordWrap: wordWrap ? 'on' : 'off',
+          minimap: { enabled: minimap },
+          automaticLayout: true,
+          scrollBeyondLastLine: false,
+          selectOnLineNumbers: true,
+          roundedSelection: false,
+          readOnly: false,
+          quickSuggestions: {
+            other: true,
+            comments: true,
+            strings: true,
+          },
+          cursorStyle: 'line',
+          cursorBlinking: 'expand',
+          folding: true,
+          renderLineHighlight: 'all',
+          scrollbar: {
+            vertical: 'auto',
+            horizontal: 'auto',
+            useShadows: false,
+            verticalHasArrows: false,
+            horizontalHasArrows: false,
+            verticalScrollbarSize: 10,
+            horizontalScrollbarSize: 10,
+          },
+        }}
       />
     </div>
   );
