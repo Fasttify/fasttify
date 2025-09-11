@@ -34,7 +34,7 @@ export const FileContextMenu = ({
 
   const { validateName } = useFileNameValidation({
     existingItems,
-    fileType: file?.type === 'folder' ? 'folder' : 'file',
+    fileType: 'file',
   });
 
   // Resetear el estado cuando se abre el menú
