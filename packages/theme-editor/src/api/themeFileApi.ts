@@ -4,40 +4,35 @@ import { createThemeFileFromServer, createNewThemeFile } from '../utils';
 // Tipos para las funciones de la API
 export interface LoadThemeFilesParams {
   storeId: string;
-  themeId: string;
 }
 
 export interface SaveFileParams {
   storeId: string;
-  themeId: string;
   filePath: string;
   content: string;
 }
 
 export interface CreateFileParams {
   storeId: string;
-  themeId: string;
   filePath: string;
   content: string;
 }
 
 export interface DeleteFileParams {
   storeId: string;
-  themeId: string;
   filePath: string;
 }
 
 export interface RenameFileParams {
   storeId: string;
-  themeId: string;
   oldPath: string;
   newPath: string;
 }
 
 // API functions
 export const themeFileApi = {
-  async loadThemeFiles({ storeId, themeId }: LoadThemeFilesParams): Promise<ThemeFile[]> {
-    const response = await fetch(`/api/themes/${themeId}/files?storeId=${storeId}`);
+  async loadThemeFiles({ storeId }: LoadThemeFilesParams): Promise<ThemeFile[]> {
+    const response = await fetch(`/api/themes/files?storeId=${storeId}`);
 
     if (!response.ok) {
       throw new Error(`Failed to load files: ${response.statusText}`);
@@ -48,8 +43,8 @@ export const themeFileApi = {
     return data.files.map((file: any) => createThemeFileFromServer(file));
   },
 
-  async saveFile({ storeId, themeId, filePath, content }: SaveFileParams) {
-    const response = await fetch(`/api/themes/${themeId}/files`, {
+  async saveFile({ storeId, filePath, content }: SaveFileParams) {
+    const response = await fetch(`/api/themes/files`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -68,8 +63,8 @@ export const themeFileApi = {
     return { filePath, content };
   },
 
-  async createFile({ storeId, themeId, filePath, content }: CreateFileParams): Promise<ThemeFile> {
-    const response = await fetch(`/api/themes/${themeId}/files`, {
+  async createFile({ storeId, filePath, content }: CreateFileParams): Promise<ThemeFile> {
+    const response = await fetch(`/api/themes/files`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -90,8 +85,8 @@ export const themeFileApi = {
     return createNewThemeFile(filePath, content, data.id);
   },
 
-  async deleteFile({ storeId, themeId, filePath }: DeleteFileParams) {
-    const response = await fetch(`/api/themes/${themeId}/files`, {
+  async deleteFile({ storeId, filePath }: DeleteFileParams) {
+    const response = await fetch(`/api/themes/files`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -109,8 +104,8 @@ export const themeFileApi = {
     return { filePath };
   },
 
-  async renameFile({ storeId, themeId, oldPath, newPath }: RenameFileParams) {
-    const response = await fetch(`/api/themes/${themeId}/files/rename`, {
+  async renameFile({ storeId, oldPath, newPath }: RenameFileParams) {
+    const response = await fetch(`/api/themes/files/rename`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

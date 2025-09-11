@@ -1,6 +1,7 @@
 // Componentes principales
 export { ThemeEditor } from './components/ThemeEditor';
 export { MonacoEditor } from './components/MonacoEditor';
+export { ThemeFileTree } from './components/theme-file-tree';
 
 // Hooks (todos los hooks modulares)
 export {
@@ -9,6 +10,7 @@ export {
   useFileOperations,
   useEditorState,
   useFileContent,
+  useThemeWorker,
   useThemeFiles,
   THEME_FILES_KEY,
   useSaveFile,

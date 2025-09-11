@@ -16,12 +16,16 @@
 
 import { NextRequest } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { getListFiles } from '@/api/themes/_lib/controllers/files-controller';
+import { getFileContent } from '@/api/themes/_lib/controllers/file-content-controller';
+import { withAuthHandler } from '@/api/_lib/auth-middleware';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ themeId: string }> }) {
-  const { themeId } = await params;
-  return getListFiles(request, themeId);
-}
+export const GET = withAuthHandler(
+  async (request: NextRequest, { storeId }) => {
+    const corsHeaders = await getNextCorsHeaders(request);
+    return getFileContent(request, corsHeaders, storeId);
+  },
+  { requireStoreOwnership: true, storeIdSource: 'query', storeIdParamName: 'storeId' }
+);
 
 export async function OPTIONS(request: NextRequest) {
   const corsHeaders = await getNextCorsHeaders(request);

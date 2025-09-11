@@ -9,7 +9,7 @@ export const useDeleteFile = () => {
     mutationFn: themeFileApi.deleteFile,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [THEME_FILES_KEY, variables.storeId, variables.themeId],
+        queryKey: [THEME_FILES_KEY, variables.storeId],
       });
     },
   });
