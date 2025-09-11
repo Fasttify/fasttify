@@ -9,7 +9,7 @@ export const useRenameFile = () => {
     mutationFn: themeFileApi.renameFile,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [THEME_FILES_KEY, variables.storeId, variables.themeId],
+        queryKey: [THEME_FILES_KEY, variables.storeId],
       });
     },
   });

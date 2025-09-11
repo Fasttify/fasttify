@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { ThemeFile } from '../types/editor-types';
+import { ThemeFile } from '../../types/editor-types';
 
 interface UseFileContentProps {
   files: ThemeFile[];

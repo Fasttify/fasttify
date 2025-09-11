@@ -1,16 +1,15 @@
 import { useCallback } from 'react';
-import { ThemeFile } from '../types/editor-types';
-import { useSaveFile, useCreateFile, useDeleteFile, useRenameFile } from './mutations';
+import { ThemeFile } from '../../types/editor-types';
+import { useSaveFile, useCreateFile, useDeleteFile, useRenameFile } from '../mutations';
 
 interface UseFileOperationsProps {
   files: ThemeFile[];
   storeId: string;
-  themeId: string;
   onSave?: (filePath: string, content: string) => Promise<void>;
   onError?: (error: string) => void;
 }
 
-export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: UseFileOperationsProps) => {
+export const useFileOperations = ({ files, storeId, onSave, onError }: UseFileOperationsProps) => {
   const saveFileMutation = useSaveFile();
   const createFileMutation = useCreateFile();
   const deleteFileMutation = useDeleteFile();
@@ -28,7 +27,6 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
         } else {
           await saveFileMutation.mutateAsync({
             storeId,
-            themeId,
             filePath: file.path,
             content: file.content,
           });
@@ -39,7 +37,7 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
         throw err;
       }
     },
-    [files, storeId, themeId, onSave, saveFileMutation, onError]
+    [files, storeId, onSave, saveFileMutation, onError]
   );
 
   // Guardar todos los archivos
@@ -55,7 +53,6 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
         for (const file of modifiedFiles) {
           await saveFileMutation.mutateAsync({
             storeId,
-            themeId,
             filePath: file.path,
             content: file.content,
           });
@@ -66,7 +63,7 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
       onError?.(errorMessage);
       throw err;
     }
-  }, [files, storeId, themeId, onSave, saveFileMutation, onError]);
+  }, [files, storeId, onSave, saveFileMutation, onError]);
 
   // Crear archivo
   const createFile = useCallback(
@@ -78,7 +75,6 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
         } else {
           return await createFileMutation.mutateAsync({
             storeId,
-            themeId,
             filePath,
             content,
           });
@@ -89,7 +85,7 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
         throw err;
       }
     },
-    [storeId, themeId, onSave, createFileMutation, onError]
+    [storeId, onSave, createFileMutation, onError]
   );
 
   // Eliminar archivo
@@ -102,7 +98,6 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
         } else {
           await deleteFileMutation.mutateAsync({
             storeId,
-            themeId,
             filePath,
           });
         }
@@ -112,7 +107,7 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
         throw err;
       }
     },
-    [storeId, themeId, onSave, deleteFileMutation, onError]
+    [storeId, onSave, deleteFileMutation, onError]
   );
 
   // Renombrar archivo
@@ -125,7 +120,6 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
         } else {
           await renameFileMutation.mutateAsync({
             storeId,
-            themeId,
             oldPath,
             newPath,
           });
@@ -136,7 +130,7 @@ export const useFileOperations = ({ files, storeId, themeId, onSave, onError }: 
         throw err;
       }
     },
-    [storeId, themeId, onSave, renameFileMutation, onError]
+    [storeId, onSave, renameFileMutation, onError]
   );
 
   return {

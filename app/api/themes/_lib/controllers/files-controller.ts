@@ -15,43 +15,49 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { ThemeS3Service } from '@/api/themes/_lib/s3-theme-files.service';
-import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
+import { ThemeS3Service } from '@/app/api/themes/_lib/services/s3-theme-files.service';
+import { getFileType } from '@/app/api/themes/_lib/utils/path-utils';
 
-export async function getListFiles(request: NextRequest, themeId: string): Promise<NextResponse> {
-  const corsHeaders = await getNextCorsHeaders(request);
+export async function getListFiles(request: NextRequest, corsHeaders: Record<string, string>): Promise<NextResponse> {
+  const startTime = Date.now();
+
   try {
     const { searchParams } = new URL(request.url);
     const storeId = searchParams.get('storeId');
 
-    if (!storeId || !themeId) {
+    if (!storeId) {
       return NextResponse.json(
         { error: { code: 400, message: 'INVALID_INPUT' } },
         { status: 400, headers: corsHeaders }
       );
     }
 
-    // Autenticación requerida
-    const session = await AuthGetCurrentUserServer();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
-    }
+    const files = await ThemeS3Service.getInstance().listThemeFilesMetadata(storeId);
 
-    // Verificar propiedad del store
-    const { data: userStore } = await cookiesClient.models.UserStore.get({ storeId });
-    if (!userStore) {
-      return NextResponse.json({ error: 'Store not found' }, { status: 404, headers: corsHeaders });
-    }
-    if (userStore.userId !== session.username) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
-    }
+    // Devolver solo metadatos, sin contenido
+    const filesWithoutContent = files.map((file) => ({
+      id: file.id,
+      path: file.path,
+      size: file.size,
+      lastModified: file.lastModified,
+      type: getFileType(file.path),
+      name: file.path.split('/').pop(),
+      _hasContent: false,
+      _contentLength: 0,
+    }));
 
-    const max = Number(process.env.THEME_MAX_FILE_SIZE_BYTES || 1_000_000);
-    const files = await ThemeS3Service.getInstance().listThemeFiles(storeId, themeId, max);
+    // Headers de caché para el cliente
+    const cacheHeaders = {
+      ...corsHeaders,
+      'Cache-Control': 'public, max-age=300', // 5 minutos
+      ETag: `"${storeId}-${filesWithoutContent.length}-${Date.now()}"`,
+    };
 
-    return NextResponse.json({ files }, { headers: corsHeaders });
+    return NextResponse.json({ files: filesWithoutContent }, { headers: cacheHeaders });
   } catch (e: any) {
+    const duration = Date.now() - startTime;
+    console.error(`Error loading theme files after ${duration}ms:`, e);
+
     return NextResponse.json(
       { error: { code: 500, message: e?.message || 'INTERNAL_ERROR' } },
       { status: 500, headers: corsHeaders }

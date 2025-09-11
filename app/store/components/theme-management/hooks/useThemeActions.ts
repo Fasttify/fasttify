@@ -72,9 +72,13 @@ export function useThemeActions({
     setShowDeleteModal(true);
   };
 
-  const handleEditTheme = (theme: Theme) => {
-    // TODO: Implementar edición
-    console.log('Edit theme:', theme);
+  const handleEditTheme = () => {
+    const editorUrl = `/store/${_storeId}/editor`;
+    const newWindow = window.open(editorUrl, '_blank', 'noopener,noreferrer');
+
+    if (!newWindow) {
+      throw new Error('could not open the editor window');
+    }
   };
 
   return {

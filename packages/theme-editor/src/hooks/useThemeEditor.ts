@@ -1,15 +1,12 @@
 import { useEffect, useCallback } from 'react';
 import { ThemeEditorProps } from '../types/editor-types';
 import { useThemeFiles } from './queries';
-import { useFileManagement } from './useFileManagement';
-import { useFileOperations } from './useFileOperations';
-import { useEditorState } from './useEditorState';
-import { useFileContent } from './useFileContent';
+import { useFileManagement, useFileOperations, useFileContent } from './files';
+import { useEditorState } from './state';
 
 export const useThemeEditor = (props: ThemeEditorProps) => {
   const {
     storeId,
-    themeId,
     onSave,
     onClose,
     onFileChange,
@@ -25,7 +22,7 @@ export const useThemeEditor = (props: ThemeEditorProps) => {
     data: files = [],
     isLoading,
     error: queryError,
-  } = useThemeFiles(storeId, themeId, !initialFiles || initialFiles.length === 0);
+  } = useThemeFiles(storeId, !initialFiles || initialFiles.length === 0);
 
   // Usar archivos iniciales si se proporcionan
   const finalFiles = initialFiles && initialFiles.length > 0 ? initialFiles : files;
@@ -35,7 +32,6 @@ export const useThemeEditor = (props: ThemeEditorProps) => {
   const fileOperations = useFileOperations({
     files: finalFiles,
     storeId,
-    themeId,
     onSave,
     onError,
   });
@@ -44,13 +40,6 @@ export const useThemeEditor = (props: ThemeEditorProps) => {
     onFileChange,
     onMarkAsModified: editorState.markAsModified,
   });
-
-  // Abrir automáticamente el primer archivo cuando se cargan los archivos
-  useEffect(() => {
-    if (finalFiles.length > 0 && !fileManagement.activeFile) {
-      fileManagement.openFile(finalFiles[0]);
-    }
-  }, [finalFiles, fileManagement.activeFile, fileManagement.openFile]);
 
   useEffect(() => {
     if (queryError) {

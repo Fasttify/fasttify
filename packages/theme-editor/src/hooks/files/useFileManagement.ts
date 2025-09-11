@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ThemeFile } from '../types/editor-types';
+import { ThemeFile } from '../../types/editor-types';
 
 export const useFileManagement = (files: ThemeFile[]) => {
   const [openFiles, setOpenFiles] = useState<string[]>([]);

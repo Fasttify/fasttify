@@ -33,13 +33,18 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   useStore(storeId);
 
   const [prefersReducedMotion, _setPrefersReducedMotion] = useState(false);
+  const hideSidebar = pathname.includes('/editor');
 
   return (
     <AppProvider i18n={esTranslations}>
       <ToastProvider>
-        <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
-          {children}
-        </PolarisLayout>
+        {hideSidebar ? (
+          <div className="h-screen w-full overflow-hidden">{children}</div>
+        ) : (
+          <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
+            {children}
+          </PolarisLayout>
+        )}
       </ToastProvider>
     </AppProvider>
   );

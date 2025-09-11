@@ -17,12 +17,11 @@
 /**
  * Construye el prefijo para las búsquedas en S3
  * @param storeId - El ID de la tienda
- * @param themeId - El ID del tema
  * @returns El prefijo para las búsquedas en S3
  */
-export function buildThemePrefix(storeId: string, themeId: string): string {
-  if (!storeId || !themeId) throw new Error('INVALID_INPUT');
-  return `stores/${storeId}/themes/${themeId}/`;
+export function buildThemePrefix(storeId: string): string {
+  if (!storeId) throw new Error('INVALID_INPUT');
+  return `templates/${storeId}`;
 }
 
 /**
@@ -68,6 +67,39 @@ export function getContentType(path: string): string {
       return 'application/json; charset=utf-8';
     default:
       return 'application/octet-stream';
+  }
+}
+
+/**
+ * Obtiene el tipo de archivo basado en la extensión
+ * @param path - El path del archivo
+ * @returns El tipo de archivo
+ */
+export function getFileType(path: string): string {
+  const extension = (path.split('.').pop() || '').toLowerCase();
+
+  switch (extension) {
+    case 'css':
+      return 'css';
+    case 'js':
+      return 'javascript';
+    case 'json':
+      return 'json';
+    case 'liquid':
+      return 'liquid';
+    case 'html':
+    case 'htm':
+      return 'html';
+    case 'svg':
+      return 'svg';
+    case 'png':
+    case 'jpg':
+    case 'jpeg':
+    case 'gif':
+    case 'webp':
+      return 'image';
+    default:
+      return 'other';
   }
 }
 

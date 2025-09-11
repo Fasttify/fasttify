@@ -60,7 +60,6 @@ export interface ThemeEditorActions {
 
 export interface ThemeEditorProps {
   storeId: string;
-  themeId: string;
   onSave?: (filePath: string, content: string) => Promise<void>;
   onClose?: () => void;
   onFileChange?: (filePath: string, content: string) => void;
@@ -117,11 +116,11 @@ export interface EditorLayoutProps {
 }
 
 export interface ThemeFileService {
-  loadThemeFiles: (storeId: string, themeId: string) => Promise<ThemeFile[]>;
-  saveFile: (storeId: string, themeId: string, filePath: string, content: string) => Promise<void>;
-  createFile: (storeId: string, themeId: string, filePath: string, content: string) => Promise<ThemeFile>;
-  deleteFile: (storeId: string, themeId: string, filePath: string) => Promise<void>;
-  renameFile: (storeId: string, themeId: string, oldPath: string, newPath: string) => Promise<void>;
+  loadThemeFiles: (storeId: string) => Promise<ThemeFile[]>;
+  saveFile: (storeId: string, filePath: string, content: string) => Promise<void>;
+  createFile: (storeId: string, filePath: string, content: string) => Promise<ThemeFile>;
+  deleteFile: (storeId: string, filePath: string) => Promise<void>;
+  renameFile: (storeId: string, oldPath: string, newPath: string) => Promise<void>;
 }
 
 export interface LiquidLanguageService {
