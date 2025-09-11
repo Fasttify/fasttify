@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { ThemeFile } from '../../types/editor-types';
+import { getFileType } from '../../utils';
 
 interface UseFileOperationsProps {
   files: ThemeFile[];
@@ -74,8 +75,11 @@ export const useFileOperations = ({ files, storeId, onSave, onError }: UseFileOp
           name: path.split('/').pop() || 'nuevo-archivo',
           path,
           content,
-          type: 'file',
+          type: getFileType(path),
+          size: content.length,
+          lastModified: new Date(),
           isModified: false,
+          isOpen: false,
         };
 
         return newFile;
