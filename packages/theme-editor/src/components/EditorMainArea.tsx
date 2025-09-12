@@ -8,6 +8,7 @@ interface EditorMainAreaProps {
   fontSize: number;
   wordWrap: boolean;
   minimap: boolean;
+  isLoadingFile: boolean;
   onContentChange: (content: string) => void;
   onEditorReady: () => void;
   onError: (error: any) => void;
@@ -19,6 +20,7 @@ export const EditorMainArea = ({
   fontSize,
   wordWrap,
   minimap,
+  isLoadingFile,
   onContentChange,
   onEditorReady,
   onError,
@@ -33,6 +35,7 @@ export const EditorMainArea = ({
         fontSize={fontSize}
         wordWrap={wordWrap}
         minimap={minimap}
+        isLoadingFile={isLoadingFile}
         onContentChange={onContentChange}
         onEditorReady={onEditorReady}
         onError={onError}

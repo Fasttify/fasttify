@@ -92,6 +92,7 @@ export interface MonacoEditorProps {
   fontSize: number;
   wordWrap: boolean;
   minimap: boolean;
+  isLoadingFile: boolean;
   onContentChange: (content: string) => void;
   onEditorReady: () => void;
   onError: (error: string) => void;

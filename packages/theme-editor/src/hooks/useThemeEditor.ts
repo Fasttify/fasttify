@@ -1,8 +1,15 @@
-import { useEffect, useCallback } from 'react';
-import { ThemeEditorProps } from '../types/editor-types';
+import { useEffect, useState, useMemo } from 'react';
+import { ThemeEditorProps, ThemeFile } from '../types/editor-types';
 import { useThemeFiles } from './queries';
-import { useFileManagement, useFileOperations, useFileContent } from './files';
+import { useFileManagement, useFileOperations } from './files';
 import { useEditorState } from './state';
+import { useThemeWorker } from './workers';
+import { useFileOperationsActions } from './files/useFileOperationsActions';
+import { useFileActions } from './files/useFileActions';
+import { useEditorContent } from './editor/useEditorContent';
+import { useFileOpening } from './editor/useFileOpening';
+import { useEditorSaving } from './editor/useEditorSaving';
+import { useEditorClosing } from './editor/useEditorClosing';
 
 export const useThemeEditor = (props: ThemeEditorProps) => {
   const {
@@ -19,27 +26,73 @@ export const useThemeEditor = (props: ThemeEditorProps) => {
   } = props;
 
   const {
-    data: files = [],
+    data: queryFiles = [],
     isLoading,
     error: queryError,
   } = useThemeFiles(storeId, !initialFiles || initialFiles.length === 0);
 
-  // Usar archivos iniciales si se proporcionan
-  const finalFiles = initialFiles && initialFiles.length > 0 ? initialFiles : files;
+  const [files, setFiles] = useState<ThemeFile[]>([]);
 
-  const fileManagement = useFileManagement(finalFiles);
+  const memoizedFiles = useMemo(() => {
+    return initialFiles && initialFiles.length > 0 ? initialFiles : queryFiles;
+  }, [initialFiles, queryFiles]);
+
+  useEffect(() => {
+    setFiles(memoizedFiles);
+  }, [memoizedFiles]);
+
+  const fileManagement = useFileManagement(files);
   const editorState = useEditorState();
   const fileOperations = useFileOperations({
-    files: finalFiles,
+    files: files,
     storeId,
-    onSave,
+    onSave: onSave
+      ? async (file: ThemeFile) => {
+          await onSave(file.path, file.content);
+        }
+      : undefined,
     onError,
   });
-  const fileContent = useFileContent({
-    files: finalFiles,
+
+  const { loadFileContent } = useThemeWorker();
+
+  // Hooks especializados
+  const { handleContentChange } = useEditorContent({
+    files,
+    setFiles,
+    editorState,
     onFileChange,
-    onMarkAsModified: editorState.markAsModified,
   });
+
+  const { openFile, isLoadingFile } = useFileOpening({
+    files,
+    setFiles,
+    fileManagement,
+    loadFileContent,
+    storeId,
+    onError,
+  });
+
+  const { saveFile, saveAll } = useEditorSaving({
+    fileOperations,
+    editorState,
+  });
+
+  const { handleClose } = useEditorClosing({
+    editorState,
+    onClose,
+  });
+
+  const { createItem, renameFile, deleteFile } = useFileOperationsActions({
+    files,
+    setFiles,
+    fileOperations,
+    fileManagement,
+    openFile,
+    onError,
+  });
+
+  const { copyFile, downloadFile } = useFileActions();
 
   useEffect(() => {
     if (queryError) {
@@ -48,43 +101,9 @@ export const useThemeEditor = (props: ThemeEditorProps) => {
     }
   }, [queryError, onError]);
 
-  // Cerrar editor con confirmación
-  const handleClose = useCallback(() => {
-    if (editorState.hasUnsavedChanges) {
-      const shouldClose = window.confirm('Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar?');
-      if (!shouldClose) return;
-    }
-
-    editorState.reset();
-    onClose?.();
-  }, [editorState, onClose]);
-
-  // Guardar archivo y marcar como guardado
-  const handleSaveFile = useCallback(
-    async (fileId: string) => {
-      try {
-        await fileOperations.saveFile(fileId);
-        editorState.markAsSaved();
-      } catch (err) {
-        // El error ya se maneja en fileOperations
-      }
-    },
-    [fileOperations, editorState]
-  );
-
-  // Guardar todos los archivos y marcar como guardado
-  const handleSaveAll = useCallback(async () => {
-    try {
-      await fileOperations.saveAllFiles();
-      editorState.markAsSaved();
-    } catch (err) {
-      // El error ya se maneja en fileOperations
-    }
-  }, [fileOperations, editorState]);
-
   return {
     // Estado
-    files: finalFiles,
+    files,
     openFiles: fileManagement.openFiles,
     activeFile: fileManagement.activeFile,
     isEditorReady: editorState.isEditorReady,
@@ -99,18 +118,26 @@ export const useThemeEditor = (props: ThemeEditorProps) => {
     isSaving: fileOperations.isSaving,
 
     // Acciones
-    openFile: fileManagement.openFile,
+    openFile,
     closeFile: fileManagement.closeFile,
     setActiveFile: fileManagement.setActiveFile,
-    handleContentChange: fileContent.updateFileContent,
-    handleSaveFile,
-    handleSaveAll,
+    handleContentChange,
+    handleSaveFile: saveFile,
+    handleSaveAll: saveAll,
     handleClose,
+    handleCreateItem: createItem,
+    handleRenameFile: renameFile,
+    handleDeleteFile: deleteFile,
+    handleCopyFile: copyFile,
+    handleDownloadFile: downloadFile,
 
     // Configuración
     theme,
     fontSize,
     wordWrap,
     minimap,
+
+    // Estado de carga
+    isLoadingFile,
   };
 };

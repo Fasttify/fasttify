@@ -1,10 +1,10 @@
 export const getLanguage = (fileType: string) => {
   switch (fileType) {
     case 'liquid':
-      return 'html'; // Monaco no tiene soporte nativo para Liquid
+      return 'html';
     case 'css':
       return 'css';
-    case 'js':
+    case 'javascript':
       return 'javascript';
     case 'json':
       return 'json';

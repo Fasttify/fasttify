@@ -1,7 +1,3 @@
-// Web Worker para cargar archivos de tema
-// Esto oculta completamente la request en el Network tab del navegador
-
-// Función para cargar archivos desde la API (solo metadatos)
 async function loadThemeFiles(storeId) {
   try {
     const response = await fetch(`/api/themes/files?storeId=${storeId}`);
@@ -12,7 +8,6 @@ async function loadThemeFiles(storeId) {
 
     const data = await response.json();
 
-    // Devolver solo metadatos, sin contenido
     return data.files.map((file) => ({
       id: file.id,
       path: file.path,
@@ -20,8 +15,9 @@ async function loadThemeFiles(storeId) {
       lastModified: file.lastModified,
       type: file.type || 'other',
       name: file.name || file.path.split('/').pop(),
-      _hasContent: !!file.content,
-      _contentLength: file.content ? file.content.length : 0,
+      content: '',
+      isModified: false,
+      isOpen: false,
     }));
   } catch (error) {
     throw new Error(`Error loading theme files: ${error.message}`);
@@ -48,7 +44,7 @@ async function loadFileContent(storeId, filePath) {
 
 // Escuchar mensajes del hilo principal
 self.onmessage = async function (e) {
-  const { type, data } = e.data;
+  const { type, data, requestId } = e.data;
 
   if (type === 'LOAD_THEME_FILES') {
     try {
@@ -56,12 +52,12 @@ self.onmessage = async function (e) {
 
       self.postMessage({
         type: 'THEME_FILES_LOADED',
-        data: { files },
+        data: { files, requestId },
       });
     } catch (error) {
       self.postMessage({
         type: 'ERROR',
-        data: { error: error.message },
+        data: { error: error.message, requestId },
       });
     }
   } else if (type === 'LOAD_FILE_CONTENT') {
@@ -70,12 +66,12 @@ self.onmessage = async function (e) {
 
       self.postMessage({
         type: 'FILE_CONTENT_LOADED',
-        data: { filePath: data.filePath, content },
+        data: { filePath: data.filePath, content, requestId },
       });
     } catch (error) {
       self.postMessage({
         type: 'ERROR',
-        data: { error: error.message },
+        data: { error: error.message, requestId },
       });
     }
   }

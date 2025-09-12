@@ -5,6 +5,7 @@ export { useThemeEditor } from './useThemeEditor';
 export * from './state';
 export * from './files';
 export * from './workers';
+export * from './editor';
 
 // Queries y mutations
 export { useThemeFiles, THEME_FILES_KEY } from './queries';
