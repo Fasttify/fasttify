@@ -20,7 +20,12 @@ async function _getSecureImageUrl(imageUrl: string): Promise<string> {
     try {
       const urlObj = new URL(url);
       // Detectar URLs de CloudFront que no tienen parámetros de firma
-      const isCloudFront = urlObj.hostname.includes('cloudfront.net') || urlObj.hostname.includes('amazonaws.com');
+      // Usar endsWith() para validación más segura de hostnames
+      const isCloudFront =
+        urlObj.hostname.endsWith('.cloudfront.net') ||
+        urlObj.hostname.endsWith('.amazonaws.com') ||
+        urlObj.hostname === 'cloudfront.net' ||
+        urlObj.hostname === 'amazonaws.com';
       const hasSignature =
         urlObj.searchParams.has('Expires') ||
         urlObj.searchParams.has('Signature') ||

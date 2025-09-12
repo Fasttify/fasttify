@@ -4,10 +4,14 @@ import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 // Importar templates
-import OrderConfirmationEmail, { type OrderConfirmationEmailProps } from '../emails/templates/OrderConfirmationEmail';
-import OrderStatusUpdateEmail, { type OrderStatusUpdateEmailProps } from '../emails/templates/OrderStatusUpdateEmail';
-import ShippingUpdateEmail, { type ShippingUpdateEmailProps } from '../emails/templates/ShippingUpdateEmail';
-import PromotionEmail, { type PromotionEmailProps } from '../emails/templates/PromotionEmail';
+import OrderConfirmationEmail, {
+  type OrderConfirmationEmailProps,
+} from '../packages/emails/templates/OrderConfirmationEmail';
+import OrderStatusUpdateEmail, {
+  type OrderStatusUpdateEmailProps,
+} from '../packages/emails/templates/OrderStatusUpdateEmail';
+import ShippingUpdateEmail, { type ShippingUpdateEmailProps } from '../packages/emails/templates/ShippingUpdateEmail';
+import PromotionEmail, { type PromotionEmailProps } from '../packages/emails/templates/PromotionEmail';
 
 // Tipos de templates
 export type TemplateVariables = {
