@@ -44,6 +44,8 @@ export const getProductImageUrl = (product: IProduct): string | undefined => {
   return undefined;
 };
 
+// Esta función se mantiene para compatibilidad con código legacy
+// Se recomienda usar CurrencyDisplay component en su lugar
 export const formatPrice = (price: number | null | undefined): string => {
   if (price === null || price === undefined) return '$0';
   return `$${Number(price).toLocaleString('es-CO', {

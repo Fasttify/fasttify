@@ -155,6 +155,7 @@ export async function handleProductDuplicate(
 
 /**
  * Formatea un precio a una cadena de texto con formato de moneda
+ * @deprecated Se recomienda usar CurrencyDisplay component en su lugar para mejor compatibilidad con múltiples monedas
  * @param price Precio a formatear
  * @returns Precio formateado con formato de moneda
  */

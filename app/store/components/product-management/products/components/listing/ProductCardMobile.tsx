@@ -4,6 +4,7 @@ import { DeleteIcon, DuplicateIcon, EditIcon, ImageIcon } from '@shopify/polaris
 import type { VisibleColumns } from '@/app/store/components/product-management/products/types/product-types';
 import { getStatusText, getStatusTone } from '@/app/store/components/product-management/utils/common-utils';
 import { formatInventory } from '@/app/store/components/product-management/utils/product-utils';
+import { CurrencyDisplay } from '@/app/store/components/currency/CurrencyDisplay';
 import type { IProduct } from '@/app/store/hooks/data/useProducts';
 
 interface ProductCardMobileProps {
@@ -82,7 +83,7 @@ export function ProductCardMobile({
                         Precio
                       </Text>
                       <Text variant="bodyMd" as="p">
-                        {product.price ? `$${Number(product.price).toLocaleString('es-CO')}` : '$0'}
+                        <CurrencyDisplay value={product.price} />
                       </Text>
                     </Box>
                   )}

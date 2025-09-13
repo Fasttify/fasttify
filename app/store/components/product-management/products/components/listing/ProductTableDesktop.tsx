@@ -1,10 +1,7 @@
 import type { SortField, VisibleColumns } from '@/app/store/components/product-management/products/types/product-types';
-import {
-  formatPrice,
-  getStatusText,
-  getStatusTone,
-} from '@/app/store/components/product-management/utils/common-utils';
+import { getStatusText, getStatusTone } from '@/app/store/components/product-management/utils/common-utils';
 import { formatInventory } from '@/app/store/components/product-management/utils/product-utils';
+import { CurrencyDisplay } from '@/app/store/components/currency/CurrencyDisplay';
 import type { IProduct } from '@/app/store/hooks/data/useProducts';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
@@ -104,7 +101,11 @@ export function ProductTableDesktop({
           </IndexTable.Cell>
         )}
         {visibleColumns.inventory && <IndexTable.Cell>{formatInventory(quantity ?? 0)}</IndexTable.Cell>}
-        {visibleColumns.price && <IndexTable.Cell>{formatPrice(price)}</IndexTable.Cell>}
+        {visibleColumns.price && (
+          <IndexTable.Cell>
+            <CurrencyDisplay value={price} />
+          </IndexTable.Cell>
+        )}
         {visibleColumns.category && <IndexTable.Cell>{category || 'Sin categoría'}</IndexTable.Cell>}
         {visibleColumns.actions && (
           <IndexTable.Cell>

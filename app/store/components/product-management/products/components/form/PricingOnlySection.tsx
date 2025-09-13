@@ -8,7 +8,7 @@ import { BlockStack, Card, FormLayout, Text } from '@shopify/polaris';
 import { useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
-import { PriceField } from './PriceField';
+import { PriceInput } from './PriceInput';
 import { PriceSuggestionPanel } from './PriceSuggestion';
 
 interface PricingOnlySectionProps {
@@ -96,7 +96,7 @@ export function PricingOnlySection({ form }: PricingOnlySectionProps) {
               name="price"
               control={form.control}
               render={({ field, fieldState }) => (
-                <PriceField
+                <PriceInput
                   label="Precio"
                   value={field.value}
                   onChange={field.onChange}
@@ -109,7 +109,7 @@ export function PricingOnlySection({ form }: PricingOnlySectionProps) {
               name="compareAtPrice"
               control={form.control}
               render={({ field, fieldState }) => (
-                <PriceField
+                <PriceInput
                   label="Precio de Comparación"
                   value={field.value}
                   onChange={field.onChange}

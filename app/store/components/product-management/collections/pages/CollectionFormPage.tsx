@@ -1,12 +1,13 @@
 import { CollectionContent } from '@/app/store/components/product-management/collections/components/form/CollectionContent';
 import { CollectionSidebar } from '@/app/store/components/product-management/collections/components/form/CollectionSidebar';
+import { CustomContextualSaveBar } from '@/app/store/components/product-management/products/components/form/ContextualSaveBar';
 import { useCollectionForm } from '@/app/store/components/product-management/collections/utils/formUtils';
 import { useCollections } from '@/app/store/hooks/data/useCollections';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { useAuth } from '@/context/hooks/useAuth';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
-import { BlockStack, Card, ContextualSaveBar, Layout, Loading, Page, Text } from '@shopify/polaris';
+import { BlockStack, Card, Layout, Loading, Page, Text } from '@shopify/polaris';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 
 export function FormPage() {
@@ -78,18 +79,19 @@ export function FormPage() {
       ]
     : [];
 
-  const saveBarMarkup = hasUnsavedChanges ? (
-    <ContextualSaveBar
-      message="Cambios sin guardar"
-      saveAction={{
-        onAction: handleSaveCollection,
-        loading: isSubmitting,
-      }}
-      discardAction={{
-        onAction: handleDiscardChanges,
-      }}
+  const saveBarMarkup = (
+    <CustomContextualSaveBar
+      isDirty={hasUnsavedChanges}
+      isSubmitting={isSubmitting}
+      onSave={handleSaveCollection}
+      onDiscard={handleDiscardChanges}
+      saveMessage="Cambios sin guardar"
+      saveButtonText="Guardar"
+      discardButtonText="Descartar"
+      navigateBackOnDiscard={true}
+      router={router}
     />
-  ) : null;
+  );
 
   if (isLoadingCollectionData && !isSubmitting) {
     return <Loading />;
