@@ -7,6 +7,9 @@ export function isEmpty(value: string[] | undefined | null): boolean {
   return value.length === 0;
 }
 
+/**
+ * @deprecated Se recomienda usar CurrencyDisplay component en su lugar para mejor compatibilidad con múltiples monedas
+ */
 export function formatPrice(price: number | null | undefined): string {
   if (price === null || price === undefined) {
     return '$0';

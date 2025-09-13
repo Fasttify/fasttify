@@ -1,6 +1,6 @@
 import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/AiGenerate';
 import type { PriceSuggestionResult } from '@/app/store/components/product-management/products/hooks/usePriceSuggestion';
-import { formatPrice } from '@/app/store/components/product-management/utils/productUtils';
+import { CurrencyDisplay } from '@/app/store/components/currency/CurrencyDisplay';
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
 import { Badge, BlockStack, Button, ButtonGroup, Card, Grid, InlineStack, Text, Tooltip } from '@shopify/polaris';
 import { QuestionCircleIcon } from '@shopify/polaris-icons';
@@ -65,7 +65,7 @@ export function PriceSuggestionPanel({
                       Mínimo
                     </Text>
                     <Text as="p" variant="bodyLg" fontWeight="medium">
-                      {formatPrice(displayResult.minPrice)}
+                      <CurrencyDisplay value={displayResult.minPrice} />
                     </Text>
                   </BlockStack>
                 </Card>
@@ -77,7 +77,7 @@ export function PriceSuggestionPanel({
                       Sugerido
                     </Text>
                     <Text as="p" variant="headingMd">
-                      {formatPrice(displayResult.suggestedPrice)}
+                      <CurrencyDisplay value={displayResult.suggestedPrice} />
                     </Text>
                   </BlockStack>
                 </Card>
@@ -89,7 +89,7 @@ export function PriceSuggestionPanel({
                       Máximo
                     </Text>
                     <Text as="p" variant="bodyLg" fontWeight="medium">
-                      {formatPrice(displayResult.maxPrice)}
+                      <CurrencyDisplay value={displayResult.maxPrice} />
                     </Text>
                   </BlockStack>
                 </Card>

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { TextField } from '@shopify/polaris';
-import { formatPrice } from '@/app/store/components/product-management/utils/productUtils';
+import { useStoreCurrency } from '@/app/store/hooks/useStoreCurrency';
 
 interface PriceFieldProps {
   label: string;
@@ -16,6 +16,7 @@ interface PriceFieldProps {
 export function PriceField({ label, value, onChange, error, helpText, placeholder }: PriceFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editingValue, setEditingValue] = useState('');
+  const { formatPrice } = useStoreCurrency();
 
   const parseUserInput = useCallback((inputValue: string): number | undefined => {
     if (inputValue.trim() === '') return undefined;

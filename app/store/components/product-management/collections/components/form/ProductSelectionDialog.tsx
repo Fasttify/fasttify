@@ -1,8 +1,6 @@
 import { IProduct } from '@/app/store/components/product-management/collections/types/collection-types';
-import {
-  formatPrice,
-  getProductImageUrl,
-} from '@/app/store/components/product-management/collections/utils/collectionUtils';
+import { getProductImageUrl } from '@/app/store/components/product-management/collections/utils/collectionUtils';
+import { CurrencyDisplay } from '@/app/store/components/currency/CurrencyDisplay';
 import { ProductPagination } from '@/app/store/components/product-management/products/components/listing/ProductPagination';
 import {
   Box,
@@ -138,7 +136,7 @@ export function ProductSelectionDialog({
                   <Text variant="bodyMd" fontWeight="bold" as="h3">
                     {name}
                   </Text>
-                  <div>{formatPrice(price)}</div>
+                  <CurrencyDisplay value={price} />
                 </ResourceItem>
               );
             }}
