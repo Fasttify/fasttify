@@ -1,5 +1,11 @@
 import type { Schema } from '../../resource';
 import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput } from '@aws-sdk/client-bedrock-runtime';
+import {
+  PRICE_SUGGESTION_SYSTEM_PROMPT,
+  createPricePrompt,
+  parsePriceResponse,
+  createFallbackResponse,
+} from './systemPrompt';
 
 // Initialize bedrock runtime client
 const client = new BedrockRuntimeClient();
@@ -9,27 +15,8 @@ export const handler: Schema['generatePriceSuggestion']['functionHandler'] = asy
   const { productName, category } = event.arguments;
 
   try {
-    // Prepare the prompt for the AI model - simplified for more reliable parsing
-    const prompt = `
-Eres un experto en comercio electrónico y dropshipping en Colombia. Necesito un precio de venta competitivo para:
-
-PRODUCTO: ${productName}
-${category ? `CATEGORÍA: ${category}` : ''}
-
-Considera:
-- Necesitamos un margen de ganancia mínimo del 10% sobre el costo
-- El precio debe ser competitivo en el mercado colombiano
-- Proporciona precios en pesos colombianos (COP)
-
-Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta (sin texto adicional):
-{
-  "suggestedPrice": [precio sugerido en COP],
-  "minPrice": [precio mínimo en COP],
-  "maxPrice": [precio máximo en COP],
-  "confidence": "[high|medium|low]",
-  "explanation": "[breve análisis]",
-}
-`;
+    // Crear el prompt del usuario usando la función helper
+    const prompt = createPricePrompt(productName, category || undefined);
 
     // Prepare the input for the model
     const input = {
@@ -38,8 +25,7 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta (sin texto ad
       accept: 'application/json',
       body: JSON.stringify({
         anthropic_version: 'bedrock-2023-05-31',
-        system:
-          'Eres un experto en precios para dropshipping en Colombia. Responde ÚNICAMENTE con el JSON solicitado, sin texto adicional.',
+        system: PRICE_SUGGESTION_SYSTEM_PROMPT,
         messages: [
           {
             role: 'user',
@@ -64,19 +50,10 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta (sin texto ad
     // Extract the response text
     const responseText = data.content[0].text.trim();
 
-    // Try to parse the JSON directly first
-    try {
-      // Remove any markdown code block syntax if present
-      let jsonString = responseText;
-      if (responseText.includes('```json')) {
-        jsonString = responseText.replace(/```json\n|\n```/g, '');
-      } else if (responseText.includes('```')) {
-        jsonString = responseText.replace(/```\n|\n```/g, '');
-      }
+    // Try to parse the JSON using the helper function
+    const result = parsePriceResponse(responseText);
 
-      // Parse the JSON
-      const result = JSON.parse(jsonString);
-
+    if (result) {
       // Return a standardized response
       return {
         suggestedPrice: typeof result.suggestedPrice === 'number' ? result.suggestedPrice : 100000,
@@ -85,28 +62,16 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta (sin texto ad
         confidence: ['high', 'medium', 'low'].includes(result.confidence) ? result.confidence : 'low',
         explanation: result.explanation || 'Precio basado en análisis de mercado colombiano.',
       };
-    } catch (error) {
-      console.error('Error parsing AI response:', error, 'Response:', responseText);
-
-      // Fallback response
-      return {
-        suggestedPrice: 100000,
-        minPrice: 90000,
-        maxPrice: 120000,
-        confidence: 'low',
-        explanation: 'No pudimos analizar este producto específicamente. Este es un precio estimado genérico.',
-      };
+    } else {
+      console.error('Error parsing AI response. Response:', responseText);
+      return createFallbackResponse(
+        'No pudimos analizar este producto específicamente. Este es un precio estimado genérico.'
+      );
     }
   } catch (error) {
     console.error('Error generating price suggestion:', error);
-
-    // Return a fallback response instead of throwing an error
-    return {
-      suggestedPrice: 100000,
-      minPrice: 90000,
-      maxPrice: 120000,
-      confidence: 'low',
-      explanation: 'Ocurrió un error al generar la sugerencia de precio. Este es un precio estimado genérico.',
-    };
+    return createFallbackResponse(
+      'Ocurrió un error al generar la sugerencia de precio. Este es un precio estimado genérico.'
+    );
   }
 };

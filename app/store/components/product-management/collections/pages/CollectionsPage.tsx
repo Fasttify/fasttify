@@ -4,10 +4,10 @@ import { getStoreId } from '@/utils/client/store-utils';
 import {
   Badge,
   Button,
+  Card,
   EmptyState,
   Filters,
   IndexTable,
-  LegacyCard,
   Link,
   ResourceItem,
   ResourceList,
@@ -31,7 +31,7 @@ function _CollectionsTableSkeleton() {
   };
 
   return (
-    <LegacyCard>
+    <Card>
       <ResourceList
         resourceName={resourceName}
         items={Array(5)
@@ -54,7 +54,7 @@ function _CollectionsTableSkeleton() {
           </ResourceItem>
         )}
       />
-    </LegacyCard>
+    </Card>
   );
 }
 
@@ -168,7 +168,7 @@ export function CollectionsPage() {
       </div>
 
       {/* Contenido principal */}
-      <LegacyCard>
+      <Card>
         <Tabs
           tabs={tabs}
           selected={tabs.findIndex((tab) => tab.id === activeFilter)}
@@ -246,7 +246,7 @@ export function CollectionsPage() {
             </EmptyState>
           </div>
         )}
-      </LegacyCard>
+      </Card>
 
       {/* Footer con información adicional */}
       <div style={{ textAlign: 'center', marginTop: '16px' }}>

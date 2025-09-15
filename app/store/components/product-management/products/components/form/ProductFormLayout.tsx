@@ -31,10 +31,6 @@ export function ProductFormLayout({ storeId, form }: ProductFormLayoutProps) {
         </BlockStack>
       </Card>
 
-      <PricingOnlySection form={form} />
-
-      <InventoryOnlySection form={form} />
-
       <Card>
         <Controller
           name="attributes"
@@ -42,6 +38,10 @@ export function ProductFormLayout({ storeId, form }: ProductFormLayoutProps) {
           render={({ field }) => <AttributesForm value={field.value ?? []} onChange={field.onChange} />}
         />
       </Card>
+
+      <PricingOnlySection form={form} />
+
+      <InventoryOnlySection form={form} />
     </BlockStack>
   );
 }

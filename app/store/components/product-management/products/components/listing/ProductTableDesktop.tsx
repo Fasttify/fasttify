@@ -88,7 +88,7 @@ export function ProductTableDesktop({
         <IndexTable.Cell>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Thumbnail source={imageUrl || ImageIcon} alt={name} size="small" />
-            <PolarisLink url={routes.store.products.edit(storeId, id)}>
+            <PolarisLink url={routes.store.products.edit(storeId, id)} removeUnderline>
               <Text variant="bodyMd" fontWeight="bold" as="span">
                 {name}
               </Text>
