@@ -169,7 +169,9 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
   const secondaryMenuMarkup = (
     <div className="flex items-center gap-0">
       {/* Acciones personalizadas integradas */}
-      <ChatTrigger />
+      <div className="hidden md:block">
+        <ChatTrigger />
+      </div>
       <NotificationPopover />
 
       {/* Menú de ayuda */}

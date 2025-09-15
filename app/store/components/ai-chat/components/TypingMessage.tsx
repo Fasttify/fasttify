@@ -38,7 +38,7 @@ export function TypingMessage({ content, type, id }: TypingMessageProps) {
           currentStyle.background,
           currentStyle.borderRadius,
           currentStyle.width,
-          'w-full'
+          'inline-block'
         )}>
         <div className="flex items-start space-x-3">
           {currentStyle.icon && (
