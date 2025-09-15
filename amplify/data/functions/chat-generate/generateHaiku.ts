@@ -1,12 +1,16 @@
 import type { Schema } from '../../resource';
 import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput } from '@aws-sdk/client-bedrock-runtime';
+import { CHAT_GENERATION_SYSTEM_PROMPT, createChatPrompt, processChatResponse } from './systemPrompt';
 
 // initialize bedrock runtime client
 const client = new BedrockRuntimeClient();
 
 export const handler: Schema['generateHaiku']['functionHandler'] = async (event, context) => {
   // User prompt
-  const prompt = event.arguments.prompt;
+  const userPrompt = event.arguments.prompt;
+
+  // Crear el prompt del usuario usando la función helper
+  const prompt = createChatPrompt(userPrompt);
 
   // Invoke model
   const input = {
@@ -15,8 +19,7 @@ export const handler: Schema['generateHaiku']['functionHandler'] = async (event,
     accept: 'application/json',
     body: JSON.stringify({
       anthropic_version: 'bedrock-2023-05-31',
-      system:
-        'Eres un experto en e-commerce y dropshipping. Tu tarea es responder de forma clara, detallada y profesional a consultas relacionadas con estrategias de marketing digital, descripción de productos, gestión de inventario y tendencias en comercio electrónico. Tus respuestas deben ser precisas, informativas y adaptadas al contexto de un negocio innovador como Fasttify. Evita respuestas poéticas o en formato haiku; usa un lenguaje natural y directo.',
+      system: CHAT_GENERATION_SYSTEM_PROMPT,
       messages: [
         {
           role: 'user',
@@ -37,8 +40,10 @@ export const handler: Schema['generateHaiku']['functionHandler'] = async (event,
 
   const response = await client.send(command);
 
-  // Parse the response and return the generated haiku
+  // Parse the response and return the generated chat response
   const data = JSON.parse(Buffer.from(response.body).toString());
+  const rawResponse = data.content[0].text;
 
-  return data.content[0].text;
+  // Process the response using the helper function
+  return processChatResponse(rawResponse);
 };

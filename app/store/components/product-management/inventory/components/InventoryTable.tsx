@@ -106,7 +106,7 @@ export default function InventoryTable({ data }: InventoryTableProps) {
               </div>
             )}
             <div>
-              <Link url={routes.store.products.edit(storeId, item.id)}>
+              <Link url={routes.store.products.edit(storeId, item.id)} removeUnderline>
                 <Text variant="bodyMd" fontWeight="semibold" as="span">
                   {item.name}
                 </Text>

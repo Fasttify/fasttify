@@ -1,21 +1,19 @@
-import {
-  Banner,
-  BlockStack,
-  Button,
-  Card,
-  LegacyStack,
-  ResourceItem,
-  ResourceList,
-  Tag,
-  Text,
-  TextField,
-} from '@shopify/polaris';
-import { useCallback, useState } from 'react';
+import { lazy, Suspense, useCallback } from 'react';
+import { BlockStack, Button, Text, SkeletonBodyText, SkeletonDisplayText, Box } from '@shopify/polaris';
+import { ArrowLeftIcon } from '@shopify/polaris-icons';
+import { getDefaultVariant, DefaultVariantOption } from '../../data/default-variants';
+import { useAttributes, Attribute } from '../../hooks/useAttributes';
+import { useVariantSelection } from '../../hooks/useVariantSelection';
+import { hasAttributeWithName } from '../../utils/attributeUtils';
 
-interface Attribute {
-  name?: string;
-  values?: string[];
-}
+// Lazy load de componentes pesados
+const SimpleAttributeSelector = lazy(() =>
+  import('./SimpleAttributeSelector').then((module) => ({ default: module.SimpleAttributeSelector }))
+);
+const VariantOptionSelector = lazy(() =>
+  import('./VariantOptionSelector').then((module) => ({ default: module.VariantOptionSelector }))
+);
+const VariantsDisplay = lazy(() => import('./VariantsDisplay').then((module) => ({ default: module.VariantsDisplay })));
 
 interface AttributesFormProps {
   value: Attribute[];
@@ -23,155 +21,209 @@ interface AttributesFormProps {
 }
 
 export function AttributesForm({ value: attributes, onChange }: AttributesFormProps) {
-  const [newAttributeName, setNewAttributeName] = useState('');
-  const [newAttributeValue, setNewAttributeValue] = useState('');
-  const [selectedAttributeIndex, setSelectedAttributeIndex] = useState<string | undefined>(
-    attributes.length > 0 ? '0' : undefined
-  );
+  const {
+    selectedVariant,
+    editingVariantIndex,
+    showSelector,
+    selectVariant,
+    showAttributeSelector,
+    hideAttributeSelector,
+    backToDisplay,
+    getCurrentVariant,
+  } = useVariantSelection();
 
-  const handleAddAttribute = useCallback(() => {
-    if (!newAttributeName.trim()) return;
-    const newAttributes = [...attributes, { name: newAttributeName.trim(), values: [] }];
-    onChange(newAttributes);
-    setNewAttributeName('');
-    setSelectedAttributeIndex(String(newAttributes.length - 1));
-  }, [newAttributeName, attributes, onChange]);
+  const {
+    addOptionToAttribute,
+    removeOptionFromAttribute,
+    addCustomOptionToAttribute,
+    createAttribute,
+    removeAttribute,
+  } = useAttributes({ attributes, onChange });
 
-  const handleRemoveAttribute = useCallback(
-    (indexToRemove: number) => {
-      const newAttributes = attributes.filter((_, i) => i !== indexToRemove);
-      onChange(newAttributes);
-
-      const currentSelected = selectedAttributeIndex ? parseInt(selectedAttributeIndex, 10) : -1;
-
-      if (currentSelected === indexToRemove) {
-        setSelectedAttributeIndex(newAttributes.length > 0 ? '0' : undefined);
-      } else if (currentSelected > indexToRemove) {
-        setSelectedAttributeIndex(String(currentSelected - 1));
+  const handleSelectVariant = useCallback(
+    (variantName: string) => {
+      const variant = getDefaultVariant(variantName);
+      if (variant) {
+        // Crear el atributo automáticamente si no existe
+        if (!hasAttributeWithName(attributes, variantName)) {
+          createAttribute(variantName);
+        }
+        selectVariant(variantName);
+      } else {
+        // Crear atributo personalizado
+        createAttribute(variantName);
       }
     },
-    [attributes, onChange, selectedAttributeIndex]
+    [attributes, createAttribute, selectVariant]
   );
 
-  const handleAddAttributeValue = useCallback(() => {
-    const index = selectedAttributeIndex ? parseInt(selectedAttributeIndex, 10) : -1;
-    if (index === -1 || !newAttributeValue.trim()) return;
+  const handleCreateCustom = useCallback(() => {
+    createAttribute('');
+  }, [createAttribute]);
 
-    const newAttributes = [...attributes];
-    const currentAttribute = newAttributes[index];
-    if (!currentAttribute.values?.includes(newAttributeValue.trim())) {
-      currentAttribute.values = [...(currentAttribute.values || []), newAttributeValue.trim()];
-      onChange(newAttributes);
-    }
-    setNewAttributeValue('');
-  }, [newAttributeValue, selectedAttributeIndex, attributes, onChange]);
-
-  const handleRemoveAttributeValue = useCallback(
-    (valueIndex: number) => {
-      const index = selectedAttributeIndex ? parseInt(selectedAttributeIndex, 10) : -1;
-      if (index === -1) return;
-      const newAttributes = [...attributes];
-      newAttributes[index].values?.splice(valueIndex, 1);
-      onChange(newAttributes);
+  const handleRemoveVariant = useCallback(
+    (index: number) => {
+      removeAttribute(index);
     },
-    [selectedAttributeIndex, attributes, onChange]
+    [removeAttribute]
   );
 
-  const selectedIndex = selectedAttributeIndex !== undefined ? parseInt(selectedAttributeIndex, 10) : -1;
-  const selectedAttribute = selectedIndex !== -1 ? attributes[selectedIndex] : null;
+  const handleAddOption = useCallback(
+    (option: DefaultVariantOption) => {
+      if (!selectedVariant) return;
 
-  const resourceListItems = attributes.map((attr, index) => {
-    return {
-      id: String(index),
-      name: attr.name || '',
-      actions: [{ content: 'Eliminar', onAction: () => handleRemoveAttribute(index) }],
-    };
-  });
+      const variantIndex =
+        editingVariantIndex !== null
+          ? editingVariantIndex
+          : attributes.findIndex((attr) => attr.name === selectedVariant);
 
-  return (
-    <Card>
+      if (variantIndex !== -1) {
+        addOptionToAttribute(variantIndex, option);
+      }
+    },
+    [selectedVariant, editingVariantIndex, attributes, addOptionToAttribute]
+  );
+
+  const handleRemoveOption = useCallback(
+    (optionValue: string) => {
+      if (!selectedVariant) return;
+
+      const variantIndex =
+        editingVariantIndex !== null
+          ? editingVariantIndex
+          : attributes.findIndex((attr) => attr.name === selectedVariant);
+
+      if (variantIndex !== -1) {
+        removeOptionFromAttribute(variantIndex, optionValue);
+      }
+    },
+    [selectedVariant, editingVariantIndex, attributes, removeOptionFromAttribute]
+  );
+
+  const handleAddCustomOption = useCallback(
+    (customValue: string) => {
+      if (!selectedVariant) return;
+
+      const variantIndex =
+        editingVariantIndex !== null
+          ? editingVariantIndex
+          : attributes.findIndex((attr) => attr.name === selectedVariant);
+
+      if (variantIndex !== -1) {
+        addCustomOptionToAttribute(variantIndex, customValue);
+      }
+    },
+    [selectedVariant, editingVariantIndex, attributes, addCustomOptionToAttribute]
+  );
+
+  const currentVariant = getCurrentVariant();
+  const currentAttribute = selectedVariant ? attributes.find((attr) => attr.name === selectedVariant) : null;
+
+  // Mostrar el selector de variantes
+  if (selectedVariant && currentVariant && currentAttribute) {
+    return (
       <BlockStack gap="400">
-        <Text as="h2" variant="headingMd">
-          Atributos
-        </Text>
-        <Text as="p" tone="subdued">
-          Agregue atributos como talla, color, etc. para crear variantes del producto.
-        </Text>
-        <TextField
-          label="Nuevo Atributo"
-          labelHidden
-          value={newAttributeName}
-          onChange={setNewAttributeName}
-          placeholder="ej. Talla, Color"
-          autoComplete="off"
-          connectedRight={
-            <Button onClick={handleAddAttribute} disabled={!newAttributeName.trim()}>
-              Agregar Atributo
-            </Button>
-          }
-        />
-
-        {attributes.length > 0 ? (
-          <BlockStack gap="400">
-            <ResourceList
-              resourceName={{ singular: 'atributo', plural: 'atributos' }}
-              items={resourceListItems}
-              selectedItems={selectedAttributeIndex ? [selectedAttributeIndex] : []}
-              onSelectionChange={(selected) => {
-                setSelectedAttributeIndex(selected[0]);
-              }}
-              renderItem={(item) => {
-                const { id, name, actions } = item;
-                return (
-                  <ResourceItem
-                    id={id}
-                    onClick={() => setSelectedAttributeIndex(id)}
-                    shortcutActions={actions}
-                    persistActions>
-                    <Text variant="bodyMd" fontWeight="bold" as="h3">
-                      {name}
-                    </Text>
-                  </ResourceItem>
-                );
-              }}
-            />
-
-            {selectedAttribute ? (
-              <Card background="bg-surface-secondary" roundedAbove="sm">
-                <BlockStack gap="400">
-                  <Text variant="headingMd" as="h3">
-                    Valores de {selectedAttribute.name}
-                  </Text>
-                  <TextField
-                    label={`Nuevo valor para ${selectedAttribute.name}`}
-                    labelHidden
-                    value={newAttributeValue}
-                    onChange={setNewAttributeValue}
-                    placeholder={`Agregar valor a ${selectedAttribute.name?.toLowerCase()}`}
-                    autoComplete="off"
-                    connectedRight={
-                      <Button onClick={handleAddAttributeValue} disabled={!newAttributeValue.trim()}>
-                        Añadir
-                      </Button>
-                    }
-                  />
-                  <LegacyStack spacing="tight" wrap>
-                    {(selectedAttribute.values || []).map((val, index) => (
-                      <Tag key={index} onRemove={() => handleRemoveAttributeValue(index)}>
-                        {val}
-                      </Tag>
-                    ))}
-                  </LegacyStack>
-                </BlockStack>
-              </Card>
-            ) : (
-              <Banner title="Seleccione un atributo" tone="info">
-                <p>Seleccione un atributo de la lista para agregarle valores.</p>
-              </Banner>
-            )}
-          </BlockStack>
-        ) : null}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Button variant="plain" icon={ArrowLeftIcon} onClick={backToDisplay}>
+            Volver
+          </Button>
+          <Text as="h3" variant="headingMd">
+            Configurar {currentVariant.label}
+          </Text>
+        </div>
+        <Suspense
+          fallback={
+            <Box padding="400">
+              <BlockStack gap="400">
+                <SkeletonDisplayText size="medium" />
+                <SkeletonBodyText lines={2} />
+                <Box paddingBlockStart="400">
+                  <SkeletonBodyText lines={3} />
+                </Box>
+                <Box paddingBlockStart="400">
+                  <SkeletonBodyText lines={1} />
+                </Box>
+              </BlockStack>
+            </Box>
+          }>
+          <VariantOptionSelector
+            variant={currentVariant}
+            selectedOptions={currentAttribute.values || []}
+            onAddOption={handleAddOption}
+            onRemoveOption={handleRemoveOption}
+            onAddCustomOption={handleAddCustomOption}
+          />
+        </Suspense>
       </BlockStack>
-    </Card>
-  );
+    );
+  }
+
+  // Mostrar el selector de atributos
+  if (!selectedVariant) {
+    return (
+      <BlockStack gap="400">
+        <Suspense
+          fallback={
+            <Box padding="400">
+              <BlockStack gap="400">
+                <SkeletonDisplayText size="medium" />
+                <SkeletonBodyText lines={2} />
+                <Box paddingBlockStart="400">
+                  <SkeletonBodyText lines={4} />
+                </Box>
+                <Box paddingBlockStart="400">
+                  <SkeletonBodyText lines={1} />
+                </Box>
+              </BlockStack>
+            </Box>
+          }>
+          <VariantsDisplay
+            attributes={attributes}
+            onAddVariant={showAttributeSelector}
+            onAddOption={addOptionToAttribute}
+            onRemoveOption={removeOptionFromAttribute}
+            onAddCustomOption={addCustomOptionToAttribute}
+            onRemoveVariant={handleRemoveVariant}
+          />
+        </Suspense>
+
+        {showSelector && (
+          <Suspense
+            fallback={
+              <Box padding="400">
+                <BlockStack gap="400">
+                  <SkeletonDisplayText size="small" />
+                  <SkeletonBodyText lines={3} />
+                  <Box paddingBlockStart="400">
+                    <SkeletonBodyText lines={1} />
+                  </Box>
+                </BlockStack>
+              </Box>
+            }>
+            <SimpleAttributeSelector
+              onSelectVariant={(variantName: string) => {
+                handleSelectVariant(variantName);
+                hideAttributeSelector();
+              }}
+              onCreateCustom={() => {
+                handleCreateCustom();
+                hideAttributeSelector();
+              }}
+              onDelete={() => {
+                // Eliminar la última variante vacía si existe
+                const lastIndex = attributes.length - 1;
+                if (lastIndex >= 0) {
+                  handleRemoveVariant(lastIndex);
+                }
+                hideAttributeSelector();
+              }}
+              showDeleteButton={true}
+            />
+          </Suspense>
+        )}
+      </BlockStack>
+    );
+  }
+
+  return null;
 }
