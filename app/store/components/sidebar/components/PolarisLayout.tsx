@@ -9,6 +9,10 @@ import translations from '@shopify/polaris/locales/es.json';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useCallback, useMemo, memo } from 'react';
+import { ChatLayout } from '@/app/store/components/ai-chat/components/ChatLayout';
+import { useChatContext } from '@/app/store/components/ai-chat/context/ChatContext';
+import { RefinedAIAssistantSheet } from '@/app/store/components/ai-chat/components/RefinedAiAssistant';
+import { useChat } from '@/app/store/components/ai-chat/hooks/useChat';
 
 interface PolarisLayoutProps {
   children: React.ReactNode;
@@ -46,9 +50,55 @@ const PolarisLinkComponent = memo(({ children, url = '', external = false, ...re
 
 PolarisLinkComponent.displayName = 'PolarisLinkComponent';
 
+// Componente interno para manejar el chat
+const ChatComponent = memo(() => {
+  const { isOpen } = useChatContext();
+  const { messages: chatMessages, loading, chat } = useChat();
+
+  const transformedMessages = useMemo(
+    () =>
+      chatMessages.map((msg: { content: string; role: 'user' | 'assistant' }, index: number) => ({
+        id: index.toString(),
+        content: msg.content,
+        type: msg.role === 'user' ? ('user' as const) : ('ai' as const),
+        timestamp: new Date(),
+      })),
+    [chatMessages]
+  );
+
+  const handleSubmit = useCallback(
+    async (value: string) => {
+      if (!value.trim()) return;
+      await chat(value);
+    },
+    [chat]
+  );
+
+  const handleSuggestionClick = useCallback(
+    async (suggestion: string) => {
+      await chat(suggestion);
+    },
+    [chat]
+  );
+
+  return (
+    <RefinedAIAssistantSheet
+      open={isOpen}
+      onOpenChange={() => {}}
+      messages={transformedMessages}
+      loading={loading}
+      onSubmit={handleSubmit}
+      onSuggestionClick={handleSuggestionClick}
+    />
+  );
+});
+
+ChatComponent.displayName = 'ChatComponent';
+
 export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = false }: PolarisLayoutProps) => {
   // Estado para controlar la visibilidad del navigation en móvil
   const [mobileNavigationActive, setMobileNavigationActive] = useState(false);
+  const { isOpen: isChatOpen } = useChatContext();
 
   // Memoizar la configuración del logo para evitar recreaciones
   const logo = useMemo(
@@ -88,7 +138,10 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
           onNavigationDismiss={handleNavigationDismiss}
           logo={logo}>
           <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6]">
-            <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
+            <ChatLayout isChatOpen={isChatOpen}>
+              <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
+            </ChatLayout>
+            <ChatComponent />
           </main>
         </Frame>
       </div>

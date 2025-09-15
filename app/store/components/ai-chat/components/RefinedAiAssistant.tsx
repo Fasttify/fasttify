@@ -6,7 +6,7 @@ import { EmptyState } from '@/app/store/components/ai-chat/components/EmptyState
 import { MessageList } from '@/app/store/components/ai-chat/components/MessageList';
 import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll';
 import { RefinedAIAssistantSheetProps } from '@/app/store/components/ai-chat/types/chat-types';
-import { Box, Button, Scrollable, Sheet } from '@shopify/polaris';
+import { Box, Button, Scrollable } from '@shopify/polaris';
 import { XIcon } from '@shopify/polaris-icons';
 import { useCallback, useEffect, useRef } from 'react';
 
@@ -43,12 +43,14 @@ export function RefinedAIAssistantSheet({
     e.stopPropagation();
   }, []);
 
+  if (!open) return null;
+
   return (
-    <Sheet open={open} onClose={handleClose} accessibilityLabel="AI Assistant Chat">
-      <div
-        style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-        onClick={handleContentClick}
-        onTouchStart={handleContentTouchStart}>
+    <div
+      className="fixed top-0 right-0 w-96 border-l rounded-l-lg h-full z-50 animate-in slide-in-from-right duration-300 ease-out"
+      onClick={handleContentClick}
+      onTouchStart={handleContentTouchStart}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Header */}
         <Box padding="400" borderBlockEndWidth="025" borderColor="border">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -83,6 +85,6 @@ export function RefinedAIAssistantSheet({
           />
         </Box>
       </div>
-    </Sheet>
+    </div>
   );
 }

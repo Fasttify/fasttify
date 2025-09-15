@@ -11,6 +11,7 @@ import esTranslations from '@shopify/polaris/locales/es.json';
 import { Amplify } from 'aws-amplify';
 import { useParams, usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { ChatProvider } from '@/app/store/components/ai-chat/context/ChatContext';
 
 import outputs from '@/amplify_outputs.json';
 
@@ -38,13 +39,15 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   return (
     <AppProvider i18n={esTranslations}>
       <ToastProvider>
-        {hideSidebar ? (
-          <div className="h-screen w-full overflow-hidden">{children}</div>
-        ) : (
-          <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
-            {children}
-          </PolarisLayout>
-        )}
+        <ChatProvider>
+          {hideSidebar ? (
+            <div className="h-screen w-full overflow-hidden">{children}</div>
+          ) : (
+            <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
+              {children}
+            </PolarisLayout>
+          )}
+        </ChatProvider>
       </ToastProvider>
     </AppProvider>
   );
