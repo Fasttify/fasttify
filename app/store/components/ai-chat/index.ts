@@ -8,9 +8,17 @@ export { MessageLoading } from '@/app/store/components/ai-chat/components/Messag
 export { TypingMessage } from '@/app/store/components/ai-chat/components/TypingMessage';
 export { default as Orb } from '@/app/store/components/ai-chat/components/Orb';
 
+// Contexts
+export { ChatProvider, useChatContext } from '@/app/store/components/ai-chat/context/ChatContext';
+export {
+  ConversationProvider,
+  useConversationContext,
+} from '@/app/store/components/ai-chat/context/ConversationContext';
+
 // Hooks
 export { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll';
 export { useChat } from '@/app/store/components/ai-chat/hooks/useChat';
+export { useConversation, useSimpleChat } from '@/app/store/components/ai-chat/hooks';
 
 // Types
 export type {

@@ -9,6 +9,7 @@ Esta documentación cubre desde la personalización de temas y plantillas, hasta
 ### 🏗️ Arquitectura del Sistema
 
 - [Database Sharding](./architecture/database-sharding.md) - Estrategias de particionamiento de base de datos
+- [Bedrock Conversation Permissions](./architecture/bedrock-conversation-permissions.md) - Configuración de permisos para conversaciones AI
 
 ### 🌐 Dominios y SSL
 
@@ -163,6 +164,14 @@ Si estás desarrollando un tema para Fasttify, comienza con:
 5. [Theme Development Guide](./engine/theme-development-guide.md) - Guía de desarrollo
 6. [Filters & Tags](./engine/filters-tags.md) - Filtros disponibles
 
+### Para Desarrolladores de Backend
+
+Si estás trabajando en servicios backend y configuración:
+
+1. [Bedrock Conversation Permissions](./architecture/bedrock-conversation-permissions.md) - **Configuración de permisos** - Setup para conversaciones AI
+2. [Database Sharding](./architecture/database-sharding.md) - Estrategias de base de datos
+3. [Automated Custom Domains](./domains/automated-custom-domains.md) - Sistema de dominios personalizados
+
 ### Para Desarrolladores del Core
 
 Si estás trabajando en el motor de renderizado:
@@ -286,6 +295,42 @@ Si estás trabajando en el motor de renderizado:
 {% endfor %}
 ```
 
+### Configurar Permisos de Bedrock para Conversaciones AI
+
+```bash
+# 1. Identificar el rol de Lambda
+ROLE_NAME=$(aws iam list-roles --query 'Roles[?contains(RoleName, `ChatDefaultConversationHandler`)].RoleName' --output text)
+
+# 2. Crear política de permisos
+aws iam create-policy \
+  --policy-name BedrockConversationPermissions \
+  --policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream",
+          "bedrock:CreateInferenceProfile",
+          "bedrock:GetInferenceProfile",
+          "bedrock:ListInferenceProfiles"
+        ],
+        "Resource": [
+          "arn:aws:bedrock:*::foundation-model/*",
+          "arn:aws:bedrock:*:*:inference-profile/*",
+          "arn:aws:bedrock:*:*:application-inference-profile/*"
+        ]
+      }
+    ]
+  }'
+
+# 3. Adjuntar política al rol
+aws iam attach-role-policy \
+  --role-name "$ROLE_NAME" \
+  --policy-arn "arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/BedrockConversationPermissions"
+```
+
 ## 🤝 Contribuir
 
 Para contribuir a la documentación:
@@ -306,4 +351,4 @@ Para preguntas sobre la documentación o el sistema:
 
 ---
 
-**Última actualización**: Sistema de checkout completado y documentado.
+**Última actualización**: Documentación de permisos de Bedrock para conversaciones AI agregada.

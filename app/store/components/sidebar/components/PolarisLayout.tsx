@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useCallback, useMemo, memo } from 'react';
 import { ChatLayout } from '@/app/store/components/ai-chat/components/ChatLayout';
 import { useChatContext } from '@/app/store/components/ai-chat/context/ChatContext';
+import { ConversationProvider } from '@/app/store/components/ai-chat/context/ConversationContext';
 import { RefinedAIAssistantSheet } from '@/app/store/components/ai-chat/components/RefinedAiAssistant';
 import { useChat } from '@/app/store/components/ai-chat/hooks/useChat';
 
@@ -130,21 +131,23 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
 
   return (
     <AppProvider i18n={translations} theme="light" linkComponent={PolarisLinkComponent} features={{ topBar: true }}>
-      <div style={{ height: '250px' }}>
-        <Frame
-          topBar={topBarComponent}
-          navigation={navigationComponent}
-          showMobileNavigation={mobileNavigationActive}
-          onNavigationDismiss={handleNavigationDismiss}
-          logo={logo}>
-          <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6]">
-            <ChatLayout isChatOpen={isChatOpen}>
-              <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
-            </ChatLayout>
-            <ChatComponent />
-          </main>
-        </Frame>
-      </div>
+      <ConversationProvider>
+        <div style={{ height: '250px' }}>
+          <Frame
+            topBar={topBarComponent}
+            navigation={navigationComponent}
+            showMobileNavigation={mobileNavigationActive}
+            onNavigationDismiss={handleNavigationDismiss}
+            logo={logo}>
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6]">
+              <ChatLayout isChatOpen={isChatOpen}>
+                <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
+              </ChatLayout>
+              <ChatComponent />
+            </main>
+          </Frame>
+        </div>
+      </ConversationProvider>
     </AppProvider>
   );
 });

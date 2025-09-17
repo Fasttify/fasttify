@@ -33,4 +33,7 @@ export interface MessageListProps {
   loading: boolean;
   messagesEndRef: React.RefObject<HTMLDivElement>;
   scrollRef?: React.RefObject<HTMLDivElement>;
+  hasMoreMessages?: boolean;
+  loadingMoreMessages?: boolean;
+  onLoadMore?: () => Promise<void>;
 }

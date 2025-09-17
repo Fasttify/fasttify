@@ -4,34 +4,73 @@ import { AIInputWithSearch } from '@/app/store/components/ai-chat/components/AiI
 import { ChatHeader } from '@/app/store/components/ai-chat/components/ChatHeader';
 import { EmptyState } from '@/app/store/components/ai-chat/components/EmptyState';
 import { MessageList } from '@/app/store/components/ai-chat/components/MessageList';
-import { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll';
+import { useSimpleChat } from '@/app/store/components/ai-chat/hooks/useSimpleChat';
 import { RefinedAIAssistantSheetProps } from '@/app/store/components/ai-chat/types/chat-types';
-import { Box, Button, Scrollable } from '@shopify/polaris';
+import { Box, Button, Scrollable, Spinner } from '@shopify/polaris';
 import { XIcon } from '@shopify/polaris-icons';
 import { useCallback, useEffect, useRef } from 'react';
 
 export function RefinedAIAssistantSheet({
   open,
   onOpenChange,
-  messages,
-  loading,
-  onSubmit,
-  onSuggestionClick,
+  messages: _messages,
+  loading: _loading,
+  onSubmit: _onSubmit,
+  onSuggestionClick: _onSuggestionClick,
 }: RefinedAIAssistantSheetProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { scrollableRef, contentRef, scrollToBottom } = useAutoScroll(messages.length);
+  // Usar el hook de conversación AI
+  const {
+    messages,
+    loading,
+    error,
+    hasMoreMessages,
+    loadingMoreMessages,
+    sendMessage,
+    clearMessages,
+    clearError,
+    loadMoreMessages,
+  } = useSimpleChat();
 
-  // Efecto para hacer scroll al fondo cuando se abre el Sheet
+  // Scroll automático cuando cambian los mensajes
   useEffect(() => {
-    if (open && messages.length > 0) {
-      scrollToBottom();
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [open, messages.length, scrollToBottom]);
+  }, [messages]);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
   }, [onOpenChange]);
+
+  const handleSubmit = useCallback(
+    async (value: string) => {
+      if (!value.trim()) return;
+
+      try {
+        await sendMessage(value);
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    },
+    [sendMessage]
+  );
+
+  const handleSuggestionClick = useCallback(
+    async (suggestion: string) => {
+      try {
+        await sendMessage(suggestion);
+      } catch (error) {
+        console.error('Error sending suggestion:', error);
+      }
+    },
+    [sendMessage]
+  );
+
+  const handleClearChat = useCallback(() => {
+    clearMessages();
+  }, [clearMessages]);
 
   const hasMessages = messages.length > 0;
 
@@ -50,24 +89,76 @@ export function RefinedAIAssistantSheet({
       className="fixed top-0 right-0 w-96 border-l rounded-l-lg h-full z-50 animate-in slide-in-from-right duration-300 ease-out"
       onClick={handleContentClick}
       onTouchStart={handleContentTouchStart}>
+      {/* Loading Overlay */}
+      {loading && !hasMessages && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}>
+          <Spinner accessibilityLabel="Cargando chat" size="large" />
+        </div>
+      )}
+
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Header */}
         <Box padding="400" borderBlockEndWidth="025" borderColor="border">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <ChatHeader />
-            <Button accessibilityLabel="Close chat" icon={XIcon} onClick={handleClose} variant="plain" />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {hasMessages && (
+                <Button accessibilityLabel="Limpiar chat" onClick={handleClearChat} variant="plain" size="slim">
+                  Limpiar
+                </Button>
+              )}
+              <Button accessibilityLabel="Cerrar chat" icon={XIcon} onClick={handleClose} variant="plain" />
+            </div>
           </div>
         </Box>
 
+        {/* Error Display */}
+        {error && (
+          <Box padding="200" borderBlockEndWidth="025" borderColor="border">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-red-800 text-sm">
+                Error: {error.message}
+                <button onClick={clearError} className="ml-2 text-red-600 underline hover:text-red-800">
+                  Cerrar
+                </button>
+              </p>
+            </div>
+          </Box>
+        )}
+
         {/* Message List */}
         <div style={{ flex: '1 1 0', overflowY: 'hidden' }}>
-          <Scrollable style={{ height: '100%' }} ref={scrollableRef}>
-            <div ref={contentRef}>
+          <Scrollable style={{ height: '100%' }}>
+            <div>
               <Box padding="400">
-                {!hasMessages ? (
-                  <EmptyState onSuggestionClick={onSuggestionClick} />
+                {hasMessages ? (
+                  <MessageList
+                    messages={messages.map((msg) => ({
+                      id: msg.id,
+                      content: msg.content,
+                      type: msg.role === 'user' ? 'user' : 'ai',
+                      timestamp: new Date(),
+                    }))}
+                    loading={loading}
+                    messagesEndRef={messagesEndRef}
+                    hasMoreMessages={hasMoreMessages}
+                    loadingMoreMessages={loadingMoreMessages}
+                    onLoadMore={loadMoreMessages}
+                  />
                 ) : (
-                  <MessageList messages={messages} loading={loading} messagesEndRef={messagesEndRef} />
+                  <EmptyState onSuggestionClick={handleSuggestionClick} />
                 )}
               </Box>
             </div>
@@ -80,8 +171,9 @@ export function RefinedAIAssistantSheet({
             placeholder="Pregúntame cualquier cosa..."
             minHeight={48}
             maxHeight={96}
-            onSubmit={onSubmit}
+            onSubmit={handleSubmit}
             className="py-2"
+            loading={loading}
           />
         </Box>
       </div>

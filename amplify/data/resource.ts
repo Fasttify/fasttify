@@ -28,8 +28,9 @@ import { notificationReturnModel } from './models/notification-return';
 import { productDeleteReturnModel } from './models/product-delete-return';
 import { orderDeleteReturnModel } from './models/order-delete-return';
 import { checkoutDeleteReturnModel } from './models/checkout-delete-return';
+import { CHAT_GENERATION_SYSTEM_PROMPT } from './functions/chat-generate/systemPrompt';
 
-export const MODEL_ID = 'us.anthropic.claude-3-haiku-20240307-v1:0';
+export const MODEL_ID = 'us.amazon.nova-pro-v1:0';
 
 export const generateHaikuFunction = defineFunction({
   entry: './functions/chat-generate/generateHaiku.ts',
@@ -108,6 +109,28 @@ export const storeSchema = a
 // Schema completo incluyendo funciones de IA
 const fullSchema = a
   .schema({
+    chat: a
+      .conversation({
+        aiModel: {
+          resourcePath: MODEL_ID,
+        },
+        systemPrompt: CHAT_GENERATION_SYSTEM_PROMPT,
+        tools: [
+          a.ai.dataTool({
+            // The name of the tool as it will be referenced in the message to the LLM
+            name: 'ProductQuery',
+            // The description of the tool provided to the LLM.
+            // Use this to help the LLM understand when to use the tool.
+            description: 'Searches for Product records',
+            // A reference to the `a.model()` that the tool will use
+            model: a.ref('Product'),
+            // The operation to perform on the model
+            modelOperation: 'list',
+          }),
+        ],
+      })
+      .authorization((allow) => allow.owner().to(['create', 'read', 'update', 'delete'])),
+
     // Funciones de IA
     generateHaiku: a
       .query()

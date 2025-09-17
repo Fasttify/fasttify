@@ -12,6 +12,7 @@ import { Amplify } from 'aws-amplify';
 import { useParams, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { ChatProvider } from '@/app/store/components/ai-chat/context/ChatContext';
+import { ConversationProvider } from '@/app/store/components/ai-chat/context/ConversationContext';
 
 import outputs from '@/amplify_outputs.json';
 
@@ -40,13 +41,15 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
     <AppProvider i18n={esTranslations}>
       <ToastProvider>
         <ChatProvider>
-          {hideSidebar ? (
-            <div className="h-screen w-full overflow-hidden">{children}</div>
-          ) : (
-            <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
-              {children}
-            </PolarisLayout>
-          )}
+          <ConversationProvider>
+            {hideSidebar ? (
+              <div className="h-screen w-full overflow-hidden">{children}</div>
+            ) : (
+              <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
+                {children}
+              </PolarisLayout>
+            )}
+          </ConversationProvider>
         </ChatProvider>
       </ToastProvider>
     </AppProvider>
