@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useAutoResizeTextarea } from '@/hooks/ui/use-auto-resize-textare';
+import { Spinner } from '@shopify/polaris';
 
 interface AIInputWithSearchProps {
   id?: string;
@@ -14,6 +15,7 @@ interface AIInputWithSearchProps {
   onSubmit?: (value: string, withSearch: boolean) => void;
   onFileSelect?: (file: File) => void;
   className?: string;
+  loading?: boolean;
 }
 
 export function AIInputWithSearch({
@@ -24,6 +26,7 @@ export function AIInputWithSearch({
   onSubmit: _onSubmit,
   onFileSelect: _onFileSelect,
   className,
+  loading = false,
 }: AIInputWithSearchProps) {
   const [value, setValue] = useState('');
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
@@ -69,13 +72,18 @@ export function AIInputWithSearch({
               <button
                 type="button"
                 onClick={handleSubmit}
+                disabled={loading}
                 className={cn(
                   'rounded-lg p-2 transition-colors',
-                  value
+                  value && !loading
                     ? 'bg-sky-500/15 text-sky-500'
                     : 'bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'
                 )}>
-                <Send className="w-4 h-4" />
+                {loading ? (
+                  <Spinner accessibilityLabel="Enviando mensaje" size="small" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>

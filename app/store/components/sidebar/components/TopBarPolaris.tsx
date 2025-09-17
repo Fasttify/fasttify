@@ -127,7 +127,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
         initials={storeId?.charAt(0) || 'T'}
         open={isUserMenuOpen}
         onToggle={toggleIsUserMenuOpen}
-        avatar={secureUserPicture || ''}
+        avatar={secureUserPicture || undefined}
       />
     );
 
