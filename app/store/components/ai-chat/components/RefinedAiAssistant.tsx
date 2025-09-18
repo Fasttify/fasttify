@@ -9,14 +9,7 @@ import { RefinedAIAssistantSheetProps } from '@/app/store/components/ai-chat/typ
 import { Box, Scrollable, Spinner } from '@shopify/polaris';
 import { useCallback, useEffect, useRef } from 'react';
 
-export function RefinedAIAssistantSheet({
-  open,
-  onOpenChange,
-  messages: _messages,
-  loading: _loading,
-  onSubmit: _onSubmit,
-  onSuggestionClick: _onSuggestionClick,
-}: RefinedAIAssistantSheetProps) {
+export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssistantSheetProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Usar el hook de conversación AI
@@ -28,6 +21,7 @@ export function RefinedAIAssistantSheet({
     loadingMoreMessages,
     conversationName,
     sendMessage,
+    loadConversationById,
     clearMessages,
     clearError,
     loadMoreMessages,
@@ -68,9 +62,16 @@ export function RefinedAIAssistantSheet({
     [sendMessage]
   );
 
-  const handleConversationSelect = useCallback((_conversationId: string) => {
-    // TODO: Implementar lógica para cargar conversación específica
-  }, []);
+  const handleConversationSelect = useCallback(
+    async (conversationId: string) => {
+      try {
+        await loadConversationById(conversationId);
+      } catch (error) {
+        console.error('Error loading conversation:', error);
+      }
+    },
+    [loadConversationById]
+  );
 
   const handleNewConversation = useCallback(() => {
     // TODO: Implementar lógica para nueva conversación

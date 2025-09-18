@@ -10,8 +10,7 @@ export { useSimpleChat } from './useSimpleChat';
 // Hooks de historial de conversaciones
 export { useCurrentConversation } from './useCurrentConversation';
 
-// Hook existente (mantener compatibilidad)
-export { useChat } from './useChat';
+// Hook existente (mantener compatibilidad) - REMOVIDO: useChat deprecated
 
 // Tipos
 export type { Message, StreamEvent, UseConversationReturn } from './useConversation';

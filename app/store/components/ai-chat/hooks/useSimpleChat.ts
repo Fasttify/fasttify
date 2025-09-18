@@ -21,6 +21,7 @@ export interface UseSimpleChatReturn {
 
   // Acciones simplificadas
   sendMessage: (message: string) => Promise<void>;
+  loadConversationById: (id: string) => Promise<void>;
   clearMessages: () => void;
   clearError: () => void;
   loadMoreMessages: () => Promise<void>;
@@ -45,6 +46,7 @@ export function useSimpleChat(): UseSimpleChatReturn {
     hasMoreMessages,
     loadingMoreMessages,
     initializeConversation,
+    loadConversationById,
     sendMessage: sendMessageInternal,
     resetConversation,
     clearError: clearErrorInternal,
@@ -131,6 +133,7 @@ export function useSimpleChat(): UseSimpleChatReturn {
     loadingMoreMessages,
     conversationName,
     sendMessage,
+    loadConversationById,
     clearMessages,
     clearError,
     loadMoreMessages,

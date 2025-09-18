@@ -51,6 +51,7 @@ export interface UseConversationReturn {
 
   // Acciones
   initializeConversation: () => Promise<void>;
+  loadConversationById: (id: string) => Promise<void>;
   sendMessage: (message: string) => Promise<void>;
   resetConversation: () => void;
   clearError: () => void;
@@ -193,6 +194,44 @@ export function useConversation(): UseConversationReturn {
   const clearError = useCallback(() => {
     setError(null);
   }, []);
+
+  /**
+   * Cargar una conversación existente por ID
+   */
+  const loadConversationById = useCallback(
+    async (id: string) => {
+      try {
+        setIsInitializing(true);
+        setError(null);
+
+        // Obtener la conversación por ID
+        const { data: existingConversation, errors } = await client.conversations.chat.get({ id });
+
+        if (errors) {
+          console.error('Error loading conversation:', errors);
+          setError(`Error al cargar conversación: ${errors.map((e: any) => e.message).join('; ')}`);
+          setIsInitializing(false);
+          return;
+        }
+
+        if (existingConversation) {
+          setConversation(existingConversation);
+          setConversationId(id);
+
+          // Cargar mensajes existentes
+          await loadExistingMessages(existingConversation);
+          hasUpdatedNameRef.current = true; // Ya tiene nombre asignado
+        }
+
+        setIsInitializing(false);
+      } catch (error: any) {
+        console.error('Error loading conversation:', error);
+        setError(`Error al cargar conversación: ${error.message || 'Error desconocido'}`);
+        setIsInitializing(false);
+      }
+    },
+    [loadExistingMessages, setConversationId]
+  );
 
   /**
    * Reiniciar conversación
@@ -409,6 +448,7 @@ export function useConversation(): UseConversationReturn {
     loadingMoreMessages,
     nextToken,
     initializeConversation,
+    loadConversationById,
     sendMessage,
     resetConversation,
     clearError,

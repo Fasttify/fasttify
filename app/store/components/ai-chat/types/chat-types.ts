@@ -13,10 +13,6 @@ export interface Message {
 export interface RefinedAIAssistantSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  messages: Message[];
-  loading: boolean;
-  onSubmit: (value: string) => Promise<void>;
-  onSuggestionClick: (suggestion: string) => void;
 }
 
 export interface ConversationOption {
