@@ -7,12 +7,13 @@
 export { useConversation } from './useConversation';
 export { useSimpleChat } from './useSimpleChat';
 
+// Hooks de historial de conversaciones
+export { useCurrentConversation } from './useCurrentConversation';
+
 // Hook existente (mantener compatibilidad)
 export { useChat } from './useChat';
-
-// Hook de auto-scroll
-export { useAutoScroll } from './useAutoScroll';
 
 // Tipos
 export type { Message, StreamEvent, UseConversationReturn } from './useConversation';
 export type { UseSimpleChatReturn } from './useSimpleChat';
+export type { UseCurrentConversationReturn } from './useCurrentConversation';

@@ -16,6 +16,7 @@ const client = generateClient<Schema>();
  * Hook personalizado que gestiona la interacción con el chatbot AI.
  *
  * @returns {Object} Objeto con el estado y las funciones para interactuar con el chat.
+ * @deprecated Use useConversation or useSimpleChat instead.
  */
 export function useChat() {
   /**

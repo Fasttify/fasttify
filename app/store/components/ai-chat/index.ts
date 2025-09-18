@@ -16,7 +16,7 @@ export {
 } from '@/app/store/components/ai-chat/context/ConversationContext';
 
 // Hooks
-export { useAutoScroll } from '@/app/store/components/ai-chat/hooks/useAutoScroll';
+
 export { useChat } from '@/app/store/components/ai-chat/hooks/useChat';
 export { useConversation, useSimpleChat } from '@/app/store/components/ai-chat/hooks';
 
@@ -31,3 +31,10 @@ export type {
 
 // Constants
 export { LONG_MESSAGE_THRESHOLD, SUGGESTIONS } from '@/app/store/components/ai-chat/constants/chat-constants';
+
+// Utils
+export {
+  generateConversationName,
+  generateTemporaryConversationName,
+  isValidMessageForNaming,
+} from '@/app/store/components/ai-chat/utils';

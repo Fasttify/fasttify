@@ -19,9 +19,20 @@ export interface RefinedAIAssistantSheetProps {
   onSuggestionClick: (suggestion: string) => void;
 }
 
+export interface ConversationOption {
+  label: string;
+  value: string;
+  timestamp?: string;
+  category?: 'today' | 'yesterday' | 'this-week' | 'older';
+}
+
 export interface ChatHeaderProps {
-  isMobile: boolean;
-  onClose: () => void;
+  onConversationSelect?: (conversationId: string) => void;
+  onNewConversation?: () => void;
+  onClose?: () => void;
+  conversations?: ConversationOption[];
+  loading?: boolean;
+  conversationName?: string | null;
 }
 
 export interface EmptyStateProps {

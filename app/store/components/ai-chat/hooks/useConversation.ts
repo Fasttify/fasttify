@@ -6,6 +6,7 @@ import { useState, useCallback, useRef } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { useConversationContext } from '../context/ConversationContext';
+import { generateConversationName, generateTemporaryConversationName } from '../utils/conversation-naming';
 
 const client = generateClient<Schema>({
   authMode: 'userPool',
@@ -77,6 +78,7 @@ export function useConversation(): UseConversationReturn {
   const initializationRef = useRef(false);
   const conversationRef = useRef(conversation);
   const isInitializingRef = useRef(isInitializing);
+  const hasUpdatedNameRef = useRef(false);
 
   // Usar el contexto para persistir el ID de conversación
   const { conversationId, setConversationId, clearConversation: clearConversationContext } = useConversationContext();
@@ -152,12 +154,18 @@ export function useConversation(): UseConversationReturn {
           await loadExistingMessages(existingConversation);
           setIsInitializing(false);
           initializationRef.current = false;
+          hasUpdatedNameRef.current = true; // Ya tiene nombre asignado
           return;
         }
       }
 
-      // Crear nueva conversación
-      const { data: newConversation, errors } = await client.conversations.chat.create();
+      // Crear nueva conversación con nombre temporal
+      const tempName = generateTemporaryConversationName();
+
+      const { data: newConversation, errors } = await client.conversations.chat.create({
+        name: tempName,
+        metadata: {},
+      });
 
       if (errors) {
         console.error('Error creating conversation:', errors);
@@ -170,6 +178,7 @@ export function useConversation(): UseConversationReturn {
       setConversationId(newConversation?.id || null);
       setIsInitializing(false);
       initializationRef.current = false;
+      hasUpdatedNameRef.current = false; // Permitir actualizar nombre con primer mensaje
     } catch (error: any) {
       console.error('Error creating conversation:', error);
       setError(`Error al crear conversación: ${error.message || 'Error desconocido'}`);
@@ -199,6 +208,7 @@ export function useConversation(): UseConversationReturn {
     setLoadingMoreMessages(false);
     setNextToken(null);
     initializationRef.current = false;
+    hasUpdatedNameRef.current = false;
     // Limpiar también el contexto
     clearConversationContext();
   }, [clearConversationContext]);
@@ -224,6 +234,24 @@ export function useConversation(): UseConversationReturn {
           createdAt: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, userMsg]);
+
+        // Actualizar el nombre de la conversación si es el primer mensaje
+        if (!hasUpdatedNameRef.current && conversation) {
+          try {
+            const newName = generateConversationName(userMessage);
+            await client.conversations.chat.update({
+              id: conversation.id,
+              name: newName,
+            });
+
+            // Actualizar el estado local inmediatamente
+            setConversation((prev: any) => (prev ? { ...prev, name: newName } : null));
+            hasUpdatedNameRef.current = true;
+          } catch (error) {
+            console.error('Error updating conversation name:', error);
+            // No fallar la conversación por esto, solo loggear el error
+          }
+        }
 
         // Enviar mensaje a la conversación
 
