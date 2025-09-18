@@ -37,6 +37,8 @@ export function ChatHeader({
   const {
     conversations: historyConversations,
     loading: historyLoading,
+    hasMore,
+    loadMoreConversations,
     refreshConversations,
   } = useConversationHistoryContext();
 
@@ -45,7 +47,7 @@ export function ChatHeader({
     const allConversations = [...conversations, ...historyConversations];
 
     if (!inputValue.trim()) {
-      return allConversations.slice(0, 5); // Mostrar solo las 5 más recientes cuando no hay búsqueda
+      return allConversations; // Mostrar todas las conversaciones cuando no hay búsqueda
     }
 
     return allConversations.filter((conversation) =>
@@ -83,6 +85,13 @@ export function ChatHeader({
       setInputValue('');
     }
   }, [showDropdown]);
+
+  // Handler para cargar más resultados usando la API nativa de Polaris
+  const handleLoadMoreResults = useCallback(async () => {
+    if (hasMore && !historyLoading) {
+      await loadMoreConversations();
+    }
+  }, [hasMore, historyLoading, loadMoreConversations]);
 
   return (
     <div style={{ width: '100%', position: 'relative' }}>
@@ -134,15 +143,17 @@ export function ChatHeader({
                   onChange={handleInputChange}
                   label="Buscar conversación"
                   labelHidden
-                  placeholder="Buscar"
+                  placeholder="Buscar conversación..."
                   value={inputValue}
                   prefix={<Icon source={SearchIcon} tone="subdued" />}
-                  loading={loading}
+                  loading={loading || historyLoading}
                   autoComplete="off"
                 />
               }
               loading={loading || historyLoading}
               allowMultiple={false}
+              willLoadMoreResults={hasMore}
+              onLoadMoreResults={handleLoadMoreResults}
             />
           </div>
         </div>
