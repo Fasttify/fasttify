@@ -6,8 +6,7 @@ import { EmptyState } from '@/app/store/components/ai-chat/components/EmptyState
 import { MessageList } from '@/app/store/components/ai-chat/components/MessageList';
 import { useSimpleChat } from '@/app/store/components/ai-chat/hooks/useSimpleChat';
 import { RefinedAIAssistantSheetProps } from '@/app/store/components/ai-chat/types/chat-types';
-import { Box, Button, Scrollable, Spinner } from '@shopify/polaris';
-import { XIcon } from '@shopify/polaris-icons';
+import { Box, Scrollable, Spinner } from '@shopify/polaris';
 import { useCallback, useEffect, useRef } from 'react';
 
 export function RefinedAIAssistantSheet({
@@ -27,6 +26,7 @@ export function RefinedAIAssistantSheet({
     error,
     hasMoreMessages,
     loadingMoreMessages,
+    conversationName,
     sendMessage,
     clearMessages,
     clearError,
@@ -68,7 +68,16 @@ export function RefinedAIAssistantSheet({
     [sendMessage]
   );
 
-  const handleClearChat = useCallback(() => {
+  const handleConversationSelect = useCallback((_conversationId: string) => {
+    // TODO: Implementar lógica para cargar conversación específica
+  }, []);
+
+  const handleNewConversation = useCallback(() => {
+    // TODO: Implementar lógica para nueva conversación
+    clearMessages();
+  }, [clearMessages]);
+
+  const _handleClearChat = useCallback(() => {
     clearMessages();
   }, [clearMessages]);
 
@@ -86,7 +95,7 @@ export function RefinedAIAssistantSheet({
 
   return (
     <div
-      className="fixed top-0 right-0 w-96 border-l rounded-l-lg h-full z-50 animate-in slide-in-from-right duration-300 ease-out"
+      className="fixed right-0 w-[20vw] border-l rounded-l-lg h-[calc(98vh-2rem)] animate-in slide-in-from-right duration-300 ease-out"
       onClick={handleContentClick}
       onTouchStart={handleContentTouchStart}>
       {/* Loading Overlay */}
@@ -110,19 +119,22 @@ export function RefinedAIAssistantSheet({
 
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Header */}
-        <Box padding="400" borderBlockEndWidth="025" borderColor="border">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <ChatHeader />
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {hasMessages && (
-                <Button accessibilityLabel="Limpiar chat" onClick={handleClearChat} variant="plain" size="slim">
-                  Limpiar
-                </Button>
-              )}
-              <Button accessibilityLabel="Cerrar chat" icon={XIcon} onClick={handleClose} variant="plain" />
-            </div>
-          </div>
-        </Box>
+        <div
+          style={{
+            padding: '16px',
+            height: '50px',
+            display: 'flex',
+            alignItems: 'center',
+          }}>
+          <ChatHeader
+            onConversationSelect={handleConversationSelect}
+            onNewConversation={handleNewConversation}
+            onClose={handleClose}
+            conversations={[]} // TODO: Implementar carga de conversaciones
+            loading={false} // TODO: Implementar estado de carga
+            conversationName={conversationName}
+          />
+        </div>
 
         {/* Error Display */}
         {error && (

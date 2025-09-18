@@ -59,6 +59,12 @@ export const generatePriceSuggestionFunction = defineFunction({
   },
 });
 
+export const createProduct = defineFunction({
+  name: 'createProduct',
+  entry: './functions/createProduct/createProduct.ts',
+  timeoutSeconds: 30,
+});
+
 // Definir el tipo de entrada para la mutación de pago
 const PaymentConfigInput = a.customType({
   storeId: a.string(),
@@ -127,6 +133,16 @@ const fullSchema = a
             // The operation to perform on the model
             modelOperation: 'list',
           }),
+          a.ai.dataTool({
+            // The name of the tool as it will be referenced in the LLM prompt
+            name: 'create_product',
+            // The description of the tool provided to the LLM.
+            // Use this to help the LLM understand when to use the tool.
+            description:
+              'Creates a new product in the store. Use this when the user wants to add a new product to their inventory.',
+            // A reference to the `a.query()` that the tool will invoke.
+            query: a.ref('createProduct'),
+          }),
         ],
       })
       .authorization((allow) => allow.owner().to(['create', 'read', 'update', 'delete'])),
@@ -158,6 +174,36 @@ const fullSchema = a
       .returns(a.json())
       .authorization((allow) => [allow.publicApiKey()])
       .handler(a.handler.function(generatePriceSuggestionFunction)),
+
+    createProduct: a
+      .query()
+      .arguments({
+        name: a.string().required(),
+        nameLowercase: a.string().required(),
+        description: a.string(),
+        price: a.float(),
+        quantity: a.integer(),
+        category: a.string().required(),
+        images: a.json(),
+        attributes: a.json(),
+        status: a.string().required(),
+        slug: a.string(),
+        featured: a.boolean(),
+        tags: a.json(),
+        variants: a.json(),
+        supplier: a.string(),
+        storeId: a.string(),
+        owner: a.string(),
+      })
+      .returns(
+        a.customType({
+          success: a.boolean().required(),
+          product: a.json(),
+          message: a.string(),
+        })
+      )
+      .authorization((allow) => allow.authenticated())
+      .handler(a.handler.function(createProduct)),
 
     initializeStoreTemplate: a
       .mutation()

@@ -12,6 +12,7 @@ import { useState, useCallback, useMemo, memo } from 'react';
 import { ChatLayout } from '@/app/store/components/ai-chat/components/ChatLayout';
 import { useChatContext } from '@/app/store/components/ai-chat/context/ChatContext';
 import { ConversationProvider } from '@/app/store/components/ai-chat/context/ConversationContext';
+import { ConversationHistoryProvider } from '@/app/store/components/ai-chat/context/ConversationHistoryContext';
 import { RefinedAIAssistantSheet } from '@/app/store/components/ai-chat/components/RefinedAiAssistant';
 import { useChat } from '@/app/store/components/ai-chat/hooks/useChat';
 
@@ -51,9 +52,8 @@ const PolarisLinkComponent = memo(({ children, url = '', external = false, ...re
 
 PolarisLinkComponent.displayName = 'PolarisLinkComponent';
 
-// Componente interno para manejar el chat
 const ChatComponent = memo(() => {
-  const { isOpen } = useChatContext();
+  const { isOpen, setIsOpen } = useChatContext();
   const { messages: chatMessages, loading, chat } = useChat();
 
   const transformedMessages = useMemo(
@@ -82,10 +82,17 @@ const ChatComponent = memo(() => {
     [chat]
   );
 
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      setIsOpen(open);
+    },
+    [setIsOpen]
+  );
+
   return (
     <RefinedAIAssistantSheet
       open={isOpen}
-      onOpenChange={() => {}}
+      onOpenChange={handleOpenChange}
       messages={transformedMessages}
       loading={loading}
       onSubmit={handleSubmit}
@@ -97,11 +104,9 @@ const ChatComponent = memo(() => {
 ChatComponent.displayName = 'ChatComponent';
 
 export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = false }: PolarisLayoutProps) => {
-  // Estado para controlar la visibilidad del navigation en móvil
   const [mobileNavigationActive, setMobileNavigationActive] = useState(false);
   const { isOpen: isChatOpen } = useChatContext();
 
-  // Memoizar la configuración del logo para evitar recreaciones
   const logo = useMemo(
     () => ({
       topBarSource: 'https://cdn.fasttify.com/assets/b/fasttify-white.webp',
@@ -112,7 +117,6 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
     [storeId]
   );
 
-  // Memoizar las funciones de callback para evitar re-renders
   const handleNavigationToggle = useCallback(() => {
     setMobileNavigationActive((prev) => !prev);
   }, []);
@@ -121,7 +125,6 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
     setMobileNavigationActive(false);
   }, []);
 
-  // Memoizar los componentes de navegación para evitar re-renders
   const topBarComponent = useMemo(
     () => <TopBarPolaris storeId={storeId} onNavigationToggle={handleNavigationToggle} />,
     [storeId, handleNavigationToggle]
@@ -132,21 +135,23 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
   return (
     <AppProvider i18n={translations} theme="light" linkComponent={PolarisLinkComponent} features={{ topBar: true }}>
       <ConversationProvider>
-        <div style={{ height: '250px' }}>
-          <Frame
-            topBar={topBarComponent}
-            navigation={navigationComponent}
-            showMobileNavigation={mobileNavigationActive}
-            onNavigationDismiss={handleNavigationDismiss}
-            logo={logo}>
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6]">
-              <ChatLayout isChatOpen={isChatOpen}>
-                <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
-              </ChatLayout>
-              <ChatComponent />
-            </main>
-          </Frame>
-        </div>
+        <ConversationHistoryProvider>
+          <div style={{ height: '250px' }}>
+            <Frame
+              topBar={topBarComponent}
+              navigation={navigationComponent}
+              showMobileNavigation={mobileNavigationActive}
+              onNavigationDismiss={handleNavigationDismiss}
+              logo={logo}>
+              <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6]">
+                <ChatLayout isChatOpen={isChatOpen}>
+                  <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
+                </ChatLayout>
+                <ChatComponent />
+              </main>
+            </Frame>
+          </div>
+        </ConversationHistoryProvider>
       </ConversationProvider>
     </AppProvider>
   );

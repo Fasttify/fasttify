@@ -6,6 +6,7 @@ import {
   generateHaikuFunction,
   generatePriceSuggestionFunction,
   generateProductDescriptionFunction,
+  createProduct,
 } from './data/resource';
 import { bulkEmailAPI, bulkEmailProcessor } from './functions/bulk-email/resource';
 import { checkStoreDomain } from './functions/checkStoreDomain/resource';
@@ -15,6 +16,7 @@ import { planScheduler } from './functions/planScheduler/resource';
 import { storeImages } from './functions/storeImages/resource';
 import { webHookPlan } from './functions/webHookPlan/resource';
 import { storage } from './storage/resource';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 // Importaciones de configuración modular
 import { createEmailQueues, configureEmailEventSources, configureEmailEnvironmentVariables } from './config/queues';
@@ -49,10 +51,19 @@ const backend = defineBackend({
   generatePriceSuggestionFunction,
   storeImages,
   managePaymentKeys,
+  createProduct,
 });
 
 // Aplicar permisos de Bedrock para funciones de IA
 applyBedrockPermissions(backend);
+
+// Agregar permisos para la función createProduct
+backend.createProduct.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    resources: ['*'],
+    actions: ['dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:GetItem', 'dynamodb:Query', 'dynamodb:Scan'],
+  })
+);
 
 // Configuración KMS para claves de pago (PAUSADO)
 // createPaymentKeysKmsKey(backend.stack, backend);

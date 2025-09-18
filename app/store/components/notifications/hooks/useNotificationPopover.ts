@@ -6,6 +6,7 @@ import { useNotificationSound } from './useNotificationSound';
 interface UseNotificationPopoverProps {
   storeId?: string;
   limit?: number;
+  disableScrollListener?: boolean;
 }
 
 interface UseNotificationPopoverResult {
@@ -45,6 +46,7 @@ interface UseNotificationPopoverResult {
 export const useNotificationPopover = ({
   storeId,
   limit = 50,
+  disableScrollListener = false,
 }: UseNotificationPopoverProps): UseNotificationPopoverResult => {
   const [popoverActive, setPopoverActive] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -116,7 +118,7 @@ export const useNotificationPopover = ({
 
   // Efecto para agregar el listener de scroll solo cuando el popover esté activo
   useEffect(() => {
-    if (!popoverActive) return;
+    if (!popoverActive || disableScrollListener) return;
 
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) return;
@@ -133,7 +135,7 @@ export const useNotificationPopover = ({
       }
       scrollContainer.removeEventListener('scroll', handleScroll);
     };
-  }, [popoverActive, handleScroll]);
+  }, [popoverActive, handleScroll, disableScrollListener]);
 
   // Efecto para detectar nuevas notificaciones y reproducir sonido
   useEffect(() => {

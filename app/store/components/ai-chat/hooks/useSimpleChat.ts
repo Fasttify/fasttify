@@ -16,6 +16,9 @@ export interface UseSimpleChatReturn {
   hasMoreMessages: boolean;
   loadingMoreMessages: boolean;
 
+  // Información de conversación
+  conversationName: string | null;
+
   // Acciones simplificadas
   sendMessage: (message: string) => Promise<void>;
   clearMessages: () => void;
@@ -47,6 +50,9 @@ export function useSimpleChat(): UseSimpleChatReturn {
     clearError: clearErrorInternal,
     loadMoreMessages: loadMoreMessagesInternal,
   } = useConversation();
+
+  // Obtener el nombre de la conversación actual
+  const conversationName = conversation?.name || null;
 
   /**
    * Inicializar conversación automáticamente solo una vez
@@ -123,6 +129,7 @@ export function useSimpleChat(): UseSimpleChatReturn {
     error: error ? new Error(error) : null,
     hasMoreMessages,
     loadingMoreMessages,
+    conversationName,
     sendMessage,
     clearMessages,
     clearError,

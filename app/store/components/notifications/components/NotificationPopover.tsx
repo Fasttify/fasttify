@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { TopBar, Badge, Icon, Spinner } from '@shopify/polaris';
+import { memo, useRef } from 'react';
+import { TopBar, Badge, Icon, Spinner, Scrollable } from '@shopify/polaris';
 import { NotificationIcon } from '@shopify/polaris-icons';
 import { useNotificationPopover } from '../hooks';
 
@@ -41,11 +41,29 @@ export const NotificationPopover = memo(({ storeId }: NotificationPopoverProps) 
     handleMarkAllAsRead,
     hasNextPage,
     loadMore,
-    scrollContainerRef,
   } = useNotificationPopover({
     storeId,
     limit: 50,
+    disableScrollListener: true,
   });
+
+  // Ref para prevenir peticiones duplicadas
+  const isLoadingMoreRef = useRef(false);
+
+  // Función para manejar el scroll con debounce
+  const handleScrolledToBottom = async () => {
+    if (!hasNextPage || loading || isLoadingMoreRef.current) return;
+
+    isLoadingMoreRef.current = true;
+    try {
+      await loadMore();
+    } finally {
+      // Pequeño delay para evitar peticiones muy rápidas
+      setTimeout(() => {
+        isLoadingMoreRef.current = false;
+      }, 500);
+    }
+  };
 
   return (
     <TopBar.Menu
@@ -102,13 +120,13 @@ export const NotificationPopover = memo(({ storeId }: NotificationPopoverProps) 
                             }}>
                             Notificaciones
                           </div>
-                          <div
-                            ref={scrollContainerRef}
+                          <Scrollable
                             style={{
                               maxHeight: '300px',
-                              overflowY: 'auto',
                               padding: '8px 0',
-                            }}>
+                            }}
+                            shadow
+                            onScrolledToBottom={handleScrolledToBottom}>
                             {notifications.map((notification) => (
                               <div
                                 key={notification.id}
@@ -178,7 +196,7 @@ export const NotificationPopover = memo(({ storeId }: NotificationPopoverProps) 
                                 <div style={{ fontSize: '12px', color: '#007ace' }}>Cargar más notificaciones</div>
                               </div>
                             )}
-                          </div>
+                          </Scrollable>
                         </div>
                       ),
                       disabled: true, // Para que no sea clickeable
