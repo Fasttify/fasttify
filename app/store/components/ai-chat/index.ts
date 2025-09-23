@@ -16,8 +16,6 @@ export {
 } from '@/app/store/components/ai-chat/context/ConversationContext';
 
 // Hooks
-
-export { useChat } from '@/app/store/components/ai-chat/hooks/useChat';
 export { useConversation, useSimpleChat } from '@/app/store/components/ai-chat/hooks';
 
 // Types

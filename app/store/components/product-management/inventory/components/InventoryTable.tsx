@@ -92,18 +92,7 @@ export default function InventoryTable({ data }: InventoryTableProps) {
             {imageUrl ? (
               <Thumbnail source={imageUrl} alt={item.name} size="small" />
             ) : (
-              <div
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  backgroundColor: '#f3f3f3',
-                  borderRadius: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <ImageIcon />
-              </div>
+              <Thumbnail source={ImageIcon} alt={item.name} size="small" />
             )}
             <div>
               <Link url={routes.store.products.edit(storeId, item.id)} removeUnderline>

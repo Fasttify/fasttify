@@ -6,6 +6,7 @@ interface ConversationContextType {
   conversationId: string | null;
   setConversationId: (id: string | null) => void;
   clearConversation: () => void;
+  loadExistingConversation: (id: string) => void;
 }
 
 const ConversationContext = createContext<ConversationContextType | undefined>(undefined);
@@ -35,8 +36,13 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     setConversationId(null);
   };
 
+  const loadExistingConversation = (id: string) => {
+    setConversationId(id);
+  };
+
   return (
-    <ConversationContext.Provider value={{ conversationId, setConversationId, clearConversation }}>
+    <ConversationContext.Provider
+      value={{ conversationId, setConversationId, clearConversation, loadExistingConversation }}>
       {children}
     </ConversationContext.Provider>
   );
