@@ -95,7 +95,7 @@ describe('slug utilities', () => {
     });
 
     it('should handle existing product slugs', () => {
-      expect(generateProductSlug('Camiseta Azul', ['camiseta-azul'])).toBe('camiseta-azul-1');
+      expect(generateUniqueSlug('Camiseta Azul', ['camiseta-azul'])).toBe('camiseta-azul-1');
     });
   });
 
