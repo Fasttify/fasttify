@@ -3,6 +3,7 @@ import { ThemeUploader } from '@/app/store/components/store-config/components/Th
 import { ThemeList } from '@/app/store/components/theme-management/components/ThemeList';
 import { useThemeList } from '@/app/store/components/theme-management/hooks/useThemeList';
 import useStoreDataStore from '@/context/core/storeDataStore';
+import { openStoreUrl } from '@/lib/utils/store-url';
 import {
   Badge,
   BlockStack,
@@ -32,9 +33,14 @@ export function ThemePreview() {
   const activePreviewUrl = activeTheme?.previewUrl;
   const isLoadingPreview = !storeId || loading || themes.length === 0;
 
-  const viewStore = `https://${customDomain}`;
-
   const handleTabChange = useCallback((index: number) => setSelectedTab(index), []);
+
+  const handleViewStore = useCallback(() => {
+    openStoreUrl({
+      storeId: storeId,
+      customDomain: customDomain,
+    });
+  }, [storeId, customDomain]);
 
   const tabs = [
     { id: 'preview', content: 'Vista previa' },
@@ -102,7 +108,7 @@ export function ThemePreview() {
                       </Layout.Section>
                       <Layout.Section variant="oneThird">
                         <ButtonGroup>
-                          <Button onClick={() => window.open(viewStore, '_blank')}>Ver tienda</Button>
+                          <Button onClick={handleViewStore}>Ver tienda</Button>
                           <Button icon={MoneyFilledIcon} accessibilityLabel="Más opciones" />
                         </ButtonGroup>
                       </Layout.Section>

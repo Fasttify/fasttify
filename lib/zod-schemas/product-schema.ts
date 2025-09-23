@@ -113,6 +113,7 @@ export const productFormSchema = z.object({
   lastModifiedDate: z.date().optional(),
   status: z.enum(['draft', 'pending', 'active', 'inactive']).default('draft'),
   collectionId: z.string().optional().nullable(),
+  slug: z.string().optional(),
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -135,4 +136,5 @@ export const defaultValues: Partial<ProductFormValues> = {
   lastModifiedDate: new Date(),
   status: 'draft',
   collectionId: undefined,
+  slug: '',
 };

@@ -1,7 +1,16 @@
 'use client';
 
+import { openStoreUrl } from '@/lib/utils/store-url';
 import { Navigation } from '@shopify/polaris';
-import { HomeIcon, OrderIcon, PersonIcon, ProductIcon, SettingsIcon, StoreIcon } from '@shopify/polaris-icons';
+import {
+  HomeIcon,
+  OrderIcon,
+  PersonIcon,
+  ProductIcon,
+  SettingsIcon,
+  StoreIcon,
+  ViewIcon,
+} from '@shopify/polaris-icons';
 import { usePathname } from 'next/navigation';
 interface NavigationPolarisProps {
   storeId: string;
@@ -9,6 +18,10 @@ interface NavigationPolarisProps {
 
 export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
   const pathname = usePathname();
+
+  const handleViewStore = () => {
+    openStoreUrl({ storeId });
+  };
 
   return (
     <Navigation location={pathname}>
@@ -28,7 +41,7 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
               {
                 url: `/store/${storeId}/dashboard/notifications`,
                 label: 'Notificaciones',
-                disabled: false,
+                disabled: true,
               },
             ],
           },
@@ -51,7 +64,7 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
               {
                 url: `/store/${storeId}/categories`,
                 label: 'Categorías',
-                disabled: false,
+                disabled: true,
               },
             ],
           },
@@ -60,7 +73,6 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             label: 'Pedidos',
             icon: OrderIcon,
             selected: pathname.includes('/orders'),
-            badge: '3',
             subNavigationItems: [
               {
                 url: `/store/${storeId}/orders/checkouts`,
@@ -74,6 +86,7 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             label: 'Clientes',
             icon: PersonIcon,
             selected: pathname.includes('/customers'),
+            disabled: true,
           },
         ]}
       />
@@ -83,7 +96,17 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
         items={[
           {
             url: `/store/${storeId}/setup`,
-            label: 'Configuración de Tienda',
+            label: 'Tienda Online',
+            displayActionsOnHover: true,
+            secondaryAction: {
+              url: '#',
+              accessibilityLabel: 'Ver tienda online',
+              icon: ViewIcon,
+              tooltip: {
+                content: 'Ver tienda online',
+              },
+              onClick: handleViewStore,
+            },
             icon: StoreIcon,
             selected: pathname.includes('/setup'),
             subNavigationItems: [
@@ -117,6 +140,7 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
           {
             url: `/store/${storeId}/settings`,
             label: 'Configuración',
+            disabled: true,
             icon: SettingsIcon,
             selected: pathname.includes('/settings'),
             subNavigationItems: [

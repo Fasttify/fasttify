@@ -19,7 +19,7 @@ export class ProductTransformer {
    * Transforma un producto al formato Liquid
    */
   public transformProduct(product: ProductData, collectionHandle?: string): ProductContext {
-    const handle = dataTransformer.createHandle(product.name);
+    const handle = product.slug || dataTransformer.createHandle(product.name);
     const price = product.price || 0;
     const compareAtPrice = product.compareAtPrice || undefined;
     const transformedImages = dataTransformer.transformImages(product.images, product.name);

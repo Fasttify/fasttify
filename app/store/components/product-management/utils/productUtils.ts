@@ -23,6 +23,7 @@ export function mapProductToFormValues(product: IProduct): Partial<ProductFormVa
     tags: typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags,
     status: (product.status ?? undefined) as 'active' | 'draft' | 'inactive' | 'pending' | undefined,
     collectionId: product.collectionId,
+    slug: product.slug ?? undefined,
   };
 }
 
@@ -46,6 +47,7 @@ export function prepareProductData(data: ProductFormValues, storeId: string): Re
     category: data.category,
     status: data.status,
     collectionId: data.collectionId,
+    slug: data.slug,
   };
 
   // Convertimos los campos complejos a strings JSON

@@ -1,9 +1,12 @@
 import { AIGenerateButton } from '@/app/store/components/product-management/products/components/form/AiGenerate';
 import { useProductDescription } from '@/app/store/components/product-management/products/hooks/useProductDescription';
 import { useToast } from '@/app/store/context/ToastContext';
+import { generateSlug } from '@/lib/utils/slug';
+import { getStoreUrl } from '@/lib/utils/store-url';
+import useStoreDataStore from '@/context/core/storeDataStore';
 import type { ProductFormValues } from '@/lib/zod-schemas/product-schema';
 import { Banner, BlockStack, Button, ButtonGroup, Card, FormLayout, Text, TextField } from '@shopify/polaris';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
 
@@ -15,6 +18,35 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
   const { generateDescription, loading: isGeneratingDescription } = useProductDescription();
   const [previewDescription, setPreviewDescription] = useState<string | null>(null);
   const { showToast } = useToast();
+  const { currentStore } = useStoreDataStore();
+
+  // Obtener valores del formulario
+  const productSlug = form.watch('slug');
+
+  // Generar URL completa de la tienda usando useMemo para optimización
+  const storeUrl = useMemo(() => {
+    return currentStore
+      ? getStoreUrl({
+          storeId: currentStore.storeId,
+          customDomain: currentStore.defaultDomain ?? undefined,
+        })
+      : '';
+  }, [currentStore]);
+
+  const fullProductUrl = useMemo(() => {
+    return productSlug ? `${storeUrl}/products/${productSlug}` : '';
+  }, [productSlug, storeUrl]);
+
+  // Función para generar slug automáticamente
+  const handleNameChange = (value: string) => {
+    form.setValue('name', value, { shouldDirty: true });
+
+    // Generar slug automáticamente si hay un valor
+    if (value) {
+      const autoSlug = generateSlug(value);
+      form.setValue('slug', autoSlug, { shouldDirty: true });
+    }
+  };
 
   const handleGenerateDescription = async () => {
     const productName = form.getValues('name');
@@ -62,12 +94,39 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
             control={form.control}
             render={({ field, fieldState }) => (
               <TextField
-                {...field}
+                value={field.value}
+                onChange={handleNameChange}
+                onBlur={field.onBlur}
+                name={field.name}
                 label="Nombre del Producto"
                 error={fieldState.error?.message}
                 autoComplete="off"
                 helpText="El nombre de su producto como aparecerá a los clientes."
               />
+            )}
+          />
+
+          <Controller
+            name="slug"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <div>
+                <TextField
+                  {...field}
+                  label="URL handle"
+                  error={fieldState.error?.message}
+                  autoComplete="off"
+                  helpText="La URL amigable para este producto. Se genera automáticamente basado en el nombre."
+                  placeholder="mi-producto-ejemplo"
+                />
+                {fullProductUrl && (
+                  <div style={{ marginTop: '4px' }}>
+                    <Text as="p" variant="bodySm" tone="subdued">
+                      {fullProductUrl}
+                    </Text>
+                  </div>
+                )}
+              </div>
             )}
           />
           <BlockStack gap="200">
