@@ -6,6 +6,7 @@ import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
 import type { IProduct, ProductCreateInput, ProductUpdateInput } from '../types';
 import { useProductCacheUtils } from '../utils';
+import { generateProductSlug } from '@/lib/utils/slug';
 
 const client = generateClient<Schema>({
   authMode: 'userPool',
@@ -25,8 +26,16 @@ export const useProductMutations = (storeId: string | undefined) => {
   const createProductMutation = useMutation({
     mutationFn: async (productData: ProductCreateInput) => {
       const { username } = await getCurrentUser();
+
+      // Generar slug automáticamente si no se proporciona
+      let slug = productData.slug;
+      if (!slug && productData.name) {
+        slug = generateProductSlug(productData.name);
+      }
+
       const dataToSend = withLowercaseName({
         ...productData,
+        slug,
         attributes: normalizeAttributesField(
           productData.attributes as string | { name?: string; values?: string[] }[] | undefined
         ),
@@ -148,11 +157,15 @@ export const useProductMutations = (storeId: string | undefined) => {
 
       const { username } = await getCurrentUser();
 
+      // Generar slug para el producto duplicado
+      const duplicatedName = `${originalProduct.name} (Copia)`;
+      const duplicatedSlug = generateProductSlug(duplicatedName);
+
       // Crear una copia del producto sin campos que se generan automáticamente
       const duplicatedProduct = withLowercaseName({
         storeId: originalProduct.storeId,
-        name: `${originalProduct.name} (Copia)`,
-        nameLowercase: `${originalProduct.name} (copia)`.toLowerCase(),
+        name: duplicatedName,
+        nameLowercase: duplicatedName.toLowerCase(),
         description: originalProduct.description,
         price: originalProduct.price,
         compareAtPrice: originalProduct.compareAtPrice,
@@ -164,7 +177,7 @@ export const useProductMutations = (storeId: string | undefined) => {
         images: originalProduct.images,
         attributes: originalProduct.attributes,
         status: 'active',
-        slug: originalProduct.slug ? `${originalProduct.slug}-copy` : undefined,
+        slug: duplicatedSlug,
         featured: false,
         tags: originalProduct.tags,
         variants: originalProduct.variants,

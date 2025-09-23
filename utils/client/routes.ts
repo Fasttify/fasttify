@@ -17,7 +17,7 @@ export const routes = {
   store: {
     dashboard: {
       main: (storeId: string) => `/store/${storeId}/dashboard`,
-      statistics: (storeId: string) => `/store/${storeId}/dashboard/statistics`,
+      analytics: (storeId: string) => `/store/${storeId}/dashboard/analytics`,
       notification: (storeId: string) => `/store/${storeId}/dashboard/notification`,
     },
     settings: (storeId: string) => `/store/${storeId}/settings`,

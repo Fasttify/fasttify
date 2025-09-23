@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useMemo, useState, memo } from 'react';
 import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import { useToast } from '@/app/store/context/ToastContext';
 import { useS3ImagesWithOperations } from '@/app/store/hooks/storage/useS3ImagesWithOperations';
-import { Banner, BlockStack, Box, Modal, ProgressBar, Spinner, Text, InlineStack } from '@shopify/polaris';
+import { Banner, BlockStack, Box, Modal, ProgressBar, Spinner, Text, InlineStack, Scrollable } from '@shopify/polaris';
 
 // Lazy load de componentes pesados
 const ImageGallery = lazy(() => import('./ImageGallery'));
@@ -176,7 +176,7 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
           onAction: handleModalClose,
         },
       ]}>
-      <div onScroll={handleScroll} style={{ height: '75vh', overflowY: 'auto' }}>
+      <Scrollable onScroll={handleScroll} style={{ height: '75vh', overflowY: 'auto' }}>
         <Modal.Section>
           <BlockStack gap="400">
             {/* Solo mostrar banner para errores críticos de carga */}
@@ -260,7 +260,7 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
             )}
           </BlockStack>
         </Modal.Section>
-      </div>
+      </Scrollable>
     </Modal>
   );
 });

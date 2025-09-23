@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { IOrder } from '@/app/store/hooks/data/useOrders';
+import { routes } from '@/utils/client/routes';
 import {
   getOrderItems,
   getProductTitle,
@@ -201,7 +202,7 @@ export function useOrderDataPreprocessing(order: IOrder | null): ProcessedOrderD
         unitPrice,
         totalPrice,
         productSnapshot,
-        productUrl: `/store/${order.storeId}/products/${item.productId}`,
+        productUrl: routes.store.products.edit(order.storeId, item.productId),
         sku: item.sku,
         formattedUnitPrice: formatCurrency(unitPrice ?? 0, order.currency ?? 'COP'),
         formattedTotalPrice: formatCurrency(totalPrice ?? 0, order.currency ?? 'COP'),

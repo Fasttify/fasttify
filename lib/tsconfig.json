@@ -1,5 +1,5 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "../test/unit/utils/store-url.test.ts", "../test/unit/utils/slug.test.ts"],
   "exclude": ["node_modules"]
 }

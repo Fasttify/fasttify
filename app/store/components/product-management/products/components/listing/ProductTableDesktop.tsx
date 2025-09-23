@@ -5,6 +5,8 @@ import { CurrencyDisplay } from '@/app/store/components/currency/CurrencyDisplay
 import type { IProduct } from '@/app/store/hooks/data/useProducts';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
+import { openProductUrl } from '@/lib/utils/store-url';
+import useStoreDataStore from '@/context/core/storeDataStore';
 import {
   ActionList,
   Badge,
@@ -17,7 +19,7 @@ import {
   Thumbnail,
   useIndexResourceState,
 } from '@shopify/polaris';
-import { DeleteIcon, DuplicateIcon, EditIcon, ImageIcon, SettingsIcon } from '@shopify/polaris-icons';
+import { DeleteIcon, DuplicateIcon, EditIcon, ImageIcon, SettingsIcon, ViewIcon } from '@shopify/polaris-icons';
 import { useParams, usePathname } from 'next/navigation';
 import { useState } from 'react';
 
@@ -52,6 +54,7 @@ export function ProductTableDesktop({
   const params = useParams();
   const storeId = getStoreId(params, pathname);
   const [activePopover, setActivePopover] = useState<string | null>(null);
+  const { currentStore } = useStoreDataStore();
 
   const resourceName = {
     singular: 'producto',
@@ -67,7 +70,19 @@ export function ProductTableDesktop({
     },
   ];
 
-  const rowMarkup = products.map(({ id, name, images, status, quantity, price, category }, index) => {
+  // Función para manejar el clic en ver producto
+  const handleViewProduct = (product: IProduct) => {
+    if (!currentStore || !product.slug) return;
+
+    openProductUrl({
+      storeId: currentStore.storeId,
+      customDomain: currentStore.defaultDomain ?? undefined,
+      productSlug: product.slug,
+    });
+  };
+
+  const rowMarkup = products.map((product) => {
+    const { id, name, images, status, quantity, price, category } = product;
     let imageUrl: string | undefined;
 
     if (typeof images === 'string') {
@@ -84,7 +99,7 @@ export function ProductTableDesktop({
     const isPopoverActive = activePopover === id;
 
     return (
-      <IndexTable.Row id={id} key={id} selected={selectedResources.includes(id)} position={index}>
+      <IndexTable.Row id={id} key={id} selected={selectedResources.includes(id)} position={products.indexOf(product)}>
         <IndexTable.Cell>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Thumbnail source={imageUrl || ImageIcon} alt={name} size="small" />
@@ -128,6 +143,14 @@ export function ProductTableDesktop({
                 <ActionList
                   actionRole="menuitem"
                   items={[
+                    {
+                      content: 'Ver en tienda',
+                      icon: ViewIcon,
+                      onAction: () => {
+                        handleViewProduct(product);
+                        setActivePopover(null);
+                      },
+                    },
                     {
                       content: 'Editar',
                       icon: EditIcon,

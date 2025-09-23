@@ -47,7 +47,8 @@ export class ProductHandleManager {
     let targetProduct: ProductData | null = null;
 
     for (const product of allProducts) {
-      const productHandle = dataTransformer.createHandle(product.name);
+      // Usar el slug del producto si existe, sino generar uno basado en el nombre
+      const productHandle = product.slug || dataTransformer.createHandle(product.name);
       newHandleMap[productHandle] = product.id;
 
       if (productHandle === handle) {
@@ -78,7 +79,8 @@ export class ProductHandleManager {
     const handleMap: ProductHandleMap = {};
 
     for (const product of allProducts) {
-      const handle = dataTransformer.createHandle(product.name);
+      // Usar el slug del producto si existe, sino generar uno basado en el nombre
+      const handle = product.slug || dataTransformer.createHandle(product.name);
       handleMap[handle] = product.id;
     }
 

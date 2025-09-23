@@ -1,12 +1,12 @@
-import StatisticsClient from './StatisticsClient';
+import AnalyticsClient from './AnalyticsClient';
 
 export async function generateMetadata({ params: _params }: { params: Promise<{ slug: string }> }) {
   return {
-    title: 'Estadísticas - Admin Panel',
+    title: 'Analíticas - Admin Panel',
     description: 'Analiza el rendimiento de tu tienda',
   };
 }
 
 export default async function GeneralStatistics({ params: _params }: { params: Promise<{ slug: string }> }) {
-  return <StatisticsClient />;
+  return <AnalyticsClient />;
 }
