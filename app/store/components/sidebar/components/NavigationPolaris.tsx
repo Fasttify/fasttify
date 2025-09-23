@@ -34,8 +34,8 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             selected: pathname === `/store/${storeId}/dashboard` || pathname.includes('/dashboard'),
             subNavigationItems: [
               {
-                url: `/store/${storeId}/dashboard/statistics`,
-                label: 'Estadísticas',
+                url: `/store/${storeId}/dashboard/analytics`,
+                label: 'Analíticas',
                 disabled: false,
               },
               {
