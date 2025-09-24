@@ -9,7 +9,9 @@ const OrderCustomerInfo = lazy(() =>
   import('./OrderCustomerInfo').then((module) => ({ default: module.OrderCustomerInfo }))
 );
 const OrderItems = lazy(() => import('./OrderItems').then((module) => ({ default: module.OrderItems })));
-const OrderPricing = lazy(() => import('./OrderPricing').then((module) => ({ default: module.OrderPricing })));
+const OrderPricingWithAPI = lazy(() =>
+  import('./OrderPricingWithAPI').then((module) => ({ default: module.OrderPricingWithAPI }))
+);
 const OrderTimeline = lazy(() => import('./OrderTimeline').then((module) => ({ default: module.OrderTimeline })));
 const OrderActions = lazy(() => import('./OrderActions').then((module) => ({ default: module.OrderActions })));
 
@@ -72,9 +74,9 @@ export function OrderDetailsModal({
 
           <Divider />
 
-          {/* Información de precios - Lazy loaded */}
+          {/* Información de precios - Lazy loaded con API */}
           <Suspense fallback={<OrderSectionSkeleton title="Resumen de Precios" lines={6} />}>
-            <OrderPricing order={currentOrder} />
+            <OrderPricingWithAPI order={currentOrder} />
           </Suspense>
 
           <Divider />

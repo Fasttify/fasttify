@@ -1,13 +1,57 @@
-import { BlockStack, InlineStack, Text, Card, Icon } from '@shopify/polaris';
+import { BlockStack, InlineStack, Text, Card, Icon, SkeletonBodyText } from '@shopify/polaris';
 import { MoneyIcon, DeliveryIcon, DiscountIcon, TaxIcon } from '@shopify/polaris-icons';
 import { memo } from 'react';
-import type { ProcessedPricingData } from '../../hooks/useOrderDataPreprocessing';
+import type { ProcessedPricingData } from '../../types/util-type';
 
 interface OrderPricingOptimizedProps {
   pricingData: ProcessedPricingData;
+  loading?: boolean;
+  error?: string | null;
 }
 
-export const OrderPricingOptimized = memo(function OrderPricingOptimized({ pricingData }: OrderPricingOptimizedProps) {
+export const OrderPricingOptimized = memo(function OrderPricingOptimized({
+  pricingData,
+  loading: _loading,
+  error: _error,
+}: OrderPricingOptimizedProps) {
+  if (_loading) {
+    return (
+      <Card>
+        <BlockStack gap="400">
+          <InlineStack gap="300" blockAlign="start">
+            <div style={{ marginTop: '2px' }}>
+              <Icon source={MoneyIcon} />
+            </div>
+            <Text as="h3" variant="headingMd" fontWeight="semibold">
+              Resumen de Precios
+            </Text>
+          </InlineStack>
+
+          <BlockStack gap="300">
+            <InlineStack align="space-between">
+              <SkeletonBodyText lines={1} />
+              <SkeletonBodyText lines={1} />
+            </InlineStack>
+            <InlineStack align="space-between">
+              <SkeletonBodyText lines={1} />
+              <SkeletonBodyText lines={1} />
+            </InlineStack>
+            <InlineStack align="space-between">
+              <SkeletonBodyText lines={1} />
+              <SkeletonBodyText lines={1} />
+            </InlineStack>
+            <Card background="bg-surface-selected">
+              <InlineStack align="space-between">
+                <SkeletonBodyText lines={1} />
+                <SkeletonBodyText lines={1} />
+              </InlineStack>
+            </Card>
+          </BlockStack>
+        </BlockStack>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <BlockStack gap="400">

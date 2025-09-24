@@ -12,8 +12,8 @@ const OrderCustomerInfoOptimized = lazy(() =>
 const OrderItemsOptimized = lazy(() =>
   import('./OrderItemsOptimized').then((module) => ({ default: module.OrderItemsOptimized }))
 );
-const OrderPricingOptimized = lazy(() =>
-  import('./OrderPricingOptimized').then((module) => ({ default: module.OrderPricingOptimized }))
+const OrderPricingWithAPI = lazy(() =>
+  import('./OrderPricingWithAPI').then((module) => ({ default: module.OrderPricingWithAPI }))
 );
 const OrderTimelineOptimized = lazy(() =>
   import('./OrderTimelineOptimized').then((module) => ({ default: module.OrderTimelineOptimized }))
@@ -85,9 +85,9 @@ export function OrderDetailsModalOptimized({
 
           <Divider />
 
-          {/* Información de precios - Lazy loaded con datos pre-procesados */}
+          {/* Información de precios - Lazy loaded con API */}
           <Suspense fallback={<OrderSectionSkeleton title="Resumen de Precios" lines={6} />}>
-            <OrderPricingOptimized pricingData={processedOrderData.pricingData} />
+            <OrderPricingWithAPI order={currentOrder} />
           </Suspense>
 
           <Divider />

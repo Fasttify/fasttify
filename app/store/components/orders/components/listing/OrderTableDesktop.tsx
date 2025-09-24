@@ -1,6 +1,5 @@
 import type { SortField, VisibleColumns } from '../../types/order-types';
 import {
-  formatCurrency,
   getStatusText,
   getStatusTone,
   getPaymentStatusText,
@@ -13,6 +12,7 @@ import type { IOrder } from '@/app/store/hooks/data/useOrders';
 import { ActionList, Badge, Button, Card, IndexTable, Text, useIndexResourceState, Popover } from '@shopify/polaris';
 import { DeleteIcon, SettingsIcon, PackageIcon, ViewIcon } from '@shopify/polaris-icons';
 import { useState } from 'react';
+import { OrderTotalCell } from './OrderTotalCell';
 
 interface OrderTableDesktopProps {
   orders: IOrder[];
@@ -111,14 +111,7 @@ export function OrderTableDesktop({
 
         {visibleColumns.total && (
           <IndexTable.Cell>
-            <Text variant="bodySm" fontWeight="semibold" as="span">
-              {formatCurrency(order.totalAmount ?? 0, order.currency ?? 'COP')}
-            </Text>
-            <div style={{ marginTop: '2px' }}>
-              <Text variant="bodySm" tone="subdued" as="span">
-                {formatCurrency(order.subtotal ?? 0, order.currency ?? 'COP')} + envío
-              </Text>
-            </div>
+            <OrderTotalCell order={order} />
           </IndexTable.Cell>
         )}
 

@@ -2,6 +2,7 @@
 
 import { openStoreUrl } from '@/lib/utils/store-url';
 import { Navigation } from '@shopify/polaris';
+import useStoreDataStore from '@/context/core/storeDataStore';
 import {
   HomeIcon,
   OrderIcon,
@@ -12,15 +13,17 @@ import {
   ViewIcon,
 } from '@shopify/polaris-icons';
 import { usePathname } from 'next/navigation';
+
 interface NavigationPolarisProps {
   storeId: string;
 }
 
 export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
   const pathname = usePathname();
+  const { currentStore } = useStoreDataStore();
 
   const handleViewStore = () => {
-    openStoreUrl({ storeId });
+    openStoreUrl({ customDomain: currentStore?.defaultDomain ?? '', storeId: currentStore?.storeId ?? '' });
   };
 
   return (

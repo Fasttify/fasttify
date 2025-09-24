@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import useStoreDataStore from '@/context/core/storeDataStore';
-import { useCurrencyConfig } from '@/app/store/components/domains/hooks/useCurrencyConfig';
+import { useCurrencyConfig } from '@/app/store/hooks/currency/useCurrencyConfig';
 
 export interface UseStoreCurrencyReturn {
   currency: string;

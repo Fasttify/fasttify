@@ -7,7 +7,7 @@ import {
   PersonIcon,
 } from '@shopify/polaris-icons';
 import { memo } from 'react';
-import type { ProcessedOrderData } from '../../hooks/useOrderDataPreprocessing';
+import type { ProcessedOrderData } from '../../types/util-type';
 
 interface OrderHeaderOptimizedProps {
   orderData: ProcessedOrderData;

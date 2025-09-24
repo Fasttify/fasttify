@@ -1,7 +1,7 @@
 import { BlockStack, InlineStack, Text, Card, Icon } from '@shopify/polaris';
 import { PersonIcon, LocationIcon, EmailIcon, PhoneIcon, GlobeIcon } from '@shopify/polaris-icons';
 import { memo } from 'react';
-import type { ProcessedCustomerData } from '../../hooks/useOrderDataPreprocessing';
+import type { ProcessedCustomerData } from '../../types/util-type';
 
 interface OrderCustomerInfoOptimizedProps {
   customerData: ProcessedCustomerData;

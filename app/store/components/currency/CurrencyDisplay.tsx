@@ -1,6 +1,6 @@
 'use client';
 
-import { useStoreCurrency } from '@/app/store/hooks/useStoreCurrency';
+import { useStoreCurrency } from '@/app/store/hooks/format/useStoreCurrency';
 
 interface CurrencyDisplayProps {
   value: number | null | undefined;
