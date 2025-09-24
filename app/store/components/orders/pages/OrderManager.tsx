@@ -82,14 +82,14 @@ export function OrderManager({ storeId }: OrderManagerProps) {
         onViewDetails={openModal}
       />
 
-      {/* Modal de detalles optimizado */}
+      {/* Modal de detalles optimizado con API */}
       <OrderDetailsModalOptimized
         open={isModalOpen}
         onClose={closeModal}
         order={selectedOrder}
         onUpdateStatus={
           selectedOrder
-            ? async (status) => {
+            ? async (status: string) => {
                 const result = await updateOrderStatus(selectedOrder.id, status as any, selectedOrder.status as any);
                 return !!result;
               }
@@ -97,7 +97,7 @@ export function OrderManager({ storeId }: OrderManagerProps) {
         }
         onUpdatePaymentStatus={
           selectedOrder
-            ? async (paymentStatus) => {
+            ? async (paymentStatus: string) => {
                 const result = await updatePaymentStatus(
                   selectedOrder.id,
                   paymentStatus as any,

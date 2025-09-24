@@ -1,7 +1,7 @@
 import { BlockStack, InlineStack, Text, Card, Thumbnail, Icon, Badge, Link } from '@shopify/polaris';
 import { PackageIcon, ImageIcon, ExternalIcon } from '@shopify/polaris-icons';
 import { memo } from 'react';
-import type { ProcessedOrderItem } from '../../hooks/useOrderDataPreprocessing';
+import type { ProcessedOrderItem } from '../../types/util-type';
 
 interface OrderItemsOptimizedProps {
   items: ProcessedOrderItem[];
@@ -46,7 +46,7 @@ export const OrderItemsOptimized = memo(function OrderItemsOptimized({ items }: 
               <BlockStack gap="300">
                 {/* Información principal del producto */}
                 <InlineStack gap="300" blockAlign="start">
-                  <Thumbnail source={item.productImage || ''} alt={item.productTitle} size="small" />
+                  <Thumbnail source={item.productImage || ImageIcon} alt={item.productTitle} size="small" />
 
                   <BlockStack gap="200">
                     <InlineStack gap="200" blockAlign="center">

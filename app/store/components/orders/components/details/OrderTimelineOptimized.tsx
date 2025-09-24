@@ -9,7 +9,7 @@ import {
   LocationIcon,
 } from '@shopify/polaris-icons';
 import { memo } from 'react';
-import type { ProcessedTimelineEvent } from '../../hooks/useOrderDataPreprocessing';
+import type { ProcessedTimelineEvent } from '../../types/util-type';
 import { formatDate } from '../../utils/order-utils';
 
 interface OrderTimelineOptimizedProps {

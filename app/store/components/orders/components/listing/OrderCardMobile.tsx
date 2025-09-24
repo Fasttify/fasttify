@@ -1,18 +1,17 @@
 import { Badge, BlockStack, Box, Button, ButtonGroup, Checkbox, Text } from '@shopify/polaris';
 import { DeleteIcon, PackageIcon, ViewIcon } from '@shopify/polaris-icons';
-
 import type { VisibleColumns } from '../../types/order-types';
 import {
   getStatusText,
   getStatusTone,
   getPaymentStatusText,
   getPaymentStatusTone,
-  formatCurrency,
   formatDate,
   getCustomerName,
   getTotalItemsCount,
 } from '../../utils/order-utils';
 import type { IOrder } from '@/app/store/hooks/data/useOrders';
+import { OrderCardTotal } from './OrderCardTotal';
 
 interface OrderCardMobileProps {
   orders: IOrder[];
@@ -86,16 +85,7 @@ export function OrderCardMobile({
                       </Badge>
                     </Box>
                   )}
-                  {visibleColumns.total && (
-                    <Box>
-                      <Text variant="bodySm" tone="subdued" as="p">
-                        Total
-                      </Text>
-                      <Text variant="bodyMd" as="p">
-                        {formatCurrency(order.totalAmount ?? 0, order.currency ?? 'COP')}
-                      </Text>
-                    </Box>
-                  )}
+                  {visibleColumns.total && <OrderCardTotal order={order} />}
                   {visibleColumns.creationDate && (
                     <Box>
                       <Text variant="bodySm" tone="subdued" as="p">

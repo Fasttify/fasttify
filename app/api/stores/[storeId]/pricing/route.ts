@@ -1,0 +1,62 @@
+/*
+ * Copyright 2025 Fasttify LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { NextRequest } from 'next/server';
+import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { calculateOrderPricingController } from '@/api/stores/_lib/pricing/controllers/calculate-order-pricing-controller';
+import { withAuthHandler } from '@/api/_lib/auth-middleware';
+
+/**
+ * POST /api/stores/[storeId]/pricing
+ * Calcula el precio final de una orden incluyendo descuentos, envío e impuestos
+ *
+ * Body:
+ * {
+ *   "subtotal": 100.00,
+ *   "shippingCost": 10.00,
+ *   "taxAmount": 5.00,
+ *   "compareAtPrice": 120.00,
+ *   "currency": "COP"
+ * }
+ *
+ * Response:
+ * {
+ *   "success": true,
+ *   "pricing": {
+ *     "subtotal": 100.00,
+ *     "shippingCost": 10.00,
+ *     "taxAmount": 5.00,
+ *     "totalAmount": 115.00,
+ *     "currency": "COP",
+ *     "compareAtPrice": 120.00,
+ *     "hasDiscount": true,
+ *     "discountAmount": 20.00,
+ *     "savingsAmount": 20.00,
+ *     "savingsPercentage": 17
+ *   }
+ * }
+ */
+export const POST = withAuthHandler(
+  async (request: NextRequest, { storeId }) => {
+    return calculateOrderPricingController(request, storeId);
+  },
+  { requireStoreOwnership: true, storeIdSource: 'params', storeIdParamName: 'storeId' }
+);
+
+export async function OPTIONS(request: NextRequest) {
+  const corsHeaders = await getNextCorsHeaders(request);
+  return new Response(null, { status: 204, headers: corsHeaders });
+}

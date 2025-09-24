@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { TextField } from '@shopify/polaris';
-import { useStoreCurrency } from '@/app/store/hooks/useStoreCurrency';
+import { useStoreCurrency } from '@/app/store/hooks/format/useStoreCurrency';
 
 interface PriceInputProps {
   label: string;

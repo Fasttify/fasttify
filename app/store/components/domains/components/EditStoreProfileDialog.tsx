@@ -1,6 +1,6 @@
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
 import { CurrencySelector } from '@/app/store/components/domains/components/CurrencySelector';
-import { useCurrencyConfig } from '@/app/store/components/domains/hooks/useCurrencyConfig';
+import { useCurrencyConfig } from '@/app/store/hooks/currency/useCurrencyConfig';
 import { HelpTooltip } from '@/app/store/components/navigation-management/components/HelpTooltip';
 import { useToast } from '@/app/store/context/ToastContext';
 import { storeProfileSchema, type StoreProfileFormValues } from '@/lib/zod-schemas/store-profile-schema';
