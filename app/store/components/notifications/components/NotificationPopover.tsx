@@ -83,8 +83,7 @@ export const NotificationPopover = memo(({ storeId }: NotificationPopoverProps) 
     <Popover
       active={popoverActive}
       activator={activator}
-      onClose={(source) => {
-        if (source === 'childOverlay') return;
+      onClose={() => {
         handlePopoverClose();
       }}
       preferredAlignment="right"
