@@ -10,33 +10,30 @@ interface UseNotificationPopoverProps {
 }
 
 interface UseNotificationPopoverResult {
-  // Estado del popover
   popoverActive: boolean;
   setPopoverActive: (active: boolean) => void;
   togglePopoverActive: () => void;
   handlePopoverClose: () => void;
 
-  // Datos de notificaciones
   notifications: any[];
   loading: boolean;
   error: Error | null;
   unreadCount: number;
+  loadingMore: boolean;
+  showUnreadOnly: boolean;
+  toggleShowUnreadOnly: () => void;
 
-  // Funciones de notificaciones
   markAsRead: (notificationId: string) => Promise<boolean>;
   markAllAsRead: () => Promise<boolean>;
   handleMarkAllAsRead: () => Promise<void>;
 
-  // Scroll infinito
   hasNextPage: boolean;
   loadMore: () => Promise<void>;
   scrollContainerRef: React.RefObject<HTMLDivElement>;
   handleScroll: () => void;
 
-  // Refresh
   refreshNotifications: () => void;
 
-  // Sonido
   playNotificationSound: (notificationType?: string) => void;
 }
 
@@ -50,8 +47,9 @@ export const useNotificationPopover = ({
 }: UseNotificationPopoverProps): UseNotificationPopoverResult => {
   const [popoverActive, setPopoverActive] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [showUnreadOnly, setShowUnreadOnly] = useState(true);
 
-  // Obtener storeId del contexto si no se proporciona como prop
   const { storeId: contextStoreId } = useStoreDataStore();
   const currentStoreId = storeId || contextStoreId;
 
@@ -59,15 +57,13 @@ export const useNotificationPopover = ({
     useNotifications(currentStoreId || undefined, {
       limit,
       filterOptions: {
-        read: false,
+        read: showUnreadOnly ? false : undefined,
       },
       _enabled: !!currentStoreId,
     });
 
-  // Calcular el conteo de no leídas
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // Ref para rastrear el conteo anterior de notificaciones
   const previousNotificationCountRef = useRef(0);
   const isInitialLoadRef = useRef(true);
 
@@ -76,54 +72,60 @@ export const useNotificationPopover = ({
 
   const { playNotificationSound } = useNotificationSound();
 
-  // Funciones del popover
+  const loadMoreWrapped = useCallback(async () => {
+    if (loadingMore || !hasNextPage) return;
+    setLoadingMore(true);
+    isLoadingMoreRef.current = true;
+    try {
+      await loadMore();
+    } finally {
+      isLoadingMoreRef.current = false;
+      setLoadingMore(false);
+    }
+  }, [loadingMore, hasNextPage, loadMore]);
+
   const togglePopoverActive = useCallback(() => {
     setPopoverActive((active) => !active);
+  }, []);
+
+  const toggleShowUnreadOnly = useCallback(() => {
+    setShowUnreadOnly((prev) => !prev);
   }, []);
 
   const handlePopoverClose = useCallback(() => {
     setPopoverActive(false);
   }, []);
 
-  // Callback optimizado para marcar todas como leídas y cerrar el popover
   const handleMarkAllAsRead = useCallback(async () => {
     await markAllAsRead();
     setPopoverActive(false);
   }, [markAllAsRead]);
 
-  // Scroll infinito: cargar más notificaciones cuando se llega al final
   const handleScroll = useCallback(() => {
-    // Limpiar timeout anterior
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
     }
 
-    // Debounce de 100ms para evitar ejecuciones excesivas
     scrollTimeoutRef.current = setTimeout(() => {
-      if (!scrollContainerRef.current || !hasNextPage || loading || isLoadingMoreRef.current) {
+      if (!scrollContainerRef.current || !hasNextPage || loading || isLoadingMoreRef.current || loadingMore) {
         return;
       }
 
       const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-      const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100; // 100px antes del final
+      const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
 
       if (isNearBottom) {
-        isLoadingMoreRef.current = true;
-        loadMore().finally(() => {
-          isLoadingMoreRef.current = false;
-        });
+        loadMoreWrapped();
       }
     }, 100);
-  }, [hasNextPage, loading, loadMore]);
+  }, [hasNextPage, loading, loadingMore, loadMoreWrapped]);
 
-  // Efecto para agregar el listener de scroll solo cuando el popover esté activo
   useEffect(() => {
     if (!popoverActive || disableScrollListener) return;
 
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) return;
 
-    // Pequeño delay para asegurar que el DOM esté listo
     const timer = setTimeout(() => {
       scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     }, 100);
@@ -137,70 +139,58 @@ export const useNotificationPopover = ({
     };
   }, [popoverActive, handleScroll, disableScrollListener]);
 
-  // Efecto para detectar nuevas notificaciones y reproducir sonido
   useEffect(() => {
     const currentCount = notifications.length;
     const previousCount = previousNotificationCountRef.current;
 
-    // Solo reproducir sonido si:
-    // 1. No es la carga inicial
-    // 2. Hay nuevas notificaciones
-    // 3. Las nuevas notificaciones son recientes (creadas en los últimos 5 segundos)
     if (!isInitialLoadRef.current && currentCount > previousCount && previousCount > 0) {
       const now = new Date();
       const recentNotifications = notifications.slice(0, currentCount - previousCount);
 
-      // Verificar si alguna de las nuevas notificaciones es reciente
       const hasRecentNotification = recentNotifications.some((notification) => {
         const createdAt = new Date(notification.createdAt);
         const timeDiff = now.getTime() - createdAt.getTime();
-        return timeDiff < 5000; // 5 segundos
+        return timeDiff < 5000;
       });
 
       if (hasRecentNotification) {
-        // Obtener el tipo de la notificación más reciente
         const mostRecentNotification = recentNotifications[0];
         playNotificationSound(mostRecentNotification.type || '');
       }
     }
 
-    // Marcar que ya no es la carga inicial después del primer render
     if (isInitialLoadRef.current && currentCount > 0) {
       isInitialLoadRef.current = false;
     }
 
-    // Actualizar el conteo anterior
     previousNotificationCountRef.current = currentCount;
   }, [notifications, playNotificationSound]);
 
   return {
-    // Estado del popover
     popoverActive,
     setPopoverActive,
     togglePopoverActive,
     handlePopoverClose,
 
-    // Datos de notificaciones
     notifications,
     loading,
     error,
     unreadCount,
+    loadingMore,
+    showUnreadOnly,
+    toggleShowUnreadOnly,
 
-    // Funciones de notificaciones
     markAsRead,
     markAllAsRead,
     handleMarkAllAsRead,
 
-    // Scroll infinito
     hasNextPage,
-    loadMore,
+    loadMore: loadMoreWrapped,
     scrollContainerRef,
     handleScroll,
 
-    // Refresh
     refreshNotifications,
 
-    // Sonido
     playNotificationSound,
   };
 };

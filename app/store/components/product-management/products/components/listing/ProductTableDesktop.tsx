@@ -1,7 +1,6 @@
 import type { SortField, VisibleColumns } from '@/app/store/components/product-management/products/types/product-types';
 import { getStatusText, getStatusTone } from '@/app/store/components/product-management/utils/common-utils';
 import { formatInventory } from '@/app/store/components/product-management/utils/product-utils';
-import { CurrencyDisplay } from '@/app/store/components/currency/CurrencyDisplay';
 import type { IProduct } from '@/app/store/hooks/data/useProducts';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
@@ -82,7 +81,7 @@ export function ProductTableDesktop({
   };
 
   const rowMarkup = products.map((product) => {
-    const { id, name, images, status, quantity, price, category } = product;
+    const { id, name, images, status, quantity, category } = product;
     let imageUrl: string | undefined;
 
     if (typeof images === 'string') {
@@ -116,11 +115,6 @@ export function ProductTableDesktop({
           </IndexTable.Cell>
         )}
         {visibleColumns.inventory && <IndexTable.Cell>{formatInventory(quantity ?? 0)}</IndexTable.Cell>}
-        {visibleColumns.price && (
-          <IndexTable.Cell>
-            <CurrencyDisplay value={price} />
-          </IndexTable.Cell>
-        )}
         {visibleColumns.category && <IndexTable.Cell>{category || 'Sin categoría'}</IndexTable.Cell>}
         {visibleColumns.actions && (
           <IndexTable.Cell>
@@ -197,10 +191,6 @@ export function ProductTableDesktop({
     headings.push({ title: 'Inventario' });
     sortableColumns.push('quantity');
   }
-  if (visibleColumns.price) {
-    headings.push({ title: 'Precio' });
-    sortableColumns.push('price');
-  }
   if (visibleColumns.category) {
     headings.push({ title: 'Categoría' });
     sortableColumns.push('category');
@@ -218,7 +208,7 @@ export function ProductTableDesktop({
           onSelectionChange={handleSelectionChange}
           promotedBulkActions={promotedBulkActions}
           headings={headings as [{ title: string }]}
-          sortable={[true, true, true, true, true, false]}
+          sortable={[true, true, true, true, false]}
           sortDirection={sortDirection}
           sortColumnIndex={sortColumnIndex}
           onSort={(index) => {

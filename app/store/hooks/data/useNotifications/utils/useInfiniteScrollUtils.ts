@@ -49,10 +49,12 @@ export const addNotificationsWithoutDuplicates = (
  * Función para inicializar notificaciones evitando duplicados
  */
 export const initializeNotificationsWithoutDuplicates = (
-  currentNotifications: Notification[],
-  initialNotifications: Notification[]
+  currentNotifications: Notification[] | null | undefined,
+  initialNotifications: Notification[] | null | undefined
 ): Notification[] => {
-  const existingIds = new Set(currentNotifications.map((n) => n.id));
-  const filteredInitialNotifications = initialNotifications.filter((n) => !existingIds.has(n.id));
-  return [...currentNotifications, ...filteredInitialNotifications];
+  const safeCurrent = Array.isArray(currentNotifications) ? currentNotifications : [];
+  const safeInitial = Array.isArray(initialNotifications) ? initialNotifications : [];
+  const existingIds = new Set(safeCurrent.map((n) => n.id));
+  const filteredInitialNotifications = safeInitial.filter((n) => !existingIds.has(n.id));
+  return [...safeCurrent, ...filteredInitialNotifications];
 };

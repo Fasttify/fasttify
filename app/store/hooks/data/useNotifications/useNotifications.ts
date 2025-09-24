@@ -50,11 +50,25 @@ export function useNotifications(
 
   // Efecto para inicializar las notificaciones
   useEffect(() => {
-    if (data) {
-      setAllNotifications((prev) => initializeNotificationsWithoutDuplicates(prev, data.notifications));
-      setNextToken(data.nextToken);
-    }
+    setAllNotifications((prev) => initializeNotificationsWithoutDuplicates(prev, data?.notifications || []));
+    setNextToken(data?.nextToken ?? null);
   }, [data, setAllNotifications, setNextToken]);
+
+  // Resetear lista y refetch cuando cambian los filtros o el storeId/limit
+  useEffect(() => {
+    setAllNotifications([]);
+    setNextToken(null);
+    refetch();
+  }, [
+    storeId,
+    limit,
+    filterOptions?.type,
+    filterOptions?.read,
+    filterOptions?.priority,
+    refetch,
+    setAllNotifications,
+    setNextToken,
+  ]);
 
   // Función para cargar más notificaciones (scroll infinito)
   const loadMore = useCallback(async () => {
@@ -68,10 +82,12 @@ export function useNotifications(
       if (read !== undefined) filter.read = { eq: read };
       if (priority) filter.priority = { eq: priority };
 
+      const hasFilters = Object.keys(filter).length > 0;
+
       const { data: newData, nextToken: newToken } = await client.models.Notification.listNotificationByStoreId(
         { storeId },
         {
-          filter,
+          ...(hasFilters ? { filter } : {}),
           limit,
           nextToken,
         }
