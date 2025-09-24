@@ -35,6 +35,7 @@ export function useOrderPricingWithAPI(order: IOrder | null) {
     () =>
       order
         ? {
+            id: order.id,
             subtotal: order.subtotal ?? 0,
             shippingCost: order.shippingCost ?? 0,
             taxAmount: order.taxAmount ?? 0,
@@ -48,7 +49,20 @@ export function useOrderPricingWithAPI(order: IOrder | null) {
   const enabled = Boolean(currentStore?.storeId && pricingInput);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['pricing', currentStore?.storeId, pricingInput],
+    queryKey: [
+      'pricing',
+      currentStore?.storeId,
+      pricingInput?.id,
+      pricingInput
+        ? {
+            subtotal: pricingInput.subtotal,
+            shippingCost: pricingInput.shippingCost,
+            taxAmount: pricingInput.taxAmount,
+            compareAtPrice: pricingInput.compareAtPrice,
+            currency: pricingInput.currency,
+          }
+        : null,
+    ],
     queryFn: () => calculatePricing(pricingInput as NonNullable<typeof pricingInput>, String(currentStore?.storeId)),
     enabled,
     staleTime: 60_000,

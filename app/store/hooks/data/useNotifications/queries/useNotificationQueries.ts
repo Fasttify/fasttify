@@ -36,10 +36,12 @@ export const useNotificationQueries = (
     if (priority) filter.priority = { eq: priority };
 
     // Usar el índice secundario storeId y createdAt para la paginación y ordenación
+    const hasFilters = Object.keys(filter).length > 0;
+
     const { data, nextToken } = await client.models.Notification.listNotificationByStoreId(
       { storeId },
       {
-        filter: filter, // Aplicar filtros adicionales
+        ...(hasFilters ? { filter } : {}), // Solo enviar filter si hay condiciones
         limit,
         nextToken: token,
       }
