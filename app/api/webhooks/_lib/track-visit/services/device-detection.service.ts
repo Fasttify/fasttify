@@ -136,42 +136,48 @@ export class DeviceDetectionService {
       const url = new URL(referrer);
       const hostname = url.hostname.toLowerCase();
 
+      // Helper to match domain or subdomain
+      function isDomainOrSub(hostname: string, domain: string): boolean {
+        return hostname === domain || hostname.endsWith('.' + domain);
+      }
+
       // Redes sociales
-      if (hostname.includes('facebook.com') || hostname.includes('fb.com')) {
+      if (isDomainOrSub(hostname, 'facebook.com') || isDomainOrSub(hostname, 'fb.com')) {
         return 'facebook';
       }
-      if (hostname.includes('instagram.com')) {
+      if (isDomainOrSub(hostname, 'instagram.com')) {
         return 'instagram';
       }
-      if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
+      if (isDomainOrSub(hostname, 'twitter.com') || isDomainOrSub(hostname, 'x.com')) {
         return 'twitter';
       }
-      if (hostname.includes('linkedin.com')) {
+      if (isDomainOrSub(hostname, 'linkedin.com')) {
         return 'linkedin';
       }
-      if (hostname.includes('youtube.com')) {
+      if (isDomainOrSub(hostname, 'youtube.com')) {
         return 'youtube';
       }
-      if (hostname.includes('tiktok.com')) {
+      if (isDomainOrSub(hostname, 'tiktok.com')) {
         return 'tiktok';
       }
 
       // Motores de búsqueda
-      if (hostname.includes('google.com') || hostname.includes('google.')) {
+      if (isDomainOrSub(hostname, 'google.com') || hostname.startsWith('google.')) {
         return 'google';
       }
-      if (hostname.includes('bing.com')) {
+      if (isDomainOrSub(hostname, 'bing.com')) {
         return 'bing';
       }
-      if (hostname.includes('yahoo.com')) {
+      if (isDomainOrSub(hostname, 'yahoo.com')) {
         return 'yahoo';
       }
-      if (hostname.includes('duckduckgo.com')) {
+      if (isDomainOrSub(hostname, 'duckduckgo.com')) {
         return 'duckduckgo';
       }
 
-      // Otros dominios conocidos
-      if (hostname.includes('fasttify.com')) {
+      // Otros dominios conocidos - Fasttify whitelist
+      const fasttifyHosts = ['fasttify.com', 'www.fasttify.com', 'beta.fasttify.com', 'staging.fasttify.com'];
+      if (fasttifyHosts.includes(hostname)) {
         return 'fasttify';
       }
 
