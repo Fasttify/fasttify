@@ -65,9 +65,9 @@ export class AnalyticsUpdateService {
     // Actualizar métricas combinadas
     await this.updateAnalytics(analytics.id, {
       ...pricingMetrics,
-      newCustomers: analytics.newCustomers + customerMetrics.newCustomers,
-      returningCustomers: analytics.returningCustomers + customerMetrics.returningCustomers,
-      totalCustomers: analytics.totalCustomers + customerMetrics.totalCustomers,
+      newCustomers: (analytics.newCustomers || 0) + customerMetrics.newCustomers,
+      returningCustomers: (analytics.returningCustomers || 0) + customerMetrics.returningCustomers,
+      totalCustomers: (analytics.totalCustomers || 0) + customerMetrics.totalCustomers,
       conversionRate: conversionMetrics.conversionRate,
     });
   }
