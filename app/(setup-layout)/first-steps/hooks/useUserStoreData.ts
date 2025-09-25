@@ -284,6 +284,7 @@ export const useUserStoreData = () => {
       | 'userThemes'
       | 'checkoutSessions'
       | 'notifications'
+      | 'storeAnalytics'
     >
   ) => {
     try {
