@@ -11,7 +11,8 @@
       "@/amplify/*": ["../../amplify/*"],
       "@/data-schema": ["../../amplify/data/resource"],
       "@/amplify_outputs.json": ["../../amplify_outputs.json"],
-      "@/renderer-engine/dist/*": ["./dist/*"]
+      "@/renderer-engine/dist/*": ["./dist/*"],
+      "@/api/*": ["../../app/api/*"]
     },
     "target": "ES2020",
     "lib": ["ES2020", "DOM"],

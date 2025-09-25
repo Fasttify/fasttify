@@ -77,11 +77,6 @@ export class StyleTag extends Tag {
     }
 
     this.cssContent = content.trim();
-
-    // Debug logging
-    if (this.cssContent) {
-      logger.debug(`Parsed CSS content: ${this.cssContent.substring(0, 100)}...`);
-    }
   }
 
   *render(ctx: Context): Generator<any, void, unknown> {

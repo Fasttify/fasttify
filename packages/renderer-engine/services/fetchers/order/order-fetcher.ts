@@ -19,6 +19,7 @@ import { orderValidator } from './order-validator';
 import type { CreateOrderRequest, CreateOrderResponse } from './types/order-types';
 import { EmailOrderService } from '../../notifications/email-order-service';
 import { notificationCreator } from '../../notifications';
+import { analyticsWebhookService } from '../../analytics';
 
 export class OrderFetcher {
   /**
@@ -146,6 +147,21 @@ export class OrderFetcher {
         type: 'new_order',
       });
 
+      // Disparar webhook de analíticas para nueva orden
+      await analyticsWebhookService.fireOrderCreated(checkoutSession.storeId, {
+        orderId: order.id,
+        totalAmount: order.totalAmount,
+        currency: order.currency,
+        customerId: order.customerEmail || order.customerId,
+        customerType: order.customerType,
+        items:
+          checkoutSession.itemsSnapshot?.items?.map((item: any) => ({
+            productId: item.product_id,
+            quantity: item.quantity,
+            price: item.price,
+          })) || [],
+      });
+
       return {
         success: true,
         order,
@@ -205,12 +221,28 @@ export class OrderFetcher {
    */
   public async updateOrderStatus(orderId: string, status: Order['status']): Promise<boolean> {
     try {
+      // Obtener la orden actual antes de actualizar
+      const currentOrder = await this.getOrderById(orderId);
+      if (!currentOrder) {
+        return false;
+      }
+
       const response = await cookiesClient.models.Order.update({
         id: orderId,
         status,
       });
 
       if (response.data) {
+        // Disparar webhook si la orden se cancela
+        if (status === 'cancelled') {
+          await analyticsWebhookService.fireOrderCancelled(currentOrder.storeId, {
+            orderId: currentOrder.id,
+            totalAmount: currentOrder.totalAmount,
+            currency: currentOrder.currency,
+            customerId: currentOrder.customerId,
+            reason: 'Order cancelled',
+          });
+        }
         return true;
       }
 
@@ -225,12 +257,28 @@ export class OrderFetcher {
    */
   public async updatePaymentStatus(orderId: string, paymentStatus: Order['paymentStatus']): Promise<boolean> {
     try {
+      // Obtener la orden actual antes de actualizar
+      const currentOrder = await this.getOrderById(orderId);
+      if (!currentOrder) {
+        return false;
+      }
+
       const response = await cookiesClient.models.Order.update({
         id: orderId,
         paymentStatus,
       });
 
       if (response.data) {
+        // Disparar webhook si se procesa un reembolso
+        if (paymentStatus === 'refunded') {
+          await analyticsWebhookService.fireOrderRefunded(currentOrder.storeId, {
+            orderId: currentOrder.id,
+            refundAmount: currentOrder.totalAmount,
+            currency: currentOrder.currency,
+            customerId: currentOrder.customerId,
+            reason: 'Order refunded',
+          });
+        }
         return true;
       }
 

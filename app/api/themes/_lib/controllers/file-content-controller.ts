@@ -64,9 +64,6 @@ export async function getFileContent(
       'X-XSS-Protection': '1; mode=block',
     };
 
-    const duration = Date.now() - startTime;
-    console.log(`File content loaded in ${duration}ms for: ${filePath}`);
-
     return NextResponse.json({ content: file.content || '' }, { headers: securityHeaders });
   } catch (e: any) {
     const duration = Date.now() - startTime;

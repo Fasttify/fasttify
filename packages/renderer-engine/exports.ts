@@ -42,6 +42,9 @@ export { templateLoader } from './services/templates/template-loader';
 // ===== SERVICIOS DINÁMICOS =====
 export { dynamicDataLoader } from './services/page/dynamic-data-loader';
 
+// ===== SERVICIOS DE ANALÍTICAS =====
+export { analyticsWebhookService } from './services/analytics';
+
 // ===== CONFIGURACIÓN =====
 export { pathToRenderOptions, routeMatchers } from './config/route-matchers';
 export type { RouteMatcher } from './config/route-matchers';
