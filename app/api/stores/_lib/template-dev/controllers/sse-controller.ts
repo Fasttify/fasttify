@@ -69,7 +69,6 @@ export async function handleSSEConnection(request: NextRequest): Promise<Respons
       request.signal.addEventListener('abort', () => {
         activeConnections.delete(controller);
         clearInterval(pingInterval);
-        logger.debug(`[SSE] Client disconnected, remaining: ${activeConnections.size}`, undefined, 'SSE');
       });
     },
   });

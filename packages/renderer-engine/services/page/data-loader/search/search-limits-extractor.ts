@@ -54,11 +54,6 @@ export function extractSearchLimitsFromSettings(loadedTemplates: Record<string, 
       }
     }
 
-    logger.info('Search limits extracted from settings', {
-      searchProductsLimit,
-      searchCollectionsLimit,
-    });
-
     return { searchProductsLimit, searchCollectionsLimit };
   } catch (error) {
     logger.warn('Could not parse settings schema for search limits', error);

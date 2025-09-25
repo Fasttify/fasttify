@@ -1,6 +1,8 @@
 import DevAutoReloadScript from '@/app/[store]/components/DevAutoReloadScript';
 import { generateStoreMetadata, getCachedRenderResult, isAssetPath } from '@/app/[store]/lib/store-page-utils';
 import { logger } from '@/renderer-engine/lib/logger';
+import { storeViewsTracker } from '@/renderer-engine/services/analytics/store-views-tracker.service';
+import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -57,6 +59,22 @@ export default async function StorePage({ params, searchParams }: StorePageProps
     const domain = store.includes('.') ? store : `${store}.fasttify.com`;
 
     const result = await getCachedRenderResult(domain, path, awaitedSearchParams);
+
+    // Trackear la vista de la tienda de forma asíncrona
+    try {
+      const headersObj = Object.fromEntries(requestHeaders.entries());
+      const fullUrl = `https://${cleanHostname}${path}`;
+
+      const storeRecord = await domainResolver.resolveStoreByDomain(domain);
+      const realStoreId = storeRecord.storeId;
+
+      const viewData = storeViewsTracker.captureStoreView(realStoreId, path, headersObj, fullUrl);
+      storeViewsTracker.trackStoreView(viewData).catch((trackError) => {
+        logger.error(`[StorePage] Failed to track store view for ${realStoreId}`, trackError, 'StorePage');
+      });
+    } catch (trackError) {
+      logger.error(`[StorePage] Error capturing store view for ${domain}`, trackError, 'StorePage');
+    }
 
     return (
       <>

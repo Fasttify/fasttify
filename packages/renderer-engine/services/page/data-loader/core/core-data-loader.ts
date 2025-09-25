@@ -79,13 +79,6 @@ export class CoreDataLoader {
         contextData.paginate = paginate;
       }
 
-      logger.info(`Core data loaded successfully for ${options.pageType}`, {
-        productsCount: loadedData.products?.length || 0,
-        collectionsCount: loadedData.collections?.length || 0,
-        hasPagination: analysis.hasPagination,
-        paginationLimit: currentLimitForLogging,
-      });
-
       return {
         products: loadedData.products || [],
         collections: loadedData.collections || [],

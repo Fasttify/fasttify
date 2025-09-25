@@ -94,13 +94,11 @@ export class SearchDataLoader {
 
       if (searchTerm) {
         searchProducts = await searchProductsByTerm(storeId, searchTerm, searchProductsLimit);
-        logger.info(`Search by term results: ${searchProducts.length} products for term "${searchTerm}"`);
       } else {
         const searchProductsData = await dataFetcher.getStoreProducts(storeId, {
           limit: searchProductsLimit,
         });
         searchProducts = searchProductsData.products || [];
-        logger.info(`Loaded ${searchProducts.length} regular products for search page`);
       }
 
       let searchCollections: any[] = [];

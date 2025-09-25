@@ -28,6 +28,7 @@ import { notificationReturnModel } from './models/notification-return';
 import { productDeleteReturnModel } from './models/product-delete-return';
 import { orderDeleteReturnModel } from './models/order-delete-return';
 import { checkoutDeleteReturnModel } from './models/checkout-delete-return';
+import { storeAnalyticsModel } from './models/store-analytics';
 import { CHAT_GENERATION_SYSTEM_PROMPT } from './functions/chat-generate/systemPrompt';
 
 export const MODEL_ID = 'us.amazon.nova-pro-v1:0';
@@ -101,6 +102,7 @@ export const storeSchema = a
     UserTheme: userThemeModel,
     Notification: notificationModel,
     NotificationReturn: notificationReturnModel,
+    StoreAnalytics: storeAnalyticsModel,
   })
   .authorization((allow) => [
     allow.resource(postConfirmation),
@@ -313,6 +315,7 @@ const fullSchema = a
     ProductDeleteReturn: productDeleteReturnModel,
     OrderDeleteReturn: orderDeleteReturnModel,
     CheckoutDeleteReturn: checkoutDeleteReturnModel,
+    StoreAnalytics: storeAnalyticsModel,
   })
   .authorization((allow) => [
     allow.resource(postConfirmation),
