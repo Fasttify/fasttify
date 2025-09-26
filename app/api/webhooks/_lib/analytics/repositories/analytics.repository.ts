@@ -21,44 +21,65 @@ export class AnalyticsRepository {
    * Si no existe, lo crea con valores iniciales.
    */
   async getOrCreateAnalytics(storeId: string, date: string): Promise<StoreAnalyticsRecord> {
-    const existingResponse = await cookiesClient.models.StoreAnalytics.analyticsByStore({ storeId });
-    const existingAnalytics = existingResponse.data?.find((a: StoreAnalyticsRecord) => a.date === date);
-    if (existingAnalytics) return existingAnalytics as StoreAnalyticsRecord;
+    // Buscar paginando por storeId hasta encontrar la fecha del día
+    let nextToken: string | undefined = undefined;
+    do {
+      const response = await cookiesClient.models.StoreAnalytics.analyticsByStore(
+        { storeId },
+        nextToken ? { nextToken } : undefined
+      );
+      const found = response.data?.find((a: StoreAnalyticsRecord) => a.date === date);
+      if (found) return found as StoreAnalyticsRecord;
+      nextToken = (response as any)?.nextToken;
+    } while (nextToken);
 
     const store = await cookiesClient.models.UserStore.get({ storeId });
     const storeOwner = store?.data?.userId;
     if (!storeOwner) throw new Error(`Store owner not found for store ${storeId}`);
 
-    const createResponse = await cookiesClient.models.StoreAnalytics.create({
-      storeId,
-      storeOwner,
-      date,
-      period: 'daily',
-      totalRevenue: 0,
-      totalOrders: 0,
-      averageOrderValue: 0,
-      newCustomers: 0,
-      returningCustomers: 0,
-      totalCustomers: 0,
-      totalProductsSold: 0,
-      uniqueProductsSold: 0,
-      lowStockAlerts: 0,
-      outOfStockProducts: 0,
-      storeViews: 0,
-      conversionRate: 0,
-      totalDiscounts: 0,
-      discountPercentage: 0,
-      sessionsByCountry: null,
-      sessionsByDevice: null,
-      sessionsByBrowser: null,
-      sessionsByReferrer: null,
-      uniqueVisitors: 0,
-      totalSessions: 0,
-    });
-    if (!createResponse.data) {
-      throw new Error(`Failed to create analytics record: ${JSON.stringify(createResponse.errors)}`);
+    try {
+      const createResponse = await cookiesClient.models.StoreAnalytics.create({
+        storeId,
+        storeOwner,
+        date,
+        period: 'daily',
+        totalRevenue: 0,
+        totalOrders: 0,
+        averageOrderValue: 0,
+        newCustomers: 0,
+        returningCustomers: 0,
+        totalCustomers: 0,
+        totalProductsSold: 0,
+        uniqueProductsSold: 0,
+        lowStockAlerts: 0,
+        outOfStockProducts: 0,
+        storeViews: 0,
+        conversionRate: 0,
+        totalDiscounts: 0,
+        discountPercentage: 0,
+        sessionsByCountry: null,
+        sessionsByDevice: null,
+        sessionsByBrowser: null,
+        sessionsByReferrer: null,
+        uniqueVisitors: 0,
+        totalSessions: 0,
+      });
+      if (!createResponse.data) {
+        throw new Error(`Failed to create analytics record: ${JSON.stringify(createResponse.errors)}`);
+      }
+      return createResponse.data as StoreAnalyticsRecord;
+    } catch (error: any) {
+      // Si otro proceso lo creó en paralelo, buscar nuevamente
+      const conflictHints = ['Conflict', 'already exists', 'ConditionalCheckFailed'];
+      const message = typeof error?.message === 'string' ? error.message : String(error);
+      if (conflictHints.some((h) => message.includes(h))) {
+        // Buscar nuevamente por si otro proceso lo creó
+        const retryResponse = await cookiesClient.models.StoreAnalytics.analyticsByStore({ storeId });
+        const retryFound = retryResponse.data?.find((a: StoreAnalyticsRecord) => a.date === date);
+        if (retryFound) return retryFound as StoreAnalyticsRecord;
+      }
+      throw error;
     }
-    return createResponse.data as StoreAnalyticsRecord;
   }
 
   /**
