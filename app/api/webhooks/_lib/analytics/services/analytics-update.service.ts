@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { cookiesClient } from '@/utils/server/AmplifyServer';
-import { AnalyticsWebhookEventSchema } from '../types/analytics-webhook.types';
+import { AnalyticsWebhookEventSchema } from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
 import type {
   OrderCreatedData,
   OrderCancelledData,
@@ -24,312 +23,59 @@ import type {
   InventoryOutData,
   NewCustomerData,
   CustomerLoginData,
-} from '../types/analytics-webhook.types';
-import { pricingMetricsService } from './pricing-metrics.service';
-import { customerMetricsService } from './customer-metrics.service';
-import { inventoryMetricsService } from './inventory-metrics.service';
-import { conversionMetricsService } from './conversion-metrics.service';
-import { detailedMetricsService } from './detailed-metrics.service';
+} from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
+import { orderAnalyticsService } from '@/app/api/webhooks/_lib/analytics/services/order-analytics.service';
+import { inventoryAnalyticsService } from '@/app/api/webhooks/_lib/analytics/services/inventory-analytics.service';
+import { customerAnalyticsService } from '@/app/api/webhooks/_lib/analytics/services/customer-analytics.service';
+import { viewAnalyticsService } from '@/app/api/webhooks/_lib/analytics/services/view-analytics.service';
 
 /**
- * Servicio para actualizar analíticas en tiempo real mediante webhooks
+ * Fachada de actualización de analíticas.
+ *
+ * - Expone métodos de alto nivel por tipo de evento.
+ * - Cada método delega la lógica a servicios de dominio especializados
+ *   (órdenes, inventario, clientes, vistas) para mantener el SRP.
+ * - Mantener esta clase delgada facilita pruebas y mantenimiento.
  */
 export class AnalyticsUpdateService {
-  /**
-   * Actualiza las métricas cuando se crea una nueva orden
-   */
+  /** Delegación: creación de orden */
   async updateOrderMetrics(storeId: string, orderData: OrderCreatedData): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
-
-    // Obtener o crear analytics del día
-    const analytics = await this.getOrCreateAnalytics(storeId, today);
-
-    // Calcular métricas usando servicios especializados
-    const pricingMetrics = await pricingMetricsService.calculateOrderPricingMetrics(orderData, analytics);
-    const customerMetrics = await customerMetricsService.calculateOrderCustomerMetrics(orderData, analytics, storeId);
-    const conversionMetrics = await conversionMetricsService.calculateOrderConversionMetrics(orderData, analytics);
-
-    // Validar métricas antes de actualizar
-    if (!pricingMetricsService.validatePricingCalculations(pricingMetrics)) {
-      throw new Error('Invalid pricing calculations detected');
-    }
-
-    if (!customerMetricsService.validateCustomerMetrics(customerMetrics)) {
-      throw new Error('Invalid customer metrics detected');
-    }
-
-    if (!conversionMetricsService.validateConversionMetrics(conversionMetrics)) {
-      throw new Error('Invalid conversion metrics detected');
-    }
-
-    // Actualizar métricas combinadas
-    await this.updateAnalytics(analytics.id, {
-      ...pricingMetrics,
-      newCustomers: (analytics.newCustomers || 0) + customerMetrics.newCustomers,
-      returningCustomers: (analytics.returningCustomers || 0) + customerMetrics.returningCustomers,
-      totalCustomers: (analytics.totalCustomers || 0) + customerMetrics.totalCustomers,
-      conversionRate: conversionMetrics.conversionRate,
-    });
+    await orderAnalyticsService.onOrderCreated(storeId, orderData);
   }
-
-  /**
-   * Actualiza las métricas cuando se cancela una orden
-   */
+  /** Delegación: cancelación de orden */
   async updateOrderCancelledMetrics(storeId: string, orderData: OrderCancelledData): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
-
-    const analytics = await this.getOrCreateAnalytics(storeId, today);
-
-    // Calcular métricas usando servicios especializados
-    const pricingMetrics = await pricingMetricsService.calculateOrderCancelledMetrics(orderData, analytics);
-    const conversionMetrics = await conversionMetricsService.calculateOrderCancelledConversionMetrics(
-      orderData,
-      analytics
-    );
-
-    // Validar métricas antes de actualizar
-    if (!pricingMetricsService.validatePricingCalculations(pricingMetrics)) {
-      throw new Error('Invalid pricing calculations detected for cancelled order');
-    }
-
-    if (!conversionMetricsService.validateConversionMetrics(conversionMetrics)) {
-      throw new Error('Invalid conversion metrics detected for cancelled order');
-    }
-
-    await this.updateAnalytics(analytics.id, {
-      ...pricingMetrics,
-      conversionRate: conversionMetrics.conversionRate,
-    });
+    await orderAnalyticsService.onOrderCancelled(storeId, orderData);
   }
-
-  /**
-   * Actualiza las métricas cuando se procesa un reembolso
-   */
+  /** Delegación: reembolso de orden */
   async updateOrderRefundedMetrics(storeId: string, orderData: OrderRefundedData): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
-
-    const analytics = await this.getOrCreateAnalytics(storeId, today);
-
-    // Calcular métricas usando servicios especializados
-    const pricingMetrics = await pricingMetricsService.calculateOrderRefundedMetrics(orderData, analytics);
-
-    // Validar métricas antes de actualizar
-    if (!pricingMetricsService.validatePricingCalculations(pricingMetrics)) {
-      throw new Error('Invalid pricing calculations detected for refunded order');
-    }
-
-    await this.updateAnalytics(analytics.id, pricingMetrics);
+    await orderAnalyticsService.onOrderRefunded(storeId, orderData);
   }
-
-  /**
-   * Actualiza las métricas de inventario bajo
-   */
+  /** Delegación: inventario bajo */
   async updateInventoryLowMetrics(storeId: string, inventoryData: InventoryLowData): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
-
-    const analytics = await this.getOrCreateAnalytics(storeId, today);
-
-    // Calcular métricas usando servicios especializados
-    const inventoryMetrics = await inventoryMetricsService.calculateInventoryLowMetrics(inventoryData, analytics);
-
-    // Validar métricas antes de actualizar
-    if (!inventoryMetricsService.validateInventoryMetrics(inventoryMetrics)) {
-      throw new Error('Invalid inventory metrics detected for low stock');
-    }
-
-    await this.updateAnalytics(analytics.id, inventoryMetrics);
+    await inventoryAnalyticsService.onInventoryLow(storeId, inventoryData);
   }
-
-  /**
-   * Actualiza las métricas de inventario agotado
-   */
+  /** Delegación: inventario agotado */
   async updateInventoryOutMetrics(storeId: string, inventoryData: InventoryOutData): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
-
-    const analytics = await this.getOrCreateAnalytics(storeId, today);
-
-    // Calcular métricas usando servicios especializados
-    const inventoryMetrics = await inventoryMetricsService.calculateInventoryOutMetrics(inventoryData, analytics);
-
-    // Validar métricas antes de actualizar
-    if (!inventoryMetricsService.validateInventoryMetrics(inventoryMetrics)) {
-      throw new Error('Invalid inventory metrics detected for out of stock');
-    }
-
-    await this.updateAnalytics(analytics.id, inventoryMetrics);
+    await inventoryAnalyticsService.onInventoryOut(storeId, inventoryData);
   }
-
-  /**
-   * Actualiza las métricas de clientes nuevos
-   */
+  /** Delegación: nuevo cliente */
   async updateNewCustomerMetrics(storeId: string, customerData: NewCustomerData): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
-
-    const analytics = await this.getOrCreateAnalytics(storeId, today);
-
-    // Calcular métricas usando servicios especializados
-    const customerMetrics = await customerMetricsService.calculateNewCustomerMetrics(customerData, analytics);
-
-    // Validar métricas antes de actualizar
-    if (!customerMetricsService.validateCustomerMetrics(customerMetrics)) {
-      throw new Error('Invalid customer metrics detected for new customer');
-    }
-
-    await this.updateAnalytics(analytics.id, customerMetrics);
+    await customerAnalyticsService.onNewCustomer(storeId, customerData);
   }
-
-  /**
-   * Actualiza las métricas de login de clientes
-   */
+  /** Delegación: login de cliente */
   async updateCustomerLoginMetrics(storeId: string, customerData: CustomerLoginData): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
-
-    const analytics = await this.getOrCreateAnalytics(storeId, today);
-
-    // Calcular métricas usando servicios especializados
-    const customerMetrics = await customerMetricsService.calculateCustomerLoginMetrics(customerData, analytics);
-
-    // Validar métricas antes de actualizar
-    if (!customerMetricsService.validateCustomerMetrics(customerMetrics)) {
-      throw new Error('Invalid customer metrics detected for customer login');
-    }
-
-    await this.updateAnalytics(analytics.id, customerMetrics);
+    await customerAnalyticsService.onCustomerLogin(storeId, customerData);
   }
-
-  /**
-   * Actualiza las métricas de vistas de tienda
-   */
+  /** Delegación: vista de tienda */
   async updateStoreViewMetrics(storeId: string, viewData: any): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
-
-    const analytics = await this.getOrCreateAnalytics(storeId, today);
-
-    // Calcular métricas de conversión básicas
-    const conversionMetrics = await conversionMetricsService.calculateStoreViewMetrics(viewData, analytics);
-
-    // Calcular métricas detalladas (dispositivo, país, navegador, etc.)
-    const detailedMetrics = await detailedMetricsService.calculateDetailedStoreViewMetrics(viewData, analytics);
-
-    // Combinar todas las métricas
-    const allMetrics = {
-      ...conversionMetrics,
-      ...detailedMetrics,
-    };
-
-    // Validar métricas antes de actualizar
-    if (!conversionMetricsService.validateConversionMetrics(conversionMetrics)) {
-      throw new Error('Invalid conversion metrics detected for store view');
-    }
-
-    if (!detailedMetricsService.validateDetailedMetrics(detailedMetrics)) {
-      throw new Error('Invalid detailed metrics detected for store view');
-    }
-
-    await this.updateAnalytics(analytics.id, allMetrics);
+    await viewAnalyticsService.onStoreView(storeId, viewData);
   }
-
   /**
-   * Obtiene o crea analytics para un día específico
-   */
-  private async getOrCreateAnalytics(storeId: string, date: string) {
-    // Buscar analytics existentes - usar índice simple y filtrar por fecha
-    const existingResponse = await cookiesClient.models.StoreAnalytics.analyticsByStore({ storeId });
-
-    // Filtrar por fecha en el cliente
-    const existingAnalytics = existingResponse.data?.find((analytics) => analytics.date === date);
-
-    if (existingAnalytics) {
-      return existingAnalytics;
-    }
-
-    // Crear nuevos analytics
-    const store = await cookiesClient.models.UserStore.get({ storeId });
-    const storeOwner = store?.data?.userId;
-
-    if (!storeOwner) {
-      throw new Error(`Store owner not found for store ${storeId}`);
-    }
-
-    const createResponse = await cookiesClient.models.StoreAnalytics.create({
-      storeId,
-      storeOwner,
-      date,
-      period: 'daily',
-      totalRevenue: 0,
-      totalOrders: 0,
-      averageOrderValue: 0,
-      newCustomers: 0,
-      returningCustomers: 0,
-      totalCustomers: 0,
-      totalProductsSold: 0,
-      uniqueProductsSold: 0,
-      lowStockAlerts: 0,
-      outOfStockProducts: 0,
-      storeViews: 0,
-      conversionRate: 0,
-      totalDiscounts: 0,
-      discountPercentage: 0,
-      sessionsByCountry: null,
-      sessionsByDevice: null,
-      sessionsByBrowser: null,
-      sessionsByReferrer: null,
-      uniqueVisitors: 0,
-      totalSessions: 0,
-    });
-
-    if (!createResponse.data) {
-      throw new Error(`Failed to create analytics record: ${JSON.stringify(createResponse.errors)}`);
-    }
-
-    return createResponse.data;
-  }
-
-  /**
-   * Actualiza analytics existentes
-   */
-  private async updateAnalytics(analyticsId: string, updates: Partial<any>) {
-    // Convertir objetos JavaScript a JSON strings para campos JSON
-    const processedUpdates: any = { ...updates };
-
-    // Campos que deben ser convertidos a JSON
-    const jsonFields = [
-      'sessionsByCountry',
-      'sessionsByDevice',
-      'sessionsByBrowser',
-      'sessionsByReferrer',
-      'countries',
-      'conversionRateByCountry',
-      'uniqueVisitorsByCountry',
-    ];
-
-    for (const field of jsonFields) {
-      if (processedUpdates[field] !== undefined) {
-        if (processedUpdates[field] === null) {
-          // Mantener null como null
-          processedUpdates[field] = null;
-        } else if (typeof processedUpdates[field] === 'object') {
-          // Convertir objetos a JSON string
-          processedUpdates[field] = JSON.stringify(processedUpdates[field]);
-        }
-        // Si es string, mantenerlo como está
-      }
-    }
-
-    const result = await cookiesClient.models.StoreAnalytics.update({
-      id: analyticsId,
-      ...processedUpdates,
-    });
-
-    return result;
-  }
-
-  /**
-   * Valida el evento del webhook usando Zod
+   * Valida el payload del webhook (Zod). Devuelve estructura uniforme
+   * para controlar flujo en el controlador antes de procesar métricas.
    */
   validateWebhookEvent(event: unknown): { isValid: boolean; errors: string[]; data?: any } {
     const result = AnalyticsWebhookEventSchema.safeParse(event);
-
     if (result.success) {
       return {
         isValid: true,
@@ -337,13 +83,10 @@ export class AnalyticsUpdateService {
         data: result.data,
       };
     }
-
     return {
       isValid: false,
       errors: result.error.errors.map((err) => `${err.path.join('.')}: ${err.message}`),
     };
   }
 }
-
-// Instancia singleton del servicio
 export const analyticsUpdateService = new AnalyticsUpdateService();

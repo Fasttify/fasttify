@@ -302,7 +302,6 @@ export class AnalyticsWebhookService {
       return process.env.APP_URL || 'https://fasttify.com';
     }
 
-    // Para desarrollo, usar localhost
     return 'http://localhost:3000';
   }
 

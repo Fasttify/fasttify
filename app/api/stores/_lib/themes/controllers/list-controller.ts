@@ -51,8 +51,6 @@ export async function listThemes(request: NextRequest, storeId: string): Promise
       );
     }
 
-    logger.info('Themes listed successfully', { storeId, count: themes.length }, 'ThemeListAPI');
-
     return NextResponse.json(
       {
         success: true,

@@ -19,6 +19,7 @@ import { geolocationService } from '@/api/webhooks/_lib/track-visit/services/geo
 import { deviceDetectionService } from '@/api/webhooks/_lib/track-visit/services/device-detection.service';
 import { AnalyticsWebhookJWTAuth } from '@/app/api/webhooks/_lib/middleware/jwt-auth.middleware';
 import type { ServerViewData } from '@/api/webhooks/_lib/track-visit/types/track-visit.types';
+import { ServerViewDataSchema } from '@/app/api/webhooks/_lib/track-visit/types/track-visit.types';
 
 /**
  * Servicio para procesar y trackear visitas de tiendas
@@ -126,7 +127,6 @@ export class TrackVisitService {
    * Valida los datos de vista usando Zod
    */
   validateViewData(data: unknown): { isValid: boolean; errors: string[]; data?: ServerViewData } {
-    const { ServerViewDataSchema } = require('../types/track-visit.types');
     const result = ServerViewDataSchema.safeParse(data);
 
     if (result.success) {

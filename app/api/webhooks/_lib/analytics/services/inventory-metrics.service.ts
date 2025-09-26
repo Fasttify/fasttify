@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import type { InventoryLowData, InventoryOutData } from '../types/analytics-webhook.types';
+import type {
+  InventoryLowData,
+  InventoryOutData,
+} from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
 
 /**
  * Servicio especializado para métricas de inventario
