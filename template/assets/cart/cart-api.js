@@ -53,10 +53,17 @@ class CartAPI {
   }
 
   async updateCartItem(itemId, quantity) {
-    return this.makeRequest('', {
+    const result = await this.makeRequest('', {
       method: 'PATCH',
       body: JSON.stringify({ itemId, quantity }),
     });
+
+    // Verificar si la respuesta indica un error
+    if (result.success === false && result.error) {
+      throw new Error(result.error);
+    }
+
+    return result;
   }
 
   async removeCartItem(itemId) {

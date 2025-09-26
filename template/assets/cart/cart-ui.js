@@ -29,12 +29,13 @@ class CartUI {
     }
   }
 
-  updateCartDisplay(cart) {
+  updateCartDisplay(cart, errorMessage = null) {
     if (!this.cartContentContainer) return;
 
     if (!cart || !Array.isArray(cart.items)) {
-      console.error('updateCartDisplay received invalid cart object or missing items array:', cart);
-      this.cartContentContainer.innerHTML = CartTemplates.generateErrorStateHtml();
+      this.cartContentContainer.innerHTML = CartTemplates.generateErrorStateHtml(
+        errorMessage || 'Error al cargar el carrito'
+      );
       this.hideCartFooter();
       return;
     }
