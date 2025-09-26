@@ -30,23 +30,14 @@ export async function addToCart(request: NextRequest, storeId: string): Promise<
   let sessionId = cookiesStore.get(SESSION_ID_COOKIE_NAME)?.value;
   let newSessionIdGenerated = false;
 
-  logger.info(`[Cart API] POST request - storeId: ${storeId}, sessionId: ${sessionId || 'NOT_FOUND'}`, null, 'CartAPI');
-
   if (!sessionId) {
     sessionId = uuidv4();
     newSessionIdGenerated = true;
-    logger.info(`[Cart API] Generated new sessionId for POST: ${sessionId}`, null, 'CartAPI');
   }
 
   try {
     const body = await request.json();
     const { productId, variantId, quantity, selectedAttributes } = body;
-
-    logger.info(
-      `[Cart API] Adding to cart - productId: ${productId}, variantId: ${variantId}, quantity: ${quantity}, selectedAttributes: ${JSON.stringify(selectedAttributes)}`,
-      null,
-      'CartAPI'
-    );
 
     if (!productId || !quantity) {
       return NextResponse.json(
@@ -64,8 +55,6 @@ export async function addToCart(request: NextRequest, storeId: string): Promise<
       sessionId,
     });
 
-    logger.info(`[Cart API] Item added to cart for sessionId: ${sessionId}`, null, 'CartAPI');
-
     const response = NextResponse.json(
       {
         success: cartResponse.success,
@@ -78,7 +67,6 @@ export async function addToCart(request: NextRequest, storeId: string): Promise<
     if (newSessionIdGenerated) {
       const cookieOptions = getCartCookieOptions();
       response.cookies.set(SESSION_ID_COOKIE_NAME, sessionId, cookieOptions);
-      logger.info(`[Cart API] Set new cookie for POST sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     return response;

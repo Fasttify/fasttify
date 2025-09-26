@@ -30,23 +30,14 @@ export async function updateCart(request: NextRequest, storeId: string): Promise
   let sessionId = cookiesStore.get(SESSION_ID_COOKIE_NAME)?.value;
   let newSessionIdGenerated = false;
 
-  logger.info(
-    `[Cart API] PATCH request - storeId: ${storeId}, sessionId: ${sessionId || 'NOT_FOUND'}`,
-    null,
-    'CartAPI'
-  );
-
   if (!sessionId) {
     sessionId = uuidv4();
     newSessionIdGenerated = true;
-    logger.info(`[Cart API] Generated new sessionId for PATCH: ${sessionId}`, null, 'CartAPI');
   }
 
   try {
     const body = await request.json();
     const { itemId, quantity } = body;
-
-    logger.info(`[Cart API] Updating cart item - itemId: ${itemId}, quantity: ${quantity}`, null, 'CartAPI');
 
     if (!itemId || typeof quantity === 'undefined') {
       return NextResponse.json(
@@ -56,8 +47,6 @@ export async function updateCart(request: NextRequest, storeId: string): Promise
     }
 
     const cartResponse = await cartFetcher.updateCartItem({ storeId, itemId, quantity, sessionId });
-
-    logger.info(`[Cart API] Cart item updated for sessionId: ${sessionId}`, null, 'CartAPI');
 
     const response = NextResponse.json(
       {
@@ -72,7 +61,6 @@ export async function updateCart(request: NextRequest, storeId: string): Promise
     if (newSessionIdGenerated) {
       const cookieOptions = getCartCookieOptions();
       response.cookies.set(SESSION_ID_COOKIE_NAME, sessionId, cookieOptions);
-      logger.info(`[Cart API] Set new cookie for PATCH sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     return response;

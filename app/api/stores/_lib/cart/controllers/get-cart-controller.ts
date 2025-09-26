@@ -34,7 +34,6 @@ export async function getCart(request: NextRequest, storeId: string): Promise<Ne
   if (!sessionId) {
     sessionId = uuidv4();
     newSessionIdGenerated = true;
-    logger.info(`[Cart API] Generated new sessionId: ${sessionId}`, null, 'CartAPI');
   }
 
   try {
@@ -46,7 +45,6 @@ export async function getCart(request: NextRequest, storeId: string): Promise<Ne
     if (newSessionIdGenerated) {
       const cookieOptions = getCartCookieOptions();
       response.cookies.set(SESSION_ID_COOKIE_NAME, sessionId, cookieOptions);
-      logger.info(`[Cart API] Set new cookie for sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     return response;

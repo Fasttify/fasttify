@@ -85,11 +85,18 @@ class SideCart {
       this.ui.setLoadingState(true);
 
       const data = await cartAPI.updateCartItem(itemId, quantity);
-      this.ui.updateCartDisplay(data.cart);
-      document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data.cart } }));
+      if (data.cart) {
+        this.ui.updateCartDisplay(data.cart);
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data.cart } }));
+      } else {
+        // Si no hay cart, mostrar el error específico
+        this.ui.updateCartDisplay(undefined, 'Error al cargar el carrito');
+      }
     } catch (error) {
-      CartHelpers.showError(`Error al actualizar cantidad: ${error.message || 'Hubo un problema'}`);
-      this.refresh();
+      // Mostrar el error específico del backend
+      const errorMessage = error.message || 'Hubo un problema';
+      this.ui.updateCartDisplay(undefined, errorMessage);
+      CartHelpers.showError(errorMessage);
     } finally {
       this.isUpdating = false;
       this.ui.setLoadingState(false);

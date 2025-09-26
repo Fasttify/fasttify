@@ -20,5 +20,4 @@ export { AnalyticsUpdateService, analyticsUpdateService } from './analytics-upda
 // Servicios especializados
 export { PricingMetricsService, pricingMetricsService } from './pricing-metrics.service';
 export { CustomerMetricsService, customerMetricsService } from './customer-metrics.service';
-export { InventoryMetricsService, inventoryMetricsService } from './inventory-metrics.service';
 export { ConversionMetricsService, conversionMetricsService } from './conversion-metrics.service';

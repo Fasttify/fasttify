@@ -12,14 +12,14 @@
 
 import type { Order } from '@/renderer-engine/types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
-import { customerInfoManager } from './customer-info-manager';
-import { orderItemCreator } from './order-item-creator';
-import { orderNumberGenerator } from './order-number-generator';
-import { orderValidator } from './order-validator';
+import { customerInfoManager } from '@/renderer-engine/services/fetchers/order/customer-info-manager';
+import { orderItemCreator } from '@/renderer-engine/services/fetchers/order/order-item-creator';
+import { orderNumberGenerator } from '@/renderer-engine/services/fetchers/order/order-number-generator';
+import { orderValidator } from '@/renderer-engine/services/fetchers/order/order-validator';
 import type { CreateOrderRequest, CreateOrderResponse } from './types/order-types';
-import { EmailOrderService } from '../../notifications/email-order-service';
-import { notificationCreator } from '../../notifications';
-import { analyticsWebhookService } from '../../analytics';
+import { EmailOrderService } from '@/renderer-engine/services/notifications/email-order-service';
+import { notificationCreator } from '@/renderer-engine/services/notifications';
+import { analyticsWebhookService } from '@/renderer-engine/services/analytics';
 
 export class OrderFetcher {
   /**

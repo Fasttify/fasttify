@@ -35,7 +35,12 @@ export const productModel = a
     costPerItem: a.float(),
     sku: a.string(),
     barcode: a.string(),
-    quantity: a.integer(),
+    quantity: a
+      .integer()
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read', 'update']),
+        allow.ownerDefinedIn('owner').to(['create', 'read', 'update', 'delete']),
+      ]),
     category: a.string(),
     images: a.json(),
     attributes: a.json(),

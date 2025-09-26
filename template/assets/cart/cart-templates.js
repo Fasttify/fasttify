@@ -90,10 +90,10 @@ class CartTemplates {
     `;
   }
 
-  static generateErrorStateHtml() {
+  static generateErrorStateHtml(errorMessage = 'Error al cargar el carrito') {
     return `
       <div class="cart-error-state">
-        <p>Error al cargar el carrito</p>
+        <p>${errorMessage}</p>
         <button type="button" onclick="window.sideCart?.refresh()" class="retry-btn">
           Reintentar
         </button>
