@@ -30,7 +30,7 @@ interface InventoryUpdateItem {
 export class InventoryStockService {
   private getThreshold(product: any): number {
     const fallback = 5;
-    // Si el modelo Product tuviera lowStockThreshold, úsalo; si no, fallback
+
     const threshold = (product && (product as any).lowStockThreshold) ?? fallback;
     return typeof threshold === 'number' && threshold >= 0 ? threshold : fallback;
   }
@@ -62,8 +62,6 @@ export class InventoryStockService {
         const errorText = await response.text();
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
-
-      logger.debug('[InventoryStockService] Inventory webhook sent', { type, storeId }, 'InventoryStockService');
     } catch (error) {
       logger.error('[InventoryStockService] Error sending inventory webhook', error, 'InventoryStockService');
     }
@@ -165,10 +163,6 @@ export class InventoryStockService {
     try {
       const items = orderData.items || [];
       if (!Array.isArray(items) || items.length === 0) {
-        logger.debug(
-          '[InventoryStockService] No items provided in OrderCancelledData; skipping stock increment',
-          'InventoryStockService'
-        );
         return;
       }
 

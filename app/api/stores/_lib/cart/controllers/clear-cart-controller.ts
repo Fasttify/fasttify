@@ -30,22 +30,13 @@ export async function clearCart(request: NextRequest, storeId: string): Promise<
   let sessionId = cookiesStore.get(SESSION_ID_COOKIE_NAME)?.value;
   let newSessionIdGenerated = false;
 
-  logger.info(
-    `[Cart API] DELETE request - storeId: ${storeId}, sessionId: ${sessionId || 'NOT_FOUND'}`,
-    null,
-    'CartAPI'
-  );
-
   if (!sessionId) {
     sessionId = uuidv4();
     newSessionIdGenerated = true;
-    logger.info(`[Cart API] Generated new sessionId for DELETE: ${sessionId}`, null, 'CartAPI');
   }
 
   try {
     const cartResponse = await cartFetcher.clearCart(storeId, sessionId);
-
-    logger.info(`[Cart API] Cart cleared for sessionId: ${sessionId}`, null, 'CartAPI');
 
     const response = NextResponse.json(
       {
@@ -59,7 +50,6 @@ export async function clearCart(request: NextRequest, storeId: string): Promise<
     if (newSessionIdGenerated) {
       const cookieOptions = getCartCookieOptions();
       response.cookies.set(SESSION_ID_COOKIE_NAME, sessionId, cookieOptions);
-      logger.info(`[Cart API] Set new cookie for DELETE sessionId: ${sessionId}`, null, 'CartAPI');
     }
 
     return response;

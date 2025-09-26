@@ -21,6 +21,7 @@ import { cookiesClient } from '@/utils/server/AmplifyServer';
 import { cartContextTransformer } from './cart-context-transformer';
 import { cartItemTransformer } from './cart-item-transformer';
 import { cartTotalsCalculator } from './cart-totals-calculator';
+import { cartStockValidator } from './cart-stock-validator';
 import type { AddToCartRequest, CartResponse, UpdateCartRequest, UserStoreCurrency } from './types/cart-types';
 
 export class CartFetcher {
@@ -96,6 +97,7 @@ export class CartFetcher {
 
   /**
    * Agrega un producto al carrito o actualiza su cantidad si ya existe.
+   * Valida que haya suficiente stock disponible antes de agregar.
    */
   public async addToCart(request: AddToCartRequest): Promise<CartResponse> {
     try {
@@ -109,6 +111,19 @@ export class CartFetcher {
       const product = await dataFetcher.getProduct(storeId, productId);
       if (!product) {
         return { success: false, error: 'Product not found.' };
+      }
+
+      // Validar stock disponible
+      const stockValidation = await cartStockValidator.validateStockAvailability(
+        storeId,
+        productId,
+        variantId,
+        quantity,
+        currentCart.id
+      );
+
+      if (!stockValidation.isValid) {
+        return { success: false, error: stockValidation.error };
       }
 
       const productSnapshot = cartItemTransformer.createProductSnapshot(product, selectedAttributes);
@@ -187,6 +202,7 @@ export class CartFetcher {
 
   /**
    * Actualiza la cantidad de un item en el carrito o lo elimina si la cantidad es <= 0.
+   * Valida que haya suficiente stock disponible antes de actualizar.
    */
   public async updateCartItem(request: UpdateCartRequest): Promise<CartResponse> {
     try {
@@ -206,6 +222,20 @@ export class CartFetcher {
       if (quantity <= 0) {
         await cookiesClient.models.CartItem.delete({ id: itemId });
       } else {
+        // Validar stock disponible para la nueva cantidad
+        const stockValidation = await cartStockValidator.validateStockForUpdate(
+          storeId,
+          existingItem.productId,
+          existingItem.variantId,
+          quantity,
+          currentCart.id,
+          itemId
+        );
+
+        if (!stockValidation.isValid) {
+          return { success: false, error: stockValidation.error };
+        }
+
         const updatedTotalPrice = existingItem.unitPrice * quantity;
         await cookiesClient.models.CartItem.update({
           id: itemId,

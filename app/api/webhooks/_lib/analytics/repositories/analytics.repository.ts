@@ -6,6 +6,8 @@ export interface StoreAnalyticsRecord {
   newCustomers?: number | null;
   returningCustomers?: number | null;
   totalCustomers?: number | null;
+  lowStockAlerts?: number | null;
+  outOfStockProducts?: number | null;
 }
 
 /**
@@ -24,13 +26,13 @@ export class AnalyticsRepository {
     // Buscar paginando por storeId hasta encontrar la fecha del día
     let nextToken: string | undefined = undefined;
     do {
-      const response = await cookiesClient.models.StoreAnalytics.analyticsByStore(
+      const response: any = await cookiesClient.models.StoreAnalytics.analyticsByStore(
         { storeId },
         nextToken ? { nextToken } : undefined
       );
       const found = response.data?.find((a: StoreAnalyticsRecord) => a.date === date);
       if (found) return found as StoreAnalyticsRecord;
-      nextToken = (response as any)?.nextToken;
+      nextToken = response?.nextToken;
     } while (nextToken);
 
     const store = await cookiesClient.models.UserStore.get({ storeId });

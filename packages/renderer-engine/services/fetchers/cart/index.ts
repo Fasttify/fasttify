@@ -18,4 +18,5 @@ export { cartContextTransformer } from './cart-context-transformer';
 export { CartFetcher, cartFetcher } from './cart-fetcher';
 export { cartItemTransformer } from './cart-item-transformer';
 export { cartTotalsCalculator } from './cart-totals-calculator';
+export { CartStockValidator, cartStockValidator } from './cart-stock-validator';
 export * from './types/cart-types';
