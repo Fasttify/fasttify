@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useOnboardingProgress } from './useOnboardingProgress';
+import { useOnboardingProgress } from '../useOnboardingProgress/useOnboardingProgress';
 
 /**
  * Hook para marcar automáticamente las tareas del onboarding cuando se completen las acciones reales

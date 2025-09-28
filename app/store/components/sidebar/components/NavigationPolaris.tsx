@@ -102,7 +102,6 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             label: 'Tienda Online',
             displayActionsOnHover: true,
             secondaryAction: {
-              url: '#',
               accessibilityLabel: 'Ver tienda online',
               icon: ViewIcon,
               tooltip: {

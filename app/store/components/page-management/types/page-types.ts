@@ -1,4 +1,4 @@
-import type { CreatePageInput, Page, PageSummary } from '@/app/store/hooks/data/usePage';
+import type { CreatePageInput, Page, PageSummary } from '@/app/store/hooks/data/usePage/usePage';
 
 export type PageFormValues = CreatePageInput & { pageType?: string };
 

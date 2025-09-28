@@ -1,6 +1,6 @@
 'use client';
 
-import { useCollections } from '@/app/store/hooks/data/useCollections';
+import { useCollections } from '@/app/store/hooks/data/useCollection/useCollections';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { Autocomplete, Icon, SkeletonBodyText } from '@shopify/polaris';
 import { SearchIcon } from '@shopify/polaris-icons';

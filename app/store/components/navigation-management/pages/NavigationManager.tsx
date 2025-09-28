@@ -6,8 +6,8 @@ import { PlusIcon } from '@shopify/polaris-icons';
 import { NavigationMenuList } from '@/app/store/components/navigation-management/components/NavigationMenuList';
 import { NavigationMenuForm } from '@/app/store/components/navigation-management/components/NavigationMenuForm';
 import { NavigationManagerProps } from '@/app/store/components/navigation-management/types';
-import { useNavigationMenus } from '@/app/store/hooks/data/useNavigationMenus';
-import { useCurrentStore } from '@/app/store/hooks/data/useStoreFromZustand';
+import { useNavigationMenus } from '@/app/store/hooks/data/useNavigationMenu/useNavigationMenus';
+import { useCurrentStore } from '@/app/store/hooks/data/useStore/useStoreFromZustand';
 import { useToast } from '@/app/store/context/ToastContext';
 
 /**

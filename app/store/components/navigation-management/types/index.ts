@@ -1,4 +1,4 @@
-import { MenuItem } from '@/app/store/hooks/data/useNavigationMenus';
+import { MenuItem } from '@/app/store/hooks/data/useNavigationMenu/useNavigationMenus';
 
 // Navigation Manager Props
 export interface NavigationManagerProps {

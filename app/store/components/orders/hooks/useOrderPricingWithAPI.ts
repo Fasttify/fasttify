@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { IOrder } from '@/app/store/hooks/data/useOrders';
 import type { ProcessedPricingData } from '../types/util-type';
-import { usePricingCalculation } from '@/app/store/hooks/data/usePricingCalculation';
+import { usePricingCalculation } from '@/app/store/hooks/api/usePricingCalculation';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { useOrderFormatting } from '@/app/store/hooks/format/useOrderFormatting';
 

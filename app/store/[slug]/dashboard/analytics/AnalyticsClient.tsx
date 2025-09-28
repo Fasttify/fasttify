@@ -1,7 +1,7 @@
 'use client';
 
-import { SalesDashboard } from '@/app/store/components/statistics/components/SalesDashboard';
+import { AnalyticsPage } from '@/app/store/components/analytics/pages/AnalyticsPage';
 
 export default function AnalyticsClient() {
-  return <SalesDashboard />;
+  return <AnalyticsPage />;
 }
