@@ -5,7 +5,7 @@ import { PageForm } from '@/app/store/components/page-management/components/Page
 import { PagesPage } from '@/app/store/components/page-management/pages/PagesPage';
 import type { PageFormValues } from '@/app/store/components/page-management/types/page-types';
 import { useToast } from '@/app/store/context/ToastContext';
-import { usePages } from '@/app/store/hooks/data/usePage';
+import { usePages } from '@/app/store/hooks/data/usePage/usePage';
 import { routes } from '@/utils/client/routes';
 import { Loading } from '@shopify/polaris';
 import { useRouter } from 'next/navigation';

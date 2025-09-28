@@ -1,4 +1,4 @@
-import type { Page } from '@/app/store/hooks/data/usePage';
+import type { Page } from '@/app/store/hooks/data/usePage/usePage';
 
 export function getStatusText(status: Page['status']) {
   switch (status) {

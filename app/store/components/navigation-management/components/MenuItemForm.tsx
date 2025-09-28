@@ -4,9 +4,9 @@ import { CollectionSelector } from '@/app/store/components/navigation-management
 import { HelpTooltip } from '@/app/store/components/navigation-management/components/HelpTooltip';
 import { PageSelector } from '@/app/store/components/navigation-management/components/PageSelector';
 import { MENU_ITEM_TYPES, MenuItemFormProps, TARGET_OPTIONS } from '@/app/store/components/navigation-management/types';
-import { useCollections } from '@/app/store/hooks/data/useCollections';
-import { MenuItem, generateMenuItemURL } from '@/app/store/hooks/data/useNavigationMenus';
-import { usePages } from '@/app/store/hooks/data/usePage';
+import { useCollections } from '@/app/store/hooks/data/useCollection/useCollections';
+import { MenuItem, generateMenuItemURL } from '@/app/store/hooks/data/useNavigationMenu/useNavigationMenus';
+import { usePages } from '@/app/store/hooks/data/usePage/usePage';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { validateMenuItems } from '@/lib/zod-schemas/navigation';
 import { Button, Card, Checkbox, ResourceItem, ResourceList, Select, Text, TextField } from '@shopify/polaris';

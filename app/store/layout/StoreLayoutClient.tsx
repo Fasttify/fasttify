@@ -2,7 +2,7 @@
 
 import { PolarisLayout } from '@/app/store/components/sidebar/components/PolarisLayout';
 import { ToastProvider } from '@/app/store/context/ToastContext';
-import { useStore } from '@/app/store/hooks/data/useStore';
+import { useStore } from '@/app/store/hooks/data/useStore/useStore';
 import { getStoreId } from '@/utils/client/store-utils';
 import { useAuthInitializer } from '@/hooks/auth/useAuthInitializer';
 import { AppProvider } from '@shopify/polaris';

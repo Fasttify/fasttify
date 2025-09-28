@@ -71,10 +71,224 @@ async function sendTestWebhook(token, eventData) {
 }
 
 /**
- * Función principal de testing
+ * Genera eventos que generen analíticas usando los tipos existentes
+ */
+function generateDayEvents(storeId, date) {
+  const events = [];
+  const baseVisitors = Math.floor(Math.random() * 50) + 10; // 10-60 visitantes
+  const baseOrders = Math.floor(baseVisitors * (Math.random() * 0.15)); // 0-15% conversión
+
+  // 1. Generar vistas de tienda (STORE_VIEW)
+  for (let i = 0; i < baseVisitors; i++) {
+    const countries = ['CO', 'US', 'MX', 'AR'];
+    const devices = ['mobile', 'desktop', 'tablet'];
+    const browsers = ['chrome', 'safari', 'firefox', 'edge'];
+    const referrers = ['direct', 'google', 'facebook', 'instagram'];
+
+    events.push({
+      type: 'STORE_VIEW',
+      storeId,
+      timestamp: new Date(
+        `${date}T${Math.floor(Math.random() * 24)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}.000Z`
+      ).toISOString(),
+      data: {
+        sessionId: `session_${Date.now()}_${i}`,
+        ip: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        userAgent: `Mozilla/5.0 (compatible; FastTify Bot 1.0)`,
+        referrer:
+          Math.random() > 0.3
+            ? `https://www.${referrers[Math.floor(Math.random() * referrers.length)]}.com`
+            : undefined,
+        country: countries[Math.floor(Math.random() * countries.length)],
+        url: `https://shop-${storeId}.fasttify.com/`,
+        path: '/',
+        deviceType: devices[Math.floor(Math.random() * devices.length)],
+        browser: browsers[Math.floor(Math.random() * browsers.length)],
+        os: Math.random() > 0.5 ? 'Windows' : 'macOS',
+        referrerCategory: referrers[Math.floor(Math.random() * referrers.length)],
+      },
+    });
+  }
+
+  // 2. Generar órdenes (ORDER_CREATED)
+  for (let i = 0; i < baseOrders; i++) {
+    const orderAmount = Math.floor(Math.random() * 200000) + 50000; // 50k-250k COP
+    const itemCount = Math.floor(Math.random() * 3) + 1; // 1-4 items
+    const items = [];
+
+    for (let j = 0; j < itemCount; j++) {
+      items.push({
+        productId: `product_${Math.floor(Math.random() * 100) + 1}`,
+        quantity: Math.floor(Math.random() * 3) + 1,
+        price: Math.floor(orderAmount / itemCount),
+      });
+    }
+
+    events.push({
+      type: 'ORDER_CREATED',
+      storeId,
+      timestamp: new Date(
+        `${date}T${Math.floor(Math.random() * 24)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}.000Z`
+      ).toISOString(),
+      data: {
+        orderId: `order_${date}_${i}`,
+        totalAmount: orderAmount,
+        currency: 'COP',
+        customerId: Math.random() > 0.3 ? `customer_${Math.floor(Math.random() * 1000)}` : undefined,
+        customerType: Math.random() > 0.3 ? 'registered' : 'guest',
+        items: items,
+        discountAmount: Math.floor(orderAmount * Math.random() * 0.15), // 0-15% descuento
+        subtotal: orderAmount,
+      },
+    });
+  }
+
+  // 3. Generar algunos nuevos clientes (NEW_CUSTOMER)
+  const newCustomers = Math.floor(baseOrders * 0.6); // 60% de las órdenes son clientes nuevos
+  for (let i = 0; i < newCustomers; i++) {
+    events.push({
+      type: 'NEW_CUSTOMER',
+      storeId,
+      timestamp: new Date(
+        `${date}T${Math.floor(Math.random() * 24)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}.000Z`
+      ).toISOString(),
+      data: {
+        customerId: `customer_${Date.now()}_${i}`,
+        customerType: 'registered',
+        registrationDate: new Date(
+          `${date}T${Math.floor(Math.random() * 24)
+            .toString()
+            .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+            .toString()
+            .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+            .toString()
+            .padStart(2, '0')}.000Z`
+        ).toISOString(),
+      },
+    });
+  }
+
+  // 4. Generar algunos logins de clientes (CUSTOMER_LOGIN)
+  const customerLogins = Math.floor(baseVisitors * 0.3); // 30% de visitantes se loguean
+  for (let i = 0; i < customerLogins; i++) {
+    events.push({
+      type: 'CUSTOMER_LOGIN',
+      storeId,
+      timestamp: new Date(
+        `${date}T${Math.floor(Math.random() * 24)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}.000Z`
+      ).toISOString(),
+      data: {
+        customerId: `customer_${Math.floor(Math.random() * 1000)}`,
+        customerType: 'registered',
+        loginDate: new Date(
+          `${date}T${Math.floor(Math.random() * 24)
+            .toString()
+            .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+            .toString()
+            .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+            .toString()
+            .padStart(2, '0')}.000Z`
+        ).toISOString(),
+      },
+    });
+  }
+
+  // 5. Generar algunas alertas de inventario (INVENTORY_LOW, INVENTORY_OUT)
+  if (Math.random() > 0.7) {
+    // 30% de probabilidad por día
+    const lowStockCount = Math.floor(Math.random() * 3) + 1;
+    for (let i = 0; i < lowStockCount; i++) {
+      events.push({
+        type: 'INVENTORY_LOW',
+        storeId,
+        timestamp: new Date(
+          `${date}T${Math.floor(Math.random() * 24)
+            .toString()
+            .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+            .toString()
+            .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+            .toString()
+            .padStart(2, '0')}.000Z`
+        ).toISOString(),
+        data: {
+          productId: `product_${Math.floor(Math.random() * 100) + 1}`,
+          currentQuantity: Math.floor(Math.random() * 5) + 1,
+          threshold: 10,
+        },
+      });
+    }
+  }
+
+  if (Math.random() > 0.9) {
+    // 10% de probabilidad por día
+    events.push({
+      type: 'INVENTORY_OUT',
+      storeId,
+      timestamp: new Date(
+        `${date}T${Math.floor(Math.random() * 24)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}:${Math.floor(Math.random() * 60)
+          .toString()
+          .padStart(2, '0')}.000Z`
+      ).toISOString(),
+      data: {
+        productId: `product_${Math.floor(Math.random() * 100) + 1}`,
+        productName: `Producto ${Math.floor(Math.random() * 100) + 1}`,
+      },
+    });
+  }
+
+  return events;
+}
+
+/**
+ * Genera múltiples días de eventos de analíticas
+ */
+function generateDateRange(startDate, endDate, storeId) {
+  const allEvents = [];
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const dateString = d.toISOString().split('T')[0];
+    const dayEvents = generateDayEvents(storeId, dateString);
+    allEvents.push(...dayEvents);
+  }
+
+  return allEvents;
+}
+
+/**
+ * Función principal de testing con datos mock completos
  */
 async function main() {
-  console.log('🔐 Testing Analytics Webhook JWT System\n');
+  console.log('📊 Poblando Base de Datos con Datos Mock de Analíticas\n');
 
   // 1. Generar token de prueba
   console.log('1. Generando JWT token...');
@@ -87,53 +301,83 @@ async function main() {
   if (verification.isValid) {
     console.log('✅ Token válido');
     console.log(`   Store ID: ${verification.payload.storeId}`);
-    console.log(`   Event Type: ${verification.payload.eventType}`);
-    console.log(`   Type: ${verification.payload.type}\n`);
+    console.log(`   Event Type: ${verification.payload.eventType}\n`);
   } else {
     console.log(`❌ Token inválido: ${verification.error}\n`);
     return;
   }
 
-  // 3. Crear evento de prueba
-  const testEvent = {
-    type: 'ORDER_CREATED',
-    storeId: '9441866',
-    timestamp: new Date().toISOString(),
-    data: {
-      orderId: `TEST-${Date.now()}`,
-      totalAmount: 100000,
-      currency: 'COP',
-      customerId: 'test@example.com',
-      customerType: 'registered',
-      items: [
-        {
-          productId: 'test-product-1',
-          quantity: 2,
-          price: 50000,
-        },
-      ],
-      discountAmount: 0,
-      subtotal: 100000,
-    },
-  };
+  // 3. Generar eventos para los últimos 7 días (reducimos para evitar muchos eventos)
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(endDate.getDate() - 7);
 
-  console.log('3. Enviando webhook de prueba...');
-  console.log(`   URL: ${WEBHOOK_URL}`);
-  console.log(`   Event: ${testEvent.type}`);
-  console.log(`   Store: ${testEvent.storeId}`);
-  console.log(`   Order: ${testEvent.data.orderId}\n`);
+  console.log('3. Generando eventos mock para los últimos 7 días...');
+  console.log(`   Desde: ${startDate.toISOString().split('T')[0]}`);
+  console.log(`   Hasta: ${endDate.toISOString().split('T')[0]}`);
 
-  // 4. Enviar webhook
-  const webhookResult = await sendTestWebhook(testToken, testEvent);
+  const allEvents = generateDateRange(
+    startDate.toISOString().split('T')[0],
+    endDate.toISOString().split('T')[0],
+    '9441866'
+  );
 
-  if (webhookResult.success) {
-    console.log('✅ Webhook enviado exitosamente');
-    console.log(`   Status: ${webhookResult.status}`);
-    console.log(`   Response:`, webhookResult.data);
-  } else {
-    console.log('❌ Error enviando webhook');
-    console.log(`   Status: ${webhookResult.status}`);
-    console.log(`   Error:`, webhookResult.error || webhookResult.data);
+  console.log(`   Total de eventos: ${allEvents.length}\n`);
+
+  // 4. Enviar cada evento como webhook
+  console.log('4. Enviando eventos a la base de datos...');
+  let successCount = 0;
+  let errorCount = 0;
+  let eventTypeCounts = {};
+
+  for (let i = 0; i < allEvents.length; i++) {
+    const event = allEvents[i];
+
+    // Contar eventos por tipo
+    eventTypeCounts[event.type] = (eventTypeCounts[event.type] || 0) + 1;
+
+    const webhookResult = await sendTestWebhook(testToken, event);
+
+    if (webhookResult.success) {
+      successCount++;
+      if (successCount % 10 === 0) {
+        // Mostrar progreso cada 10 eventos exitosos
+        console.log(`   ✅ Procesados ${successCount} eventos...`);
+      }
+    } else {
+      errorCount++;
+      console.log(`   ❌ ${event.type}: Error - Status: ${webhookResult.status || 'N/A'}`);
+      if (webhookResult.error) {
+        console.log(`       Error: ${webhookResult.error}`);
+      }
+      if (webhookResult.data) {
+        console.log(`       Response: ${JSON.stringify(webhookResult.data, null, 2)}`);
+      }
+
+      // En el primer error, mostramos el evento completo para debugging
+      if (errorCount === 1) {
+        console.log(`       Evento enviado: ${JSON.stringify(event, null, 2)}`);
+      }
+    }
+
+    // Pequeña pausa para no sobrecargar el servidor
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+
+  console.log(`\n📈 Resumen de inserción:`);
+  console.log(`   ✅ Exitosos: ${successCount}`);
+  console.log(`   ❌ Errores: ${errorCount}`);
+  console.log(`   📊 Total: ${allEvents.length}`);
+
+  console.log(`\n📋 Eventos por tipo:`);
+  Object.entries(eventTypeCounts).forEach(([type, count]) => {
+    console.log(`   ${type}: ${count} eventos`);
+  });
+
+  if (successCount > 0) {
+    console.log(`\n🎉 ¡Base de datos poblada exitosamente!`);
+    console.log(`   Ahora puedes probar el hook useStoreAnalytics con datos reales.`);
+    console.log(`   Los eventos procesados generarán automáticamente las analíticas correspondientes.`);
   }
 
   // 5. Probar token expirado

@@ -1,7 +1,7 @@
 'use client';
 
 import { NavigationMenuListProps } from '@/app/store/components/navigation-management/types';
-import { useNavigationMenus } from '@/app/store/hooks/data/useNavigationMenus';
+import { useNavigationMenus } from '@/app/store/hooks/data/useNavigationMenu/useNavigationMenus';
 import { Badge, Banner, Button, ButtonGroup, Card, DataTable, EmptyState, Loading, Text } from '@shopify/polaris';
 
 /**

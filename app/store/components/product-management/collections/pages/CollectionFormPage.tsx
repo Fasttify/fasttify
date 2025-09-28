@@ -2,7 +2,7 @@ import { CollectionContent } from '@/app/store/components/product-management/col
 import { CollectionSidebar } from '@/app/store/components/product-management/collections/components/form/CollectionSidebar';
 import { CustomContextualSaveBar } from '@/app/store/components/product-management/products/components/form/ContextualSaveBar';
 import { useCollectionForm } from '@/app/store/components/product-management/collections/utils/formUtils';
-import { useCollections } from '@/app/store/hooks/data/useCollections';
+import { useCollections } from '@/app/store/hooks/data/useCollection/useCollections';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { useAuth } from '@/context/hooks/useAuth';
 import { routes } from '@/utils/client/routes';

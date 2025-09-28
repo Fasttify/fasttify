@@ -14,7 +14,11 @@ import {
   Banner,
   Spinner,
 } from '@shopify/polaris';
-import { useNavigationMenus, NavigationMenuInput, MenuItem } from '@/app/store/hooks/data/useNavigationMenus';
+import {
+  useNavigationMenus,
+  NavigationMenuInput,
+  MenuItem,
+} from '@/app/store/hooks/data/useNavigationMenu/useNavigationMenus';
 import { NavigationMenuFormProps, MenuFormState } from '@/app/store/components/navigation-management/types';
 import { MenuItemForm } from '@/app/store/components/navigation-management/components/MenuItemForm';
 import { validateNavigationMenu, validateUpdateNavigationMenu } from '@/lib/zod-schemas/navigation';

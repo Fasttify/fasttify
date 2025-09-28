@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
-// Configuraciones predefinidas por moneda - basadas en CurrencySelector.tsx
-const CURRENCY_CONFIGS: Record<
+export const CURRENCY_CONFIGS: Record<
   string,
   {
     format: string;

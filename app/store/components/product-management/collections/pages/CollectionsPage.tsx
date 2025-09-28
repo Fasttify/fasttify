@@ -1,4 +1,4 @@
-import { useCollections } from '@/app/store/hooks/data/useCollections';
+import { useCollections } from '@/app/store/hooks/data/useCollection/useCollections';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
 import {

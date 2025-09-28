@@ -1,6 +1,6 @@
 'use client';
 
-import { usePages } from '@/app/store/hooks/data/usePage';
+import { usePages } from '@/app/store/hooks/data/usePage/usePage';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { Select, SkeletonBodyText, Text } from '@shopify/polaris';
 import { useMemo } from 'react';
