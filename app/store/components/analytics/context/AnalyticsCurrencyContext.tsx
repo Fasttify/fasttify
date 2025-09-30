@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { Currency } from '@/app/store/components/analytics/types';
 import { useStoreCurrency } from '@/app/store/hooks/format/useStoreCurrency';
 

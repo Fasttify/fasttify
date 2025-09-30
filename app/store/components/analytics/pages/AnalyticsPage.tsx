@@ -31,6 +31,7 @@ import {
   useAnalyticsDataProcessing,
 } from '@/app/store/hooks/data/useStoreAnalytics';
 import { useAnalyticsCurrencyFormatting } from '@/app/store/hooks/data/useStoreAnalytics/utils/useAnalyticsCurrencyFormatting';
+import { useAnalyticsChartData } from '@/app/store/hooks/data/useStoreAnalytics/utils/useAnalyticsChartData';
 import { AnalyticsCurrencyProvider } from '@/app/store/components/analytics/context/AnalyticsCurrencyContext';
 import { getStoreId } from '@/utils/client/store-utils';
 import { useParams, usePathname } from 'next/navigation';
@@ -69,6 +70,17 @@ function AnalyticsPageContent() {
   // Procesar todos los datos usando el hook centralizado
   const { deviceData, countryData, browserData, referrerData, breakdownItems, conversionSteps } =
     useAnalyticsDataProcessing(analytics, aggregatedMetrics);
+
+  // Generar datos de gráficos basados en datos reales
+  const {
+    revenueChartData,
+    ordersChartData,
+    visitorsChartData,
+    conversionChartData,
+    aovChartData,
+    sessionsChartData,
+    conversionRateChartData,
+  } = useAnalyticsChartData(analytics);
 
   // Mostrar loading state
   if (loading) {
@@ -114,29 +126,38 @@ function AnalyticsPageContent() {
       <BlockStack gap="400">
         {/* Cards de métricas principales */}
         <InlineGrid columns={{ xs: 1, sm: 2, md: 4 }} gap="400">
-          <GrossSalesCard value={formatRevenue(aggregatedMetrics.totalRevenue)} />
-          <ReturningCustomerRateCard value={formatPercentage(aggregatedMetrics.returningCustomerRate)} />
-          <UniqueVisitorsCard value={formatNumber(aggregatedMetrics.uniqueVisitors)} />
-          <OrdersCard value={formatNumber(aggregatedMetrics.totalOrders)} />
+          <GrossSalesCard value={formatRevenue(aggregatedMetrics.totalRevenue)} data={revenueChartData} />
+          <ReturningCustomerRateCard
+            value={formatPercentage(aggregatedMetrics.returningCustomerRate)}
+            data={conversionChartData}
+          />
+          <UniqueVisitorsCard value={formatNumber(aggregatedMetrics.uniqueVisitors)} data={visitorsChartData} />
+          <OrdersCard value={formatNumber(aggregatedMetrics.totalOrders)} data={ordersChartData} />
         </InlineGrid>
 
         {/* Cards de contenido principal */}
         <InlineGrid columns={{ xs: 1, lg: 2 }} gap="400">
-          <TotalSalesChartCard value={formatRevenue(aggregatedMetrics.totalRevenue)} />
+          <TotalSalesChartCard value={formatRevenue(aggregatedMetrics.totalRevenue)} data={revenueChartData} />
           <TotalSalesBreakdownCard items={breakdownItems} />
         </InlineGrid>
 
         {/* Primera fila inferior */}
         <InlineGrid columns={{ xs: 1, md: 3 }} gap="400">
           <TotalSalesBySalesChannelCard />
-          <AverageOrderValueCard value={formatAverageOrderValue(aggregatedMetrics.averageOrderValue)} />
+          <AverageOrderValueCard
+            value={formatAverageOrderValue(aggregatedMetrics.averageOrderValue)}
+            data={aovChartData}
+          />
           <TotalSalesByProductCard />
         </InlineGrid>
 
         {/* Segunda fila inferior */}
         <InlineGrid columns={{ xs: 1, md: 3 }} gap="400">
-          <SessionsOverTimeCard value={formatNumber(aggregatedMetrics.totalSessions)} />
-          <ConversionRateOverTimeCard value={formatConversionRate(aggregatedMetrics.conversionRate)} />
+          <SessionsOverTimeCard value={formatNumber(aggregatedMetrics.totalSessions)} data={sessionsChartData} />
+          <ConversionRateOverTimeCard
+            value={formatConversionRate(aggregatedMetrics.conversionRate)}
+            data={conversionRateChartData}
+          />
           <ConversionRateBreakdownCard
             value={formatConversionRate(aggregatedMetrics.conversionRate)}
             steps={conversionSteps}

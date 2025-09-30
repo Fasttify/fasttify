@@ -42,35 +42,50 @@ export function DeviceMetricsCard({ deviceData, className: _className }: DeviceM
           <NoDataMessage
             data={totalSessions > 0 ? deviceTypes : null}
             message="No hay datos de dispositivos disponibles.">
-            <BlockStack gap="200">
-              {deviceTypes.map(({ key, label, color }) => {
+            <BlockStack gap="100">
+              {deviceTypes.map(({ key, label, color }, index) => {
                 const value = deviceData[key] || 0;
                 const percentage = totalSessions > 0 ? ((value / totalSessions) * 100).toFixed(1) : '0';
 
                 return (
-                  <InlineStack key={key} gap="200" align="space-between">
-                    <InlineStack gap="100" blockAlign="center">
-                      <div
-                        style={{
-                          width: '12px',
-                          height: '12px',
-                          borderRadius: '50%',
-                          backgroundColor: color,
-                        }}
-                      />
-                      <Text variant="bodyMd" as="p">
-                        {label}
-                      </Text>
-                    </InlineStack>
-                    <InlineStack gap="100">
-                      <Text variant="bodyMd" as="p" fontWeight="semibold">
-                        {value}
-                      </Text>
-                      <Text variant="bodySm" as="p" tone="inherit">
-                        ({percentage}%)
-                      </Text>
-                    </InlineStack>
-                  </InlineStack>
+                  <Box key={key}>
+                    <Box padding="100">
+                      <InlineStack gap="200" align="space-between">
+                        <InlineStack gap="100" blockAlign="center">
+                          <div
+                            style={{
+                              width: '12px',
+                              height: '12px',
+                              borderRadius: '50%',
+                              backgroundColor: color,
+                            }}
+                          />
+                          <Text variant="bodyMd" as="p">
+                            {label}
+                          </Text>
+                        </InlineStack>
+                        <InlineStack gap="100">
+                          <Text variant="bodyMd" as="p" fontWeight="medium">
+                            {value}
+                          </Text>
+                          <Text variant="bodySm" as="p" tone="inherit">
+                            ({percentage}%)
+                          </Text>
+                        </InlineStack>
+                      </InlineStack>
+                    </Box>
+                    {index < deviceTypes.length - 1 && (
+                      <Box paddingInline="0">
+                        <div
+                          style={{
+                            height: '1px',
+                            backgroundColor: '#e1e5e9',
+                            margin: '0',
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </Box>
                 );
               })}
             </BlockStack>

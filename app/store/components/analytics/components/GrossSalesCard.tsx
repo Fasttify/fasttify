@@ -1,7 +1,8 @@
 import { Card, Text, Box, InlineStack, Tooltip, BlockStack, Icon } from '@shopify/polaris';
 import { InfoIcon } from '@shopify/polaris-icons';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import { NoDataMessage } from '@/app/store/components/analytics/components/NoDataMessage';
+import { useAnalyticsCurrencyFormatting } from '@/app/store/hooks/data/useStoreAnalytics/utils/useAnalyticsCurrencyFormatting';
 
 interface GrossSalesCardProps {
   value: string;
@@ -11,15 +12,16 @@ interface GrossSalesCardProps {
 }
 
 export function GrossSalesCard({ value, trend, data, className: _className }: GrossSalesCardProps) {
+  const { formatCurrency } = useAnalyticsCurrencyFormatting();
   const chartData = data || [];
 
   const tooltipContent = (
     <BlockStack gap="100">
       <Text variant="bodyMd" as="p" fontWeight="bold">
-        Ventas brutas en el tiempo
+        Ventas brutas
       </Text>
       <Text variant="bodySm" as="p" tone="subdued">
-        Ingresos por ventas antes de descuentos y devoluciones a lo largo del tiempo
+        El número principal muestra el total de ingresos del período. El gráfico muestra ventas por día individual.
       </Text>
     </BlockStack>
   );
@@ -43,13 +45,43 @@ export function GrossSalesCard({ value, trend, data, className: _className }: Gr
           </Box>
           {trend && <Box>{trend}</Box>}
         </InlineStack>
-        <Box paddingBlockStart="050">
-          <NoDataMessage data={data} style={{ height: '10px', width: '100%' }}>
-            <div style={{ height: '10px', width: '100%' }}>
+        <Box paddingBlockStart="100">
+          <NoDataMessage data={data} style={{ height: '60px', width: '100%' }}>
+            <div style={{ height: '60px', width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#6B7280' }} />
+                  <XAxis dataKey="name" hide />
                   <YAxis hide />
+                  <RechartsTooltip
+                    content={({ active, payload, label }: any) => {
+                      if (active && payload && payload.length) {
+                        const currentValue = payload[0].value;
+                        return (
+                          <div
+                            style={{
+                              backgroundColor: '#fff',
+                              border: '1px solid #e1e5e9',
+                              borderRadius: '8px',
+                              padding: '8px 12px',
+                              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                            }}>
+                            <BlockStack gap="100">
+                              <Text variant="bodySm" as="p" fontWeight="bold">
+                                {label}
+                              </Text>
+                              <Text variant="bodySm" as="p">
+                                Ventas este día: {formatCurrency(currentValue)}
+                              </Text>
+                              <Text variant="bodySm" as="p" tone="subdued">
+                                Ingresos brutos generados
+                              </Text>
+                            </BlockStack>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
                   <Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>

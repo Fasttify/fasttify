@@ -53,23 +53,38 @@ export function BrowserMetricsCard({ browserData, className: _className }: Brows
         </InlineStack>
         <Box paddingBlockStart="300">
           <NoDataMessage data={browserItems} message="No hay datos de navegadores disponibles.">
-            <BlockStack gap="200">
-              {browserItems.map((item) => (
-                <InlineStack key={item.key} gap="200" align="space-between">
-                  <InlineStack gap="100" blockAlign="center">
-                    <Text variant="bodyMd" as="p">
-                      {item.browser}
-                    </Text>
-                  </InlineStack>
-                  <InlineStack gap="100">
-                    <Text variant="bodyMd" as="p" fontWeight="semibold">
-                      {item.count}
-                    </Text>
-                    <Text variant="bodySm" as="p" tone="inherit">
-                      ({item.percentage}%)
-                    </Text>
-                  </InlineStack>
-                </InlineStack>
+            <BlockStack gap="100">
+              {browserItems.map((item, index) => (
+                <Box key={item.key}>
+                  <Box padding="100">
+                    <InlineStack gap="200" align="space-between">
+                      <InlineStack gap="100" blockAlign="center">
+                        <Text variant="bodyMd" as="p">
+                          {item.browser}
+                        </Text>
+                      </InlineStack>
+                      <InlineStack gap="100">
+                        <Text variant="bodyMd" as="p" fontWeight="medium">
+                          {item.count}
+                        </Text>
+                        <Text variant="bodySm" as="p" tone="inherit">
+                          ({item.percentage}%)
+                        </Text>
+                      </InlineStack>
+                    </InlineStack>
+                  </Box>
+                  {index < browserItems.length - 1 && (
+                    <Box paddingInline="0">
+                      <div
+                        style={{
+                          height: '1px',
+                          backgroundColor: '#e1e5e9',
+                          margin: '0',
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
               ))}
             </BlockStack>
           </NoDataMessage>
