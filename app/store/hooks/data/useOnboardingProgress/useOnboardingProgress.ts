@@ -1,10 +1,5 @@
 import { useCallback } from 'react';
-import { generateClient } from 'aws-amplify/data';
-import type { FullSchema } from '@/amplify/data/resource';
-
-const client = generateClient<FullSchema>({
-  authMode: 'userPool',
-});
+import { client } from '@/lib/amplify-client';
 
 interface OnboardingProgressParams {
   storeId: string;

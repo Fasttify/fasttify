@@ -1,11 +1,6 @@
-import type { StoreSchema } from '@/data-schema';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { generateClient } from 'aws-amplify/api';
 import type { IProduct, PaginationOptions, ProductsQueryResult } from '../types';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { storeClient } from '@/lib/amplify-client';
 
 /**
  * Hook para manejar las queries de productos
@@ -27,7 +22,7 @@ export const useProductQueries = (
 
     const token = pageTokens[currentPage - 1];
 
-    const { data, nextToken } = await client.models.Product.listProductByStoreId(
+    const { data, nextToken } = await storeClient.models.Product.listProductByStoreId(
       {
         storeId: storeId,
       },
@@ -98,7 +93,7 @@ export const useProductQueries = (
     }
 
     try {
-      const { data: product } = await client.models.Product.get({ id });
+      const { data: product } = await storeClient.models.Product.get({ id });
 
       if (product) {
         queryClient.setQueryData(['product', id], product);

@@ -1,12 +1,7 @@
-import { type StoreSchema } from '@/amplify/data/resource';
 import { useMutation } from '@tanstack/react-query';
-import { generateClient } from 'aws-amplify/api';
 import type { Notification } from '../types';
 import { useNotificationCacheUtils } from '../utils/notificationCacheUtils';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { client } from '@/lib/amplify-client';
 
 /**
  * Hook para manejar todas las mutaciones de notificaciones

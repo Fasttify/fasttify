@@ -24,3 +24,4 @@ export { TrafficSourceCard } from './TrafficSourceCard';
 export { InventoryAlertsCard } from './InventoryAlertsCard';
 export { AnalyticsSkeleton } from './AnalyticsSkeleton';
 export { NoDataMessage } from './NoDataMessage';
+export * from '../utils/chartDataUtils';

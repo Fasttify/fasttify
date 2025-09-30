@@ -1,14 +1,9 @@
-import { type Schema } from '@/data-schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
 import type { IOrder, OrderCreateInput, OrderUpdateInput, OrderStatus, PaymentStatus } from '../types';
 import { useOrderCacheUtils } from '../utils/orderCacheUtils';
 import { useOrderNotifications } from '../notifications/useOrderNotifications';
-
-const client = generateClient<Schema>({
-  authMode: 'userPool',
-});
+import { client } from '@/lib/amplify-client';
 
 /**
  * Hook para manejar todas las mutaciones de órdenes

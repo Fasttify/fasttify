@@ -1,45 +1,18 @@
-import type { FullSchema, StoreSchema } from '@/data-schema';
-import outputs from '@/amplify_outputs.json';
 import { useAuth } from '@/context/hooks/useAuth';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
-import { Amplify } from 'aws-amplify';
-import { generateClient } from 'aws-amplify/data';
 import { useState } from 'react';
+import {
+  client,
+  type UserStore,
+  type NavigationMenu,
+  type PaymentGatewayType,
+  type PaymentGatewayConfig,
+  type StoreInitializationResult,
+  type CreateUserStoreInput,
+} from '@/lib/amplify-client';
 
-Amplify.configure(outputs);
-
-const client = generateClient<FullSchema>({
-  authMode: 'userPool',
-});
-
-export type UserStore = StoreSchema['UserStore']['type'];
-
-export type PaymentGatewayType = 'mercadoPago' | 'wompi';
-
-export interface PaymentGatewayConfig {
-  publicKey: string;
-  privateKey: string;
-  isActive: boolean;
-  createdAt: string;
-}
-
-export interface StoreInitializationResult {
-  success: boolean;
-  message: string;
-  collections?: string[];
-  menus?: string[];
-}
-
-export type NavigationMenu = StoreSchema['NavigationMenu']['type'];
-
-export interface MenuItem {
-  label: string;
-  url: string;
-  type: 'internal' | 'external' | 'page' | 'collection' | 'product';
-  isVisible: boolean;
-  target?: '_blank' | '_self';
-  sortOrder: number;
-}
+// Re-exportar tipos para compatibilidad
+export type { PaymentGatewayType, PaymentGatewayConfig, StoreInitializationResult } from '@/lib/amplify-client';
 
 export const useUserStoreData = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -47,9 +20,6 @@ export const useUserStoreData = () => {
   const { user } = useAuth();
   const { invalidateAllStoreCache, invalidateNavigationCache } = useCacheInvalidation();
 
-  /**
-   * Función auxiliar que ejecuta una operación y gestiona loading y error.
-   */
   const performOperation = async <T>(operation: () => Promise<{ data: T; errors?: any[] }>): Promise<T | null> => {
     setLoading(true);
     setError(null);
@@ -68,12 +38,6 @@ export const useUserStoreData = () => {
     }
   };
 
-  /**
-   * Obtiene la información de pasarelas de pago configuradas
-   * para una tienda específica sin traer datos sensibles.
-   * @param storeId - ID único de la tienda
-   * @returns Array de pasarelas configuradas
-   */
   const getStorePaymentInfo = async (
     storeId: string
   ): Promise<{
@@ -90,35 +54,17 @@ export const useUserStoreData = () => {
 
       const configuredGateways: PaymentGatewayType[] = [];
 
-      // Consultar StorePaymentConfig para Wompi
       const wompiConfigs = await performOperation(() =>
         client.models.StorePaymentConfig.listStorePaymentConfigByStoreId(
-          {
-            storeId: storeId,
-          },
-          {
-            filter: {
-              gatewayType: { eq: 'wompi' },
-              isActive: { eq: true }, // Solo configs activas
-            },
-            selectionSet: ['isActive'], // Solo necesitamos confirmar existencia
-          }
+          { storeId },
+          { filter: { gatewayType: { eq: 'wompi' }, isActive: { eq: true } }, selectionSet: ['isActive'] }
         )
       );
 
-      // Consultar StorePaymentConfig para MercadoPago
       const mercadoPagoConfigs = await performOperation(() =>
         client.models.StorePaymentConfig.listStorePaymentConfigByStoreId(
-          {
-            storeId: storeId,
-          },
-          {
-            filter: {
-              gatewayType: { eq: 'mercadoPago' },
-              isActive: { eq: true }, // Solo configs activas
-            },
-            selectionSet: ['isActive'], // Solo necesitamos confirmar existencia
-          }
+          { storeId },
+          { filter: { gatewayType: { eq: 'mercadoPago' }, isActive: { eq: true } }, selectionSet: ['isActive'] }
         )
       );
 
@@ -130,9 +76,7 @@ export const useUserStoreData = () => {
         configuredGateways.push('mercadoPago');
       }
 
-      return {
-        configuredGateways,
-      };
+      return { configuredGateways };
     } catch (err) {
       setError(err);
       return { configuredGateways: [] };
@@ -141,9 +85,6 @@ export const useUserStoreData = () => {
     }
   };
 
-  /**
-   * Configura una pasarela de pago para una tienda específica.
-   */
   const configurePaymentGateway = async (
     storeId: string,
     gateway: PaymentGatewayType,
@@ -177,12 +118,7 @@ export const useUserStoreData = () => {
     }
   };
 
-  /**
-   * Crea una tienda (UserStore) en la base de datos.
-   */
-  const createUserStore = async (
-    storeInput: Omit<StoreSchema['UserStore']['type'], 'id' | 'createdAt' | 'updatedAt'>
-  ) => {
+  const createUserStore = async (storeInput: CreateUserStoreInput): Promise<UserStore | null> => {
     const result = await performOperation(() => client.models.UserStore.create(storeInput));
     if (result && storeInput.storeId) {
       await invalidateAllStoreCache(storeInput.storeId);
@@ -191,12 +127,9 @@ export const useUserStoreData = () => {
     return result;
   };
 
-  /**
-   * Actualiza los datos de una tienda.
-   */
   const updateUserStore = async (
     storeInput: Omit<Partial<UserStore>, 'id' | 'createdAt' | 'updatedAt'> & { storeId: string }
-  ) => {
+  ): Promise<UserStore | null> => {
     const result = await performOperation(() => client.models.UserStore.update(storeInput));
     if (result && storeInput.storeId) {
       await invalidateAllStoreCache(storeInput.storeId);
@@ -205,10 +138,7 @@ export const useUserStoreData = () => {
     return result;
   };
 
-  /**
-   * Elimina una tienda a partir de su 'storeId'.
-   */
-  const deleteUserStore = async (storeId: string) => {
+  const deleteUserStore = async (storeId: string): Promise<UserStore | null> => {
     const result = await performOperation(() => client.models.UserStore.delete({ storeId }));
     if (result && storeId) {
       await invalidateAllStoreCache(storeId);
@@ -217,11 +147,10 @@ export const useUserStoreData = () => {
     return result;
   };
 
-  /**
-   * Inicializa los datos por defecto para una nueva tienda.
-   * Crea colecciones base y menús de navegación dinámicos.
-   */
-  const initializeStoreTemplate = async (storeId: string, domain: string) => {
+  const initializeStoreTemplate = async (
+    storeId: string,
+    domain: string
+  ): Promise<StoreInitializationResult | null> => {
     if (!storeId || !domain) {
       setError('Store ID and domain are required');
       return null;
@@ -233,78 +162,49 @@ export const useUserStoreData = () => {
         domain,
       })
     );
+
     if (result && storeId) {
       await invalidateAllStoreCache(storeId);
       await invalidateNavigationCache(storeId);
     }
-    return result;
+
+    return result as StoreInitializationResult | null;
   };
 
-  /**
-   * Obtiene los menús de navegación de una tienda específica.
-   */
-  const getStoreMenus = async (storeId: string, domain: string) => {
+  const getStoreMenus = async (storeId: string, domain: string): Promise<NavigationMenu[] | null> => {
     if (!storeId || !domain) {
       setError('Store ID and domain are required');
       return null;
     }
 
     return performOperation(() =>
-      client.models.NavigationMenu.listNavigationMenuByStoreId(
-        {
-          storeId,
-        },
-        {
-          selectionSet: ['id', 'name', 'handle', 'isMain', 'isActive', 'domain', 'menuData'],
-        }
-      )
+      client.models.NavigationMenu.listNavigationMenuByStoreId({
+        storeId,
+      })
     );
   };
 
-  /**
-   * Función completa para crear una tienda con todos sus datos iniciales.
-   * Crea la tienda y luego inicializa sus colecciones y menús automáticamente.
-   */
+  type CreateStoreWithTemplateResult = {
+    store: UserStore;
+    template: StoreInitializationResult | null;
+    success: boolean;
+  };
+
   const createStoreWithTemplate = async (
-    storeInput: Omit<
-      StoreSchema['UserStore']['type'],
-      | 'id'
-      | 'createdAt'
-      | 'updatedAt'
-      | 'products'
-      | 'collections'
-      | 'carts'
-      | 'cartItems'
-      | 'orders'
-      | 'orderItems'
-      | 'pages'
-      | 'navigationMenus'
-      | 'storePaymentConfig'
-      | 'storeCustomDomain'
-      | 'userThemes'
-      | 'checkoutSessions'
-      | 'notifications'
-      | 'storeAnalytics'
-    >
-  ) => {
+    storeInput: CreateUserStoreInput
+  ): Promise<CreateStoreWithTemplateResult | null> => {
     try {
       setLoading(true);
       setError(null);
 
-      const storeResult = await performOperation(() => client.models.UserStore.create(storeInput));
+      const storeResult = await createUserStore(storeInput);
 
       if (!storeResult) {
         throw new Error('Failed to create store');
       }
 
       const domain = storeInput.defaultDomain || `${storeInput.storeName}.fasttify.com`;
-
       const templateResult = await initializeStoreTemplate(storeInput.storeId, domain);
-
-      if (storeInput.storeId) {
-        await invalidateAllStoreCache(storeInput.storeId);
-        await invalidateNavigationCache(storeInput.storeId);
-      }
 
       return {
         store: storeResult,

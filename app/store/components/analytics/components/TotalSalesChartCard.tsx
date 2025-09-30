@@ -12,6 +12,7 @@ import {
 import { NoDataMessage } from '@/app/store/components/analytics/components/NoDataMessage';
 import { useAnalyticsCurrencyFormatting } from '@/app/store/hooks/data/useStoreAnalytics/utils/useAnalyticsCurrencyFormatting';
 import { formatDateForChart } from '@/app/store/hooks/data/useStoreAnalytics/utils/dateUtils';
+import { generateFlatLineData } from '@/app/store/components/analytics/utils/chartDataUtils';
 
 interface TotalSalesChartCardProps {
   value: string;
@@ -27,7 +28,7 @@ export function TotalSalesChartCard({
   className: _className,
 }: TotalSalesChartCardProps) {
   const { formatCurrency, formatPercentage } = useAnalyticsCurrencyFormatting();
-  const chartData = data || [];
+  const chartData = generateFlatLineData(data, 2, 0);
 
   // Calcular el total de ventas para porcentajes
   const totalSales = chartData.reduce((sum, item) => sum + item.value, 0);
@@ -115,7 +116,7 @@ export function TotalSalesChartCard({
           <NoDataMessage data={data} style={{ height: '300px', width: '100%' }}>
             <div style={{ height: '300px', width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <LineChart data={chartData} margin={{ top: 5, right: 5, left: 35, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e1e5e9" />
                   <XAxis
                     dataKey="name"

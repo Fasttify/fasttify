@@ -1,11 +1,6 @@
-import { type StoreSchema } from '@/amplify/data/resource';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { generateClient } from 'aws-amplify/api';
 import type { Notification, NotificationFilterOptions, NotificationsQueryResult, PaginationOptions } from '../types';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { storeClient } from '@/lib/amplify-client';
 
 /**
  * Hook para manejar las queries de notificaciones
@@ -38,7 +33,7 @@ export const useNotificationQueries = (
     // Usar el índice secundario storeId y createdAt para la paginación y ordenación
     const hasFilters = Object.keys(filter).length > 0;
 
-    const { data, nextToken } = await client.models.Notification.listNotificationByStoreId(
+    const { data, nextToken } = await storeClient.models.Notification.listNotificationByStoreId(
       { storeId },
       {
         ...(hasFilters ? { filter } : {}), // Solo enviar filter si hay condiciones
@@ -96,7 +91,7 @@ export const useNotificationQueries = (
     }
 
     try {
-      const { data: notification } = await client.models.Notification.get({ id });
+      const { data: notification } = await storeClient.models.Notification.get({ id });
 
       if (notification) {
         queryClient.setQueryData(['notification', id], notification);

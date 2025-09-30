@@ -3,6 +3,7 @@ import { InfoIcon } from '@shopify/polaris-icons';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import { NoDataMessage } from '@/app/store/components/analytics/components/NoDataMessage';
 import { useAnalyticsCurrencyFormatting } from '@/app/store/hooks/data/useStoreAnalytics/utils/useAnalyticsCurrencyFormatting';
+import { generateFlatLineData } from '@/app/store/components/analytics/utils/chartDataUtils';
 
 interface ReturningCustomerRateCardProps {
   value: string;
@@ -18,7 +19,7 @@ export function ReturningCustomerRateCard({
   className: _className,
 }: ReturningCustomerRateCardProps) {
   const { formatPercentage } = useAnalyticsCurrencyFormatting();
-  const chartData = data || [];
+  const chartData = generateFlatLineData(data, 2, 0);
 
   const tooltipContent = (
     <BlockStack gap="100">

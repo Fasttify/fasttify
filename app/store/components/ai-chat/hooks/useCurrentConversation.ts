@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '@/amplify/data/resource';
+import { client } from '@/lib/amplify-client';
 
 interface UseCurrentConversationProps {
   conversationId?: string;
@@ -17,10 +16,6 @@ export interface UseCurrentConversationReturn {
   createNewConversation: () => Promise<string | null>;
   updateConversationName: (id: string, name: string) => Promise<boolean>;
 }
-
-const client = generateClient<Schema>({
-  authMode: 'userPool',
-});
 
 export function useCurrentConversation({
   conversationId,

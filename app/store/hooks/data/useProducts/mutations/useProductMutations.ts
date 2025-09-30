@@ -1,16 +1,11 @@
-import { type Schema } from '@/data-schema';
 import { normalizeAttributesField, normalizeTagsField, withLowercaseName } from '@/app/store/hooks/utils/productUtils';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
 import type { IProduct, ProductCreateInput, ProductUpdateInput } from '../types';
 import { useProductCacheUtils } from '../utils';
 import { generateProductSlug } from '@/lib/utils/slug';
-
-const client = generateClient<Schema>({
-  authMode: 'userPool',
-});
+import { client } from '@/lib/amplify-client';
 
 /**
  * Hook para manejar todas las mutaciones de productos

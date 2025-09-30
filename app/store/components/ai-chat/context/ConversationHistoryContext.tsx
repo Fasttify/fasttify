@@ -1,12 +1,7 @@
 'use client';
 
 import { createContext, useContext, ReactNode, useState, useCallback, useEffect, useRef } from 'react';
-import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '@/amplify/data/resource';
-
-const client = generateClient<Schema>({
-  authMode: 'userPool',
-});
+import { client } from '@/lib/amplify-client';
 
 export interface Conversation {
   id: string;
