@@ -54,23 +54,38 @@ export function CountryMetricsCard({ countryData, className: _className }: Count
         </InlineStack>
         <Box paddingBlockStart="300">
           <NoDataMessage data={countryItems} message="No hay datos de países disponibles.">
-            <BlockStack gap="200">
-              {countryItems.map((item) => (
-                <InlineStack key={item.code} gap="200" align="space-between">
-                  <InlineStack gap="100" blockAlign="center">
-                    <Text variant="bodyMd" as="p">
-                      {item.country}
-                    </Text>
-                  </InlineStack>
-                  <InlineStack gap="100">
-                    <Text variant="bodyMd" as="p" fontWeight="semibold">
-                      {item.count}
-                    </Text>
-                    <Text variant="bodySm" as="p" tone="inherit">
-                      ({item.percentage}%)
-                    </Text>
-                  </InlineStack>
-                </InlineStack>
+            <BlockStack gap="100">
+              {countryItems.map((item, index) => (
+                <Box key={item.code}>
+                  <Box padding="100">
+                    <InlineStack gap="200" align="space-between">
+                      <InlineStack gap="100" blockAlign="center">
+                        <Text variant="bodyMd" as="p">
+                          {item.country}
+                        </Text>
+                      </InlineStack>
+                      <InlineStack gap="100">
+                        <Text variant="bodyMd" as="p" fontWeight="medium">
+                          {item.count}
+                        </Text>
+                        <Text variant="bodySm" as="p" tone="inherit">
+                          ({item.percentage}%)
+                        </Text>
+                      </InlineStack>
+                    </InlineStack>
+                  </Box>
+                  {index < countryItems.length - 1 && (
+                    <Box paddingInline="0">
+                      <div
+                        style={{
+                          height: '1px',
+                          backgroundColor: '#e1e5e9',
+                          margin: '0',
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
               ))}
             </BlockStack>
           </NoDataMessage>

@@ -125,3 +125,14 @@ export const groupDatesByPeriod = (
 
   return groups;
 };
+
+/**
+ * Formatea una fecha para mostrar en gráficos (incluye año para evitar ambigüedad)
+ */
+export const formatDateForChart = (dateString: string): string => {
+  return new Date(dateString).toLocaleDateString('es-ES', {
+    month: 'short',
+    day: 'numeric',
+    year: '2-digit',
+  });
+};

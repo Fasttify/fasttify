@@ -55,23 +55,38 @@ export function TrafficSourceCard({ referrerData, className: _className }: Traff
         </InlineStack>
         <Box paddingBlockStart="300">
           <NoDataMessage data={referrerItems} message="No hay datos de fuentes de tráfico disponibles.">
-            <BlockStack gap="200">
-              {referrerItems.map((item) => (
-                <InlineStack key={item.key} gap="200" align="space-between">
-                  <InlineStack gap="100" blockAlign="center">
-                    <Text variant="bodyMd" as="p">
-                      {item.referrer}
-                    </Text>
-                  </InlineStack>
-                  <InlineStack gap="100">
-                    <Text variant="bodyMd" as="p" fontWeight="semibold">
-                      {item.count}
-                    </Text>
-                    <Text variant="bodySm" as="p" tone="inherit">
-                      ({item.percentage}%)
-                    </Text>
-                  </InlineStack>
-                </InlineStack>
+            <BlockStack gap="100">
+              {referrerItems.map((item, index) => (
+                <Box key={item.key}>
+                  <Box padding="100">
+                    <InlineStack gap="200" align="space-between">
+                      <InlineStack gap="100" blockAlign="center">
+                        <Text variant="bodyMd" as="p">
+                          {item.referrer}
+                        </Text>
+                      </InlineStack>
+                      <InlineStack gap="100">
+                        <Text variant="bodyMd" as="p" fontWeight="medium">
+                          {item.count}
+                        </Text>
+                        <Text variant="bodySm" as="p" tone="inherit">
+                          ({item.percentage}%)
+                        </Text>
+                      </InlineStack>
+                    </InlineStack>
+                  </Box>
+                  {index < referrerItems.length - 1 && (
+                    <Box paddingInline="0">
+                      <div
+                        style={{
+                          height: '1px',
+                          backgroundColor: '#e1e5e9',
+                          margin: '0',
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
               ))}
             </BlockStack>
           </NoDataMessage>

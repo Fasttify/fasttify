@@ -4,3 +4,4 @@ export * from './analyticsCalculations';
 export * from './analyticsDataProcessing';
 export { useAnalyticsFormatting } from './useAnalyticsFormatting';
 export { useAnalyticsCurrencyFormatting } from './useAnalyticsCurrencyFormatting';
+export { useAnalyticsChartData } from './useAnalyticsChartData';

@@ -18,7 +18,7 @@ interface ConversionRateBreakdownCardProps {
 export function ConversionRateBreakdownCard({
   value,
   steps,
-  children,
+  children: _children,
   className: _className,
 }: ConversionRateBreakdownCardProps) {
   const tooltipContent = (
@@ -47,42 +47,40 @@ export function ConversionRateBreakdownCard({
           {value}
         </Text>
         <Box paddingBlockStart="400">
-          <BlockStack gap="300">
-            <NoDataMessage data={steps}>
-              <BlockStack gap="200">
-                {steps?.map((step, index) => (
-                  <InlineStack key={index} gap="200" align="space-between" blockAlign="center">
-                    <Text variant="bodyMd" as="p">
-                      {step.label}
-                    </Text>
-                    <InlineStack gap="100" blockAlign="center">
+          <NoDataMessage data={steps}>
+            <BlockStack gap="100">
+              {steps?.map((step, index) => (
+                <Box key={index}>
+                  <Box padding="100">
+                    <InlineStack gap="200" align="space-between" blockAlign="center">
                       <Text variant="bodyMd" as="p">
-                        {step.percentage}
+                        {step.label}
                       </Text>
-                      <Text variant="bodyMd" tone="inherit" as="p">
-                        {step.count}
-                      </Text>
+                      <InlineStack gap="100" blockAlign="center">
+                        <Text variant="bodyMd" as="p" fontWeight="medium">
+                          {step.percentage}
+                        </Text>
+                        <Text variant="bodyMd" tone="inherit" as="p" fontWeight="medium">
+                          {step.count}
+                        </Text>
+                      </InlineStack>
                     </InlineStack>
-                  </InlineStack>
-                ))}
-              </BlockStack>
-            </NoDataMessage>
-            {children || (
-              <div
-                style={{
-                  height: '150px',
-                  backgroundColor: '#f6f6f7',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text variant="bodyMd" tone="subdued" as="p">
-                  No hay datos para este rango de fechas
-                </Text>
-              </div>
-            )}
-          </BlockStack>
+                  </Box>
+                  {index < steps.length - 1 && (
+                    <Box paddingInline="0">
+                      <div
+                        style={{
+                          height: '1px',
+                          backgroundColor: '#e1e5e9',
+                          margin: '0',
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
+              ))}
+            </BlockStack>
+          </NoDataMessage>
         </Box>
       </Box>
     </Card>

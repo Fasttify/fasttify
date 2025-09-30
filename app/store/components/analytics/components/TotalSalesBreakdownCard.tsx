@@ -38,19 +38,34 @@ export function TotalSalesBreakdownCard({ items, className: _className }: TotalS
             </Tooltip>
           </InlineStack>
           <NoDataMessage data={items}>
-            <BlockStack gap="200">
+            <BlockStack gap="150">
               {items?.map((item, index) => (
-                <InlineStack key={index} gap="200" align="space-between" blockAlign="center">
-                  <Text variant="bodyMd" as="p">
-                    {item.label}
-                  </Text>
-                  <InlineStack gap="100" blockAlign="center">
-                    <Text variant="bodyMd" as="p">
-                      {item.value}
-                    </Text>
-                    {item.trend && <Box>{item.trend}</Box>}
-                  </InlineStack>
-                </InlineStack>
+                <Box key={index}>
+                  <Box paddingBlock="200">
+                    <InlineStack gap="200" align="space-between" blockAlign="center">
+                      <Text variant="bodyMd" as="p">
+                        {item.label}
+                      </Text>
+                      <InlineStack gap="100" blockAlign="center">
+                        <Text variant="bodyMd" as="p" fontWeight="medium">
+                          {item.value}
+                        </Text>
+                        {item.trend && <Box>{item.trend}</Box>}
+                      </InlineStack>
+                    </InlineStack>
+                  </Box>
+                  {index < items.length - 1 && (
+                    <Box paddingInline="0">
+                      <div
+                        style={{
+                          height: '1px',
+                          backgroundColor: '#e1e5e9',
+                          margin: '0',
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
               ))}
             </BlockStack>
           </NoDataMessage>
