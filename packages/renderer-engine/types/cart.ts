@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import type { StoreSchema } from '@/data-schema';
+import type { StoreCart, StoreCartItem } from '@/lib/amplify-client';
 
-export type Cart = Omit<StoreSchema['Cart']['type'], 'items'> & {
+export type Cart = Omit<StoreCart, 'items'> & {
   items: CartItem[];
 };
-export type CartItem = StoreSchema['CartItem']['type'];
-export type CartRaw = StoreSchema['Cart']['type'];
+export type CartItem = StoreCartItem;
+export type CartRaw = StoreCart;
 
 export interface AddToCartRequest {
   storeId: string;
