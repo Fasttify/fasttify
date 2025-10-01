@@ -1,11 +1,13 @@
-import React from 'react';
 import { IProduct } from '@/app/store/hooks/data/useProducts';
 import { exportProductsToCSV } from '@/app/store/components/product-management/utils/exportUtils';
 
-export function formatInventory(quantity: number) {
-  if (quantity <= 0) return <span className="text-red-500">Sin stock</span>;
-  if (quantity < 5) return <span className="text-orange-500">{quantity} en stock</span>;
-  return <span>{quantity} en stock</span>;
+export function formatInventory(quantity: number): {
+  text: string;
+  tone: 'critical' | 'warning' | 'success' | 'info';
+} {
+  if (quantity <= 0) return { text: 'Sin stock', tone: 'critical' };
+  if (quantity < 5) return { text: `${quantity} en stock`, tone: 'warning' };
+  return { text: `${quantity} en stock`, tone: 'success' };
 }
 
 export function handleExportProducts(

@@ -31,18 +31,18 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
       <Navigation.Section
         items={[
           {
-            url: `/store/${storeId}/dashboard`,
-            label: 'Dashboard',
+            url: `/store/${storeId}/home`,
+            label: 'Inicio',
             icon: HomeIcon,
-            selected: pathname === `/store/${storeId}/dashboard` || pathname.includes('/dashboard'),
+            selected: pathname === `/store/${storeId}/home` || pathname.includes('/home'),
             subNavigationItems: [
               {
-                url: `/store/${storeId}/dashboard/analytics`,
+                url: `/store/${storeId}/home/analytics`,
                 label: 'Analíticas',
                 disabled: false,
               },
               {
-                url: `/store/${storeId}/dashboard/notifications`,
+                url: `/store/${storeId}/home/notifications`,
                 label: 'Notificaciones',
                 disabled: true,
               },

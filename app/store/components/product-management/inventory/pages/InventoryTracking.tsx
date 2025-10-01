@@ -11,6 +11,9 @@ import { getStoreId } from '@/utils/client/store-utils';
 import { Button, Card, EmptyState, Spinner } from '@shopify/polaris';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
+import { CustomContextualSaveBar } from '@/app/store/components/product-management/products/components/form/ContextualSaveBar';
+import { useProducts } from '@/app/store/hooks/data/useProducts';
+import { useToast } from '@/app/store/context/ToastContext';
 
 interface InventoryTrackingProps {
   data: InventoryRowProps[];
@@ -43,6 +46,46 @@ export function InventoryTracking({
   const router = useRouter();
   const storeId = getStoreId(params, pathname);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [editedQuantities, setEditedQuantities] = useState<Record<string, number>>({});
+  const [isDirty, setIsDirty] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { updateProduct } = useProducts(storeId);
+  const { showToast } = useToast();
+
+  const handleQuantityChange = (productId: string, value: number) => {
+    setEditedQuantities((prev) => ({
+      ...prev,
+      [productId]: value,
+    }));
+    setIsDirty(true);
+  };
+
+  const handleSave = async () => {
+    setIsSubmitting(true);
+    try {
+      const updates = Object.entries(editedQuantities).map(([productId, quantity]) =>
+        updateProduct({
+          id: productId,
+          quantity: quantity,
+        })
+      );
+      await Promise.all(updates);
+      showToast('Inventario actualizado correctamente');
+      setEditedQuantities({});
+      setIsDirty(false);
+    } catch (e) {
+      showToast('Error al actualizar el inventario', true);
+      console.error(e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDiscard = () => {
+    setEditedQuantities({});
+    setIsDirty(false);
+  };
 
   const filteredData = useMemo(() => {
     if (!searchQuery) return data;
@@ -99,6 +142,13 @@ export function InventoryTracking({
 
   return (
     <div className="w-full mt-8">
+      <CustomContextualSaveBar
+        isDirty={isDirty}
+        isSubmitting={isSubmitting}
+        onSave={handleSave}
+        onDiscard={handleDiscard}
+        router={router}
+      />
       {/* Custom Header */}
       <div
         style={{
@@ -120,7 +170,11 @@ export function InventoryTracking({
           <InventoryFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         </div>
 
-        <InventoryTable data={filteredData} />
+        <InventoryTable
+          data={filteredData}
+          editedQuantities={editedQuantities}
+          onQuantityChange={handleQuantityChange}
+        />
 
         {!loading && !error && (filteredData.length > 0 || hasPreviousPage) && (
           <div style={{ padding: 16 }}>

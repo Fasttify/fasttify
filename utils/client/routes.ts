@@ -16,9 +16,9 @@
 export const routes = {
   store: {
     dashboard: {
-      main: (storeId: string) => `/store/${storeId}/dashboard`,
-      analytics: (storeId: string) => `/store/${storeId}/dashboard/analytics`,
-      notification: (storeId: string) => `/store/${storeId}/dashboard/notification`,
+      main: (storeId: string) => `/store/${storeId}/home`,
+      analytics: (storeId: string) => `/store/${storeId}/home/analytics`,
+      notification: (storeId: string) => `/store/${storeId}/home/notification`,
     },
     settings: (storeId: string) => `/store/${storeId}/settings`,
     products: {

@@ -1,7 +1,7 @@
 'use client';
 
 import { ContextualSaveBar } from '@shopify/polaris';
-import { useContextualSaveBar } from '../../hooks/useContextualSaveBar';
+import { useContextualSaveBar } from '@/app/store/components/product-management/products/hooks/useContextualSaveBar';
 
 interface ContextualSaveBarProps {
   isDirty: boolean;
