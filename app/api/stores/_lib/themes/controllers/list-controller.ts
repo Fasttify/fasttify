@@ -22,8 +22,6 @@ import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyU
 export async function listThemes(request: NextRequest, storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);
   try {
-    logger.info('Theme list request received', { storeId }, 'ThemeListAPI');
-
     const session = await AuthGetCurrentUserServer();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
