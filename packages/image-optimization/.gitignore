@@ -1,0 +1,13 @@
+*.js
+!/functions/url-rewrite/index.js
+!jest.config.js
+*.d.ts
+node_modules
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+.DS_Store
+
+package-lock.json
+cdk.context.json
