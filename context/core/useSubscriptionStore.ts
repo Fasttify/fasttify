@@ -1,13 +1,8 @@
 import { create } from 'zustand';
-import { generateClient } from 'aws-amplify/data';
-import { type StoreSchema } from '@/data-schema';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { storeClient, type StoreUserSubscription } from '@/lib/amplify-client';
 
 // tipo con solo los campos necesarios
-export type MinimalSubscription = StoreSchema['UserSubscription']['type'];
+export type MinimalSubscription = StoreUserSubscription;
 
 interface SubscriptionState {
   cognitoUsername: string | null;
@@ -65,7 +60,7 @@ function createResource() {
 // Función auxiliar para obtener los datos de suscripción
 async function fetchSubscriptionData(username: string): Promise<MinimalSubscription | null> {
   try {
-    const { data, errors } = await client.models.UserSubscription.listUserSubscriptionByUserId({
+    const { data, errors } = await storeClient.models.UserSubscription.listUserSubscriptionByUserId({
       userId: username,
     });
 

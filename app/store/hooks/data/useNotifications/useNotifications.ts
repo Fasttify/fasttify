@@ -6,15 +6,11 @@ import {
   addNotificationsWithoutDuplicates,
   initializeNotificationsWithoutDuplicates,
 } from './utils';
-import { generateClient, CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/api';
+import { CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/api';
 import { Hub } from 'aws-amplify/utils';
-import { type Schema } from '@/amplify/data/resource';
 import { useNotificationMutations } from './mutations';
 import { useNotificationQueries } from './queries';
-
-const client = generateClient<Schema>({
-  authMode: 'userPool',
-});
+import { client } from '@/lib/amplify-client';
 
 /**
  * Hook para gestionar notificaciones con paginación y caché usando React Query

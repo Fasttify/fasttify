@@ -2,6 +2,7 @@ import { Card, Text, Box, InlineStack, Tooltip, BlockStack, Icon } from '@shopif
 import { InfoIcon } from '@shopify/polaris-icons';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { NoDataMessage } from '@/app/store/components/analytics/components/NoDataMessage';
+import { generateFlatLineData } from '@/app/store/components/analytics/utils/chartDataUtils';
 
 interface OrdersFulfilledCardProps {
   value: string;
@@ -11,7 +12,7 @@ interface OrdersFulfilledCardProps {
 }
 
 export function OrdersFulfilledCard({ value, trend, data, className: _className }: OrdersFulfilledCardProps) {
-  const chartData = data || [];
+  const chartData = generateFlatLineData(data, 2, 0);
 
   const tooltipContent = (
     <BlockStack gap="100">

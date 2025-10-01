@@ -3,14 +3,9 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '@/amplify/data/resource';
 import { useConversationContext } from '../context/ConversationContext';
 import { generateConversationName, generateTemporaryConversationName } from '../utils/conversation-naming';
-
-const client = generateClient<Schema>({
-  authMode: 'userPool',
-});
+import { client } from '@/lib/amplify-client';
 
 export interface Message {
   id: string;

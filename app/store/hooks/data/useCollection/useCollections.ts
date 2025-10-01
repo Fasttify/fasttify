@@ -1,12 +1,7 @@
-import type { StoreSchema } from '@/data-schema';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
-import { generateClient } from 'aws-amplify/data';
 import { useState } from 'react';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { storeClient, type StoreCollection } from '@/lib/amplify-client';
 
 // Clave base para las consultas de colecciones
 const COLLECTIONS_KEY = 'collections';
@@ -14,7 +9,7 @@ const COLLECTIONS_KEY = 'collections';
 /**
  * Interfaz para los datos de entrada de una colección
  */
-export type Collection = StoreSchema['Collection']['type'];
+export type Collection = StoreCollection;
 export type CollectionSummary = Pick<Collection, 'id' | 'title' | 'slug'>;
 export interface CollectionInput {
   storeId: string; // ID de la tienda a la que pertenece la colección
@@ -74,7 +69,7 @@ export const useCollections = () => {
         // Carga la colección y sus productos asociados en una sola consulta
         // utilizando 'selectionSet' para realizar Eager Loading.
         return performOperation(() =>
-          client.models.Collection.get(
+          storeClient.models.Collection.get(
             { id },
             {
               selectionSet: ['id', 'title', 'description', 'image', 'slug', 'isActive', 'products.*'],
@@ -101,7 +96,7 @@ export const useCollections = () => {
         }
 
         return performOperation(() =>
-          client.models.Collection.listCollectionByStoreId(
+          storeClient.models.Collection.listCollectionByStoreId(
             {
               storeId: storeId,
             },
@@ -125,7 +120,7 @@ export const useCollections = () => {
         }
 
         return performOperation(() =>
-          client.models.Collection.listCollectionByStoreId({ storeId }, { selectionSet: ['id', 'title', 'slug'] })
+          storeClient.models.Collection.listCollectionByStoreId({ storeId }, { selectionSet: ['id', 'title', 'slug'] })
         );
       },
       staleTime: 5 * 60 * 1000,
@@ -139,7 +134,7 @@ export const useCollections = () => {
   const useCreateCollection = () => {
     return useMutation({
       mutationFn: (collectionInput: CollectionInput) =>
-        performOperation(() => client.models.Collection.create(collectionInput)),
+        performOperation(() => storeClient.models.Collection.create(collectionInput)),
       onSuccess: async (newCollection) => {
         // Invalidar consultas para actualizar la lista
         queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, 'list'] });
@@ -162,7 +157,7 @@ export const useCollections = () => {
           throw new Error('Collection ID is required for update');
         }
         return performOperation(() =>
-          client.models.Collection.update({
+          storeClient.models.Collection.update({
             id,
             ...data,
           })
@@ -193,7 +188,7 @@ export const useCollections = () => {
         if (!storeId) {
           throw new Error('Store ID is required for cache invalidation');
         }
-        return performOperation(() => client.models.Collection.delete({ id }));
+        return performOperation(() => storeClient.models.Collection.delete({ id }));
       },
       onSuccess: async (_, variables) => {
         // Eliminar la colección de la caché
@@ -221,7 +216,7 @@ export const useCollections = () => {
     }
     // Actualizar el producto para asignarle la colección
     return performOperation(() =>
-      client.models.Product.update({
+      storeClient.models.Product.update({
         id: productId,
         collectionId: collectionId,
       })
@@ -239,7 +234,7 @@ export const useCollections = () => {
     }
     // Actualizar el producto para eliminar la referencia a la colección
     return performOperation(() =>
-      client.models.Product.update({
+      storeClient.models.Product.update({
         id: productId,
         collectionId: null, // Eliminar la referencia a la colección
       })

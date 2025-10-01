@@ -1,9 +1,9 @@
-import { type Schema } from '@/amplify/data/resource';
+import { type StoreAnalyticsType } from '@/lib/amplify-client';
 
 /**
  * Tipo principal para las analíticas de tienda
  */
-export type StoreAnalytics = Schema['StoreAnalytics']['type'];
+export type StoreAnalytics = StoreAnalyticsType;
 
 /**
  * Período de tiempo para las analíticas

@@ -1,9 +1,9 @@
-import { type StoreSchema } from '@/data-schema';
+import { type StoreCheckoutSession } from '@/lib/amplify-client';
 
 /**
  * Interfaz para representar una sesión de checkout
  */
-export type ICheckoutSession = StoreSchema['CheckoutSession']['type'];
+export type ICheckoutSession = StoreCheckoutSession;
 
 /**
  * Tipo para los datos necesarios al crear una sesión de checkout

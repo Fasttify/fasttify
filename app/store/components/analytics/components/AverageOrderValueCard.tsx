@@ -11,6 +11,7 @@ import {
 } from 'recharts';
 import { NoDataMessage } from '@/app/store/components/analytics/components/NoDataMessage';
 import { useAnalyticsCurrencyFormatting } from '@/app/store/hooks/data/useStoreAnalytics/utils/useAnalyticsCurrencyFormatting';
+import { generateFlatLineData } from '@/app/store/components/analytics/utils/chartDataUtils';
 
 interface AverageOrderValueCardProps {
   value: string;
@@ -26,7 +27,7 @@ export function AverageOrderValueCard({
   className: _className,
 }: AverageOrderValueCardProps) {
   const { formatCurrency } = useAnalyticsCurrencyFormatting();
-  const chartData = data || [];
+  const chartData = generateFlatLineData(data, 2, 0);
   const tooltipContent = (
     <BlockStack gap="100">
       <Text variant="bodyMd" as="p" fontWeight="bold">
@@ -56,7 +57,7 @@ export function AverageOrderValueCard({
           <NoDataMessage data={data} style={{ height: '200px', width: '100%' }}>
             <div style={{ height: '200px', width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <LineChart data={chartData} margin={{ top: 5, right: 5, left: 30, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e1e5e9" />
                   <XAxis
                     dataKey="name"

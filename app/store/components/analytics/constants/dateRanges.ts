@@ -2,6 +2,14 @@ import { DateRangeOption, ComparisonOption } from '@/app/store/components/analyt
 
 export const DATE_RANGE_OPTIONS: DateRangeOption[] = [
   {
+    title: 'Últimos 11 días',
+    alias: 'last11days',
+    period: {
+      since: new Date(new Date(new Date().setDate(new Date().getDate() - 11)).setHours(0, 0, 0, 0)),
+      until: new Date(new Date().setHours(0, 0, 0, 0)),
+    },
+  },
+  {
     title: 'Hoy',
     alias: 'today',
     period: {

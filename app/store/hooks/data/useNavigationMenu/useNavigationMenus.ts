@@ -1,14 +1,9 @@
-import type { StoreSchema } from '@/data-schema';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { validateMenuItems, validateNavigationMenu, validateUpdateNavigationMenu } from '@/lib/zod-schemas/navigation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { generateClient } from 'aws-amplify/data';
 import { useCallback, useState } from 'react';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { storeClient, type StoreNavigationMenu } from '@/lib/amplify-client';
 
 const NAVIGATION_MENUS_KEY = 'navigationMenus';
 
@@ -68,7 +63,7 @@ export interface NavigationMenuInput {
 /**
  * Tipo para los datos del menú desde la base de datos
  */
-export type NavigationMenu = StoreSchema['NavigationMenu']['type'];
+export type NavigationMenu = StoreNavigationMenu;
 export type NavigationMenuSummary = Pick<NavigationMenu, 'id' | 'name' | 'handle' | 'isMain' | 'isActive'>;
 
 /**
@@ -110,7 +105,7 @@ export const useNavigationMenus = () => {
         }
 
         return performOperation(() =>
-          client.models.NavigationMenu.listNavigationMenuByStoreId(
+          storeClient.models.NavigationMenu.listNavigationMenuByStoreId(
             { storeId },
 
             {
@@ -134,7 +129,7 @@ export const useNavigationMenus = () => {
         if (!id) {
           return null;
         }
-        return performOperation(() => client.models.NavigationMenu.get({ id }));
+        return performOperation(() => storeClient.models.NavigationMenu.get({ id }));
       },
       staleTime: 5 * 60 * 1000,
       enabled: !!id,
@@ -182,7 +177,7 @@ export const useNavigationMenus = () => {
           menuData: JSON.stringify(menuInput.menuData),
         };
 
-        return performOperation(() => client.models.NavigationMenu.create(menuData));
+        return performOperation(() => storeClient.models.NavigationMenu.create(menuData));
       },
       onSuccess: async (newMenu) => {
         queryClient.invalidateQueries({ queryKey: [NAVIGATION_MENUS_KEY, 'list'] });
@@ -208,7 +203,7 @@ export const useNavigationMenus = () => {
           : updateDataWithoutOwner;
 
         return performOperation(() =>
-          client.models.NavigationMenu.update({
+          storeClient.models.NavigationMenu.update({
             id,
             ...updateData,
           })
@@ -238,7 +233,7 @@ export const useNavigationMenus = () => {
         if (!storeId) {
           throw new Error('Store ID is required for cache invalidation');
         }
-        return performOperation(() => client.models.NavigationMenu.delete({ id }));
+        return performOperation(() => storeClient.models.NavigationMenu.delete({ id }));
       },
       onSuccess: async (_, variables) => {
         queryClient.removeQueries({ queryKey: [NAVIGATION_MENUS_KEY, variables.id] });

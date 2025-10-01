@@ -1,14 +1,14 @@
-import { type StoreSchema } from '@/data-schema';
+import { type StoreOrder, type StoreOrderItem } from '@/lib/amplify-client';
 
 /**
  * Interfaz para representar una orden
  */
-export type IOrder = StoreSchema['Order']['type'];
+export type IOrder = StoreOrder;
 
 /**
  * Interfaz para representar un item de orden
  */
-export type IOrderItem = StoreSchema['OrderItem']['type'];
+export type IOrderItem = StoreOrderItem;
 
 /**
  * Tipo para los datos necesarios al crear una orden

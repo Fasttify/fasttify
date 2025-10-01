@@ -4,13 +4,7 @@
  * y categoría del producto.
  */
 import { useState, useCallback } from 'react';
-import { generateClient } from 'aws-amplify/api';
-import type { Schema } from '@/amplify/data/resource';
-
-/**
- * Cliente generado para interactuar con la API de Amplify.
- */
-const client = generateClient<Schema>();
+import { client } from '@/lib/amplify-client';
 
 /**
  * Hook personalizado que gestiona la generación de descripciones de productos con IA.

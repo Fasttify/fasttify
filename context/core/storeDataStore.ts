@@ -1,13 +1,9 @@
-import type { StoreSchema } from '@/data-schema';
-import { CONNECTION_STATE_CHANGE, ConnectionState, generateClient } from 'aws-amplify/data';
+import { CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
 import { create } from 'zustand';
+import { storeClient, type StoreUserStore } from '@/lib/amplify-client';
 
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
-
-type StoreType = StoreSchema['UserStore']['type'];
+type StoreType = StoreUserStore;
 
 interface StoreDataState {
   currentStore: StoreType | null;
@@ -57,7 +53,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     set({ isLoading: true, error: null, storeId });
 
     try {
-      const { data: store } = await client.models.UserStore.get(
+      const { data: store } = await storeClient.models.UserStore.get(
         { storeId: storeId },
         {
           selectionSet: [
@@ -124,7 +120,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
 
   setupSubscription: (id: string) => {
     // Suscripción a actualizaciones específicas del store
-    const updateSub = client.models.UserStore.onUpdate({
+    const updateSub = storeClient.models.UserStore.onUpdate({
       filter: { storeId: { eq: id } },
     }).subscribe({
       next: (data) => {
@@ -139,7 +135,7 @@ const useStoreDataStore = create<StoreDataState>((set, get) => ({
     });
 
     // Suscripción a eliminaciones del store
-    const deleteSub = client.models.UserStore.onDelete({
+    const deleteSub = storeClient.models.UserStore.onDelete({
       filter: { storeId: { eq: id } },
     }).subscribe({
       next: () => {

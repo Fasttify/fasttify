@@ -200,6 +200,7 @@ describe('SSRF Protection Tests', () => {
         expect(endpoint).toMatch(/^http:\/\/[^\/]+\/\.well-known\/fasttify-validation\.txt$/);
         // Verificar que no hay componentes adicionales
         expect(endpoint).toBeTruthy();
+        if (!endpoint) return;
         const url = new URL(endpoint);
         expect(url.search).toBe('');
         expect(url.hash).toBe('');

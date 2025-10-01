@@ -1,10 +1,10 @@
-import { type Schema } from '@/amplify/data/resource';
 import { ConnectionState } from 'aws-amplify/api';
+import { type StoreNotification } from '@/lib/amplify-client';
 
 /**
  * Interfaz para representar una notificación
  */
-export type Notification = Schema['Notification']['type'];
+export type Notification = StoreNotification;
 
 /**
  * Tipo para los datos necesarios al crear una notificación

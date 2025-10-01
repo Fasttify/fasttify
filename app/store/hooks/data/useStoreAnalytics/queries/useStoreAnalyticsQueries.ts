@@ -1,16 +1,11 @@
-import { type StoreSchema } from '@/amplify/data/resource';
 import { useQuery } from '@tanstack/react-query';
-import { generateClient } from 'aws-amplify/api';
 import type {
   StoreAnalytics,
   AnalyticsFilterOptions,
   AnalyticsPeriod,
 } from '@/app/store/hooks/data/useStoreAnalytics/types';
 import { useAnalyticsCacheUtils, isValidDateFormat } from '@/app/store/hooks/data/useStoreAnalytics/utils';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { storeClient } from '@/lib/amplify-client';
 
 /**
  * Hook para manejar las queries de analíticas de tienda
@@ -38,7 +33,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
           throw new Error('Invalid date format. Use YYYY-MM-DD');
         }
 
-        const { data } = await client.models.StoreAnalytics.analyticsByStoreAndDate(
+        const { data } = await storeClient.models.StoreAnalytics.analyticsByStoreAndDate(
           {
             storeId,
             date: { between: [startDate, endDate] },
@@ -59,7 +54,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
           throw new Error('Invalid date format. Use YYYY-MM-DD');
         }
 
-        const { data } = await client.models.StoreAnalytics.analyticsByStoreAndDate(
+        const { data } = await storeClient.models.StoreAnalytics.analyticsByStoreAndDate(
           {
             storeId,
             date: { eq: date },
@@ -75,7 +70,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
 
       // Caso 3: Solo período específico - usar el índice analyticsByStoreAndPeriod
       if (period) {
-        const { data } = await client.models.StoreAnalytics.analyticsByStoreAndPeriod({
+        const { data } = await storeClient.models.StoreAnalytics.analyticsByStoreAndPeriod({
           storeId,
           period: { eq: period },
         });
@@ -83,7 +78,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
       }
 
       // Caso 4: Por defecto, últimos datos de la tienda
-      const { data } = await client.models.StoreAnalytics.analyticsByStore(
+      const { data } = await storeClient.models.StoreAnalytics.analyticsByStore(
         { storeId },
         {
           limit: 50,
@@ -117,7 +112,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
       }
 
       // Buscar por fecha específica y luego filtrar por período daily
-      const { data } = await client.models.StoreAnalytics.analyticsByStoreAndDate({
+      const { data } = await storeClient.models.StoreAnalytics.analyticsByStoreAndDate({
         storeId,
         date: { eq: targetDate },
       });
@@ -173,7 +168,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
     }
 
     // Si no están en caché, hacer la query usando el índice por fecha
-    const { data } = await client.models.StoreAnalytics.analyticsByStoreAndDate({
+    const { data } = await storeClient.models.StoreAnalytics.analyticsByStoreAndDate({
       storeId,
       date: { between: [startDate, endDate] },
     });
@@ -196,7 +191,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
     }
 
     // Si no está en caché, hacer la query usando el índice por período
-    const { data } = await client.models.StoreAnalytics.analyticsByStoreAndPeriod({
+    const { data } = await storeClient.models.StoreAnalytics.analyticsByStoreAndPeriod({
       storeId,
       period: { eq: period },
     });

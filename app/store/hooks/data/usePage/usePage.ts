@@ -1,14 +1,9 @@
-import type { StoreSchema } from '@/data-schema';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { CreatePageInput, createPageSchema, UpdatePageInput, updatePageSchema } from '@/lib/zod-schemas/page';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { generateClient } from 'aws-amplify/data';
 import { useCallback, useState } from 'react';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { storeClient, type StorePage } from '@/lib/amplify-client';
 
 // Clave base para las consultas de páginas
 const PAGES_KEY = 'pages';
@@ -17,7 +12,7 @@ const PAGES_KEY = 'pages';
  * Interfaz para los items de página (objetos JavaScript)
  */
 
-export type Page = StoreSchema['Page']['type'];
+export type Page = StorePage;
 export type PageSummary = Pick<Page, 'id' | 'title' | 'slug' | 'isVisible' | 'status' | 'createdAt' | 'pageType'>;
 export type { CreatePageInput, UpdatePageInput };
 
@@ -51,7 +46,7 @@ export const usePages = (storeId: string) => {
           throw new Error('Store ID is required to list pages.');
         }
         const response = await performOperation(() =>
-          client.models.Page.listPageByStoreId(
+          storeClient.models.Page.listPageByStoreId(
             { storeId },
             { selectionSet: ['id', 'title', 'slug', 'isVisible', 'status', 'createdAt', 'pageType'] }
           )
@@ -71,7 +66,7 @@ export const usePages = (storeId: string) => {
           throw new Error('Store ID is required to list page summaries.');
         }
         // Usamos .list() con selectionSet para traer solo los datos necesarios
-        const { data: pages, errors } = await client.models.Page.listPageByStoreId(
+        const { data: pages, errors } = await storeClient.models.Page.listPageByStoreId(
           {
             storeId,
           },
@@ -95,7 +90,7 @@ export const usePages = (storeId: string) => {
       queryKey: [PAGES_KEY, id],
       queryFn: () => {
         if (!id) return null;
-        return performOperation(() => client.models.Page.get({ id }));
+        return performOperation(() => storeClient.models.Page.get({ id }));
       },
       staleTime: 5 * 60 * 1000,
       enabled: !!id,
@@ -118,7 +113,7 @@ export const usePages = (storeId: string) => {
       mutationFn: async (pageInput: CreatePageInput) => {
         const { username } = await getCurrentUser();
         const validatedInput = createPageSchema.parse(pageInput);
-        return performOperation(() => client.models.Page.create({ ...validatedInput, owner: username }));
+        return performOperation(() => storeClient.models.Page.create({ ...validatedInput, owner: username }));
       },
       onSuccess: async (_newPage) => {
         queryClient.invalidateQueries({ queryKey: [PAGES_KEY, 'list', storeId] });
@@ -134,7 +129,7 @@ export const usePages = (storeId: string) => {
       mutationFn: ({ id, data }: { id: string; data: UpdatePageInput }) => {
         const validatedInput = updatePageSchema.parse(data);
         return performOperation(() =>
-          client.models.Page.update({
+          storeClient.models.Page.update({
             id,
             ...validatedInput,
           })
@@ -156,7 +151,7 @@ export const usePages = (storeId: string) => {
         if (!id) {
           throw new Error('Page ID is required for deletion');
         }
-        return performOperation(() => client.models.Page.delete({ id }));
+        return performOperation(() => storeClient.models.Page.delete({ id }));
       },
       onSuccess: async (_data, deletedId) => {
         queryClient.removeQueries({ queryKey: [PAGES_KEY, deletedId] });

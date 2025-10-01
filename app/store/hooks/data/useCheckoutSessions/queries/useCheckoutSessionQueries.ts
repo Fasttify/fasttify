@@ -1,11 +1,6 @@
-import type { StoreSchema } from '@/data-schema';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { generateClient } from 'aws-amplify/api';
 import type { ICheckoutSession, PaginationOptions, CheckoutSessionsQueryResult, CheckoutSessionStatus } from '../types';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { storeClient } from '@/lib/amplify-client';
 
 /**
  * Hook para manejar las queries de sesiones de checkout
@@ -27,7 +22,7 @@ export const useCheckoutSessionQueries = (
 
     const token = pageTokens[currentPage - 1];
 
-    const { data, nextToken } = await client.models.CheckoutSession.listCheckoutSessionByStoreId(
+    const { data, nextToken } = await storeClient.models.CheckoutSession.listCheckoutSessionByStoreId(
       {
         storeId: storeId,
       },
@@ -98,7 +93,7 @@ export const useCheckoutSessionQueries = (
     }
 
     try {
-      const { data: checkoutSession } = await client.models.CheckoutSession.get({ id });
+      const { data: checkoutSession } = await storeClient.models.CheckoutSession.get({ id });
 
       if (checkoutSession) {
         queryClient.setQueryData(['checkoutSession', id], checkoutSession);
@@ -122,7 +117,7 @@ export const useCheckoutSessionQueries = (
     }
 
     try {
-      const { data } = await client.models.CheckoutSession.listCheckoutSessionByToken({ token }, { limit: 1 });
+      const { data } = await storeClient.models.CheckoutSession.listCheckoutSessionByToken({ token }, { limit: 1 });
 
       if (data && data.length > 0) {
         return data[0] as ICheckoutSession;
@@ -145,7 +140,7 @@ export const useCheckoutSessionQueries = (
     }
 
     try {
-      const { data } = await client.models.CheckoutSession.listCheckoutSessionByStatus({ status }, { limit: 100 });
+      const { data } = await storeClient.models.CheckoutSession.listCheckoutSessionByStatus({ status }, { limit: 100 });
 
       return data as ICheckoutSession[];
     } catch (error) {

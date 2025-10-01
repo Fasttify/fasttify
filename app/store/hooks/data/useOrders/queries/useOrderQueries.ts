@@ -1,11 +1,6 @@
-import type { StoreSchema } from '@/data-schema';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { generateClient } from 'aws-amplify/api';
 import type { IOrder, PaginationOptions, OrdersQueryResult, OrderStatus, PaymentStatus } from '../types';
-
-const client = generateClient<StoreSchema>({
-  authMode: 'userPool',
-});
+import { storeClient } from '@/lib/amplify-client';
 
 /**
  * Hook para manejar las queries de órdenes
@@ -27,7 +22,7 @@ export const useOrderQueries = (
 
     const token = pageTokens[currentPage - 1];
 
-    const { data, nextToken } = await client.models.Order.listOrderByStoreId(
+    const { data, nextToken } = await storeClient.models.Order.listOrderByStoreId(
       {
         storeId: storeId,
       },
@@ -135,7 +130,7 @@ export const useOrderQueries = (
     }
 
     try {
-      const { data: order } = await client.models.Order.get(
+      const { data: order } = await storeClient.models.Order.get(
         { id },
         {
           // Incluir los items automáticamente
@@ -165,7 +160,7 @@ export const useOrderQueries = (
     }
 
     try {
-      const { data } = await client.models.Order.listOrderByOrderNumber(
+      const { data } = await storeClient.models.Order.listOrderByOrderNumber(
         { orderNumber },
         {
           limit: 1,
@@ -195,7 +190,7 @@ export const useOrderQueries = (
     }
 
     try {
-      const { data } = await client.models.Order.listOrderByStatus(
+      const { data } = await storeClient.models.Order.listOrderByStatus(
         { status },
         {
           limit: 100,
@@ -223,7 +218,7 @@ export const useOrderQueries = (
     try {
       // Nota: Esto requeriría un índice secundario en paymentStatus
       // Por ahora, filtramos en el cliente
-      const { data } = await client.models.Order.listOrderByStatus(
+      const { data } = await storeClient.models.Order.listOrderByStatus(
         { status: paymentStatus as OrderStatus },
         {
           limit: 100,
@@ -248,7 +243,7 @@ export const useOrderQueries = (
     }
 
     try {
-      const { data } = await client.models.Order.listOrderByCustomerEmail(
+      const { data } = await storeClient.models.Order.listOrderByCustomerEmail(
         { customerEmail },
         {
           limit: 100,
