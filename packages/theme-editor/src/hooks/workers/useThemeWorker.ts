@@ -29,45 +29,61 @@ export const useThemeWorker = () => {
   const loadingRequests = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    // Crear el worker
-    workerRef.current = new Worker('/workers/theme-files.worker.js');
+    // Solo crear el worker si no existe
+    if (workerRef.current) {
+      return;
+    }
 
-    // Escuchar mensajes del worker
-    workerRef.current.onmessage = (e: MessageEvent<WorkerMessage>) => {
-      const { type, data } = e.data;
+    try {
+      // Usar worker desde lib/ para que se compile en el bundle
+      workerRef.current = new Worker(new URL('@/lib/workers/theme-files.worker.js', import.meta.url));
 
-      if (type === 'THEME_FILES_LOADED') {
-        // Resolver promesa específica por requestId
-        const resolver = pendingResolvers.current.get(data.requestId);
-        if (resolver) {
-          resolver(data.files);
-          pendingResolvers.current.delete(data.requestId);
+      // Escuchar mensajes del worker
+      workerRef.current.onmessage = (e: MessageEvent<WorkerMessage>) => {
+        const { type, data } = e.data;
+
+        if (type === 'THEME_FILES_LOADED') {
+          // Resolver promesa específica por requestId
+          const resolver = pendingResolvers.current.get(data.requestId);
+          if (resolver) {
+            resolver(data.files);
+            pendingResolvers.current.delete(data.requestId);
+          }
+        } else if (type === 'FILE_CONTENT_LOADED') {
+          // Resolver promesa específica por requestId
+          const resolver = pendingResolvers.current.get(data.requestId);
+          if (resolver) {
+            // Guardar en cache
+            const cacheKey = `${data.storeId}:${data.filePath}`;
+            contentCache.current.set(cacheKey, data.content);
+            loadingRequests.current.delete(cacheKey);
+
+            resolver(data.content);
+            pendingResolvers.current.delete(data.requestId);
+          }
+        } else if (type === 'ERROR') {
+          // Rechazar promesa específica por requestId
+          const resolver = pendingResolvers.current.get(data.requestId);
+          if (resolver) {
+            // Limpiar el estado de carga
+            const cacheKey = `${data.storeId}:${data.filePath}`;
+            loadingRequests.current.delete(cacheKey);
+
+            // Para loadThemeFiles, devolver array vacío en lugar de null
+            resolver([]);
+            pendingResolvers.current.delete(data.requestId);
+          }
         }
-      } else if (type === 'FILE_CONTENT_LOADED') {
-        // Resolver promesa específica por requestId
-        const resolver = pendingResolvers.current.get(data.requestId);
-        if (resolver) {
-          // Guardar en cache
-          const cacheKey = `${data.storeId}:${data.filePath}`;
-          contentCache.current.set(cacheKey, data.content);
-          loadingRequests.current.delete(cacheKey);
+      };
 
-          resolver(data.content);
-          pendingResolvers.current.delete(data.requestId);
-        }
-      } else if (type === 'ERROR') {
-        // Rechazar promesa específica por requestId
-        const resolver = pendingResolvers.current.get(data.requestId);
-        if (resolver) {
-          // Limpiar el estado de carga
-          const cacheKey = `${data.storeId}:${data.filePath}`;
-          loadingRequests.current.delete(cacheKey);
-
-          resolver(null);
-          pendingResolvers.current.delete(data.requestId);
-        }
-      }
-    };
+      // Escuchar errores del worker
+      workerRef.current.onerror = (error) => {
+        console.error('Error in worker:', error);
+      };
+    } catch (error) {
+      console.error('Error creating worker:', error);
+      return;
+    }
 
     // Limpiar al desmontar
     return () => {
