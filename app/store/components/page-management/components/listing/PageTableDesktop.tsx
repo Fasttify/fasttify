@@ -63,7 +63,7 @@ export function PageTableDesktop({
             <PageIcon width={22} height={22} />
             <div>
               <PolarisLink onClick={() => handleEditPage(id)} removeUnderline>
-                <Text variant="bodyMd" fontWeight="bold" as="span">
+                <Text variant="bodyMd" fontWeight="bold" as="span" tone="base">
                   {title}
                 </Text>
               </PolarisLink>

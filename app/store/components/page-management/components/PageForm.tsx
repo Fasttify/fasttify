@@ -102,6 +102,8 @@ export function PageForm({ storeId, initialPage, onSave, onCancel, isEditing, ge
                     value={formData.content}
                     onChange={(value) => updateField('content', value)}
                     multiline={6}
+                    autoSize={true}
+                    maxHeight="500px"
                     placeholder="Escribe el contenido de tu página aquí..."
                     autoComplete="off"
                     error={errors.content}
