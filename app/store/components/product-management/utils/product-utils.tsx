@@ -3,7 +3,7 @@ import { exportProductsToCSV } from '@/app/store/components/product-management/u
 
 export function formatInventory(quantity: number): {
   text: string;
-  tone: 'critical' | 'warning' | 'success' | 'subdued';
+  tone: 'critical' | 'warning' | 'success' | 'info';
 } {
   if (quantity <= 0) return { text: 'Sin stock', tone: 'critical' };
   if (quantity < 5) return { text: `${quantity} en stock`, tone: 'warning' };
