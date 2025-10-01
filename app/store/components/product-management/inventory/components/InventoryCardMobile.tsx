@@ -1,50 +1,14 @@
 import { InventoryRowProps } from '@/app/store/components/product-management/inventory/components/InventoryTable';
-import { useToast } from '@/app/store/context/ToastContext';
-import { useProducts } from '@/app/store/hooks/data/useProducts';
-import { getStoreId } from '@/utils/client/store-utils';
-import { Button, ButtonGroup, Card, Text, TextField, Thumbnail } from '@shopify/polaris';
+import { Card, Text, TextField, Thumbnail } from '@shopify/polaris';
 import { ImageIcon } from '@shopify/polaris-icons';
-import { useParams, usePathname } from 'next/navigation';
-import { useState } from 'react';
 
 interface InventoryCardMobileProps {
   data: InventoryRowProps[];
+  editedQuantities: Record<string, number>;
+  onQuantityChange: (productId: string, value: number) => void;
 }
 
-export function InventoryCardMobile({ data }: InventoryCardMobileProps) {
-  const pathname = usePathname();
-  const params = useParams();
-  const storeId = getStoreId(params, pathname);
-  const { updateProduct } = useProducts(storeId);
-  const { showToast } = useToast();
-
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [inStockValues, setInStockValues] = useState<Record<string, number>>(
-    data.reduce((acc, item) => ({ ...acc, [item.id]: item.inStock }), {})
-  );
-
-  const handleUpdateQuantity = async (id: string, name: string) => {
-    try {
-      await updateProduct({
-        id,
-        quantity: inStockValues[id],
-      });
-      showToast(`Inventario de "${name}" actualizado correctamente`);
-      setEditingId(null);
-    } catch (_error) {
-      showToast('Error al actualizar el inventario', true);
-      setInStockValues((prev) => ({ ...prev, [id]: data.find((item) => item.id === id)?.inStock || 0 }));
-    }
-  };
-
-  const handleDiscardChanges = (id: string) => {
-    setInStockValues((prev) => ({
-      ...prev,
-      [id]: data.find((item) => item.id === id)?.inStock || 0,
-    }));
-    setEditingId(null);
-  };
-
+export function InventoryCardMobile({ data, editedQuantities, onQuantityChange }: InventoryCardMobileProps) {
   const getImageUrl = (images: InventoryRowProps['images']) => {
     if (!images) return null;
     if (typeof images === 'string') {
@@ -63,7 +27,7 @@ export function InventoryCardMobile({ data }: InventoryCardMobileProps) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {data.map((item) => {
           const imageUrl = getImageUrl(item.images);
-          const isEditing = editingId === item.id;
+          const currentStock = editedQuantities[item.id] !== undefined ? editedQuantities[item.id] : item.inStock;
 
           return (
             <Card key={item.id}>
@@ -91,7 +55,7 @@ export function InventoryCardMobile({ data }: InventoryCardMobileProps) {
                   </div>
                 )}
                 <div>
-                  <Text variant="bodyMd" fontWeight="semibold" as="p">
+                  <Text variant="bodyMd" fontWeight="regular" as="p" tone="base">
                     {item.name}
                   </Text>
                   <Text variant="bodySm" tone="subdued" as="p">
@@ -135,33 +99,15 @@ export function InventoryCardMobile({ data }: InventoryCardMobileProps) {
                   <Text variant="bodySm" tone="subdued" as="p">
                     En stock
                   </Text>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '80px' }}>
-                      <TextField
-                        value={inStockValues[item.id]?.toString() || '0'}
-                        onChange={(value) => {
-                          setEditingId(item.id);
-                          setInStockValues((prev) => ({
-                            ...prev,
-                            [item.id]: parseInt(value) || 0,
-                          }));
-                        }}
-                        type="number"
-                        autoComplete="off"
-                        label=""
-                        labelHidden
-                      />
-                    </div>
-                    {isEditing && (
-                      <ButtonGroup>
-                        <Button size="micro" onClick={() => handleUpdateQuantity(item.id, item.name)}>
-                          Guardar
-                        </Button>
-                        <Button size="micro" onClick={() => handleDiscardChanges(item.id)}>
-                          Cancelar
-                        </Button>
-                      </ButtonGroup>
-                    )}
+                  <div style={{ width: '80px' }}>
+                    <TextField
+                      value={currentStock.toString()}
+                      onChange={(value) => onQuantityChange(item.id, parseInt(value) || 0)}
+                      type="number"
+                      autoComplete="off"
+                      label=""
+                      labelHidden
+                    />
                   </div>
                 </div>
               </div>

@@ -103,7 +103,7 @@ export function ProductTableDesktop({
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Thumbnail source={imageUrl || ImageIcon} alt={name} size="small" />
             <PolarisLink url={routes.store.products.edit(storeId, id)} removeUnderline>
-              <Text variant="bodyMd" fontWeight="bold" as="span">
+              <Text variant="bodyMd" fontWeight="regular" as="span" tone="base">
                 {name}
               </Text>
             </PolarisLink>
@@ -114,7 +114,11 @@ export function ProductTableDesktop({
             <Badge tone={getStatusTone(status)}>{getStatusText(status)}</Badge>
           </IndexTable.Cell>
         )}
-        {visibleColumns.inventory && <IndexTable.Cell>{formatInventory(quantity ?? 0)}</IndexTable.Cell>}
+        {visibleColumns.inventory && (
+          <IndexTable.Cell>
+            <Badge tone={formatInventory(quantity ?? 0).tone}>{formatInventory(quantity ?? 0).text}</Badge>
+          </IndexTable.Cell>
+        )}
         {visibleColumns.category && <IndexTable.Cell>{category || 'Sin categoría'}</IndexTable.Cell>}
         {visibleColumns.actions && (
           <IndexTable.Cell>

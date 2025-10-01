@@ -49,7 +49,7 @@ export function ProductCardMobile({
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Thumbnail source={getImageUrl(product.images) || ImageIcon} alt={product.name} size="small" />
                   <Box>
-                    <Text variant="bodyMd" as="h3" fontWeight="semibold">
+                    <Text variant="bodyMd" as="h3" fontWeight="regular" tone="base">
                       {product.name}
                     </Text>
                     {visibleColumns.category && (
@@ -93,7 +93,9 @@ export function ProductCardMobile({
                         Inventario
                       </Text>
                       <Text variant="bodyMd" as="p">
-                        {formatInventory(product.quantity ?? 0)}
+                        <Badge tone={formatInventory(product.quantity ?? 0).tone}>
+                          {formatInventory(product.quantity ?? 0).text}
+                        </Badge>
                       </Text>
                     </Box>
                   )}

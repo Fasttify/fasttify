@@ -1,8 +1,6 @@
-import { useToast } from '@/app/store/context/ToastContext';
-import { useProducts } from '@/app/store/hooks/data/useProducts';
 import { routes } from '@/utils/client/routes';
 import { getStoreId } from '@/utils/client/store-utils';
-import { Button, ButtonGroup, IndexTable, Link, Text, TextField, Thumbnail } from '@shopify/polaris';
+import { IndexTable, Link, Text, TextField, Thumbnail } from '@shopify/polaris';
 import { ImageIcon } from '@shopify/polaris-icons';
 import { useParams, usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -25,46 +23,20 @@ export interface InventoryRowProps {
 
 interface InventoryTableProps {
   data: InventoryRowProps[];
+  editedQuantities: Record<string, number>;
+  onQuantityChange: (productId: string, value: number) => void;
 }
 
-export default function InventoryTable({ data }: InventoryTableProps) {
+export default function InventoryTable({ data, editedQuantities, onQuantityChange }: InventoryTableProps) {
   const pathname = usePathname();
   const params = useParams();
   const storeId = getStoreId(params, pathname);
-  const { updateProduct } = useProducts(storeId);
-  const { showToast } = useToast();
 
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
-  const [editingRows, setEditingRows] = useState<{ [key: string]: number }>({});
 
   const resourceName = {
     singular: 'producto',
     plural: 'productos',
-  };
-
-  const handleStockUpdate = async (productId: string, newStock: number) => {
-    try {
-      await updateProduct({
-        id: productId,
-        quantity: newStock,
-      });
-      showToast('Inventario actualizado correctamente');
-
-      // Remove from editing state
-      const newEditingRows = { ...editingRows };
-      delete newEditingRows[productId];
-      setEditingRows(newEditingRows);
-    } catch (_error) {
-      showToast('Error al actualizar el inventario', true);
-    }
-  };
-
-  const handleStockChange = (productId: string, value: string) => {
-    const numValue = parseInt(value) || 0;
-    setEditingRows({
-      ...editingRows,
-      [productId]: numValue,
-    });
   };
 
   const getImageUrl = (images: InventoryRowProps['images']) => {
@@ -82,8 +54,7 @@ export default function InventoryTable({ data }: InventoryTableProps) {
 
   const rowMarkup = data.map((item, index) => {
     const imageUrl = getImageUrl(item.images);
-    const currentStock = editingRows[item.id] !== undefined ? editingRows[item.id] : item.inStock;
-    const isEditing = editingRows[item.id] !== undefined;
+    const currentStock = editedQuantities[item.id] !== undefined ? editedQuantities[item.id] : item.inStock;
 
     return (
       <IndexTable.Row id={item.id} key={item.id} position={index} selected={selectedResources.includes(item.id)}>
@@ -96,7 +67,7 @@ export default function InventoryTable({ data }: InventoryTableProps) {
             )}
             <div>
               <Link url={routes.store.products.edit(storeId, item.id)} removeUnderline>
-                <Text variant="bodyMd" fontWeight="semibold" as="span">
+                <Text variant="bodyMd" fontWeight="regular" as="span" tone="base">
                   {item.name}
                 </Text>
               </Link>
@@ -124,37 +95,15 @@ export default function InventoryTable({ data }: InventoryTableProps) {
           </Text>
         </IndexTable.Cell>
         <IndexTable.Cell>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div onClick={(e) => e.stopPropagation()} style={{ width: '80px' }}>
-              <TextField
-                value={currentStock.toString()}
-                onChange={(value) => handleStockChange(item.id, value)}
-                type="number"
-                autoComplete="off"
-                label=""
-                labelHidden
-              />
-            </div>
-            {isEditing && (
-              <ButtonGroup>
-                <span onClick={(e) => e.stopPropagation()}>
-                  <Button size="micro" onClick={() => handleStockUpdate(item.id, currentStock)}>
-                    Guardar
-                  </Button>
-                </span>
-                <span onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    size="micro"
-                    onClick={() => {
-                      const newEditingRows = { ...editingRows };
-                      delete newEditingRows[item.id];
-                      setEditingRows(newEditingRows);
-                    }}>
-                    Cancelar
-                  </Button>
-                </span>
-              </ButtonGroup>
-            )}
+          <div onClick={(e) => e.stopPropagation()} style={{ width: '80px' }}>
+            <TextField
+              value={currentStock.toString()}
+              onChange={(value) => onQuantityChange(item.id, parseInt(value) || 0)}
+              type="number"
+              autoComplete="off"
+              label=""
+              labelHidden
+            />
           </div>
         </IndexTable.Cell>
       </IndexTable.Row>
