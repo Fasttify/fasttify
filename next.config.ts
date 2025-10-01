@@ -16,6 +16,32 @@ const nextConfig: NextConfig = {
     'axios',
     'node-fetch',
   ],
+  webpack: (
+    config,
+    {
+      /* isServer */
+    }
+  ) => {
+    config.module.rules.push({
+      test: /\.worker\.js$/,
+      loader: 'worker-loader',
+      options: {
+        // inline: true,
+        // fallback: false,
+        filename: 'static/[hash].worker.js',
+        publicPath: '/_next/',
+      },
+    });
+    return config;
+  },
+  turbopack: {
+    rules: {
+      '*.worker.js': {
+        loaders: ['worker-loader'],
+        as: '*.js',
+      },
+    },
+  },
   images: {
     // Configuración para imágenes locales
     contentDispositionType: 'attachment',
