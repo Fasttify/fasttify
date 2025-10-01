@@ -31,7 +31,7 @@ export function ThemeFileTree({
 
   // Convertir archivos del tema en estructura de árbol con niveles de indentación
   const treeStructure = useMemo(() => {
-    if (!files.length) return null;
+    if (!files || !files.length) return null;
 
     const root: any = { children: [] };
     const pathMap = new Map<string, any>();

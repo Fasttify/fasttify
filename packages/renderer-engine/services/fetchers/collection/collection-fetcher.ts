@@ -86,7 +86,7 @@ export class CollectionFetcher {
         return null;
       }
 
-      const handle = collection.title || `collection-${collection.id}`;
+      const handle = collection.slug || collection.title || `collection-${collection.id}`;
 
       // Obtener productos de la colección
       const { products, nextToken, totalCount } = await productFetcher.getProductsByCollection(

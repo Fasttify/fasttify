@@ -248,6 +248,24 @@ export function MenuItemForm({
                       />
                     )}
 
+                    {item.type === 'external' && (
+                      <TextField
+                        label={
+                          <>
+                            Enlace externo
+                            <HelpTooltip content="URL completa de un sitio web externo. Por ejemplo: https://www.ejemplo.com" />
+                          </>
+                        }
+                        value={item.url || ''}
+                        onChange={(value) => updateItem(item.originalIndex, { ...item, url: value })}
+                        placeholder="https://www.ejemplo.com"
+                        autoComplete="off"
+                        disabled={disabled}
+                        error={allItemErrors[item.originalIndex]?.url}
+                        requiredIndicator
+                      />
+                    )}
+
                     {item.type === 'page' && (
                       <PageSelector
                         value={item.pageHandle || ''}

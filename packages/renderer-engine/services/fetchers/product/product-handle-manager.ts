@@ -23,8 +23,6 @@ export class ProductHandleManager {
     storeId: string,
     handle: string
   ): Promise<{ product: ProductData; handleMap: ProductHandleMap } | null> {
-    // Verificar caché del mapa de handles
-    const handleMapCacheKey = `${storeId}-handle-map`;
     const handleMap = productCacheManager.getCachedHandleMap(storeId);
 
     if (handleMap && handleMap[handle]) {

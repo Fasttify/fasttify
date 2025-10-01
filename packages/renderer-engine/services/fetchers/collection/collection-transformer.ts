@@ -24,7 +24,9 @@ export class CollectionTransformer {
     nextToken: string | null | undefined,
     totalCount?: number | undefined
   ): CollectionContext {
-    const handle = dataTransformer.createHandle(collection.name || collection.title || `collection-${collection.id}`);
+    const handle = dataTransformer.createHandle(
+      collection.slug || collection.name || collection.title || `collection-${collection.id}`
+    );
 
     return {
       id: collection.id,
