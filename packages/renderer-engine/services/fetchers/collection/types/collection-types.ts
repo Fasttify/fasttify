@@ -34,6 +34,7 @@ export interface CollectionData {
   image?: string;
   owner: string;
   sortOrder?: number;
+  slug?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
