@@ -1,0 +1,348 @@
+# Sistema de Optimización de Imágenes en Filtros Liquid
+
+## Resumen
+
+Se ha implementado un sistema completo de optimización de imágenes en los filtros `img_url` e `image_url` de Liquid, permitiendo generar URLs optimizadas con parámetros de formato, dimensiones y tamaño para mejorar el rendimiento y la experiencia del usuario.
+
+## Características Principales
+
+### Optimización Automática de Imágenes
+
+- **Formatos soportados**: WebP, JPEG, PNG, AVIF, y formato automático
+- **Redimensionamiento**: Width y height personalizables
+- **Compatibilidad**: Mantiene sintaxis legacy de Shopify
+- **URLs completas**: Soporte para URLs externas y rutas relativas
+
+### Múltiples Sintaxis de Parámetros
+
+- **Legacy**: `img_url: '600x800'` (compatible con Shopify)
+- **Nuevo formato**: `img_url: 'webp', 600, 800` (formato, width, height)
+- **Solo dimensiones**: `img_url: 600, 800` (width, height)
+- **Objeto**: `img_url: { width: 600, height: 800, format: 'auto' }`
+
+## Filtros Implementados
+
+### `img_url` Filter
+
+Filtro principal para optimización de imágenes de productos y contenido general.
+
+**Sintaxis soportadas:**
+
+```liquid
+<!-- Sintaxis legacy (compatible con Shopify) -->
+{{ product.featured_image | img_url: '600x800' }}
+
+<!-- Nuevo formato con parámetros separados -->
+{{ product.featured_image | img_url: 'webp', 600, 800 }}
+
+<!-- Solo dimensiones -->
+{{ product.featured_image | img_url: 600, 800 }}
+
+<!-- Objeto con parámetros -->
+{{ product.featured_image | img_url: { width: 600, height: 800, format: 'auto' } }}
+```
+
+**Ejemplos de uso:**
+
+```liquid
+<!-- Imagen de producto optimizada -->
+<img src="{{ product.featured_image | img_url: 'webp', 400, 400 }}"
+     alt="{{ product.title }}"
+     loading="lazy">
+
+<!-- Imagen de colección con formato automático -->
+<img src="{{ collection.image | img_url: { width: 800, height: 600, format: 'auto' } }}"
+     alt="{{ collection.title }}">
+
+<!-- Imagen legacy (compatible) -->
+<img src="{{ product.image | img_url: '300x300' }}"
+     alt="{{ product.title }}">
+```
+
+### `image_url` Filter
+
+Filtro alternativo con la misma funcionalidad que `img_url`.
+
+**Sintaxis idéntica a `img_url`:**
+
+```liquid
+<!-- Todas las sintaxis de img_url funcionan igual -->
+{{ 'image.jpg' | image_url: 'webp', 600, 800 }}
+{{ 'image.jpg' | image_url: 600, 800 }}
+{{ 'image.jpg' | image_url: { width: 600, height: 800, format: 'auto' } }}
+```
+
+## Parámetros de Optimización
+
+### Formatos Soportados
+
+| Formato  | Descripción        | Uso Recomendado                        |
+| -------- | ------------------ | -------------------------------------- |
+| `'webp'` | WebP moderno       | Navegadores modernos, mejor compresión |
+| `'jpeg'` | JPEG tradicional   | Compatibilidad máxima                  |
+| `'png'`  | PNG sin pérdida    | Imágenes con transparencia             |
+| `'avif'` | AVIF ultra-moderno | Navegadores más recientes              |
+| `'auto'` | Formato automático | El sistema elige el mejor formato      |
+
+### Dimensiones
+
+- **Width**: Ancho en píxeles (ej: `600`)
+- **Height**: Alto en píxeles (ej: `800`)
+- **Size**: Tamaño legacy (ej: `'600x800'`)
+
+### URLs Generadas
+
+El sistema genera URLs optimizadas con parámetros de consulta:
+
+```
+/imagen.jpg?format=webp&width=600&height=800
+/imagen.jpg?width=600&height=800
+/imagen.jpg?size=600x800
+```
+
+## Casos de Uso Comunes
+
+### 1. Imágenes de Producto
+
+```liquid
+<!-- Imagen principal del producto -->
+<img src="{{ product.featured_image | img_url: 'webp', 600, 800 }}"
+     alt="{{ product.title }}"
+     class="product-image">
+
+<!-- Thumbnail del producto -->
+<img src="{{ product.featured_image | img_url: 'webp', 200, 200 }}"
+     alt="{{ product.title }}"
+     class="product-thumbnail">
+```
+
+### 2. Imágenes de Colección
+
+```liquid
+<!-- Banner de colección -->
+<img src="{{ collection.image | img_url: { width: 1200, height: 400, format: 'auto' } }}"
+     alt="{{ collection.title }}"
+     class="collection-banner">
+```
+
+### 3. Imágenes Responsive
+
+```liquid
+<!-- Imagen responsive con diferentes tamaños -->
+<picture>
+  <source media="(min-width: 768px)"
+          srcset="{{ product.image | img_url: 'webp', 800, 600 }}">
+  <source media="(min-width: 480px)"
+          srcset="{{ product.image | img_url: 'webp', 400, 300 }}">
+  <img src="{{ product.image | img_url: 'webp', 300, 225 }}"
+       alt="{{ product.title }}">
+</picture>
+```
+
+### 4. Imágenes Externas
+
+```liquid
+<!-- URLs externas también se optimizan -->
+<img src="{{ 'https://cdn.ejemplo.com/imagen.jpg' | img_url: 'webp', 500, 500 }}"
+     alt="Imagen externa">
+```
+
+## Compatibilidad
+
+### Compatibilidad con Shopify
+
+El sistema mantiene compatibilidad completa con la sintaxis de Shopify:
+
+```liquid
+<!-- Todas estas sintaxis funcionan igual que en Shopify -->
+{{ product.image | img_url: '300x300' }}
+{{ product.image | img_url: '600x600', crop: 'center' }}
+{{ product.image | img_url: 'master' }}
+```
+
+### Migración Gradual
+
+Puedes migrar gradualmente de sintaxis legacy a la nueva:
+
+```liquid
+<!-- Antes (funciona) -->
+{{ product.image | img_url: '600x800' }}
+
+<!-- Después (optimizado) -->
+{{ product.image | img_url: 'webp', 600, 800 }}
+```
+
+## Rendimiento y Beneficios
+
+### Mejoras de Rendimiento
+
+- **WebP**: 25-35% menor tamaño que JPEG
+- **AVIF**: 50% menor tamaño que JPEG
+- **Redimensionamiento**: Imágenes del tamaño exacto necesario
+- **Lazy Loading**: Compatible con `loading="lazy"`
+
+### Experiencia de Usuario
+
+- **Carga más rápida**: Imágenes optimizadas
+- **Mejor SEO**: Imágenes con dimensiones correctas
+- **Responsive**: Diferentes tamaños para diferentes dispositivos
+- **Accesibilidad**: Alt text preservado
+
+## Testing y Validación
+
+### Tests Implementados
+
+El sistema incluye tests completos que validan:
+
+- Sintaxis legacy (`'600x800'`)
+- Nuevo formato (`'webp', 600, 800`)
+- Solo dimensiones (`600, 800`)
+- Objetos (`{ width: 600, height: 800, format: 'auto' }`)
+- URLs completas vs rutas relativas
+- URLs vacías y casos edge
+
+### Ejecutar Tests
+
+```bash
+# Ejecutar tests de optimización de imágenes
+npm test -- test/unit/liquid-filters/ecommerce-filters.test.ts
+```
+
+## Configuración Técnica
+
+### Implementación en el Código
+
+Los filtros están implementados en:
+
+- **Archivo**: `packages/liquid-forge/liquid/filters/ecommerce-filters.ts`
+- **Función principal**: `buildOptimizedImageUrl()`
+- **Filtros**: `imgUrlFilter` e `imageUrlFilter`
+
+### Estructura de Parámetros
+
+```typescript
+interface ImageOptimizationParams {
+  format?: string; // 'webp', 'jpeg', 'png', 'avif', 'auto'
+  width?: number; // Ancho en píxeles
+  height?: number; // Alto en píxeles
+  size?: string; // Tamaño legacy '600x800'
+}
+```
+
+## Mejores Prácticas
+
+### 1. Elegir el Formato Correcto
+
+```liquid
+<!-- Para fotos de productos -->
+{{ product.image | img_url: 'webp', 600, 600 }}
+
+<!-- Para logos con transparencia -->
+{{ logo | img_url: 'png', 200, 100 }}
+
+<!-- Para máxima compatibilidad -->
+{{ product.image | img_url: 'jpeg', 600, 600 }}
+
+<!-- Dejar que el sistema elija -->
+{{ product.image | img_url: 'auto', 600, 600 }}
+```
+
+### 2. Dimensiones Responsive
+
+```liquid
+<!-- Mobile first -->
+<img src="{{ product.image | img_url: 'webp', 300, 300 }}"
+     alt="{{ product.title }}"
+     class="product-image">
+
+<!-- Desktop -->
+@media (min-width: 768px) {
+  .product-image {
+    content: url("{{ product.image | img_url: 'webp', 600, 600 }}");
+  }
+}
+```
+
+### 3. Lazy Loading
+
+```liquid
+<!-- Siempre usar lazy loading para imágenes -->
+<img src="{{ product.image | img_url: 'webp', 400, 400 }}"
+     alt="{{ product.title }}"
+     loading="lazy"
+     class="product-image">
+```
+
+## Troubleshooting
+
+### Problemas Comunes
+
+#### 1. Imagen no se optimiza
+
+**Causa**: URL no válida o parámetros incorrectos
+**Solución**: Verificar que la imagen existe y los parámetros son correctos
+
+```liquid
+<!-- Incorrecto -->
+{{ '' | img_url: 'webp', 600, 800 }}
+
+<!-- Correcto -->
+{{ product.featured_image | img_url: 'webp', 600, 800 }}
+```
+
+#### 2. Formato no soportado
+
+**Causa**: Formato no reconocido
+**Solución**: Usar formatos soportados
+
+```liquid
+<!-- Formato no soportado -->
+{{ product.image | img_url: 'gif', 600, 800 }}
+
+<!-- Formato soportado -->
+{{ product.image | img_url: 'webp', 600, 800 }}
+```
+
+#### 3. Dimensiones incorrectas
+
+**Causa**: Parámetros en orden incorrecto
+**Solución**: Seguir la sintaxis correcta
+
+```liquid
+<!-- Orden incorrecto -->
+{{ product.image | img_url: 600, 'webp', 800 }}
+
+<!-- Orden correcto -->
+{{ product.image | img_url: 'webp', 600, 800 }}
+```
+
+## Roadmap y Futuras Mejoras
+
+### Próximas Características
+
+- [ ] **Compresión automática**: Ajuste automático de calidad
+- [ ] **Formatos adicionales**: Soporte para más formatos modernos
+- [ ] **Watermarking**: Marcas de agua automáticas
+- [ ] **CDN integration**: Integración con CDNs externos
+- [ ] **Analytics**: Métricas de uso de imágenes
+
+### Optimizaciones Planificadas
+
+- [ ] **Cache inteligente**: Cache más eficiente de URLs generadas
+- [ ] **Batch processing**: Procesamiento en lotes de múltiples imágenes
+- [ ] **AI optimization**: Optimización automática basada en IA
+- [ ] **Progressive loading**: Carga progresiva de imágenes
+
+## Conclusión
+
+El sistema de optimización de imágenes en filtros Liquid proporciona:
+
+- **Compatibilidad total** con sintaxis de Shopify
+- **Optimización automática** de imágenes
+- **Múltiples formatos** y dimensiones
+- **Fácil migración** desde sistemas existentes
+- **Mejor rendimiento** y experiencia de usuario
+
+**Implementado exitosamente en Enero 2025**
+
+El sistema está completamente funcional y listo para producción, proporcionando una solución robusta y escalable para la optimización de imágenes en Fasttify.
