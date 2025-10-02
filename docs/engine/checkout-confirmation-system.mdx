@@ -1,0 +1,403 @@
+# Sistema de Confirmación de Pedidos (Checkout Confirmation)
+
+## Resumen
+
+El sistema de confirmación de pedidos permite a los clientes ver una página de confirmación después de completar exitosamente su compra. Esta funcionalidad es esencial para proporcionar una experiencia de compra completa y profesional.
+
+## Arquitectura del Sistema
+
+### Flujo de Confirmación
+
+```
+Cliente completa checkout
+    ↓
+Sistema marca checkout como 'completed'
+    ↓
+Redirección a /checkouts/cn/{token}/confirmation
+    ↓
+Motor de renderizado procesa página de confirmación
+    ↓
+Cliente ve resumen del pedido completado
+```
+
+### Componentes del Sistema
+
+1. **Route Matcher**: Detecta URLs de confirmación
+2. **Data Handler**: Carga datos del checkout completado
+3. **Context Builder**: Prepara datos para el template
+4. **Template**: Renderiza la página de confirmación
+5. **CSS**: Estilos para la página de confirmación
+
+## Configuración Técnica
+
+### 1. Route Matcher
+
+El sistema detecta automáticamente las URLs de confirmación:
+
+```typescript
+// packages/liquid-forge/config/route-matchers.ts
+{
+  pattern: /^\/checkouts\/cn\/([a-zA-Z0-9_-]+)\/confirmation$/,
+  handler: (match) => ({
+    pageType: 'checkout_confirmation',
+    checkoutToken: match[1],
+  }),
+}
+```
+
+### 2. Data Handler
+
+Carga datos específicos para la página de confirmación:
+
+```typescript
+// packages/liquid-forge/services/page/data-loader/handlers/data-handlers.ts
+checkout_confirmation: async (storeId, options, pageOptions) => {
+  // Permite sesiones con status 'completed' o 'open'
+  if (checkoutSession.status !== 'completed' && checkoutSession.status !== 'open') {
+    return null;
+  }
+
+  // Agrega información específica de confirmación
+  return {
+    ...context,
+    confirmation: {
+      order_number: checkoutSession.sessionId || `ORD-${checkoutSession.token}`,
+      completed_at: checkoutSession.updatedAt || new Date().toISOString(),
+      payment_status: 'pending',
+      shipping_status: 'pending',
+    },
+  };
+};
+```
+
+### 3. Template Analyzer
+
+Detecta automáticamente que el template necesita datos de confirmación:
+
+```typescript
+// packages/liquid-forge/services/templates/analysis/template-analyzer.ts
+} else if (templatePath.includes('checkout_confirmation')) {
+  if (!analysis.requiredData.has('checkout_confirmation')) {
+    analysis.requiredData.set('checkout_confirmation', {});
+  }
+}
+```
+
+## Estructura de Archivos
+
+### Templates
+
+```
+template/
+├── templates/
+│   └── checkout_confirmation.json          # Configuración del template
+├── sections/
+│   └── checkout_confirmation.liquid        # Contenido de la página
+└── assets/
+    └── checkout_confirmation.css           # Estilos de la página
+```
+
+### Engine
+
+```
+packages/liquid-forge/
+├── types/
+│   └── template.ts                         # Agrega 'checkout_confirmation' a PageType
+├── config/
+│   ├── route-matchers.ts                   # Route matcher para confirmación
+│   └── page-config.ts                      # Mapeo de template
+├── services/
+│   ├── templates/analysis/
+│   │   └── template-analyzer.ts            # Detección de data requirements
+│   └── page/data-loader/
+│       ├── handlers/
+│       │   └── data-handlers.ts            # Handler de datos de confirmación
+│       └── core/
+│           └── context-builder-helper.ts   # Context builder para confirmación
+```
+
+## Datos Disponibles en el Template
+
+### Objeto `checkout`
+
+El template de confirmación tiene acceso a todos los datos del checkout:
+
+```liquid
+<!-- Información básica del pedido -->
+{{ checkout.id }}
+{{ checkout.total_price | money }}
+{{ checkout.subtotal_price | money }}
+{{ checkout.shipping_price | money }}
+{{ checkout.tax_price | money }}
+
+<!-- Información de confirmación específica -->
+{{ checkout.confirmation.order_number }}
+{{ checkout.confirmation.completed_at | date: "%d/%m/%Y %H:%M" }}
+{{ checkout.confirmation.payment_status | capitalize }}
+{{ checkout.confirmation.shipping_status | capitalize }}
+
+<!-- Productos del pedido -->
+{% for item in checkout.line_items %}
+  {{ item.title }}
+  {{ item.quantity }}
+  {{ item.line_price | money }}
+
+  <!-- Atributos seleccionados del producto -->
+  {% if item.selectedAttributes %}
+    {% for attribute in item.selectedAttributes %}
+      {{ attribute[0] }}: {{ attribute[1] }}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+
+<!-- Información del cliente -->
+{{ checkout.customer_info.name }}
+{{ checkout.customer_info.email }}
+
+<!-- Direcciones -->
+{{ checkout.shipping_address.address1 }}
+{{ checkout.billing_address.address1 }}
+```
+
+## Personalización del Template
+
+### 1. Modificar el Contenido
+
+Edita `template/sections/checkout_confirmation.liquid`:
+
+```liquid
+<section class="checkout-confirmation-section">
+  <div class="checkout-confirmation-container">
+    {% if checkout %}
+      <!-- Tu contenido personalizado aquí -->
+      <h1>¡Pedido Confirmado!</h1>
+
+      <!-- Mostrar información del pedido -->
+      <div class="order-details">
+        <p><strong>Número de Pedido:</strong> {{ checkout.confirmation.order_number }}</p>
+        <p><strong>Total:</strong> {{ checkout.total_price | money }}</p>
+      </div>
+
+      <!-- Lista de productos -->
+      <div class="order-items">
+        {% for item in checkout.line_items %}
+          <div class="order-item">
+            <h3>{{ item.title }}</h3>
+            <p>Cantidad: {{ item.quantity }}</p>
+            <p>Precio: {{ item.line_price | money }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="error-message">
+        <h1>Pedido No Encontrado</h1>
+        <p>No pudimos encontrar los detalles de tu pedido.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+```
+
+### 2. Personalizar Estilos
+
+Edita `template/assets/checkout_confirmation.css`:
+
+```css
+/* Personalizar colores principales */
+.checkout-confirmation-section {
+  background: #f8f9fa; /* Cambiar color de fondo */
+}
+
+.confirmation-title {
+  color: #2c3e50; /* Cambiar color del título */
+  font-size: 2.5rem; /* Cambiar tamaño del título */
+}
+
+/* Personalizar botones */
+.checkout-button.primary {
+  background: #3498db; /* Cambiar color del botón principal */
+  border: none;
+  padding: 15px 30px;
+  border-radius: 5px;
+}
+
+.checkout-button.primary:hover {
+  background: #2980b9; /* Cambiar color del hover */
+  transform: translateY(-2px);
+}
+```
+
+## Estados del Checkout
+
+### Estados Válidos para Confirmación
+
+- **`completed`**: Pedido completado exitosamente
+- **`open`**: Sesión de checkout aún activa (para casos especiales)
+
+### Estados No Válidos
+
+- **`pending`**: Checkout en progreso
+- **`cancelled`**: Checkout cancelado
+- **`expired`**: Checkout expirado
+
+## URLs de Confirmación
+
+### Formato de URL
+
+```
+https://tutienda.com/checkouts/cn/{token}/confirmation
+```
+
+**Ejemplo:**
+
+```
+https://mitienda.com/checkouts/cn/fs_Qhoc8yDBnk5Z5wDBcA1eqQ/confirmation
+```
+
+### Parámetros
+
+- **`{token}`**: Token único del checkout session
+- **`/confirmation`**: Sufijo que activa la página de confirmación
+
+## Integración con el Sistema de Checkout
+
+### 1. Redirección Automática
+
+Después de completar un pedido, redirige al cliente:
+
+```javascript
+// En tu función de checkout
+function completeCheckout(checkoutToken) {
+  // Procesar el pedido...
+
+  // Redirigir a la página de confirmación
+  window.location.href = `/checkouts/cn/${checkoutToken}/confirmation`;
+}
+```
+
+### 2. Verificación de Estado
+
+El sistema verifica automáticamente que el checkout esté en estado válido:
+
+```typescript
+// El data handler verifica el estado automáticamente
+if (checkoutSession.status !== 'completed' && checkoutSession.status !== 'open') {
+  // No mostrar la página de confirmación
+  return null;
+}
+```
+
+## Seguridad
+
+### Validación de Tokens
+
+- Los tokens se validan contra la base de datos
+- Solo se muestran datos de checkouts válidos
+- No se exponen datos sensibles
+
+### Acceso Restringido
+
+- Solo el cliente que realizó el pedido puede ver la confirmación
+- Los tokens son únicos y no predecibles
+- Las sesiones tienen tiempo de expiración
+
+## Monitoreo y Logs
+
+### Logs Importantes
+
+```typescript
+// Logs que verás en CloudWatch
+console.log('Checkout confirmation handler called', { storeId, pageOptions });
+console.log('Checkout session found for confirmation', { token, status });
+console.log('Checkout confirmation data loaded successfully');
+```
+
+### Métricas Recomendadas
+
+- **Confirmaciones exitosas**: Número de páginas de confirmación cargadas
+- **Errores de confirmación**: Checkouts no encontrados o inválidos
+- **Tiempo de carga**: Performance de la página de confirmación
+
+## Troubleshooting
+
+### Problemas Comunes
+
+#### 1. Página no se carga
+
+**Síntomas**: Error 404 o página en blanco
+**Causas**:
+
+- Token inválido
+- Checkout no encontrado
+- Estado del checkout incorrecto
+
+**Solución**:
+
+```bash
+# Verificar logs del data handler
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/[FUNCTION_NAME] \
+  --filter-pattern "checkout_confirmation"
+```
+
+#### 2. Datos no se muestran
+
+**Síntomas**: Página carga pero sin información del pedido
+**Causas**:
+
+- Template no encuentra el objeto `checkout`
+- Datos no se cargan correctamente
+
+**Solución**:
+
+```liquid
+<!-- Agregar debug en el template -->
+{% if checkout %}
+  <p>Checkout encontrado: {{ checkout.id }}</p>
+{% else %}
+  <p>❌ No se encontró checkout</p>
+{% endif %}
+```
+
+#### 3. Estilos no se aplican
+
+**Síntomas**: Página sin estilos o diseño roto
+**Causas**:
+
+- CSS no incluido en el layout
+- Conflictos con otros estilos
+
+**Solución**:
+
+```liquid
+<!-- Verificar que el CSS esté incluido -->
+{{ 'checkout_confirmation.css' | asset_url | stylesheet_tag }}
+```
+
+## Próximas Mejoras
+
+### Funcionalidades Planificadas
+
+- [ ] **Recomendaciones**: Productos relacionados
+- [ ] **Compartir pedido**: Botones de redes sociales
+- [ ] **Impresión**: Botón de imprimir resumen
+
+### Optimizaciones
+
+- [ ] **Cache**: Cache de páginas de confirmación
+- [ ] **Performance**: Optimización de carga de datos
+- [ ] **SEO**: Meta tags específicos para confirmación
+- [ ] **Analytics**: Tracking de conversiones
+
+## Referencias
+
+- [Sistema de Checkout](./checkout-system.mdx)
+- [Motor de Renderizado](./render-engine.mdx)
+- [Sistema de Templates](./template-management.mdx)
+- [Guía de Troubleshooting](./troubleshooting.mdx)
+
+---
+
+**Implementado exitosamente en Enero 2025**
+
+El sistema de confirmación de pedidos está completamente funcional y integrado con el motor de renderizado, proporcionando una experiencia de compra profesional y completa.

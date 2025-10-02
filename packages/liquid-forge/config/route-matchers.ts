@@ -108,6 +108,13 @@ export const routeMatchers: RouteMatcher[] = [
     handler: () => ({ pageType: 'checkout_start' }),
   },
   {
+    pattern: /^\/checkouts\/cn\/([a-zA-Z0-9_-]+)\/confirmation$/,
+    handler: (match) => ({
+      pageType: 'checkout_confirmation',
+      checkoutToken: match[1],
+    }),
+  },
+  {
     pattern: /^\/checkouts\/cn\/([a-zA-Z0-9_-]+)$/,
     handler: (match) => ({
       pageType: 'checkout',

@@ -263,6 +263,61 @@ export const dataHandlers: Record<DataRequirement, DataHandler> = {
       return null;
     }
   },
+
+  checkout_confirmation: async (storeId, options, pageOptions) => {
+    if (!pageOptions.checkoutToken) {
+      logger.warn('Checkout confirmation handler called without checkoutToken', undefined, 'DataHandlers');
+      return null;
+    }
+
+    try {
+      // Para la confirmación, necesitamos obtener los datos del checkout completado
+      // Esto podría ser una sesión marcada como completada o datos de una orden
+      const checkoutSession = await checkoutFetcher.getSessionByToken(pageOptions.checkoutToken);
+
+      if (!checkoutSession) {
+        logger.warn(`Checkout session not found for token: ${pageOptions.checkoutToken}`, undefined, 'DataHandlers');
+        return null;
+      }
+
+      // Validación específica para confirmación - acepta sesiones completadas
+      if (!checkoutSession.token || !checkoutSession.storeId) {
+        logger.warn('Invalid checkout session: missing required fields', undefined, 'DataHandlers');
+        return null;
+      }
+
+      if (checkoutSession.status !== 'completed' && checkoutSession.status !== 'open') {
+        logger.warn(
+          `Checkout session not available for confirmation, status: ${checkoutSession.status}`,
+          undefined,
+          'DataHandlers'
+        );
+        return null;
+      }
+
+      if (checkoutSession.expiresAt && new Date(checkoutSession.expiresAt) < new Date()) {
+        logger.warn(`Checkout session ${checkoutSession.token} has expired`);
+        return null;
+      }
+
+      // Transformar la sesión a formato compatible con Liquid
+      const context = checkoutFetcher.transformSessionToContext(checkoutSession);
+
+      // Agregar información específica de confirmación
+      return {
+        ...context,
+        confirmation: {
+          order_number: checkoutSession.sessionId || `ORD-${checkoutSession.token}`,
+          completed_at: checkoutSession.updatedAt || new Date().toISOString(),
+          payment_status: 'pending', // Esto se puede mejorar cuando se implemente el sistema de pagos
+          shipping_status: 'pending',
+        },
+      };
+    } catch (error) {
+      logger.error('Error loading checkout confirmation data', error, 'DataHandlers');
+      return null;
+    }
+  },
 };
 
 /**

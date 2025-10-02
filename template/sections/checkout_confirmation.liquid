@@ -1,0 +1,151 @@
+{% comment %}
+  Sección de confirmación del checkout
+  Muestra los detalles del pedido completado
+{% endcomment %}
+{{ 'checkout_confirmation.css' | asset_url | stylesheet_tag }}
+
+<section class="checkout-confirmation-section" data-section-id="{{ section.id }}">
+  <div class="checkout-confirmation-container">
+    {% if checkout %}
+      <div class="confirmation-header">
+        <div class="confirmation-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1 class="confirmation-title">¡Pedido Confirmado!</h1>
+        <p class="confirmation-subtitle">Gracias por tu compra. Hemos recibido tu pedido y te contactaremos pronto.</p>
+      </div>
+
+      <div class="confirmation-content">
+        <div class="order-details">
+          <h2 class="order-details-title">Detalles del Pedido</h2>
+
+          <div class="order-info">
+            <div class="info-item">
+              <span class="info-label">Número de Pedido:</span>
+              <span class="info-value">{{ checkout.confirmation.order_number | default: checkout.session_id | default: 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Fecha:</span>
+              <span class="info-value">{{ checkout.confirmation.completed_at | date: '%d/%m/%Y %H:%M' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Estado del Pago:</span>
+              <span class="info-value info-status">{{ checkout.confirmation.payment_status | default: 'Pendiente' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-items">
+          <h2 class="order-items-title">Productos Pedidos</h2>
+
+          <div class="items-list">
+            {% for item in checkout.line_items %}
+              <div class="order-item">
+                {% if item.image %}
+                  <img src="{{ item.image }}" alt="{{ item.title }}" loading="lazy" class="item-image">
+                {% else %}
+                  <div class="item-image-placeholder">
+                    Sin imagen
+                  </div>
+                {% endif %}
+
+                <div class="item-details">
+                  <h3 class="item-name">{{ item.title }}</h3>
+                  {% if item.variant_title and item.variant_title != 'Default Title' %}
+                    <p class="item-variant">{{ item.variant_title }}</p>
+                  {% endif %}
+                  {% if item.selectedAttributes %}
+                    {% for attribute in item.selectedAttributes %}
+                      <p class="item-attribute">{{ attribute[0] }}: {{ attribute[1] }}</p>
+                    {% endfor %}
+                  {% endif %}
+                  <p class="item-quantity">Cantidad: {{ item.quantity }}</p>
+                </div>
+
+                <div class="item-price">
+                  {{ item.line_price | money }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="order-summary">
+          <h2 class="summary-title">Resumen del Pedido</h2>
+
+          <div class="summary-totals">
+            <div class="summary-item">
+              <span class="summary-item-label">Subtotal</span>
+              <span class="summary-item-value">{{ checkout.subtotal_price | money }}</span>
+            </div>
+
+            {% if checkout.shipping_price > 0 %}
+              <div class="summary-item">
+                <span class="summary-item-label">Envío</span>
+                <span class="summary-item-value">{{ checkout.shipping_price | money }}</span>
+              </div>
+            {% endif %}
+
+            {% if checkout.tax_price > 0 %}
+              <div class="summary-item">
+                <span class="summary-item-label">Impuestos</span>
+                <span class="summary-item-value">{{ checkout.tax_price | money }}</span>
+              </div>
+            {% endif %}
+
+            <div class="summary-item summary-total">
+              <span class="summary-item-label">Total</span>
+              <span class="summary-item-value">{{ checkout.total_price | money }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="shipping-info">
+          <h2 class="shipping-title">Información de Envío</h2>
+
+          <div class="shipping-address">
+            <p class="customer-name">{{ checkout.customer.firstName }} {{ checkout.customer.lastName }}</p>
+            <p>{{ checkout.shipping_address.address1 }}</p>
+            {% if checkout.shipping_address.address2 %}
+              <p>{{ checkout.shipping_address.address2 }}</p>
+            {% endif %}
+            <p>{{ checkout.shipping_address.city }}, {{ checkout.shipping_address.province }}</p>
+            <p>{{ checkout.shipping_address.zip }}</p>
+            <p>{{ checkout.shipping_address.country }}</p>
+            {% if checkout.customer.phone %}
+              <p>Teléfono: {{ checkout.customer.phone }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="confirmation-actions">
+          <a href="/" class="confirmation-button primary">
+            <span>Continuar Comprando</span>
+          </a>
+          <a href="/collections" class="confirmation-button secondary">
+            <span>Ver Productos</span>
+          </a>
+        </div>
+
+        <div class="confirmation-note">
+          <p>Te hemos enviado un correo de confirmación a <strong>{{ checkout.customer.email }}</strong> con todos los detalles de tu pedido.</p>
+        </div>
+      </div>
+    {% else %}
+      <div class="confirmation-error">
+        <h1 class="confirmation-title">Error al Cargar el Pedido</h1>
+        <p class="confirmation-subtitle">No se pudo encontrar la información del pedido.</p>
+        <a href="/" class="confirmation-button primary">
+          <span>Volver al Inicio</span>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% comment %}
+  Los estilos del checkout_confirmation están definidos en assets/checkout_confirmation.css
+{% endcomment %}

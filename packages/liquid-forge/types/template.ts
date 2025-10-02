@@ -260,7 +260,8 @@ export type PageType =
   | '404'
   | 'policies'
   | 'checkout_start'
-  | 'checkout';
+  | 'checkout'
+  | 'checkout_confirmation';
 
 export interface PageRenderOptions {
   pageType: PageType;

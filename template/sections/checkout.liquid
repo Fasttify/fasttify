@@ -2,15 +2,15 @@
   Sección principal del checkout
   Muestra el formulario de información del cliente y resumen del pedido
 {% endcomment %}
+{{ 'checkout.css' | asset_url | stylesheet_tag }}
 
 <section class="checkout-section" data-section-id="{{ section.id }}">
-  <div class="container">
+  <div class="checkout-container">
     {% if checkout %}
-      <div class="checkout-content">
-        <div class="checkout-header">
-          <h1 class="checkout-title">Finalizar Compra</h1>
-          <p class="checkout-subtitle">Completa tu información para procesar tu pedido</p>
-        </div>
+      <div class="checkout-header">
+        <h1 class="checkout-title">Finalizar Compra</h1>
+        <p class="checkout-subtitle">Completa tu información para procesar tu pedido</p>
+      </div>
 
         <div class="checkout-layout">
           <!-- Formulario de información del cliente -->
@@ -24,7 +24,7 @@
 
                 <div class="form-row">
                   <div class="form-group">
-                    <label for="customer_email" class="form-label">Email *</label>
+                    <label for="customer_email" class="form-label required">Email</label>
                     <input
                       type="email"
                       id="customer_email"
@@ -37,9 +37,9 @@
                   </div>
                 </div>
 
-                <div class="form-row">
-                  <div class="form-group half">
-                    <label for="customer_first_name" class="form-label">Nombre *</label>
+                <div class="form-row two-columns">
+                  <div class="form-group">
+                    <label for="customer_first_name" class="form-label required">Nombre</label>
                     <input
                       type="text"
                       id="customer_first_name"
@@ -50,8 +50,8 @@
                       placeholder="Tu nombre"
                     >
                   </div>
-                  <div class="form-group half">
-                    <label for="customer_last_name" class="form-label">Apellido *</label>
+                  <div class="form-group">
+                    <label for="customer_last_name" class="form-label required">Apellido</label>
                     <input
                       type="text"
                       id="customer_last_name"
@@ -85,7 +85,7 @@
 
                 <div class="form-row">
                   <div class="form-group">
-                    <label for="shipping_address1" class="form-label">Dirección *</label>
+                    <label for="shipping_address1" class="form-label required">Dirección</label>
                     <input
                       type="text"
                       id="shipping_address1"
@@ -112,9 +112,9 @@
                   </div>
                 </div>
 
-                <div class="form-row">
-                  <div class="form-group half">
-                    <label for="shipping_city" class="form-label">Ciudad *</label>
+                <div class="form-row two-columns">
+                  <div class="form-group">
+                    <label for="shipping_city" class="form-label required">Ciudad</label>
                     <input
                       type="text"
                       id="shipping_city"
@@ -125,8 +125,8 @@
                       placeholder="Bogotá"
                     >
                   </div>
-                  <div class="form-group half">
-                    <label for="shipping_state" class="form-label">Departamento *</label>
+                  <div class="form-group">
+                    <label for="shipping_state" class="form-label required">Departamento</label>
                     <input
                       type="text"
                       id="shipping_state"
@@ -139,8 +139,8 @@
                   </div>
                 </div>
 
-                <div class="form-row">
-                  <div class="form-group half">
+                <div class="form-row two-columns">
+                  <div class="form-group">
                     <label for="shipping_zip" class="form-label">Código Postal</label>
                     <input
                       type="text"
@@ -151,9 +151,9 @@
                       placeholder="110111"
                     >
                   </div>
-                  <div class="form-group half">
+                  <div class="form-group">
                     <label for="shipping_country" class="form-label">País</label>
-                    <select id="shipping_country" name="shipping_address[country]" class="form-input">
+                    <select id="shipping_country" name="shipping_address[country]" class="form-select">
                       <option value="CO" {% if checkout.shipping_address.country == 'CO' %}selected{% endif %}>Colombia</option>
                     </select>
                   </div>
@@ -179,12 +179,14 @@
 
               <!-- Botón de envío -->
               <div class="form-section">
-                <button type="submit" class="btn btn-primary btn-checkout" id="submit-checkout">
-                  <span class="btn-text">Completar Pedido</span>
-                  <span class="btn-loading" style="display: none;">Procesando...</span>
+                <button type="submit" class="checkout-button primary" id="submit-checkout">
+                  <span class="btn-text"><span>Completar Pedido</span></span>
+                  <span class="btn-loading" style="display: none;">
+                    <span class="loading-spinner"></span><span>Procesando...</span>
+                  </span>
                 </button>
 
-                <p class="checkout-disclaimer">
+                <p class="form-success">
                   Al completar el pedido, el dueño de la tienda recibirá los detalles y se pondrá en contacto contigo para coordinar el pago y la entrega.
                 </p>
               </div>
@@ -192,383 +194,87 @@
           </div>
 
           <!-- Resumen del pedido -->
-          <div class="checkout-summary-section">
-            <div class="checkout-summary sticky">
-              <h2 class="summary-title">Resumen del Pedido</h2>
+          <div class="order-summary">
+            <h2 class="summary-title">Resumen del Pedido</h2>
 
-              <div class="summary-items">
-                {% for item in checkout.line_items %}
-                  <div class="summary-item">
-                    <div class="item-image">
-                      {% if item.image %}
-                        <img src="{{ item.image }}" alt="{{ item.title }}" loading="lazy" style="width: 80px; height: 80px; object-fit: cover;">
-                      {% else %}
-                        <div class="item-image-placeholder" style="width: 80px; height: 80px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
-                          Sin imagen
-                        </div>
-                      {% endif %}
+            <div class="summary-products">
+              {% for item in checkout.line_items %}
+                <div class="summary-product">
+                  {% if item.image %}
+                    <img src="{{ item.image }}" alt="{{ item.title }}" loading="lazy" class="product-image">
+                  {% else %}
+                    <div class="product-image-placeholder">
+                      Sin imagen
                     </div>
+                  {% endif %}
 
-                    <div class="item-details">
-                      <h3 class="item-title">{{ item.title }}</h3>
-                      {% if item.variant_title and item.variant_title != 'Default Title' %}
-                        <p class="item-variant">{{ item.variant_title }}</p>
-                      {% endif %}
-                      <p class="item-quantity">Cantidad: {{ item.quantity }}</p>
-                    </div>
-
-                    <div class="item-price">
-                      {{ item.line_price | money }}
-                    </div>
+                  <div class="product-details">
+                    <h3 class="product-name">{{ item.title }}</h3>
+                    {% if item.variant_title and item.variant_title != 'Default Title' %}
+                      <p class="product-variant">{{ item.variant_title }}</p>
+                    {% endif %}
+                    {% if item.selectedAttributes %}
+                      {% for attribute in item.selectedAttributes %}
+                        <p class="product-attribute">{{ attribute[0] }}: {{ attribute[1] }}</p>
+                      {% endfor %}
+                    {% endif %}
+                    <p class="product-quantity">Cantidad: {{ item.quantity }}</p>
                   </div>
-                {% endfor %}
-              </div>
 
-              <div class="summary-totals">
-                <div class="total-line">
-                  <span>Subtotal</span>
-                  <span>{{ checkout.subtotal_price | money }}</span>
+                  <div class="product-price">
+                    {{ item.line_price | money }}
+                  </div>
                 </div>
+              {% endfor %}
+            </div>
 
-                {% if checkout.shipping_price > 0 %}
-                  <div class="total-line">
-                    <span>Envío</span>
-                    <span>{{ checkout.shipping_price | money }}</span>
-                  </div>
-                {% endif %}
+            <div class="summary-totals">
+              <div class="summary-item">
+                <span class="summary-item-label">Subtotal</span>
+                <span class="summary-item-value">{{ checkout.subtotal_price | money }}</span>
+              </div>
 
-                {% if checkout.tax_price > 0 %}
-                  <div class="total-line">
-                    <span>Impuestos</span>
-                    <span>{{ checkout.tax_price | money }}</span>
-                  </div>
-                {% endif %}
-
-                <div class="total-line total-final">
-                  <strong>
-                    <span>Total</span>
-                    <span>{{ checkout.total_price | money }}</span>
-                  </strong>
+              {% if checkout.shipping_price > 0 %}
+                <div class="summary-item">
+                  <span class="summary-item-label">Envío</span>
+                  <span class="summary-item-value">{{ checkout.shipping_price | money }}</span>
                 </div>
-              </div>
+              {% endif %}
 
-              <div class="checkout-security">
-                <p class="security-text">
-                  🔒 Información segura y protegida
-                </p>
+              {% if checkout.tax_price > 0 %}
+                <div class="summary-item">
+                  <span class="summary-item-label">Impuestos</span>
+                  <span class="summary-item-value">{{ checkout.tax_price | money }}</span>
+                </div>
+              {% endif %}
+
+              <div class="summary-item summary-total">
+                <span class="summary-item-label">Total</span>
+                <span class="summary-item-value">{{ checkout.total_price | money }}</span>
               </div>
+            </div>
+
+            <div class="checkout-security">
+              <p class="form-success">
+                🔒 Información segura y protegida
+              </p>
             </div>
           </div>
         </div>
       </div>
     {% else %}
       <div class="checkout-error">
-        <h1>Sesión de Checkout No Encontrada</h1>
-        <p>La sesión de checkout ha expirado o no es válida.</p>
-        <a href="{{ routes.cart_url }}" class="btn btn-primary">Volver al Carrito</a>
+        <h1 class="checkout-title">Sesión de Checkout No Encontrada</h1>
+        <p class="checkout-subtitle">La sesión de checkout ha expirado o no es válida.</p>
+        <a href="{{ routes.cart_url }}" class="checkout-button secondary"><span>Volver al Carrito</span></a>
       </div>
     {% endif %}
   </div>
 </section>
 
-{% style %}
-.checkout-section {
-  padding: 2rem 0;
-  background: #f9f9f9;
-  min-height: 80vh;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.checkout-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.checkout-title {
-  font-size: 2.5rem;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.checkout-subtitle {
-  color: #666;
-  font-size: 1.1rem;
-}
-
-.checkout-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-}
-
-@media (min-width: 1024px) {
-  .checkout-layout {
-    grid-template-columns: 2fr 1fr;
-  }
-}
-
-.checkout-form-section {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.form-section {
-  margin-bottom: 2rem;
-}
-
-.form-section:last-child {
-  margin-bottom: 0;
-}
-
-.form-section-title {
-  font-size: 1.3rem;
-  color: #333;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #eee;
-}
-
-.form-row {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.form-row:last-child {
-  margin-bottom: 0;
-}
-
-.form-group {
-  flex: 1;
-}
-
-.form-group.half {
-  flex: 0.5;
-}
-
-.form-label {
-  display: block;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.form-input,
-.form-textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-}
-
-.form-input:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: #007cba;
-  box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.btn {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  text-align: center;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background-color: #007cba;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #005a87;
-}
-
-.btn-checkout {
-  width: 100%;
-  font-size: 1.1rem;
-  padding: 1rem 1.5rem;
-  position: relative;
-}
-
-.btn-checkout:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.checkout-disclaimer {
-  font-size: 0.9rem;
-  color: #666;
-  text-align: center;
-  margin-top: 1rem;
-  line-height: 1.4;
-}
-
-/* Resumen del pedido */
-.checkout-summary-section {
-  position: relative;
-}
-
-.checkout-summary {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.sticky {
-  position: sticky;
-  top: 2rem;
-}
-
-.summary-title {
-  font-size: 1.3rem;
-  color: #333;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #eee;
-}
-
-.summary-items {
-  margin-bottom: 1.5rem;
-}
-
-.summary-item {
-  display: flex;
-  align-items: center;
-  padding: 1rem 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.summary-item:last-child {
-  border-bottom: none;
-}
-
-.item-image {
-  width: 60px;
-  height: 60px;
-  margin-right: 1rem;
-  flex-shrink: 0;
-}
-
-.item-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.item-details {
-  flex: 1;
-}
-
-.item-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  color: #333;
-}
-
-.item-variant,
-.item-quantity {
-  font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 0.25rem;
-}
-
-.item-price {
-  font-weight: 600;
-  color: #333;
-}
-
-.summary-totals {
-  border-top: 2px solid #eee;
-  padding-top: 1rem;
-}
-
-.total-line {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.total-final {
-  font-size: 1.1rem;
-  border-top: 1px solid #eee;
-  padding-top: 0.5rem;
-  margin-top: 1rem;
-}
-
-.checkout-security {
-  margin-top: 1.5rem;
-  text-align: center;
-}
-
-.security-text {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.checkout-error {
-  background: white;
-  border-radius: 8px;
-  padding: 3rem 2rem;
-  text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.checkout-error h1 {
-  color: #333;
-  margin-bottom: 1rem;
-}
-
-.checkout-error p {
-  color: #666;
-  margin-bottom: 2rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .form-group.half {
-    flex: 1;
-  }
-
-  .checkout-title {
-    font-size: 2rem;
-  }
-
-  .checkout-form-section,
-  .checkout-summary {
-    padding: 1.5rem;
-  }
-}
-{% endstyle %}
+{% comment %}
+  Los estilos del checkout están definidos en assets/checkout.css
+{% endcomment %}
 
 {% javascript %}
 document.addEventListener('DOMContentLoaded', function() {
@@ -580,7 +286,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnLoading = submitBtn.querySelector('.btn-loading');
 
     form.addEventListener('submit', function() {
+      // Agregar clase de loading
+      form.classList.add('checkout-loading');
       submitBtn.disabled = true;
+
+      // Cambiar texto del botón
       if (btnText) btnText.style.display = 'none';
       if (btnLoading) btnLoading.style.display = 'inline';
     });

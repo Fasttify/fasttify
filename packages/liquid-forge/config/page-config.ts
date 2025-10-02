@@ -30,6 +30,7 @@ const templatePaths: Record<PageType, string> = {
   '404': 'templates/404.json',
   checkout_start: 'templates/checkout_start.json',
   checkout: 'templates/checkout.json',
+  checkout_confirmation: 'templates/checkout_confirmation.json',
 };
 
 /**

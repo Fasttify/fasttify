@@ -241,6 +241,18 @@ const pageContextBuilders: Record<string, PageContextBuilder> = {
 
     return baseContext;
   },
+  checkout_confirmation: (loadedData) => {
+    const baseContext: Record<string, any> = {
+      template: 'checkout_confirmation',
+      page_title: 'Pedido Confirmado',
+    };
+
+    if (loadedData.checkout_confirmation) {
+      baseContext.checkout = loadedData.checkout_confirmation;
+    }
+
+    return baseContext;
+  },
 };
 
 /**
