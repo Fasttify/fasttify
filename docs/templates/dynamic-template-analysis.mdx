@@ -169,7 +169,7 @@ El `TemplateAnalyzer` usa regex patterns para detectar objetos Liquid:
 ### **Renderizado Automático**
 
 ```typescript
-import { storeRenderer } from '@/renderer-engine';
+import { storeRenderer } from '@/liquid-forge';
 
 // El sistema analiza automáticamente y carga solo lo necesario
 const result = await storeRenderer.renderPage('mitienda.fasttify.com', '/');
@@ -178,7 +178,7 @@ const result = await storeRenderer.renderPage('mitienda.fasttify.com', '/');
 ### **Análisis Manual**
 
 ```typescript
-import { templateAnalyzer } from '@/renderer-engine';
+import { templateAnalyzer } from '@/liquid-forge';
 
 const template = `{% for product in products limit: 20 %}`;
 const analysis = templateAnalyzer.analyzeTemplate(template, 'custom.liquid');
@@ -190,7 +190,7 @@ console.log('Datos necesarios:', Array.from(analysis.requiredData.keys()));
 ### **Carga Dinámica de Datos**
 
 ```typescript
-import { dynamicDataLoader } from '@/renderer-engine';
+import { dynamicDataLoader } from '@/liquid-forge';
 
 const result = await dynamicDataLoader.loadDynamicData('store123', {
   pageType: 'index',

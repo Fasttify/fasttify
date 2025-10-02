@@ -1,8 +1,8 @@
 import DevAutoReloadScript from '@/app/[store]/components/DevAutoReloadScript';
 import { generateStoreMetadata, getCachedRenderResult, isAssetPath } from '@/app/[store]/lib/store-page-utils';
-import { logger } from '@/renderer-engine/lib/logger';
-import { storeViewsTracker } from '@/renderer-engine/services/analytics/store-views-tracker.service';
-import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
+import { logger } from '@/liquid-forge/lib/logger';
+import { storeViewsTracker } from '@/liquid-forge/services/analytics/store-views-tracker.service';
+import { domainResolver } from '@/liquid-forge/services/core/domain-resolver';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';

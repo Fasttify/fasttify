@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { logger } from '@/renderer-engine/lib/logger';
+import { logger } from '@/liquid-forge/lib/logger';
 
 export interface DeviceInfo {
   deviceType: 'mobile' | 'desktop' | 'tablet';

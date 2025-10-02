@@ -23,7 +23,7 @@ const REGION = process.env.REGION_BUCKET || 'us-east-2';
 const CLOUDFRONT_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID;
 const BASE_TEMPLATE_PREFIX = 'base-templates/default/';
 const TEMPLATE_DIR = join(process.cwd(), 'template');
-const FILTER_MODULES_DIR = join(process.cwd(), 'renderer-engine/liquid/tags/filters/js');
+const FILTER_MODULES_DIR = join(process.cwd(), 'liquid-forge/liquid/tags/filters/js');
 const FILTER_MODULES_PREFIX = 'assets/';
 
 const s3Client = new S3Client({
@@ -125,7 +125,7 @@ async function readFilterModules() {
       }
     }
 
-    const cssDir = join(process.cwd(), 'renderer-engine/liquid/tags/filters/css');
+    const cssDir = join(process.cwd(), 'liquid-forge/liquid/tags/filters/css');
     try {
       const cssEntries = await readdir(cssDir, { withFileTypes: true });
       for (const entry of cssEntries) {

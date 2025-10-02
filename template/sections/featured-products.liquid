@@ -56,7 +56,7 @@
                   <!-- Con imagen secundaria: aplicar clases para el hover -->
                   <img
                     class="product-image product-image-primary"
-                    src="{{ product.featured_image | img_url: '600x800' }}"
+                    src="{{ product.featured_image | img_url: 'webp', 600, 800 }}"
                     alt="{{ product.title | escape }}"
                     loading="lazy">
                   <img

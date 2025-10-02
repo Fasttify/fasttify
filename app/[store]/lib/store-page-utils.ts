@@ -1,5 +1,5 @@
-import { storeRenderer } from '@/renderer-engine';
-import { logger } from '@/renderer-engine/lib/logger';
+import { storeRenderer } from '@/liquid-forge';
+import { logger } from '@/liquid-forge/lib/logger';
 import { Metadata } from 'next';
 import { cache } from 'react';
 

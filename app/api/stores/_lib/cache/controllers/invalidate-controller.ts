@@ -15,7 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { cacheInvalidationService, type ChangeType } from '@/renderer-engine/services/core/cache';
+import { cacheInvalidationService, type ChangeType } from '@/liquid-forge/services/core/cache';
 
 function errorResponse(code: number, message: string, corsHeaders: Record<string, string>) {
   return NextResponse.json({ error: { code, message } }, { status: code, headers: corsHeaders });

@@ -26,7 +26,7 @@ npm install @aws-sdk/client-lambda @aws-crypto/sha256-js @smithy/signature-v4
 ### 1. Envío de Email de Confirmación de Orden
 
 ```typescript
-import { EmailNotificationService } from '@renderer-engine/services/notifications/email-notification-service';
+import { EmailNotificationService } from '@liquid-forge/services/notifications/email-notification-service';
 
 // En tu función de checkout
 async function handleOrderCompletion(order: Order, checkoutSession: any) {
@@ -146,7 +146,7 @@ interface PromotionVariables {
 ### 1. Extracción de Direcciones del Checkout
 
 ```typescript
-import { EmailOrderService } from '@renderer-engine/services/notifications/email-order-service';
+import { EmailOrderService } from '@liquid-forge/services/notifications/email-order-service';
 
 // Extraer dirección de envío
 const shippingAddress = EmailOrderService.extractAddress(checkoutSession.shippingAddress);
@@ -345,7 +345,7 @@ if (process.env.NODE_ENV === 'development') {
 
 ```typescript
 // En tests, puedes mockear el servicio
-jest.mock('@renderer-engine/services/notifications/email-notification-service', () => ({
+jest.mock('@liquid-forge/services/notifications/email-notification-service', () => ({
   EmailNotificationService: {
     sendOrderConfirmation: jest.fn().mockResolvedValue(true),
   },

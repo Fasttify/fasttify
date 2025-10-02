@@ -16,8 +16,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { cartFetcher } from '@/renderer-engine/services/fetchers/cart';
-import { checkoutFetcher } from '@/renderer-engine/services/fetchers/checkout';
+import { cartFetcher } from '@/liquid-forge/services/fetchers/cart';
+import { checkoutFetcher } from '@/liquid-forge/services/fetchers/checkout';
 import { cookies } from 'next/headers';
 
 const SESSION_COOKIE = 'fasttify_cart_session_id';

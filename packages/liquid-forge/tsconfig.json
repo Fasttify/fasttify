@@ -1,0 +1,37 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./*"],
+      "@/liquid-forge/*": ["./*"],
+      "@/utils/*": ["../../utils/*"],
+      "@/lib/*": ["../../lib/*"],
+      "@/amplify/*": ["../../amplify/*"],
+      "@/data-schema": ["../../amplify/data/resource"],
+      "@/amplify_outputs.json": ["../../amplify_outputs.json"],
+      "@/liquid-forge/dist/*": ["./dist/*"],
+      "@/api/*": ["../../app/api/*"]
+    },
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "references": [],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}

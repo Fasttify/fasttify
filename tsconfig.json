@@ -22,5 +22,18 @@
     "noEmit": true
   },
   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", ".next/cache/**/*", "amplify/**/*", ".amplify/**/*", "dist/**/*", "build/**/*"]
+  "exclude": [
+    "node_modules",
+    ".next/cache/**/*",
+    "amplify/**/*",
+    ".amplify/**/*",
+    "dist/**/*",
+    "build/**/*",
+    "packages/image-optimization/**/*",
+    "packages/email/**/*",
+    "packages/mock/**/*",
+    "packages/lambda-edge-host-rewriter/**/*",
+    "template/**/*",
+    "scripts/**/*"
+  ]
 }

@@ -15,7 +15,7 @@
  */
 
 import { getCdnUrlForKey } from '@/utils/server';
-import type { ThemeFile } from '@/renderer-engine/services/themes/types';
+import type { ThemeFile } from '@/liquid-forge/services/themes/types';
 import type { TemplateObject, CopyResult, StoreConfig, TemplateMetadata } from '@/api/stores/template/types';
 import { S3TemplateController } from '@/api/stores/_lib/template/controllers/s3-template-controller';
 

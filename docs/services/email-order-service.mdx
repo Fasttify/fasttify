@@ -72,7 +72,7 @@ El servicio utiliza `EmailFormattingUtils` para el procesamiento de direcciones:
 ## Ejemplo de Uso
 
 ```typescript
-import { EmailOrderService } from '@/packages/renderer-engine/services/notifications';
+import { EmailOrderService } from '@/packages/liquid-forge/services/notifications';
 
 // En el flujo de checkout
 const order = {
@@ -135,7 +135,7 @@ El `EmailOrderService` se integra con:
 
 ## Dependencias
 
-- `@/renderer-engine/types` - Tipos de Order
+- `@/liquid-forge/types` - Tipos de Order
 - `@/utils/server/AmplifyServer` - Cliente de Amplify
 - `./email-notification-service` - Servicio principal de notificaciones
 - `./email-formatting-utils` - Utilidades de formateo

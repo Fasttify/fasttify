@@ -115,7 +115,7 @@ Motor Liquid Personalizado
 
 ```
 Monorepo con npm workspaces
-├── packages/renderer-engine (Motor Liquid)
+├── packages/liquid-forge (Motor Liquid)
 ├── packages/orders-app (Gestión pedidos)
 ├── packages/lambda-edge-host-rewriter
 └── packages/tenant-domains
@@ -242,7 +242,7 @@ fasttify/
 │   └── 📁 api/                    # API Routes
 │       ├── 📁 stores/             # APIs gestión tiendas
 │       └── 📁 domain-validation/  # Validación dominios
-├── 📁 renderer-engine/            # Motor plantillas Liquid
+├── 📁 liquid-forge/            # Motor plantillas Liquid
 │   ├── 📁 liquid/                 # Engine LiquidJS personalizado
 │   ├── 📁 services/               # Servicios renderizado
 │   ├── 📁 renderers/              # Renderizadores dinámicos

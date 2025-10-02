@@ -1,11 +1,11 @@
-jest.mock('@/packages/renderer-engine/services/rendering/global-context', () => ({
+jest.mock('@/packages/liquid-forge/services/rendering/global-context', () => ({
   contextBuilder: {
     createRenderContext: jest.fn().mockResolvedValue({ context: 'ok' }),
   },
 }));
 
-import { buildContextStep } from '@/packages/renderer-engine/renderers/pipeline-steps/build-context-step';
-import { contextBuilder } from '@/packages/renderer-engine/services/rendering/global-context';
+import { buildContextStep } from '@/packages/liquid-forge/renderers/pipeline-steps/build-context-step';
+import { contextBuilder } from '@/packages/liquid-forge/services/rendering/global-context';
 
 describe('buildContextStep', () => {
   it('debe construir el contexto correctamente', async () => {

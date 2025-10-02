@@ -16,9 +16,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/renderer-engine/lib/logger';
-import { TemplateAnalysis } from '@/renderer-engine/services/templates/analysis/template-analyzer';
-import { ThemeProcessor, ThemeValidator } from '@/renderer-engine/services/themes';
+import { logger } from '@/liquid-forge/lib/logger';
+import { TemplateAnalysis } from '@/liquid-forge/services/templates/analysis/template-analyzer';
+import { ThemeProcessor, ThemeValidator } from '@/liquid-forge/services/themes';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 
 export async function postUploadTheme(request: NextRequest, storeId: string): Promise<NextResponse> {

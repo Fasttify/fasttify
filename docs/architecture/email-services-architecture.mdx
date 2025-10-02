@@ -6,7 +6,7 @@ Esta documentación explica la arquitectura y separación de responsabilidades d
 
 ### 1. Motor de Renderizado
 
-**Ubicación:** `packages/renderer-engine/services/notifications/`
+**Ubicación:** `packages/liquid-forge/services/notifications/`
 
 **Servicios:**
 
@@ -30,12 +30,12 @@ Esta documentación explica la arquitectura y separación de responsabilidades d
 
 ### Por Contexto de Uso
 
-| Servicio                   | Ubicación                   | Contexto             | Usuario       | Propósito                |
-| -------------------------- | --------------------------- | -------------------- | ------------- | ------------------------ |
-| `EmailNotificationService` | `packages/renderer-engine/` | Motor de Renderizado | Sistema       | Confirmación automática  |
-| `EmailOrderService`        | `packages/renderer-engine/` | Checkout             | Sistema       | Integración con checkout |
-| `EmailAdminService`        | `app/store/services/`       | Panel Admin          | Administrador | Notificaciones manuales  |
-| `EmailFormattingUtils`     | `packages/renderer-engine/` | Compartido           | Ambos         | Utilidades de formateo   |
+| Servicio                   | Ubicación                | Contexto             | Usuario       | Propósito                |
+| -------------------------- | ------------------------ | -------------------- | ------------- | ------------------------ |
+| `EmailNotificationService` | `packages/liquid-forge/` | Motor de Renderizado | Sistema       | Confirmación automática  |
+| `EmailOrderService`        | `packages/liquid-forge/` | Checkout             | Sistema       | Integración con checkout |
+| `EmailAdminService`        | `app/store/services/`    | Panel Admin          | Administrador | Notificaciones manuales  |
+| `EmailFormattingUtils`     | `packages/liquid-forge/` | Compartido           | Ambos         | Utilidades de formateo   |
 
 ### Por Tipo de Email
 
@@ -72,7 +72,7 @@ graph TD
 ## Estructura de Archivos
 
 ```
-packages/renderer-engine/services/notifications/
+packages/liquid-forge/services/notifications/
 ├── index.ts                           # Exportaciones del motor
 ├── email-notification-service.ts      # Confirmaciones del motor
 ├── email-order-service.ts             # Integración checkout
@@ -94,7 +94,7 @@ app/api/v1/notifications/
 ### Para Emails del Motor de Renderizado
 
 ```typescript
-import { EmailNotificationService } from '@/packages/renderer-engine/services/notifications';
+import { EmailNotificationService } from '@/packages/liquid-forge/services/notifications';
 
 // En el flujo de checkout
 await EmailNotificationService.sendOrderConfirmation({
@@ -130,7 +130,7 @@ await EmailAdminService.sendOrderStatusUpdate({
 ### Para Utilidades de Formateo
 
 ```typescript
-import { EmailFormattingUtils } from '@/packages/renderer-engine/services/notifications';
+import { EmailFormattingUtils } from '@/packages/liquid-forge/services/notifications';
 
 // Formatear datos (disponible en ambos contextos)
 const formattedAddress = EmailFormattingUtils.formatAddress(addressData);
