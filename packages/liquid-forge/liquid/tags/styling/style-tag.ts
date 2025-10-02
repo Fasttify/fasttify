@@ -26,13 +26,12 @@ function optimizeCSS(css: string): string {
     css
       // Remover comentarios CSS
       .replace(/\/\*[\s\S]*?\*\//g, '')
-      // Remover espacios múltiples
+      // Remover espacios múltiples (pero preservar selectores)
       .replace(/\s+/g, ' ')
-      // Remover espacios antes y después de llaves y dos puntos
-      .replace(/\s*{\s*/g, ' { ')
-      .replace(/\s*}\s*/g, ' } ')
-      .replace(/\s*:\s*/g, ': ')
-      .replace(/\s*;\s*/g, '; ')
+      // Limpiar espacios alrededor de llaves y punto y coma (pero NO en selectores)
+      .replace(/\s*{\s*/g, '{')
+      .replace(/\s*}\s*/g, '}')
+      .replace(/\s*;\s*/g, ';')
       // Limpiar líneas vacías
       .replace(/^\s*[\r\n]/gm, '')
       .trim()
