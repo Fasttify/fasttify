@@ -1,5 +1,5 @@
 import type { Schema } from '../../resource';
-import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput } from '@aws-sdk/client-bedrock-runtime';
+import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
 import {
   PRICE_SUGGESTION_SYSTEM_PROMPT,
   createPricePrompt,
@@ -18,37 +18,29 @@ export const handler: Schema['generatePriceSuggestion']['functionHandler'] = asy
     // Crear el prompt del usuario usando la función helper
     const prompt = createPricePrompt(productName, category || undefined);
 
-    // Prepare the input for the model
-    const input = {
-      modelId: process.env.MODEL_ID || 'us.anthropic.claude-3-haiku-20240307-v1:0',
-      contentType: 'application/json',
-      accept: 'application/json',
-      body: JSON.stringify({
-        anthropic_version: 'bedrock-2023-05-31',
-        system: PRICE_SUGGESTION_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: prompt,
-              },
-            ],
-          },
-        ],
-        max_tokens: 1000,
-        temperature: 0.2,
-      }),
-    } as InvokeModelCommandInput;
+    // Create conversation with the user message
+    const conversation = [
+      {
+        role: 'user' as const,
+        content: [{ text: prompt }],
+      },
+    ];
 
-    // Invoke the model
-    const command = new InvokeModelCommand(input);
+    // Create a command with the model ID, the message, and configuration
+    const command = new ConverseCommand({
+      modelId: 'us.anthropic.claude-3-haiku-20240307-v1:0',
+      messages: conversation,
+      system: [{ text: PRICE_SUGGESTION_SYSTEM_PROMPT }],
+      inferenceConfig: {
+        maxTokens: 1000,
+        temperature: 0.2,
+      },
+    });
+
     const response = await client.send(command);
-    const data = JSON.parse(Buffer.from(response.body).toString());
 
     // Extract the response text
-    const responseText = data.content[0].text.trim();
+    const responseText = response.output?.message?.content?.[0]?.text?.trim() || '';
 
     // Try to parse the JSON using the helper function
     const result = parsePriceResponse(responseText);
