@@ -32,6 +32,7 @@
     "packages/image-optimization/**/*",
     "packages/email/**/*",
     "packages/mock/**/*",
-    "packages/lambda-edge-host-rewriter/**/*"
+    "packages/lambda-edge-host-rewriter/**/*",
+    "template/**/*"
   ]
 }
