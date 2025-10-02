@@ -281,18 +281,32 @@ export class TemplateDevSynchronizer {
         throw new Error(`Ruta no segura: ${filePath}`);
       }
 
-      const isBinary = isBinaryFile(filePath);
+      // Crear una ruta validada y normalizada para uso seguro
+      const validatedPath = path.resolve(filePath);
+      const validatedRoot = path.resolve(this.localDir);
+
+      // Verificación adicional de seguridad
+      if (!validatedPath.startsWith(validatedRoot + path.sep) && validatedPath !== validatedRoot) {
+        logger.warn(
+          `[TemplateDevSynchronizer] Ruta validada no segura: ${validatedPath}`,
+          undefined,
+          'TemplateDevSynchronizer'
+        );
+        throw new Error(`Path not safe: ${validatedPath}`);
+      }
+
+      const isBinary = isBinaryFile(validatedPath);
 
       // Obtener ruta relativa para determinar si es procesable
-      const relativePath = path.relative(this.localDir, filePath).replace(/\\/g, '/');
+      const relativePath = path.relative(this.localDir, validatedPath).replace(/\\/g, '/');
 
       let body;
       if (isBinary) {
         // Leer como buffer para archivos binarios
-        body = fs.readFileSync(filePath);
+        body = fs.readFileSync(validatedPath);
       } else {
         // Leer como texto para archivos de texto
-        let content = fs.readFileSync(filePath, 'utf-8');
+        let content = fs.readFileSync(validatedPath, 'utf-8');
 
         // Procesar archivos CSS, JS y Liquid si están en assets/
         if (this.isProcessableAsset(relativePath)) {
