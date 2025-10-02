@@ -30,11 +30,11 @@ Esta documentación explica la arquitectura y separación de responsabilidades d
 
 ### Por Contexto de Uso
 
-| Servicio                   | Ubicación                   | Contexto             | Usuario       | Propósito                |
-| -------------------------- | --------------------------- | -------------------- | ------------- | ------------------------ |
+| Servicio                   | Ubicación                | Contexto             | Usuario       | Propósito                |
+| -------------------------- | ------------------------ | -------------------- | ------------- | ------------------------ |
 | `EmailNotificationService` | `packages/liquid-forge/` | Motor de Renderizado | Sistema       | Confirmación automática  |
 | `EmailOrderService`        | `packages/liquid-forge/` | Checkout             | Sistema       | Integración con checkout |
-| `EmailAdminService`        | `app/store/services/`       | Panel Admin          | Administrador | Notificaciones manuales  |
+| `EmailAdminService`        | `app/store/services/`    | Panel Admin          | Administrador | Notificaciones manuales  |
 | `EmailFormattingUtils`     | `packages/liquid-forge/` | Compartido           | Ambos         | Utilidades de formateo   |
 
 ### Por Tipo de Email
