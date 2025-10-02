@@ -6,7 +6,7 @@ import type {
   StoreAnalytics,
 } from '@/app/store/hooks/data/useStoreAnalytics/types';
 import { useStoreAnalyticsQueries } from '@/app/store/hooks/data/useStoreAnalytics/queries';
-import { getTodayDate, getDateRangeForPeriod } from '@/app/store/hooks/data/useStoreAnalytics/utils';
+import { getTodayDate, getDateRangeForPeriodAnalytics } from '@/app/store/hooks/data/useStoreAnalytics/utils';
 
 /**
  * Hook principal para gestionar analíticas de tienda de forma simplificada
@@ -129,7 +129,7 @@ export function useTodayAnalytics(storeId: string | undefined) {
  * Hook auxiliar para obtener analíticas del último mes
  */
 export function useMonthlyAnalytics(storeId: string | undefined) {
-  const { start, end } = getDateRangeForPeriod('monthly');
+  const { start, end } = getDateRangeForPeriodAnalytics('monthly');
 
   return useStoreAnalytics(storeId, {
     filterOptions: {
@@ -144,7 +144,7 @@ export function useMonthlyAnalytics(storeId: string | undefined) {
  * Hook auxiliar para obtener analíticas de la última semana
  */
 export function useWeeklyAnalytics(storeId: string | undefined) {
-  const { start, end } = getDateRangeForPeriod('weekly');
+  const { start, end } = getDateRangeForPeriodAnalytics('weekly');
 
   return useStoreAnalytics(storeId, {
     filterOptions: {

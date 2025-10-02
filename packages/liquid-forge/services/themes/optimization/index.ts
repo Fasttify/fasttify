@@ -14,16 +14,5 @@
  * limitations under the License.
  */
 
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-// Re-export all utilities for backward compatibility
-export { getContentType } from './utils/file-utils';
-export * from './utils/file-utils';
-export * from './utils/validation-utils';
-export * from './utils/id-utils';
-export * from './utils/date-utils';
+export { PostCSSProcessor } from './postcss-processor';
+export type { PostCSSOptions, ProcessingResult } from './postcss-processor';

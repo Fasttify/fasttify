@@ -1,4 +1,5 @@
 import { ThemeFile } from '../types/editor-types';
+import { getFileExtension } from '@/lib/utils/file-utils';
 
 // Generar ID único para archivo
 export function generateFileId(path: string): string {
@@ -12,7 +13,7 @@ export function getFileName(path: string): string {
 
 // Determinar tipo de archivo basado en la extensión
 export function getFileType(path: string): ThemeFile['type'] {
-  const extension = path.split('.').pop()?.toLowerCase();
+  const extension = getFileExtension(path);
 
   switch (extension) {
     case 'liquid':

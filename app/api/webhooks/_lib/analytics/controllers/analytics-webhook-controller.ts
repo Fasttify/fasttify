@@ -65,66 +65,42 @@ export async function analyticsWebhookController(
     switch (event.type) {
       case 'ORDER_CREATED':
         await analyticsUpdateService.updateOrderMetrics(event.storeId, event.data);
-        logger.info(
-          `[Analytics Webhook] Order created: ${event.data.orderId} for store ${event.storeId}`,
-          'AnalyticsWebhook'
-        );
+
         break;
 
       case 'ORDER_CANCELLED':
         await analyticsUpdateService.updateOrderCancelledMetrics(event.storeId, event.data);
-        logger.info(
-          `[Analytics Webhook] Order cancelled: ${event.data.orderId} for store ${event.storeId}`,
-          'AnalyticsWebhook'
-        );
+
         break;
 
       case 'ORDER_REFUNDED':
         await analyticsUpdateService.updateOrderRefundedMetrics(event.storeId, event.data);
-        logger.info(
-          `[Analytics Webhook] Order refunded: ${event.data.orderId} for store ${event.storeId}`,
-          'AnalyticsWebhook'
-        );
+
         break;
 
       case 'INVENTORY_LOW':
         await analyticsUpdateService.updateInventoryLowMetrics(event.storeId, event.data);
-        logger.info(
-          `[Analytics Webhook] Inventory low: ${event.data.productId} for store ${event.storeId}`,
-          'AnalyticsWebhook'
-        );
+
         break;
 
       case 'INVENTORY_OUT':
         await analyticsUpdateService.updateInventoryOutMetrics(event.storeId, event.data);
-        logger.info(
-          `[Analytics Webhook] Inventory out: ${event.data.productId} for store ${event.storeId}`,
-          'AnalyticsWebhook'
-        );
+
         break;
 
       case 'NEW_CUSTOMER':
         await analyticsUpdateService.updateNewCustomerMetrics(event.storeId, event.data);
-        logger.info(
-          `[Analytics Webhook] New customer: ${event.data.customerId} for store ${event.storeId}`,
-          'AnalyticsWebhook'
-        );
+
         break;
 
       case 'CUSTOMER_LOGIN':
         await analyticsUpdateService.updateCustomerLoginMetrics(event.storeId, event.data);
-        logger.info(
-          `[Analytics Webhook] Customer login: ${event.data.customerId} for store ${event.storeId}`,
-          'AnalyticsWebhook'
-        );
+
         break;
 
       case 'STORE_VIEW':
         await analyticsUpdateService.updateStoreViewMetrics(event.storeId, event.data);
-        logger.info(
-          `[Analytics Webhook] Store view: ${event.data.sessionId} for store ${event.storeId}`,
-          'AnalyticsWebhook'
-        );
+
         break;
 
       default:
@@ -137,11 +113,6 @@ export async function analyticsWebhookController(
           { status: 400, headers: corsHeaders }
         );
     }
-
-    logger.info(
-      `[Analytics Webhook] Successfully processed ${event.type} for store ${event.storeId}`,
-      'AnalyticsWebhook'
-    );
 
     return NextResponse.json(
       {

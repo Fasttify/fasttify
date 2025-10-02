@@ -9,6 +9,7 @@ import type {
 } from '@/app/store/components/images-selector/types/s3-types';
 import { UPLOAD_CHUNK_SIZE } from '@/app/store/components/images-selector/types/s3-types';
 import { chunkArray, fileToBase64, generateFallbackId } from '@/app/store/components/images-selector/utils/s3-utils';
+import { validateFile } from '@/lib/utils/validation-utils';
 
 // Configuración para validación de archivos
 const MAX_FILE_SIZE_MB = 8; // Máximo 8MB por imagen individual
@@ -18,19 +19,11 @@ export function useS3ImageUpload() {
   const { storeId } = useStoreDataStore();
 
   // Función para validar un archivo individual
-  const validateFile = useCallback((file: File): { isValid: boolean; error?: string } => {
-    if (!file.type.startsWith('image/')) {
-      return { isValid: false, error: 'El archivo no es una imagen válida' };
-    }
-
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      return {
-        isValid: false,
-        error: `Archivo demasiado grande (máximo ${MAX_FILE_SIZE_MB}MB, actual: ${(file.size / 1024 / 1024).toFixed(2)}MB)`,
-      };
-    }
-
-    return { isValid: true };
+  const validateFileCallback = useCallback((file: File): { isValid: boolean; error?: string } => {
+    return validateFile(file, {
+      maxSizeBytes: MAX_FILE_SIZE_BYTES,
+      isImage: true,
+    });
   }, []);
 
   // Función auxiliar para procesar un chunk de imágenes
@@ -100,7 +93,7 @@ export function useS3ImageUpload() {
         // Validar archivos primero
         const validationResults = files.map((file) => ({
           file,
-          validation: validateFile(file),
+          validation: validateFileCallback(file),
         }));
 
         const validFiles = validationResults.filter((result) => result.validation.isValid).map((result) => result.file);
@@ -191,7 +184,7 @@ export function useS3ImageUpload() {
         };
       }
     },
-    [storeId, validateFile, processImageChunk]
+    [storeId, validateFileCallback, processImageChunk]
   );
 
   /**

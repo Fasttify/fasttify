@@ -11,7 +11,7 @@ import {
 } from 'recharts';
 import { NoDataMessage } from '@/app/store/components/analytics/components/NoDataMessage';
 import { useAnalyticsCurrencyFormatting } from '@/app/store/hooks/data/useStoreAnalytics/utils/useAnalyticsCurrencyFormatting';
-import { formatDateForChart } from '@/app/store/hooks/data/useStoreAnalytics/utils/dateUtils';
+import { formatDateForChartAnalytics } from '@/app/store/hooks/data/useStoreAnalytics/utils/dateUtils';
 import { generateFlatLineData } from '@/app/store/components/analytics/utils/chartDataUtils';
 
 interface TotalSalesChartCardProps {
@@ -60,7 +60,7 @@ export function TotalSalesChartCard({
           }}>
           <BlockStack gap="150">
             <Text variant="bodyMd" as="p" fontWeight="bold">
-              {formatDateForChart(label)}
+              {formatDateForChartAnalytics(label)}
             </Text>
             <Text variant="bodySm" as="p">
               Ventas: {formatCurrency(currentValue)}

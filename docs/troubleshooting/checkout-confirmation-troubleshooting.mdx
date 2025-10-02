@@ -1,0 +1,473 @@
+# Troubleshooting: Sistema de Confirmación de Pedidos
+
+## Problemas Comunes y Soluciones
+
+Esta guía te ayudará a resolver los problemas más frecuentes con el sistema de confirmación de pedidos.
+
+## Problemas de Acceso a la Página
+
+### 1. Error 404 - Página No Encontrada
+
+**Síntomas:**
+
+- La URL de confirmación devuelve error 404
+- El navegador muestra "Página no encontrada"
+
+**Posibles Causas:**
+
+- Token de checkout inválido o expirado
+- URL malformada
+- Route matcher no configurado correctamente
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```bash
+# Verificar que el route matcher esté configurado
+grep -r "checkout_confirmation" packages/liquid-forge/config/route-matchers.ts
+
+# Verificar logs del servidor
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/[FUNCTION_NAME] \
+  --filter-pattern "CONFIRMATION ROUTE MATCHED"
+```
+
+#### Para Usuarios:
+
+1. **Verificar la URL**: Asegúrate de que la URL sea exacta
+2. **Intentar nuevamente**: Recarga la página
+3. **Contactar soporte**: Si el problema persiste
+
+### 2. Error 500 - Error Interno del Servidor
+
+**Síntomas:**
+
+- La página no carga y muestra error 500
+- Mensaje de "Error interno del servidor"
+
+**Posibles Causas:**
+
+- Error en el data handler
+- Problema con la base de datos
+- Template no encontrado
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```bash
+# Verificar logs del data handler
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/[FUNCTION_NAME] \
+  --filter-pattern "CHECKOUT CONFIRMATION HANDLER"
+
+# Verificar que el template existe
+ls template/templates/checkout_confirmation.json
+ls template/sections/checkout_confirmation.liquid
+```
+
+#### Para Usuarios:
+
+1. **Esperar unos minutos**: El problema puede ser temporal
+2. **Intentar nuevamente**: Recarga la página
+3. **Contactar soporte**: Si el problema persiste
+
+### 3. Página en Blanco
+
+**Síntomas:**
+
+- La página carga pero no muestra contenido
+- Solo se ve el fondo en blanco
+
+**Posibles Causas:**
+
+- Template no se está renderizando
+- Error en el CSS
+- JavaScript bloqueado
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```bash
+# Verificar logs de renderizado
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/[FUNCTION_NAME] \
+  --filter-pattern "CHECKOUT CONFIRMATION CONTEXT BUILDER"
+
+# Verificar que el CSS esté incluido
+grep -r "checkout_confirmation.css" template/layout/theme.liquid
+```
+
+#### Para Usuarios:
+
+1. **Verificar JavaScript**: Asegúrate de que JavaScript esté habilitado
+2. **Limpiar cache**: Borra el cache del navegador
+3. **Probar otro navegador**: Para descartar problemas del navegador
+
+## Problemas de Datos
+
+### 4. Datos del Pedido No Se Muestran
+
+**Síntomas:**
+
+- La página carga pero no muestra información del pedido
+- Aparece "Pedido No Encontrado"
+
+**Posibles Causas:**
+
+- Checkout session no encontrada
+- Estado del checkout inválido
+- Token incorrecto
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```typescript
+// Agregar debug en el template
+{% if checkout %}
+  <p>✅ Checkout encontrado: {{ checkout.id }}</p>
+  <p>Estado: {{ checkout.status }}</p>
+{% else %}
+  <p>❌ No se encontró checkout</p>
+  <p>Token: {{ checkout_token }}</p>
+{% endif %}
+```
+
+```bash
+# Verificar el estado del checkout en la base de datos
+aws dynamodb get-item \
+  --table-name [TABLE_NAME] \
+  --key '{"token":{"S":"fs_Qhoc8yDBnk5Z5wDBcA1eqQ"}}'
+```
+
+#### Para Usuarios:
+
+1. **Verificar el enlace**: Asegúrate de usar el enlace correcto del email
+2. **Esperar**: El pedido puede tardar unos minutos en procesarse
+3. **Contactar soporte**: Con el número de pedido
+
+### 5. Información Incorrecta del Pedido
+
+**Síntomas:**
+
+- Se muestran productos incorrectos
+- Precios incorrectos
+- Información del cliente incorrecta
+
+**Posibles Causas:**
+
+- Cache de datos desactualizado
+- Error en la transformación de datos
+- Problema con la sesión de checkout
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```bash
+# Limpiar cache si es necesario
+aws cloudfront create-invalidation \
+  --distribution-id [DISTRIBUTION_ID] \
+  --paths "/checkouts/cn/*"
+
+# Verificar logs de transformación de datos
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/[FUNCTION_NAME] \
+  --filter-pattern "transformSessionToContext"
+```
+
+#### Para Usuarios:
+
+1. **Verificar el email**: Compara con el email de confirmación
+2. **Contactar soporte**: Reporta la discrepancia
+3. **Proporcionar detalles**: Qué información está incorrecta
+
+### 6. Atributos de Producto No Se Muestran
+
+**Síntomas:**
+
+- Los productos se muestran pero sin color, talla, etc.
+- Información de variantes faltante
+
+**Posibles Causas:**
+
+- `selectedAttributes` no se está pasando correctamente
+- Error en la transformación de datos del carrito
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```liquid
+<!-- Debug en el template -->
+{% if item.selectedAttributes %}
+  <p>✅ Atributos encontrados: {{ item.selectedAttributes | json }}</p>
+{% else %}
+  <p>❌ No hay atributos seleccionados</p>
+{% endif %}
+```
+
+```bash
+# Verificar datos del carrito en la sesión
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/[FUNCTION_NAME] \
+  --filter-pattern "itemsSnapshot"
+```
+
+## Problemas de Estilos
+
+### 7. Estilos No Se Aplican
+
+**Síntomas:**
+
+- La página se ve sin estilo
+- Diseño roto o mal formateado
+
+**Posibles Causas:**
+
+- CSS no incluido en el layout
+- Error en el archivo CSS
+- Conflicto con otros estilos
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```liquid
+<!-- Verificar que el CSS esté incluido en theme.liquid -->
+{{ 'checkout_confirmation.css' | asset_url | stylesheet_tag }}
+```
+
+```bash
+# Verificar que el archivo CSS existe
+ls template/assets/checkout_confirmation.css
+
+# Verificar sintaxis CSS
+csslint template/assets/checkout_confirmation.css
+```
+
+#### Para Usuarios:
+
+1. **Recargar la página**: Ctrl+F5 o Cmd+Shift+R
+2. **Limpiar cache**: Borra el cache del navegador
+3. **Probar otro navegador**: Para descartar problemas del navegador
+
+### 8. Botones No Funcionan
+
+**Síntomas:**
+
+- Los botones no responden al hacer clic
+- Enlaces no funcionan
+
+**Posibles Causas:**
+
+- JavaScript bloqueado
+- Error en los enlaces
+- CSS que bloquea la interacción
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```liquid
+<!-- Verificar que los enlaces estén correctos -->
+<a href="{{ routes.root_url }}" class="checkout-button primary">
+  <span>Continuar Comprando</span>
+</a>
+```
+
+#### Para Usuarios:
+
+1. **Verificar JavaScript**: Asegúrate de que esté habilitado
+2. **Intentar enlace directo**: Copia y pega la URL en la barra de direcciones
+3. **Probar otro navegador**: Para descartar problemas del navegador
+
+## Problemas de Performance
+
+### 9. Página Carga Lenta
+
+**Síntomas:**
+
+- La página tarda mucho en cargar
+- Spinner de carga prolongado
+
+**Posibles Causas:**
+
+- Problema con la base de datos
+- Template muy complejo
+- Recursos externos lentos
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```bash
+# Verificar logs de performance
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/[FUNCTION_NAME] \
+  --filter-pattern "Duration"
+
+# Verificar métricas de CloudWatch
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/Lambda \
+  --metric-name Duration \
+  --dimensions Name=FunctionName,Value=[FUNCTION_NAME] \
+  --start-time 2025-01-15T00:00:00Z \
+  --end-time 2025-01-15T23:59:59Z \
+  --period 3600 \
+  --statistics Average
+```
+
+#### Para Usuarios:
+
+1. **Verificar conexión**: Asegúrate de tener buena conexión a internet
+2. **Esperar**: Puede ser un problema temporal del servidor
+3. **Intentar más tarde**: Si el problema persiste
+
+### 10. Timeout en la Carga
+
+**Síntomas:**
+
+- La página no carga y muestra timeout
+- Error de "Tiempo de espera agotado"
+
+**Posibles Causas:**
+
+- Límite de tiempo excedido en Lambda
+- Problema con la base de datos
+- Template muy complejo
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```bash
+# Verificar configuración de timeout de Lambda
+aws lambda get-function-configuration \
+  --function-name [FUNCTION_NAME]
+
+# Verificar logs de timeout
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/[FUNCTION_NAME] \
+  --filter-pattern "Task timed out"
+```
+
+## Problemas de Seguridad
+
+### 11. Acceso No Autorizado
+
+**Síntomas:**
+
+- Error 403 Forbidden
+- Mensaje de "Acceso denegado"
+
+**Posibles Causas:**
+
+- Token inválido
+- Sesión expirada
+- Problema de permisos
+
+**Soluciones:**
+
+#### Para Desarrolladores:
+
+```bash
+# Verificar permisos de IAM
+aws iam list-attached-role-policies \
+  --role-name [ROLE_NAME]
+
+# Verificar logs de autorización
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/[FUNCTION_NAME] \
+  --filter-pattern "AccessDenied"
+```
+
+#### Para Usuarios:
+
+1. **Verificar el enlace**: Asegúrate de usar el enlace correcto
+2. **Intentar nuevamente**: El problema puede ser temporal
+3. **Contactar soporte**: Si el problema persiste
+
+## Comandos de Debugging Útiles
+
+### Verificar Estado del Sistema
+
+```bash
+# Verificar que todas las funciones estén funcionando
+aws lambda list-functions --query 'Functions[?contains(FunctionName, `checkout`)]'
+
+# Verificar logs en tiempo real
+aws logs tail /aws/lambda/[FUNCTION_NAME] --follow
+
+# Verificar métricas de CloudWatch
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/Lambda \
+  --metric-name Errors \
+  --dimensions Name=FunctionName,Value=[FUNCTION_NAME] \
+  --start-time 2025-01-15T00:00:00Z \
+  --end-time 2025-01-15T23:59:59Z \
+  --period 3600 \
+  --statistics Sum
+```
+
+### Testing de Endpoints
+
+```bash
+# Probar la página de confirmación directamente
+curl -I "https://tutienda.com/checkouts/cn/fs_Qhoc8yDBnk5Z5wDBcA1eqQ/confirmation"
+
+# Verificar headers de respuesta
+curl -v "https://tutienda.com/checkouts/cn/fs_Qhoc8yDBnk5Z5wDBcA1eqQ/confirmation"
+```
+
+### Verificar Base de Datos
+
+```bash
+# Verificar que el checkout existe
+aws dynamodb get-item \
+  --table-name [TABLE_NAME] \
+  --key '{"token":{"S":"fs_Qhoc8yDBnk5Z5wDBcA1eqQ"}}'
+
+# Verificar el estado del checkout
+aws dynamodb query \
+  --table-name [TABLE_NAME] \
+  --index-name [INDEX_NAME] \
+  --key-condition-expression "status = :status" \
+  --expression-attribute-values '{":status":{"S":"completed"}}'
+```
+
+## Checklist de Verificación
+
+### Antes de Reportar un Problema
+
+- [ ] Verificar logs de CloudWatch
+- [ ] Confirmar que el template existe
+- [ ] Verificar que el CSS está incluido
+- [ ] Probar con diferentes tokens
+- [ ] Verificar estado de las funciones Lambda
+- [ ] Confirmar configuración de permisos
+
+### Información Necesaria para Reportar
+
+- **Error específico**: Mensaje de error completo
+- **URL**: URL exacta que está fallando
+- **Timestamp**: Cuándo ocurrió el problema
+- **Contexto**: Qué estaba haciendo el usuario
+- **Logs**: Logs relevantes de CloudWatch
+- **Configuración**: Variables de entorno y configuración
+- **Pasos para reproducir**: Cómo replicar el problema
+
+## Recursos Adicionales
+
+- [Sistema de Confirmación de Pedidos](./checkout-confirmation-system.mdx)
+- [Guía de Usuario](./checkout-confirmation-user-guide.mdx)
+- [Logs de CloudWatch](https://console.aws.amazon.com/cloudwatch/)
+- [Documentación de Lambda](https://docs.aws.amazon.com/lambda/)
+- [Documentación de DynamoDB](https://docs.aws.amazon.com/dynamodb/)
+
+---
+
+**¿Sigues teniendo problemas?** Si ninguna de estas soluciones funciona, revisa los logs de CloudWatch para obtener más detalles sobre el error específico o contacta al equipo de soporte técnico.

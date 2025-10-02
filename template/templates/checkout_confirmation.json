@@ -1,0 +1,14 @@
+{
+  "name": "checkout_confirmation",
+  "layout": "theme",
+  "sections": {
+    "checkout_confirmation": {
+      "type": "sections/checkout_confirmation",
+      "settings": {
+        "title": "Pedido Confirmado",
+        "subtitle": "Gracias por tu compra"
+      }
+    }
+  },
+  "order": ["checkout_confirmation"]
+}

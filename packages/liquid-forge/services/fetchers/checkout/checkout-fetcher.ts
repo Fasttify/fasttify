@@ -87,6 +87,7 @@ export class CheckoutFetcher {
   public async getSessionByToken(token: string): Promise<CheckoutSession | null> {
     try {
       const session = await checkoutSessionManager.getSessionByToken(token);
+      logger.info('Session by token:', session, token);
 
       if (!session) {
         return null;

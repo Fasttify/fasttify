@@ -82,8 +82,6 @@ export class ValidationEngine {
     const allWarnings: any[] = [];
 
     try {
-      this.logger.info('Starting theme validation', { fileCount: files.length, storeId }, 'ValidationEngine');
-
       // 1. Validaciones de estructura de archivos
       const structureValidations = [
         FileStructureRules.validateRequiredFiles(files, validationConfig),
@@ -141,17 +139,6 @@ export class ValidationEngine {
         warnings: allWarnings,
         analysis,
       };
-
-      this.logger.info(
-        'Theme validation completed',
-        {
-          isValid: result.isValid,
-          errorCount: allErrors.length,
-          warningCount: allWarnings.length,
-          storeId,
-        },
-        'ValidationEngine'
-      );
 
       return result;
     } catch (error) {
@@ -279,7 +266,6 @@ export class ValidationEngine {
         },
       };
 
-      this.logger.info('Theme analysis completed', analysis, 'ValidationEngine');
       return analysis;
     } catch (error) {
       this.logger.error('Error analyzing theme', error, 'ValidationEngine');

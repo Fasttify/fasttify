@@ -16,6 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { getContentType } from '@/lib/utils/file-utils';
 import { logger } from '@/liquid-forge/lib/logger';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
@@ -52,7 +53,7 @@ export async function getAsset(request: NextRequest, storeId: string, assetPath:
       });
     }
 
-    const contentType = getContentTypeFromFilename(assetPath);
+    const contentType = getContentType(assetPath);
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
@@ -110,24 +111,4 @@ async function streamToBuffer(stream: any): Promise<Buffer> {
   const chunks: Uint8Array[] = [];
   for await (const chunk of stream) chunks.push(chunk);
   return Buffer.concat(chunks);
-}
-
-function getContentTypeFromFilename(filename: string): string {
-  const ext = filename.toLowerCase().split('.').pop();
-  const contentTypes: Record<string, string> = {
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    gif: 'image/gif',
-    svg: 'image/svg+xml',
-    webp: 'image/webp',
-    ico: 'image/x-icon',
-    css: 'text/css',
-    js: 'application/javascript',
-    woff: 'font/woff',
-    woff2: 'font/woff2',
-    ttf: 'font/ttf',
-    eot: 'application/vnd.ms-fontobject',
-  };
-  return contentTypes[ext || ''] || 'application/octet-stream';
 }

@@ -4,7 +4,7 @@ import type {
   AnalyticsFilterOptions,
   AnalyticsPeriod,
 } from '@/app/store/hooks/data/useStoreAnalytics/types';
-import { useAnalyticsCacheUtils, isValidDateFormat } from '@/app/store/hooks/data/useStoreAnalytics/utils';
+import { useAnalyticsCacheUtils, isValidDateFormatAnalytics } from '@/app/store/hooks/data/useStoreAnalytics/utils';
 import { storeClient } from '@/lib/amplify-client';
 
 /**
@@ -29,7 +29,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
 
       // Caso 1: Rango de fechas (PRIORIDAD ALTA)
       if (startDate && endDate) {
-        if (!isValidDateFormat(startDate) || !isValidDateFormat(endDate)) {
+        if (!isValidDateFormatAnalytics(startDate) || !isValidDateFormatAnalytics(endDate)) {
           throw new Error('Invalid date format. Use YYYY-MM-DD');
         }
 
@@ -50,7 +50,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
 
       // Caso 2: Fecha específica - usar el índice analyticsByStoreAndDate
       if (date) {
-        if (!isValidDateFormat(date)) {
+        if (!isValidDateFormatAnalytics(date)) {
           throw new Error('Invalid date format. Use YYYY-MM-DD');
         }
 
@@ -107,7 +107,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
 
       const targetDate = date || new Date().toISOString().split('T')[0];
 
-      if (!isValidDateFormat(targetDate)) {
+      if (!isValidDateFormatAnalytics(targetDate)) {
         throw new Error('Invalid date format. Use YYYY-MM-DD');
       }
 
@@ -139,7 +139,7 @@ export const useStoreAnalyticsQueries = (storeId: string | undefined, filterOpti
       throw new Error('Store ID is required');
     }
 
-    if (!isValidDateFormat(startDate) || !isValidDateFormat(endDate)) {
+    if (!isValidDateFormatAnalytics(startDate) || !isValidDateFormatAnalytics(endDate)) {
       throw new Error('Invalid date format. Use YYYY-MM-DD');
     }
 

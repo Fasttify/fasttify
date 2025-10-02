@@ -159,15 +159,6 @@ export class CacheInvalidationService {
       return;
     }
 
-    logger.info(
-      `Invalidating cache for ${changeType} in store ${storeId}`,
-      {
-        entityId,
-        description: config.description,
-      },
-      'CacheInvalidationService'
-    );
-
     this.invalidateByPatterns(config.patterns, storeId, entityId);
 
     if (entityId) {
@@ -242,7 +233,6 @@ export class CacheInvalidationService {
    * Invalida toda la caché de una tienda
    */
   public invalidateStoreCache(storeId: string): void {
-    logger.info(`Invalidating all cache for store ${storeId}`, undefined, 'CacheInvalidationService');
     cacheManager.invalidateStoreCache(storeId);
   }
 
@@ -250,11 +240,6 @@ export class CacheInvalidationService {
    * Invalida caché de productos específicos
    */
   public invalidateProductCache(storeId: string, productId: string): void {
-    logger.info(
-      `Invalidating product cache for ${productId} in store ${storeId}`,
-      undefined,
-      'CacheInvalidationService'
-    );
     cacheManager.invalidateProductCache(storeId, productId);
   }
 

@@ -18,14 +18,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { logger } from '@/liquid-forge/lib/logger';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
+import { S3StorageService } from '@/liquid-forge/services/themes/storage/s3-storage-service';
 
 export async function deleteTheme(request: NextRequest, storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);
   try {
     const { searchParams } = new URL(request.url);
     const themeId = searchParams.get('themeId');
-
-    logger.info('Theme deletion request received', { storeId, themeId }, 'ThemeDeletionAPI');
 
     const session = await AuthGetCurrentUserServer();
     if (!session) {
@@ -55,6 +54,23 @@ export async function deleteTheme(request: NextRequest, storeId: string): Promis
       return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
     }
 
+    // Eliminar archivos de S3 antes de eliminar de la base de datos
+    const s3StorageService = S3StorageService.getInstance();
+    const s3DeleteResult = await s3StorageService.deleteTheme(storeId);
+
+    if (!s3DeleteResult.success) {
+      logger.warn(
+        'Failed to delete theme files from S3',
+        {
+          storeId,
+          themeId,
+          error: s3DeleteResult.error,
+        },
+        'ThemeDeletionAPI'
+      );
+    } else {
+    }
+
     const { errors } = await cookiesClient.models.UserTheme.delete({ id: themeId });
     if (errors) {
       logger.error('Failed to delete theme from database', { errors }, 'ThemeDeletionAPI');
@@ -64,12 +80,13 @@ export async function deleteTheme(request: NextRequest, storeId: string): Promis
       );
     }
 
-    // TODO: eliminar archivos de S3 si aplica
-
-    logger.info('Theme deleted successfully', { storeId, themeId }, 'ThemeDeletionAPI');
-
     return NextResponse.json(
-      { success: true, message: 'Theme deleted successfully' },
+      {
+        success: true,
+        message: 'Theme deleted successfully',
+        s3Deleted: s3DeleteResult.success,
+        s3Error: s3DeleteResult.error || undefined,
+      },
       { status: 200, headers: corsHeaders }
     );
   } catch (error) {

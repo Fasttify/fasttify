@@ -17,6 +17,7 @@
 import { TemplateAnalysis } from '@/liquid-forge/exports';
 import { RendererLogger } from '@/liquid-forge/lib/logger';
 import { SchemaParser } from '@/liquid-forge/services/templates/parsing/schema-parser';
+import { PostCSSProcessor } from '../optimization/postcss-processor';
 import JSZip from 'jszip';
 import type {
   ProcessedTheme,
@@ -35,6 +36,7 @@ import type {
 export class ThemeProcessor {
   private static instance: ThemeProcessor;
   private logger = RendererLogger;
+  private postcssProcessor = PostCSSProcessor.getInstance();
 
   private defaultOptions: ThemeProcessingOptions = {
     validateSyntax: true,
@@ -86,7 +88,7 @@ export class ThemeProcessor {
       this.validateZipStructure(files);
 
       // 3. Procesar archivos
-      const processedFiles = this.processFiles(files);
+      const processedFiles = await this.processFiles(files);
 
       // 4. Extraer configuración
       const settings = this.extractThemeSettings(processedFiles);
@@ -126,12 +128,6 @@ export class ThemeProcessor {
         updatedAt: new Date(),
       };
 
-      this.logger.info(
-        `Theme processed successfully: ${settings.name}`,
-        { themeId, fileCount: files.length },
-        'ThemeProcessor'
-      );
-
       return processedTheme;
     } catch (error) {
       this.logger.error('Error processing theme file', error, 'ThemeProcessor');
@@ -146,8 +142,6 @@ export class ThemeProcessor {
     const files: ThemeFile[] = [];
 
     try {
-      this.logger.info('Extracting ZIP file', { fileName: zipFile.name, size: zipFile.size }, 'ThemeProcessor');
-
       // Crear instancia de JSZip
       const zip = new JSZip();
 
@@ -189,28 +183,10 @@ export class ThemeProcessor {
           };
 
           files.push(themeFile);
-
-          this.logger.debug(
-            `Extracted file: ${filePath}`,
-            {
-              size: themeFile.size,
-              type: themeFile.type,
-            },
-            'ThemeProcessor'
-          );
         } catch (error) {
           this.logger.warn(`Failed to extract file: ${filePath}`, error, 'ThemeProcessor');
         }
       }
-
-      this.logger.info(
-        `ZIP extraction completed`,
-        {
-          totalFiles: files.length,
-          totalSize: files.reduce((sum, file) => sum + file.size, 0),
-        },
-        'ThemeProcessor'
-      );
     } catch (error) {
       this.logger.error('Failed to extract ZIP file', error, 'ThemeProcessor');
       throw new Error(`Failed to extract ZIP file: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -220,14 +196,57 @@ export class ThemeProcessor {
   }
 
   /**
-   * Procesa archivos extraídos
+   * Procesa archivos extraídos con PostCSS para optimización
    */
-  private processFiles(files: ThemeFile[]): ThemeFile[] {
-    return files.map((file) => ({
-      ...file,
-      type: this.determineFileType(file.path),
-      lastModified: new Date(),
-    }));
+  private async processFiles(files: ThemeFile[]): Promise<ThemeFile[]> {
+    const processedFiles: ThemeFile[] = [];
+
+    for (const file of files) {
+      const fileType = this.determineFileType(file.path);
+
+      // Procesar archivos CSS, JS y Liquid con PostCSS
+      if (this.isProcessableFile(file.path) && (fileType === 'css' || fileType === 'js' || fileType === 'liquid')) {
+        try {
+          // Convertir Buffer a string si es necesario
+          const content = Buffer.isBuffer(file.content) ? file.content.toString('utf-8') : file.content;
+          const result = await this.postcssProcessor.processAsset(content, file.path);
+
+          processedFiles.push({
+            ...file,
+            content: result.content,
+            type: fileType,
+            size: result.processedSize,
+            lastModified: new Date(),
+          });
+        } catch (error) {
+          // Fallback al archivo original
+          processedFiles.push({
+            ...file,
+            type: fileType,
+            lastModified: new Date(),
+          });
+        }
+      } else {
+        // Para otros tipos de archivo, no procesar
+        processedFiles.push({
+          ...file,
+          type: fileType,
+          lastModified: new Date(),
+        });
+      }
+    }
+
+    return processedFiles;
+  }
+
+  private isProcessableFile(path: string): boolean {
+    return (
+      path.endsWith('.css') ||
+      path.endsWith('.css.liquid') ||
+      path.endsWith('.js') ||
+      path.endsWith('.js.liquid') ||
+      path.endsWith('.liquid')
+    );
   }
 
   /**
@@ -400,11 +419,6 @@ export class ThemeProcessor {
 
     for (const asset of assets) {
       try {
-        // TODO: Implementar optimización real
-        // - Comprimir imágenes
-        // - Minificar CSS/JS
-        // - Optimizar fuentes
-
         optimizedAssets.push({
           ...asset,
           optimized: true,
@@ -423,11 +437,6 @@ export class ThemeProcessor {
    */
   public async generatePreview(theme: ProcessedTheme): Promise<string> {
     try {
-      // TODO: Implementar generación de preview
-      // - Renderizar página de ejemplo
-      // - Capturar screenshot
-      // - Generar HTML de preview
-
       return `data:image/png;base64,${Buffer.from('preview-placeholder').toString('base64')}`;
     } catch (error) {
       this.logger.error('Failed to generate theme preview', error, 'ThemeProcessor');
