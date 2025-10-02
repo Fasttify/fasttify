@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { getContentType as getContentTypeUtil } from '@/lib/utils/file-utils';
+
 /**
  * Construye el prefijo para las búsquedas en S3
  * @param storeId - El ID de la tienda
@@ -53,21 +55,18 @@ export function isTextFile(path: string): boolean {
  * @returns El contenido type del archivo
  */
 export function getContentType(path: string): string {
-  const ext = (path.split('.').pop() || '').toLowerCase();
-  switch (ext) {
-    case 'liquid':
-    case 'html':
-    case 'htm':
-      return 'text/html; charset=utf-8';
-    case 'css':
-      return 'text/css; charset=utf-8';
-    case 'js':
-      return 'application/javascript; charset=utf-8';
-    case 'json':
-      return 'application/json; charset=utf-8';
-    default:
-      return 'application/octet-stream';
+  const baseContentType = getContentTypeUtil(path);
+
+  // Agregar charset para tipos de texto
+  if (
+    baseContentType.startsWith('text/') ||
+    baseContentType === 'application/json' ||
+    baseContentType === 'application/javascript'
+  ) {
+    return `${baseContentType}; charset=utf-8`;
   }
+
+  return baseContentType;
 }
 
 /**

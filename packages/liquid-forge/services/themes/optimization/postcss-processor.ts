@@ -190,19 +190,25 @@ export class PostCSSProcessor {
   }
 
   private minifyLiquid(liquid: string): string {
+    // Remove all HTML comments robustly (keep removing until none remain)
+    let result = liquid;
+    let prev;
+    do {
+      prev = result;
+      result = result.replace(/<!--[\s\S]*?-->/g, '');
+    } while (result !== prev);
+
     return (
-      liquid
-        // Eliminar comentarios HTML
-        .replace(/<!--[\s\S]*?-->/g, '')
+      result
         // Eliminar comentarios Liquid ({% comment %} ... {% endcomment %})
         .replace(/\{%\s*comment\s*%\}[\s\S]*?\{%\s*endcomment\s*%\}/g, '')
         // Eliminar comentarios CSS (/* ... */) - SOLO en bloques <style>
-        .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, (match, styleContent) => {
+        .replace(/<style[^>]*>([\s\S]*?)<\/style\b[^>]*>/gi, (match, styleContent) => {
           const cleanedContent = styleContent.replace(/\/\*[\s\S]*?\*\//g, '');
           return match.replace(styleContent, cleanedContent);
         })
         // Eliminar comentarios JavaScript (// ... y /* ... */) - SOLO en bloques <script>
-        .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, (match, scriptContent) => {
+        .replace(/<script[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi, (match, scriptContent) => {
           const cleanedContent = scriptContent.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
           return match.replace(scriptContent, cleanedContent);
         })

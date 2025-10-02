@@ -5,6 +5,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
 import { uploadData } from 'aws-amplify/storage';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { getFileExtension } from '@/lib/utils/file-utils';
 
 Amplify.configure(outputs);
 
@@ -42,7 +43,7 @@ export function useLogoUpload(): UseLogoUploadReturn {
       const userId = user.userId;
 
       // Crear un nombre de archivo único con UUID
-      const fileExtension = file.name.split('.').pop();
+      const fileExtension = getFileExtension(file.name);
       const uniqueId = uuidv4();
       const key = `store-logos/${userId}/${type}-${uniqueId}.${fileExtension}`;
 

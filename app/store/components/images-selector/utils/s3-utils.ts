@@ -2,6 +2,8 @@
  * Utilidades compartidas para operaciones de S3
  */
 
+import { getFileExtension as getFileExtensionUtil, formatFileSize as formatFileSizeUtil } from '@/lib/utils/file-utils';
+
 /**
  * Función auxiliar para dividir arrays en chunks
  */
@@ -56,11 +58,7 @@ export function generateFallbackId(key: string, _filename: string): string {
  * Formatea el tamaño de archivo en bytes a formato legible
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  return formatFileSizeUtil(bytes);
 }
 
 /**
@@ -74,7 +72,7 @@ export function isValidImageFile(file: File): boolean {
  * Obtiene la extensión de un archivo
  */
 export function getFileExtension(filename: string): string {
-  return filename.split('.').pop()?.toLowerCase() || '';
+  return getFileExtensionUtil(filename);
 }
 
 /**

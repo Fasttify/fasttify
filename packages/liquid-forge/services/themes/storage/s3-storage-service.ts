@@ -16,6 +16,7 @@
 
 import { RendererLogger } from '@/liquid-forge/lib/logger';
 import { getCdnUrlForKey } from '@/utils/server';
+import { getContentType } from '@/lib/utils';
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -159,7 +160,7 @@ export class S3StorageService {
         Bucket: process.env.BUCKET_NAME,
         Key: key,
         Body: body,
-        ContentType: this.getContentType(key),
+        ContentType: getContentType(key),
         ContentLength: (body as any).byteLength ?? (body as any).length,
       });
 
@@ -174,39 +175,6 @@ export class S3StorageService {
         success: false,
         error: error instanceof Error ? error.message : 'Upload failed',
       };
-    }
-  }
-
-  /**
-   * Determina el Content-Type basado en la extensión del archivo
-   */
-  private getContentType(key: string): string {
-    const extension = key.split('.').pop()?.toLowerCase();
-
-    switch (extension) {
-      case 'json':
-        return 'application/json';
-      case 'css':
-        return 'text/css';
-      case 'js':
-        return 'application/javascript';
-      case 'liquid':
-        return 'text/plain';
-      case 'html':
-        return 'text/html';
-      case 'zip':
-        return 'application/zip';
-      case 'png':
-        return 'image/png';
-      case 'jpg':
-      case 'jpeg':
-        return 'image/jpeg';
-      case 'webp':
-        return 'image/webp';
-      case 'svg':
-        return 'image/svg+xml';
-      default:
-        return 'application/octet-stream';
     }
   }
 

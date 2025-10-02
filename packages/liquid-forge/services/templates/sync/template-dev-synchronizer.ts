@@ -19,6 +19,7 @@ import { cacheManager } from '@/liquid-forge/services/core/cache';
 import { cacheInvalidationService } from '@/liquid-forge/services/core/cache/cache-invalidation-service';
 import { templateLoader } from '@/liquid-forge/services/templates/template-loader';
 import { PostCSSProcessor } from '@/liquid-forge/services/themes/optimization/postcss-processor';
+import { getContentType, isBinaryFile } from '@/lib/utils/file-utils';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import * as chokidar from 'chokidar';
@@ -170,10 +171,44 @@ export class TemplateDevSynchronizer {
   }
 
   /**
+   * Valida que una ruta esté dentro del directorio seguro
+   * @param candidatePath - Ruta candidata a validar
+   * @param rootPath - Directorio raíz seguro
+   * @returns true si la ruta es segura, false en caso contrario
+   */
+  private isSafePath(candidatePath: string, rootPath: string): boolean {
+    try {
+      // Resolver y normalizar ambas rutas
+      const resolvedCandidate = path.resolve(candidatePath);
+      const resolvedRoot = path.resolve(rootPath);
+
+      // Verificar que la ruta candidata esté dentro del directorio raíz
+      return resolvedCandidate === resolvedRoot || resolvedCandidate.startsWith(resolvedRoot + path.sep);
+    } catch (error) {
+      logger.error(
+        `[TemplateDevSynchronizer] Error validando ruta: ${candidatePath}`,
+        error,
+        'TemplateDevSynchronizer'
+      );
+      return false;
+    }
+  }
+
+  /**
    * Maneja los cambios en archivos
    */
   private async handleFileChange(filePath: string, event: 'add' | 'change' | 'unlink'): Promise<void> {
     try {
+      // Validar que la ruta esté dentro del directorio seguro
+      if (!this.isSafePath(filePath, this.localDir)) {
+        logger.warn(
+          `[TemplateDevSynchronizer] Ruta no segura detectada y omitida: ${filePath}`,
+          undefined,
+          'TemplateDevSynchronizer'
+        );
+        return;
+      }
+
       // Obtener ruta relativa al directorio local
       const relativePath = path.relative(this.localDir, filePath);
       logger.debug(
@@ -236,17 +271,23 @@ export class TemplateDevSynchronizer {
     if (!this.s3Client) return;
 
     try {
-      const contentType = this.getContentType(filePath);
-      const isBinaryFile =
-        contentType.startsWith('image/') ||
-        contentType.startsWith('font/') ||
-        contentType === 'application/octet-stream';
+      // Validar que la ruta esté dentro del directorio seguro antes de leer
+      if (!this.isSafePath(filePath, this.localDir)) {
+        logger.warn(
+          `[TemplateDevSynchronizer] Intento de lectura de archivo no seguro bloqueado: ${filePath}`,
+          undefined,
+          'TemplateDevSynchronizer'
+        );
+        throw new Error(`Ruta no segura: ${filePath}`);
+      }
+
+      const isBinary = isBinaryFile(filePath);
 
       // Obtener ruta relativa para determinar si es procesable
       const relativePath = path.relative(this.localDir, filePath).replace(/\\/g, '/');
 
       let body;
-      if (isBinaryFile) {
+      if (isBinary) {
         // Leer como buffer para archivos binarios
         body = fs.readFileSync(filePath);
       } else {
@@ -266,13 +307,13 @@ export class TemplateDevSynchronizer {
         body = content;
       }
 
-      if (isBinaryFile) {
+      if (isBinary) {
         // Para archivos binarios, usar PutObjectCommand
         const command = new PutObjectCommand({
           Bucket: this.bucketName,
           Key: s3Key,
           Body: body,
-          ContentType: contentType,
+          ContentType: getContentType(filePath),
           Metadata: {
             'store-id': this.storeId,
             'template-type': 'store-template',
@@ -289,7 +330,7 @@ export class TemplateDevSynchronizer {
             Bucket: this.bucketName,
             Key: s3Key,
             Body: body,
-            ContentType: contentType,
+            ContentType: getContentType(filePath),
             Metadata: {
               'store-id': this.storeId,
               'template-type': 'store-template',
@@ -337,46 +378,10 @@ export class TemplateDevSynchronizer {
       });
 
       await this.s3Client.send(command);
-      logger.debug(`[TemplateDevSynchronizer] Eliminado de S3: ${s3Key}`, undefined, 'TemplateDevSynchronizer');
     } catch (error) {
       logger.error(`[TemplateDevSynchronizer] Error al eliminar de S3`, error, 'TemplateDevSynchronizer');
       throw error;
     }
-  }
-
-  /**
-   * Devuelve el Content-Type basado en la extensión del archivo
-   */
-  private getContentType(filename: string): string {
-    const ext = path.extname(filename).toLowerCase().substring(1);
-
-    const contentTypes: Record<string, string> = {
-      html: 'text/html',
-      css: 'text/css',
-      js: 'application/javascript',
-      json: 'application/json',
-      liquid: 'application/liquid',
-      txt: 'text/plain',
-      md: 'text/markdown',
-      scss: 'text/scss',
-      sass: 'text/sass',
-      xml: 'application/xml',
-      // Tipos de imagen
-      png: 'image/png',
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      gif: 'image/gif',
-      svg: 'image/svg+xml',
-      webp: 'image/webp',
-      ico: 'image/x-icon',
-      // Tipos de font
-      woff: 'font/woff',
-      woff2: 'font/woff2',
-      ttf: 'font/ttf',
-      eot: 'application/vnd.ms-fontobject',
-    };
-
-    return contentTypes[ext] || 'application/octet-stream';
   }
 
   /**
@@ -402,6 +407,16 @@ export class TemplateDevSynchronizer {
 
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
+
+        // Validar que la ruta esté dentro del directorio seguro
+        if (!this.isSafePath(fullPath, this.localDir)) {
+          logger.warn(
+            `[TemplateDevSynchronizer] Ruta no segura detectada durante sincronización y omitida: ${fullPath}`,
+            undefined,
+            'TemplateDevSynchronizer'
+          );
+          continue;
+        }
 
         if (entry.isDirectory()) {
           await syncFiles(fullPath);

@@ -24,6 +24,7 @@ import {
 import { Upload } from '@aws-sdk/lib-storage';
 import type { TemplateObject, CopyResult, TemplateMetadata } from '@/api/stores/template/types';
 import { PostCSSProcessor } from '@/liquid-forge/services/themes/optimization/postcss-processor';
+import { getContentType } from '@/lib/utils';
 
 export class S3TemplateController {
   private s3Client: S3Client;
@@ -112,30 +113,12 @@ export class S3TemplateController {
         Bucket: this.bucketName,
         Key: key,
         Body: content,
-        ContentType: this.getContentType(key),
+        ContentType: getContentType(key),
         Metadata: metadata as Record<string, string>,
       },
     });
 
     await upload.done();
-  }
-
-  /**
-   * Determina el Content-Type basado en la extensión del archivo
-   */
-  private getContentType(key: string): string {
-    const ext = key.toLowerCase().split('.').pop() || '';
-    const contentTypes: Record<string, string> = {
-      css: 'text/css',
-      js: 'application/javascript',
-      liquid: 'text/html',
-      json: 'application/json',
-      html: 'text/html',
-      xml: 'application/xml',
-      txt: 'text/plain',
-      md: 'text/markdown',
-    };
-    return contentTypes[ext] || 'application/octet-stream';
   }
 
   /**

@@ -21,6 +21,7 @@ import { S3StorageService } from '@/liquid-forge/services/themes/storage/s3-stor
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 import { getCdnUrlForKey } from '@/utils/server';
 import { GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { generateProcessId } from '@/lib/utils/id-utils';
 
 type ProcessStatus = {
   status: 'processing' | 'completed' | 'error';
@@ -52,7 +53,7 @@ export async function postConfirmTheme(request: NextRequest, storeId: string): P
       );
 
     const themeData = JSON.parse(themeDataString);
-    const processId = `theme-confirm-${storeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const processId = generateProcessId('theme-confirm', storeId);
 
     let themeId: string | undefined;
     const cdnUrl = getCdnUrlForKey(`templates/${storeId}/theme.zip`);

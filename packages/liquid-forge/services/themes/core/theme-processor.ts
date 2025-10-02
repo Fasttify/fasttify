@@ -239,16 +239,6 @@ export class ThemeProcessor {
     return processedFiles;
   }
 
-  /**
-   * Verifica si un archivo es un asset que debe ser procesado
-   */
-  private isAssetFile(path: string): boolean {
-    return (
-      path.includes('/assets/') &&
-      (path.endsWith('.css') || path.endsWith('.css.liquid') || path.endsWith('.js') || path.endsWith('.js.liquid'))
-    );
-  }
-
   private isProcessableFile(path: string): boolean {
     return (
       path.endsWith('.css') ||
@@ -429,11 +419,6 @@ export class ThemeProcessor {
 
     for (const asset of assets) {
       try {
-        // TODO: Implementar optimización real
-        // - Comprimir imágenes
-        // - Minificar CSS/JS
-        // - Optimizar fuentes
-
         optimizedAssets.push({
           ...asset,
           optimized: true,
@@ -452,11 +437,6 @@ export class ThemeProcessor {
    */
   public async generatePreview(theme: ProcessedTheme): Promise<string> {
     try {
-      // TODO: Implementar generación de preview
-      // - Renderizar página de ejemplo
-      // - Capturar screenshot
-      // - Generar HTML de preview
-
       return `data:image/png;base64,${Buffer.from('preview-placeholder').toString('base64')}`;
     } catch (error) {
       this.logger.error('Failed to generate theme preview', error, 'ThemeProcessor');
