@@ -8,14 +8,14 @@ jest.mock('aws-amplify/auth/server', () => ({
   getCurrentUser: jest.fn(),
 }));
 
-jest.mock('@/packages/renderer-engine/services/core/domain-resolver', () => ({
+jest.mock('@/packages/liquid-forge/services/core/domain-resolver', () => ({
   domainResolver: {
     resolveStoreByDomain: jest.fn(),
   },
 }));
 
-import { resolveStoreStep } from '@/packages/renderer-engine/renderers/pipeline-steps/resolve-store-step';
-import { domainResolver } from '@/packages/renderer-engine/services/core/domain-resolver';
+import { resolveStoreStep } from '@/packages/liquid-forge/renderers/pipeline-steps/resolve-store-step';
+import { domainResolver } from '@/packages/liquid-forge/services/core/domain-resolver';
 
 describe('resolveStoreStep', () => {
   it('debe resolver la tienda correctamente', async () => {

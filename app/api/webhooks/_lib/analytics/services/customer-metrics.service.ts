@@ -15,7 +15,7 @@
  */
 
 import { cookiesClient } from '@/utils/server/AmplifyServer';
-import { logger } from '@/renderer-engine/lib/logger';
+import { logger } from '@/liquid-forge/lib/logger';
 import type {
   OrderCreatedData,
   NewCustomerData,

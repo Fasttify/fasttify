@@ -161,7 +161,7 @@ Opciones:
 Ejemplos:
   node scripts/add-license-header.js                     # Procesar todo el proyecto
   node scripts/add-license-header.js --dry-run           # Ver archivos candidatos
-  node scripts/add-license-header.js renderer-engine/    # Solo directorio específico
+  node scripts/add-license-header.js liquid-forge/    # Solo directorio específico
   node scripts/add-license-header.js app/page.tsx        # Solo archivo específico
 `);
   process.exit(0);

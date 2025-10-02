@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { logger } from '@/renderer-engine/lib/logger';
+import { logger } from '@/liquid-forge/lib/logger';
 import { geolocationService } from '@/api/webhooks/_lib/track-visit/services/geolocation.service';
 import { deviceDetectionService } from '@/api/webhooks/_lib/track-visit/services/device-detection.service';
 import { AnalyticsWebhookJWTAuth } from '@/app/api/webhooks/_lib/middleware/jwt-auth.middleware';

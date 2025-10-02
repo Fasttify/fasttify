@@ -16,8 +16,8 @@
 
 import { NextRequest } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/renderer-engine/lib/logger';
-import { templateDevSynchronizer } from '@/renderer-engine/services/templates/sync/template-dev-synchronizer';
+import { logger } from '@/liquid-forge/lib/logger';
+import { templateDevSynchronizer } from '@/liquid-forge/services/templates/sync/template-dev-synchronizer';
 
 // Almacén de conexiones SSE activas
 const activeConnections = new Set<ReadableStreamDefaultController>();

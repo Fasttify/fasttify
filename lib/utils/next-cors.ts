@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/renderer-engine/lib/logger';
-import { domainResolver } from '@/renderer-engine/services/core/domain-resolver';
+import { logger } from '@/liquid-forge/lib/logger';
+import { domainResolver } from '@/liquid-forge/services/core/domain-resolver';
 import { NextRequest } from 'next/server';
 
 const staticAllowedOrigins: string[] = ['https://www.fasttify.com', 'https://fasttify.com', 'http://localhost:3000'];

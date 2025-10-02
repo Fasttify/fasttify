@@ -8,8 +8,8 @@ module.exports = {
     '<rootDir>/__mocks__/amplify_outputs.json.js',
   ],
   moduleNameMapper: {
-    '^@/renderer-engine/(.*)$': '<rootDir>/packages/renderer-engine/$1',
-    '^@/renderer-engine$': '<rootDir>/packages/renderer-engine',
+    '^@/liquid-forge/(.*)$': '<rootDir>/packages/liquid-forge/$1',
+    '^@/liquid-forge$': '<rootDir>/packages/liquid-forge',
     '^@/tenant-domains/(.*)$': '<rootDir>/packages/tenant-domains/$1',
     '^@/tenant-domains$': '<rootDir>/packages/tenant-domains',
     '^@/(.*)$': '<rootDir>/$1',

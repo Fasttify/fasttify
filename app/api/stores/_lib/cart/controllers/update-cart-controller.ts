@@ -16,8 +16,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/renderer-engine/lib/logger';
-import { cartFetcher } from '@/renderer-engine/services/fetchers/cart';
+import { logger } from '@/liquid-forge/lib/logger';
+import { cartFetcher } from '@/liquid-forge/services/fetchers/cart';
 import { getCartCookieOptions } from '@/lib/cookies/cookiesOption';
 import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';

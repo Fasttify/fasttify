@@ -1,0 +1,235 @@
+/*
+ * Copyright 2025 Fasttify LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { cacheManager } from '@/liquid-forge/services/core/cache';
+import { cartFetcher } from '@/liquid-forge/services/fetchers/cart';
+import { collectionFetcher } from '@/liquid-forge/services/fetchers/collection';
+import { navigationFetcher } from '@/liquid-forge/services/fetchers/navigation';
+import { pageFetcher } from '@/liquid-forge/services/fetchers/page';
+import { productFetcher } from '@/liquid-forge/services/fetchers/product';
+import type {
+  AddToCartRequest,
+  Cart,
+  CartContext,
+  CartResponse,
+  CollectionContext,
+  PageContext,
+  ProductContext,
+  UpdateCartRequest,
+} from '@/liquid-forge/types';
+
+interface PaginationOptions {
+  limit?: number;
+  nextToken?: string;
+}
+
+interface ProductsResponse {
+  products: ProductContext[];
+  nextToken?: string | null;
+}
+
+interface CollectionsResponse {
+  collections: CollectionContext[];
+  nextToken?: string | null;
+}
+
+interface NavigationMenusResponse {
+  menus: any[];
+  mainMenu?: any;
+  footerMenu?: any;
+}
+
+interface PagesResponse {
+  pages: PageContext[];
+  nextToken?: string | null;
+}
+
+/**
+ * DataFetcher refactorizado que orquesta todos los servicios especializados
+ */
+export class DataFetcher {
+  // === PRODUCTOS ===
+
+  /**
+   * Obtiene productos de una tienda con paginación
+   */
+  public async getStoreProducts(storeId: string, options: PaginationOptions = {}): Promise<ProductsResponse> {
+    return productFetcher.getStoreProducts(storeId, options);
+  }
+
+  /**
+   * Obtiene un producto específico por ID
+   */
+  public async getProduct(storeId: string, productId: string): Promise<ProductContext | null> {
+    return productFetcher.getProduct(storeId, productId);
+  }
+
+  /**
+   * Obtiene productos destacados de una tienda
+   */
+  public async getFeaturedProducts(storeId: string, limit: number = 8): Promise<ProductContext[]> {
+    return productFetcher.getFeaturedProducts(storeId, limit);
+  }
+
+  // === COLECCIONES ===
+
+  /**
+   * Obtiene colecciones de una tienda
+   */
+  public async getStoreCollections(storeId: string, options: PaginationOptions = {}): Promise<CollectionsResponse> {
+    return await collectionFetcher.getStoreCollections(storeId, options);
+  }
+
+  /**
+   * Obtiene una colección específica con sus productos
+   */
+  public async getCollection(
+    storeId: string,
+    collectionId: string,
+    options: PaginationOptions = {}
+  ): Promise<CollectionContext | null> {
+    return collectionFetcher.getCollection(storeId, collectionId, options);
+  }
+
+  // === NAVEGACIÓN ===
+
+  /**
+   * Obtiene todos los menús de navegación de una tienda
+   */
+  public async getStoreNavigationMenus(storeId: string): Promise<NavigationMenusResponse> {
+    return navigationFetcher.getStoreNavigationMenus(storeId);
+  }
+
+  // === PÁGINAS ===
+
+  /**
+   * Obtiene páginas de una tienda con paginación
+   */
+  public async getStorePages(storeId: string, options: PaginationOptions = {}): Promise<PagesResponse> {
+    return pageFetcher.getStorePages(storeId, options);
+  }
+
+  /**
+   * Obtiene una página específica por ID
+   */
+  public async getPage(storeId: string, pageId: string): Promise<PageContext | null> {
+    return pageFetcher.getPage(storeId, pageId);
+  }
+
+  /**
+   * Obtiene una página específica por slug
+   */
+  public async getPageBySlug(storeId: string, slug: string): Promise<PageContext | null> {
+    return pageFetcher.getPageBySlug(storeId, slug);
+  }
+
+  /**
+   * Obtiene páginas visibles de una tienda
+   */
+  public async getVisibleStorePages(storeId: string, options: PaginationOptions = {}): Promise<PagesResponse> {
+    return pageFetcher.getVisibleStorePages(storeId, options);
+  }
+
+  /**
+   * Obtiene todas las páginas de políticas de una tienda
+   */
+  public async getPoliciesPages(storeId: string): Promise<PageContext[]> {
+    return pageFetcher.getPoliciesPages(storeId);
+  }
+
+  // === CARRITO ===
+
+  /**
+   * Obtiene el carrito para una sesión específica
+   */
+  public async getCart(storeId: string, sessionId: string): Promise<Cart> {
+    return cartFetcher.getCart(storeId, sessionId);
+  }
+
+  /**
+   * Agrega un producto al carrito
+   */
+  public async addToCart(request: AddToCartRequest): Promise<CartResponse> {
+    return cartFetcher.addToCart(request);
+  }
+
+  /**
+   * Actualiza la cantidad de un item en el carrito
+   */
+  public async updateCartItem(request: UpdateCartRequest): Promise<CartResponse> {
+    return cartFetcher.updateCartItem(request);
+  }
+
+  /**
+   * Remueve un item del carrito
+   */
+  public async removeFromCart(storeId: string, itemId: string, sessionId: string): Promise<CartResponse> {
+    return cartFetcher.removeFromCart(storeId, itemId, sessionId);
+  }
+
+  /**
+   * Limpia todos los items del carrito
+   */
+  public async clearCart(storeId: string, sessionId: string): Promise<CartResponse> {
+    return cartFetcher.clearCart(storeId, sessionId);
+  }
+
+  /**
+   * Convierte un carrito a contexto Liquid
+   */
+  public transformCartToContext(cart: Cart): CartContext {
+    return cartFetcher.transformCartToContext(cart);
+  }
+
+  // === GESTIÓN DE CACHÉ ===
+
+  /**
+   * Invalida el caché para una tienda específica
+   */
+  public invalidateStoreCache(storeId: string): void {
+    cacheManager.invalidateStoreCache(storeId);
+  }
+
+  /**
+   * Invalida el caché para un producto específico
+   */
+  public invalidateProductCache(storeId: string, productId: string): void {
+    cacheManager.invalidateProductCache(storeId, productId);
+  }
+
+  /**
+   * Limpia todo el caché
+   */
+  public clearCache(): void {
+    cacheManager.clearCache();
+  }
+
+  /**
+   * Limpia entradas expiradas del caché
+   */
+  public cleanExpiredCache(): void {
+    cacheManager.cleanExpiredCache();
+  }
+
+  /**
+   * Obtiene estadísticas del caché para debugging
+   */
+  public getCacheStats(): { total: number; expired: number; active: number } {
+    return cacheManager.getCacheStats();
+  }
+}
+
+export const dataFetcher = new DataFetcher();

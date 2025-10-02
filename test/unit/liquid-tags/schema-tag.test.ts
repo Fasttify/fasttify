@@ -1,4 +1,4 @@
-import { SchemaTag } from '@/packages/renderer-engine/liquid/tags/data/schema-tag';
+import { SchemaTag } from '@/packages/liquid-forge/liquid/tags/data/schema-tag';
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import { Liquid } from 'liquidjs';
 import { createTestContext, createTestLiquid } from './setup';

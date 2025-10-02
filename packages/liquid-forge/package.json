@@ -1,0 +1,36 @@
+{
+  "name": "@fasttify/liquid-forge",
+  "version": "1.0.0",
+  "description": "Motor de renderizado Liquid para Fasttify",
+  "main": "index.ts",
+  "types": "index.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "liquidjs": "^10.21.1",
+    "@aws-sdk/client-s3": "^3.844.0",
+    "uuid": "^11.1.0",
+    "chokidar": "^4.0.3",
+    "jszip": "^3.10.1",
+    "dotenv": "^17.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "typescript": "^5.8.3",
+    "jest": "^30.0.4",
+    "@types/jest": "^30.0.0",
+    "eslint": "^8.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "next": "^15.3.5"
+  }
+}
+

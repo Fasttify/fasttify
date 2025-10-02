@@ -16,7 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/renderer-engine/lib/logger';
+import { logger } from '@/liquid-forge/lib/logger';
 import { trackVisitService } from '@/api/webhooks/_lib/track-visit/services/track-visit.service';
 import { verifyAnalyticsWebhookJWTAuth } from '@/app/api/webhooks/_lib/middleware/jwt-auth.middleware';
 import type { TrackVisitResponse } from '@/api/webhooks/_lib/track-visit/types/track-visit.types';

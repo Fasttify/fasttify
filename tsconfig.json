@@ -33,6 +33,7 @@
     "packages/email/**/*",
     "packages/mock/**/*",
     "packages/lambda-edge-host-rewriter/**/*",
-    "template/**/*"
+    "template/**/*",
+    "scripts/**/*"
   ]
 }
