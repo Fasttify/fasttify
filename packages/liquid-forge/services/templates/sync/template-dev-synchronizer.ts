@@ -18,7 +18,9 @@ import { logger } from '@/liquid-forge/lib/logger';
 import { cacheManager } from '@/liquid-forge/services/core/cache';
 import { cacheInvalidationService } from '@/liquid-forge/services/core/cache/cache-invalidation-service';
 import { templateLoader } from '@/liquid-forge/services/templates/template-loader';
+import { PostCSSProcessor } from '@/liquid-forge/services/themes/optimization/postcss-processor';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import * as chokidar from 'chokidar';
 import fs from 'fs';
 import path from 'path';
@@ -54,6 +56,7 @@ export class TemplateDevSynchronizer {
   private isActive: boolean = false;
   private recentChanges: FileChange[] = [];
   private onChangeCallback: ((changes: FileChange[]) => void) | null = null;
+  private postcssProcessor: PostCSSProcessor;
 
   private constructor() {
     // La configuración de S3 se establece al iniciar la sincronización
@@ -61,6 +64,7 @@ export class TemplateDevSynchronizer {
     this.s3Client = new S3Client({
       region: process.env.REGION_BUCKET || 'us-east-2',
     });
+    this.postcssProcessor = PostCSSProcessor.getInstance();
   }
 
   public static getInstance(): TemplateDevSynchronizer {
@@ -238,33 +242,86 @@ export class TemplateDevSynchronizer {
         contentType.startsWith('font/') ||
         contentType === 'application/octet-stream';
 
+      // Obtener ruta relativa para determinar si es procesable
+      const relativePath = path.relative(this.localDir, filePath).replace(/\\/g, '/');
+
       let body;
       if (isBinaryFile) {
         // Leer como buffer para archivos binarios
         body = fs.readFileSync(filePath);
       } else {
         // Leer como texto para archivos de texto
-        body = fs.readFileSync(filePath, 'utf-8');
+        let content = fs.readFileSync(filePath, 'utf-8');
+
+        // Procesar archivos CSS, JS y Liquid si están en assets/
+        if (this.isProcessableAsset(relativePath)) {
+          try {
+            const result = await this.postcssProcessor.processAsset(content, relativePath);
+            content = result.content;
+          } catch (_error) {
+            // Continuar con el contenido original si falla el procesamiento
+          }
+        }
+
+        body = content;
       }
 
-      const command = new PutObjectCommand({
-        Bucket: this.bucketName,
-        Key: s3Key,
-        Body: body,
-        ContentType: contentType,
-        Metadata: {
-          'store-id': this.storeId,
-          'template-type': 'store-template',
-          'upload-time': new Date().toISOString(),
-        },
-      });
+      if (isBinaryFile) {
+        // Para archivos binarios, usar PutObjectCommand
+        const command = new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: s3Key,
+          Body: body,
+          ContentType: contentType,
+          Metadata: {
+            'store-id': this.storeId,
+            'template-type': 'store-template',
+            'upload-time': new Date().toISOString(),
+          },
+        });
 
-      await this.s3Client.send(command);
+        await this.s3Client.send(command);
+      } else {
+        // Para archivos de texto procesados, usar Upload
+        const upload = new Upload({
+          client: this.s3Client,
+          params: {
+            Bucket: this.bucketName,
+            Key: s3Key,
+            Body: body,
+            ContentType: contentType,
+            Metadata: {
+              'store-id': this.storeId,
+              'template-type': 'store-template',
+              'upload-time': new Date().toISOString(),
+            },
+          },
+        });
+
+        await upload.done();
+      }
       logger.debug(`[TemplateDevSynchronizer] Subido a S3: ${s3Key}`, undefined, 'TemplateDevSynchronizer');
     } catch (error) {
       logger.error(`[TemplateDevSynchronizer] Error al subir a S3`, error, 'TemplateDevSynchronizer');
       throw error;
     }
+  }
+
+  /**
+   * Verifica si un archivo debe ser procesado por PostCSS
+   */
+  private isProcessableAsset(path: string): boolean {
+    // Para CSS y JS: solo en carpeta assets/
+    const isAssetCSSJS =
+      (path.includes('/assets/') || path.startsWith('assets/')) &&
+      (path.endsWith('.css') || path.endsWith('.css.liquid') || path.endsWith('.js') || path.endsWith('.js.liquid'));
+
+    // Para Liquid: en cualquier parte del tema
+    const isLiquidFile = path.endsWith('.liquid');
+
+    const isProcessable = isAssetCSSJS || isLiquidFile;
+
+    return isProcessable;
   }
 
   /**

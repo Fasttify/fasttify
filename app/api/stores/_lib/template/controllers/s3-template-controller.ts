@@ -21,17 +21,21 @@ import {
   ListObjectsV2CommandOutput,
   S3Client,
 } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import type { TemplateObject, CopyResult, TemplateMetadata } from '@/api/stores/template/types';
+import { PostCSSProcessor } from '@/liquid-forge/services/themes/optimization/postcss-processor';
 
 export class S3TemplateController {
   private s3Client: S3Client;
   private bucketName: string;
+  private postcssProcessor: PostCSSProcessor;
 
   constructor() {
     this.s3Client = new S3Client({
       region: process.env.REGION_BUCKET,
     });
     this.bucketName = process.env.BUCKET_NAME || '';
+    this.postcssProcessor = PostCSSProcessor.getInstance();
   }
 
   /**
@@ -99,7 +103,44 @@ export class S3TemplateController {
   }
 
   /**
+   * Sube contenido procesado a S3
+   */
+  async putProcessedObject(key: string, content: string, metadata: TemplateMetadata): Promise<void> {
+    const upload = new Upload({
+      client: this.s3Client,
+      params: {
+        Bucket: this.bucketName,
+        Key: key,
+        Body: content,
+        ContentType: this.getContentType(key),
+        Metadata: metadata as Record<string, string>,
+      },
+    });
+
+    await upload.done();
+  }
+
+  /**
+   * Determina el Content-Type basado en la extensión del archivo
+   */
+  private getContentType(key: string): string {
+    const ext = key.toLowerCase().split('.').pop() || '';
+    const contentTypes: Record<string, string> = {
+      css: 'text/css',
+      js: 'application/javascript',
+      liquid: 'text/html',
+      json: 'application/json',
+      html: 'text/html',
+      xml: 'application/xml',
+      txt: 'text/plain',
+      md: 'text/markdown',
+    };
+    return contentTypes[ext] || 'application/octet-stream';
+  }
+
+  /**
    * Copia múltiples objetos de plantilla al almacenamiento del usuario
+   * Procesa archivos CSS, JS y Liquid con PostCSS antes de copiarlos
    */
   async copyTemplateToUserStore(
     templateObjects: TemplateObject[],
@@ -108,7 +149,29 @@ export class S3TemplateController {
   ): Promise<CopyResult[]> {
     const copyPromises = templateObjects.map(async ({ key, relativePath }) => {
       const targetKey = `templates/${storeId}/${relativePath}`;
-      await this.copyObject(key, targetKey, metadata);
+
+      // Si es un archivo procesable, procesarlo antes de copiar
+      if (this.isProcessableAsset(relativePath)) {
+        try {
+          const body = await this.getObjectContent(key);
+          if (body) {
+            const content = new TextDecoder('utf-8').decode(body);
+
+            const result = await this.postcssProcessor.processAsset(content, relativePath);
+
+            // Subir el contenido procesado
+            await this.putProcessedObject(targetKey, result.content, metadata);
+          } else {
+            await this.copyObject(key, targetKey, metadata);
+          }
+        } catch (_error) {
+          // Fallback a copia normal si falla el procesamiento
+          await this.copyObject(key, targetKey, metadata);
+        }
+      } else {
+        // Copia normal para archivos no procesables
+        await this.copyObject(key, targetKey, metadata);
+      }
 
       return {
         key: targetKey,
@@ -117,5 +180,22 @@ export class S3TemplateController {
     });
 
     return Promise.all(copyPromises);
+  }
+
+  /**
+   * Verifica si un archivo debe ser procesado por PostCSS
+   */
+  private isProcessableAsset(path: string): boolean {
+    // Para CSS y JS: solo en carpeta assets/
+    const isAssetCSSJS =
+      (path.includes('/assets/') || path.startsWith('assets/')) &&
+      (path.endsWith('.css') || path.endsWith('.css.liquid') || path.endsWith('.js') || path.endsWith('.js.liquid'));
+
+    // Para Liquid: en cualquier parte del tema
+    const isLiquidFile = path.endsWith('.liquid');
+
+    const isProcessable = isAssetCSSJS || isLiquidFile;
+
+    return isProcessable;
   }
 }

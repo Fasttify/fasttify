@@ -60,8 +60,6 @@ export class S3StorageService {
    */
   public async storeTheme(theme: ProcessedTheme, storeId: string, originalZipFile: File): Promise<ThemeStorageResult> {
     try {
-      this.logger.info('Starting theme storage to S3', { themeId: theme.id, storeId }, 'S3StorageService');
-
       // 1. Crear estructura de carpetas
       const baseKey = this.generateThemeKey(storeId);
 
@@ -125,7 +123,6 @@ export class S3StorageService {
         previewCdnUrl,
       };
 
-      this.logger.info('Theme stored successfully in S3', result, 'S3StorageService');
       return result;
     } catch (error) {
       this.logger.error('Error storing theme to S3', error, 'S3StorageService');
@@ -169,7 +166,6 @@ export class S3StorageService {
       await this.s3Client.send(command);
 
       const size = (body as any).byteLength ?? (body as any).length;
-      this.logger.debug(`Uploaded file to S3: ${key}`, { size }, 'S3StorageService');
 
       return { success: true };
     } catch (error) {
@@ -237,7 +233,6 @@ export class S3StorageService {
         };
       }
 
-      this.logger.info('Theme files uploaded successfully', { fileCount: files.length }, 'S3StorageService');
       return { success: true };
     } catch (error) {
       return {
@@ -359,14 +354,11 @@ export class S3StorageService {
       const response = await this.s3Client.send(command);
 
       if (!response.Body) {
-        this.logger.debug(`Theme metadata not found: ${metadataKey}`, {}, 'S3StorageService');
         return null;
       }
 
       const metadataContent = await response.Body.transformToString();
       const metadata = JSON.parse(metadataContent);
-
-      this.logger.debug(`Retrieved theme from S3: ${metadataKey}`, { themeId: metadata.themeId }, 'S3StorageService');
 
       return null;
     } catch (error) {
@@ -390,7 +382,6 @@ export class S3StorageService {
       const listResponse = await this.s3Client.send(listCommand);
 
       if (!listResponse.Contents || listResponse.Contents.length === 0) {
-        this.logger.info(`No theme files found to delete: ${baseKey}`, {}, 'S3StorageService');
         return { success: true };
       }
 
@@ -406,14 +397,6 @@ export class S3StorageService {
       });
 
       await Promise.all(deletePromises);
-
-      this.logger.info(
-        `Deleted theme from S3: ${baseKey}`,
-        {
-          deletedFiles: listResponse.Contents.length,
-        },
-        'S3StorageService'
-      );
 
       return { success: true };
     } catch (error) {
@@ -441,22 +424,12 @@ export class S3StorageService {
       const response = await this.s3Client.send(command);
 
       if (!response.CommonPrefixes || response.CommonPrefixes.length === 0) {
-        this.logger.debug(`No themes found for store: ${storeId}`, {}, 'S3StorageService');
         return [];
       }
 
       const themeIds = response.CommonPrefixes.map((prefix) => prefix.Prefix)
         .filter((prefix) => prefix)
         .map((prefix) => prefix!.replace(`templates/${storeId}/`, '').replace('/', ''));
-
-      this.logger.debug(
-        `Found themes for store: ${storeId}`,
-        {
-          themeCount: themeIds.length,
-          themes: themeIds,
-        },
-        'S3StorageService'
-      );
 
       return themeIds;
     } catch (error) {

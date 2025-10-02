@@ -126,11 +126,6 @@ export class AnalyticsWebhookService {
     };
 
     await this.sendWebhook(event);
-    logger.info(
-      `[Analytics Webhook] Order created fired for store ${storeId}`,
-      { orderId: orderData.orderId },
-      'AnalyticsWebhook'
-    );
   }
 
   /**
@@ -147,11 +142,6 @@ export class AnalyticsWebhookService {
     };
 
     await this.sendWebhook(event);
-    logger.info(
-      `[Analytics Webhook] Order cancelled fired for store ${storeId}`,
-      { orderId: orderData.orderId },
-      'AnalyticsWebhook'
-    );
   }
 
   /**
@@ -168,11 +158,6 @@ export class AnalyticsWebhookService {
     };
 
     await this.sendWebhook(event);
-    logger.info(
-      `[Analytics Webhook] Order refunded fired for store ${storeId}`,
-      { orderId: orderData.orderId },
-      'AnalyticsWebhook'
-    );
   }
 
   /**
@@ -189,11 +174,6 @@ export class AnalyticsWebhookService {
     };
 
     await this.sendWebhook(event);
-    logger.info(
-      `[Analytics Webhook] Inventory low fired for store ${storeId}`,
-      { productId: inventoryData.productId },
-      'AnalyticsWebhook'
-    );
   }
 
   /**
@@ -210,11 +190,6 @@ export class AnalyticsWebhookService {
     };
 
     await this.sendWebhook(event);
-    logger.info(
-      `[Analytics Webhook] Inventory out fired for store ${storeId}`,
-      { productId: inventoryData.productId },
-      'AnalyticsWebhook'
-    );
   }
 
   /**
@@ -231,11 +206,6 @@ export class AnalyticsWebhookService {
     };
 
     await this.sendWebhook(event);
-    logger.info(
-      `[Analytics Webhook] New customer fired for store ${storeId}`,
-      { customerId: customerData.customerId },
-      'AnalyticsWebhook'
-    );
   }
 
   /**
@@ -252,11 +222,6 @@ export class AnalyticsWebhookService {
     };
 
     await this.sendWebhook(event);
-    logger.info(
-      `[Analytics Webhook] Customer login fired for store ${storeId}`,
-      { customerId: customerData.customerId },
-      'AnalyticsWebhook'
-    );
   }
 
   /**
@@ -283,11 +248,6 @@ export class AnalyticsWebhookService {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
-      logger.debug(
-        `[Analytics Webhook] Successfully sent ${event.type} for store ${event.storeId}`,
-        'AnalyticsWebhook'
-      );
     } catch (error) {
       logger.error(`[Analytics Webhook] Failed to send webhook for ${event.type}`, error, 'AnalyticsWebhook');
       // No re-lanzamos el error para no afectar el flujo principal
@@ -310,7 +270,6 @@ export class AnalyticsWebhookService {
    */
   public setEnabled(enabled: boolean): void {
     this.isEnabled = enabled;
-    logger.info(`[Analytics Webhook] Service ${enabled ? 'enabled' : 'disabled'}`, 'AnalyticsWebhook');
   }
 
   /**
@@ -325,7 +284,6 @@ export class AnalyticsWebhookService {
    */
   public setWebhookUrl(url: string): void {
     this.webhookUrl = url;
-    logger.info(`[Analytics Webhook] Webhook URL updated to: ${url}`, 'AnalyticsWebhook');
   }
 }
 

@@ -203,6 +203,7 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   blog: () => ({}),
   pagination: () => ({}),
   checkout: () => ({}),
+  checkout_confirmation: () => ({}),
 };
 
 /**
@@ -282,6 +283,10 @@ const objectDetectors: Record<DataRequirement, ObjectDetector> = {
   checkout: {
     pattern: /\{\{\s*checkout\./g,
     optionsExtractor: loadOptionsExtractors.checkout,
+  },
+  checkout_confirmation: {
+    pattern: /\{\{\s*checkout\./g,
+    optionsExtractor: loadOptionsExtractors.checkout_confirmation,
   },
 };
 

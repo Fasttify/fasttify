@@ -33,8 +33,6 @@ const themeProcessStatus: Map<string, ProcessStatus> = new Map();
 export async function postConfirmTheme(request: NextRequest, storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);
   try {
-    logger.info('Theme confirmation request received', { storeId }, 'ThemeConfirmAPI');
-
     const session = await AuthGetCurrentUserServer();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     if (!storeId) return NextResponse.json({ error: 'Store ID is required' }, { status: 400, headers: corsHeaders });
@@ -170,8 +168,6 @@ async function processThemeInBackground(
   themeId?: string
 ) {
   try {
-    logger.info('Starting background theme processing', { processId, storeId }, 'ThemeConfirmAPI');
-
     const processedTheme = {
       id: themeData.theme.id,
       name: themeData.theme.name,
@@ -258,11 +254,6 @@ async function processThemeInBackground(
       savedThemeId = created?.id;
     }
 
-    logger.info(
-      'Theme processing completed successfully',
-      { processId, storeId, s3Key: storageResult.s3Key, themeId: savedThemeId },
-      'ThemeConfirmAPI'
-    );
     themeProcessStatus.set(processId, { status: 'completed', themeId: savedThemeId, updatedAt: Date.now() });
   } catch (error) {
     logger.error('Background theme processing failed', { processId, error }, 'ThemeConfirmAPI');

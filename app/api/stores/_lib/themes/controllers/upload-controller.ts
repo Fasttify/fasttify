@@ -24,8 +24,6 @@ import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyU
 export async function postUploadTheme(request: NextRequest, storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);
   try {
-    logger.info('Theme upload request received', { storeId }, 'ThemeUploadAPI');
-
     const session = await AuthGetCurrentUserServer();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
@@ -63,8 +61,6 @@ export async function postUploadTheme(request: NextRequest, storeId: string): Pr
         { status: 400, headers: corsHeaders }
       );
     }
-
-    logger.info('Theme file validated', { fileName: themeFile.name, fileSize: themeFile.size }, 'ThemeUploadAPI');
 
     const processor = ThemeProcessor.getInstance();
     const processedTheme = await processor.processThemeFile(themeFile, storeId);
@@ -112,12 +108,6 @@ export async function postUploadTheme(request: NextRequest, storeId: string): Pr
       analysis: processedTheme.analysis,
       storage: null,
     };
-
-    logger.info(
-      'Theme processing completed',
-      { themeId: processedTheme.id, isValid: validation.isValid, errorCount: validation.errors.length },
-      'ThemeUploadAPI'
-    );
 
     const criticalErrors = validation.errors.filter((e) => (e as any).severity === 'critical');
     if (criticalErrors.length > 0) {

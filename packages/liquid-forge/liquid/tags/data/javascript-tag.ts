@@ -19,6 +19,24 @@ import { AssetCollector } from '@/liquid-forge/services/rendering/asset-collecto
 import { logger } from '@/liquid-forge/lib/logger';
 
 /**
+ * Optimiza y limpia el JavaScript generado
+ */
+function optimizeJS(js: string): string {
+  return (
+    js
+      // Remover comentarios de línea (// ...)
+      .replace(/\/\/.*$/gm, '')
+      // Remover comentarios de bloque (/* ... */)
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      // Remover espacios múltiples
+      .replace(/\s+/g, ' ')
+      // Limpiar líneas vacías
+      .replace(/^\s*[\r\n]/gm, '')
+      .trim()
+  );
+}
+
+/**
  * Custom JavaScript Tag para manejar {% javascript %} en LiquidJS
  * Genera JavaScript dinámico con variables Liquid en secciones
  */
@@ -92,7 +110,9 @@ export class JavaScriptTag extends Tag {
       const processedJS = (yield this.liquid.render(template, ctx.getAll())) as string;
       const uniqueId = sectionId || `javascript-${Math.random().toString(36).substring(2, 9)}`;
 
-      assetCollector.addJs(processedJS, uniqueId);
+      // Optimizar JavaScript eliminando comentarios y espacios
+      const finalJS = optimizeJS(processedJS);
+      assetCollector.addJs(finalJS, uniqueId);
     } catch (error) {
       logger.error('Error processing JavaScript in javascript tag', error);
     }

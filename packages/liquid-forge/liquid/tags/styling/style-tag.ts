@@ -19,6 +19,27 @@ import { AssetCollector } from '@/liquid-forge/services/rendering/asset-collecto
 import { logger } from '@/liquid-forge/lib/logger';
 
 /**
+ * Optimiza y limpia el CSS generado
+ */
+function optimizeCSS(css: string): string {
+  return (
+    css
+      // Remover comentarios CSS
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      // Remover espacios múltiples
+      .replace(/\s+/g, ' ')
+      // Remover espacios antes y después de llaves y dos puntos
+      .replace(/\s*{\s*/g, ' { ')
+      .replace(/\s*}\s*/g, ' } ')
+      .replace(/\s*:\s*/g, ': ')
+      .replace(/\s*;\s*/g, '; ')
+      // Limpiar líneas vacías
+      .replace(/^\s*[\r\n]/gm, '')
+      .trim()
+  );
+}
+
+/**
  * Custom Style Tag para manejar {% style %} en LiquidJS
  * Genera CSS dinámico con variables Liquid
  */
@@ -91,34 +112,14 @@ export class StyleTag extends Tag {
       const template = this.liquid.parse(this.cssContent);
       const processedCSS = (yield this.liquid.render(template, ctx.getAll())) as string;
       const uniqueId = sectionId || `style-${Math.random().toString(36).substring(2, 9)}`;
-      // Temporalmente sin optimización para debugging
-      const finalCSS = processedCSS.trim();
+
+      // Optimizar CSS eliminando comentarios y espacios
+      const finalCSS = optimizeCSS(processedCSS);
 
       assetCollector.addCss(finalCSS, uniqueId);
     } catch (error) {
       logger.error('Error processing CSS in style tag', error, 'StyleTag');
     }
-  }
-
-  /**
-   * Optimiza y limpia el CSS generado
-   */
-  private optimizeCSS(css: string): string {
-    return (
-      css
-        // Remover comentarios CSS
-        .replace(/\/\*[\s\S]*?\*\//g, '')
-        // Remover espacios múltiples
-        .replace(/\s+/g, ' ')
-        // Remover espacios antes y después de llaves y dos puntos
-        .replace(/\s*{\s*/g, ' { ')
-        .replace(/\s*}\s*/g, ' } ')
-        .replace(/\s*:\s*/g, ': ')
-        .replace(/\s*;\s*/g, '; ')
-        // Limpiar líneas vacías
-        .replace(/^\s*[\r\n]/gm, '')
-        .trim()
-    );
   }
 }
 
@@ -193,7 +194,10 @@ export class StylesheetTag extends Tag {
       const template = this.liquid.parse(this.cssContent);
       const processedCSS = (yield this.liquid.render(template, ctx.getAll())) as string;
       const uniqueId = sectionId || `stylesheet-${Math.random().toString(36).substring(2, 9)}`;
-      assetCollector.addCss(processedCSS, uniqueId);
+
+      // Optimizar CSS eliminando comentarios y espacios
+      const finalCSS = optimizeCSS(processedCSS);
+      assetCollector.addCss(finalCSS, uniqueId);
     } catch (error) {
       logger.error('Error processing CSS in stylesheet tag', error, 'StylesheetTag');
     }
