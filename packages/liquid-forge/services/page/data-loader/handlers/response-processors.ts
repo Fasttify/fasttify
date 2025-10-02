@@ -115,6 +115,9 @@ export const responseProcessors: Record<DataRequirement, ResponseProcessor> = {
   related_products: (data, dataType, loadedData) => {
     loadedData[dataType] = data;
   },
+  checkout_confirmation: (data, dataType, loadedData) => {
+    loadedData[dataType] = data;
+  },
 
   specific_page: (data, dataType, loadedData) => {
     if (!loadedData.pages_map) {
