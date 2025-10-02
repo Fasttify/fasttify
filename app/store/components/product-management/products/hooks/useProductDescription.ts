@@ -4,7 +4,7 @@
  * y categoría del producto.
  */
 import { useState, useCallback } from 'react';
-import { client } from '@/lib/amplify-client';
+import { aiClient } from '@/lib/amplify-client';
 
 /**
  * Hook personalizado que gestiona la generación de descripciones de productos con IA.
@@ -46,7 +46,7 @@ export function useProductDescription() {
 
       try {
         // Llamar al endpoint de generación de descripciones
-        const { data, errors } = await client.queries.generateProductDescription({
+        const { data, errors } = await aiClient.queries.generateProductDescription({
           productName,
           category,
         });

@@ -4,7 +4,7 @@
  * y categoría del producto.
  */
 import { useState, useCallback } from 'react';
-import { client } from '@/lib/amplify-client';
+import { aiClient } from '@/lib/amplify-client';
 
 /**
  * Interfaz para los resultados de la sugerencia de precios.
@@ -57,7 +57,7 @@ export function usePriceSuggestion() {
 
       try {
         // Llamar al endpoint de generación de sugerencias de precios
-        const { data, errors } = await client.queries.generatePriceSuggestion({
+        const { data, errors } = await aiClient.queries.generatePriceSuggestion({
           productName,
           category,
         });

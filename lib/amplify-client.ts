@@ -28,6 +28,11 @@ export const storeClient = generateClient<StoreSchema>({
   authMode: 'userPool',
 });
 
+// Cliente para funciones de IA que requieren API key
+export const aiClient = generateClient<FullSchema>({
+  authMode: 'apiKey',
+});
+
 // Exportación de tipos comunes para evitar reimportaciones costosas
 export type User = FullSchema['UserProfile']['type'];
 export type UserStore = FullSchema['UserStore']['type'];
