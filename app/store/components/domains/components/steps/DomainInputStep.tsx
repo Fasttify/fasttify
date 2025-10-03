@@ -36,7 +36,7 @@ export function DomainInputStep({
         autoComplete="off"
       />
 
-      <InlineStack align="end">
+      <InlineStack align="end" gap="200">
         <Button onClick={onCancel}>Cancelar</Button>
         <Button
           variant="primary"

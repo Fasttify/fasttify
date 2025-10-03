@@ -145,7 +145,10 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
                 <BlockStack gap="200">
                   <Text as="p">{previewDescription}</Text>
                   <ButtonGroup>
-                    <Button onClick={handleGenerateDescription} loading={isGeneratingDescription}>
+                    <Button
+                      onClick={handleGenerateDescription}
+                      loading={isGeneratingDescription}
+                      disabled={isGeneratingDescription}>
                       Regenerar
                     </Button>
                     <Button onClick={rejectDescription}>Descartar</Button>

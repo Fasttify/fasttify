@@ -1,11 +1,11 @@
 'use client';
 
-import { Send } from 'lucide-react';
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useAutoResizeTextarea } from '@/hooks/ui/use-auto-resize-textare';
-import { Spinner } from '@shopify/polaris';
+import { Button } from '@shopify/polaris';
+import { SendIcon } from '@shopify/polaris-icons';
 
 interface AIInputWithSearchProps {
   id?: string;
@@ -69,22 +69,15 @@ export function AIInputWithSearch({
 
           <div className="h-12 bg-black/5 dark:bg-white/5 rounded-b-xl">
             <div className="absolute right-3 bottom-3">
-              <button
-                type="button"
+              <Button
+                variant="plain"
+                size="slim"
                 onClick={handleSubmit}
+                loading={loading}
                 disabled={loading}
-                className={cn(
-                  'rounded-lg p-2 transition-colors',
-                  value && !loading
-                    ? 'bg-sky-500/15 text-sky-500'
-                    : 'bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'
-                )}>
-                {loading ? (
-                  <Spinner accessibilityLabel="Enviando mensaje" size="small" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-              </button>
+                icon={!loading ? SendIcon : undefined}
+                accessibilityLabel="Enviar mensaje"
+              />
             </div>
           </div>
         </div>

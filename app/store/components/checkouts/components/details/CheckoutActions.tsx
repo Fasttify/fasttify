@@ -98,25 +98,37 @@ export function CheckoutActions({
 
             <ButtonGroup>
               {isOpen && onComplete && (
-                <Button icon={CheckIcon} onClick={onComplete} loading={isLoading} variant="primary" tone="success">
+                <Button
+                  icon={CheckIcon}
+                  onClick={onComplete}
+                  loading={isLoading}
+                  variant="primary"
+                  tone="success"
+                  disabled={isLoading}>
                   Marcar como Completado
                 </Button>
               )}
 
               {isOpen && onExpire && (
-                <Button icon={ClockIcon} onClick={onExpire} loading={isLoading} tone="critical">
+                <Button icon={ClockIcon} onClick={onExpire} loading={isLoading} tone="critical" disabled={isLoading}>
                   Marcar como Expirado
                 </Button>
               )}
 
               {isOpen && onCancel && (
-                <Button icon={UndoIcon} onClick={onCancel} loading={isLoading} tone="critical">
+                <Button icon={UndoIcon} onClick={onCancel} loading={isLoading} tone="critical" disabled={isLoading}>
                   Cancelar Checkout
                 </Button>
               )}
 
               {onDelete && (
-                <Button icon={DeleteIcon} onClick={onDelete} loading={isLoading} variant="plain" tone="critical">
+                <Button
+                  icon={DeleteIcon}
+                  onClick={onDelete}
+                  loading={isLoading}
+                  variant="plain"
+                  tone="critical"
+                  disabled={isLoading}>
                   Eliminar Checkout
                 </Button>
               )}

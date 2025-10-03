@@ -52,7 +52,7 @@ export function ProductForm({ storeId, productId }: ProductFormProps) {
         content: 'Guardar',
         onAction: handleSave,
         loading: isSubmitting,
-        disabled: !isDirty,
+        disabled: !isDirty || isSubmitting,
       }}>
       <Form onSubmit={handleSave}>
         <Suspense

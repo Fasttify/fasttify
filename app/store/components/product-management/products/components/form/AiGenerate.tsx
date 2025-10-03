@@ -18,7 +18,7 @@ export function AIGenerateButton({
 }: AIGenerateButtonProps) {
   return (
     <Button onClick={onClick} loading={isLoading} disabled={isDisabled} icon={MagicIcon}>
-      {label}
+      {isLoading ? '' : label}
     </Button>
   );
 }
