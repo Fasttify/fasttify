@@ -22,6 +22,7 @@ import {
   ListDistributionTenantsCommand,
   GetConnectionGroupCommand,
   DomainResult,
+  CreateDistributionTenantCommandInput,
 } from '@aws-sdk/client-cloudfront';
 import { SecureLogger } from '@/lib/utils/secure-logger';
 
@@ -79,10 +80,13 @@ export class CloudFrontTenantManager {
   async createTenant(params: CreateTenantParams): Promise<TenantResult> {
     try {
       // Configurar el comando con el certificado en Customizations
-      const commandParams: any = {
+      // Incluir automáticamente tanto el dominio como www.dominio
+      const domains = [{ Domain: params.domain }, { Domain: `www.${params.domain}` }];
+
+      const commandParams: CreateDistributionTenantCommandInput = {
         DistributionId: this.multiTenantDistributionId,
         Name: params.tenantName,
-        Domains: [{ Domain: params.domain }],
+        Domains: domains,
       };
 
       // Si tenemos un certificado, lo pasamos en Customizations
