@@ -65,6 +65,13 @@ class LiquidEngine {
       trimOutputRight: false,
       strictFilters: false,
       strictVariables: false,
+      // Preservar formato en production
+      ...(process.env.APP_ENV === 'production' && {
+        trimTagLeft: true,
+        trimTagRight: true,
+        trimOutputLeft: true,
+        trimOutputRight: true,
+      }),
       globals: {
         settings: {
           currency: 'COP',
