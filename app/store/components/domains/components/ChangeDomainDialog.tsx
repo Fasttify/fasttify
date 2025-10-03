@@ -13,6 +13,7 @@ interface ChangeDomainDialogProps {
 
 export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdated }: ChangeDomainDialogProps) {
   const [domainName, setDomainName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const { checkDomain, isChecking, exists } = useDomainValidator();
   const [hasBeenValidated, setHasBeenValidated] = useState(false);
   const { updateUserStore, loading: isUpdating } = useUserStoreData();
@@ -22,6 +23,7 @@ export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdate
     if (!open) {
       setDomainName('');
       setHasBeenValidated(false);
+      setIsSaving(false);
     }
   }, [open]);
 
@@ -38,10 +40,11 @@ export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdate
   }, [domainName, checkDomain]);
 
   const handleSaveDomain = async () => {
-    if (!storeId || !domainName.trim() || exists || isChecking || !hasBeenValidated) {
+    if (!storeId || !domainName.trim() || exists || isChecking || !hasBeenValidated || isSaving) {
       return;
     }
 
+    setIsSaving(true);
     try {
       const fullDomain = `${domainName.trim()}.fasttify.com`;
       const result = await updateUserStore({ storeId, defaultDomain: fullDomain });
@@ -55,6 +58,8 @@ export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdate
       }
     } catch (_error) {
       showToast('Ocurrió un error al actualizar el dominio', true);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -103,8 +108,8 @@ export function ChangeDomainDialog({ open, onOpenChange, storeId, onDomainUpdate
         primaryAction={{
           content: 'Guardar dominio',
           onAction: handleSaveDomain,
-          loading: isUpdating,
-          disabled: !domainName.trim() || exists || isChecking || !hasBeenValidated,
+          loading: isSaving || isUpdating,
+          disabled: !domainName.trim() || exists || isChecking || !hasBeenValidated || isSaving || isUpdating,
         }}
         secondaryActions={[{ content: 'Cancelar', onAction: () => onOpenChange(false) }]}>
         <Modal.Section>

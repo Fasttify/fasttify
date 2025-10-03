@@ -108,7 +108,7 @@ export function FormPage() {
         content: 'Guardar',
         onAction: handleSaveCollection,
         loading: isSubmitting,
-        disabled: !hasUnsavedChanges,
+        disabled: !hasUnsavedChanges || isSubmitting,
       }}
       secondaryActions={secondaryActions}>
       {saveBarMarkup}

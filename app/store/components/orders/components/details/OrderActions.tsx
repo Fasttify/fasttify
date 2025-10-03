@@ -208,7 +208,7 @@ export function OrderActions({
         {/* Botón de eliminar */}
         {onDelete && (
           <BlockStack gap="300">
-            <Button tone="critical" size="slim" onClick={handleDelete} loading={deleteLoading}>
+            <Button tone="critical" size="slim" onClick={handleDelete} loading={deleteLoading} disabled={deleteLoading}>
               Eliminar Orden
             </Button>
           </BlockStack>

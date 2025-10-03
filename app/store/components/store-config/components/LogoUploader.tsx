@@ -4,7 +4,7 @@ import {
   Tabs,
   Button,
   DropZone,
-  LegacyStack,
+  BlockStack,
   Text,
   Thumbnail,
   Banner,
@@ -117,16 +117,22 @@ export function LogoUploader() {
           content: `Guardar ${selectedTab === 0 ? 'logo' : 'favicon'}`,
           onAction: () => handleSave(selectedTab === 0 ? 'logo' : 'favicon'),
           loading: status === 'uploading',
-          disabled: (selectedTab === 0 && !logoFile) || (selectedTab === 1 && !faviconFile) || status === 'success',
+          disabled:
+            (selectedTab === 0 && !logoFile) ||
+            (selectedTab === 1 && !faviconFile) ||
+            status === 'success' ||
+            isStoreLoading ||
+            status === 'uploading',
         }}
         secondaryActions={[
           {
             content: 'Cancelar',
             onAction: toggleActive,
+            disabled: isStoreLoading || status === 'uploading' || status === 'success',
           },
         ]}>
         <Modal.Section>
-          <LegacyStack vertical spacing="loose">
+          <BlockStack gap="400">
             <InlineStack align="space-between" blockAlign="center">
               <Text as="p" tone="subdued">
                 Personaliza la identidad visual de tu tienda con un logo y favicon personalizados.
@@ -144,43 +150,43 @@ export function LogoUploader() {
             <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange} />
 
             {selectedTab === 0 && (
-              <LegacyStack vertical spacing="baseTight">
+              <BlockStack gap="200">
                 <Text as="p" tone="subdued">
                   Recomendamos una imagen de 400x400px o mayor.
                 </Text>
                 <DropZone onDrop={handleLogoDrop} allowMultiple={false} variableHeight accept="image/*" type="image">
                   {logoUrl ? (
-                    <LegacyStack alignment="center" vertical spacing="extraTight">
+                    <BlockStack gap="100" inlineAlign="center">
                       <Thumbnail source={logoUrl} alt="Logo preview" size="medium" />
                       <Button onClick={() => setLogoFile(null)} variant="plain">
                         Cambiar
                       </Button>
-                    </LegacyStack>
+                    </BlockStack>
                   ) : (
                     <DropZone.FileUpload actionTitle="Seleccionar archivo" actionHint="o arrastra y suelta" />
                   )}
                 </DropZone>
-              </LegacyStack>
+              </BlockStack>
             )}
 
             {selectedTab === 1 && (
-              <LegacyStack vertical spacing="baseTight">
+              <BlockStack gap="200">
                 <Text as="p" tone="subdued">
                   Recomendamos una imagen cuadrada de 32x32px.
                 </Text>
                 <DropZone onDrop={handleFaviconDrop} allowMultiple={false} variableHeight accept="image/*" type="image">
                   {faviconUrl ? (
-                    <LegacyStack alignment="center" vertical spacing="extraTight">
+                    <BlockStack gap="100" inlineAlign="center">
                       <Thumbnail source={faviconUrl} alt="Favicon preview" size="small" />
                       <Button onClick={() => setFaviconFile(null)} variant="plain">
                         Cambiar
                       </Button>
-                    </LegacyStack>
+                    </BlockStack>
                   ) : (
                     <DropZone.FileUpload actionTitle="Seleccionar archivo" actionHint="o arrastra y suelta" />
                   )}
                 </DropZone>
-              </LegacyStack>
+              </BlockStack>
             )}
 
             {error && (
@@ -188,7 +194,7 @@ export function LogoUploader() {
                 <p>{error}</p>
               </Banner>
             )}
-          </LegacyStack>
+          </BlockStack>
         </Modal.Section>
       </Modal>
       {toastMarkup}

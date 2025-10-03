@@ -68,7 +68,7 @@ class LiquidEngine {
       // Preservar formato en production
       ...(process.env.APP_ENV === 'production' && {
         trimTagLeft: true,
-        trimTagRight: true,
+        trimTagRight: false,
         trimOutputLeft: true,
         trimOutputRight: true,
       }),
