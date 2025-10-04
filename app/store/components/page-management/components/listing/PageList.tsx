@@ -26,7 +26,7 @@ export function PageList({ storeId, pages, error, deleteMultiplePages, deletePag
   const [pageType, setPageType] = useState<string[] | undefined>();
 
   // Hooks para manejar diferentes aspectos de la tabla
-  const { setSelectedPages } = usePageSelection();
+  const { selectedPages, setSelectedPages, handleSelectPage } = usePageSelection();
   const { sortedPages, toggleSort, sortDirection, sortField } = usePageFilters(
     pages,
     searchQuery,
@@ -134,7 +134,13 @@ export function PageList({ storeId, pages, error, deleteMultiplePages, deletePag
           sortField={sortField ?? 'title'}
         />
 
-        <PageListMobile pages={sortedPages} handleEditPage={handleEditPage} handleDeletePage={handleDeletePage} />
+        <PageListMobile
+          pages={sortedPages}
+          handleEditPage={handleEditPage}
+          handleDeletePage={handleDeletePage}
+          selectedIds={selectedPages}
+          handleSelectPage={handleSelectPage}
+        />
 
         {/* Información adicional en lugar de paginación */}
         <Box padding="400" background="bg-surface">

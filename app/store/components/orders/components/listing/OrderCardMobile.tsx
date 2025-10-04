@@ -66,38 +66,44 @@ export function OrderCardMobile({
               </div>
 
               <Box paddingBlockStart="300" paddingBlockEnd="300">
-                <div style={{ display: 'flex', justifyContent: 'space-evenly', gap: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
                   {visibleColumns.status && (
-                    <Box>
+                    <div style={{ minWidth: '80px', flex: '1 1 auto' }}>
                       <Text variant="bodySm" tone="subdued" as="p">
                         Estado
                       </Text>
                       <Badge tone={getStatusTone(order?.status ?? '')}>{getStatusText(order?.status ?? '')}</Badge>
-                    </Box>
+                    </div>
                   )}
                   {visibleColumns.paymentStatus && (
-                    <Box>
+                    <div style={{ minWidth: '80px', flex: '1 1 auto' }}>
                       <Text variant="bodySm" tone="subdued" as="p">
                         Pago
                       </Text>
                       <Badge tone={getPaymentStatusTone(order?.paymentStatus ?? '')}>
                         {getPaymentStatusText(order?.paymentStatus ?? '')}
                       </Badge>
-                    </Box>
+                    </div>
                   )}
-                  {visibleColumns.total && <OrderCardTotal order={order} />}
+                  {visibleColumns.total && (
+                    <div style={{ minWidth: '100px', flex: '1 1 auto' }}>
+                      <OrderCardTotal order={order} />
+                    </div>
+                  )}
                   {visibleColumns.creationDate && (
-                    <Box>
+                    <div style={{ minWidth: '120px', flex: '1 1 auto', textAlign: 'right' }}>
                       <Text variant="bodySm" tone="subdued" as="p">
                         Fecha
                       </Text>
-                      <Text variant="bodyMd" as="p">
-                        {formatDate(order.createdAt)}
-                      </Text>
+                      <div style={{ whiteSpace: 'nowrap' }}>
+                        <Text variant="bodyMd" as="p">
+                          {formatDate(order.createdAt)}
+                        </Text>
+                      </div>
                       <Text variant="bodySm" tone="subdued" as="p">
                         {getTotalItemsCount(order.items)} artículos
                       </Text>
-                    </Box>
+                    </div>
                   )}
                 </div>
               </Box>

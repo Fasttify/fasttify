@@ -36,8 +36,8 @@ export function CheckoutCustomerInfo({ checkout }: CheckoutCustomerInfoProps) {
         </Text>
 
         {/* Información básica del cliente */}
-        <InlineStack gap="300" blockAlign="start">
-          <div style={{ marginTop: '2px' }}>
+        <InlineStack gap="300" blockAlign="center">
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <Icon source={PersonIcon} />
           </div>
           <BlockStack gap="100">
@@ -53,8 +53,8 @@ export function CheckoutCustomerInfo({ checkout }: CheckoutCustomerInfoProps) {
         {/* Dirección de envío */}
         {shipping && (
           <BlockStack gap="200">
-            <InlineStack gap="200" blockAlign="start">
-              <div style={{ marginTop: '2px' }}>
+            <InlineStack gap="200" blockAlign="center">
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Icon source={LocationIcon} />
               </div>
               <Text variant="bodyMd" fontWeight="medium" as="span">
@@ -80,7 +80,7 @@ export function CheckoutCustomerInfo({ checkout }: CheckoutCustomerInfoProps) {
         {billing && (
           <BlockStack gap="200">
             <InlineStack gap="200" blockAlign="center">
-              <div style={{ marginTop: '2px' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Icon source={EmailIcon} />
               </div>
               <Text variant="bodyMd" fontWeight="medium" as="span">

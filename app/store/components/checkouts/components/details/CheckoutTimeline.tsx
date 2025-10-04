@@ -103,7 +103,7 @@ export function CheckoutTimeline({ checkout }: CheckoutTimelineProps) {
                 />
               )}
 
-              <InlineStack gap="300" blockAlign="start">
+              <div className="flex gap-3 items-start">
                 {/* Icono del evento */}
                 <div
                   style={{
@@ -116,25 +116,44 @@ export function CheckoutTimeline({ checkout }: CheckoutTimelineProps) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 1,
+                    flexShrink: 0,
                   }}>
                   <Icon source={event.icon as unknown as IconSource} />
                 </div>
 
                 {/* Contenido del evento */}
-                <BlockStack gap="100">
-                  <InlineStack gap="200" blockAlign="center">
-                    <Text variant="bodyMd" fontWeight="medium" as="span">
-                      {event.title}
+                <div className="flex-1 min-w-0">
+                  {/* Desktop: título y badge en línea */}
+                  <div className="hidden sm:block">
+                    <InlineStack gap="200" blockAlign="center">
+                      <Text variant="bodyMd" fontWeight="medium" as="span">
+                        {event.title}
+                      </Text>
+                      <Badge tone={event.tone} size="small">
+                        {event.date ? formatDate(event.date) : 'N/A'}
+                      </Badge>
+                    </InlineStack>
+                  </div>
+
+                  {/* Móvil: título y badge apilados */}
+                  <div className="block sm:hidden">
+                    <BlockStack gap="100">
+                      <Text variant="bodyMd" fontWeight="medium" as="span">
+                        {event.title}
+                      </Text>
+                      <Badge tone={event.tone} size="small">
+                        {event.date ? formatDate(event.date) : 'N/A'}
+                      </Badge>
+                    </BlockStack>
+                  </div>
+
+                  <div style={{ marginTop: '4px' }}>
+                    <Text variant="bodySm" tone="subdued" as="span">
+                      {event.description}
                     </Text>
-                    <Badge tone={event.tone} size="small">
-                      {event.date ? formatDate(event.date) : 'N/A'}
-                    </Badge>
-                  </InlineStack>
-                  <Text variant="bodySm" tone="subdued" as="span">
-                    {event.description}
-                  </Text>
-                </BlockStack>
-              </InlineStack>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </BlockStack>

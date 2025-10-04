@@ -17,10 +17,10 @@ import {
   getCustomerName,
   getCustomerEmail,
   getCustomerPhone,
-} from '../utils/order-utils';
-import { processTimeline } from '../utils/process-timeline';
-import { getCountryName } from '../utils/country-name';
-import { getPaymentMethodText } from '../utils/payment-method';
+} from '@/app/store/components/orders/utils/order-utils';
+import { processTimeline } from '@/app/store/components/orders/utils/process-timeline';
+import { getCountryName } from '@/app/store/components/orders/utils/country-name';
+import { getPaymentMethodText } from '@/app/store/components/orders/utils/payment-method';
 import { useOrderFormatting } from '@/app/store/hooks/format/useOrderFormatting';
 import type {
   ProcessedAddress,
@@ -28,7 +28,7 @@ import type {
   ProcessedPricingData,
   ProcessedOrderData,
   ProcessedOrderItem,
-} from '../types/util-type';
+} from '@/app/store/components/orders/types/util-type';
 
 function parseAddress(addressData: any): ProcessedAddress | null {
   if (!addressData) return null;
@@ -55,12 +55,13 @@ function processItems(
     const productSnapshot = getProductSnapshot(item);
     const hasDiscount = productSnapshot?.compareAtPrice && productSnapshot.compareAtPrice > unitPrice;
 
-    const { formattedUnitPrice, formattedTotalPrice, formattedSavings } = formatOrderItemAmounts({
-      unitPrice: unitPrice ?? 0,
-      totalPrice: totalPrice ?? 0,
-      compareAtPrice: productSnapshot?.compareAtPrice ?? 0,
-      quantity: quantity ?? 0,
-    });
+    const { formattedUnitPrice, formattedTotalPrice, formattedSavings, formattedCompareAtPrice } =
+      formatOrderItemAmounts({
+        unitPrice: unitPrice ?? 0,
+        totalPrice: totalPrice ?? 0,
+        compareAtPrice: productSnapshot?.compareAtPrice ?? 0,
+        quantity: quantity ?? 0,
+      });
 
     return {
       id: item.id,
@@ -76,6 +77,7 @@ function processItems(
       formattedUnitPrice,
       formattedTotalPrice,
       formattedSavings,
+      formattedCompareAtPrice,
       hasDiscount: !!hasDiscount,
       selectedAttributes: productSnapshot?.selectedAttributes || {},
       variantTitle: productSnapshot?.variantTitle,

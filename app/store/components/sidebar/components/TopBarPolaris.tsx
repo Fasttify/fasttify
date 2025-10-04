@@ -28,7 +28,6 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
   const storeName = currentStore?.storeName;
   const userPicture = user?.picture;
 
-  // Usar hook para obtener URL segura de la foto de perfil
   const { url: secureUserPicture, isLoading: isPictureLoading } = useSecureUrl({
     baseUrl: userPicture || '',
     type: 'profile-image',
@@ -60,7 +59,6 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
       .slice(0, 14); // Limitar a 8 resultados
   }, [searchValue, searchRoutes]); // Limitar a 14 resultados
 
-  // Callbacks para TopBar
   const toggleIsUserMenuOpen = useCallback(() => setIsUserMenuOpen((prev) => !prev), []);
 
   const handleSearchResultsDismiss = useCallback(() => {
@@ -70,14 +68,13 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchValue(value);
-    setIsSearchActive(value.length > 0); // Activar el buscador si el valor es mayor a 0
+    setIsSearchActive(value.length > 0);
   }, []);
 
   const handleNavigationToggle = useCallback(() => {
     onNavigationToggle?.();
   }, [onNavigationToggle]);
 
-  // Manejar selección de resultado de búsqueda
   const handleSearchResultSelect = useCallback(
     (path: string) => {
       router.push(path);
@@ -86,7 +83,6 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
     [router, handleSearchResultsDismiss]
   );
 
-  // User Menu - Con estado de carga e hidratación
   const userMenuMarkup =
     !isClient || loading || isPictureLoading ? (
       <div
@@ -97,7 +93,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
           padding: 'var(--p-space-200)',
         }}>
         <SkeletonThumbnail size="small" />
-        <div style={{ width: '120px' }}>
+        <div className="hidden sm:block" style={{ width: '120px' }}>
           <SkeletonBodyText lines={2} />
         </div>
       </div>
@@ -131,7 +127,6 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
       />
     );
 
-  // Search Field - Con estado de carga y hidratación
   const searchFieldMarkup = (
     <TopBar.SearchField
       onChange={!isClient || loading ? () => {} : handleSearchChange}
@@ -142,18 +137,31 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
     />
   );
 
-  // Search Results - Con estado de carga y hidratación
   const searchResultsMarkup =
     !isClient || loading ? (
-      <ActionList
-        items={[
-          {
-            content: 'Cargando rutas...',
-            disabled: true,
-            prefix: <SkeletonThumbnail size="small" />,
-          },
-        ]}
-      />
+      <div className="p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <SkeletonThumbnail size="small" />
+          <div className="flex-1">
+            <div className="h-4 bg-gray-200 rounded animate-pulse mb-1" />
+            <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4" />
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <SkeletonThumbnail size="small" />
+          <div className="flex-1">
+            <div className="h-4 bg-gray-200 rounded animate-pulse mb-1" />
+            <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3" />
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <SkeletonThumbnail size="small" />
+          <div className="flex-1">
+            <div className="h-4 bg-gray-200 rounded animate-pulse mb-1" />
+            <div className="h-3 bg-gray-200 rounded animate-pulse w-4/5" />
+          </div>
+        </div>
+      </div>
     ) : (
       <ActionList
         items={filteredRoutes.map((route) => ({
@@ -165,7 +173,6 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
       />
     );
 
-  // Secondary Menu con acciones personalizadas integradas
   const secondaryMenuMarkup = (
     <div className="flex items-center gap-0">
       {/* Acciones personalizadas integradas */}

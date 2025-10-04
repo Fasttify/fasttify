@@ -46,7 +46,7 @@ export function PageTableDesktop({
 
   const { selectedResources, allResourcesSelected, handleSelectionChange } = useIndexResourceState(pages);
 
-  const showActionsColumn = visibleColumns.actions && selectedResources.length > 0;
+  const showActionsColumn = visibleColumns.actions;
 
   const promotedBulkActions = [
     {
@@ -89,7 +89,7 @@ export function PageTableDesktop({
         )}
         <IndexTable.Cell>{pageType === 'policies' ? 'Política' : 'Estándar'}</IndexTable.Cell>
         <IndexTable.Cell>{formatDate(createdAt)}</IndexTable.Cell>
-        {showActionsColumn && (
+        {showActionsColumn && selectedResources.includes(id) && (
           <IndexTable.Cell>
             <ButtonGroup>
               <Button icon={EditIcon} onClick={() => handleEditPage(id)} accessibilityLabel="Editar página" />
@@ -124,10 +124,6 @@ export function PageTableDesktop({
   sortableColumns.push('pageType');
   headings.push({ title: 'Fecha de creación' });
   sortableColumns.push('createdAt');
-  if (showActionsColumn) {
-    headings.push({ title: 'Acciones' });
-    // No agregues nada a sortableColumns porque la columna de acciones no es ordenable
-  }
 
   const sortColumnIndex = sortableColumns.indexOf(sortField);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { BackgroundGradientAnimation } from '@/app/(setup-layout)/first-steps/components/BackgroundGradientAnimation';
+import { AnimatedBackground } from '@/app/(setup-layout)/my-store/components/AnimatedBackground';
 import { MultiStepLoader } from '@/app/(setup-layout)/first-steps/components/MultiStepLoader';
 import PersonalInfo from '@/app/(setup-layout)/first-steps/components/PersonalInfo';
 import StoreInfo from '@/app/(setup-layout)/first-steps/components/StoreInfo';
@@ -144,7 +144,12 @@ export default function FirstStepsPage() {
         />
       </div>
       <div className="absolute inset-0 z-0 sm:block hidden">
-        <BackgroundGradientAnimation />
+        <AnimatedBackground
+          minWidth="640px"
+          backgroundColor="rgba(8, 8, 8, 1)"
+          shapeColor1="rgba(255, 120, 0, 1)"
+          shapeColor2="rgba(255, 200, 50, 1)"
+        />
       </div>
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <motion.div

@@ -1,9 +1,12 @@
 import { Modal, BlockStack, Divider } from '@shopify/polaris';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import type { IOrder } from '@/app/store/hooks/data/useOrders';
-import { OrderHeaderOptimized } from './OrderHeaderOptimized';
-import { OrderSectionSkeleton, OrderItemsSkeleton } from './OrderSectionSkeleton';
-import { useOrderDataPreprocessing } from '../../hooks/useOrderDataPreprocessing';
+import { OrderHeaderOptimized } from '@/app/store/components/orders/components/details/OrderHeaderOptimized';
+import {
+  OrderSectionSkeleton,
+  OrderItemsSkeleton,
+} from '@/app/store/components/orders/components/details/OrderSectionSkeleton';
+import { useOrderDataPreprocessing } from '@/app/store/components/orders/hooks/useOrderDataPreprocessing';
 
 // Lazy load de componentes optimizados
 const OrderCustomerInfoOptimized = lazy(() =>
