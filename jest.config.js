@@ -1,11 +1,17 @@
 module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testMatch: [
+    '<rootDir>/test/**/*.{js,jsx,ts,tsx}',
+    '<rootDir>/test/**/__tests__/**/*.{js,jsx,ts,tsx}',
+    '<rootDir>/test/**/?(*.)+(spec|test).{js,jsx,ts,tsx}',
+  ],
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '<rootDir>/amplify/functions/.*/src/package.json',
     '<rootDir>/__mocks__/amplify_outputs.json.js',
+    '<rootDir>/test/unit/liquid-tags/setup.ts',
   ],
   moduleNameMapper: {
     '^@/liquid-forge/(.*)$': '<rootDir>/packages/liquid-forge/$1',
@@ -19,5 +25,11 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
   },
-  collectCoverageFrom: ['**/*.{js,jsx,ts,tsx}', '!**/*.d.ts', '!**/node_modules/**', '!**/.next/**', '!**/coverage/**'],
+  collectCoverageFrom: [
+    'test/**/*.{js,jsx,ts,tsx}',
+    '!**/*.d.ts',
+    '!**/node_modules/**',
+    '!**/.next/**',
+    '!**/coverage/**',
+  ],
 };
