@@ -23,9 +23,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.0
 
       - name: install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: run tests
-        run: npm run test -- --coverage
+        run: pnpm run test -- --coverage
