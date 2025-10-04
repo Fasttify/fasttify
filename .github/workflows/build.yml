@@ -16,6 +16,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -55,11 +60,6 @@ jobs:
         run: |
           echo 'CLOUDFLARE_API_TOKEN=dummy_cloudflare_api_token
           CLOUDFLARE_ZONE_ID=dummy_cloudflare_zone_id' > .env
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.18.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
