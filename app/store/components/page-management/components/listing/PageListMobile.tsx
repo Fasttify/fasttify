@@ -1,6 +1,6 @@
 import type { PageSummary } from '@/app/store/components/page-management/types/page-types';
 import { getStatusText, getStatusTone } from '@/app/store/components/page-management/utils/page-utils';
-import { Badge, BlockStack, Box, Button, ButtonGroup, Card, Text } from '@shopify/polaris';
+import { Badge, BlockStack, Box, Button, ButtonGroup, Card, Checkbox, Text } from '@shopify/polaris';
 import { DeleteIcon, EditIcon } from '@shopify/polaris-icons';
 
 interface PageListMobileProps {
@@ -8,9 +8,16 @@ interface PageListMobileProps {
   handleEditPage: (id: string) => void;
   handleDeletePage: (id: string) => void;
   selectedIds?: string[];
+  handleSelectPage?: (id: string) => void;
 }
 
-export function PageListMobile({ pages, handleEditPage, handleDeletePage, selectedIds }: PageListMobileProps) {
+export function PageListMobile({
+  pages,
+  handleEditPage,
+  handleDeletePage,
+  selectedIds = [],
+  handleSelectPage,
+}: PageListMobileProps) {
   return (
     <div className="sm:hidden">
       <Card>
@@ -24,12 +31,22 @@ export function PageListMobile({ pages, handleEditPage, handleDeletePage, select
                     justifyContent: 'space-between',
                     alignItems: 'center',
                   }}>
-                  <div>
-                    <Text as="h3" variant="bodyMd" fontWeight="semibold">
-                      {page.title}
-                    </Text>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {handleSelectPage && (
+                      <Checkbox
+                        label=""
+                        labelHidden
+                        checked={selectedIds.includes(page.id)}
+                        onChange={() => handleSelectPage(page.id)}
+                      />
+                    )}
+                    <div>
+                      <Text as="h3" variant="bodyMd" fontWeight="semibold">
+                        {page.title}
+                      </Text>
+                    </div>
                   </div>
-                  {(!selectedIds || selectedIds.includes(page.id)) && (
+                  {selectedIds.includes(page.id) && (
                     <ButtonGroup>
                       <Button
                         icon={EditIcon}

@@ -1,7 +1,7 @@
 import { BlockStack, InlineStack, Text, Card, Icon } from '@shopify/polaris';
 import { PersonIcon, LocationIcon, EmailIcon, PhoneIcon, GlobeIcon } from '@shopify/polaris-icons';
 import { memo } from 'react';
-import type { ProcessedCustomerData } from '../../types/util-type';
+import type { ProcessedCustomerData } from '@/app/store/components/orders/types/util-type';
 
 interface OrderCustomerInfoOptimizedProps {
   customerData: ProcessedCustomerData;
@@ -85,7 +85,9 @@ export const OrderCustomerInfoOptimized = memo(function OrderCustomerInfoOptimiz
                   {customerData.shipping.formattedAddress}
                 </Text>
                 <InlineStack gap="200" blockAlign="center">
-                  <Icon source={GlobeIcon} />
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Icon source={GlobeIcon} />
+                  </div>
                   <Text variant="bodySm" fontWeight="medium" as="span">
                     {customerData.shipping.countryName}
                   </Text>
@@ -112,7 +114,9 @@ export const OrderCustomerInfoOptimized = memo(function OrderCustomerInfoOptimiz
                   {customerData.billing.formattedAddress}
                 </Text>
                 <InlineStack gap="200" blockAlign="center">
-                  <Icon source={GlobeIcon} />
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Icon source={GlobeIcon} />
+                  </div>
                   <Text variant="bodySm" fontWeight="medium" as="span">
                     {customerData.billing.countryName}
                   </Text>

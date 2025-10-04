@@ -11,7 +11,7 @@ import {
   getItemTotalPrice,
   getProductSnapshot,
   formatCurrency,
-} from '../../utils/order-utils';
+} from '@/app/store/components/orders/utils/order-utils';
 
 interface OrderItemsProps {
   order: IOrder;

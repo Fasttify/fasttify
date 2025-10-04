@@ -4,7 +4,9 @@ export { default as CheckoutManager } from './pages/CheckoutManager';
 // Exportar componentes de lista
 export { CheckoutList } from './components/listing/CheckoutList';
 export { CheckoutTableDesktop } from './components/listing/CheckoutTableDesktop';
+export { CheckoutTableRow } from './components/listing/CheckoutTableRow';
 export { CheckoutCardMobile } from './components/listing/CheckoutCardMobile';
+export { CheckoutMobileCard } from './components/listing/CheckoutMobileCard';
 export { CheckoutFilters } from './components/listing/CheckoutFilters';
 export { CheckoutPagination } from './components/listing/CheckoutPagination';
 export { CheckoutEmptyState } from './components/listing/CheckoutEmptyState';
@@ -22,6 +24,7 @@ export { CheckoutActions } from './components/details/CheckoutActions';
 export { useCheckoutFilters } from './hooks/useCheckoutFilters';
 export { useCheckoutSelection } from './hooks/useCheckoutSelection';
 export { useCheckoutDetailsModal } from './hooks/useCheckoutDetailsModal';
+export { useCheckoutFormatting } from './hooks/useCheckoutFormatting';
 
 // Exportar tipos
 export type * from './types/checkout-types';

@@ -9,8 +9,8 @@ import {
   LocationIcon,
 } from '@shopify/polaris-icons';
 import { memo } from 'react';
-import type { ProcessedTimelineEvent } from '../../types/util-type';
-import { formatDate } from '../../utils/order-utils';
+import type { ProcessedTimelineEvent } from '@/app/store/components/orders/types/util-type';
+import { formatDate } from '@/app/store/components/orders/utils/order-utils';
 
 interface OrderTimelineOptimizedProps {
   timelineEvents: ProcessedTimelineEvent[];
@@ -73,7 +73,8 @@ export const OrderTimelineOptimized = memo(function OrderTimelineOptimized({
                 />
               )}
 
-              <InlineStack gap="300" blockAlign="start">
+              {/* Layout responsivo para el evento */}
+              <div className="flex gap-3 items-start">
                 {/* Icono del evento */}
                 <div
                   style={{
@@ -86,25 +87,44 @@ export const OrderTimelineOptimized = memo(function OrderTimelineOptimized({
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 1,
+                    flexShrink: 0,
                   }}>
                   <Icon source={getIconComponent(event.icon)} />
                 </div>
 
                 {/* Contenido del evento */}
-                <BlockStack gap="100">
-                  <InlineStack gap="200" blockAlign="center">
-                    <Text variant="bodyMd" fontWeight="medium" as="span">
-                      {event.title}
+                <div className="flex-1 min-w-0">
+                  {/* Desktop: título y badge en línea */}
+                  <div className="hidden sm:block">
+                    <InlineStack gap="200" blockAlign="center">
+                      <Text variant="bodyMd" fontWeight="medium" as="span">
+                        {event.title}
+                      </Text>
+                      <Badge tone={event.tone as any} size="small">
+                        {formatDate(event.date)}
+                      </Badge>
+                    </InlineStack>
+                  </div>
+
+                  {/* Móvil: título y badge apilados */}
+                  <div className="block sm:hidden">
+                    <BlockStack gap="100">
+                      <Text variant="bodyMd" fontWeight="medium" as="span">
+                        {event.title}
+                      </Text>
+                      <Badge tone={event.tone as any} size="small">
+                        {formatDate(event.date)}
+                      </Badge>
+                    </BlockStack>
+                  </div>
+
+                  <div style={{ marginTop: '4px' }}>
+                    <Text variant="bodySm" tone="subdued" as="span">
+                      {event.description}
                     </Text>
-                    <Badge tone={event.tone as any} size="small">
-                      {formatDate(event.date)}
-                    </Badge>
-                  </InlineStack>
-                  <Text variant="bodySm" tone="subdued" as="span">
-                    {event.description}
-                  </Text>
-                </BlockStack>
-              </InlineStack>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </BlockStack>

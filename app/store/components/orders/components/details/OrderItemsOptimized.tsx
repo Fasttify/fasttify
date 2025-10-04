@@ -1,13 +1,17 @@
 import { BlockStack, InlineStack, Text, Card, Thumbnail, Icon, Badge, Link } from '@shopify/polaris';
 import { PackageIcon, ImageIcon, ExternalIcon } from '@shopify/polaris-icons';
 import { memo } from 'react';
-import type { ProcessedOrderItem } from '../../types/util-type';
+import type { ProcessedOrderItem } from '@/app/store/components/orders/types/util-type';
 
 interface OrderItemsOptimizedProps {
   items: ProcessedOrderItem[];
+  orderCurrencyCode?: string;
 }
 
-export const OrderItemsOptimized = memo(function OrderItemsOptimized({ items }: OrderItemsOptimizedProps) {
+export const OrderItemsOptimized = memo(function OrderItemsOptimized({
+  items,
+  orderCurrencyCode: _orderCurrencyCode,
+}: OrderItemsOptimizedProps) {
   if (items.length === 0) {
     return (
       <Card>
@@ -110,60 +114,128 @@ export const OrderItemsOptimized = memo(function OrderItemsOptimized({ items }: 
                 </InlineStack>
 
                 {/* Información de precios y cantidad */}
-                <InlineStack gap="400" wrap={false} blockAlign="start">
-                  <BlockStack gap="100">
-                    <Text variant="bodySm" tone="subdued" as="span">
-                      Cantidad
-                    </Text>
-                    <Text variant="bodyMd" fontWeight="medium" as="span">
-                      {item.quantity}
-                    </Text>
-                  </BlockStack>
-
-                  <BlockStack gap="100">
-                    <Text variant="bodySm" tone="subdued" as="span">
-                      Precio unitario
-                    </Text>
-                    <Text variant="bodyMd" as="span">
-                      {item.formattedUnitPrice}
-                    </Text>
-                  </BlockStack>
-
-                  {/* Mostrar precio original si hay descuento */}
-                  {item.hasDiscount && item.productSnapshot?.compareAtPrice && (
+                <div className="hidden md:block">
+                  <InlineStack gap="400" wrap={false} blockAlign="start">
                     <BlockStack gap="100">
                       <Text variant="bodySm" tone="subdued" as="span">
-                        Precio original
+                        Cantidad
                       </Text>
-                      <div style={{ textDecoration: 'line-through' }}>
-                        <Text variant="bodySm" tone="subdued" as="span">
-                          {formatCurrency(item.productSnapshot.compareAtPrice, item.productSnapshot.currency || 'COP')}
-                        </Text>
-                      </div>
+                      <Text variant="bodyMd" fontWeight="medium" as="span">
+                        {item.quantity}
+                      </Text>
                     </BlockStack>
-                  )}
 
-                  <BlockStack gap="100">
-                    <Text variant="bodySm" tone="subdued" as="span">
-                      Total
-                    </Text>
-                    <Text variant="bodyMd" fontWeight="semibold" as="span">
-                      {item.formattedTotalPrice}
-                    </Text>
-                  </BlockStack>
-
-                  {/* Mostrar ahorro si hay descuento */}
-                  {item.hasDiscount && item.formattedSavings && (
                     <BlockStack gap="100">
-                      <Text variant="bodySm" tone="success" as="span">
-                        Ahorro
+                      <Text variant="bodySm" tone="subdued" as="span">
+                        Precio unitario
                       </Text>
-                      <Text variant="bodySm" tone="success" fontWeight="medium" as="span">
-                        -{item.formattedSavings}
+                      <Text variant="bodyMd" as="span">
+                        {item.formattedUnitPrice}
                       </Text>
                     </BlockStack>
-                  )}
-                </InlineStack>
+
+                    {/* Mostrar precio original si hay descuento */}
+                    {item.hasDiscount && item.productSnapshot?.compareAtPrice && (
+                      <BlockStack gap="100">
+                        <Text variant="bodySm" tone="subdued" as="span">
+                          Precio original
+                        </Text>
+                        <div style={{ textDecoration: 'line-through' }}>
+                          <Text variant="bodySm" tone="subdued" as="span">
+                            {item.formattedCompareAtPrice}
+                          </Text>
+                        </div>
+                      </BlockStack>
+                    )}
+
+                    <BlockStack gap="100">
+                      <Text variant="bodySm" tone="subdued" as="span">
+                        Total
+                      </Text>
+                      <Text variant="bodyMd" fontWeight="semibold" as="span">
+                        {item.formattedTotalPrice}
+                      </Text>
+                    </BlockStack>
+
+                    {/* Mostrar ahorro si hay descuento */}
+                    {item.hasDiscount && item.formattedSavings && (
+                      <BlockStack gap="100">
+                        <Text variant="bodySm" tone="success" as="span">
+                          Ahorro
+                        </Text>
+                        <Text variant="bodySm" tone="success" fontWeight="medium" as="span">
+                          -{item.formattedSavings}
+                        </Text>
+                      </BlockStack>
+                    )}
+                  </InlineStack>
+                </div>
+
+                {/* Layout móvil - Grid responsivo */}
+                <div className="block md:hidden">
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '12px',
+                      alignItems: 'start',
+                    }}>
+                    <BlockStack gap="100">
+                      <Text variant="bodySm" tone="subdued" as="span">
+                        Cantidad
+                      </Text>
+                      <Text variant="bodyMd" fontWeight="medium" as="span">
+                        {item.quantity}
+                      </Text>
+                    </BlockStack>
+
+                    <BlockStack gap="100">
+                      <Text variant="bodySm" tone="subdued" as="span">
+                        Precio unitario
+                      </Text>
+                      <Text variant="bodyMd" as="span">
+                        {item.formattedUnitPrice}
+                      </Text>
+                    </BlockStack>
+
+                    {/* Mostrar precio original si hay descuento */}
+                    {item.hasDiscount && item.productSnapshot?.compareAtPrice && (
+                      <BlockStack gap="100">
+                        <Text variant="bodySm" tone="subdued" as="span">
+                          Precio original
+                        </Text>
+                        <div style={{ textDecoration: 'line-through' }}>
+                          <Text variant="bodySm" tone="subdued" as="span">
+                            {item.formattedCompareAtPrice}
+                          </Text>
+                        </div>
+                      </BlockStack>
+                    )}
+
+                    <BlockStack gap="100">
+                      <Text variant="bodySm" tone="subdued" as="span">
+                        Total
+                      </Text>
+                      <Text variant="bodyMd" fontWeight="semibold" as="span">
+                        {item.formattedTotalPrice}
+                      </Text>
+                    </BlockStack>
+
+                    {/* Mostrar ahorro si hay descuento - ocupa toda la fila */}
+                    {item.hasDiscount && item.formattedSavings && (
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <BlockStack gap="100">
+                          <Text variant="bodySm" tone="success" as="span">
+                            Ahorro
+                          </Text>
+                          <Text variant="bodySm" tone="success" fontWeight="medium" as="span">
+                            -{item.formattedSavings}
+                          </Text>
+                        </BlockStack>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
                 {/* Información adicional del snapshot */}
                 {item.productSnapshot && (
@@ -183,17 +255,12 @@ export const OrderItemsOptimized = memo(function OrderItemsOptimized({ items }: 
                         )}
                         {item.productSnapshot.compareAtPrice && item.hasDiscount && (
                           <Text variant="bodySm" tone="subdued" as="span">
-                            Precio original:{' '}
-                            {formatCurrency(
-                              item.productSnapshot.compareAtPrice,
-                              item.productSnapshot.currency || 'COP'
-                            )}
+                            Precio original: {item.formattedCompareAtPrice}
                           </Text>
                         )}
                         {item.productSnapshot.price && (
                           <Text variant="bodySm" tone="subdued" as="span">
-                            Precio actual:{' '}
-                            {formatCurrency(item.productSnapshot.price, item.productSnapshot.currency || 'COP')}
+                            Precio actual: {item.formattedUnitPrice}
                           </Text>
                         )}
                       </InlineStack>
@@ -208,11 +275,3 @@ export const OrderItemsOptimized = memo(function OrderItemsOptimized({ items }: 
     </Card>
   );
 });
-
-// Helper function para formatear moneda (importada desde utils)
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: currency,
-  }).format(amount);
-}

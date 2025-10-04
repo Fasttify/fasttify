@@ -1,7 +1,7 @@
 import { BlockStack, InlineStack, Text, Card, Icon, SkeletonBodyText } from '@shopify/polaris';
 import { MoneyIcon, DeliveryIcon, DiscountIcon, TaxIcon } from '@shopify/polaris-icons';
 import { memo } from 'react';
-import type { ProcessedPricingData } from '../../types/util-type';
+import type { ProcessedPricingData } from '@/app/store/components/orders/types/util-type';
 
 interface OrderPricingOptimizedProps {
   pricingData: ProcessedPricingData;

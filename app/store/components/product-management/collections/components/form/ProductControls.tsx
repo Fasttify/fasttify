@@ -1,4 +1,4 @@
-import { Button, TextField, Select, InlineStack } from '@shopify/polaris';
+import { Button, TextField, Select, InlineStack, BlockStack } from '@shopify/polaris';
 import { SearchIcon } from '@shopify/polaris-icons';
 import type { SortOption } from '@/app/store/components/product-management/collections/types/collection-types';
 import { useCallback } from 'react';
@@ -29,8 +29,34 @@ export function ProductControls({
 
   return (
     <div style={{ padding: '12px' }}>
-      <InlineStack gap="300" align="center" blockAlign="center" wrap={false}>
-        <div style={{ flex: '1 1 auto' }}>
+      {/* Layout para desktop */}
+      <div className="hidden md:block">
+        <InlineStack gap="300" align="center" blockAlign="center" wrap={false}>
+          <div style={{ flex: '1 1 auto' }}>
+            <TextField
+              label="Buscar productos"
+              labelHidden
+              placeholder="Buscar productos"
+              value={searchTerm}
+              onChange={onSearchChange}
+              prefix={<SearchIcon />}
+              autoComplete="off"
+            />
+          </div>
+          <Select
+            label="Ordenar por"
+            labelInline
+            options={sortOptions}
+            value={sortOption}
+            onChange={handleSortChange}
+          />
+          <Button onClick={onOpenDialog}>Explorar</Button>
+        </InlineStack>
+      </div>
+
+      {/* Layout para móvil */}
+      <div className="block md:hidden">
+        <BlockStack gap="300">
           <TextField
             label="Buscar productos"
             labelHidden
@@ -40,10 +66,18 @@ export function ProductControls({
             prefix={<SearchIcon />}
             autoComplete="off"
           />
-        </div>
-        <Select label="Ordenar por" labelInline options={sortOptions} value={sortOption} onChange={handleSortChange} />
-        <Button onClick={onOpenDialog}>Explorar</Button>
-      </InlineStack>
+          <InlineStack gap="200" align="space-between" blockAlign="end">
+            <div style={{ flex: '1' }}>
+              <Select label="Ordenar por" options={sortOptions} value={sortOption} onChange={handleSortChange} />
+            </div>
+            <div style={{ flex: '0 0 auto' }}>
+              <Button variant="primary" size="large" onClick={onOpenDialog}>
+                Explorar
+              </Button>
+            </div>
+          </InlineStack>
+        </BlockStack>
+      </div>
     </div>
   );
 }

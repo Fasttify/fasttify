@@ -12,6 +12,7 @@ export interface ProcessedOrderItem {
   formattedUnitPrice: string;
   formattedTotalPrice: string;
   formattedSavings?: string;
+  formattedCompareAtPrice: string;
   hasDiscount: boolean;
   selectedAttributes: Record<string, any>;
   variantTitle?: string;
