@@ -19,13 +19,28 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.0
+
       - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
       - name: install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+
+      - name: debug test files
+        run: |
+          echo "=== Test files found ==="
+          find test -name "*.test.*" -type f
+          echo "=== Jest config ==="
+          cat jest.config.js
+          echo "=== Running Jest with debug ==="
+          pnpm exec jest --listTests
 
       - name: run tests
-        run: npm run test -- --coverage
+        run: pnpm exec jest --coverage

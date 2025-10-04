@@ -3,14 +3,16 @@ backend:
   phases:
     build:
       commands:
-        - npm ci --cache .npm --prefer-offline
+        - corepack enable
+        - pnpm install --frozen-lockfile
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
     build:
       commands:
+        - corepack enable
         - env | grep -e BUCKET_NAME -e CLOUDFRONT_DOMAIN_NAME -e APP_URL -e APP_ENV -e REGION_BUCKET -e CLOUDFRONT_DISTRIBUTION_ID -e CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID -e ANALYTICS_WEBHOOK_JWT_SECRET -e JWT_SECRET -e LAMBDA_EMAIL_BULK -e CLOUDFRONT_KEY_PAIR_ID -e CLOUDFRONT_PRIVATE_KEY >> .env.production
-        - npm run build
+        - pnpm run build
   artifacts:
     baseDirectory: .next
     files:
@@ -19,5 +21,5 @@ frontend:
     paths:
       - .amplify/**/*
       - .next/cache/**/*
-      - .npm/**/*
+      - .pnpm-store/**/*
       - node_modules/**/*
