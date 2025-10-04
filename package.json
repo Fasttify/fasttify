@@ -3,10 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "packages/liquid-forge",
-    "packages/orders-app",
-    "packages/theme-editor",
-    "packages/tenant-domains"
+    "packages/*"
   ],
   "scripts": {
     "dev": "next dev --turbopack",
