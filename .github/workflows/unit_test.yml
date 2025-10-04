@@ -43,4 +43,4 @@ jobs:
           pnpm exec jest --listTests
 
       - name: run tests
-        run: pnpm exec jest test --coverage --passWithNoTests
+        run: pnpm exec jest test --coverage
