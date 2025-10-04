@@ -5,6 +5,7 @@
   "workspaces": [
     "packages/*"
   ],
+  "packageManager": "pnpm@10.18.0",
   "engines": {
     "node": ">=20.18.3",
     "pnpm": ">=10.18.0"
