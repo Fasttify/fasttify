@@ -1,0 +1,12 @@
+{
+  "name": "lambda-edge-host-rewriter",
+  "version": "1.0.0",
+  "description": "Lambda@Edge function to rewrite host headers for CloudFront",
+  "main": "lambda-edge-host-rewriter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["lambda", "edge", "cloudfront", "host", "rewrite"],
+  "author": " Fasttify Team",
+  "license": "ISC"
+}

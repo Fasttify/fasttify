@@ -53,7 +53,7 @@ func Handler(ctx context.Context, event CloudFrontEvent) (interface{}, error) {
 	}{
 		{
 			Key:   "Host",
-			Value: "fasttify.com",
+			Value: "main.d1wc36cp4amanq.amplifyapp.com",
 		},
 	}
 
