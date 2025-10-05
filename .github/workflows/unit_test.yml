@@ -23,9 +23,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: install dependencies
         run: npm ci
+
+      - name: debug test files
+        run: |
+          echo "=== Test files found ==="
+          find test -name "*.test.*" -type f
+          echo "=== Jest config ==="
+          cat jest.config.js
+          echo "=== Running Jest with debug ==="
+          npx jest --listTests
 
       - name: run tests
         run: npm run test -- --coverage
