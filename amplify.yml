@@ -7,6 +7,9 @@ backend:
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
         - npm install -g pnpm@10.18.0
         - echo "node-linker=hoisted" > .npmrc
+        - echo "auto-install-peers=true" >> .npmrc
+        - echo "strict-peer-dependencies=false" >> .npmrc
+        - rm -rf node_modules
         - pnpm install --frozen-lockfile
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 
@@ -18,6 +21,9 @@ frontend:
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
         - npm install -g pnpm@10.18.0
         - echo "node-linker=hoisted" > .npmrc
+        - echo "auto-install-peers=true" >> .npmrc
+        - echo "strict-peer-dependencies=false" >> .npmrc
+        - rm -rf node_modules
         - env | grep -e BUCKET_NAME >> .env.production
         - env | grep -e CLOUDFRONT_DOMAIN_NAME >> .env.production
         - env | grep -e APP_URL >> .env.production
