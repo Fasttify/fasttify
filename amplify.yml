@@ -4,7 +4,7 @@ backend:
     build:
       commands:
         # Set heap size to 7000 MB for Standard instance
-        - export NODE_OPTIONS='--max-old-space-size=7000'
+        - export NODE_OPTIONS='--max-old-space-size=14000'
         # Check heap size memory limit
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
         - npm install -g pnpm@10.18.0
@@ -15,7 +15,7 @@ frontend:
     preBuild:
       commands:
         # Set heap size to 7000 MB for Standard instance
-        - export NODE_OPTIONS='--max-old-space-size=7000'
+        - export NODE_OPTIONS='--max-old-space-size=14000'
         # Check heap size memory limit
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
         - npm install -g pnpm@10.18.0
@@ -28,3 +28,9 @@ frontend:
     baseDirectory: .next
     files:
       - '**/*'
+  cache:
+    paths:
+      - .amplify/**/*
+      - .next/cache/**/*
+      - .pnpm-store/**/*
+      - node_modules/**/*
