@@ -4,11 +4,10 @@ backend:
     build:
       commands:
         # Set heap size to 7000 MB for Standard instance
-        - export NODE_OPTIONS='--max-old-space-size=7000 --max-semi-space-size=512 --expose-gc'
+        - export NODE_OPTIONS='--max-old-space-size=7000 --expose-gc'
         # Check heap size memory limit
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
-        - npm install -g pnpm@10.18.0
-        - pnpm install --frozen-lockfile
+        - npm ci --cache .npm --prefer-offline
         - node -e "if (global.gc) global.gc(); console.log('Memory cleaned before build')"
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
@@ -16,16 +15,15 @@ frontend:
     preBuild:
       commands:
         # Set heap size to 7000 MB for Standard instance
-        - export NODE_OPTIONS='--max-old-space-size=7000 --max-semi-space-size=512 --expose-gc'
+        - export NODE_OPTIONS='--max-old-space-size=7000 --expose-gc'
         # Check heap size memory limit
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
-        - npm install -g pnpm@10.18.0
         - env | grep -e BUCKET_NAME -e CLOUDFRONT_DOMAIN_NAME -e APP_URL -e APP_ENV -e REGION_BUCKET -e CLOUDFRONT_DISTRIBUTION_ID -e CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID -e ANALYTICS_WEBHOOK_JWT_SECRET -e JWT_SECRET -e LAMBDA_EMAIL_BULK -e CLOUDFRONT_KEY_PAIR_ID -e CLOUDFRONT_PRIVATE_KEY >> .env.production
-        - pnpm install --frozen-lockfile
+        - npm ci --cache .npm --prefer-offline
         - node -e "if (global.gc) global.gc(); console.log('Memory cleaned before build')"
     build:
       commands:
-        - pnpm run build
+        - npm run build
   artifacts:
     baseDirectory: .next
     files:
@@ -33,6 +31,6 @@ frontend:
   cache:
     paths:
       - .amplify/**/*
+      - .npm/**/*
       - .next/cache/**/*
-      - .pnpm-store/**/*
       - node_modules/**/*
