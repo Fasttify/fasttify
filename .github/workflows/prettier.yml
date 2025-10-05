@@ -21,22 +21,17 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.18.0
-
       - name: Configure Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "npm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Run Prettier
-        run: pnpm exec prettier --write .
+        run: npx prettier --write .
 
       - name: Check formatting
         run: |
@@ -45,7 +40,7 @@ jobs:
             echo "✅ There are no format changes. Everything is clean!"
             exit 0
           else
-            echo "❌ Code formatting issues found. Please run 'pnpm exec prettier --write .' locally and commit the changes."
+            echo "❌ Code formatting issues found. Please run 'npx prettier --write .' locally and commit the changes."
             git diff --name-only
             exit 1
           fi
