@@ -3,8 +3,8 @@ backend:
   phases:
     build:
       commands:
-        # Set heap size to 6000 MB for Standard instance
-        - export NODE_OPTIONS='--max-old-space-size=6000'
+        # Set heap size to 7000 MB for Standard instance
+        - export NODE_OPTIONS='--max-old-space-size=7000'
         # Check heap size memory limit
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
         - npm install -g pnpm@10.18.0
@@ -14,8 +14,8 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Set heap size to 6000 MB for Standard instance
-        - export NODE_OPTIONS='--max-old-space-size=6000'
+        # Set heap size to 7000 MB for Standard instance
+        - export NODE_OPTIONS='--max-old-space-size=7000'
         # Check heap size memory limit
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
         - npm install -g pnpm@10.18.0
