@@ -1,4 +1,4 @@
-const handler = async (event) => {
+exports.handler = async (event) => {
   const request = event.Records[0].cf.request;
   const headers = request.headers;
 
@@ -18,5 +18,3 @@ const handler = async (event) => {
 
   return request;
 };
-
-module.exports = { handler };
