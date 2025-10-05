@@ -33,14 +33,18 @@ jobs:
       - name: Run Prettier
         run: npx prettier --write .
 
-      - name: Check formatting
+      - name: Create commit and push if there are changes
         run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
           # Check if there are changes in the working directory after Prettier
           if git diff --quiet; then
             echo "✅ There are no format changes. Everything is clean!"
             exit 0
-          else
-            echo "❌ Code formatting issues found. Please run 'npx prettier --write .' locally and commit the changes."
-            git diff --name-only
-            exit 1
           fi
+
+          echo "🎨 There are changes in the format. Creating commit..."
+          git add .
+          git commit -m "style: ✨ Format code with Prettier" -m "Automatic code formatting."
+          git push
