@@ -115,6 +115,10 @@
     "zod": "^3.25.64",
     "zustand": "^5.0.6"
   },
+  "overrides": {
+    "@aws-sdk/types": "^3.821.0",
+    "@aws-amplify/graphql-api-construct": "^1.20.3"
+  },
   "devDependencies": {
     "@aws-amplify/backend": "^1.16.1",
     "@aws-amplify/backend-cli": "^1.8.0",
