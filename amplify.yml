@@ -28,9 +28,3 @@ frontend:
     baseDirectory: .next
     files:
       - '**/*'
-  cache:
-    paths:
-      - .amplify/**/*
-      - .next/cache/**/*
-      - .pnpm-store/**/*
-      - node_modules/**/*
