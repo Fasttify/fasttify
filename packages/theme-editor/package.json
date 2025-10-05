@@ -21,7 +21,8 @@
   "devDependencies": {
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "@tanstack/react-query": "^5.82.0"
   },
   "keywords": ["theme", "editor", "monaco", "liquid", "fasttify"],
   "author": "Fasttify Team",
