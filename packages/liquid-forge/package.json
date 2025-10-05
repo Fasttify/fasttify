@@ -16,10 +16,7 @@
   "dependencies": {
     "browserslist": "^4.26.3",
     "chokidar": "^4.0.3",
-    "dotenv": "^17.2.0",
-    "jszip": "^3.10.1",
-    "liquidjs": "^10.21.1",
-    "uuid": "^11.1.0"
+    "jszip": "^3.10.1"
   },
   "devDependencies": {
     "@types/cssnano": "^5.0.0",
@@ -31,10 +28,13 @@
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
+    "dotenv": "^17.2.0",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "@aws-sdk/lib-storage": "^3.903.0",
     "@aws-sdk/client-lambda": "^3.901.0",
-    "@aws-sdk/client-s3": "^3.844.0"
+    "@aws-sdk/client-s3": "^3.844.0",
+    "uuid": "^11.1.0",
+    "liquidjs": "^10.21.1"
   }
 }

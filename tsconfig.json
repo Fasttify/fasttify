@@ -19,7 +19,8 @@
     ],
     "baseUrl": ".",
     "incremental": true,
-    "noEmit": true
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": false
   },
   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
   "exclude": [

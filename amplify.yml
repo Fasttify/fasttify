@@ -3,14 +3,38 @@ backend:
   phases:
     build:
       commands:
-        - npm ci --cache .npm --prefer-offline
+        - export NODE_OPTIONS='--max-old-space-size=7000'
+        - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
+        - npm install -g pnpm@10.18.0
+        - echo "node-linker=hoisted" > .npmrc
+        - pnpm install --frozen-lockfile
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+
 frontend:
   phases:
+    preBuild:
+      commands:
+        - export NODE_OPTIONS='--max-old-space-size=7000'
+        - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
+        - npm install -g pnpm@10.18.0
+        - echo "node-linker=hoisted" > .npmrc
+        - env | grep -e BUCKET_NAME >> .env.production
+        - env | grep -e CLOUDFRONT_DOMAIN_NAME >> .env.production
+        - env | grep -e APP_URL >> .env.production
+        - env | grep -e APP_ENV >> .env.production
+        - env | grep -e REGION_BUCKET >> .env.production
+        - env | grep -e CLOUDFRONT_DISTRIBUTION_ID >> .env.production
+        - env | grep -e CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID >> .env.production
+        - env | grep -e ANALYTICS_WEBHOOK_JWT_SECRET >> .env.production
+        - env | grep -e JWT_SECRET >> .env.production
+        - env | grep -e LAMBDA_EMAIL_BULK >> .env.production
+        - env | grep -e CLOUDFRONT_KEY_PAIR_ID >> .env.production
+        - env | grep -e CLOUDFRONT_PRIVATE_KEY >> .env.production
+        - pnpm install --frozen-lockfile
     build:
       commands:
-        - env | grep -e BUCKET_NAME -e CLOUDFRONT_DOMAIN_NAME -e APP_URL -e APP_ENV -e REGION_BUCKET -e CLOUDFRONT_DISTRIBUTION_ID -e CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID -e ANALYTICS_WEBHOOK_JWT_SECRET -e JWT_SECRET -e LAMBDA_EMAIL_BULK -e CLOUDFRONT_KEY_PAIR_ID -e CLOUDFRONT_PRIVATE_KEY >> .env.production
-        - npm run build
+        - rm -rf .next/cache
+        - pnpm run build
   artifacts:
     baseDirectory: .next
     files:
@@ -19,5 +43,5 @@ frontend:
     paths:
       - .amplify/**/*
       - .next/cache/**/*
-      - .npm/**/*
+      - ~/.pnpm-store/**/*
       - node_modules/**/*
