@@ -16,22 +16,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Cache dependencies and build
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
+            ~/.pnpm-store
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
-            ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}-
+            ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Create dummy amplify_outputs.json
         run: |
@@ -68,7 +72,7 @@ jobs:
           CLOUDFLARE_ZONE_ID=dummy_cloudflare_zone_id' > .env
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build project
-        run: npm run build
+        run: pnpm run build
