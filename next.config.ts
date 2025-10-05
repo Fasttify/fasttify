@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 
     // Configuración para desarrollo
-    unoptimized: process.env.APP_ENV === 'development',
+    unoptimized: process.env.NODE_ENV === 'development',
 
     // Configuración para imágenes locales según documentación oficial
     localPatterns: [
@@ -57,9 +57,6 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-  },
-  experimental: {
-    viewTransition: true,
   },
 };
 
