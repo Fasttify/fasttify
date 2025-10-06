@@ -43,6 +43,7 @@ export function FormPage() {
     selectedProducts,
 
     setTitle,
+    setSlug,
     setIsActive,
     handleAddProduct,
     handleRemoveProduct,
@@ -127,6 +128,7 @@ export function FormPage() {
                   selectedProducts={selectedProducts}
                   currentStoreCustomDomain={customDomain}
                   onTitleChange={setTitle}
+                  onSlugChange={setSlug}
                   onDescriptionChange={handleDescriptionChange}
                   onAddProduct={handleAddProduct}
                   onRemoveProduct={handleRemoveProduct}

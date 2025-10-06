@@ -66,7 +66,7 @@ class LiquidEngine {
       strictFilters: false,
       strictVariables: false,
       // Preservar formato en production
-      ...(process.env.APP_ENV === 'production' && {
+      ...(process.env.NODE_ENV === 'production' && {
         trimTagLeft: true,
         trimTagRight: false,
         trimOutputLeft: true,

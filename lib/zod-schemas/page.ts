@@ -26,11 +26,8 @@ export const createPageSchema = z.object({
   content: z.string().min(10, 'El contenido debe tener al menos 10 caracteres'),
   slug: z
     .string()
-    .min(3, 'El slug debe tener al menos 3 caracteres')
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*(\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/,
-      'El slug solo puede contener letras, números, guiones y barras (/) para anidar.'
-    ),
+    .regex(/^[a-z0-9-]*$/u, 'El slug solo puede contener letras minúsculas, números y guiones')
+    .optional(),
   status: z.enum(['published', 'draft']),
   isVisible: z.boolean(),
   metaTitle: z.string().max(60, 'El meta título no puede exceder los 60 caracteres').optional(),

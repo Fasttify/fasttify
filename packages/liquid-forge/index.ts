@@ -1,3 +1,4 @@
+export * from './services/core/cache';
 /*
  * Copyright 2025 Fasttify LLC
  *

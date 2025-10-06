@@ -29,39 +29,32 @@ export class ProductHandleManager {
       const productId = handleMap[handle];
       const product = await productQueryManager.queryProductById(productId);
 
-      if (product && product.storeId === storeId) {
+      // Validar que el producto corresponde realmente al handle solicitado
+      if (product && product.storeId === storeId && (product.slug === handle || (product as any).handle === handle)) {
         return { product, handleMap };
       }
+
+      // Autocorrección puntual del handle -> id
+      const allProducts = await productQueryManager.queryAllStoreProducts(storeId);
+      if (!allProducts || allProducts.length === 0) return null;
+      const fixed = this.selectBestProductForHandle(allProducts, handle);
+      if (!fixed) return null;
+      const updatedMap: ProductHandleMap = { ...(handleMap || {}) };
+      updatedMap[handle] = fixed.id;
+      productCacheManager.setCachedHandleMap(storeId, updatedMap);
+      return { product: fixed, handleMap: updatedMap };
     }
 
-    // Si no está en caché o no se encontró, crear nuevo mapa
+    // No hay en caché: construir determinísticamente y devolver coincidencia
     const allProducts = await productQueryManager.queryAllStoreProducts(storeId);
+    if (!allProducts || allProducts.length === 0) return null;
 
-    if (!allProducts || allProducts.length === 0) {
-      return null;
-    }
-
-    const newHandleMap: ProductHandleMap = {};
-    let targetProduct: ProductData | null = null;
-
-    for (const product of allProducts) {
-      // Usar el slug del producto si existe, sino generar uno basado en el nombre
-      const productHandle = product.slug || dataTransformer.createHandle(product.name);
-      newHandleMap[productHandle] = product.id;
-
-      if (productHandle === handle) {
-        targetProduct = product;
-      }
-    }
-
-    // Guardar en caché
+    const newHandleMap: ProductHandleMap = this.buildDeterministicHandleMap(allProducts);
     productCacheManager.setCachedHandleMap(storeId, newHandleMap);
 
-    if (!targetProduct) {
-      return null;
-    }
-
-    return { product: targetProduct, handleMap: newHandleMap };
+    const target = this.selectBestProductForHandle(allProducts, handle);
+    if (!target) return null;
+    return { product: target, handleMap: newHandleMap };
   }
 
   /**
@@ -74,17 +67,8 @@ export class ProductHandleManager {
       return {};
     }
 
-    const handleMap: ProductHandleMap = {};
-
-    for (const product of allProducts) {
-      // Usar el slug del producto si existe, sino generar uno basado en el nombre
-      const handle = product.slug || dataTransformer.createHandle(product.name);
-      handleMap[handle] = product.id;
-    }
-
-    // Guardar en caché
+    const handleMap: ProductHandleMap = this.buildDeterministicHandleMap(allProducts);
     productCacheManager.setCachedHandleMap(storeId, handleMap);
-
     return handleMap;
   }
 
@@ -93,6 +77,50 @@ export class ProductHandleManager {
    */
   public invalidateHandleMap(storeId: string): void {
     productCacheManager.invalidateStoreCache(storeId);
+  }
+
+  // Helpers
+  private computeHandle(p: ProductData): string {
+    return p.slug || dataTransformer.createHandle(p.name);
+  }
+
+  private getUpdatedAtMs(p: ProductData): number {
+    const ts = (p as any).updatedAt || (p as any).createdAt || 0;
+    const n = typeof ts === 'string' ? Date.parse(ts) : typeof ts === 'number' ? ts : 0;
+    return isNaN(n) ? 0 : n;
+  }
+
+  private pickPreferred(a: ProductData | null | undefined, b: ProductData, targetHandle: string): ProductData {
+    if (!a) return b;
+    const aExact = a.slug === targetHandle;
+    const bExact = b.slug === targetHandle;
+    if (aExact !== bExact) return bExact ? b : a;
+    const aActive = (a as any).isActive !== false;
+    const bActive = (b as any).isActive !== false;
+    if (aActive !== bActive) return bActive ? b : a;
+    const aTime = this.getUpdatedAtMs(a);
+    const bTime = this.getUpdatedAtMs(b);
+    return bTime >= aTime ? b : a;
+  }
+
+  private buildDeterministicHandleMap(allProducts: ProductData[]): ProductHandleMap {
+    const map: ProductHandleMap = {};
+    for (const p of allProducts) {
+      const h = this.computeHandle(p);
+      if (map[h]) {
+        const current = allProducts.find((x) => x.id === map[h]);
+        map[h] = this.pickPreferred(current, p, h).id;
+      } else {
+        map[h] = p.id;
+      }
+    }
+    return map;
+  }
+
+  private selectBestProductForHandle(products: ProductData[], handle: string): ProductData | null {
+    const candidates = products.filter((p) => this.computeHandle(p) === handle);
+    if (candidates.length === 0) return null;
+    return candidates.reduce((acc, curr) => this.pickPreferred(acc, curr, handle));
   }
 }
 

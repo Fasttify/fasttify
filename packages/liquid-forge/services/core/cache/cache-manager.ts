@@ -15,14 +15,7 @@
  */
 
 import { logger } from '@/liquid-forge/lib/logger';
-
-interface DataCache {
-  [key: string]: {
-    data: any;
-    timestamp: number;
-    ttl: number;
-  };
-}
+import NodeCache from 'node-cache';
 
 // Configuración de TTLs por categoría
 interface TTLConfig {
@@ -32,8 +25,9 @@ interface TTLConfig {
 
 export class CacheManager {
   private static instance: CacheManager;
-  private cache: DataCache = {};
+  private cache: NodeCache;
   private isDevelopment: boolean;
+  private devCacheEnabled: boolean;
 
   // Configuración de TTLs por categoría principal
   private readonly TTL_CONFIG: Record<string, TTLConfig> = {
@@ -72,10 +66,21 @@ export class CacheManager {
   };
 
   // TTL para desarrollo (muy corto para testing)
-  private readonly DEV_CACHE_TTL = 1000; // 1 segundo
+  private readonly DEV_CACHE_TTL = 30 * 60 * 1000;
 
   private constructor() {
     this.isDevelopment = process.env.APP_ENV === 'development';
+    // Permitir desactivar el caché en desarrollo para pruebas: DEV_CACHE_ENABLED=false
+    // Por defecto en desarrollo: habilitado (true)
+    const envFlag = process.env.DEV_CACHE_ENABLED;
+    this.devCacheEnabled = envFlag === undefined ? true : envFlag !== 'false';
+    // Usamos stdTTL 0 para definir TTL por entrada; limpieza automática cada 60s
+    this.cache = new NodeCache({ stdTTL: 0, checkperiod: 60, useClones: false });
+  }
+
+  private shouldUseCache(): boolean {
+    if (!this.isDevelopment) return true;
+    return this.devCacheEnabled;
   }
 
   public static getInstance(): CacheManager {
@@ -133,55 +138,39 @@ export class CacheManager {
    * Obtiene una entrada del caché si existe y no ha expirado
    */
   public getCached(key: string): any | null {
-    const entry = this.cache[key];
-    if (!entry) {
-      return null;
-    }
-
-    const now = Date.now();
-    if (now > entry.timestamp + entry.ttl) {
-      delete this.cache[key];
-      return null;
-    }
-
-    return entry.data;
+    if (!this.shouldUseCache()) return null;
+    const value = this.cache.get<any>(key);
+    return value === undefined ? null : value;
   }
 
   /**
    * Guarda una entrada en el caché
    */
   public setCached(key: string, data: any, ttl: number): void {
-    this.cache[key] = {
-      data,
-      timestamp: Date.now(),
-      ttl,
-    };
+    if (!this.shouldUseCache()) return;
+    // No cachear si el TTL es 0 o negativo (p. ej., carrito)
+    if (ttl <= 0) return;
+    this.cache.set(key, data, Math.max(1, Math.floor(ttl / 1000)));
   }
 
   /**
    * Invalida el caché para una tienda específica
    */
   public invalidateStoreCache(storeId: string): void {
-    Object.keys(this.cache).forEach((key) => {
-      if (key.includes(`_${storeId}_`)) {
-        delete this.cache[key];
-      }
-    });
+    const pattern = `_${storeId}_`;
+    const keys = this.cache.keys();
+    const toDelete = keys.filter((k: string) => k.includes(pattern));
+    if (toDelete.length) this.cache.del(toDelete);
   }
 
   /**
    * Invalida el caché para un producto específico
    */
   public invalidateProductCache(storeId: string, productId: string): void {
-    const keys = [`product_${storeId}_${productId}`, `products_${storeId}`, `featured_products_${storeId}`];
-
-    keys.forEach((key) => {
-      Object.keys(this.cache).forEach((cacheKey) => {
-        if (cacheKey.startsWith(key)) {
-          delete this.cache[cacheKey];
-        }
-      });
-    });
+    const prefixes = [`product_${storeId}_${productId}`, `products_${storeId}`, `featured_products_${storeId}`];
+    const keys = this.cache.keys();
+    const toDelete = keys.filter((k: string) => prefixes.some((p) => k.startsWith(p)));
+    if (toDelete.length) this.cache.del(toDelete);
   }
 
   /**
@@ -189,7 +178,7 @@ export class CacheManager {
    */
   public invalidateDomainCache(domain: string): void {
     const key = `domain_${domain}`;
-    delete this.cache[key];
+    this.cache.del(key);
   }
 
   /**
@@ -197,26 +186,23 @@ export class CacheManager {
    */
   public invalidateTemplateCache(templatePath: string): void {
     const key = `template_${templatePath}`;
-    delete this.cache[key];
+    this.cache.del(key);
   }
 
   /**
    * Limpia todo el caché
    */
   public clearCache(): void {
-    this.cache = {};
+    this.cache.flushAll();
   }
 
   /**
    * Limpia entradas expiradas del caché
    */
   public cleanExpiredCache(): void {
-    const now = Date.now();
-    Object.keys(this.cache).forEach((key) => {
-      const entry = this.cache[key];
-      if (now > entry.timestamp + entry.ttl) {
-        delete this.cache[key];
-      }
+    // Forzar chequeo de expiración accediendo a las claves; node-cache limpia con checkperiod
+    this.cache.keys().forEach((key: string) => {
+      void this.cache.get(key);
     });
   }
 
@@ -224,20 +210,18 @@ export class CacheManager {
    * Obtiene estadísticas del caché para debugging
    */
   public getCacheStats(): { total: number; expired: number; active: number } {
+    if (!this.shouldUseCache()) {
+      return { total: 0, expired: 0, active: 0 };
+    }
     const now = Date.now();
-    let total = 0;
+    const keys = this.cache.keys();
     let expired = 0;
-    let active = 0;
-
-    Object.values(this.cache).forEach((entry) => {
-      total++;
-      if (now > entry.timestamp + entry.ttl) {
-        expired++;
-      } else {
-        active++;
-      }
-    });
-
+    for (const key of keys as string[]) {
+      const ttl = this.cache.getTtl(key);
+      if (typeof ttl === 'number' && ttl <= now) expired++;
+    }
+    const total = keys.length;
+    const active = Math.max(0, total - expired);
     return { total, expired, active };
   }
 
@@ -245,14 +229,37 @@ export class CacheManager {
    * Elimina todas las claves que comiencen con un prefijo dado
    */
   public deleteByPrefix(prefix: string): number {
-    let count = 0;
-    Object.keys(this.cache).forEach((key) => {
-      if (key.startsWith(prefix)) {
-        delete this.cache[key];
-        count++;
-      }
-    });
-    return count;
+    const keys = this.cache.keys();
+    const toDelete = keys.filter((k: string) => k.startsWith(prefix));
+    if (!toDelete.length) return 0;
+    const deleted = this.cache.del(toDelete);
+    return Array.isArray(deleted) ? deleted.length : Number(deleted);
+  }
+
+  /**
+   * Elimina una clave específica (compatibilidad con servicios existentes)
+   */
+  public deleteKey(key: string): void {
+    this.cache.del(key);
+  }
+
+  /**
+   * Controles de caché en desarrollo
+   */
+  public setDevCacheEnabled(enabled: boolean): void {
+    this.devCacheEnabled = enabled;
+  }
+
+  public enableDevCache(): void {
+    this.setDevCacheEnabled(true);
+  }
+
+  public disableDevCache(): void {
+    this.setDevCacheEnabled(false);
+  }
+
+  public isDevCacheEnabled(): boolean {
+    return this.devCacheEnabled;
   }
 }
 

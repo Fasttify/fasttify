@@ -5,6 +5,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
 import type { IProduct, ProductCreateInput, ProductUpdateInput } from '../types';
 import { useProductCacheUtils } from '../utils';
 import { generateProductSlug } from '@/lib/utils/slug';
+import { ensureUniqueSlug } from '@/app/store/hooks/data/useProducts/utils/slugUnique';
 import { client } from '@/lib/amplify-client';
 
 /**
@@ -26,6 +27,11 @@ export const useProductMutations = (storeId: string | undefined) => {
       let slug = productData.slug;
       if (!slug && productData.name) {
         slug = generateProductSlug(productData.name);
+      }
+
+      // Asegurar unicidad estilo Shopify
+      if (storeId && slug) {
+        slug = await ensureUniqueSlug(storeId, slug);
       }
 
       const dataToSend = withLowercaseName({
@@ -60,8 +66,18 @@ export const useProductMutations = (storeId: string | undefined) => {
    */
   const updateProductMutation = useMutation({
     mutationFn: async (productData: ProductUpdateInput) => {
+      // Si cambió name/slug, recalcular slug único excluyendo el propio id
+      let nextSlug = productData.slug;
+      if (!nextSlug && (productData as any).name) {
+        nextSlug = generateProductSlug((productData as any).name as string);
+      }
+      if (storeId && nextSlug) {
+        nextSlug = await ensureUniqueSlug(storeId, nextSlug, productData.id);
+      }
+
       const dataToSend = withLowercaseName({
         ...productData,
+        ...(nextSlug ? { slug: nextSlug } : {}),
         attributes: normalizeAttributesField(
           productData.attributes as string | { name?: string; values?: string[] }[] | undefined
         ),
@@ -154,7 +170,8 @@ export const useProductMutations = (storeId: string | undefined) => {
 
       // Generar slug para el producto duplicado
       const duplicatedName = `${originalProduct.name} (Copia)`;
-      const duplicatedSlug = generateProductSlug(duplicatedName);
+      let duplicatedSlug = generateProductSlug(duplicatedName);
+      duplicatedSlug = await ensureUniqueSlug(originalProduct.storeId, duplicatedSlug);
 
       // Crear una copia del producto sin campos que se generan automáticamente
       const duplicatedProduct = withLowercaseName({

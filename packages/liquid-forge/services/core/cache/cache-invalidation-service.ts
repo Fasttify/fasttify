@@ -17,13 +17,18 @@
 import { logger } from '@/liquid-forge/lib/logger';
 import {
   cacheManager,
-  getCollectionCacheKey,
-  getCollectionsCacheKey,
-  getFeaturedProductsCacheKey,
+  getCollectionPrefix,
+  getCollectionsPrefix,
+  getFeaturedProductsPrefix,
+  getProductHandleMapCacheKey,
+  getDomainCacheKey,
   getPageCacheKey,
   getPagesCacheKey,
+  getPagesPrefix,
   getProductCacheKey,
-  getProductsCacheKey,
+  getProductsPrefix,
+  getNavigationPrefix,
+  getNavigationMenuPrefix,
 } from '@/liquid-forge/services/core/cache';
 
 /**
@@ -170,25 +175,64 @@ export class CacheInvalidationService {
    * Invalida caché por patrones de claves
    */
   private invalidateByPatterns(patterns: string[], storeId: string, entityId?: string): void {
-    let totalInvalidated = 0;
-    const usedPrefixes: string[] = [];
-
     for (const pattern of patterns) {
-      let prefix = pattern;
-      if (pattern.includes('*')) {
-        const wildcardValues = [storeId, entityId || ''];
-        let wildcardIndex = 0;
-        prefix = pattern.replace(/\*/g, () => {
-          const val = wildcardValues[wildcardIndex] !== undefined ? wildcardValues[wildcardIndex] : '';
-          wildcardIndex++;
-          return val + '_';
-        });
-        prefix = prefix.replace(/__+/g, '_');
-        prefix = prefix.replace(/_+$/, '_');
+      // Mapear patrones a prefijos concretos usando helpers
+      switch (pattern) {
+        case 'products_':
+          cacheManager.deleteByPrefix(getProductsPrefix(storeId));
+          break;
+        case 'featured_products_':
+          cacheManager.deleteByPrefix(getFeaturedProductsPrefix(storeId));
+          break;
+        case 'collections_':
+          cacheManager.deleteByPrefix(getCollectionsPrefix(storeId));
+          break;
+        case 'collection_':
+          if (entityId) {
+            cacheManager.deleteByPrefix(getCollectionPrefix(storeId, entityId));
+          } else {
+            // Si no hay entityId, limpiar todas las colecciones de la tienda
+            cacheManager.deleteByPrefix(`collection_${storeId}_`);
+          }
+          break;
+        case 'pages_':
+          cacheManager.deleteKey(getPagesCacheKey(storeId));
+          break;
+        case 'page_':
+          if (entityId) {
+            cacheManager.deleteKey(getPageCacheKey(storeId, entityId));
+          } else {
+            cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+          }
+          break;
+        case 'navigation_':
+          // Invalidar claves de navegación usando helpers
+          cacheManager.deleteByPrefix(getNavigationPrefix(storeId));
+          cacheManager.deleteByPrefix(getNavigationMenuPrefix(storeId));
+          // Cambios en navegación impactan páginas renderizadas
+          cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+          break;
+        case 'template_':
+          cacheManager.deleteByPrefix(`template_${storeId}_`);
+          // Templates actualizados impactan páginas renderizadas
+          cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+          break;
+        case 'compiled_template_':
+          cacheManager.deleteByPrefix(`compiled_template_${storeId}_`);
+          // Templates compilados también deben invalidar HTML
+          cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+          break;
+        case 'search_products_':
+          // Búsquedas por tienda con prefijo conocido
+          cacheManager.deleteByPrefix(`search_products_${storeId}_`);
+          break;
+        case 'domain_':
+          // No borrar por prefijo global; la invalidación específica se maneja abajo
+          break;
+        default:
+          // Prefijo literal como fallback
+          cacheManager.deleteByPrefix(pattern);
       }
-      const deleted = cacheManager.deleteByPrefix(prefix);
-      totalInvalidated += deleted;
-      usedPrefixes.push(prefix);
     }
   }
 
@@ -196,37 +240,39 @@ export class CacheInvalidationService {
    * Invalida claves específicas basadas en el tipo de cambio
    */
   private invalidateSpecificKeys(changeType: ChangeType, storeId: string, entityId: string): void {
-    const specificKeys: string[] = [];
-
     switch (changeType) {
       case 'product_updated':
       case 'product_deleted':
-        specificKeys.push(
-          getProductCacheKey(storeId, entityId),
-          getProductsCacheKey(storeId, undefined as any, undefined),
-          getFeaturedProductsCacheKey(storeId, undefined as any)
-        );
+        cacheManager.deleteKey(getProductCacheKey(storeId, entityId));
+        cacheManager.deleteByPrefix(getProductsPrefix(storeId));
+        cacheManager.deleteByPrefix(getFeaturedProductsPrefix(storeId));
+        // Invalidar HTML de páginas de producto
+        cacheManager.deleteByPrefix(`page_${storeId}_product|`);
+        // Invalidar HandleMap para forzar recálculo en próxima lectura
+        cacheManager.deleteKey(getProductHandleMapCacheKey(storeId));
         break;
 
       case 'collection_updated':
       case 'collection_deleted':
-        specificKeys.push(
-          getCollectionCacheKey(storeId, entityId),
-          getCollectionsCacheKey(storeId, undefined as any, undefined)
-        );
+        cacheManager.deleteByPrefix(getCollectionPrefix(storeId, entityId));
+        cacheManager.deleteByPrefix(getCollectionsPrefix(storeId));
+        // Invalidar HTML de páginas de colección
+        cacheManager.deleteByPrefix(`page_${storeId}_collection|`);
         break;
 
       case 'page_updated':
       case 'page_deleted':
-        specificKeys.push(getPageCacheKey(storeId, entityId), getPagesCacheKey(storeId));
+        cacheManager.deleteKey(getPageCacheKey(storeId, entityId));
+        cacheManager.deleteKey(getPagesCacheKey(storeId));
+        break;
+
+      case 'domain_updated':
+        // entityId puede no ser un dominio; si se provee dominio concreto, eliminar esa clave
+        if (entityId) {
+          cacheManager.deleteKey(getDomainCacheKey(entityId));
+        }
         break;
     }
-
-    specificKeys.forEach((key) => {
-      if (cacheManager['cache'][key]) {
-        delete cacheManager['cache'][key];
-      }
-    });
   }
 
   /**

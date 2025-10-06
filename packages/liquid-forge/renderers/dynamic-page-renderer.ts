@@ -23,7 +23,12 @@ import { liquidEngine } from '@/liquid-forge/liquid/engine';
 
 // Services
 import { pageConfig } from '@/liquid-forge/config/page-config';
-import { getPageCacheKey } from '@/liquid-forge/services/core/cache/cache-keys';
+// Clave y caché de HTML gestionados en utilidades dedicadas
+import {
+  getCachedPageRender,
+  makePageCacheKey,
+  setCachedPageRender,
+} from '@/liquid-forge/services/rendering/page-html-cache';
 import { domainResolver } from '@/liquid-forge/services/core/domain-resolver';
 import { errorRenderer } from '@/liquid-forge/services/errors/error-renderer';
 import { createTemplateError } from '@/liquid-forge/services/errors/error-utils';
@@ -77,7 +82,6 @@ export interface RenderingData {
  * Pipeline declarativo de pasos de renderizado
  */
 const renderingPipeline: RenderStep[] = [
-  resolveStoreStep,
   initializeEngineStep,
   loadDataStep,
   buildContextStep,
@@ -102,16 +106,46 @@ export class DynamicPageRenderer {
 
       let data: RenderingData = { domain, options, searchParams };
 
-      for (const step of renderingPipeline) {
+      // 1) Resolver tienda
+      data = await resolveStoreStep(data);
+
+      // 2) Ejecutar pasos hasta tener contexto completo para formar una clave específica
+      for (const step of [initializeEngineStep, loadDataStep, buildContextStep]) {
         data = await step(data);
       }
 
-      return {
+      // 3) Intentar HIT de caché con routeId derivado de options + context + params
+      const { cacheKey: earlyCacheKey, cached } = getCachedPageRender(
+        data.store!.storeId,
+        data.options,
+        data.searchParams,
+        data.context
+      );
+      if (earlyCacheKey && cached) {
+        return {
+          html: cached.html,
+          metadata: cached.metadata,
+          cacheKey: earlyCacheKey,
+          cacheTTL: pageConfig.getCacheTTL(options.pageType),
+        };
+      }
+
+      // 4) Continuar renderizado
+      for (const step of [renderContentStep, renderLayoutStep, generateMetadataStep]) {
+        data = await step(data);
+      }
+
+      const result = {
         html: data.html!,
         metadata: data.metadata!,
         cacheKey: data.cacheKey!,
         cacheTTL: pageConfig.getCacheTTL(options.pageType),
       };
+
+      // 5) Guardar en caché el resultado (html + metadata) con TTL de página
+      setCachedPageRender(result.cacheKey, { html: result.html, metadata: result.metadata }, options.pageType);
+
+      return result;
     } catch (error) {
       return this.handleRenderError(error, domain, options);
     }
@@ -166,7 +200,7 @@ async function renderLayoutStep(data: RenderingData): Promise<RenderingData> {
 async function generateMetadataStep(data: RenderingData): Promise<RenderingData> {
   const pageTitle = (data.context as any).page_title || (data.context as any).page?.title;
   const metadata = metadataGenerator.generateMetadata(data.store!, pageTitle);
-  const cacheKey = getPageCacheKey(data.store!.storeId, data.options.pageType);
+  const cacheKey = makePageCacheKey(data.store!.storeId, data.options, data.searchParams, data.context);
 
   return { ...data, metadata, cacheKey };
 }

@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { cacheManager, getPageCacheKey, getPagesCacheKey } from '@/liquid-forge/services/core/cache';
+import { cacheManager, getPageCacheKey, getPagesCacheKey, getPagesPrefix } from '@/liquid-forge/services/core/cache';
 import type { PageContext, PagesResponse } from './types/page-types';
 
 export class PageCacheManager {
@@ -50,16 +50,16 @@ export class PageCacheManager {
    * Invalida el caché de páginas para una tienda
    */
   public invalidateStoreCache(storeId: string): void {
-    const cacheKey = getPagesCacheKey(storeId);
-    cacheManager.invalidateTemplateCache(cacheKey);
+    // Eliminar listado de páginas y páginas individuales de la tienda
+    cacheManager.deleteKey(getPagesCacheKey(storeId));
+    cacheManager.deleteByPrefix(getPagesPrefix(storeId));
   }
 
   /**
    * Invalida el caché de una página específica
    */
   public invalidatePageCache(storeId: string, pageId: string): void {
-    const cacheKey = getPageCacheKey(storeId, pageId);
-    cacheManager.invalidateTemplateCache(cacheKey);
+    cacheManager.deleteKey(getPageCacheKey(storeId, pageId));
   }
 }
 
