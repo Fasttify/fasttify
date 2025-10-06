@@ -18,18 +18,22 @@
 import { generateClient } from 'aws-amplify/data';
 import type { FullSchema, StoreSchema } from '@/data-schema';
 
+// Alias de tipos explícitos para evitar tipos inferidos gigantes en la emisión
+export type FullClient = ReturnType<typeof generateClient<FullSchema>>;
+export type StoreClient = ReturnType<typeof generateClient<StoreSchema>>;
+
 // Cliente principal con el schema completo (incluye funciones de IA)
-export const client = generateClient<FullSchema>({
+export const client: FullClient = generateClient<FullSchema>({
   authMode: 'userPool',
 });
 
 // Cliente optimizado solo para operaciones de store (sin funciones de IA)
-export const storeClient = generateClient<StoreSchema>({
+export const storeClient: StoreClient = generateClient<StoreSchema>({
   authMode: 'userPool',
 });
 
 // Cliente para funciones de IA que requieren API key
-export const aiClient = generateClient<FullSchema>({
+export const aiClient: FullClient = generateClient<FullSchema>({
   authMode: 'apiKey',
 });
 

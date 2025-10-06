@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack
 import { getCurrentUser } from 'aws-amplify/auth';
 import { useCallback, useState } from 'react';
 import { storeClient, type StorePage } from '@/lib/amplify-client';
+import { ensureUniquePageSlug } from './utils/slugUnique';
 
 // Clave base para las consultas de páginas
 const PAGES_KEY = 'pages';
@@ -112,8 +113,15 @@ export const usePages = (storeId: string) => {
     return useMutation({
       mutationFn: async (pageInput: CreatePageInput) => {
         const { username } = await getCurrentUser();
-        const validatedInput = createPageSchema.parse(pageInput);
-        return performOperation(() => storeClient.models.Page.create({ ...validatedInput, owner: username }));
+        // Generar slug único si se envía slug o se puede derivar del título
+        const proposed = pageInput.slug || (pageInput.title ? generateSlug(pageInput.title) : '');
+        const finalSlug = proposed ? await ensureUniquePageSlug(pageInput.storeId, proposed) : proposed;
+        const ensuredSlug = finalSlug || generateSlug(pageInput.title);
+        const validatedInput = createPageSchema.parse({ ...pageInput, slug: ensuredSlug });
+        // Asegurar que slug sea string en el payload final para el modelo
+        return performOperation(() =>
+          storeClient.models.Page.create({ ...validatedInput, slug: ensuredSlug, owner: username })
+        );
       },
       onSuccess: async (_newPage) => {
         queryClient.invalidateQueries({ queryKey: [PAGES_KEY, 'list', storeId] });
@@ -127,13 +135,14 @@ export const usePages = (storeId: string) => {
   const useUpdatePage = () => {
     return useMutation({
       mutationFn: ({ id, data }: { id: string; data: UpdatePageInput }) => {
-        const validatedInput = updatePageSchema.parse(data);
-        return performOperation(() =>
-          storeClient.models.Page.update({
-            id,
-            ...validatedInput,
-          })
-        );
+        return performOperation(async () => {
+          let nextSlug = data.slug || (data.title ? generateSlug(data.title) : undefined);
+          if (nextSlug && (data as any)?.storeId) {
+            nextSlug = await ensureUniquePageSlug((data as any).storeId, nextSlug, id);
+          }
+          const validatedInput = updatePageSchema.parse({ ...data, ...(nextSlug ? { slug: nextSlug } : {}) });
+          return storeClient.models.Page.update({ id, ...validatedInput });
+        });
       },
       onSuccess: async (_data, variables) => {
         queryClient.invalidateQueries({ queryKey: [PAGES_KEY, variables.id] });

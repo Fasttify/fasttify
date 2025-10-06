@@ -10,6 +10,7 @@ interface CollectionContentProps {
   selectedProducts: IProduct[];
   currentStoreCustomDomain?: string;
   onTitleChange: (value: string) => void;
+  onSlugChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onAddProduct: (product: IProduct) => void;
   onRemoveProduct: (productId: string) => void;
@@ -22,6 +23,7 @@ export function CollectionContent({
   currentStoreCustomDomain,
   slug,
   onTitleChange,
+  onSlugChange,
   onDescriptionChange,
   onAddProduct,
   onRemoveProduct,
@@ -31,6 +33,13 @@ export function CollectionContent({
       <Card>
         <BlockStack gap="200">
           <TextField label="Título" value={title} onChange={onTitleChange} autoComplete="off" />
+          <TextField
+            label="Slug"
+            value={slug}
+            onChange={onSlugChange}
+            autoComplete="off"
+            helpText="URL única de la colección"
+          />
           <DescriptionEditor initialValue={description} onChange={onDescriptionChange} />
         </BlockStack>
       </Card>

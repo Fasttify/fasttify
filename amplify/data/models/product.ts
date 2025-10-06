@@ -61,7 +61,7 @@ export const productModel = a
         allow.publicApiKey().to(['read']),
       ]),
   })
-  .secondaryIndexes((index) => [index('storeId'), index('collectionId')])
+  .secondaryIndexes((index) => [index('storeId'), index('collectionId'), index('slug')])
   .authorization((allow) => [
     allow.ownerDefinedIn('owner').to(['update', 'delete', 'read', 'create']),
     allow.publicApiKey().to(['read']),

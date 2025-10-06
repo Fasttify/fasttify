@@ -4,6 +4,9 @@ import { IProduct } from '@/app/store/hooks/data/useProducts';
 import { routes } from '@/utils/client/routes';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ensureUniqueCollectionSlug } from '@/app/store/hooks/data/useCollection/utils/slugUnique';
+import { generateProductSlug } from '@/lib/utils/slug';
+import { createCollectionSchema, updateCollectionSchema } from '@/lib/zod-schemas/collection';
 
 export interface CollectionFormState {
   title: string;
@@ -57,9 +60,10 @@ export const useCollectionForm = ({
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // Estados para el formulario
-  const [title, setTitle] = useState('Página de inicio');
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [slug, setSlug] = useState('');
+  const [slug, setSlugState] = useState('');
+  const [_slugTouched, _setSlugTouched] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [imageUrl, setImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -95,7 +99,7 @@ export const useCollectionForm = ({
       // Establecer valores iniciales
       setTitle(title);
       setDescription(description);
-      setSlug(slug);
+      setSlugState(slug);
       setIsActive(isActive);
       setImageUrl(imageUrl);
 
@@ -193,15 +197,31 @@ export const useCollectionForm = ({
       return;
     }
 
+    // Validación temprana en UI para mejorar feedback
+    if (!title || !title.trim()) {
+      showToast('El título de la colección es requerido', true);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      // Slug único estilo Shopify para colecciones
+      let finalSlug = slug || (title ? generateProductSlug(title) : '');
+      if (finalSlug) {
+        finalSlug = await ensureUniqueCollectionSlug(
+          currentStore.storeId,
+          finalSlug,
+          isEditing ? collectionId : undefined
+        );
+      }
+
       const collectionData: CollectionInput = {
         storeId: currentStore.storeId,
         title,
         description,
         image: imageUrl,
-        slug: slug || title.toLowerCase().replace(/\s+/g, '-'),
+        slug: finalSlug,
         isActive,
         sortOrder: 0,
         owner: user.userId,
@@ -212,6 +232,20 @@ export const useCollectionForm = ({
       if (isEditing) {
         // Actualizar colección existente
         const { owner: _owner, ...dataWithoutOwner } = collectionData;
+        const updatePayload = { id: collectionId, ...dataWithoutOwner } as any;
+        // Validación UI con Zod antes de request
+        try {
+          updateCollectionSchema.parse(updatePayload);
+        } catch (ve: any) {
+          const issues: any[] = ve?.issues || [];
+          const message =
+            issues
+              .map((i) => i?.message)
+              .filter(Boolean)
+              .join(' \n') || 'Error de validación';
+          showToast(message, true);
+          return;
+        }
         savedCollection = await updateCollection.mutateAsync({
           id: collectionId,
           data: dataWithoutOwner,
@@ -238,6 +272,19 @@ export const useCollectionForm = ({
         }
       } else {
         // Crear nueva colección
+        // Validación UI con Zod antes de request
+        try {
+          createCollectionSchema.parse(collectionData as any);
+        } catch (ve: any) {
+          const issues: any[] = ve?.issues || [];
+          const message =
+            issues
+              .map((i) => i?.message)
+              .filter(Boolean)
+              .join(' \n') || 'Error de validación';
+          showToast(message, true);
+          return;
+        }
         savedCollection = await createCollection.mutateAsync(collectionData);
 
         // Añadir todos los productos seleccionados a la nueva colección
@@ -261,9 +308,22 @@ export const useCollectionForm = ({
 
       // Redirigir a la lista de colecciones
       await router.push(routes.store.products.collections(storeId));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving collection:', error);
-      showToast('Error al guardar la colección.', true);
+      // Mostrar errores detallados de Zod si aplica
+      const isZod = error?.name === 'ZodError' || Array.isArray(error?.issues);
+      if (isZod) {
+        const issues: any[] = error.issues || [];
+        const messages = issues.map((i) => i?.message).filter(Boolean);
+        const message = messages.length > 0 ? messages.join(' \n') : 'Error de validación';
+        showToast(message, true);
+      } else if (typeof error?.message === 'string') {
+        showToast(error.message, true);
+      } else {
+        showToast('Error al guardar la colección.', true);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -294,15 +354,15 @@ export const useCollectionForm = ({
     if (isEditing && collectionData) {
       setTitle(initialFormState.title);
       setDescription(initialFormState.description);
-      setSlug(initialFormState.slug);
+      setSlugState(initialFormState.slug);
       setIsActive(initialFormState.isActive);
       setImageUrl(initialFormState.imageUrl);
       setSelectedProducts(initialSelectedProducts);
     } else {
       // Para nueva colección, restablecer a valores por defecto
-      setTitle('Página de inicio');
+      setTitle('');
       setDescription('');
-      setSlug('');
+      setSlugState('');
       setIsActive(true);
       setImageUrl('');
       setSelectedProducts([]);
@@ -325,7 +385,10 @@ export const useCollectionForm = ({
     // Acciones
     setTitle,
     setDescription,
-    setSlug,
+    setSlug: (value: string) => {
+      _setSlugTouched(true);
+      setSlugState(value);
+    },
     setIsActive,
     setImageUrl,
     setIsSubmitting,

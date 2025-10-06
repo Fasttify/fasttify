@@ -19,7 +19,9 @@ import {
   cacheManager,
   getAssetCacheKey,
   getCompiledTemplateCacheKey,
+  getCompiledTemplatesPrefix,
   getTemplateCacheKey,
+  getTemplatesPrefix,
 } from '@/liquid-forge/services/core/cache';
 import type { TemplateCache, TemplateError } from '@/liquid-forge/types';
 import { getCdnUrlForKey } from '@/utils/server';
@@ -297,14 +299,15 @@ class TemplateLoader {
   }
 
   public invalidateStoreCache(storeId: string): void {
-    cacheManager.invalidateStoreCache(storeId);
+    // Invalidar solo claves relacionadas a plantillas y plantillas compiladas de esta tienda
+    cacheManager.deleteByPrefix(getTemplatesPrefix(storeId));
+    cacheManager.deleteByPrefix(getCompiledTemplatesPrefix(storeId));
   }
 
   public invalidateTemplateCache(storeId: string, templatePath: string): void {
-    // Invalidar tanto el cache de contenido raw como el compilado
-    // Usar TTL de 0 para invalidación inmediata
-    cacheManager.setCached(getTemplateCacheKey(storeId, templatePath), null, 0);
-    cacheManager.setCached(getCompiledTemplateCacheKey(storeId, templatePath), null, 0);
+    // Invalidar tanto el cache de contenido raw como el compilado eliminando las claves
+    cacheManager.deleteKey(getTemplateCacheKey(storeId, templatePath));
+    cacheManager.deleteKey(getCompiledTemplateCacheKey(storeId, templatePath));
   }
 
   public clearCache(): void {

@@ -10,7 +10,13 @@
  * limitations under the License.
  */
 
-import { cacheManager, getNavigationCacheKey, getNavigationMenuCacheKey } from '@/liquid-forge/services/core/cache';
+import {
+  cacheManager,
+  getNavigationCacheKey,
+  getNavigationMenuCacheKey,
+  getNavigationMenuPrefix,
+  getNavigationPrefix,
+} from '@/liquid-forge/services/core/cache';
 import type { NavigationMenusResponse, ProcessedNavigationMenu } from './types/navigation-types';
 
 export class NavigationCacheManager {
@@ -50,15 +56,16 @@ export class NavigationCacheManager {
    * Invalida el caché de menús de navegación para una tienda
    */
   public invalidateStoreCache(storeId: string): void {
-    cacheManager.invalidateStoreCache(storeId);
+    // Limitar invalidación a navegación
+    cacheManager.deleteByPrefix(getNavigationPrefix(storeId));
+    cacheManager.deleteByPrefix(getNavigationMenuPrefix(storeId));
   }
 
   /**
    * Invalida el caché de un menú específico
    */
   public invalidateMenuCache(storeId: string, handle: string): void {
-    const cacheKey = getNavigationMenuCacheKey(storeId, handle);
-    cacheManager.invalidateTemplateCache(cacheKey);
+    cacheManager.deleteKey(getNavigationMenuCacheKey(storeId, handle));
   }
 }
 

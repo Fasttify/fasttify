@@ -20,9 +20,7 @@ export const productFormSchema = z.object({
   name: z.string().min(2, {
     message: 'El nombre del producto debe tener al menos 2 caracteres.',
   }),
-  description: z.string().min(10, {
-    message: 'La descripción del producto debe tener al menos 10 caracteres.',
-  }),
+  description: z.string().optional(),
   price: z.preprocess(
     (val) => (val === '' || val === null ? undefined : val),
     z.coerce
@@ -113,7 +111,10 @@ export const productFormSchema = z.object({
   lastModifiedDate: z.date().optional(),
   status: z.enum(['draft', 'pending', 'active', 'inactive']).default('draft'),
   collectionId: z.string().optional().nullable(),
-  slug: z.string().optional(),
+  slug: z
+    .string()
+    .regex(/^[a-z0-9-]*$/u, 'El slug solo puede contener letras minúsculas, números y guiones')
+    .optional(),
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;

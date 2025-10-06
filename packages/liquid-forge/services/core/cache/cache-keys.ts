@@ -32,6 +32,15 @@ export function getFeaturedProductsCacheKey(storeId: string, limit: number) {
   return `featured_products_${storeId}_${limit}`;
 }
 
+// Prefijos de productos
+export function getProductsPrefix(storeId: string) {
+  return `products_${storeId}_`;
+}
+
+export function getFeaturedProductsPrefix(storeId: string) {
+  return `featured_products_${storeId}_`;
+}
+
 export function getProductHandleMapCacheKey(storeId: string) {
   return `product_handle_map_${storeId}`;
 }
@@ -47,6 +56,15 @@ export function getCollectionsCacheKey(storeId: string, limit: number, nextToken
   return `collections_${storeId}_${limit}_${nextToken || 'first'}`;
 }
 
+// Prefijos de colecciones
+export function getCollectionsPrefix(storeId: string) {
+  return `collections_${storeId}_`;
+}
+
+export function getCollectionPrefix(storeId: string, collectionId: string) {
+  return `collection_${storeId}_${collectionId}_`;
+}
+
 /**
  * Páginas
  */
@@ -56,6 +74,11 @@ export function getPageCacheKey(storeId: string, pageId: string) {
 
 export function getPagesCacheKey(storeId: string) {
   return `pages_${storeId}`;
+}
+
+// Prefijos de páginas
+export function getPagesPrefix(storeId: string) {
+  return `page_${storeId}_`;
 }
 
 /**
@@ -72,6 +95,15 @@ export function getNavigationMenuCacheKey(storeId: string, handle: string) {
   return `navigation_menu_${storeId}_${handle}`;
 }
 
+// Prefijos de navegación
+export function getNavigationPrefix(storeId: string) {
+  return `navigation_${storeId}`;
+}
+
+export function getNavigationMenuPrefix(storeId: string) {
+  return `navigation_menu_${storeId}_`;
+}
+
 /**
  * Plantillas
  */
@@ -81,6 +113,15 @@ export function getTemplateCacheKey(storeId: string, templatePath: string) {
 
 export function getCompiledTemplateCacheKey(storeId: string, templatePath: string) {
   return `compiled_template_${storeId}_${templatePath}`;
+}
+
+// Prefijos de plantillas
+export function getTemplatesPrefix(storeId: string) {
+  return `template_${storeId}_`;
+}
+
+export function getCompiledTemplatesPrefix(storeId: string) {
+  return `compiled_template_${storeId}_`;
 }
 
 /**

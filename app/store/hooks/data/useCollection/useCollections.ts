@@ -2,6 +2,8 @@ import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { useState } from 'react';
 import { storeClient, type StoreCollection } from '@/lib/amplify-client';
+import { ensureUniqueCollectionSlug } from './utils/slugUnique';
+import { generateProductSlug } from '@/lib/utils/slug';
 
 // Clave base para las consultas de colecciones
 const COLLECTIONS_KEY = 'collections';
@@ -133,8 +135,12 @@ export const useCollections = () => {
    */
   const useCreateCollection = () => {
     return useMutation({
-      mutationFn: (collectionInput: CollectionInput) =>
-        performOperation(() => storeClient.models.Collection.create(collectionInput)),
+      mutationFn: async (collectionInput: CollectionInput) => {
+        const proposed =
+          collectionInput.slug || (collectionInput.title ? generateProductSlug(collectionInput.title) : '');
+        const finalSlug = proposed ? await ensureUniqueCollectionSlug(collectionInput.storeId, proposed) : '';
+        return performOperation(() => storeClient.models.Collection.create({ ...collectionInput, slug: finalSlug }));
+      },
       onSuccess: async (newCollection) => {
         // Invalidar consultas para actualizar la lista
         queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, 'list'] });
@@ -156,12 +162,17 @@ export const useCollections = () => {
         if (!id) {
           throw new Error('Collection ID is required for update');
         }
-        return performOperation(() =>
-          storeClient.models.Collection.update({
+        return performOperation(async () => {
+          let nextSlug = data.slug || (data.title ? generateProductSlug(data.title) : undefined);
+          if (nextSlug && data.storeId) {
+            nextSlug = await ensureUniqueCollectionSlug(data.storeId, nextSlug, id);
+          }
+          return storeClient.models.Collection.update({
             id,
             ...data,
-          })
-        );
+            ...(nextSlug ? { slug: nextSlug } : {}),
+          });
+        });
       },
       onSuccess: async (updatedCollection) => {
         // Actualizar la colección en caché

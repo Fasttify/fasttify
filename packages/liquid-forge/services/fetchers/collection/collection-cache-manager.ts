@@ -10,7 +10,13 @@
  * limitations under the License.
  */
 
-import { cacheManager, getCollectionCacheKey, getCollectionsCacheKey } from '@/liquid-forge/services/core/cache';
+import {
+  cacheManager,
+  getCollectionCacheKey,
+  getCollectionPrefix,
+  getCollectionsCacheKey,
+  getCollectionsPrefix,
+} from '@/liquid-forge/services/core/cache';
 import type { CollectionContext, CollectionsResponse } from './types/collection-types';
 
 export class CollectionCacheManager {
@@ -66,16 +72,17 @@ export class CollectionCacheManager {
    * Invalida el caché de colecciones para una tienda
    */
   public invalidateStoreCache(storeId: string): void {
-    const collectionsCacheKey = getCollectionsCacheKey(storeId, 10);
-    cacheManager.invalidateTemplateCache(collectionsCacheKey);
+    // Eliminar todas las páginas de colecciones y colecciones individuales de la tienda
+    cacheManager.deleteByPrefix(getCollectionsPrefix(storeId));
+    cacheManager.deleteByPrefix(getCollectionPrefix(storeId, ''));
   }
 
   /**
    * Invalida el caché de una colección específica
    */
   public invalidateCollectionCache(storeId: string, collectionId: string): void {
-    const cacheKey = getCollectionCacheKey(storeId, collectionId);
-    cacheManager.invalidateTemplateCache(cacheKey);
+    // Eliminar todas las variantes paginadas de esa colección
+    cacheManager.deleteByPrefix(getCollectionPrefix(storeId, collectionId));
   }
 }
 

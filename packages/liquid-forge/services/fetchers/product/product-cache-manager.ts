@@ -13,9 +13,11 @@
 import {
   cacheManager,
   getFeaturedProductsCacheKey,
+  getFeaturedProductsPrefix,
   getProductCacheKey,
   getProductHandleMapCacheKey,
   getProductsCacheKey,
+  getProductsPrefix,
 } from '@/liquid-forge/services/core/cache';
 import type { ProductContext, ProductsResponse } from './types/product-types';
 
@@ -93,22 +95,17 @@ export class ProductCacheManager {
    * Invalida el caché de productos para una tienda
    */
   public invalidateStoreCache(storeId: string): void {
-    // Invalida todos los tipos de caché relacionados con productos
-    const productsCacheKey = getProductsCacheKey(storeId, 20);
-    const featuredCacheKey = getFeaturedProductsCacheKey(storeId, 8);
-    const handleMapCacheKey = getProductHandleMapCacheKey(storeId);
-
-    cacheManager.invalidateTemplateCache(productsCacheKey);
-    cacheManager.invalidateTemplateCache(featuredCacheKey);
-    cacheManager.invalidateTemplateCache(handleMapCacheKey);
+    // Invalida todos los tipos de caché relacionados con productos para la tienda
+    cacheManager.deleteByPrefix(getProductsPrefix(storeId));
+    cacheManager.deleteByPrefix(getFeaturedProductsPrefix(storeId));
+    cacheManager.deleteKey(getProductHandleMapCacheKey(storeId));
   }
 
   /**
    * Invalida el caché de un producto específico
    */
   public invalidateProductCache(storeId: string, productId: string): void {
-    const cacheKey = getProductCacheKey(storeId, productId);
-    cacheManager.invalidateTemplateCache(cacheKey);
+    cacheManager.invalidateProductCache(storeId, productId);
   }
 }
 

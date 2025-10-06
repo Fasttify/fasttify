@@ -22,6 +22,7 @@
     "@types/cssnano": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24",
+    "@types/node-cache": "^4.2.5",
     "cssnano": "^7.1.1",
     "eslint": "^8.0.0",
     "jest": "^30.0.4",
@@ -35,6 +36,7 @@
     "@aws-sdk/client-lambda": "^3.901.0",
     "@aws-sdk/client-s3": "^3.844.0",
     "uuid": "^11.1.0",
+    "node-cache": "^5.1.2",
     "liquidjs": "^10.21.1"
   }
 }
