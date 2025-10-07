@@ -56,7 +56,7 @@ function classifyKind(filePath: string): 'css' | 'asset' | 'template' | 'setting
  */
 let pending: Array<{ path: string; event: string; timestamp: number }> = [];
 let debounceTimer: NodeJS.Timeout | null = null;
-const DEBOUNCE_MS = 200;
+const DEBOUNCE_MS = 100;
 
 /**
  * Maneja una conexión SSE y emite eventos de cambios de plantillas.
@@ -70,20 +70,35 @@ export async function handleSSEConnection(request: NextRequest): Promise<Respons
       activeConnections.add(controller);
       if (activeConnections.size === 1) {
         templateDevSynchronizer.onChanges((changes) => {
+          logger.info(`SSE: Received ${changes.length} changes`, 'SSE');
+
+          // Agregar todos los cambios al buffer
           pending.push(...changes);
+
+          // Limpiar timer anterior si existe
           if (debounceTimer) clearTimeout(debounceTimer);
+
           debounceTimer = setTimeout(() => {
             const now = Date.now();
             const storeId = templateDevSynchronizer.getStoreId();
+
+            // Procesar cambios agrupados por path (último cambio por archivo)
             const latestByPath = new Map<string, { path: string; event: string; timestamp: number }>();
-            for (const ch of pending) latestByPath.set(ch.path, ch);
+            for (const ch of pending) {
+              latestByPath.set(ch.path, ch);
+            }
             const batch = Array.from(latestByPath.values());
-            pending = [];
+            pending = []; // Limpiar buffer
+
+            logger.info(`SSE: Processing ${batch.length} unique changes`, 'SSE');
 
             let hasTemplateChange = false;
+
+            // Enviar cada cambio individual
             batch.forEach((ch) => {
               const kind = classifyKind(ch.path);
               if (kind === 'template') hasTemplateChange = true;
+
               const msg = JSON.stringify({
                 type: 'change',
                 path: ch.path,
@@ -91,16 +106,24 @@ export async function handleSSEConnection(request: NextRequest): Promise<Respons
                 kind,
                 timestamp: ch.timestamp,
               });
+
+              logger.info(`SSE: Sending change event for ${ch.path} (${kind})`, 'SSE');
+
+              // Enviar a todas las conexiones activas
               activeConnections.forEach((c) => {
                 try {
                   c.enqueue(encoder.encode(`data: ${msg}\n\n`));
                 } catch (error) {
                   logger.error('Error sending SSE change message', error, 'SSE');
+                  activeConnections.delete(c); // Remover conexión rota
                 }
               });
             });
 
+            // Si hay cambios de template, limpiar cache y enviar reload
             if (hasTemplateChange) {
+              logger.info('SSE: Template changes detected, clearing cache and sending reload', 'SSE');
+
               try {
                 if (storeId) {
                   cacheManager.clearCache();
@@ -108,12 +131,14 @@ export async function handleSSEConnection(request: NextRequest): Promise<Respons
               } catch (err) {
                 logger.error('Error invalidating store cache on reload', err, 'SSE');
               }
+
               const summary = JSON.stringify({ type: 'reload', timestamp: now });
               activeConnections.forEach((c) => {
                 try {
                   c.enqueue(encoder.encode(`data: ${summary}\n\n`));
                 } catch (error) {
                   logger.error('Error sending SSE summary message', error, 'SSE');
+                  activeConnections.delete(c); // Remover conexión rota
                 }
               });
             }

@@ -165,12 +165,50 @@ const commands = {
 
       // Escuchar cambios por SSE (sin polling)
       console.log('\nMonitoreando cambios por SSE (Ctrl+C para salir)...');
-      const es = await startSSEListener();
+      let es = await startSSEListener();
+
+      // Reconectar automáticamente si se pierde la conexión
+      let reconnectTimer = null;
+      const maxReconnectDelay = 10000; // 10 segundos máximo
+      let reconnectDelay = 1000; // Empezar con 1 segundo
+
+      function scheduleReconnect() {
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+
+        reconnectTimer = setTimeout(async () => {
+          console.log(`\nReconectando SSE en ${reconnectDelay}ms...`);
+          try {
+            es.close && es.close();
+          } catch (_e) {}
+
+          try {
+            es = await startSSEListener();
+            reconnectDelay = 1000; // Reset delay on successful reconnect
+            console.log('SSE reconectado exitosamente');
+          } catch (error) {
+            console.log(`Error al reconectar: ${error.message}`);
+            reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay); // Exponential backoff
+            scheduleReconnect();
+          }
+        }, reconnectDelay);
+      }
+
+      // Manejar eventos de error y cierre
+      es.onerror = () => {
+        console.log('\nConexión SSE perdida, programando reconexión...');
+        scheduleReconnect();
+      };
+
+      es.onclose = () => {
+        console.log('\nConexión SSE cerrada, programando reconexión...');
+        scheduleReconnect();
+      };
 
       // Manejar salida para limpiar
       process.on('SIGINT', async () => {
         console.log('\nDeteniendo sincronización...');
         try {
+          if (reconnectTimer) clearTimeout(reconnectTimer);
           es.close && es.close();
         } catch (_e) {}
         await callApi('stop');

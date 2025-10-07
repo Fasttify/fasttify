@@ -31,11 +31,27 @@ export default function DevAutoReloadScript() {
     /**
      * Reemplaza hojas de estilo enlazadas por versiones busteadas.
      */
-    function hotSwapCSS() {
+    function hotSwapCSS(path?: string) {
       const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
       const ts = Date.now().toString();
+
       links.forEach((oldLink) => {
         if (!oldLink.href) return;
+
+        // Ignorar CSS externos (Google Fonts, CDNs, etc.)
+        if (
+          oldLink.href.includes('fonts.googleapis.com') ||
+          oldLink.href.includes('fonts.gstatic.com') ||
+          !oldLink.href.includes('/stores/')
+        ) {
+          return;
+        }
+
+        // Si se especifica un path, solo actualizar CSS que coincida
+        if (path && !oldLink.href.includes(path)) {
+          return;
+        }
+
         const newLink = oldLink.cloneNode(true) as HTMLLinkElement;
         newLink.href = withBust(oldLink.href, ts);
         newLink.onload = () => {
@@ -59,43 +75,62 @@ export default function DevAutoReloadScript() {
       });
     }
 
+    let debounceTimer: NodeJS.Timeout;
+
     /**
-     * Maneja eventos SSE por tipo/kind.
+     * Maneja eventos SSE por tipo/kind con debounce.
      */
     function handleMessage(data: any) {
+      // Debounce para evitar múltiples recargas rápidas
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        processMessage(data);
+      }, 300);
+    }
+
+    function processMessage(data: any) {
       if (data.type === 'connected') {
         console.log('[Template Dev] Conexión SSE establecida');
         return;
       }
+
+      if (data.type === 'ping') {
+        // Responder al ping para mantener conexión activa
+        return;
+      }
+
       if (data.type === 'change') {
         if (data.kind === 'css') {
-          hotSwapCSS();
+          hotSwapCSS(data.path);
           return;
         }
+
         if (data.kind === 'asset') {
           refreshAssets(data.path);
           return;
         }
+
         if (data.kind === 'settings') {
-          // Soft-refresh: por ahora, recarga completa para simplificar
           window.location.reload();
           return;
         }
+
         // template u otros -> recarga total
         window.location.reload();
         return;
       }
+
       if (data.type === 'reload') {
         window.location.reload();
         return;
       }
+
+      console.warn('[Template Dev] Unknown message type:', data.type);
     }
 
     function connectSSE() {
       eventSource = new EventSource('/api/stores/template-dev/ws');
-      eventSource.onopen = function () {
-        console.log('[Template Dev] Conectado al servidor de desarrollo');
-      };
+      eventSource.onopen = function () {};
       eventSource.onmessage = function (event) {
         try {
           const data = JSON.parse(event.data);
@@ -105,7 +140,6 @@ export default function DevAutoReloadScript() {
         }
       };
       eventSource.onerror = function () {
-        console.log('[Template Dev] Error en la conexión, reconectando en 3s...');
         eventSource.close();
         setTimeout(connectSSE, 3000);
       };
@@ -117,6 +151,9 @@ export default function DevAutoReloadScript() {
     return () => {
       if (eventSource) {
         eventSource.close();
+      }
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
       }
     };
   }, []);
