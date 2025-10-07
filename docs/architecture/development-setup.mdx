@@ -1,0 +1,285 @@
+# Configuración de Desarrollo
+
+Esta guía te ayudará a configurar tu entorno de desarrollo local para Fasttify.
+
+## Prerrequisitos
+
+### Software Requerido
+
+- **Node.js**: Versión 20.18.3 o superior
+- **pnpm**: Versión 10.18.0 o superior (gestor de paquetes)
+- **AWS CLI**: Configurado con credenciales válidas
+- **Git**: Para clonar el repositorio
+
+### Cuenta AWS
+
+- Cuenta AWS con permisos para AWS Amplify Gen2
+- Acceso a servicios: DynamoDB, Lambda, S3, CloudFront, SES, Cognito
+
+## Instalación
+
+### 1. Clonar el Repositorio
+
+```bash
+git clone https://github.com/Fasttify/fasttify.git
+cd fasttify
+```
+
+### 2. Instalar Dependencias
+
+```bash
+# Instalar pnpm globalmente si no lo tienes
+npm install -g pnpm@10.18.0
+
+# Instalar dependencias del proyecto
+pnpm install
+```
+
+### 3. Configurar Variables de Entorno
+
+Crea un archivo `.env.local` en la raíz del proyecto:
+
+```bash
+# AWS Amplify
+NEXT_PUBLIC_S3_URL="https://tu-bucket.s3.amazonaws.com"
+NEXT_PUBLIC_AWS_REGION="us-east-1"
+BUCKET_NAME="fasttify-assets-bucket"
+AWS_REGION="us-east-1"
+CLOUDFRONT_MULTI_TENANT_DISTRIBUTION_ID="E1234567890ABC"
+CLOUDFRONT_DISTRIBUTION_ID="E0987654321XYZ"
+JWT_SECRET="tu-super-secreto-jwt-cambia-en-produccion"
+LAMBDA_EMAIL_BULK="bulk-email-api-dev"
+ANALYTICS_WEBHOOK_JWT_SECRET="tu-analytics-webhook-secret"
+
+# Desarrollo
+APP_ENV=development
+NEXT_PUBLIC_APP_ENV=development
+TEMPLATES_DEV_ROOT=packages/example-themes/fasttify/theme
+DEV_CACHE_ENABLED=true
+
+```
+
+### 4. Configurar AWS Amplify Gen2
+
+```bash
+# Instalar Amplify CLI Gen2
+npm install -g @aws-amplify/backend-cli
+
+# Inicializar sandbox de desarrollo
+npx ampx sandbox --identifier tu-identificador --stream-function-logs
+```
+
+## Scripts de Desarrollo
+
+### Comandos Principales
+
+```bash
+# Servidor de desarrollo con Turbopack
+pnpm run dev
+
+# Build del proyecto
+pnpm run build
+
+# Tests unitarios
+pnpm run test
+
+# Tests con coverage
+pnpm run test:coverage
+
+# Linting
+pnpm run lint
+
+# Verificación de tipos TypeScript
+pnpm run type-check
+```
+
+### Scripts de Amplify
+
+```bash
+# Iniciar sandbox de desarrollo
+pnpm run sandbox
+
+# Deploy a sandbox
+pnpm run sandbox:deploy
+
+# Ver logs de funciones Lambda
+pnpm run sandbox:logs
+```
+
+### Scripts de Workspace
+
+```bash
+# Instalar dependencias en todos los workspaces
+pnpm run workspace:install
+
+# Actualizar dependencias
+pnpm run workspace:update
+
+# Build de todos los packages
+pnpm run build:packages
+
+# Tests de todos los packages
+pnpm run test:packages
+```
+
+## Estructura del Proyecto
+
+```
+fasttify/
+├── amplify/                    # Backend AWS Amplify Gen2
+│   ├── auth/                   # Configuración de autenticación
+│   ├── data/                   # Esquemas GraphQL y funciones IA
+│   ├── functions/              # Funciones Lambda
+│   └── storage/                # Configuración S3
+├── app/                        # Next.js App Router
+│   ├── (main-layout)/         # Landing y páginas públicas
+│   ├── (setup-layout)/        # Wizard de configuración
+│   ├── [store]/               # Rutas dinámicas de tiendas
+│   └── api/                   # API Routes
+├── packages/                   # Workspaces del monorepo
+│   ├── liquid-forge/          # Motor de plantillas Liquid
+│   ├── orders-app/            # Gestión de pedidos
+│   ├── theme-editor/          # Editor de temas
+│   └── tenant-domains/        # Gestión de dominios
+├── components/                 # Componentes UI reutilizables
+├── lib/                       # Servicios y utilidades
+└── docs/                      # Documentación
+```
+
+## Desarrollo de Temas
+
+### Sincronización en Tiempo Real
+
+```bash
+# Sincronizar plantillas para una tienda específica
+pnpm run template-sync -- start STORE_ID
+
+# El sistema observa cambios y sincroniza automáticamente
+```
+
+### Compilación de Emails
+
+```bash
+# Compilar plantillas de email
+pnpm run email:compile
+
+# Probar sistema de emails
+pnpm run email:test
+
+# Desarrollo completo de emails
+pnpm run email:dev
+```
+
+## Configuración de IDE
+
+### VS Code (Recomendado)
+
+Instala las siguientes extensiones:
+
+- **ES7+ React/Redux/React-Native snippets**
+- **TypeScript Importer**
+- **Tailwind CSS IntelliSense**
+- **Prettier - Code formatter**
+- **ESLint**
+
+### Configuración de Prettier
+
+El proyecto incluye configuración de Prettier. Asegúrate de tener:
+
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
+```
+
+## Debugging
+
+### Frontend
+
+```bash
+# Desarrollo con logs detallados
+DEBUG=* pnpm run dev
+
+# Build con análisis de bundle
+ANALYZE=true pnpm run build
+```
+
+### Backend (Lambda Functions)
+
+```bash
+# Ver logs en tiempo real
+pnpm run sandbox:logs
+
+# Logs específicos de una función
+npx ampx logs --function-name nombre-funcion
+```
+
+## Solución de Problemas
+
+### Error: "Cannot find module"
+
+```bash
+# Limpiar node_modules y reinstalar
+rm -rf node_modules
+rm pnpm-lock.yaml
+pnpm install
+```
+
+### Error: "AWS credentials not found"
+
+```bash
+# Configurar credenciales AWS
+aws configure
+
+# O usar variables de entorno
+export AWS_ACCESS_KEY_ID=tu-access-key
+export AWS_SECRET_ACCESS_KEY=tu-secret-key
+export AWS_DEFAULT_REGION=us-east-1
+```
+
+### Error: "Amplify sandbox not found"
+
+```bash
+# Reinicializar sandbox
+npx ampx sandbox --identifier nuevo-identificador
+```
+
+## Variables de Entorno Críticas
+
+### JWT_SECRET
+
+**IMPORTANTE**: Genera un secret seguro:
+
+```bash
+# Generar secret seguro
+openssl rand -base64 64
+```
+
+### AWS_REGION
+
+Asegúrate de usar la región correcta (us-east-2):
+
+```bash
+# Verificar región actual
+aws configure get region
+
+# Cambiar región si es necesario
+aws configure set region us-east-1
+```
+
+## Próximos Pasos
+
+Una vez configurado el entorno de desarrollo:
+
+1. [Guía de desarrollo de temas](./theme-development-guide.md)
+2. [Arquitectura del sistema](./architecture-overview.md)
+3. [API Reference](../api/)
+4. [Solución de problemas](../troubleshooting/)
+
+## Recursos Adicionales
+
+- [Documentación de AWS Amplify Gen2](https://docs.amplify.aws/gen2/)
+- [Documentación de Next.js](https://nextjs.org/docs)
+- [Documentación de pnpm](https://pnpm.io/)
+- [Documentación de Liquid](https://shopify.github.io/liquid/)

@@ -7,15 +7,15 @@ Fasttify es una plataforma SaaS completa para crear y gestionar tiendas online c
 - **Dominios Personalizados:** Configuración automatizada con CloudFront Multi-Tenant, SSL automático y verificación DNS inteligente.
 - **Motor Liquid:** 100% compatible con Shopify incluyendo tags, filtros y plantillas. Renderizado SSR/SSG optimizado con cache multinivel.
 
-[Ver documentación completa](./docs/) | [Comenzar desarrollo](./docs/engine/theme-development-guide.md)
+[Ver documentación completa](./docs/) | [Comenzar desarrollo](./docs/engine/theme-development-guide.mdx)
 
 ## Instalación
 
 Fasttify está diseñado para adopción gradual y **puedes usar tanto o tan poco como necesites**:
 
-- [Guía de inicio rápido](./docs/engine/theme-development-guide.md) para probar Fasttify.
-- [Configuración de desarrollo](./docs/architecture/development-setup.md) para configurar tu entorno local.
-- [Despliegue en producción](./docs/architecture/production-deployment.md) para configurar AWS Amplify Gen2.
+- [Guía de inicio rápido](./docs/engine/theme-development-guide.mdx) para probar Fasttify.
+- [Configuración de desarrollo](./docs/architecture/development-setup.mdx) para configurar tu entorno local.
+- [Despliegue en producción](./docs/architecture/production-deployment.mdx) para configurar AWS Amplify Gen2.
 
 ### Prerrequisitos
 
