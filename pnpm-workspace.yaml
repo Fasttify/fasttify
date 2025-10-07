@@ -1,2 +1,5 @@
 packages:
-  - 'packages/*'
+  - 'packages/liquid-forge'
+  - 'packages/orders-app'
+  - 'packages/theme-editor'
+  - 'packages/tenant-domains'

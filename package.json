@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/liquid-forge",
+    "packages/orders-app",
+    "packages/theme-editor",
+    "packages/tenant-domains"
   ],
   "packageManager": "pnpm@10.18.0",
   "engines": {

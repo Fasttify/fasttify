@@ -34,7 +34,7 @@
     "packages/email/**/*",
     "packages/mock/**/*",
     "packages/lambda-edge-host-rewriter/**/*",
-    "template/**/*",
+    "packages/example-theme/**/*",
     "scripts/**/*"
   ]
 }

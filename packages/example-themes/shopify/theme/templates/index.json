@@ -1,0 +1,173 @@
+{
+  "sections": {
+    "rich_text_TEVXgm": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_PeaWcN": {
+          "type": "heading",
+          "settings": { "heading": "Unleash your beach spirit", "heading_size": "h1" }
+        },
+        "text_hmEr9V": {
+          "type": "text",
+          "settings": {
+            "text": "<h2>We bring the beach to your home with unique creations that inspire wanderlust and relaxation.<\/h2>"
+          }
+        }
+      },
+      "block_order": ["heading_PeaWcN", "text_hmEr9V"],
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "",
+        "full_width": true,
+        "padding_top": 80,
+        "padding_bottom": 28
+      }
+    },
+    "collage_Ji34he": {
+      "type": "sections/collage",
+      "blocks": {
+        "video_x97Qak": {
+          "type": "video",
+          "settings": {
+            "cover_image": "shopify:\/\/shop_images\/swimwear-natural-1-top.jpg",
+            "video_url": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc",
+            "description": "Describe the video"
+          }
+        },
+        "image_npPA7A": {
+          "type": "image",
+          "settings": { "image": "shopify:\/\/shop_images\/swimwear-natural-2-middle.jpg" }
+        },
+        "image_Ur8hUb": {
+          "type": "image",
+          "settings": { "image": "shopify:\/\/shop_images\/swimwear-natural-4-middle.jpg" }
+        }
+      },
+      "block_order": ["video_x97Qak", "image_npPA7A", "image_Ur8hUb"],
+      "settings": {
+        "heading": "",
+        "heading_size": "h0",
+        "desktop_layout": "left",
+        "mobile_layout": "column",
+        "card_styles": "none",
+        "color_scheme": "",
+        "padding_top": 32,
+        "padding_bottom": 60
+      }
+    },
+    "image_with_text_DYDtwA": {
+      "type": "sections/image-with-text",
+      "blocks": {
+        "heading_c6fF64": { "type": "heading", "settings": { "heading": "Our shop", "heading_size": "h2" } },
+        "text_PLAK8A": {
+          "type": "text",
+          "settings": {
+            "text": "<h3>We celebrate the spirit of the beach, crafting products that embody sun-soaked adventures and coastal living.<\/h3>",
+            "text_style": "body"
+          }
+        },
+        "button_L7GN3F": {
+          "type": "button",
+          "settings": {
+            "button_label": "Shop all",
+            "button_link": "shopify:\/\/collections\/all",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": ["heading_c6fF64", "text_PLAK8A", "button_L7GN3F"],
+      "settings": {
+        "image": "shopify:\/\/shop_images\/swimwear-natural-3-middle.jpg",
+        "height": "medium",
+        "desktop_image_width": "large",
+        "layout": "image_first",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "left",
+        "content_layout": "no-overlap",
+        "section_color_scheme": "",
+        "color_scheme": "accent-1",
+        "image_behavior": "none",
+        "mobile_content_alignment": "center",
+        "padding_top": 56,
+        "padding_bottom": 60
+      }
+    },
+    "image_with_text_tz9Af9": {
+      "type": "sections/image-with-text",
+      "blocks": {
+        "heading_hKWUGD": {
+          "type": "heading",
+          "settings": { "heading": "Crafted for the coast", "heading_size": "h2" }
+        },
+        "text_Fka4eU": {
+          "type": "text",
+          "settings": {
+            "text": "<h3>Our products capture the essence of beach life, perfect for sun and sand.<\/h3>",
+            "text_style": "body"
+          }
+        },
+        "button_nbyXaA": {
+          "type": "button",
+          "settings": {
+            "button_label": "Crafted for the coast",
+            "button_link": "shopify:\/\/pages\/contact",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": ["heading_hKWUGD", "text_Fka4eU", "button_nbyXaA"],
+      "settings": {
+        "image": "shopify:\/\/shop_images\/swimwear-natural-5-middle.jpg",
+        "height": "medium",
+        "desktop_image_width": "large",
+        "layout": "text_first",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "left",
+        "content_layout": "no-overlap",
+        "section_color_scheme": "",
+        "color_scheme": "accent-1",
+        "image_behavior": "none",
+        "mobile_content_alignment": "center",
+        "padding_top": 60,
+        "padding_bottom": 56
+      }
+    },
+    "featured_collection": {
+      "type": "sections/featured-collection",
+      "custom_css": [],
+      "settings": {
+        "title": "Featured products",
+        "heading_size": "h1",
+        "description": "",
+        "show_description": false,
+        "description_style": "body",
+        "collection": "all",
+        "products_to_show": 6,
+        "columns_desktop": 4,
+        "full_width": false,
+        "show_view_all": true,
+        "view_all_style": "solid",
+        "enable_desktop_slider": false,
+        "color_scheme": "background-1",
+        "image_ratio": "portrait",
+        "image_shape": "default",
+        "show_secondary_image": false,
+        "show_vendor": false,
+        "show_rating": false,
+        "quick_add": "none",
+        "columns_mobile": "2",
+        "swipe_on_mobile": false,
+        "padding_top": 56,
+        "padding_bottom": 84
+      }
+    }
+  },
+  "order": [
+    "rich_text_TEVXgm",
+    "collage_Ji34he",
+    "image_with_text_DYDtwA",
+    "image_with_text_tz9Af9",
+    "featured_collection"
+  ]
+}
