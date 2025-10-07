@@ -3183,7 +3183,8 @@
       "name": "Prodotti simili",
       "settings": {
         "heading": {
-          "label": "Titolo"
+          "label": "Titolo",
+          "default": "Potrebbero interessarti anche"
         },
         "products_to_show": {
           "label": "Conteggio prodotti"

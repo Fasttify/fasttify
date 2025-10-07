@@ -70,6 +70,7 @@ export type {
   RenderTag,
   ScriptTag,
   SectionTag,
+  SectionsTag,
   StyleTag,
   UrlFilter,
 } from './liquid';

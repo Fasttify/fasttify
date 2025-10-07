@@ -95,7 +95,9 @@ export class SectionRenderer {
     storeTemplate?: any
   ): Promise<string> {
     try {
-      const sectionContent = await templateLoader.loadTemplate(storeId, `sections/${sectionName}.liquid`);
+      // Si ya tiene extensión, no agregar .liquid
+      const templateName = sectionName.includes('.') ? `sections/${sectionName}` : `sections/${sectionName}.liquid`;
+      const sectionContent = await templateLoader.loadTemplate(storeId, templateName);
       return await this.renderSectionWithSchema(sectionName, sectionContent, context, storeTemplate);
     } catch (error) {
       logger.warn(`Section ${sectionName} not found or failed to render`, error, 'SectionRenderer');
@@ -105,13 +107,14 @@ export class SectionRenderer {
 
   /**
    * Extrae automáticamente los nombres de las secciones del layout
-   * Busca todos los {% section 'nombre' %} en el contenido
+   * Busca todos los {% section 'nombre' %} y {% sections 'grupo' %} en el contenido
    */
   public extractSectionNamesFromLayout(layoutContent: string): string[] {
-    const sectionRegex = /{%\s*section\s+['"]([^'"]+)['"]\s*%}/g;
     const sectionNames: string[] = [];
-    let match;
 
+    // Extraer secciones individuales {% section 'nombre' %}
+    const sectionRegex = /{%\s*section\s+['"]([^'"]+)['"]\s*%}/g;
+    let match;
     while ((match = sectionRegex.exec(layoutContent)) !== null) {
       const sectionName = match[1];
       if (!sectionNames.includes(sectionName)) {
@@ -119,7 +122,45 @@ export class SectionRenderer {
       }
     }
 
+    // Extraer secciones de grupos {% sections 'grupo' %}
+    const sectionsRegex = /{%\s*sections\s+['"]([^'"]+)['"]\s*%}/g;
+    while ((match = sectionsRegex.exec(layoutContent)) !== null) {
+      const groupName = match[1];
+
+      // Agregar el archivo JSON del grupo
+      const groupJsonName = `${groupName}.json`;
+      if (!sectionNames.includes(groupJsonName)) {
+        sectionNames.push(groupJsonName);
+      }
+
+      // Agregar las secciones individuales del grupo
+      const groupSections = this.getSectionsFromGroup(groupName);
+      for (const sectionName of groupSections) {
+        if (!sectionNames.includes(sectionName)) {
+          sectionNames.push(sectionName);
+        }
+      }
+    }
+
     return sectionNames;
+  }
+
+  /**
+   * Obtiene las secciones individuales que pertenecen a un grupo
+   */
+  private getSectionsFromGroup(groupName: string): string[] {
+    // Para header-group, incluir announcement-bar y header
+    if (groupName === 'header-group') {
+      return ['announcement-bar', 'header'];
+    }
+
+    // Para footer-group, incluir footer
+    if (groupName === 'footer-group') {
+      return ['footer'];
+    }
+
+    // Para otros grupos, retornar vacío por ahora
+    return [];
   }
 }
 

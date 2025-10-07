@@ -3183,7 +3183,8 @@
       "name": "相关产品",
       "settings": {
         "heading": {
-          "label": "标题"
+          "label": "标题",
+          "default": "您可能还喜欢"
         },
         "products_to_show": {
           "label": "产品数量"

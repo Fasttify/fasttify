@@ -3183,7 +3183,8 @@
       "name": "Gerelateerde producten",
       "settings": {
         "heading": {
-          "label": "Koptekst"
+          "label": "Koptekst",
+          "default": "Wellicht vind je dit ook leuk"
         },
         "products_to_show": {
           "label": "Aantal producten"

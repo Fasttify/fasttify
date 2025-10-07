@@ -3183,7 +3183,8 @@
       "name": "Powiązane produkty",
       "settings": {
         "heading": {
-          "label": "Nagłówek"
+          "label": "Nagłówek",
+          "default": "Może Ci się spodobać również"
         },
         "products_to_show": {
           "label": "Liczba produktów"

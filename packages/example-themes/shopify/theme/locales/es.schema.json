@@ -3183,7 +3183,8 @@
       "name": "Productos relacionados",
       "settings": {
         "heading": {
-          "label": "Encabezado"
+          "label": "Encabezado",
+          "default": "También te puede interesar"
         },
         "products_to_show": {
           "label": "Recuento de productos"

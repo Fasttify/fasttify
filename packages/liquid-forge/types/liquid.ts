@@ -96,6 +96,12 @@ export interface SectionTag {
   id?: string;
 }
 
+export interface SectionsTag {
+  name: string;
+  content: string;
+  id?: string;
+}
+
 export interface PaginateTag {
   array: unknown[];
   limit: number;

@@ -189,6 +189,44 @@ export const imgTagFilter: LiquidFilter = {
   },
 };
 
+/**
+ * Filtro inline_asset_content - Carga el contenido de un asset directamente (para SVGs)
+ */
+export const inlineAssetContentFilter: LiquidFilter = {
+  name: 'inline_asset_content',
+  filter: async function (filename: string): Promise<string> {
+    if (!filename) {
+      return '';
+    }
+
+    const cleanFilename = filename.replace(/^\/+/, '');
+
+    // Acceder al storeId desde el contexto de LiquidJS
+    const storeId = this.context?.getSync(['shop', 'storeId']);
+
+    if (!storeId) {
+      logger.warn(`inline_asset_content: storeId not found in context for ${filename}.`, {
+        contextKeys: Object.keys(this.context?.getAll() || {}),
+      });
+      return '';
+    }
+
+    try {
+      // Importar templateLoader dinámicamente para evitar dependencias circulares
+      const { templateLoader } = await import('@/liquid-forge/services/templates/template-loader');
+
+      // Cargar el contenido del asset
+      const assetContent = await templateLoader.loadAsset(storeId, cleanFilename);
+
+      // Convertir Buffer a string
+      return assetContent.toString('utf-8');
+    } catch (error) {
+      logger.warn(`Failed to load asset content for ${filename}:`, error);
+      return '';
+    }
+  },
+};
+
 export const htmlFilters: LiquidFilter[] = [
   assetUrlFilter,
   linkToFilter,
@@ -196,4 +234,5 @@ export const htmlFilters: LiquidFilter[] = [
   scriptTagFilter,
   defaultPaginationFilter,
   imgTagFilter,
+  inlineAssetContentFilter,
 ];

@@ -25,6 +25,7 @@ import {
   SchemaTag,
   ScriptTag,
   SectionTag,
+  SectionsTag,
   StyleTag,
   StylesheetTag,
 } from '@/liquid-forge/liquid/tags';
@@ -113,6 +114,7 @@ class LiquidEngine {
   private registerCustomTags(): void {
     this.liquid.registerTag('schema', SchemaTag);
     this.liquid.registerTag('section', SectionTag);
+    this.liquid.registerTag('sections', SectionsTag);
     this.liquid.registerTag('paginate', PaginateTag);
     this.liquid.registerTag('render', RenderTag);
     this.liquid.registerTag('include', IncludeTag);
