@@ -1,0 +1,183 @@
+{{ 'list-product.css' | asset_url | stylesheet_tag }}
+{{ 'featured-products.css' | asset_url | stylesheet_tag }}
+{{ 'collection-details.css' | asset_url | stylesheet_tag }}
+
+{% paginate collection.products %}
+<div class="page-width">
+  <div class="collection-header">
+    <h1 class="page-title">{{ collection.title }}</h1>
+    <!-- Navegación de colecciones -->
+    {% if collections %}
+    <div class="collection-navigation">
+      {% for collection in collections %}
+      <a href="{{ collection.url }}"
+        class="collection-nav-btn {% if collection.id == current_collection.id %}active{% endif %}">
+        {{ collection.title }} >
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="products-main">
+    <div class="product-grid" data-products id="products-container">
+      <!-- Card promocional de la colección -->
+      {% if collection.image %}
+      <div class="collection-promo-card">
+        <div class="collection-promo-image">
+          <img src="{{ collection.image | img_url: '800x1000' }}" alt="{{ collection.title | escape }}" loading="lazy"
+            class="collection-promo-img">
+          <div class="collection-promo-overlay">
+            <div class="collection-promo-text">
+              <h2 class="collection-promo-title">{{ collection.title }}</h2>
+              {% if collection.description != blank %}
+              <p class="collection-promo-description">{{ collection.description }}</p>
+              {% endif %}
+              <div class="collection-promo-stats">
+                <span class="collection-products-count">{{ collection.products_count }} productos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% for product in collection.products %}
+      <div class="product-card" data-product-id="{{ product.id }}">
+        <div class="product-image-wrapper">
+          <a href="{{ product.url }}" class="product-link">
+            {% if product.images.size > 1 %}
+            <img class="product-image product-image-primary" src="{{ product.featured_image | img_url: '600x800' }}"
+              alt="{{ product.title | escape }}" loading="lazy">
+            <img class="product-image product-image-secondary" src="{{ product.images[1] | img_url: '600x800' }}"
+              alt="{{ product.title | escape }}" loading="lazy">
+            <div class="multiple-images-indicator">
+              <div class="indicator-dot active"></div>
+              <div class="indicator-dot"></div>
+              {% if product.images.size > 2 %}
+              <div class="indicator-dot"></div>
+              {% endif %}
+            </div>
+            {% elsif product.images.size > 0 %}
+            <img class="product-image" src="{{ product.featured_image | img_url: '600x800' }}"
+              alt="{{ product.title | escape }}" loading="lazy">
+            {% else %}
+            <div class="product-placeholder">
+              <div class="placeholder-content">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21,15 16,10 5,21" />
+                </svg>
+                <p>Imagen del producto</p>
+              </div>
+            </div>
+            {% endif %}
+          </a>
+
+          <div class="product-badges">
+            {% if product.tags contains 'new' or product.createdAt > 'now' | date: '%s' | minus: 2592000 %}
+            <span class="product-badge badge-new">NEW</span>
+            {% elsif product.tags contains 'bestseller' %}
+            <span class="product-badge badge-bestseller">BESTSELLER</span>
+            {% elsif product.tags contains 'trending' %}
+            <span class="product-badge badge-trending">TRENDING</span>
+            {% endif %}
+
+            {% if product.compare_at_price > product.price %}
+            <span class="product-badge badge-sale">
+              SAVE {{ product.compare_at_price | minus: product.price | times: 100 | divided_by:
+              product.compare_at_price | round }}%
+            </span>
+            {% endif %}
+          </div>
+
+          <div class="product-overlay">
+            <div class="product-overlay-content">
+              <a href="{{ product.url }}" class="product-btn product-btn-primary">
+                <span>VER PRODUCTO</span>
+              </a>
+
+              <button class="product-btn product-btn-secondary" onclick="addProductToCart('{{ product.id }}', 1)"
+                aria-label="Añadir al carrito">
+                <span>
+                  AÑADIR AL CARRITO
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-info">
+          <div class="product-vendor">{{ product.vendor | upcase }}</div>
+          <h3 class="product-title">{{ product.title }}</h3>
+          <div class="product-price">
+            {% if product.compare_at_price > product.price %}
+            <span class="price-compare">{{ product.compare_at_price | money }}</span>
+            <span class="price-current price-sale">{{ product.price | money }}</span>
+            {% else %}
+            <span class="price-current">{{ product.price | money }}</span>
+            {% endif %}
+          </div>
+
+          {% if product.attributes %}
+          <div class="product-attributes-summary">
+            {% for attribute in product.attributes %}
+            <div class="attribute-display attribute-display--{{ attribute.name | handleize }}">
+              <div class="attribute-values-list">
+                {% if attribute.name == 'color' %}
+                {% for value in attribute.values limit: 4 %}
+                <span class="color-swatch" style="background-color: {{ value | downcase }};" title="{{ value }}"></span>
+                {% endfor %}
+                {% if attribute.values.size > 4 %}
+                <span class="attribute-more">+{{ attribute.values.size | minus: 4 }}</span>
+                {% endif %}
+                {% else %}
+                {% for value in attribute.values limit: 3 %}
+                <span class="attribute-value-item">{{ value }}</span>
+                {% endfor %}
+                {% if attribute.values.size > 3 %}
+                <span class="attribute-more">+{{ attribute.values.size | minus: 3 }}</span>
+                {% endif %}
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+      {% else %}
+      <div class="collection-empty">
+        <h2>Esta colección está vacía</h2>
+        <p>No hay productos disponibles en esta colección en este momento.</p>
+        <a href="{{ routes.collections_url }}" class="btn btn--primary">
+          Ver todas las colecciones
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if paginate.previous or paginate.next %}
+    <nav class="custom-pagination" aria-label="Paginación">
+      {% if paginate.previous %}
+      <a class="custom-pagination__link" href="{{ paginate.previous.url }}">
+        &larr; Anterior
+      </a>
+      {% else %}
+      <span class="custom-pagination__link custom-pagination__link--disabled">&larr; Anterior</span>
+      {% endif %}
+
+      {% if paginate.next %}
+      <a class="custom-pagination__link" href="{{ paginate.next.url }}">
+        Siguiente &rarr;
+      </a>
+      {% else %}
+      <span class="custom-pagination__link custom-pagination__link--disabled">Siguiente &rarr;</span>
+      {% endif %}
+    </nav>
+    {% endif %}
+  </div>
+</div>
+{% endpaginate %}

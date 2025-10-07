@@ -1,0 +1,49 @@
+{
+  "name": "t:sections.header.name",
+  "type": "header",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement-bar-0": {
+          "type": "announcement",
+          "settings": { "text": "NEW ARRIVALS JUST LANDED", "link": "" }
+        },
+        "announcement_KU66py": {
+          "type": "announcement",
+          "settings": { "text": "SIGN UP FOR 10% OFF YOUR FIRST PURCHASE", "link": "" }
+        }
+      },
+      "block_order": ["announcement-bar-0", "announcement_KU66py"],
+      "settings": {
+        "color_scheme": "background-2",
+        "show_line_separator": true,
+        "show_social": false,
+        "auto_rotate": true,
+        "change_slides_speed": 5,
+        "enable_country_selector": false,
+        "enable_language_selector": false
+      }
+    },
+    "header": {
+      "type": "header",
+      "custom_css": [],
+      "settings": {
+        "logo_position": "middle-center",
+        "menu": "main-menu",
+        "menu_type_desktop": "mega",
+        "sticky_header_type": "reduce-logo-size",
+        "show_line_separator": true,
+        "color_scheme": "background-1",
+        "menu_color_scheme": "",
+        "enable_country_selector": true,
+        "enable_language_selector": false,
+        "mobile_logo_position": "center",
+        "margin_bottom": 0,
+        "padding_top": 4,
+        "padding_bottom": 4
+      }
+    }
+  },
+  "order": ["announcement-bar", "header"]
+}

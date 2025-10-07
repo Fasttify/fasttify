@@ -11,7 +11,7 @@ const config = {
   // Por defecto, asume que está corriendo en localhost:3000
   apiUrl: process.env.API_URL || 'http://localhost:3000',
   // Ruta local fija para el template
-  localTemplateDir: 'template',
+  localTemplateDir: process.env.TEMPLATES_DEV_ROOT || process.cwd(),
   // Define the root directory for allowed local template development folders
   templatesDevRoot: process.env.TEMPLATES_DEV_ROOT || process.cwd(),
 };
