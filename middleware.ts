@@ -1,4 +1,7 @@
-import { handleAuthenticatedRedirectMiddleware, handleAuthenticationMiddleware } from '@/middlewares/auth/auth';
+import {
+  handleAuthenticatedRedirectMiddleware,
+  handleAuthenticationMiddlewareNoRefresh,
+} from '@/middlewares/auth/auth';
 import { handleDomainRouting, analyzeDomain } from '@/middlewares/domain-handling/domainHandler';
 import { handleCollectionOwnershipMiddleware } from '@/middlewares/ownership/collectionOwnership';
 import { handlePagesOwnershipMiddleware } from '@/middlewares/ownership/pagesOwnership';
@@ -49,7 +52,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (path === '/account-settings') {
-    return handleAuthenticationMiddleware(request, NextResponse.next());
+    return handleAuthenticationMiddlewareNoRefresh(request, NextResponse.next());
   }
 
   if (['/first-steps', '/my-store'].includes(path)) {
