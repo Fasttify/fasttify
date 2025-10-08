@@ -130,7 +130,7 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
               {
                 url: `/store/${storeId}/setup/apps`,
                 label: 'Apps',
-                disabled: false,
+                disabled: true,
               },
               {
                 url: `/store/${storeId}/setup/navigation`,
