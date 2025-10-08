@@ -23,7 +23,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import type { TemplateObject, CopyResult, TemplateMetadata } from '@/api/stores/template/types';
-import { PostCSSProcessor } from '@/liquid-forge/services/themes/optimization/postcss-processor';
+import { PostCSSProcessor } from '@/liquid-forge';
 import { getContentType } from '@/lib/utils';
 
 export class S3TemplateController {

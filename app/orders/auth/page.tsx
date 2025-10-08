@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import { AuthVerificationPage } from '@/packages/orders-app/src';
+import { AuthVerificationPage } from '@fasttify/orders-app';
 
 export default function AuthPage() {
   return (

@@ -16,8 +16,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/liquid-forge/lib/logger';
-import { calculateOrderPricing } from '../services/pricing-calculation.service';
+import { logger } from '@/liquid-forge';
+import { calculateOrderPricing } from '@/api/stores/_lib/pricing/services/pricing-calculation.service';
 
 export interface PricingCalculationRequest {
   subtotal: number;

@@ -16,8 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/liquid-forge/lib/logger';
-import { cartFetcher } from '@/liquid-forge/services/fetchers/cart';
+import { logger, dataFetcher } from '@/liquid-forge';
 import { getCartCookieOptions } from '@/lib/cookies/cookiesOption';
 import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
@@ -46,12 +45,12 @@ export async function updateCart(request: NextRequest, storeId: string): Promise
       );
     }
 
-    const cartResponse = await cartFetcher.updateCartItem({ storeId, itemId, quantity, sessionId });
+    const cartResponse = await dataFetcher.updateCartItem({ storeId, itemId, quantity, sessionId });
 
     const response = NextResponse.json(
       {
         success: cartResponse.success,
-        cart: cartResponse.cart ? cartFetcher.transformCartToContext(cartResponse.cart) : undefined,
+        cart: cartResponse.cart ? dataFetcher.transformCartToContext(cartResponse.cart) : undefined,
         error: cartResponse.error,
       },
       { headers: corsHeaders }

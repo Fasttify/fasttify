@@ -14,45 +14,80 @@
  * limitations under the License.
  */
 
-// ===== FACTORY PRINCIPAL =====
 export { StoreRendererFactory } from './factories/store-renderer-factory';
 export { storeRenderer } from './instances';
-
-// ===== RENDERERS =====
+export { logger } from './lib';
 export { DynamicPageRenderer } from './renderers/dynamic-page-renderer';
 
-// ===== LIQUID ENGINE =====
 export { liquidEngine } from './liquid/engine';
 
-// ===== SERVICIOS CORE =====
 export { domainResolver } from './services/core/domain-resolver';
 export { linkListService } from './services/core/navigation-service';
 
-// ===== SERVICIOS DE ERRORES =====
 export { errorRenderer } from './services/errors/error-renderer';
 
-// ===== SERVICIOS DE DATOS =====
 export { dataFetcher } from './services/fetchers/data-fetcher';
 export { navigationFetcher } from './services/fetchers/navigation';
 
-// ===== SERVICIOS DE PLANTILLAS =====
 export { templateAnalyzer } from './services/templates/analysis/template-analyzer';
 export { templateLoader } from './services/templates/template-loader';
-
-// ===== SERVICIOS DINÁMICOS =====
+export { dataTransformer } from './services/core/data-transformer';
+export { searchProductsByTerm } from './services/page/data-loader/search/search-data-loader';
 export { dynamicDataLoader } from './services/page/dynamic-data-loader';
 
-// ===== SERVICIOS DE ANALÍTICAS =====
 export { analyticsWebhookService } from './services/analytics';
-
-// ===== CONFIGURACIÓN =====
+export { storeViewsTracker } from './services/analytics/store-views-tracker.service';
 export { pathToRenderOptions, routeMatchers } from './config/route-matchers';
 export type { RouteMatcher } from './config/route-matchers';
 
-// ===== TIPOS PRINCIPALES =====
+export { PostCSSProcessor } from './services/themes/optimization/postcss-processor';
+export type { PostCSSOptions, ProcessingResult } from './services/themes/optimization/postcss-processor';
+
+export { ThemeValidator } from './services/themes/core/theme-validator';
+export { ThemeProcessor } from './services/themes/core/theme-processor';
+
+export { S3StorageService } from './services/themes/storage/s3-storage-service';
+
+export { EmailNotificationService } from './services/notifications/email-notification-service';
+export { EmailFormattingUtils } from './services/notifications/email-formatting-utils';
+
+export { SchemaParser } from './services/templates/parsing/schema-parser';
+
+export { getOrderStatus, getPaymentStatus } from './services/notifications/status-translations';
+
+export type {
+  ExtractionResult,
+  ProcessingStep,
+  ProcessingPipeline,
+  FileProcessingOptions,
+  AssetProcessingOptions,
+  TemplateProcessingOptions,
+} from './services/themes/types/processing-types';
+
+export type {
+  ThemeFile,
+  ThemeFileType,
+  ThemeAsset,
+  ThemeSection,
+  ThemeTemplate,
+  ThemeSettings,
+  ProcessedTheme,
+  ThemeProcessingOptions,
+  ThemeStorageResult,
+  Theme,
+} from './services/themes/types/theme-types';
+
+export type {
+  ValidationError,
+  ValidationWarning,
+  ValidationResult,
+  ThemeValidationConfig,
+  ValidationRule,
+  ValidationRuleConfig,
+} from './services/themes/types/validation-types';
+
 export type { RenderResult } from './types';
 
-// ===== TIPOS DEL SISTEMA DINÁMICO =====
 export type { DynamicLoadResult } from './services/page/dynamic-data-loader';
 export type {
   DataLoadOptions,

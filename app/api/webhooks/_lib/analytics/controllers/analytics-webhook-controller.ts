@@ -16,9 +16,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '@/liquid-forge';
 import { analyticsUpdateService } from '@/api/webhooks/_lib/analytics/services/analytics-update.service';
-import { verifyAnalyticsWebhookJWTAuth } from '@/app/api/webhooks/_lib/middleware/jwt-auth.middleware';
+import { verifyAnalyticsWebhookJWTAuth } from '@/api/webhooks/_lib/middleware/jwt-auth.middleware';
 import type { AnalyticsWebhookResponse } from '@/api/webhooks/_lib/analytics/types/analytics-webhook.types';
 
 /**

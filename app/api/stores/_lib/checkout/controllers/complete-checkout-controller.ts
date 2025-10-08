@@ -16,7 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { checkoutFetcher } from '@/liquid-forge/services/fetchers/checkout';
+import { dataFetcher } from '@/liquid-forge';
 
 export async function completeCheckout(request: NextRequest, _storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);
@@ -57,7 +57,7 @@ export async function completeCheckout(request: NextRequest, _storeId: string): 
     const notes = formData.get('notes') as string;
 
     // Actualizar información del cliente
-    const updateResponse = await checkoutFetcher.updateCustomerInfo({
+    const updateResponse = await dataFetcher.updateCustomerInfo({
       token,
       customerInfo,
       shippingAddress,
@@ -73,7 +73,7 @@ export async function completeCheckout(request: NextRequest, _storeId: string): 
     }
 
     // Completar el checkout
-    const completeResponse = await checkoutFetcher.completeCheckout(token);
+    const completeResponse = await dataFetcher.completeCheckout(token);
 
     if (!completeResponse.success) {
       return NextResponse.redirect(`${storeHost}/checkouts/cn/${token}?error=complete_failed`, {

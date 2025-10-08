@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import { SchemaParser } from '@/liquid-forge/services/templates/parsing/schema-parser';
-import { ThemeValidator } from '@/liquid-forge/services/themes';
-import type { ThemeFile, ValidationResult } from '@/liquid-forge/services/themes/types';
+import { SchemaParser, ThemeValidator, type ThemeFile, type ValidationResult } from '@/liquid-forge';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
 import { getCdnBaseUrl } from '@/utils/server';
 import type { StoreConfig } from '@/api/stores/template/types';

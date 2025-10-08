@@ -16,7 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { CustomDomainService } from '@/tenant-domains/services/custom-domain-service';
+import { CustomDomainService } from '@fasttify/tenant-domains';
 
 const customDomainService = new CustomDomainService();
 

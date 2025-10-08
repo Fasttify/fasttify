@@ -16,8 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { cartFetcher } from '@/liquid-forge/services/fetchers/cart';
-import { checkoutFetcher } from '@/liquid-forge/services/fetchers/checkout';
+import { dataFetcher } from '@/liquid-forge';
 import { cookies } from 'next/headers';
 
 const SESSION_COOKIE = 'fasttify_cart_session_id';
@@ -47,7 +46,7 @@ export async function startCheckout(request: NextRequest, storeId: string): Prom
     }
 
     // Obtener el carrito actual
-    const cart = await cartFetcher.getCart(storeId, sessionId);
+    const cart = await dataFetcher.getCart(storeId, sessionId);
 
     if (!cart || !cart.items || cart.items.length === 0) {
       const referer = request.headers.get('referer') || `${storeHost}/cart`;
@@ -61,7 +60,7 @@ export async function startCheckout(request: NextRequest, storeId: string): Prom
     });
 
     // Iniciar sesión de checkout
-    const checkoutResponse = await checkoutFetcher.startCheckout(
+    const checkoutResponse = await dataFetcher.startCheckout(
       {
         storeId,
         sessionId,

@@ -18,7 +18,7 @@ import type {
   OrderCreatedData,
   OrderCancelledData,
   OrderRefundedData,
-} from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
+} from '@/api/webhooks/_lib/analytics/types/analytics-webhook.types';
 
 /**
  * Servicio especializado para métricas de precios y revenue

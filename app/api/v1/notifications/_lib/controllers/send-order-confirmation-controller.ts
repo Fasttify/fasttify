@@ -18,7 +18,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
-import { EmailNotificationService, EmailFormattingUtils } from '@/packages/liquid-forge/services/notifications';
+import { EmailNotificationService, EmailFormattingUtils } from '@/liquid-forge';
 import { sendOrderConfirmationSchema } from '@/lib/zod-schemas/notification-api';
 
 export async function postSendOrderConfirmation(request: NextRequest) {

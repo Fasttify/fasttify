@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { OrdersDashboardLayout } from '@/packages/orders-app/src/pages/orders-dashboard';
-import { OrdersTable } from '@/packages/orders-app/src/pages/orders-dashboard/components/OrdersTable';
-import { SummaryCards } from '@/packages/orders-app/src/pages/orders-dashboard/components/SummaryCards';
-import { FiltersBar } from '@/packages/orders-app/src/pages/orders-dashboard/components/FiltersBar';
-import { useAuth } from '@/packages/orders-app/src/hooks/useAuth';
+import { OrdersDashboardLayout } from '@fasttify/orders-app/src/pages/orders-dashboard';
+import { OrdersTable } from '@fasttify/orders-app/src/pages/orders-dashboard/components/OrdersTable';
+import { SummaryCards } from '@fasttify/orders-app/src/pages/orders-dashboard/components/SummaryCards';
+import { FiltersBar } from '@fasttify/orders-app/src/pages/orders-dashboard/components/FiltersBar';
+import { useAuth } from '@fasttify/orders-app/src/hooks/useAuth';
 
 // Datos mock para desarrollo
 const mockOrders = [

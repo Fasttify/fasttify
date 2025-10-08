@@ -1,8 +1,5 @@
-import type {
-  InventoryLowData,
-  InventoryOutData,
-} from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
-import { analyticsRepository } from '@/app/api/webhooks/_lib/analytics/repositories/analytics.repository';
+import type { InventoryLowData, InventoryOutData } from '@/api/webhooks/_lib/analytics/types/analytics-webhook.types';
+import { analyticsRepository } from '@/api/webhooks/_lib/analytics/repositories/analytics.repository';
 
 export class InventoryAnalyticsService {
   /**

@@ -21,3 +21,4 @@ export { DomainValidator } from './services/domain/domain-validator';
 export { TokenGenerator } from './services/domain/token-generator';
 export { CertificateManager } from './services/ssl/certificate-manager';
 export { CustomDomainService } from './services/custom-domain-service';
+export { SecurityConfig } from './config/security-config';

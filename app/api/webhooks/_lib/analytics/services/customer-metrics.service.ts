@@ -15,12 +15,12 @@
  */
 
 import { cookiesClient } from '@/utils/server/AmplifyServer';
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '@/liquid-forge';
 import type {
   OrderCreatedData,
   NewCustomerData,
   CustomerLoginData,
-} from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
+} from '@/api/webhooks/_lib/analytics/types/analytics-webhook.types';
 
 /**
  * Servicio especializado para métricas de clientes

@@ -1,6 +1,6 @@
-import { analyticsRepository } from '@/app/api/webhooks/_lib/analytics/repositories/analytics.repository';
-import { conversionMetricsService } from '@/app/api/webhooks/_lib/analytics/services/conversion-metrics.service';
-import { detailedMetricsService } from '@/app/api/webhooks/_lib/analytics/services/detailed-metrics.service';
+import { analyticsRepository } from '@/api/webhooks/_lib/analytics/repositories/analytics.repository';
+import { conversionMetricsService } from '@/api/webhooks/_lib/analytics/services/conversion-metrics.service';
+import { detailedMetricsService } from '@/api/webhooks/_lib/analytics/services/detailed-metrics.service';
 
 export class ViewAnalyticsService {
   /**

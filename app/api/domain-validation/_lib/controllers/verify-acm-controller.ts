@@ -16,7 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { CertificateManager } from '@/tenant-domains/services/ssl/certificate-manager';
+import { CertificateManager } from '@fasttify/tenant-domains';
 
 const certificateManager = new CertificateManager();
 
