@@ -230,7 +230,7 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
             {isLoading ? (
               <>
                 <Loader color="white" />
-                Confirmando...
+                Confirmando nueva contraseña...
               </>
             ) : (
               'Confirmar nueva contraseña'
@@ -270,7 +270,16 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
           type="submit"
           className="w-full bg-black text-white hover:bg-black/90"
           disabled={isLoading || timer > 0}>
-          {isLoading ? 'Enviando...' : timer > 0 ? `Espera ${timer} segundos` : 'Enviar instrucciones'}
+          {isLoading ? (
+            <>
+              <Loader color="white" />
+              Enviando instrucciones...
+            </>
+          ) : timer > 0 ? (
+            `Espera ${timer} segundos`
+          ) : (
+            'Enviar instrucciones'
+          )}
         </Button>
         <Button
           type="button"

@@ -1,24 +1,12 @@
 'use client';
 
-import outputs from '@/amplify_outputs.json';
 import { AccountSettings } from '@/app/(main-layout)/account-settings/components/AccountSettings';
 import { ActiveSessions } from '@/app/(main-layout)/account-settings/components/ActiveSessions';
 import { PaymentSettings } from '@/app/(main-layout)/account-settings/components/PaymentSettings';
 import { Sidebar } from '@/app/(main-layout)/account-settings/components/SideBar';
 import { useAuth } from '@/context/hooks/useAuth';
-import { Amplify } from 'aws-amplify';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
-
-Amplify.configure(outputs);
-const existingConfig = Amplify.getConfig();
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-});
 
 function AccountSettingsContent() {
   const searchParams = useSearchParams();

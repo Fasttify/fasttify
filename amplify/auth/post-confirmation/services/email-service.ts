@@ -1,5 +1,5 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
-import { welcomeEmail } from './templates/welcome-email';
+import { generateWelcomeEmailHTML, generateWelcomeEmailSubject } from './templates/welcome-email-compiled';
 
 const sesClient = new SESClient();
 
@@ -19,8 +19,9 @@ function replacePlaceholders(template: string, replacements: Record<string, stri
  * Envía el email de bienvenida utilizando SES.
  * @param email Dirección de correo destino.
  * @param trialEndDate Fecha de fin de prueba.
+ * @param userName Nombre del usuario.
  */
-export async function sendWelcomeEmail(email: string, trialEndDate: Date): Promise<boolean> {
+export async function sendWelcomeEmail(email: string, trialEndDate: Date, userName: string): Promise<boolean> {
   try {
     // Formatea la fecha en español
     const formattedDate = trialEndDate.toLocaleDateString('es-ES', {
@@ -30,13 +31,20 @@ export async function sendWelcomeEmail(email: string, trialEndDate: Date): Promi
       day: 'numeric',
     });
 
-    const replacements = {
+    // Mejorar el nombre del usuario si es genérico
+    const displayName = userName === 'Usuario' ? email?.split('@')[0] || 'Usuario' : userName;
+
+    const variables = {
+      customerName: displayName,
       trialEndDate: formattedDate,
+      storeName: 'Fasttify',
+      planName: 'Royal',
       currentYear: new Date().getFullYear().toString(),
     };
 
-    // Genera el contenido HTML final reemplazando los placeholders
-    const htmlContent = replacePlaceholders(welcomeEmail, replacements);
+    // Genera el contenido HTML y asunto usando el template compilado
+    const htmlContent = generateWelcomeEmailHTML(variables);
+    const subject = generateWelcomeEmailSubject(variables);
 
     // Configura los parámetros para SES (solo HTML)
     const params = {
@@ -52,7 +60,7 @@ export async function sendWelcomeEmail(email: string, trialEndDate: Date): Promi
         },
         Subject: {
           Charset: 'UTF-8',
-          Data: '¡Bienvenido a Fasttify! Tu prueba gratuita del plan Royal está activa',
+          Data: subject,
         },
       },
       Source: 'noreply@fasttify.com',

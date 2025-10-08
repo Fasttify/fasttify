@@ -4,7 +4,7 @@ import { useUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
-import { useAuth } from '@/context/hooks/useAuth';
+import { useAuthWithFreshData } from '@/context/hooks/useAuthWithFreshData';
 import { routes } from '@/utils/client/routes';
 import { AnimatePresence, motion } from 'framer-motion';
 import { PlusCircle } from 'lucide-react';
@@ -115,7 +115,7 @@ function StoreData({ userId, userPlan }: { userId: string | null; userPlan?: str
 
 // Componente principal
 export function StoreSelector() {
-  const { user, loading: isLoading } = useAuth();
+  const { user, loading: isLoading } = useAuthWithFreshData();
   const cognitoUsername = user?.userId;
   const userPlan = user?.plan;
 

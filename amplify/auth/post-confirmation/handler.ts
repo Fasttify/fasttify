@@ -66,8 +66,21 @@ export const handler: PostConfirmationTriggerHandler = async (event) => {
 
       // Enviar email de bienvenida con información de la prueba
       const userEmail = event.request.userAttributes.email;
+
+      // Obtener el nombre del usuario con más opciones
+      const userName =
+        event.request.userAttributes.name ||
+        event.request.userAttributes.given_name ||
+        event.request.userAttributes.family_name ||
+        event.request.userAttributes.nickname ||
+        event.request.userAttributes.preferred_username ||
+        event.request.userAttributes['custom:name'] ||
+        event.request.userAttributes['custom:displayName'] ||
+        userEmail?.split('@')[0] || // Usar parte del email como fallback
+        'Usuario';
+
       if (userEmail) {
-        await sendWelcomeEmail(userEmail, trialEndDate);
+        await sendWelcomeEmail(userEmail, trialEndDate, userName);
       }
     } catch (dbError) {
       console.error('Error creating subscription record in DynamoDB:', dbError);

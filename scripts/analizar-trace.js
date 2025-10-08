@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const traceFilePath = path.join(__dirname, 'trace_output', 'trace.json');
-console.log(`🔎 Analizando el archivo (formato Begin/End): ${traceFilePath}`);
+console.log(`Analizando el archivo (formato Begin/End): ${traceFilePath}`);
 
 try {
   const traceData = fs.readFileSync(traceFilePath, 'utf8');
@@ -56,7 +56,7 @@ try {
     });
   }
 
-  console.log('\n✅ Análisis completado.');
+  console.log('\n Análisis completado.');
 } catch (error) {
-  console.error('❌ Error al procesar el archivo:', error.message);
+  console.error(' Error processing file:', error.message);
 }
