@@ -16,9 +16,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '@/liquid-forge';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
-import { CustomDomainService } from '@/tenant-domains/services/custom-domain-service';
+import { CustomDomainService } from '@/tenant-domains';
 
 const customDomainService = new CustomDomainService();
 

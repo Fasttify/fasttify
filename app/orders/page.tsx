@@ -1,6 +1,6 @@
 'use client';
 
-import { EmailRequestPage } from '@/packages/orders-app/src';
+import { EmailRequestPage } from '@fasttify/orders-app';
 
 export default function OrdersPage() {
   const handleEmailSubmit = async (email: string, storeId?: string) => {

@@ -16,8 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/liquid-forge/lib/logger';
-import { S3StorageService } from '@/liquid-forge/services/themes/storage/s3-storage-service';
+import { logger, S3StorageService } from '@/liquid-forge';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
 import { getCdnUrlForKey } from '@/utils/server';
 import { GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3';

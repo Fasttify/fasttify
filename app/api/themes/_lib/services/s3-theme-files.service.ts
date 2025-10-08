@@ -22,7 +22,7 @@ import {
   ListObjectsV2CommandOutput,
 } from '@aws-sdk/client-s3';
 import { getCdnUrlForKey } from '@/utils/server';
-import { buildThemePrefix, isTextFile, createFileId } from '../utils/path-utils';
+import { buildThemePrefix, isTextFile, createFileId } from '@/api/themes/_lib/utils/path-utils';
 
 export interface ListedFile {
   id: string;

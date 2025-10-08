@@ -19,6 +19,7 @@ import { cartFetcher } from '@/liquid-forge/services/fetchers/cart';
 import { collectionFetcher } from '@/liquid-forge/services/fetchers/collection';
 import { navigationFetcher } from '@/liquid-forge/services/fetchers/navigation';
 import { pageFetcher } from '@/liquid-forge/services/fetchers/page';
+import { checkoutFetcher } from '@/liquid-forge/services/fetchers/checkout';
 import { productFetcher } from '@/liquid-forge/services/fetchers/product';
 import type {
   AddToCartRequest,
@@ -28,7 +29,12 @@ import type {
   CollectionContext,
   PageContext,
   ProductContext,
+  StartCheckoutRequest,
+  UpdateCustomerInfoRequest,
   UpdateCartRequest,
+  CheckoutResponse,
+  CheckoutSession,
+  CheckoutStatus,
 } from '@/liquid-forge/types';
 
 interface PaginationOptions {
@@ -104,16 +110,12 @@ export class DataFetcher {
     return collectionFetcher.getCollection(storeId, collectionId, options);
   }
 
-  // === NAVEGACIÓN ===
-
   /**
    * Obtiene todos los menús de navegación de una tienda
    */
   public async getStoreNavigationMenus(storeId: string): Promise<NavigationMenusResponse> {
     return navigationFetcher.getStoreNavigationMenus(storeId);
   }
-
-  // === PÁGINAS ===
 
   /**
    * Obtiene páginas de una tienda con paginación
@@ -149,8 +151,6 @@ export class DataFetcher {
   public async getPoliciesPages(storeId: string): Promise<PageContext[]> {
     return pageFetcher.getPoliciesPages(storeId);
   }
-
-  // === CARRITO ===
 
   /**
    * Obtiene el carrito para una sesión específica
@@ -188,13 +188,53 @@ export class DataFetcher {
   }
 
   /**
+   * Inicia una sesión de checkout
+   */
+  public async startCheckout(request: StartCheckoutRequest, cart: Cart): Promise<CheckoutResponse> {
+    return checkoutFetcher.startCheckout(request, cart);
+  }
+
+  /**
+   * Actualiza la información del cliente en una sesión de checkout
+   */
+  public async updateCustomerInfo(request: UpdateCustomerInfoRequest): Promise<CheckoutResponse> {
+    return checkoutFetcher.updateCustomerInfo(request);
+  }
+
+  /**
+   * Completa una sesión de checkout
+   */
+  public async completeCheckout(token: string): Promise<CheckoutResponse> {
+    return checkoutFetcher.completeCheckout(token);
+  }
+
+  /**
+   * Cancela una sesión de checkout
+   */
+  public async cancelCheckout(token: string): Promise<CheckoutResponse> {
+    return checkoutFetcher.cancelCheckout(token);
+  }
+
+  /**
+   * Obtiene una sesión de checkout por token
+   */
+  public async getSessionByToken(token: string): Promise<CheckoutSession | null> {
+    return checkoutFetcher.getSessionByToken(token);
+  }
+
+  /**
+   * Actualiza el estado de una sesión de checkout
+   */
+  public async updateSessionStatus(token: string, status: CheckoutStatus): Promise<CheckoutResponse> {
+    return checkoutFetcher.updateSessionStatus(token, status);
+  }
+
+  /**
    * Convierte un carrito a contexto Liquid
    */
   public transformCartToContext(cart: Cart): CartContext {
     return cartFetcher.transformCartToContext(cart);
   }
-
-  // === GESTIÓN DE CACHÉ ===
 
   /**
    * Invalida el caché para una tienda específica

@@ -16,9 +16,8 @@
 
 import { NextRequest } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@fasttify/liquid-forge/lib/logger';
-import { templateDevSynchronizer } from '@fasttify/liquid-forge/services/templates/sync/template-dev-synchronizer';
-import { cacheManager } from '@fasttify/liquid-forge/index';
+import { logger, cacheManager } from '@fasttify/liquid-forge';
+import { templateDevSynchronizer } from '@/liquid-forge/services/templates/sync/template-dev-synchronizer';
 
 /**
  * Conexiones SSE activas.

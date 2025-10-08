@@ -1,9 +1,6 @@
-import type {
-  CustomerLoginData,
-  NewCustomerData,
-} from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
-import { analyticsRepository } from '@/app/api/webhooks/_lib/analytics/repositories/analytics.repository';
-import { customerMetricsService } from '@/app/api/webhooks/_lib/analytics/services/customer-metrics.service';
+import type { CustomerLoginData, NewCustomerData } from '@/api/webhooks/_lib/analytics/types/analytics-webhook.types';
+import { analyticsRepository } from '@/api/webhooks/_lib/analytics/repositories/analytics.repository';
+import { customerMetricsService } from '@/api/webhooks/_lib/analytics/services/customer-metrics.service';
 
 export class CustomerAnalyticsService {
   /**

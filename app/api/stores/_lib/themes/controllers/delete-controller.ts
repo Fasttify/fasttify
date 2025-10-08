@@ -16,9 +16,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger, S3StorageService } from '@/liquid-forge';
 import { AuthGetCurrentUserServer, cookiesClient } from '@/utils/client/AmplifyUtils';
-import { S3StorageService } from '@/liquid-forge/services/themes/storage/s3-storage-service';
 
 export async function deleteTheme(request: NextRequest, storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);

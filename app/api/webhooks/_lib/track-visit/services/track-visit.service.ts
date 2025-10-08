@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '@/liquid-forge';
 import { geolocationService } from '@/api/webhooks/_lib/track-visit/services/geolocation.service';
 import { deviceDetectionService } from '@/api/webhooks/_lib/track-visit/services/device-detection.service';
-import { AnalyticsWebhookJWTAuth } from '@/app/api/webhooks/_lib/middleware/jwt-auth.middleware';
+import { AnalyticsWebhookJWTAuth } from '@/api/webhooks/_lib/middleware/jwt-auth.middleware';
 import type { ServerViewData } from '@/api/webhooks/_lib/track-visit/types/track-visit.types';
 import { ServerViewDataSchema } from '@/app/api/webhooks/_lib/track-visit/types/track-visit.types';
 

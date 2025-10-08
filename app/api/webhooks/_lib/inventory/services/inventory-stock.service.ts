@@ -15,12 +15,9 @@
  */
 
 import { cookiesClient } from '@/utils/server/AmplifyServer';
-import { logger } from '@/liquid-forge/lib/logger';
-import { AnalyticsWebhookJWTAuth } from '@/app/api/webhooks/_lib/middleware/jwt-auth.middleware';
-import type {
-  OrderCreatedData,
-  OrderCancelledData,
-} from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
+import { logger } from '@/liquid-forge';
+import { AnalyticsWebhookJWTAuth } from '@/api/webhooks/_lib/middleware/jwt-auth.middleware';
+import type { OrderCreatedData, OrderCancelledData } from '@/api/webhooks/_lib/analytics/types/analytics-webhook.types';
 
 interface InventoryUpdateItem {
   productId: string;

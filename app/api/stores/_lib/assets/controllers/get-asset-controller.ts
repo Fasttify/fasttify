@@ -17,7 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { getContentType } from '@/lib/utils/file-utils';
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '@fasttify/liquid-forge';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 const s3Client = new S3Client({ region: process.env.REGION_BUCKET });

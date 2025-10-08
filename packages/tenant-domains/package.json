@@ -1,0 +1,34 @@
+{
+  "name": "@fasttify/tenant-domains",
+  "version": "1.0.0",
+  "description": "Paquete para la gestión de dominios personalizados y tenants de CloudFront Multi-Tenant",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "peerDependencies": {
+    "@aws-sdk/client-acm": "^3.844.0",
+    "@aws-sdk/client-cloudfront": "^3.844.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "keywords": [
+    "tenant-domains",
+    "cloudfront",
+    "aws",
+    "ssl",
+    "certificates",
+    "dns",
+    "fasttify"
+  ],
+  "author": "Fasttify Team",
+  "license": "Apache-2.0"
+}

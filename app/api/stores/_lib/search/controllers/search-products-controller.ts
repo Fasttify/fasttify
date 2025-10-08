@@ -16,8 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { cacheManager, getSearchProductsCacheKey } from '@/liquid-forge/services/core/cache';
-import { searchProductsByTerm } from '@/liquid-forge/services/page/data-loader/search/search-data-loader';
+import { cacheManager, getSearchProductsCacheKey, searchProductsByTerm } from '@/liquid-forge';
 
 export async function searchProducts(request: NextRequest, storeId: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);

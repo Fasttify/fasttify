@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { AnalyticsWebhookEventSchema } from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
+import { AnalyticsWebhookEventSchema } from '@/api/webhooks/_lib/analytics/types/analytics-webhook.types';
 import type {
   OrderCreatedData,
   OrderCancelledData,
@@ -23,11 +23,11 @@ import type {
   InventoryOutData,
   NewCustomerData,
   CustomerLoginData,
-} from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
-import { orderAnalyticsService } from '@/app/api/webhooks/_lib/analytics/services/order-analytics.service';
-import { inventoryAnalyticsService } from '@/app/api/webhooks/_lib/analytics/services/inventory-analytics.service';
-import { customerAnalyticsService } from '@/app/api/webhooks/_lib/analytics/services/customer-analytics.service';
-import { viewAnalyticsService } from '@/app/api/webhooks/_lib/analytics/services/view-analytics.service';
+} from '@/api/webhooks/_lib/analytics/types/analytics-webhook.types';
+import { orderAnalyticsService } from '@/api/webhooks/_lib/analytics/services/order-analytics.service';
+import { inventoryAnalyticsService } from '@/api/webhooks/_lib/analytics/services/inventory-analytics.service';
+import { customerAnalyticsService } from '@/api/webhooks/_lib/analytics/services/customer-analytics.service';
+import { viewAnalyticsService } from '@/api/webhooks/_lib/analytics/services/view-analytics.service';
 
 /**
  * Fachada de actualización de analíticas.

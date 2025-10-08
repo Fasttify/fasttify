@@ -16,8 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { cartFetcher } from '@/liquid-forge/services/fetchers/cart';
-import { checkoutFetcher } from '@/liquid-forge/services/fetchers/checkout';
+import { dataFetcher } from '@/liquid-forge';
 import { cookies } from 'next/headers';
 
 const SESSION_COOKIE = 'fasttify_cart_session_id';
@@ -40,14 +39,14 @@ export async function directCheckout(request: NextRequest, storeId: string): Pro
     }
 
     // Obtener el carrito actual
-    const cart = await cartFetcher.getCart(storeId, sessionId);
+    const cart = await dataFetcher.getCart(storeId, sessionId);
 
     if (!cart || !cart.items || cart.items.length === 0) {
       return NextResponse.redirect(`${storeHost}/cart?error=empty_cart`, { status: 303, headers: corsHeaders });
     }
 
     // Iniciar sesión de checkout directamente
-    const checkoutResponse = await checkoutFetcher.startCheckout(
+    const checkoutResponse = await dataFetcher.startCheckout(
       {
         storeId,
         sessionId,

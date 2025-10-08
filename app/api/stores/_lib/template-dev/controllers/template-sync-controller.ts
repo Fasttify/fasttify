@@ -16,7 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '@/liquid-forge';
 import { templateDevSynchronizer } from '@/liquid-forge/services/templates/sync/template-dev-synchronizer';
 
 export async function startSync(request: NextRequest, body?: any): Promise<NextResponse> {

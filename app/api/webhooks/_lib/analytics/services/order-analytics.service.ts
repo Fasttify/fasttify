@@ -2,12 +2,12 @@ import type {
   OrderCancelledData,
   OrderCreatedData,
   OrderRefundedData,
-} from '@/app/api/webhooks/_lib/analytics/types/analytics-webhook.types';
-import { analyticsRepository } from '@/app/api/webhooks/_lib/analytics/repositories/analytics.repository';
-import { pricingMetricsService } from '@/app/api/webhooks/_lib/analytics/services/pricing-metrics.service';
-import { customerMetricsService } from '@/app/api/webhooks/_lib/analytics/services/customer-metrics.service';
-import { conversionMetricsService } from '@/app/api/webhooks/_lib/analytics/services/conversion-metrics.service';
-import { inventoryStockService } from '@/app/api/webhooks/_lib/inventory/services/inventory-stock.service';
+} from '@/api/webhooks/_lib/analytics/types/analytics-webhook.types';
+import { analyticsRepository } from '@/api/webhooks/_lib/analytics/repositories/analytics.repository';
+import { pricingMetricsService } from '@/api/webhooks/_lib/analytics/services/pricing-metrics.service';
+import { customerMetricsService } from '@/api/webhooks/_lib/analytics/services/customer-metrics.service';
+import { conversionMetricsService } from '@/api/webhooks/_lib/analytics/services/conversion-metrics.service';
+import { inventoryStockService } from '@/api/webhooks/_lib/inventory/services/inventory-stock.service';
 
 export class OrderAnalyticsService {
   /**

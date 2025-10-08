@@ -69,6 +69,7 @@
     "@fasttify/liquid-forge": "workspace:*",
     "@fasttify/orders-app": "workspace:*",
     "@fasttify/theme-editor": "workspace:*",
+    "@fasttify/tenant-domains": "workspace:*",
     "@hookform/resolvers": "3.3.4",
     "@next/bundle-analyzer": "^15.5.2",
     "@polar-sh/sdk": "^0.34.3",
