@@ -2,7 +2,7 @@
 
 Motor de renderizado Liquid para la plataforma Fasttify.
 
-## 🚀 Características
+## Características
 
 - **Motor Liquid**: Renderizado de templates Liquid con soporte completo
 - **Gestión de Assets**: Inyección automática de CSS y JavaScript
@@ -11,7 +11,7 @@ Motor de renderizado Liquid para la plataforma Fasttify.
 - **Soporte Multi-idioma**: Renderizado con contexto de idioma
 - **Optimización**: Minificación y optimización automática de assets
 
-## 📦 Instalación
+## Instalación
 
 ```bash
 # Desde la raíz del proyecto
@@ -22,7 +22,7 @@ cd liquid-forge
 npm install
 ```
 
-## 🔧 Uso
+## Uso
 
 ### Importación Básica
 
@@ -46,7 +46,7 @@ const renderer = new StoreRendererFactory();
 const result = await renderer.renderPage(domain, path, searchParams);
 ```
 
-## 🏗️ Estructura del Paquete
+## Estructura del Paquete
 
 ```
 liquid-forge/
@@ -60,7 +60,7 @@ liquid-forge/
 └── types/                    # Tipos TypeScript
 ```
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Ejecutar tests
@@ -73,7 +73,7 @@ npm run test:watch
 npm run test:coverage
 ```
 
-## 🔨 Desarrollo
+## Desarrollo
 
 ```bash
 # Compilar TypeScript
@@ -89,7 +89,7 @@ npm run type-check
 npm run clean
 ```
 
-## 📚 Dependencias Principales
+## Dependencias Principales
 
 - **liquidjs**: Motor de templates Liquid
 - **@aws-sdk/client-s3**: Cliente S3 para assets
@@ -97,7 +97,7 @@ npm run clean
 - **jszip**: Manejo de archivos ZIP
 - **uuid**: Generación de IDs únicos
 
-## 🤝 Contribución
+## Contribución
 
 1. Fork el proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
@@ -105,6 +105,6 @@ npm run clean
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-## 📄 Licencia
+## Licencia
 
-Este proyecto está bajo la Licencia Apache 2.0 - ver el archivo [LICENSE](../LICENSE) para más detalles.
+Este proyecto está bajo la Licencia Apache 2.0 - ver el archivo [LICENSE](../../LICENSE) para más detalles.

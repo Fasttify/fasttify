@@ -43,7 +43,7 @@
     "upload-template": "node scripts/upload-base-template.js",
     "license": "node scripts/add-license-header.js",
     "license:check": "node scripts/check-license-header.js",
-    "convert": "tsx scripts/shopify-to-fasttify-converter.ts"
+    "convert": "tsx scripts/parser/shopify-to-fasttify-converter.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [

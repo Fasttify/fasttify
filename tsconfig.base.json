@@ -30,6 +30,8 @@
       "@/hooks/*": ["./hooks/*"],
       "@/tenant-domains/*": ["./packages/tenant-domains/*"],
       "@/tenant-domains": ["./packages/tenant-domains"],
+      "@/emails/*": ["./packages/emails/*"],
+      "@/emails/templates/*": ["./packages/emails/templates/*"],
       "@/api/*": ["./app/api/*"]
     },
     "incremental": true

@@ -82,5 +82,6 @@ export const auth = defineAuth({
     allow.resource(webHookPlan).to(['updateUserAttributes', 'getUser']),
     allow.resource(planScheduler).to(['updateUserAttributes', 'getUser']),
     allow.resource(postConfirmation).to(['updateUserAttributes', 'getUser']),
+    allow.resource(customMessage).to(['updateUserAttributes', 'getUser']),
   ],
 });

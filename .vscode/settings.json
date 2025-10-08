@@ -10,8 +10,6 @@
   },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.fontSize": 13,
-  "editor.lineHeight": 1.8,
   "editor.tabSize": 2,
   "editor.bracketPairColorization.enabled": true,
   "editor.wordWrap": "on",
@@ -73,7 +71,7 @@
     "**/.turbo": true,
     "**/.cache": true
   },
-  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsserver.maxTsServerMemory": 8192,
   "typescript.tsserver.experimental.enableProjectDiagnostics": false,
   "typescript.tsserver.watchOptions": {
     "watchFile": "priorityPollingInterval",
