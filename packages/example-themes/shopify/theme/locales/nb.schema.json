@@ -3183,7 +3183,8 @@
       "name": "Relaterte produkter",
       "settings": {
         "heading": {
-          "label": "Overskrift"
+          "label": "Overskrift",
+          "default": "Kanskje du også liker"
         },
         "products_to_show": {
           "label": "Antall produkter"

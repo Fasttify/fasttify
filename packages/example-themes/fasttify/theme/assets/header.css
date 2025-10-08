@@ -185,6 +185,30 @@
   justify-self: end;
 }
 
+/* Icon wrappers: asegurar tamaño/visibilidad para SVG o IMG */
+.header-actions .svg-wrapper,
+.header-icon .svg-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  line-height: 0;
+}
+
+.header-actions .svg-wrapper svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.header-actions .svg-wrapper img {
+  width: 24px;
+  height: 24px;
+  display: block;
+  object-fit: contain;
+}
+
 .header-icon {
   color: var(--header-text);
   display: flex;
@@ -228,6 +252,7 @@
   justify-content: center;
   min-width: 18px;
   font-family: var(--font-body);
+  z-index: 1;
 }
 
 /* Search */

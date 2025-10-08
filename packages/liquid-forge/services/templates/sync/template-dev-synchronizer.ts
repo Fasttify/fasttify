@@ -59,8 +59,10 @@ export class TemplateDevSynchronizer {
   private onChangeCallback: ((changes: FileChange[]) => void) | null = null;
   private postcssProcessor: PostCSSProcessor;
 
+  /**
+   * Inicializa dependencias y cliente S3 para desarrollo.
+   */
   private constructor() {
-    // La configuración de S3 se establece al iniciar la sincronización
     this.bucketName = process.env.BUCKET_NAME || '';
     this.s3Client = new S3Client({
       region: process.env.REGION_BUCKET || 'us-east-2',
@@ -68,6 +70,10 @@ export class TemplateDevSynchronizer {
     this.postcssProcessor = PostCSSProcessor.getInstance();
   }
 
+  /**
+   * Retorna la instancia singleton del sincronizador
+   * @returns Instancia única de TemplateDevSynchronizer
+   */
   public static getInstance(): TemplateDevSynchronizer {
     if (!TemplateDevSynchronizer.instance) {
       TemplateDevSynchronizer.instance = new TemplateDevSynchronizer();
@@ -85,12 +91,10 @@ export class TemplateDevSynchronizer {
       await this.stop();
     }
 
-    // Always resolve relative to our safe root
     const requestedDir = path.resolve(options.localDir);
-    // Strict containment check: normalized requestedDir must be the root or start with the normalized root + separator
     if (requestedDir !== TEMPLATES_DEV_ROOT && !requestedDir.startsWith(TEMPLATES_DEV_ROOT + path.sep)) {
       throw new Error(
-        `Directorio local ilegal: ${options.localDir}. Solo se permiten carpetas dentro de ${TEMPLATES_DEV_ROOT}.`
+        `Illegal local directory: ${options.localDir}. Only directories within ${TEMPLATES_DEV_ROOT} are allowed.`
       );
     }
     this.localDir = requestedDir;
@@ -107,20 +111,19 @@ export class TemplateDevSynchronizer {
     }
 
     if (!fs.existsSync(this.localDir)) {
-      throw new Error(`El directorio local ${this.localDir} no existe`);
+      throw new Error(`Local directory ${this.localDir} does not exist`);
     }
 
     if (!this.bucketName) {
-      throw new Error('No se ha configurado el nombre del bucket S3');
+      throw new Error('Bucket name not configured');
     }
 
     if (!this.s3Client) {
-      throw new Error('No se ha configurado el cliente S3');
+      throw new Error('S3 client not configured');
     }
 
-    // Iniciar watcher
     this.watcher = chokidar.watch(this.localDir, {
-      ignored: /(^|[\/\\])\../, // Ignorar archivos ocultos
+      ignored: /(^|[\/\\])\../,
       persistent: true,
       awaitWriteFinish: {
         stabilityThreshold: 300,
@@ -128,28 +131,15 @@ export class TemplateDevSynchronizer {
       },
     });
 
-    logger.debug(
-      `[TemplateDevSynchronizer] Observando cambios en ${this.localDir}`,
-      undefined,
-      'TemplateDevSynchronizer'
-    );
-
-    // Configurar eventos
     this.watcher
       .on('add', (filePath) => this.handleFileChange(filePath, 'add'))
       .on('change', (filePath) => this.handleFileChange(filePath, 'change'))
       .on('unlink', (filePath) => this.handleFileChange(filePath, 'unlink'));
 
-    // Esperar a que esté listo
     await new Promise<void>((resolve) => {
       if (this.watcher) {
         this.watcher.on('ready', () => {
           this.isActive = true;
-          logger.debug(
-            `[TemplateDevSynchronizer] Listo para sincronizar cambios`,
-            undefined,
-            'TemplateDevSynchronizer'
-          );
           resolve();
         });
       } else {
@@ -160,13 +150,13 @@ export class TemplateDevSynchronizer {
 
   /**
    * Detiene la sincronización
+   * @returns Promise que se resuelve al detener el watcher
    */
   public async stop(): Promise<void> {
     if (this.watcher) {
       await this.watcher.close();
       this.watcher = null;
       this.isActive = false;
-      logger.debug('[TemplateDevSynchronizer] Sincronización detenida', undefined, 'TemplateDevSynchronizer');
     }
   }
 
@@ -185,137 +175,118 @@ export class TemplateDevSynchronizer {
       // Verificar que la ruta candidata esté dentro del directorio raíz
       return resolvedCandidate === resolvedRoot || resolvedCandidate.startsWith(resolvedRoot + path.sep);
     } catch (error) {
-      logger.error(
-        `[TemplateDevSynchronizer] Error validando ruta: ${candidatePath}`,
-        error,
-        'TemplateDevSynchronizer'
-      );
+      logger.error(`Error validating path: ${candidatePath}`, error, 'TemplateDevSynchronizer');
       return false;
     }
   }
 
   /**
+   * Asegura una ruta dentro del directorio seguro, regresando ruta absoluta y relativa.
+   * @param filePath - Ruta del archivo a validar
+   * @returns Objeto con ruta validada y relativa
+   */
+  private assertAndResolvePath(filePath: string): { validatedPath: string; relativePath: string } {
+    if (!this.isSafePath(filePath, this.localDir)) {
+      throw new Error(`Unsafe path: ${filePath}`);
+    }
+    const validatedPath = path.resolve(filePath);
+    const relativePath = path.relative(this.localDir, validatedPath).replace(/\\/g, '/');
+    return { validatedPath, relativePath };
+  }
+
+  /**
+   * Construye la clave de S3 para un archivo relativo al directorio local.
+   * @param relativePath - Ruta relativa desde el directorio local
+   * @returns Clave S3 normalizada
+   */
+  private buildS3Key(relativePath: string): string {
+    return `templates/${this.storeId}/${relativePath}`.replace(/\\/g, '/');
+  }
+
+  /**
+   * Registra un cambio reciente manteniendo un límite máximo.
+   * @param change - Cambio de archivo a registrar
+   */
+  private recordRecentChange(change: FileChange): void {
+    this.recentChanges.push(change);
+    if (this.recentChanges.length > 50) {
+      this.recentChanges = this.recentChanges.slice(-50);
+    }
+    if (this.onChangeCallback) {
+      this.onChangeCallback([...this.recentChanges]);
+    }
+  }
+
+  /**
    * Maneja los cambios en archivos
+   * @param filePath - Ruta absoluta del archivo cambiado
+   * @param event - Tipo de evento (add|change|unlink)
+   * @returns Promise cuando el procesamiento del cambio finaliza
    */
   private async handleFileChange(filePath: string, event: 'add' | 'change' | 'unlink'): Promise<void> {
     try {
-      // Validar que la ruta esté dentro del directorio seguro
       if (!this.isSafePath(filePath, this.localDir)) {
-        logger.warn(
-          `[TemplateDevSynchronizer] Ruta no segura detectada y omitida: ${filePath}`,
-          undefined,
-          'TemplateDevSynchronizer'
-        );
+        logger.warn(`Unsafe path detected and omitted: ${filePath}`, undefined, 'TemplateDevSynchronizer');
         return;
       }
 
-      // Obtener ruta relativa al directorio local
       const relativePath = path.relative(this.localDir, filePath);
-      logger.debug(
-        `[TemplateDevSynchronizer] ${event.toUpperCase()}: ${relativePath}`,
-        undefined,
-        'TemplateDevSynchronizer'
-      );
 
-      // Construir clave S3
-      const s3Key = `templates/${this.storeId}/${relativePath}`.replace(/\\/g, '/');
+      const s3Key = this.buildS3Key(relativePath);
 
-      // Subir archivo a S3
       if (event === 'add' || event === 'change') {
         await this.uploadFileToS3(filePath, s3Key);
       } else if (event === 'unlink') {
         await this.deleteFileFromS3(s3Key);
       }
 
-      // Invalidar caché de manera agresiva
-      // templatePath es ahora el templateName que templateLoader.getS3TemplateKey espera
       const templateName = relativePath.replace(/\\/g, '/');
 
-      // Invalidar la caché del template específico (tanto raw como compilado)
       templateLoader.invalidateTemplateCache(this.storeId, templateName);
 
-      // Forzar recarga del template - Si es un cambio importante (ej. en el layout), invalidar toda la caché
       if (templateName.includes('layout/') || templateName.includes('config/')) {
         cacheManager.invalidateStoreCache(this.storeId); // Invalidar toda la caché de la tienda
       }
 
-      // Invalidar caché de CloudFront para el archivo específico
       cacheInvalidationService.invalidateCache('template_store_updated', this.storeId, undefined, templateName);
 
-      // Registrar cambio reciente
-      const change: FileChange = {
-        path: relativePath,
-        event,
-        timestamp: Date.now(),
-      };
-      this.recentChanges.push(change);
-
-      // Mantener solo los últimos 50 cambios
-      if (this.recentChanges.length > 50) {
-        this.recentChanges = this.recentChanges.slice(-50);
-      }
-
-      // Notificar cambio
-      if (this.onChangeCallback) {
-        this.onChangeCallback([...this.recentChanges]);
-      }
+      this.recordRecentChange({ path: templateName, event, timestamp: Date.now() });
     } catch (error) {
-      logger.error(`[TemplateDevSynchronizer] Error al manejar cambio en archivo`, error, 'TemplateDevSynchronizer');
+      logger.error(`Error handling file change: ${filePath}`, error, 'TemplateDevSynchronizer');
     }
   }
 
   /**
    * Sube un archivo a S3
+   * @param filePath - Ruta absoluta local del archivo
+   * @param s3Key - Clave de destino en S3
+   * @returns Promise cuando la carga finaliza
    */
   private async uploadFileToS3(filePath: string, s3Key: string): Promise<void> {
     if (!this.s3Client) return;
 
     try {
-      // Validar que la ruta esté dentro del directorio seguro antes de leer
       if (!this.isSafePath(filePath, this.localDir)) {
-        logger.warn(
-          `[TemplateDevSynchronizer] Intento de lectura de archivo no seguro bloqueado: ${filePath}`,
-          undefined,
-          'TemplateDevSynchronizer'
-        );
-        throw new Error(`Ruta no segura: ${filePath}`);
+        logger.warn(`Unsafe path detected and blocked: ${filePath}`, undefined, 'TemplateDevSynchronizer');
+        throw new Error(`Unsafe path: ${filePath}`);
       }
 
-      // Crear una ruta validada y normalizada para uso seguro
       const validatedPath = path.resolve(filePath);
-      const validatedRoot = path.resolve(this.localDir);
-
-      // Verificación adicional de seguridad
-      if (!validatedPath.startsWith(validatedRoot + path.sep) && validatedPath !== validatedRoot) {
-        logger.warn(
-          `[TemplateDevSynchronizer] Ruta validada no segura: ${validatedPath}`,
-          undefined,
-          'TemplateDevSynchronizer'
-        );
-        throw new Error(`Path not safe: ${validatedPath}`);
-      }
 
       const isBinary = isBinaryFile(validatedPath);
 
-      // Obtener ruta relativa para determinar si es procesable
       const relativePath = path.relative(this.localDir, validatedPath).replace(/\\/g, '/');
 
       let body;
       if (isBinary) {
-        // Leer como buffer para archivos binarios
         body = fs.readFileSync(validatedPath);
       } else {
-        // Leer como texto para archivos de texto
         let content = fs.readFileSync(validatedPath, 'utf-8');
-
-        // Procesar archivos CSS, JS y Liquid si están en assets/
         if (this.isProcessableAsset(relativePath)) {
           try {
             const result = await this.postcssProcessor.processAsset(content, relativePath);
             content = result.content;
-          } catch (_error) {
-            // Continuar con el contenido original si falla el procesamiento
-          }
+          } catch (_error) {}
         }
 
         body = content;
@@ -355,32 +326,29 @@ export class TemplateDevSynchronizer {
 
         await upload.done();
       }
-      logger.debug(`[TemplateDevSynchronizer] Subido a S3: ${s3Key}`, undefined, 'TemplateDevSynchronizer');
     } catch (error) {
-      logger.error(`[TemplateDevSynchronizer] Error al subir a S3`, error, 'TemplateDevSynchronizer');
+      logger.error(`Error uploading to S3`, error, 'TemplateDevSynchronizer');
       throw error;
     }
   }
 
   /**
    * Verifica si un archivo debe ser procesado por PostCSS
+   * @param path - Ruta relativa del archivo
+   * @returns true si es procesable, false en caso contrario
    */
   private isProcessableAsset(path: string): boolean {
-    // Para CSS y JS: solo en carpeta assets/
     const isAssetCSSJS =
       (path.includes('/assets/') || path.startsWith('assets/')) &&
       (path.endsWith('.css') || path.endsWith('.css.liquid') || path.endsWith('.js') || path.endsWith('.js.liquid'));
-
-    // Para Liquid: en cualquier parte del tema
     const isLiquidFile = path.endsWith('.liquid');
-
-    const isProcessable = isAssetCSSJS || isLiquidFile;
-
-    return isProcessable;
+    return isAssetCSSJS || isLiquidFile;
   }
 
   /**
    * Elimina un archivo de S3
+   * @param s3Key - Clave del objeto en S3
+   * @returns Promise cuando la eliminación finaliza
    */
   private async deleteFileFromS3(s3Key: string): Promise<void> {
     if (!this.s3Client) return;
@@ -393,7 +361,7 @@ export class TemplateDevSynchronizer {
 
       await this.s3Client.send(command);
     } catch (error) {
-      logger.error(`[TemplateDevSynchronizer] Error al eliminar de S3`, error, 'TemplateDevSynchronizer');
+      logger.error(`Error deleting from S3`, error, 'TemplateDevSynchronizer');
       throw error;
     }
   }
@@ -408,13 +376,12 @@ export class TemplateDevSynchronizer {
 
   /**
    * Fuerza la sincronización de todos los archivos en el directorio
+   * @returns Promise cuando finaliza la sincronización completa
    */
   public async syncAll(): Promise<void> {
     if (!this.isActive || !this.localDir) {
-      throw new Error('El sincronizador no está activo');
+      throw new Error('Synchronizer is not active');
     }
-
-    logger.debug(`[TemplateDevSynchronizer] Sincronizando todos los archivos...`, undefined, 'TemplateDevSynchronizer');
 
     const syncFiles = async (dir: string) => {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -422,10 +389,9 @@ export class TemplateDevSynchronizer {
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
 
-        // Validar que la ruta esté dentro del directorio seguro
         if (!this.isSafePath(fullPath, this.localDir)) {
           logger.warn(
-            `[TemplateDevSynchronizer] Ruta no segura detectada durante sincronización y omitida: ${fullPath}`,
+            `Unsafe path detected during synchronization and omitted: ${fullPath}`,
             undefined,
             'TemplateDevSynchronizer'
           );
@@ -441,11 +407,11 @@ export class TemplateDevSynchronizer {
     };
 
     await syncFiles(this.localDir);
-    logger.debug(`[TemplateDevSynchronizer] Sincronización completa`, undefined, 'TemplateDevSynchronizer');
   }
 
   /**
    * Verifica si el sincronizador está activo
+   * @returns true si el watcher está activo
    */
   public isRunning(): boolean {
     return this.isActive;
@@ -453,9 +419,17 @@ export class TemplateDevSynchronizer {
 
   /**
    * Obtiene los cambios recientes
+   * @returns Lista de cambios recientes
    */
   public getRecentChanges(): FileChange[] {
     return [...this.recentChanges];
+  }
+
+  /**
+   * Retorna el storeId activo
+   */
+  public getStoreId(): string {
+    return this.storeId;
   }
 }
 

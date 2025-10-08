@@ -3183,7 +3183,8 @@
       "name": "関連商品",
       "settings": {
         "heading": {
-          "label": "見出し"
+          "label": "見出し",
+          "default": "あなたへのおすすめ"
         },
         "products_to_show": {
           "label": "商品数"

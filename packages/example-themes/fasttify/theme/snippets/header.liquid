@@ -117,19 +117,19 @@
           <div class="header-search">
             <button type="button" class="search-toggle js-search-toggle" aria-label="Search" aria-expanded="false"
               aria-controls="search-dialog-overlay">
-              <img src="{{ 'icon-search.svg' | asset_url }}" alt="Search" width="30" height="30" loading="lazy">
+              <span class="svg-wrapper">{{ 'icon-search.svg' | inline_asset_content }}</span>
             </button>
           </div>
 
           <!-- Account -->
           <a href="/account" class="header-icon header-account" aria-label="Mi cuenta">
-            <img src="{{ 'icon-account.svg' | asset_url }}" alt="Account" width="30" height="30" loading="lazy">
+            <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
           </a>
 
           <!-- Cart -->
           <button type="button" class="header-icon header-cart" aria-label="cart" onclick="openCart()">
             <span class="cart-icon-wrapper">
-              <img src="{{ 'icon-cart.svg' | asset_url }}" alt="Cart" width="24" height="24" loading="lazy">
+              <span class="svg-wrapper">{{ 'icon-cart.svg' | inline_asset_content }}</span>
               <span class="cart-count" data-cart-count>{{ cart.item_count }}</span>
             </span>
           </button>

@@ -1,7 +1,7 @@
 {
   "sections": {
     "main": {
-      "type": "sections/main-search",
+      "type": "main-search",
       "settings": {
         "columns_desktop": 4,
         "image_ratio": "adapt",

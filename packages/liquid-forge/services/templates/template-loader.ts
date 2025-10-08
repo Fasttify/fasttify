@@ -36,6 +36,11 @@ class TemplateLoader {
   private ongoingRequests: Map<string, Promise<any>> = new Map();
   private ongoingAssetRequests: Map<string, Promise<Buffer>> = new Map();
 
+  private static readonly CDN_HEADERS = {
+    'User-Agent': 'Fasttify-API/1.0',
+    'X-API-Source': 'fasttify-server',
+  } as const;
+
   private constructor() {
     this.bucketName = process.env.BUCKET_NAME || '';
     this.isProduction = process.env.APP_ENV === 'production';
@@ -55,24 +60,143 @@ class TemplateLoader {
   }
 
   /**
-   * Resuelve el nombre de un template a la clave completa de S3.
-   * Esta es la lógica centralizada para construir las rutas de los templates Liquid.
+   * Resuelve `templateName` a la clave S3 final bajo `templates/{storeId}/...`.
    */
   private getS3TemplateKey(storeId: string, templateName: string): string {
-    // Manejar templates específicos de Next.js que ya tienen un path completo y extensión.
-    // Ej: 'layout/theme.liquid', 'templates/index.json', 'config/settings_schema.json'
     if (templateName.includes('/') && (templateName.endsWith('.liquid') || templateName.endsWith('.json'))) {
       return `templates/${storeId}/${templateName}`;
     }
-
-    // Manejar snippets y secciones que vienen con su prefijo de carpeta (ej. 'snippets/nombre', 'sections/nombre')
     if (templateName.includes('/')) {
       return `templates/${storeId}/${templateName}.liquid`;
     }
-
-    // Asumir que si no hay barra, es una sección simple (ej. 'cart', 'product', 'footer')
-    // y se encuentra en la carpeta 'sections/'.
+    if (templateName.endsWith('.json')) {
+      return `templates/${storeId}/sections/${templateName}`;
+    }
     return `templates/${storeId}/sections/${templateName}.liquid`;
+  }
+
+  /**
+   * TTL de caché para plantillas y assets.
+   */
+  private getTemplateCacheTTL(): number {
+    return cacheManager.getTemplateTTL();
+  }
+
+  /**
+   * Guarda contenido de plantilla en caché con metadatos.
+   */
+  private setCachedTemplate(cacheKey: string, content: string): void {
+    const ttl = this.getTemplateCacheTTL();
+    cacheManager.setCached(
+      cacheKey,
+      {
+        content,
+        lastUpdated: new Date(),
+        ttl,
+      },
+      ttl
+    );
+  }
+
+  /**
+   * Guarda asset binario en caché (base64) con metadatos.
+   */
+  private setCachedAsset(cacheKey: string, buffer: Buffer): void {
+    const ttl = this.getTemplateCacheTTL();
+    cacheManager.setCached(
+      cacheKey,
+      {
+        content: buffer.toString('base64'),
+        lastUpdated: new Date(),
+        ttl,
+      },
+      ttl
+    );
+  }
+
+  /**
+   * Crea error estandarizado para recursos de plantillas/assets.
+   */
+  private buildTemplateNotFoundError(message: string, details: unknown): TemplateError {
+    return {
+      type: 'TEMPLATE_NOT_FOUND',
+      message,
+      details,
+      statusCode: 404,
+    };
+  }
+
+  /**
+   * Descarga texto desde CDN.
+   */
+  private async fetchTextFromCDN(key: string): Promise<string> {
+    const response = await fetch(getCdnUrlForKey(key), { headers: TemplateLoader.CDN_HEADERS });
+    if (!response.ok) {
+      throw new Error(`Template not found: ${key}`);
+    }
+    return response.text();
+  }
+
+  /**
+   * Descarga texto desde S3.
+   */
+  private async fetchTextFromS3(key: string): Promise<string> {
+    if (!this.s3Client || !this.bucketName) {
+      throw new Error('S3 client or bucket not configured');
+    }
+    const response = await this.s3Client.send(new GetObjectCommand({ Bucket: this.bucketName, Key: key }));
+    if (!response.Body) {
+      throw new Error(`Template not found: ${key}`);
+    }
+    return response.Body.transformToString();
+  }
+
+  /**
+   * Descarga binario desde CDN.
+   */
+  private async fetchBinaryFromCDN(key: string): Promise<Buffer> {
+    const response = await fetch(getCdnUrlForKey(key), { headers: TemplateLoader.CDN_HEADERS });
+    if (!response.ok) {
+      throw new Error(`Asset not found: ${key}`);
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    return Buffer.from(arrayBuffer);
+  }
+
+  /**
+   * Descarga binario desde S3.
+   */
+  private async fetchBinaryFromS3(key: string): Promise<Buffer> {
+    if (!this.s3Client || !this.bucketName) {
+      throw new Error('S3 client or bucket not configured');
+    }
+    const response = await this.s3Client.send(new GetObjectCommand({ Bucket: this.bucketName, Key: key }));
+    if (!response.Body) {
+      throw new Error(`Asset not found: ${key}`);
+    }
+    const bytes = await response.Body.transformToByteArray();
+    return Buffer.from(bytes);
+  }
+
+  /**
+   * Coalescencia de requests concurrentes por clave.
+   */
+  private coalesce<T>(
+    map: Map<string, Promise<T>>,
+    key: string,
+    factory: () => Promise<T>,
+    enabled: boolean
+  ): Promise<T> {
+    if (enabled) {
+      const existing = map.get(key);
+      if (existing) return existing;
+    }
+    const promise = factory();
+    if (enabled) {
+      map.set(key, promise);
+      promise.finally(() => map.delete(key));
+    }
+    return promise;
   }
 
   /**
@@ -83,109 +207,42 @@ class TemplateLoader {
     const s3Key = this.getS3TemplateKey(storeId, templateName);
     const compiledCacheKey = getCompiledTemplateCacheKey(storeId, s3Key);
     const cachedCompiled = cacheManager.getCached(compiledCacheKey) as Template[] | null;
-    if (cachedCompiled) {
-      return cachedCompiled;
-    }
-
-    // Obtener contenido raw usando el método existente (que ya tiene su propio cache)
+    if (cachedCompiled) return cachedCompiled;
     const rawContent = await this.loadTemplate(storeId, templateName);
-
-    // Compilar
     const compiledTemplate = liquidEngine.parse(rawContent);
-
-    // Guardar en cache la versión compilada
-    const cacheTTL = cacheManager.getTemplateTTL();
-    cacheManager.setCached(compiledCacheKey, compiledTemplate, cacheTTL);
-
+    cacheManager.setCached(compiledCacheKey, compiledTemplate, this.getTemplateCacheTTL());
     return compiledTemplate;
   }
 
   /**
-   * Carga una plantilla específica desde S3 o CloudFront
+   * Carga contenido raw de una plantilla con caché y coalescencia.
    */
   public async loadTemplate(storeId: string, templateName: string): Promise<string> {
     const s3Key = this.getS3TemplateKey(storeId, templateName);
     const cacheKey = getTemplateCacheKey(storeId, s3Key);
-
-    // Unificación de peticiones: si ya hay una en vuelo, usarla (SOLO EN PRODUCCIÓN)
     if (this.isProduction && this.ongoingRequests.has(cacheKey)) {
-      return this.ongoingRequests.get(cacheKey);
+      return this.ongoingRequests.get(cacheKey)!;
     }
-
     const cached = cacheManager.getCached(cacheKey) as TemplateCache | null;
-    if (cached) {
-      return cached.content;
-    }
-
-    const promise = this.fetchTemplateFromSource(storeId, s3Key, cacheKey);
-
-    // Registrar la promesa en vuelo (SOLO EN PRODUCCIÓN)
-    if (this.isProduction) {
-      this.ongoingRequests.set(cacheKey, promise);
-      promise.finally(() => {
-        this.ongoingRequests.delete(cacheKey);
-      });
-    }
-
-    return promise;
+    if (cached) return cached.content;
+    return this.coalesce(
+      this.ongoingRequests,
+      cacheKey,
+      () => this.fetchTemplateFromSource(s3Key, cacheKey),
+      this.isProduction
+    );
   }
 
-  private async fetchTemplateFromSource(storeId: string, s3Key: string, cacheKey: string): Promise<string> {
-    let content: string;
+  /**
+   * Obtiene plantilla desde la fuente activa (CDN/S3) y cachea.
+   */
+  private async fetchTemplateFromSource(s3Key: string, cacheKey: string): Promise<string> {
     try {
-      // Usar CDN en producción para mejor rendimiento
-      if (this.isProduction) {
-        const response = await fetch(getCdnUrlForKey(s3Key), {
-          headers: {
-            'User-Agent': 'Fasttify-API/1.0',
-            'X-API-Source': 'fasttify-server',
-          },
-        });
-        if (!response.ok) {
-          throw new Error(`Template not found: ${s3Key}`);
-        }
-        content = await response.text();
-      } else {
-        // S3 directo en desarrollo
-        if (!this.s3Client || !this.bucketName) {
-          throw new Error('S3 client or bucket not configured');
-        }
-
-        const response = await this.s3Client.send(
-          new GetObjectCommand({
-            Bucket: this.bucketName,
-            Key: s3Key,
-          })
-        );
-
-        if (!response.Body) {
-          throw new Error(`Template not found: ${s3Key}`);
-        }
-
-        content = await response.Body.transformToString();
-      }
-
-      // Cache with appropriate TTL using new hybrid system
-      const cacheTTL = cacheManager.getTemplateTTL();
-      cacheManager.setCached(
-        cacheKey,
-        {
-          content,
-          lastUpdated: new Date(),
-          ttl: cacheTTL,
-        },
-        cacheTTL
-      );
-
+      const content = this.isProduction ? await this.fetchTextFromCDN(s3Key) : await this.fetchTextFromS3(s3Key);
+      this.setCachedTemplate(cacheKey, content);
       return content;
     } catch (error) {
-      const templateError: TemplateError = {
-        type: 'TEMPLATE_NOT_FOUND',
-        message: `Template not found: ${s3Key}`,
-        details: error,
-        statusCode: 404,
-      };
-      throw templateError;
+      throw this.buildTemplateNotFoundError(`Template not found: ${s3Key}`, error);
     }
   }
 
@@ -204,108 +261,60 @@ class TemplateLoader {
   }
 
   /**
-   * Carga sección específica - Optimizado para velocidad
-   * NOTA: Este método ahora solo delega a loadTemplate ya que getS3TemplateKey
-   * manejará la construcción de la ruta 'sections/nombre.liquid'
+   * Carga contenido raw de una sección.
    */
   public async loadSection(storeId: string, sectionName: string): Promise<string> {
     return this.loadTemplate(storeId, sectionName);
   }
 
   /**
-   * Carga una sección compilada.
-   * NOTA: Este método ahora solo delega a loadCompiledTemplate ya que getS3TemplateKey
-   * manejará la construcción de la ruta 'sections/nombre.liquid'
+   * Carga y compila una sección.
    */
   public async loadSectionCompiled(storeId: string, sectionName: string): Promise<Template[]> {
     return this.loadCompiledTemplate(storeId, sectionName);
   }
 
   /**
-   * Carga asset optimizado para velocidad
+   * Carga asset binario con caché y coalescencia.
    */
   public async loadAsset(storeId: string, assetPath: string): Promise<Buffer> {
     const cacheKey = getAssetCacheKey(storeId, assetPath);
     const cached = cacheManager.getCached(cacheKey) as TemplateCache | null;
-    if (cached) {
-      return Buffer.from(cached.content, 'base64');
-    }
-
-    // Unificación de requests concurrentes
-    if (this.ongoingAssetRequests.has(cacheKey)) {
-      return this.ongoingAssetRequests.get(cacheKey)!;
-    }
-
-    const promise = this.fetchAndCacheAsset(storeId, assetPath, cacheKey);
-    this.ongoingAssetRequests.set(cacheKey, promise);
-    promise.finally(() => {
-      this.ongoingAssetRequests.delete(cacheKey);
-    });
-    return promise;
+    if (cached) return Buffer.from(cached.content, 'base64');
+    return this.coalesce(
+      this.ongoingAssetRequests,
+      cacheKey,
+      () => this.fetchAndCacheAsset(storeId, assetPath, cacheKey),
+      true
+    );
   }
 
+  /**
+   * Descarga asset (CDN/S3) y lo cachea.
+   */
   private async fetchAndCacheAsset(storeId: string, assetPath: string, cacheKey: string): Promise<Buffer> {
-    let assetBuffer: Buffer;
     try {
-      if (this.isProduction) {
-        const response = await fetch(getCdnUrlForKey(`templates/${storeId}/assets/${assetPath}`), {
-          headers: {
-            'User-Agent': 'Fasttify-API/1.0',
-            'X-API-Source': 'fasttify-server',
-          },
-        });
-        if (!response.ok) {
-          throw new Error(`Asset not found: ${assetPath}`);
-        }
-        const arrayBuffer = await response.arrayBuffer();
-        assetBuffer = Buffer.from(arrayBuffer);
-      } else {
-        if (!this.s3Client || !this.bucketName) {
-          throw new Error('S3 client or bucket not configured');
-        }
-        const response = await this.s3Client.send(
-          new GetObjectCommand({
-            Bucket: this.bucketName,
-            Key: `templates/${storeId}/assets/${assetPath}`,
-          })
-        );
-        if (!response.Body) {
-          throw new Error(`Asset not found: ${assetPath}`);
-        }
-        const bytes = await response.Body.transformToByteArray();
-        assetBuffer = Buffer.from(bytes);
-      }
-      // Cache asset using new hybrid system
-      const cacheTTL = cacheManager.getTemplateTTL();
-      cacheManager.setCached(
-        cacheKey,
-        {
-          content: assetBuffer.toString('base64'),
-          lastUpdated: new Date(),
-          ttl: cacheTTL,
-        },
-        cacheTTL
-      );
-      return assetBuffer;
+      const key = `templates/${storeId}/assets/${assetPath}`;
+      const buffer = this.isProduction ? await this.fetchBinaryFromCDN(key) : await this.fetchBinaryFromS3(key);
+      this.setCachedAsset(cacheKey, buffer);
+      return buffer;
     } catch (error) {
-      const templateError: TemplateError = {
-        type: 'TEMPLATE_NOT_FOUND',
-        message: `Asset not found: ${assetPath}`,
-        details: error,
-        statusCode: 404,
-      };
-      throw templateError;
+      throw this.buildTemplateNotFoundError(`Asset not found: ${assetPath}`, error);
     }
   }
 
+  /**
+   * Invalida caché de todas las plantillas de una tienda.
+   */
   public invalidateStoreCache(storeId: string): void {
-    // Invalidar solo claves relacionadas a plantillas y plantillas compiladas de esta tienda
     cacheManager.deleteByPrefix(getTemplatesPrefix(storeId));
     cacheManager.deleteByPrefix(getCompiledTemplatesPrefix(storeId));
   }
 
+  /**
+   * Invalida caché de una plantilla específica (raw y compilada).
+   */
   public invalidateTemplateCache(storeId: string, templatePath: string): void {
-    // Invalidar tanto el cache de contenido raw como el compilado eliminando las claves
     cacheManager.deleteKey(getTemplateCacheKey(storeId, templatePath));
     cacheManager.deleteKey(getCompiledTemplateCacheKey(storeId, templatePath));
   }

@@ -3183,7 +3183,8 @@
       "name": "Související produkty",
       "settings": {
         "heading": {
-          "label": "Nadpis"
+          "label": "Nadpis",
+          "default": "Mohlo by se vám také líbit"
         },
         "products_to_show": {
           "label": "Počet produktů"

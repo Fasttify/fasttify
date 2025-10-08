@@ -1,7 +1,7 @@
 {
   "sections": {
     "main": {
-      "type": "sections/main-blog",
+      "type": "main-blog",
       "settings": {
         "layout": "collage",
         "show_image": true,

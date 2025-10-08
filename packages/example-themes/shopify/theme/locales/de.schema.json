@@ -3183,7 +3183,8 @@
       "name": "Ähnliche Produkte",
       "settings": {
         "heading": {
-          "label": "Überschrift"
+          "label": "Überschrift",
+          "default": "Das könnte dir auch gefallen"
         },
         "products_to_show": {
           "label": "Produktanzahl"

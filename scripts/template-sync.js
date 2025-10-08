@@ -8,11 +8,8 @@ dotenv.config();
 
 // Configuración
 const config = {
-  // Por defecto, asume que está corriendo en localhost:3000
   apiUrl: process.env.API_URL || 'http://localhost:3000',
-  // Ruta local fija para el template
   localTemplateDir: process.env.TEMPLATES_DEV_ROOT || process.cwd(),
-  // Define the root directory for allowed local template development folders
   templatesDevRoot: process.env.TEMPLATES_DEV_ROOT || process.cwd(),
 };
 
@@ -22,7 +19,9 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-// Función para validar que el directorio esté dentro del área permitida
+/**
+ * Valida que `requestedDir` esté contenido en `templatesDevRoot`.
+ */
 function validateDirectorySecurity(requestedDir) {
   const templatesDevRoot = path.resolve(config.templatesDevRoot);
   const resolvedDir = path.resolve(requestedDir);
@@ -37,25 +36,39 @@ function validateDirectorySecurity(requestedDir) {
   return resolvedDir;
 }
 
-// Función para hacer una solicitud al API
-async function callApi(action, data = {}) {
+/**
+ * Devuelve la URL base del endpoint de desarrollo de templates.
+ */
+function getTemplateDevUrl() {
+  return `${config.apiUrl}/api/stores/template-dev`;
+}
+
+/**
+ * Realiza fetch y parsea JSON con manejo básico de errores.
+ */
+async function fetchJson(url, options) {
   const fetch = (await import('node-fetch')).default;
-  const url = `${config.apiUrl}/api/stores/template-dev`;
+  const response = await fetch(url, options);
+  const isJson = response.headers.get('content-type')?.includes('application/json');
+  const payload = isJson ? await response.json() : await response.text();
+  if (!response.ok) {
+    const error = typeof payload === 'object' ? payload?.error || payload?.message : payload;
+    throw new Error(error || `HTTP ${response.status}`);
+  }
+  return payload;
+}
 
+/**
+ * Invoca acciones POST al API template-dev.
+ */
+async function callApi(action, data = {}) {
   try {
-    const response = await fetch(url, {
+    return await fetchJson(getTemplateDevUrl(), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action,
-        ...data,
-      }),
-      credentials: 'include', // Envía cookies para autenticación
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ action, ...data }),
     });
-
-    return await response.json();
   } catch (error) {
     console.error(`Error: ${error.message}`);
     console.log('¿Está tu servidor Next.js corriendo en', config.apiUrl, '?');
@@ -63,21 +76,55 @@ async function callApi(action, data = {}) {
   }
 }
 
-// Función para verificar estado
+/**
+ * Consulta el estado actual (GET) del API template-dev.
+ */
 async function checkStatus() {
-  const fetch = (await import('node-fetch')).default;
-  const url = `${config.apiUrl}/api/stores/template-dev`;
-
   try {
-    const response = await fetch(url, {
+    return await fetchJson(getTemplateDevUrl(), {
       method: 'GET',
-      credentials: 'include', // Envía cookies para autenticación
+      credentials: 'include',
     });
-
-    return await response.json();
   } catch (error) {
     return { status: 'error', message: error.message };
   }
+}
+
+/**
+ * Conecta a SSE y emite logs en tiempo real para cambios.
+ */
+async function startSSEListener() {
+  let EventSourceCtor;
+  try {
+    const mod = await import('eventsource');
+    EventSourceCtor = mod.default || mod.EventSource || mod;
+  } catch (e) {
+    console.error('Falta la dependencia "eventsource". Instálala con: pnpm add -w eventsource');
+    throw e;
+  }
+  const url = `${getTemplateDevUrl()}/ws`;
+  const es = new EventSourceCtor(url);
+
+  es.onmessage = (evt) => {
+    try {
+      const data = JSON.parse(evt.data);
+      if (data?.type === 'connected') {
+        console.log('SSE conectado.');
+      } else if (data?.type === 'change') {
+        const time = new Date(data.timestamp).toLocaleTimeString();
+        console.log(`[${time}] ${data.event.toUpperCase()}: ${data.path}`);
+      } else if (data?.type === 'reload') {
+        const time = new Date(data.timestamp).toLocaleTimeString();
+        console.log(`[${time}] CAMBIO DETECTADO - recarga de plantillas`);
+      }
+    } catch (_e) {}
+  };
+
+  es.onerror = (_err) => {
+    // Mantener la conexión; EventSource reintenta automáticamente
+  };
+
+  return es;
 }
 
 // Comandos principales
@@ -110,45 +157,60 @@ const commands = {
     }
 
     console.log(`Iniciando sincronización para la tienda ${storeId} desde ${localDir}...`);
-    console.log('📁 Directorio fuente: template/');
+    console.log('Directorio fuente: template/');
     const result = await callApi('start', { storeId, localDir });
 
     if (result?.status === 'started') {
       console.log(`✓ ${result.message}`);
 
-      // Iniciar monitoreo continuo
-      console.log('\n📝 Monitoreando cambios (Presiona Ctrl+C para salir)...');
+      // Escuchar cambios por SSE (sin polling)
+      console.log('\nMonitoreando cambios por SSE (Ctrl+C para salir)...');
+      let es = await startSSEListener();
 
-      // Cada 3 segundos, verificar si hay cambios recientes
-      let lastTimestamp = 0;
-      const interval = setInterval(async () => {
-        const status = await checkStatus();
+      // Reconectar automáticamente si se pierde la conexión
+      let reconnectTimer = null;
+      const maxReconnectDelay = 10000; // 10 segundos máximo
+      let reconnectDelay = 1000; // Empezar con 1 segundo
 
-        if (status?.status === 'active' && status.changes && status.changes.length > 0) {
-          // Mostrar solo los cambios nuevos desde la última verificación
-          const newChanges = status.changes.filter((change) => change.timestamp > lastTimestamp);
+      function scheduleReconnect() {
+        if (reconnectTimer) clearTimeout(reconnectTimer);
 
-          if (newChanges.length > 0) {
-            // Actualizar el último timestamp
-            lastTimestamp = Math.max(...newChanges.map((change) => change.timestamp));
+        reconnectTimer = setTimeout(async () => {
+          console.log(`\nReconectando SSE en ${reconnectDelay}ms...`);
+          try {
+            es.close && es.close();
+          } catch (_e) {}
 
-            // Mostrar cambios
-            newChanges.forEach((change) => {
-              const date = new Date(change.timestamp).toLocaleTimeString();
-              console.log(`[${date}] ${change.event.toUpperCase()}: ${change.path}`);
-            });
+          try {
+            es = await startSSEListener();
+            reconnectDelay = 1000; // Reset delay on successful reconnect
+            console.log('SSE reconectado exitosamente');
+          } catch (error) {
+            console.log(`Error al reconectar: ${error.message}`);
+            reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay); // Exponential backoff
+            scheduleReconnect();
           }
-        } else if (status?.status === 'inactive') {
-          console.log('La sincronización se ha detenido.');
-          clearInterval(interval);
-          process.exit(0);
-        }
-      }, 3000);
+        }, reconnectDelay);
+      }
+
+      // Manejar eventos de error y cierre
+      es.onerror = () => {
+        console.log('\nConexión SSE perdida, programando reconexión...');
+        scheduleReconnect();
+      };
+
+      es.onclose = () => {
+        console.log('\nConexión SSE cerrada, programando reconexión...');
+        scheduleReconnect();
+      };
 
       // Manejar salida para limpiar
       process.on('SIGINT', async () => {
-        clearInterval(interval);
         console.log('\nDeteniendo sincronización...');
+        try {
+          if (reconnectTimer) clearTimeout(reconnectTimer);
+          es.close && es.close();
+        } catch (_e) {}
         await callApi('stop');
         console.log('Sincronización detenida.');
         process.exit(0);

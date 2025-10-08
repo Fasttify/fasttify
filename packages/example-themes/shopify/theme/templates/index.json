@@ -1,173 +1,117 @@
 {
   "sections": {
-    "rich_text_TEVXgm": {
-      "type": "rich-text",
+    "hero-slideshow": {
+      "type": "slideshow",
       "blocks": {
-        "heading_PeaWcN": {
-          "type": "heading",
-          "settings": { "heading": "Unleash your beach spirit", "heading_size": "h1" }
-        },
-        "text_hmEr9V": {
-          "type": "text",
+        "slide-0": {
+          "type": "slide",
           "settings": {
-            "text": "<h2>We bring the beach to your home with unique creations that inspire wanderlust and relaxation.<\/h2>"
+            "heading_size": "h1",
+            "subheading": "",
+            "link": "shopify://collections",
+            "button_style_secondary": false,
+            "box_align": "middle-right",
+            "show_text_box": false,
+            "text_alignment": "left",
+            "image_overlay_opacity": 0,
+            "color_scheme": "scheme-1",
+            "text_alignment_mobile": "center"
           }
         }
       },
-      "block_order": ["heading_PeaWcN", "text_hmEr9V"],
+      "block_order": ["slide-0"],
       "settings": {
-        "desktop_content_position": "center",
-        "content_alignment": "center",
-        "color_scheme": "",
-        "full_width": true,
-        "padding_top": 80,
-        "padding_bottom": 28
-      }
-    },
-    "collage_Ji34he": {
-      "type": "sections/collage",
-      "blocks": {
-        "video_x97Qak": {
-          "type": "video",
-          "settings": {
-            "cover_image": "shopify:\/\/shop_images\/swimwear-natural-1-top.jpg",
-            "video_url": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc",
-            "description": "Describe the video"
-          }
-        },
-        "image_npPA7A": {
-          "type": "image",
-          "settings": { "image": "shopify:\/\/shop_images\/swimwear-natural-2-middle.jpg" }
-        },
-        "image_Ur8hUb": {
-          "type": "image",
-          "settings": { "image": "shopify:\/\/shop_images\/swimwear-natural-4-middle.jpg" }
-        }
-      },
-      "block_order": ["video_x97Qak", "image_npPA7A", "image_Ur8hUb"],
-      "settings": {
-        "heading": "",
-        "heading_size": "h0",
-        "desktop_layout": "left",
-        "mobile_layout": "column",
-        "card_styles": "none",
-        "color_scheme": "",
-        "padding_top": 32,
-        "padding_bottom": 60
-      }
-    },
-    "image_with_text_DYDtwA": {
-      "type": "sections/image-with-text",
-      "blocks": {
-        "heading_c6fF64": { "type": "heading", "settings": { "heading": "Our shop", "heading_size": "h2" } },
-        "text_PLAK8A": {
-          "type": "text",
-          "settings": {
-            "text": "<h3>We celebrate the spirit of the beach, crafting products that embody sun-soaked adventures and coastal living.<\/h3>",
-            "text_style": "body"
-          }
-        },
-        "button_L7GN3F": {
-          "type": "button",
-          "settings": {
-            "button_label": "Shop all",
-            "button_link": "shopify:\/\/collections\/all",
-            "button_style_secondary": false
-          }
-        }
-      },
-      "block_order": ["heading_c6fF64", "text_PLAK8A", "button_L7GN3F"],
-      "settings": {
-        "image": "shopify:\/\/shop_images\/swimwear-natural-3-middle.jpg",
-        "height": "medium",
-        "desktop_image_width": "large",
-        "layout": "image_first",
-        "desktop_content_position": "middle",
-        "desktop_content_alignment": "left",
-        "content_layout": "no-overlap",
-        "section_color_scheme": "",
-        "color_scheme": "accent-1",
+        "layout": "full_bleed",
+        "slide_height": "small",
+        "slider_visual": "dots",
+        "auto_rotate": false,
+        "change_slides_speed": 5,
         "image_behavior": "none",
-        "mobile_content_alignment": "center",
-        "padding_top": 56,
-        "padding_bottom": 60
+        "show_text_below": true
       }
     },
-    "image_with_text_tz9Af9": {
-      "type": "sections/image-with-text",
-      "blocks": {
-        "heading_hKWUGD": {
-          "type": "heading",
-          "settings": { "heading": "Crafted for the coast", "heading_size": "h2" }
-        },
-        "text_Fka4eU": {
-          "type": "text",
-          "settings": {
-            "text": "<h3>Our products capture the essence of beach life, perfect for sun and sand.<\/h3>",
-            "text_style": "body"
-          }
-        },
-        "button_nbyXaA": {
-          "type": "button",
-          "settings": {
-            "button_label": "Crafted for the coast",
-            "button_link": "shopify:\/\/pages\/contact",
-            "button_style_secondary": false
-          }
-        }
-      },
-      "block_order": ["heading_hKWUGD", "text_Fka4eU", "button_nbyXaA"],
+    "all-products": {
+      "type": "featured-collection",
       "settings": {
-        "image": "shopify:\/\/shop_images\/swimwear-natural-5-middle.jpg",
-        "height": "medium",
-        "desktop_image_width": "large",
-        "layout": "text_first",
-        "desktop_content_position": "middle",
-        "desktop_content_alignment": "left",
-        "content_layout": "no-overlap",
-        "section_color_scheme": "",
-        "color_scheme": "accent-1",
-        "image_behavior": "none",
-        "mobile_content_alignment": "center",
-        "padding_top": 60,
-        "padding_bottom": 56
-      }
-    },
-    "featured_collection": {
-      "type": "sections/featured-collection",
-      "custom_css": [],
-      "settings": {
-        "title": "Featured products",
-        "heading_size": "h1",
-        "description": "",
-        "show_description": false,
-        "description_style": "body",
+        "heading_size": "h2",
+        "show_description": true,
+        "description_style": "subtitle",
         "collection": "all",
-        "products_to_show": 6,
-        "columns_desktop": 4,
+        "products_to_show": 24,
+        "columns_desktop": 6,
         "full_width": false,
         "show_view_all": true,
         "view_all_style": "solid",
         "enable_desktop_slider": false,
-        "color_scheme": "background-1",
-        "image_ratio": "portrait",
+        "color_scheme": "scheme-1",
+        "image_ratio": "adapt",
         "image_shape": "default",
-        "show_secondary_image": false,
+        "show_secondary_image": true,
         "show_vendor": false,
         "show_rating": false,
         "quick_add": "none",
         "columns_mobile": "2",
         "swipe_on_mobile": false,
-        "padding_top": 56,
-        "padding_bottom": 84
+        "padding_top": 24,
+        "padding_bottom": 24
+      }
+    },
+    "collection-list": {
+      "type": "collection-list",
+      "blocks": {
+        "collection-0": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        },
+        "collection-1": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        },
+        "collection-2": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        },
+        "collection-3": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        }
+      },
+      "block_order": ["collection-0", "collection-1", "collection-2", "collection-3"],
+      "settings": {
+        "heading_size": "h2",
+        "image_ratio": "square",
+        "columns_desktop": 4,
+        "color_scheme": "",
+        "show_view_all": false,
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "image-banner": {
+      "type": "image-banner",
+      "settings": {
+        "image_overlay_opacity": 0,
+        "image_height": "small",
+        "desktop_content_position": "top-left",
+        "show_text_box": false,
+        "desktop_content_alignment": "center",
+        "color_scheme": "",
+        "image_behavior": "none",
+        "mobile_content_alignment": "center",
+        "stack_images_on_mobile": true,
+        "show_text_below": true
       }
     }
   },
-  "order": [
-    "rich_text_TEVXgm",
-    "collage_Ji34he",
-    "image_with_text_DYDtwA",
-    "image_with_text_tz9Af9",
-    "featured_collection"
-  ]
+  "order": ["hero-slideshow", "all-products", "collection-list", "image-banner"]
 }

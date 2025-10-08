@@ -135,13 +135,57 @@ async function loadSections(storeId: string, sectionNames: string[], context: st
  * Extrae nombres de secciones del layout.
  */
 function extractSectionNames(layout: string): string[] {
+  const sectionNames: string[] = [];
+
+  // Extraer secciones individuales {% section 'nombre' %}
   const sectionMatches = layout.match(/\{\%\s*section\s+['"]([^'"]+)['"]\s*\%\}/g) || [];
-  return sectionMatches
+  const individualSections = sectionMatches
     .map((match) => {
       const nameMatch = match.match(/section\s+['"]([^'"]+)['"]/i);
       return nameMatch ? nameMatch[1] : '';
     })
     .filter(Boolean);
+
+  sectionNames.push(...individualSections);
+
+  // Extraer secciones de grupos {% sections 'grupo' %}
+  const sectionsMatches = layout.match(/\{\%\s*sections\s+['"]([^'"]+)['"]\s*\%\}/g) || [];
+  const groupSections = sectionsMatches
+    .map((match) => {
+      const nameMatch = match.match(/sections\s+['"]([^'"]+)['"]/i);
+      return nameMatch ? nameMatch[1] : '';
+    })
+    .filter(Boolean);
+
+  // Para cada grupo, agregar el archivo JSON del grupo y las secciones individuales
+  for (const groupName of groupSections) {
+    // Agregar el archivo JSON del grupo
+    sectionNames.push(`${groupName}.json`);
+
+    // Agregar las secciones individuales que contiene
+    const groupSectionsList = getSectionsFromGroup(groupName);
+    sectionNames.push(...groupSectionsList);
+  }
+
+  return sectionNames;
+}
+
+/**
+ * Obtiene las secciones individuales que pertenecen a un grupo
+ */
+function getSectionsFromGroup(groupName: string): string[] {
+  // Para header-group, incluir announcement-bar y header
+  if (groupName === 'header-group') {
+    return ['announcement-bar', 'header'];
+  }
+
+  // Para footer-group, incluir footer
+  if (groupName === 'footer-group') {
+    return ['footer'];
+  }
+
+  // Para otros grupos, retornar vacío por ahora
+  return [];
 }
 
 /**

@@ -3183,7 +3183,8 @@
       "name": "สินค้าที่เกี่ยวข้อง",
       "settings": {
         "heading": {
-          "label": "หัวเรื่อง"
+          "label": "หัวเรื่อง",
+          "default": "คุณอาจจะชอบ"
         },
         "products_to_show": {
           "label": "จำนวนสินค้า"
