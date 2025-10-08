@@ -30,7 +30,7 @@ interface UserState {
   setError: (error: string | null) => void;
 
   // Acciones de autenticación
-  checkUser: (forceRefresh?: boolean, requireFreshData?: boolean) => Promise<void>;
+  checkUser: () => Promise<void>;
   refreshUser: () => Promise<void>;
   initializeAuth: () => void;
   cleanup: () => void;
@@ -74,15 +74,13 @@ const useAuthStore = create<UserState>((set, get) => ({
       loading: false,
     })),
 
-  // Verificar y obtener datos del usuario
-  checkUser: async (forceRefresh = false, requireFreshData = false) => {
+  // Verificar y obtener datos del usuario con forceRefresh: true
+  checkUser: async () => {
     try {
       set({ loading: true, error: null });
 
-      // Obtener la sesión actual del usuario
-      // Si requireFreshData es true, forzar refresh para datos críticos como el plan
-      const shouldForceRefresh = forceRefresh || requireFreshData;
-      const session = await fetchAuthSession({ forceRefresh: shouldForceRefresh });
+      // Obtener la sesión actual del usuario con forceRefresh: true
+      const session = await fetchAuthSession({ forceRefresh: true });
 
       // Verificar si hay una sesión válida con tokens
       if (session && session.tokens) {
@@ -131,7 +129,7 @@ const useAuthStore = create<UserState>((set, get) => ({
 
   // Refrescar datos del usuario
   refreshUser: async () => {
-    await get().checkUser(true);
+    await get().checkUser();
   },
 
   // Inicializar autenticación (solo una vez globalmente)
@@ -143,7 +141,7 @@ const useAuthStore = create<UserState>((set, get) => ({
 
     // Verificar usuario si no hay uno
     if (!user) {
-      checkUser(false);
+      checkUser();
     }
 
     // Escuchar eventos de autenticación para refrescar automáticamente
@@ -159,7 +157,7 @@ const useAuthStore = create<UserState>((set, get) => ({
           'customOAuthState',
         ].includes(payload.event)
       ) {
-        get().checkUser(true);
+        get().checkUser();
       }
     });
   },
