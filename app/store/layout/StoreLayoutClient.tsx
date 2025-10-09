@@ -35,7 +35,7 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   useStore(storeId);
 
   const [prefersReducedMotion, _setPrefersReducedMotion] = useState(false);
-  const hideSidebar = pathname.includes('/editor');
+  const hideSidebar = pathname.includes('/editor') || pathname.includes('/profile');
 
   return (
     <AppProvider i18n={esTranslations}>
