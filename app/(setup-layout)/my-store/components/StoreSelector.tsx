@@ -115,20 +115,14 @@ function StoreData({ userId, userPlan }: { userId: string | null; userPlan?: str
 
 // Componente principal
 export function StoreSelector() {
-  console.log('🏪 StoreSelector: Componente se está renderizando, environment:', process.env.NODE_ENV);
   const { user, loading: isLoading } = useAuthNoRefresh();
-  console.log(
-    '🏪 StoreSelector: useAuthNoRefresh ejecutado, user:',
-    !!user,
-    'loading:',
-    isLoading,
-    'userId:',
-    user?.userId,
-    'plan:',
-    user?.plan
-  );
   const cognitoUsername = user?.userId;
   const userPlan = user?.plan;
+
+  // Refresh manual cuando se monta el componente para obtener datos frescos del plan
+  // useEffect(() => {
+  //   refreshUser();
+  // }, []); // Solo una vez al montar
 
   if (isLoading) {
     return (
