@@ -72,7 +72,6 @@
     "**/.cache": true
   },
   "typescript.tsserver.maxTsServerMemory": 8192,
-  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
   "typescript.tsserver.watchOptions": {
     "watchFile": "priorityPollingInterval",
     "watchDirectory": "dynamicPriorityPolling",
