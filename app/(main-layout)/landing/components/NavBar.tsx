@@ -48,7 +48,12 @@ export function Navbar() {
   const handleSignOut = async () => {
     try {
       // 1. Cerrar sesión en Amplify primero
-      await signOut();
+      await signOut({
+        global: true,
+        oauth: {
+          redirectUrl: '/login',
+        },
+      });
 
       // 2. Limpiar el estado local
       clearUser();

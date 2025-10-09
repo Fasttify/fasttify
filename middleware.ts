@@ -51,7 +51,7 @@ export async function middleware(request: NextRequest) {
     return handleStoreAccessMiddleware(request);
   }
 
-  if (path === '/account-settings') {
+  if (path.startsWith('/account-settings')) {
     return handleAuthenticationMiddlewareNoRefresh(request, NextResponse.next());
   }
 
