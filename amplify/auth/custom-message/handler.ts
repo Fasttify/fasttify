@@ -1,5 +1,8 @@
 import type { CustomMessageTriggerHandler } from 'aws-lambda';
-import { sendPasswordResetEmail } from './services/email-service';
+import {
+  generatePasswordResetEmailHTML,
+  generatePasswordResetEmailSubject,
+} from './services/templates/password-reset-email-compiled';
 
 export const handler: CustomMessageTriggerHandler = async (event) => {
   if (event.triggerSource === 'CustomMessage_ForgotPassword') {
@@ -15,30 +18,26 @@ export const handler: CustomMessageTriggerHandler = async (event) => {
 
     const resetCode = event.request.codeParameter;
 
-    // Enviar email personalizado con template
-    if (userEmail) {
-      try {
-        const emailSent = await sendPasswordResetEmail(userEmail, resetCode, userName);
+    // Generar el HTML del template con el placeholder {####} que Cognito reemplazará
+    const variables = {
+      customerName: userName,
+      resetCode: '{####}',
+      storeName: 'Fasttify',
+      currentYear: new Date().getFullYear().toString(),
+    };
 
-        if (emailSent) {
-          // Si el email se envió correctamente, usar el template personalizado
-          event.response.emailMessage = `Tu código de restablecimiento es ${resetCode}`;
-          event.response.emailSubject = 'Restablecer contraseña - Fasttify';
-        } else {
-          // Fallback al mensaje simple si hay error
-          event.response.emailMessage = `Tu código de restablecimiento es ${resetCode}`;
-          event.response.emailSubject = 'Restablecer mi contraseña';
-        }
-      } catch (error) {
-        console.error('Error sending password reset email:', error);
-        // Fallback al mensaje simple
-        event.response.emailMessage = `Tu código de restablecimiento es ${resetCode}`;
-        event.response.emailSubject = 'Restablecer mi contraseña';
-      }
-    } else {
-      // Fallback si no hay email
-      event.response.emailMessage = `Tu código de restablecimiento es ${resetCode}`;
-      event.response.emailSubject = 'Restablecer mi contraseña';
+    try {
+      const htmlContent = generatePasswordResetEmailHTML(variables);
+      const subject = generatePasswordResetEmailSubject(variables);
+
+      // Usar el HTML personalizado en el mensaje de Cognito
+      event.response.emailMessage = htmlContent;
+      event.response.emailSubject = subject;
+    } catch (error) {
+      console.error('Error generating custom HTML:', error);
+
+      event.response.emailMessage = `Tu código de restablecimiento es {####}`;
+      event.response.emailSubject = 'Restablecer contraseña - Fasttify';
     }
   } else if (event.triggerSource === 'CustomMessage_SignUp') {
     // Lógica para Sign Up (mantener simple por ahora)

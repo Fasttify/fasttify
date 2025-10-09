@@ -4,6 +4,7 @@ import { middleware } from '@/middleware';
 // Mock de los middlewares específicos
 jest.mock('@/middlewares/auth/auth', () => ({
   handleAuthenticationMiddleware: jest.fn(),
+  handleAuthenticationMiddlewareNoRefresh: jest.fn(),
   handleAuthenticatedRedirectMiddleware: jest.fn(),
 }));
 
@@ -206,13 +207,13 @@ describe('Main Middleware Security Tests', () => {
         },
       } as unknown as NextRequest;
 
-      const { handleAuthenticationMiddleware } = require('@/middlewares/auth/auth');
-      handleAuthenticationMiddleware.mockReturnValue({ type: 'auth' });
+      const { handleAuthenticationMiddlewareNoRefresh } = require('@/middlewares/auth/auth');
+      handleAuthenticationMiddlewareNoRefresh.mockReturnValue({ type: 'auth' });
 
       const result = await middleware(mainDomainRequest);
 
       // Debería ejecutar el middleware de autenticación para el dominio principal
-      expect(handleAuthenticationMiddleware).toHaveBeenCalled();
+      expect(handleAuthenticationMiddlewareNoRefresh).toHaveBeenCalled();
       expect(result).toEqual({ type: 'auth' });
     });
 
@@ -231,13 +232,13 @@ describe('Main Middleware Security Tests', () => {
         },
       } as unknown as NextRequest;
 
-      const { handleAuthenticationMiddleware } = require('@/middlewares/auth/auth');
-      handleAuthenticationMiddleware.mockReturnValue({ type: 'auth' });
+      const { handleAuthenticationMiddlewareNoRefresh } = require('@/middlewares/auth/auth');
+      handleAuthenticationMiddlewareNoRefresh.mockReturnValue({ type: 'auth' });
 
       const result = await middleware(mainDomainRequest);
 
       // Debería ejecutar el middleware de autenticación para el dominio principal
-      expect(handleAuthenticationMiddleware).toHaveBeenCalled();
+      expect(handleAuthenticationMiddlewareNoRefresh).toHaveBeenCalled();
       expect(result).toEqual({ type: 'auth' });
     });
   });
