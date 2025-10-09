@@ -53,7 +53,6 @@ export const useFirstStepsSetup = () => {
         storeAdress: formData.location,
         contactEmail: formData.email,
         contactPhone: '',
-        contactName: formData.fullName,
         defaultDomain: `${formData.storeName.toLowerCase().replace(/\s+/g, '-')}.fasttify.com`,
         onboardingCompleted: true,
       };

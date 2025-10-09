@@ -2,7 +2,6 @@ import { personalInfoSchema, storeInfoSchema } from '@/lib/zod-schemas/first-ste
 import { useState } from 'react';
 
 const initialFormData = {
-  fullName: '',
   email: '',
   storeName: '',
   description: '',
