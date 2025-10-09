@@ -116,6 +116,11 @@ function handleSubdomainRewrite(request: NextRequest, subdomain: string): NextRe
     return null;
   }
 
+  // NO reescribir rutas de sitemap y robots - dejar que los handlers las manejen
+  if (path === '/sitemap.xml' || path === '/robots.txt') {
+    return null;
+  }
+
   const url = request.nextUrl.clone();
 
   if (path === '/') {
@@ -141,6 +146,11 @@ function handleCustomDomainRewrite(request: NextRequest, cleanHostname: string):
 
   // NO reescribir rutas de assets - dejar que la API las maneje
   if (path.startsWith('/assets/')) {
+    return null;
+  }
+
+  // NO reescribir rutas de sitemap y robots - dejar que los handlers las manejen
+  if (path === '/sitemap.xml' || path === '/robots.txt') {
     return null;
   }
 
