@@ -77,7 +77,6 @@ const useAuthStore = create<UserState>((set, get) => ({
   // Verificar y obtener datos del usuario
   checkUser: async (forceRefresh = true) => {
     try {
-      console.log(`🔐 checkUser: forceRefresh=${forceRefresh}, environment=${process.env.NODE_ENV}`);
       set({ loading: true, error: null });
 
       // Obtener la sesión actual del usuario
@@ -110,7 +109,6 @@ const useAuthStore = create<UserState>((set, get) => ({
           error: null,
         });
       } else {
-        console.log('🔐 checkUser: No hay sesión válida, limpiando usuario');
         set({
           user: null,
           loading: false,
@@ -119,14 +117,7 @@ const useAuthStore = create<UserState>((set, get) => ({
         });
       }
     } catch (error) {
-      console.error(
-        '🔐 checkUser: Error getting user:',
-        error,
-        'forceRefresh:',
-        forceRefresh,
-        'environment:',
-        process.env.NODE_ENV
-      );
+      console.error('Error getting user:', error);
       set({
         user: null,
         loading: false,
@@ -138,33 +129,23 @@ const useAuthStore = create<UserState>((set, get) => ({
 
   // Refrescar datos del usuario
   refreshUser: async () => {
-    console.log('🔄 refreshUser: Ejecutando con forceRefresh: true, environment:', process.env.NODE_ENV);
     await get().checkUser(true);
   },
 
   // Inicializar autenticación (solo una vez globalmente)
   initializeAuth: () => {
-    console.log('🚀 initializeAuth: Iniciando, isInitialized:', isInitialized, 'environment:', process.env.NODE_ENV);
-    if (isInitialized) {
-      console.log('🚀 initializeAuth: Ya inicializado, saliendo');
-      return;
-    }
+    if (isInitialized) return;
 
     isInitialized = true;
     const { user, checkUser } = get();
 
-    console.log('🚀 initializeAuth: Usuario actual:', !!user);
     // Verificar usuario si no hay uno
     if (!user) {
-      console.log('🚀 initializeAuth: No hay usuario, ejecutando checkUser(true)');
       checkUser(true);
-    } else {
-      console.log('🚀 initializeAuth: Ya hay usuario, no ejecutando checkUser');
     }
 
     // Escuchar eventos de autenticación para refrescar automáticamente
     hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
-      console.log('🔔 Hub auth event:', payload.event, 'environment:', process.env.NODE_ENV);
       if (
         [
           'signIn',
@@ -176,7 +157,6 @@ const useAuthStore = create<UserState>((set, get) => ({
           'customOAuthState',
         ].includes(payload.event)
       ) {
-        console.log('🔔 Hub: Ejecutando checkUser(true) por evento:', payload.event);
         get().checkUser(true);
       }
     });
