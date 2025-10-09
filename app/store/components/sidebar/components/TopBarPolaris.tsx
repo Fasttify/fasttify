@@ -108,7 +108,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
               },
               {
                 content: 'Mi Perfil',
-                onAction: () => router.push('/account-settings?section=cuenta'),
+                onAction: () => window.open(`/store/${storeId}/profile`, '_blank'),
               },
             ],
           },
