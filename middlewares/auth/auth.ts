@@ -54,7 +54,7 @@ export async function handleAuthenticationMiddlewareNoRefresh(request: NextReque
 }
 
 export async function handleAuthenticatedRedirectMiddleware(request: NextRequest, response: NextResponse) {
-  const session = await getSession(request, response);
+  const session = await getSession(request, response, false); // forceRefresh: false para evitar conflictos
 
   if (session) {
     return NextResponse.redirect(new URL('/', request.url));
