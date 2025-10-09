@@ -16,205 +16,356 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
+/** Dominios principales del sistema */
+const MAIN_DOMAINS = {
+  PRODUCTION: 'fasttify.com',
+  DEVELOPMENT: 'localhost',
+} as const;
+
+/** Subdominios del sistema que no representan tiendas */
+const SYSTEM_SUBDOMAINS = ['orders', 'admin', 'orders-domain'] as const;
+
+/** Rutas que no deben ser reescritas por el middleware */
+const EXCLUDED_PATHS = ['/assets/', '/sitemap.xml', '/robots.txt'] as const;
+
+/** Número mínimo de segmentos para considerar un subdominio válido */
+const MIN_SUBDOMAIN_SEGMENTS = 2;
+const MIN_CUSTOM_DOMAIN_SEGMENTS = 3;
+
+/**
+ * Configuración de dominio para el sistema
+ */
 export interface DomainConfig {
+  /** Indica si el entorno es de producción */
   isProduction: boolean;
+  /** Lista de dominios permitidos para el entorno actual */
   allowedDomains: string[];
 }
 
+/**
+ * Análisis completo del dominio de la petición
+ */
 export interface DomainAnalysis {
+  /** Hostname original de la petición */
   hostname: string;
+  /** Hostname limpio sin puerto */
   cleanHostname: string;
+  /** Indica si es el dominio principal */
   isMainDomain: boolean;
+  /** Subdominio extraído si existe */
   subdomain: string;
+  /** Indica si es un dominio personalizado */
   isCustomDomain: boolean;
+  /** Indica si es un dominio de Fasttify */
   isFasttifyDomain: boolean;
+  /** Indica si es localhost */
   isLocalhost: boolean;
 }
 
 /**
- * Analiza el hostname de la request y determina el tipo de dominio
+ * Obtiene el hostname de la petición, priorizando headers de CloudFront
+ * @param request - Petición de Next.js
+ * @returns El hostname real de la petición
  */
-export function analyzeDomain(request: NextRequest): DomainAnalysis {
-  // Primero verificar si hay un dominio original de CloudFront Multi-Tenant
+function getRequestHostname(request: NextRequest): string {
   const xOriginalHost = request.headers.get('x-original-host');
 
-  // Obtener el hostname real, priorizando x-original-host para dominios personalizados
-  const hostname =
-    xOriginalHost ||
-    (request.headers.get('cf-connecting-ip')
-      ? request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
-      : request.headers.get('host') || '');
+  if (xOriginalHost) {
+    return xOriginalHost;
+  }
 
-  const cleanHostname = hostname.split(':')[0];
+  const hasCloudFront = request.headers.get('cf-connecting-ip');
+  if (hasCloudFront) {
+    return request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
+  }
 
-  // Detectar automáticamente el tipo de dominio basándose en la estructura
-  const isFasttifyDomain = cleanHostname === 'fasttify.com' || cleanHostname.endsWith('.fasttify.com');
-  const isLocalhost = cleanHostname === 'localhost' || cleanHostname.startsWith('localhost:');
+  return request.headers.get('host') || '';
+}
 
-  // Configuración de dominios
-  const isProduction = process.env.APP_ENV === 'production';
-  const allowedDomains = isFasttifyDomain ? ['fasttify.com'] : isProduction ? ['fasttify.com'] : ['localhost'];
+/**
+ * Limpia el hostname removiendo el puerto
+ * @param hostname - Hostname original
+ * @returns Hostname sin puerto
+ */
+function cleanHostname(hostname: string): string {
+  return hostname.split(':')[0];
+}
 
-  const isMainDomain = allowedDomains.some((domain) => {
-    return cleanHostname === domain || cleanHostname === `www.${domain}`;
-  });
+/**
+ * Determina si el entorno actual es de producción
+ * @returns True si es producción, false en caso contrario
+ */
+function isProductionEnvironment(): boolean {
+  return process.env.NODE_ENV === 'production';
+}
 
+/**
+ * Verifica si un hostname es un dominio de Fasttify
+ * @param hostname - Hostname a verificar
+ * @returns True si es dominio de Fasttify
+ */
+function isFasttifyDomain(hostname: string): boolean {
+  return hostname === MAIN_DOMAINS.PRODUCTION || hostname.endsWith(`.${MAIN_DOMAINS.PRODUCTION}`);
+}
+
+/**
+ * Verifica si un hostname es localhost
+ * @param hostname - Hostname a verificar
+ * @returns True si es localhost
+ */
+function isLocalhostDomain(hostname: string): boolean {
+  return hostname === MAIN_DOMAINS.DEVELOPMENT || hostname.startsWith(`${MAIN_DOMAINS.DEVELOPMENT}:`);
+}
+
+/**
+ * Determina si el hostname es el dominio principal
+ * @param cleanHostname - Hostname limpio
+ * @param allowedDomains - Lista de dominios permitidos
+ * @returns True si es el dominio principal
+ */
+function isMainDomain(cleanHostname: string, allowedDomains: string[]): boolean {
+  return allowedDomains.some((domain) => cleanHostname === domain || cleanHostname === `www.${domain}`);
+}
+
+/**
+ * Obtiene la lista de dominios permitidos según el entorno
+ * @param isFasttify - Si es dominio de Fasttify
+ * @param isProduction - Si es entorno de producción
+ * @returns Lista de dominios permitidos
+ */
+function getAllowedDomains(isFasttify: boolean, isProduction: boolean): string[] {
+  if (isFasttify) {
+    return [MAIN_DOMAINS.PRODUCTION];
+  }
+
+  return isProduction ? [MAIN_DOMAINS.PRODUCTION] : [MAIN_DOMAINS.DEVELOPMENT];
+}
+
+/**
+ * Analiza el hostname de la petición y determina el tipo de dominio
+ * @param request - Petición de Next.js
+ * @returns Análisis completo del dominio
+ */
+export function analyzeDomain(request: NextRequest): DomainAnalysis {
+  const hostname = getRequestHostname(request);
+  const cleanHostnameValue = cleanHostname(hostname);
+  const isProduction = isProductionEnvironment();
+  const isFasttify = isFasttifyDomain(cleanHostnameValue);
+  const isLocalhost = isLocalhostDomain(cleanHostnameValue);
+  const allowedDomains = getAllowedDomains(isFasttify, isProduction);
+  const isMain = isMainDomain(cleanHostnameValue, allowedDomains);
   const subdomain = extractSubdomain(hostname, isProduction);
-  const isCustomDomain = !isFasttifyDomain && !isLocalhost && !isMainDomain;
+  const isCustom = !isFasttify && !isLocalhost && !isMain;
 
   return {
     hostname,
-    cleanHostname,
-    isMainDomain,
+    cleanHostname: cleanHostnameValue,
+    isMainDomain: isMain,
     subdomain,
-    isCustomDomain,
-    isFasttifyDomain,
+    isCustomDomain: isCustom,
+    isFasttifyDomain: isFasttify,
     isLocalhost,
   };
 }
 
 /**
- * Extrae el subdominio del hostname
+ * Extrae el subdominio del hostname usando recursividad
+ * @param hostname - Hostname completo
+ * @param isProduction - Si es entorno de producción
+ * @returns El subdominio extraído o cadena vacía
  */
 function extractSubdomain(hostname: string, isProduction: boolean): string {
-  const cleanHostname = hostname.split(':')[0];
-  const parts = cleanHostname.split('.');
+  const cleanHostnameValue = cleanHostname(hostname);
+  const parts = cleanHostnameValue.split('.');
+  const isFasttify = isFasttifyDomain(cleanHostnameValue);
 
-  // Detectar automáticamente si es un dominio de fasttify.com
-  const isFasttifyDomain = cleanHostname === 'fasttify.com' || cleanHostname.endsWith('.fasttify.com');
-
-  if (isFasttifyDomain || isProduction) {
-    // Lista blanca de dominios permitidos en producción
-    const allowedDomains = ['fasttify.com'];
-    const domain = parts.slice(-2).join('.'); // Obtener los últimos 2 segmentos (ej: fasttify.com)
-
-    // Verificar si hay exactamente un subdominio y el dominio está en la lista blanca
-    if (parts.length === 3 && allowedDomains.includes(domain)) {
-      return parts[0];
-    }
+  if (isFasttify || isProduction) {
+    return extractProductionSubdomain(parts);
   } else {
-    // Lista blanca de dominios permitidos en desarrollo
-    const allowedDomains = ['localhost'];
-    const domain = parts[parts.length - 1]; // Último segmento (ej: localhost)
-
-    // Verificar si hay exactamente un subdominio y el dominio está en la lista blanca
-    if (parts.length === 2 && allowedDomains.includes(domain)) {
-      return parts[0];
-    }
+    return extractDevelopmentSubdomain(parts);
   }
-  return '';
 }
 
 /**
- * Maneja las reescrituras de URL para subdominios
+ * Extrae subdominio para entorno de producción (recursiva)
+ * @param parts - Partes del hostname divididas por puntos
+ * @param index - Índice actual para recursión (por defecto 0)
+ * @returns El subdominio o cadena vacía
+ */
+function extractProductionSubdomain(parts: string[], index: number = 0): string {
+  if (index >= parts.length) {
+    return '';
+  }
+
+  const allowedDomains = [MAIN_DOMAINS.PRODUCTION];
+  const domain = parts.slice(-2).join('.');
+
+  if (parts.length === MIN_CUSTOM_DOMAIN_SEGMENTS && allowedDomains.includes(domain as any)) {
+    return parts[index];
+  }
+
+  return extractProductionSubdomain(parts, index + 1);
+}
+
+/**
+ * Extrae subdominio para entorno de desarrollo (recursiva)
+ * @param parts - Partes del hostname divididas por puntos
+ * @param index - Índice actual para recursión (por defecto 0)
+ * @returns El subdominio o cadena vacía
+ */
+function extractDevelopmentSubdomain(parts: string[], index: number = 0): string {
+  if (index >= parts.length) {
+    return '';
+  }
+
+  const allowedDomains = [MAIN_DOMAINS.DEVELOPMENT];
+  const domain = parts[parts.length - 1];
+
+  if (parts.length === MIN_SUBDOMAIN_SEGMENTS && allowedDomains.includes(domain as any)) {
+    return parts[index];
+  }
+
+  return extractDevelopmentSubdomain(parts, index + 1);
+}
+
+/**
+ * Verifica si una ruta debe ser excluida del rewrite
+ * @param path - Ruta a verificar
+ * @returns True si debe ser excluida
+ */
+function shouldExcludePath(path: string): boolean {
+  return EXCLUDED_PATHS.some((excludedPath) => path.startsWith(excludedPath) || path === excludedPath);
+}
+
+/**
+ * Crea una respuesta de rewrite para una URL
+ * @param request - Petición original
+ * @param newPath - Nueva ruta de destino
+ * @param originalPath - Ruta original (opcional)
+ * @returns Respuesta de rewrite o null
+ */
+function createRewriteResponse(request: NextRequest, newPath: string, originalPath?: string): NextResponse | null {
+  const url = request.nextUrl.clone();
+  url.pathname = newPath;
+
+  if (originalPath && originalPath !== '/') {
+    url.searchParams.set('path', originalPath);
+  }
+
+  return NextResponse.rewrite(url);
+}
+
+/**
+ * Maneja las reescrituras de URL para subdominios de tiendas
+ * @param request - Petición de Next.js
+ * @param subdomain - Subdominio de la tienda
+ * @returns Respuesta de rewrite o null
  */
 function handleSubdomainRewrite(request: NextRequest, subdomain: string): NextResponse | null {
   const path = request.nextUrl.pathname;
 
-  // NO reescribir rutas de assets - dejar que la API las maneje
-  if (path.startsWith('/assets/')) {
+  if (shouldExcludePath(path)) {
     return null;
   }
-
-  // NO reescribir rutas de sitemap y robots - dejar que los handlers las manejen
-  if (path === '/sitemap.xml' || path === '/robots.txt') {
-    return null;
-  }
-
-  const url = request.nextUrl.clone();
 
   if (path === '/') {
-    // Si estamos en la raíz, reescribir a la ruta de la tienda
-    url.pathname = `/${subdomain}`;
-  } else if (!path.startsWith(`/${subdomain}`)) {
-    // Si la ruta no empieza con el subdominio, agregar el prefijo y pasar el path original
-    url.pathname = `/${subdomain}`;
-    url.searchParams.set('path', path);
-  } else {
-    // La ruta ya tiene el prefijo correcto
-    return null;
+    return createRewriteResponse(request, `/${subdomain}`);
   }
 
-  return NextResponse.rewrite(url);
+  if (!path.startsWith(`/${subdomain}`)) {
+    return createRewriteResponse(request, `/${subdomain}`, path);
+  }
+
+  return null;
 }
 
 /**
  * Maneja las reescrituras de URL para dominios personalizados
+ * @param request - Petición de Next.js
+ * @param cleanHostname - Hostname limpio del dominio personalizado
+ * @returns Respuesta de rewrite o null
  */
 function handleCustomDomainRewrite(request: NextRequest, cleanHostname: string): NextResponse | null {
   const path = request.nextUrl.pathname;
 
-  // NO reescribir rutas de assets - dejar que la API las maneje
-  if (path.startsWith('/assets/')) {
+  if (shouldExcludePath(path)) {
     return null;
   }
 
-  // NO reescribir rutas de sitemap y robots - dejar que los handlers las manejen
-  if (path === '/sitemap.xml' || path === '/robots.txt') {
-    return null;
-  }
-
-  const url = request.nextUrl.clone();
-
-  // Para dominios personalizados, usar el dominio completo como identificador
-  url.pathname = `/${cleanHostname}`;
-  if (path !== '/') {
-    url.searchParams.set('path', path);
-  }
-
-  return NextResponse.rewrite(url);
+  return createRewriteResponse(request, `/${cleanHostname}`, path);
 }
 
 /**
  * Maneja las reescrituras de URL para el subdominio orders
+ * @param request - Petición de Next.js
+ * @returns Respuesta de rewrite o null
  */
 function handleOrdersSubdomainRewrite(request: NextRequest): NextResponse | null {
   const path = request.nextUrl.pathname;
-  const url = request.nextUrl.clone();
+  const newPath = path === '/' ? '/orders' : `/orders${path}`;
 
-  // Reescribir todas las rutas del subdominio orders hacia /orders
-  if (path === '/') {
-    url.pathname = '/orders';
-  } else {
-    url.pathname = `/orders${path}`;
-  }
-
-  return NextResponse.rewrite(url);
+  return createRewriteResponse(request, newPath);
 }
 
 /**
- * Función principal que maneja todos los tipos de dominios
+ * Maneja las reescrituras de URL para el subdominio admin
+ * @param _request - Petición de Next.js (no utilizada)
+ * @returns Respuesta de rewrite o null (siempre null para admin)
  */
-export function handleDomainRouting(request: NextRequest): NextResponse | null {
-  const domainAnalysis = analyzeDomain(request);
+function handleAdminSubdomainRewrite(_request: NextRequest): NextResponse | null {
+  // Para el subdominio admin, mantener las rutas tal como están
+  // Las rutas /store/[storeId]/... se mantienen igual
+  return null;
+}
 
-  // Si es el dominio principal, no hacer nada
+/**
+ * Verifica si un subdominio es del sistema
+ * @param subdomain - Subdominio a verificar
+ * @returns True si es subdominio del sistema
+ */
+function isSystemSubdomain(subdomain: string): boolean {
+  return SYSTEM_SUBDOMAINS.includes(subdomain as any);
+}
+
+/**
+ * Función principal que maneja todos los tipos de dominios de forma recursiva
+ * @param request - Petición de Next.js
+ * @param analysis - Análisis del dominio (opcional, para recursión)
+ * @returns Respuesta de rewrite o null
+ */
+export function handleDomainRouting(request: NextRequest, analysis?: DomainAnalysis): NextResponse | null {
+  const domainAnalysis = analysis || analyzeDomain(request);
+
+  // Caso base: dominio principal
   if (domainAnalysis.isMainDomain) {
     return null;
   }
 
-  // Manejar el subdominio orders específicamente
+  // Caso específico: subdominio orders
   if (domainAnalysis.subdomain === 'orders') {
     return handleOrdersSubdomainRewrite(request);
   }
 
-  // Lista de otros subdominios del sistema (no son tiendas)
-  const systemSubdomains = ['orders-domain'];
+  // Caso específico: subdominio admin
+  if (domainAnalysis.subdomain === 'admin') {
+    return handleAdminSubdomainRewrite(request);
+  }
 
-  // Si es un subdominio del sistema, no reescribir (dejar que Next.js lo maneje)
-  if (domainAnalysis.subdomain && systemSubdomains.includes(domainAnalysis.subdomain)) {
+  // Caso recursivo: otros subdominios del sistema
+  if (domainAnalysis.subdomain && isSystemSubdomain(domainAnalysis.subdomain)) {
     return null;
   }
 
-  // Manejar subdominios de fasttify.com (tiendas)
+  // Caso recursivo: subdominios de tiendas
   if (domainAnalysis.subdomain && domainAnalysis.subdomain !== 'www') {
     return handleSubdomainRewrite(request, domainAnalysis.subdomain);
   }
 
-  // Manejar dominios personalizados
+  // Caso recursivo: dominios personalizados
   if (domainAnalysis.isCustomDomain) {
     return handleCustomDomainRewrite(request, domainAnalysis.cleanHostname);
   }
 
+  // Caso base: no hay rewrite necesario
   return null;
 }
