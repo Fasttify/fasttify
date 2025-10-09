@@ -27,7 +27,10 @@ jest.mock('next/server', () => ({
 describe('Auth Middleware', () => {
   const mockRequest = {
     url: 'http://localhost:3000/test',
-  } as NextRequest;
+    cookies: {
+      get: jest.fn().mockReturnValue(null),
+    },
+  } as unknown as NextRequest;
 
   const mockResponse = {} as NextResponse;
 
@@ -186,6 +189,14 @@ describe('Auth Middleware', () => {
         },
       };
 
+      // Configurar el mock de cookies para que retorne null (no hay última tienda visitada)
+      const mockRequestWithCookies = {
+        ...mockRequest,
+        cookies: {
+          get: jest.fn().mockReturnValue(null),
+        },
+      } as unknown as NextRequest;
+
       const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
       mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
         const mockFetchAuthSession = fetchAuthSession as jest.Mock;
@@ -196,9 +207,9 @@ describe('Auth Middleware', () => {
       const mockNextResponseRedirect = NextResponse.redirect as jest.Mock;
       mockNextResponseRedirect.mockReturnValueOnce(mockRedirectResponse);
 
-      const result = await handleAuthenticatedRedirectMiddleware(mockRequest, mockResponse);
+      const result = await handleAuthenticatedRedirectMiddleware(mockRequestWithCookies, mockResponse);
 
-      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/', mockRequest.url));
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/my-store', mockRequestWithCookies.url));
       expect(result).toBe(mockRedirectResponse);
     });
 
@@ -256,7 +267,10 @@ describe('Auth Middleware', () => {
     it('should handle authenticated redirect with custom URL', async () => {
       const customRequest = {
         url: 'https://example.com/login',
-      } as NextRequest;
+        cookies: {
+          get: jest.fn().mockReturnValue(null),
+        },
+      } as unknown as NextRequest;
 
       const mockSession = {
         tokens: {
@@ -273,7 +287,7 @@ describe('Auth Middleware', () => {
 
       await handleAuthenticatedRedirectMiddleware(customRequest, mockResponse);
 
-      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/', customRequest.url));
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/my-store', customRequest.url));
     });
   });
 });

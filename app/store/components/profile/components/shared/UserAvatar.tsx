@@ -152,6 +152,7 @@ function UserAvatarComponent({ imageUrl, fallback, disabled = false }: UserAvata
               alt={fallback}
               width={120}
               height={120}
+              referrerPolicy="no-referrer"
               style={{
                 objectFit: 'cover',
               }}

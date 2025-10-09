@@ -16,14 +16,11 @@ const nextConfig: NextConfig = {
   ],
 
   images: {
-    // Configuración para imágenes locales
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 
-    // Configuración para desarrollo
     unoptimized: process.env.NODE_ENV === 'development',
 
-    // Configuración para imágenes locales según documentación oficial
     localPatterns: [
       {
         pathname: '/icons/**',
@@ -54,6 +51,21 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '*cdn.fasttify.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'photos.google.com',
         pathname: '/**',
       },
     ],
