@@ -1,7 +1,6 @@
 'use client';
 
 import { navItems } from '@/app/(main-layout)/landing/components/navigation';
-import { UserMenu } from '@/app/(main-layout)/landing/components/UserMenu';
 import { Button } from '@/components/ui/button';
 import {
   NavigationMenu,
@@ -12,20 +11,14 @@ import {
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/context/hooks/useAuth';
 import { useIsClient } from '@/hooks/ui/useIsClient';
-import { signOut } from 'aws-amplify/auth';
 import { ChevronDown, Menu } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export function Navbar() {
-  const { user, loading, clearUser } = useAuth();
   const isClient = useIsClient();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
 
@@ -45,39 +38,18 @@ export function Navbar() {
     };
   }, []);
 
-  const handleSignOut = async () => {
-    try {
-      // 1. Cerrar sesión en Amplify primero
-      await signOut({
-        global: true,
-        oauth: {
-          redirectUrl: '/login',
-        },
-      });
-
-      // 2. Limpiar el estado local
-      clearUser();
-
-      // 3. Refrescar el router para limpiar cualquier caché/estado
-      router.refresh();
-
-      // 4. Navegar usando Next.js router
-      router.push('/login');
-    } catch (error) {
-      console.error('Error signing out', error);
-      // Fallback: limpiar estado y navegar
-      clearUser();
-      router.push('/login');
-    }
-  };
-
+  /**
+   * Renders the authentication section of the navbar
+   * Always shows the "Iniciar sesión" button regardless of authentication state
+   *
+   * @returns JSX element with the login button
+   */
   const renderAuthSection = () => {
-    if (!isClient || loading) {
-      return <Skeleton className="h-8 w-8 rounded-full" />;
+    if (!isClient) {
+      return null;
     }
-    return user ? (
-      <UserMenu user={user} loading={loading} onSignOut={handleSignOut} />
-    ) : (
+
+    return (
       <Button asChild variant="link" className="ml-4 text-black">
         <Link href="/login">Iniciar sesión</Link>
       </Button>
@@ -213,11 +185,7 @@ export function Navbar() {
                         Precios
                       </Link>
                     </div>
-                    {!isClient || loading ? (
-                      <div className="mt-auto p-4 border-t border-gray-200">
-                        <Skeleton className="h-8 w-full" />
-                      </div>
-                    ) : !user ? (
+                    {!isClient ? null : (
                       <div className="mt-auto p-4 border-t border-gray-200">
                         <Button asChild variant="link" className="w-full">
                           <Link href="/login" onClick={() => setIsOpen(false)}>
@@ -225,7 +193,7 @@ export function Navbar() {
                           </Link>
                         </Button>
                       </div>
-                    ) : null}
+                    )}
                   </div>
                 </SheetContent>
               </Sheet>

@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { useAuth } from '@/context/hooks/useAuth';
 import { getSignInErrorMessage } from '@/lib/auth-error-messages';
+import { getLastVisitedStoreClient } from '@/lib/cookies/last-store';
 
 interface UseAuthReturn {
   login: (email: string, password: string) => Promise<void>;
@@ -23,7 +24,7 @@ interface UseAuthProps {
   onVerificationNeeded?: (email: string, password: string) => void;
 }
 
-export function useSignIn({ redirectPath = '/', onVerificationNeeded }: UseAuthProps = {}): UseAuthReturn {
+export function useSignIn({ redirectPath, onVerificationNeeded }: UseAuthProps = {}): UseAuthReturn {
   const router = useRouter();
   const { refreshUser, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +34,34 @@ export function useSignIn({ redirectPath = '/', onVerificationNeeded }: UseAuthP
     setError(null);
   }, []);
 
-  // Nueva función para reenviar el código de confirmación
+  /**
+   * Determines the appropriate redirect path after successful login
+   * Checks for last visited store or defaults to store selection
+   *
+   * @returns The redirect path to use
+   */
+  const getRedirectPath = useCallback((): string => {
+    // If a specific redirect path is provided, use it
+    if (redirectPath) {
+      return redirectPath;
+    }
+
+    // Check for last visited store in client-side cookies
+    const lastStoreId = getLastVisitedStoreClient();
+
+    if (lastStoreId) {
+      return `/store/${lastStoreId}/home`;
+    }
+
+    // Default to store selection page
+    return '/my-store';
+  }, [redirectPath]);
+
+  /**
+   * Resends confirmation code for email verification
+   *
+   * @param email - The email address to resend confirmation code to
+   */
   const resendConfirmationCode = useCallback(async (email: string) => {
     setIsLoading(true);
     setError(null);
@@ -66,7 +94,8 @@ export function useSignIn({ redirectPath = '/', onVerificationNeeded }: UseAuthP
         if (isSignedIn) {
           // Refrescar el estado del usuario en el store global
           await refreshUser();
-          router.push(redirectPath);
+          // Use the smart redirect path instead of the hardcoded one
+          router.push(getRedirectPath());
         } else if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
           // Si el usuario no ha confirmado su registro, reenvía el código
           await resendConfirmationCode(email);
@@ -90,7 +119,7 @@ export function useSignIn({ redirectPath = '/', onVerificationNeeded }: UseAuthP
         setIsLoading(false);
       }
     },
-    [redirectPath, onVerificationNeeded, resendConfirmationCode, router, refreshUser]
+    [onVerificationNeeded, resendConfirmationCode, router, refreshUser, getRedirectPath]
   );
 
   return {

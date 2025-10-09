@@ -16,6 +16,7 @@
 
 import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
 import { fetchAuthSession } from 'aws-amplify/auth/server';
+import { getLastVisitedStore } from '@/lib/cookies/last-store';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function getSession(request: NextRequest, response: NextResponse, forceRefresh = true) {
@@ -44,7 +45,7 @@ export async function handleAuthenticationMiddleware(request: NextRequest, respo
 }
 
 export async function handleAuthenticationMiddlewareNoRefresh(request: NextRequest, response: NextResponse) {
-  const session = await getSession(request, response, false); // forceRefresh: false
+  const session = await getSession(request, response, false);
 
   if (!session) {
     return NextResponse.redirect(new URL('/login', request.url));
@@ -53,11 +54,25 @@ export async function handleAuthenticationMiddlewareNoRefresh(request: NextReque
   return response;
 }
 
+/**
+ * Handles redirection for authenticated users accessing login page
+ * Redirects to the last visited store or to store selection if no last store exists
+ *
+ * @param request - The incoming request
+ * @param response - The response object
+ * @returns Redirect response if authenticated, or original response if not
+ */
 export async function handleAuthenticatedRedirectMiddleware(request: NextRequest, response: NextResponse) {
-  const session = await getSession(request, response, false); // forceRefresh: false para evitar conflictos
+  const session = await getSession(request, response, false);
 
   if (session) {
-    return NextResponse.redirect(new URL('/', request.url));
+    const lastStoreId = getLastVisitedStore(request);
+
+    if (lastStoreId) {
+      return NextResponse.redirect(new URL(`/store/${lastStoreId}/home`, request.url));
+    } else {
+      return NextResponse.redirect(new URL('/my-store', request.url));
+    }
   }
 
   return response;

@@ -18,7 +18,7 @@ interface SignInFormProps {
   redirectPath?: string;
 }
 
-export function SignInForm({ onForgotPassword, onVerificationNeeded, redirectPath = '/' }: SignInFormProps) {
+export function SignInForm({ onForgotPassword, onVerificationNeeded, redirectPath }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading, error, clearError } = useSignIn({
     redirectPath,
