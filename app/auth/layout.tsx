@@ -1,5 +1,5 @@
 import '@/app/global.css';
-import { inter } from '@/config/fonts';
+import { inter } from '@/lib/fonts';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (

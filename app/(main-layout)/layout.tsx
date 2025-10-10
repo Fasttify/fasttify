@@ -1,5 +1,5 @@
 import '@/app/global.css';
-import { inter } from '@/config/fonts';
+import { inter } from '@/lib/fonts';
 import { Navbar } from '@/app/(main-layout)/landing/components/NavBar';
 
 export default function WithNavbarLayout({ children }: { children: React.ReactNode }) {

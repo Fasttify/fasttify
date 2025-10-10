@@ -1,6 +1,6 @@
 'use client';
 
-import { inter } from '@/config/fonts';
+import { inter } from '@/lib/fonts';
 import { useAuthInitializer } from '@/hooks/auth/useAuthInitializer';
 import '@/app/global.css';
 
