@@ -22,7 +22,7 @@ Amplify.configure({
 });
 
 export default function AuthCallbackPage() {
-  const { user, loading, refreshUser } = useAuth();
+  const { user, loading, checkUser } = useAuth();
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -36,7 +36,7 @@ export default function AuthCallbackPage() {
 
             console.log('OAuth sign in successful:', { currentUser, userAttributes });
 
-            await refreshUser();
+            await checkUser();
 
             const lastStoreId = getLastVisitedStoreClient();
 
@@ -65,7 +65,7 @@ export default function AuthCallbackPage() {
     return () => {
       unsubscribe();
     };
-  }, [refreshUser, router]);
+  }, [checkUser, router]);
 
   useEffect(() => {
     if (!loading && user && !isRedirecting) {
