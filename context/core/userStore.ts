@@ -1,8 +1,7 @@
 import { create } from 'zustand';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { fetchAuthSession, signOut } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 
-// Define el tipo del usuario
 interface User {
   nickName?: string;
   email: string;
@@ -16,30 +15,27 @@ interface User {
   identities?: any[];
 }
 
-// Define el estado y las acciones del store
 interface UserState {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
   error: string | null;
 
-  // Acciones básicas
   setUser: (newUserData: User) => void;
   clearUser: () => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
 
-  // Acciones de autenticación
-  checkUser: (forceRefresh?: boolean) => Promise<void>;
-  refreshUser: () => Promise<void>;
+  checkUser: () => Promise<void>;
   initializeAuth: () => void;
   cleanup: () => void;
   logout: () => Promise<void>;
 }
 
-// Variables globales para controlar inicialización
+// Variables globales para controlar el estado de la autenticación
 let isInitialized = false;
 let hubUnsubscribe: (() => void) | null = null;
+let refreshSessionPromise: Promise<any> | null = null;
 
 const useAuthStore = create<UserState>((set, get) => ({
   user: null,
@@ -47,7 +43,6 @@ const useAuthStore = create<UserState>((set, get) => ({
   isAuthenticated: false,
   error: null,
 
-  // Acciones básicas
   setUser: (newUserData) =>
     set(() => ({
       user: newUserData,
@@ -64,31 +59,26 @@ const useAuthStore = create<UserState>((set, get) => ({
       error: null,
     })),
 
-  setLoading: (isLoading) =>
-    set(() => ({
-      loading: isLoading,
-    })),
+  setLoading: (isLoading) => set(() => ({ loading: isLoading })),
+  setError: (error) => set(() => ({ error, loading: false })),
 
-  setError: (error) =>
-    set(() => ({
-      error,
-      loading: false,
-    })),
+  checkUser: async () => {
+    if (refreshSessionPromise) {
+      await refreshSessionPromise;
+      return;
+    }
 
-  // Verificar y obtener datos del usuario
-  checkUser: async (forceRefresh = true) => {
     try {
       set({ loading: true, error: null });
 
-      // Obtener la sesión actual del usuario
-      const session = await fetchAuthSession({ forceRefresh });
+      // Inicia la promesa para refrescar la sesión
+      refreshSessionPromise = fetchAuthSession({ forceRefresh: true });
+      const session = await refreshSessionPromise;
 
-      // Verificar si hay una sesión válida con tokens
       if (session && session.tokens) {
-        // Obtener los atributos del usuario desde el token ID
         const userAttributes = session.tokens.idToken?.payload || {};
 
-        const newUser = {
+        const newUser: User = {
           nickName: typeof userAttributes.nickname === 'string' ? userAttributes.nickname : undefined,
           email: typeof userAttributes.email === 'string' ? userAttributes.email : '',
           picture: typeof userAttributes.picture === 'string' ? userAttributes.picture : undefined,
@@ -102,63 +92,59 @@ const useAuthStore = create<UserState>((set, get) => ({
           userId:
             typeof userAttributes['cognito:username'] === 'string' ? userAttributes['cognito:username'] : undefined,
         };
-
-        set({
-          user: newUser,
-          loading: false,
-          isAuthenticated: true,
-          error: null,
-        });
+        set({ user: newUser, loading: false, isAuthenticated: true, error: null });
       } else {
-        set({
-          user: null,
-          loading: false,
-          isAuthenticated: false,
-          error: null,
-        });
+        // Si no hay sesión, limpia el estado
+        get().clearUser();
       }
-    } catch (error) {
-      console.error('Error getting user:', error);
-      set({
-        user: null,
-        loading: false,
-        isAuthenticated: false,
-        error: error instanceof Error ? error.message : 'Error desconocido',
-      });
+    } catch (error: any) {
+      console.error('Error al verificar la sesión del usuario:', error);
+
+      if (error.name === 'NotAuthorizedException' || (error.message && error.message.includes('revoked'))) {
+        console.warn('Token revocado detectado. Forzando cierre de sesión y recarga completa.');
+
+        try {
+          // Intenta cerrar sesión en Cognito, pero no dejes que falle si ya hay problemas
+          await signOut();
+        } catch (signOutError) {
+          console.error('Error secundario al intentar signOut forzado:', signOutError);
+        } finally {
+          // La acción más importante: limpiar el estado y recargar la aplicación
+          get().clearUser();
+          window.location.href = '/login?reason=session_expired'; // Redirige y fuerza una recarga
+        }
+      } else {
+        // Para cualquier otro error, simplemente limpia el estado
+        get().clearUser();
+        set({ error: error.message || 'Error desconocido al verificar la sesión' });
+      }
+    } finally {
+      refreshSessionPromise = null;
+      set({ loading: false });
     }
   },
 
-  // Refrescar datos del usuario
-  refreshUser: async () => {
-    await get().checkUser(true);
-  },
-
-  // Inicializar autenticación (solo una vez globalmente)
+  // Inicializar autenticación (sin cambios)
   initializeAuth: () => {
     if (isInitialized) return;
-
     isInitialized = true;
-    const { user, checkUser } = get();
 
-    // Verificar usuario si no hay uno
-    if (!user) {
-      checkUser(true);
-    }
+    // Al inicializar, siempre verifica al usuario.
+    get().checkUser();
 
-    // Escuchar eventos de autenticación para refrescar automáticamente
     hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
-      if (
-        [
-          'signIn',
-          'signOut',
-          'signIn_failure',
-          'signOut_failure',
-          'signInWithRedirect',
-          'signInWithRedirect_failure',
-          'customOAuthState',
-        ].includes(payload.event)
-      ) {
-        get().checkUser(true);
+      switch (payload.event) {
+        case 'signedIn':
+          get().checkUser();
+          break;
+
+        case 'signedOut':
+          get().clearUser();
+          break;
+
+        case 'signInWithRedirect_failure':
+          get().clearUser();
+          break;
       }
     });
   },
@@ -172,23 +158,15 @@ const useAuthStore = create<UserState>((set, get) => ({
     isInitialized = false;
   },
 
-  // Cerrar sesión
   logout: async () => {
     try {
-      // Importar signOut dinámicamente
-      const { signOut } = await import('aws-amplify/auth');
-
-      // Cerrar sesión en AWS Cognito
       await signOut();
-
-      // Limpiar estado local
-      get().clearUser();
-      get().cleanup();
     } catch (error) {
-      console.error('Error during logout:', error);
-      // Limpiar estado local incluso si falla el signOut
+      console.error('Error durante el logout en Amplify:', error);
+    } finally {
       get().clearUser();
       get().cleanup();
+      window.location.href = '/login';
     }
   },
 }));
