@@ -1,7 +1,7 @@
 {
   "name": "@fasttify/tenant-domains",
   "version": "1.0.0",
-  "description": "Paquete para la gestión de dominios personalizados y tenants de CloudFront Multi-Tenant",
+  "description": "Package for managing tenant domains and CloudFront Multi-Tenant",
   "main": "index.ts",
   "types": "index.ts",
   "scripts": {
@@ -9,7 +9,9 @@
     "dev": "tsc --watch",
     "test": "jest",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
   },
   "peerDependencies": {
     "@aws-sdk/client-acm": "^3.844.0",

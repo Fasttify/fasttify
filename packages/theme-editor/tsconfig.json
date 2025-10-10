@@ -2,10 +2,14 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "rootDir": "../../",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
   "include": ["**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]

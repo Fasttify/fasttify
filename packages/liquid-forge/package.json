@@ -1,7 +1,7 @@
 {
   "name": "@fasttify/liquid-forge",
   "version": "1.0.0",
-  "description": "Motor de renderizado Liquid para Fasttify",
+  "description": "Liquid engine for Fasttify",
   "main": "index.ts",
   "types": "index.ts",
   "private": true,
@@ -10,7 +10,8 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "jest",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
