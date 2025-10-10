@@ -9,7 +9,7 @@ import useAuthStore from '@/context/core/userStore';
  *
  * @example
  * ```tsx
- * const { user, loading, isAuthenticated, initializeAuth, refreshUser } = useAuth()
+ * const { user, loading, isAuthenticated, initializeAuth } = useAuth()
  *
  * // Inicializar una sola vez (ej: en layout principal)
  * useEffect(() => {
@@ -22,7 +22,7 @@ import useAuthStore from '@/context/core/userStore';
  * ```
  */
 export const useAuth = () => {
-  const { user, loading, isAuthenticated, error, checkUser, refreshUser, initializeAuth, cleanup, clearUser, logout } =
+  const { user, loading, isAuthenticated, error, checkUser, initializeAuth, cleanup, clearUser, logout } =
     useAuthStore();
 
   return {
@@ -31,7 +31,6 @@ export const useAuth = () => {
     isAuthenticated,
     error,
     checkUser,
-    refreshUser,
     initializeAuth,
     cleanup,
     clearUser,
