@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { nunitoSans } from '@/config/fonts';
+import { nunitoSans } from '@/lib/fonts';
 import StyledComponentsRegistry from './registry';
 import { ReactQueryProvider } from '@/utils/client/ReactQueryProvider';
 
