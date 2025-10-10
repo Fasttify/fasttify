@@ -151,34 +151,14 @@ const useAuthStore = create<UserState>((set, get) => ({
         [
           'signIn',
           'signOut',
+          'signIn_failure',
+          'signOut_failure',
           'signInWithRedirect',
           'signInWithRedirect_failure',
           'customOAuthState',
-          'signIn_failure',
-          'signOut_failure',
         ].includes(payload.event)
       ) {
         get().checkUser(true);
-      } else if (payload.event === 'tokenRefresh_failure') {
-        // Manejar específicamente el fallo de refresh token
-        console.warn('Token refresh failed:', payload.data);
-
-        // Verificar si es un error de token revocado
-        const isTokenRevoked =
-          payload.data?.error?.message?.includes('Refresh Token has been revoked') ||
-          payload.data?.error?.message?.includes('NotAuthorizedException');
-
-        if (isTokenRevoked) {
-          // Token revocado - limpiar sesión
-          get().clearUser();
-        } else {
-          // Otros errores de refresh - intentar sin forceRefresh
-          get()
-            .checkUser(false)
-            .catch(() => {
-              get().clearUser();
-            });
-        }
       }
     });
   },

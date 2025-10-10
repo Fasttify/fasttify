@@ -41,9 +41,9 @@ export default function AuthCallbackPage() {
             const lastStoreId = getLastVisitedStoreClient();
 
             if (lastStoreId) {
-              router.push(`/store/${lastStoreId}/home`);
+              window.location.href = `/store/${lastStoreId}/home`;
             } else {
-              router.push('/my-store');
+              window.location.href = '/my-store';
             }
           } catch (error) {
             console.error('Error completing OAuth sign in:', error);
@@ -74,9 +74,9 @@ export default function AuthCallbackPage() {
       const lastStoreId = getLastVisitedStoreClient();
 
       if (lastStoreId) {
-        router.push(`/store/${lastStoreId}/home`);
+        window.location.href = `/store/${lastStoreId}/home`;
       } else {
-        router.push('/my-store');
+        window.location.href = '/my-store';
       }
     }
   }, [user, loading, isRedirecting, router]);

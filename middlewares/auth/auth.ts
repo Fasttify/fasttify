@@ -28,24 +28,6 @@ export async function getSession(request: NextRequest, response: NextResponse, f
         return session.tokens !== undefined ? session : null;
       } catch (error) {
         console.error('Error fetching user session:', error);
-
-        // Si falló con forceRefresh y el error es de token revocado, intentar sin forzar
-        const isTokenRevoked =
-          error instanceof Error &&
-          (error.message.includes('Refresh Token has been revoked') ||
-            error.message.includes('NotAuthorizedException'));
-
-        if (isTokenRevoked && forceRefresh) {
-          try {
-            console.log('Token revocado detectado, intentando sin forceRefresh');
-            const fallbackSession = await fetchAuthSession(contextSpec, { forceRefresh: false });
-            return fallbackSession.tokens !== undefined ? fallbackSession : null;
-          } catch (fallbackError) {
-            console.error('Error in fallback session fetch:', fallbackError);
-            return null;
-          }
-        }
-
         return null;
       }
     },
@@ -72,14 +54,6 @@ export async function handleAuthenticationMiddlewareNoRefresh(request: NextReque
   return response;
 }
 
-/**
- * Handles redirection for authenticated users accessing login page
- * Redirects to the last visited store or to store selection if no last store exists
- *
- * @param request - The incoming request
- * @param response - The response object
- * @returns Redirect response if authenticated, or original response if not
- */
 export async function handleAuthenticatedRedirectMiddleware(request: NextRequest, response: NextResponse) {
   const session = await getSession(request, response, false);
 
