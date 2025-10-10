@@ -35,6 +35,7 @@ interface UserState {
   initializeAuth: () => void;
   cleanup: () => void;
   logout: () => Promise<void>;
+  handleTokenRevoked: () => void;
 }
 
 // Variables globales para controlar inicialización
@@ -119,11 +120,59 @@ const useAuthStore = create<UserState>((set, get) => ({
       }
     } catch (error) {
       console.error('Error getting user:', error);
+
+      // Manejar específicamente el error de refresh token revocado
+      const isTokenRevoked =
+        error instanceof Error &&
+        (error.message.includes('Refresh Token has been revoked') || error.message.includes('NotAuthorizedException'));
+
+      if (isTokenRevoked && forceRefresh) {
+        // Si falló el forceRefresh, intentar sin forzar refresh
+        try {
+          const session = await fetchAuthSession({ forceRefresh: false });
+
+          if (session && session.tokens) {
+            // Si tenemos una sesión válida sin forzar refresh, usarla
+            const userAttributes = session.tokens.idToken?.payload || {};
+
+            const newUser = {
+              nickName: typeof userAttributes.nickname === 'string' ? userAttributes.nickname : undefined,
+              email: typeof userAttributes.email === 'string' ? userAttributes.email : '',
+              picture: typeof userAttributes.picture === 'string' ? userAttributes.picture : undefined,
+              preferredUsername:
+                typeof userAttributes.preferred_username === 'string' ? userAttributes.preferred_username : '',
+              plan: typeof userAttributes['custom:plan'] === 'string' ? userAttributes['custom:plan'] : undefined,
+              bio: typeof userAttributes['custom:bio'] === 'string' ? userAttributes['custom:bio'] : undefined,
+              phone: typeof userAttributes['custom:phone'] === 'string' ? userAttributes['custom:phone'] : undefined,
+              identities: Array.isArray(userAttributes.identities) ? userAttributes.identities : undefined,
+              cognitoUsername: typeof userAttributes.sub === 'string' ? userAttributes.sub : undefined,
+              userId:
+                typeof userAttributes['cognito:username'] === 'string' ? userAttributes['cognito:username'] : undefined,
+            };
+
+            set({
+              user: newUser,
+              loading: false,
+              isAuthenticated: true,
+              error: null,
+            });
+            return;
+          }
+        } catch (fallbackError) {
+          console.error('Error in fallback session check:', fallbackError);
+        }
+      }
+
+      // Si llegamos aquí, el usuario necesita reautenticarse
       set({
         user: null,
         loading: false,
         isAuthenticated: false,
-        error: error instanceof Error ? error.message : 'Error desconocido',
+        error: isTokenRevoked
+          ? 'Sesión expirada. Por favor, inicia sesión nuevamente.'
+          : error instanceof Error
+            ? error.message
+            : 'Error desconocido',
       });
     }
   },
@@ -151,14 +200,35 @@ const useAuthStore = create<UserState>((set, get) => ({
         [
           'signIn',
           'signOut',
-          'signIn_failure',
-          'signOut_failure',
+          'tokenRefresh',
           'signInWithRedirect',
           'signInWithRedirect_failure',
           'customOAuthState',
+          'signIn_failure',
+          'signOut_failure',
         ].includes(payload.event)
       ) {
         get().checkUser(true);
+      } else if (payload.event === 'tokenRefresh_failure') {
+        // Manejar específicamente el fallo de refresh token
+        console.warn('Token refresh failed:', payload.data);
+
+        // Verificar si es un error de token revocado
+        const isTokenRevoked =
+          payload.data?.error?.message?.includes('Refresh Token has been revoked') ||
+          payload.data?.error?.message?.includes('NotAuthorizedException');
+
+        if (isTokenRevoked) {
+          get().handleTokenRevoked();
+        } else {
+          // Para otros errores de refresh, intentar obtener la sesión sin forzar refresh
+          get()
+            .checkUser(false)
+            .catch(() => {
+              // Si también falla sin forzar refresh, limpiar el usuario
+              get().clearUser();
+            });
+        }
       }
     });
   },
@@ -189,6 +259,25 @@ const useAuthStore = create<UserState>((set, get) => ({
       // Limpiar estado local incluso si falla el signOut
       get().clearUser();
       get().cleanup();
+    }
+  },
+
+  // Manejar tokens revocados
+  handleTokenRevoked: () => {
+    console.warn('Token revocado detectado, limpiando sesión');
+    set({
+      user: null,
+      loading: false,
+      isAuthenticated: false,
+      error: 'Sesión expirada. Por favor, inicia sesión nuevamente.',
+    });
+
+    // Opcional: redirigir al login si estamos en el cliente
+    if (typeof window !== 'undefined') {
+      // Solo redirigir si no estamos ya en la página de login
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
   },
 }));
