@@ -26,7 +26,7 @@ interface UseAuthProps {
 
 export function useSignIn({ redirectPath, onVerificationNeeded }: UseAuthProps = {}): UseAuthReturn {
   const router = useRouter();
-  const { refreshUser, isAuthenticated } = useAuth();
+  const { checkUser, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,7 +93,7 @@ export function useSignIn({ redirectPath, onVerificationNeeded }: UseAuthProps =
 
         if (isSignedIn) {
           // Refrescar el estado del usuario en el store global
-          await refreshUser();
+          await checkUser();
           // Use the smart redirect path instead of the hardcoded one
           router.push(getRedirectPath());
         } else if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
@@ -119,7 +119,7 @@ export function useSignIn({ redirectPath, onVerificationNeeded }: UseAuthProps =
         setIsLoading(false);
       }
     },
-    [onVerificationNeeded, resendConfirmationCode, router, refreshUser, getRedirectPath]
+    [onVerificationNeeded, resendConfirmationCode, router, checkUser, getRedirectPath]
   );
 
   return {
