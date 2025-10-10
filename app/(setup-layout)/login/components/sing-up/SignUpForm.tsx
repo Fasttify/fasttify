@@ -21,7 +21,7 @@ interface SignUpFormProps {
 export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { refreshUser } = useAuth();
+  const { checkUser } = useAuth();
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -36,7 +36,7 @@ export function SignUpForm({ onVerificationNeeded }: SignUpFormProps) {
   const onSubmit = async (data: SignUpFormData) => {
     setIsSubmitted(true);
     try {
-      const result = await handleSignUp(data.email, data.password, data.nickName, refreshUser);
+      const result = await handleSignUp(data.email, data.password, data.nickName, checkUser);
       if (result.nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
         onVerificationNeeded(data.email, data.password);
       }
