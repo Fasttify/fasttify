@@ -19,7 +19,7 @@ interface TopBarPolarisProps {
 
 export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProps) {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const isClient = useIsClient();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -37,6 +37,12 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
   const handleChangeStore = async () => {
     await clearStore();
     router.push('/my-store');
+  };
+
+  const handleLogout = async () => {
+    await clearStore();
+    await logout();
+    router.push('/login');
   };
 
   // Generar rutas de búsqueda usando la función existente
@@ -115,6 +121,7 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
           {
             items: [
               { content: 'Centro de Ayuda' },
+              { content: 'Cerrar sesión', icon: ExitIcon, onAction: handleLogout },
               { content: 'Cambiar de Tienda', icon: ExitIcon, onAction: () => handleChangeStore() },
             ],
           },

@@ -34,6 +34,7 @@ interface UserState {
   refreshUser: () => Promise<void>;
   initializeAuth: () => void;
   cleanup: () => void;
+  logout: () => Promise<void>;
 }
 
 // Variables globales para controlar inicialización
@@ -169,6 +170,26 @@ const useAuthStore = create<UserState>((set, get) => ({
       hubUnsubscribe = null;
     }
     isInitialized = false;
+  },
+
+  // Cerrar sesión
+  logout: async () => {
+    try {
+      // Importar signOut dinámicamente
+      const { signOut } = await import('aws-amplify/auth');
+
+      // Cerrar sesión en AWS Cognito
+      await signOut();
+
+      // Limpiar estado local
+      get().clearUser();
+      get().cleanup();
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Limpiar estado local incluso si falla el signOut
+      get().clearUser();
+      get().cleanup();
+    }
   },
 }));
 

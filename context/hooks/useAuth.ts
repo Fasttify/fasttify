@@ -22,7 +22,7 @@ import useAuthStore from '@/context/core/userStore';
  * ```
  */
 export const useAuth = () => {
-  const { user, loading, isAuthenticated, error, checkUser, refreshUser, initializeAuth, cleanup, clearUser } =
+  const { user, loading, isAuthenticated, error, checkUser, refreshUser, initializeAuth, cleanup, clearUser, logout } =
     useAuthStore();
 
   return {
@@ -35,5 +35,6 @@ export const useAuth = () => {
     initializeAuth,
     cleanup,
     clearUser,
+    logout,
   };
 };
