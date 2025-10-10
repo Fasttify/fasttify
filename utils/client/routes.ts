@@ -61,12 +61,7 @@ export const routes = {
       edit: (storeId: string, themeId: string) => `/store/${storeId}/themes/${themeId}`,
     },
   },
-  account: {
-    settings: '/account-settings',
-    profile: '/account-settings?section=cuenta',
-    payments: '/account-settings?section=pagos',
-    sessions: '/account-settings?section=sesiones',
-  },
+
   auth: {
     login: '/login',
   },

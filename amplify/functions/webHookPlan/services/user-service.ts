@@ -33,7 +33,7 @@ export class CognitoUserService implements UserService {
 
       return response;
     } catch (error) {
-      console.error(`❌ Error fetching Cognito user ${userId}:`, error);
+      console.error(`Error fetching Cognito user ${userId}:`, error);
       throw new Error(`Failed to fetch user: ${userId}`);
     }
   }
@@ -67,7 +67,7 @@ export class CognitoUserService implements UserService {
       // Update storeStatus based on the plan type
       await this.updateUserStoresStatus(userId, planName);
     } catch (error) {
-      console.error(`❌ Error updating user plan for ${userId}:`, error);
+      console.error(`Error updating user plan for ${userId}:`, error);
       throw new Error(`Failed to update user plan: ${userId}`);
     }
   }
@@ -95,11 +95,11 @@ export class CognitoUserService implements UserService {
             storeStatus: newStoreStatus,
           });
         } catch (storeUpdateError) {
-          console.error(`❌ Error updating store ${store.storeId} status:`, storeUpdateError);
+          console.error(`Error updating store ${store.storeId} status:`, storeUpdateError);
         }
       }
     } catch (error) {
-      console.error(`❌ Error updating stores status for user ${userId}:`, error);
+      console.error(`Error updating stores status for user ${userId}:`, error);
       throw error;
     }
   }
@@ -127,7 +127,7 @@ export class CognitoUserService implements UserService {
 
       await this.updateUserPlan(userId, 'free');
     } catch (error) {
-      console.error(`❌ Error downgrading user ${userId}:`, error);
+      console.error(`Error downgrading user ${userId}:`, error);
       throw new Error(`Failed to downgrade user: ${userId}`);
     }
   }
@@ -161,7 +161,7 @@ export class CognitoUserService implements UserService {
         });
       }
     } catch (error) {
-      console.error('❌ Error handling subscription cancellation:', error);
+      console.error('Error handling subscription cancellation:', error);
     }
   }
 
@@ -215,7 +215,7 @@ export class CognitoUserService implements UserService {
       // Update storeStatus based on the new plan
       await this.updateUserStoresStatus(userId, subscriptionData.planName);
     } catch (error) {
-      console.error(`❌ Error saving subscription for ${userId}:`, error);
+      console.error(`Error saving subscription for ${userId}:`, error);
       console.error('Subscription data:', JSON.stringify(subscriptionData, null, 2));
       throw new Error(`Failed to save subscription: ${userId}`);
     }
