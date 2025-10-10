@@ -72,9 +72,7 @@ export const useFirstStepsSetup = () => {
       };
       const result = await createStoreAndUploadTemplate(storeInput, templateInput);
       if (result) {
-        setTimeout(() => {
-          window.location.href = routes.store.dashboard.main(result.store.storeId);
-        }, 3000);
+        window.location.href = routes.store.dashboard.main(result.store.storeId);
       }
     }
   };
@@ -111,9 +109,7 @@ export const useFirstStepsSetup = () => {
     };
     const result = await createStoreAndUploadTemplate(quickStoreInput, templateInput);
     if (result) {
-      setTimeout(() => {
-        window.location.href = routes.store.dashboard.main(result.store.storeId);
-      }, 3000);
+      window.location.href = routes.store.dashboard.main(result.store.storeId);
     }
   };
 
