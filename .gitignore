@@ -8,6 +8,9 @@
 .pnpm-store
 .cursor
 
+# turbo
+.turbo
+
 # testing
 /coverage
 

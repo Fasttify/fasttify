@@ -69,7 +69,7 @@ export class CacheManager {
   private readonly DEV_CACHE_TTL = 30 * 60 * 1000;
 
   private constructor() {
-    this.isDevelopment = process.env.APP_ENV === 'development';
+    this.isDevelopment = process.env.NODE_ENV === 'development';
     // Permitir desactivar el caché en desarrollo para pruebas: DEV_CACHE_ENABLED=false
     // Por defecto en desarrollo: habilitado (true)
     const envFlag = process.env.DEV_CACHE_ENABLED;

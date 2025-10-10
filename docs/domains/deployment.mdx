@@ -8,7 +8,7 @@ El backend ahora detecta automáticamente el entorno (desarrollo/producción) y 
 
 El sistema detecta producción cuando:
 
-- `APP_ENV=production`
+- `NODE_ENV=production`
 
 Por defecto usa entorno de desarrollo.
 
@@ -34,10 +34,10 @@ Por defecto usa entorno de desarrollo.
 
 ```bash
 # Desarrollo (por defecto)
-APP_ENV=development npx ampx sandbox
+NODE_ENV=development npx ampx sandbox
 
 # Producción
-APP_ENV=production npx ampx sandbox
+NODE_ENV=production npx ampx sandbox
 ```
 
 ### Con Script

@@ -161,7 +161,7 @@ export class StoreViewsTracker {
    * Obtiene la URL base según el entorno
    */
   private getBaseUrl(): string {
-    if (process.env.APP_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production') {
       return process.env.APP_URL || 'https://fasttify.com';
     }
     return 'http://localhost:3000';
