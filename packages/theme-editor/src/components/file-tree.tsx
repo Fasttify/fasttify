@@ -5,7 +5,7 @@ import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { FileIcon, FolderIcon, FolderOpenIcon, ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Scrollable, ScrollableRef } from '@shopify/polaris';
 
 type TreeViewElement = {
   id: string;
@@ -132,7 +132,10 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
           direction,
         }}>
         <div className={cn('size-full', className)}>
-          <ScrollArea ref={ref} className="h-full relative px-2" dir={dir as Direction}>
+          <Scrollable
+            ref={ref as React.LegacyRef<ScrollableRef>}
+            className="h-full relative px-2"
+            dir={dir as Direction}>
             <AccordionPrimitive.Root
               {...props}
               type="multiple"
@@ -143,7 +146,7 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
               dir={dir as Direction}>
               {children}
             </AccordionPrimitive.Root>
-          </ScrollArea>
+          </Scrollable>
         </div>
       </TreeContext.Provider>
     );
