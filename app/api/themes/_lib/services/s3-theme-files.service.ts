@@ -42,7 +42,7 @@ export class ThemeS3Service {
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
   private constructor() {
-    this.isProduction = process.env.APP_ENV === 'production';
+    this.isProduction = process.env.NODE_ENV === 'production';
     this.bucket = process.env.BUCKET_NAME || '';
     this.s3 = new S3Client({
       region: process.env.REGION_BUCKET,

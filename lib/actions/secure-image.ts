@@ -9,7 +9,7 @@ async function _getSecureImageUrl(imageUrl: string): Promise<string> {
   if (!imageUrl) return imageUrl;
 
   // En desarrollo, devolver URL directa
-  if (process.env.NEXT_PUBLIC_APP_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development') {
     return imageUrl;
   }
 

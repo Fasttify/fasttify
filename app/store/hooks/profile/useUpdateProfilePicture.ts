@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
  */
 export function useUpdateProfilePicture() {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, refreshUser } = useAuth();
+  const { user, checkUser } = useAuth();
 
   /**
    * Actualiza la imagen de perfil del usuario
@@ -54,7 +54,7 @@ export function useUpdateProfilePicture() {
       });
 
       // 4. Refrescar los datos del usuario para mostrar la nueva imagen
-      await refreshUser();
+      await checkUser();
     } catch (error) {
       console.error('Error updating profile picture:', error);
       throw error;

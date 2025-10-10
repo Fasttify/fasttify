@@ -8,7 +8,7 @@ import { useAuth } from '@/context/hooks/useAuth';
  * @returns {Object} Objeto con funciones y estado para gestionar el perfil
  */
 export function useProfileManagement() {
-  const { refreshUser } = useAuth();
+  const { checkUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +29,7 @@ export function useProfileManagement() {
           },
         });
 
-        await refreshUser();
+        await checkUser();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al actualizar el nombre');
         throw err;
@@ -37,7 +37,7 @@ export function useProfileManagement() {
         setIsLoading(false);
       }
     },
-    [refreshUser]
+    [checkUser]
   );
 
   /**
@@ -57,7 +57,7 @@ export function useProfileManagement() {
           },
         });
 
-        await refreshUser();
+        await checkUser();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al actualizar el teléfono');
         throw err;
@@ -65,7 +65,7 @@ export function useProfileManagement() {
         setIsLoading(false);
       }
     },
-    [refreshUser]
+    [checkUser]
   );
 
   /**
@@ -85,7 +85,7 @@ export function useProfileManagement() {
           },
         });
 
-        await refreshUser();
+        await checkUser();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al actualizar la biografía');
         throw err;
@@ -93,7 +93,7 @@ export function useProfileManagement() {
         setIsLoading(false);
       }
     },
-    [refreshUser]
+    [checkUser]
   );
 
   /**
@@ -122,7 +122,7 @@ export function useProfileManagement() {
         }
 
         await updateUserAttributes({ userAttributes });
-        await refreshUser();
+        await checkUser();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al actualizar el perfil');
         throw err;
@@ -130,7 +130,7 @@ export function useProfileManagement() {
         setIsLoading(false);
       }
     },
-    [refreshUser]
+    [checkUser]
   );
 
   /**

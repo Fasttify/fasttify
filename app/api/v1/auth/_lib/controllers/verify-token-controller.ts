@@ -91,7 +91,7 @@ export async function postVerifyToken(request: NextRequest) {
     // Establecer cookie HttpOnly segura
     response.cookies.set('auth-token', sessionToken, {
       httpOnly: true,
-      secure: process.env.APP_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 2 * 60 * 60, // 2 horas en segundos
       path: '/',

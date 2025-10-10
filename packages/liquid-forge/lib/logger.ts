@@ -21,7 +21,7 @@ import { SecureLogger } from '@/lib/utils/secure-logger';
  * Usa SecureLogger como base y agrega contexto específico del motor
  */
 export class RendererLogger {
-  private static isDevelopment = process.env.APP_ENV === 'development';
+  private static isDevelopment = process.env.NODE_ENV === 'development';
 
   /**
    * Agrega prefijo con contexto del motor

@@ -17,12 +17,12 @@
 /**
  * Utilidades para construir URLs de CDN o S3
  * Reglas:
- * - Producción (APP_ENV === 'production'): usar cdn.fasttify.com
+ * - Producción (NODE_ENV === 'production'): usar cdn.fasttify.com
  * - No-producción: usar bucket público de S3 con BUCKET_NAME y AWS_REGION
  */
 
 export function getCdnBaseUrl(): string {
-  const appEnv = process.env.APP_ENV || 'development';
+  const appEnv = process.env.NODE_ENV || 'development';
 
   if (appEnv === 'production') {
     return 'https://cdn.fasttify.com';

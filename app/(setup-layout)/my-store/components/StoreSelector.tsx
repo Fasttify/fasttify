@@ -1,25 +1,16 @@
 'use client';
 
 import { useUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { StoreAvatar } from '@/app/(setup-layout)/my-store/components/StoreAvatar';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
-import { useAuth } from '@/context/hooks/useAuth';
 import { routes } from '@/utils/client/routes';
 import { AnimatePresence, motion } from 'framer-motion';
 import { PlusCircle } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
 import { Suspense } from 'react';
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-}
+import useAuthStore from '@/context/core/userStore';
+import Link from 'next/link';
+import Image from 'next/image';
 
 function StoreError({ message }: { message: string }) {
   return <div className="p-3 bg-red-50 text-red-600 rounded-lg text-xs sm:text-sm">{message}</div>;
@@ -52,11 +43,7 @@ function StoreList({ stores, canCreateStore }: { stores: any[]; canCreateStore: 
                   }}
                   className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors border border-gray-100 shadow-sm"
                   aria-label={`Seleccionar tienda ${store.storeName}`}>
-                  <Avatar className="h-12 w-12 rounded-xl">
-                    <AvatarFallback className="rounded-xl bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 text-black text-lg">
-                      {getInitials(store.storeName)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <StoreAvatar name={store.storeName} size={48} className="rounded-xl" tone="stone" showShadow />
                   <div className="flex-1 min-w-0 text-left">
                     <p className="text-base font-medium text-gray-900 truncate">{store.storeName}</p>
                     <p className="text-xs text-gray-500 truncate">{store.storeType}</p>
@@ -115,7 +102,7 @@ function StoreData({ userId, userPlan }: { userId: string | null; userPlan?: str
 
 // Componente principal
 export function StoreSelector() {
-  const { user, loading: isLoading } = useAuth();
+  const { user, loading: isLoading } = useAuthStore();
   const cognitoUsername = user?.userId;
   const userPlan = user?.plan;
 

@@ -859,7 +859,7 @@ return NextResponse.json({ success: true, cart: transformedCart });
 
 ```typescript
 export const getCartCookieOptions = () => {
-  const isProduction = process.env.APP_ENV === 'production';
+  const isProduction = process.env.NODE_ENV === 'production';
 
   return {
     httpOnly: false, // Accesible desde JavaScript
@@ -943,7 +943,7 @@ window.runCartTests();
 
 ```bash
 # En producción
-APP_ENV=production
+NODE_ENV=production
 COOKIE_DOMAIN=.tudominio.com  # Opcional, para cookies de dominio
 ```
 

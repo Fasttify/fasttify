@@ -23,7 +23,7 @@ interface VerificationFormProps {
 export function VerificationForm({ email, password, onBack }: VerificationFormProps) {
   const [error, setError] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { refreshUser } = useAuth();
+  const { checkUser } = useAuth();
 
   const form = useForm<VerificationFormData>({
     resolver: zodResolver(verificationSchema),
@@ -35,12 +35,12 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
   const onSubmit = async (data: VerificationFormData) => {
     setIsSubmitted(true);
     try {
-      const isCompleted = await handleConfirmSignUp(email, data.code, refreshUser);
+      const isCompleted = await handleConfirmSignUp(email, data.code, checkUser);
       if (isCompleted) {
         // Iniciar sesión automáticamente
         await signIn({ username: email, password: password });
         // Refrescar el estado del usuario después del login
-        await refreshUser();
+        await checkUser();
         window.location.href = '/';
       }
     } catch (err: any) {

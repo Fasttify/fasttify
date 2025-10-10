@@ -27,12 +27,12 @@ jest.mock('aws-amplify', () => ({
 }));
 
 // Mock del hook useAuth global
-const mockRefreshUser = jest.fn();
+const mockCheckUser = jest.fn();
 let mockIsAuthenticated = false;
 
 jest.mock('@/context/hooks/useAuth', () => ({
   useAuth: jest.fn(() => ({
-    refreshUser: mockRefreshUser,
+    checkUser: mockCheckUser,
     isAuthenticated: mockIsAuthenticated,
   })),
 }));
@@ -51,8 +51,8 @@ describe('useAuth hook', () => {
       nextStep: { signInStep: 'DONE' },
     });
 
-    // Mock refreshUser
-    mockRefreshUser.mockResolvedValueOnce(undefined);
+    // Mock checkUser
+    mockCheckUser.mockResolvedValueOnce(undefined);
 
     const { result } = renderHook(() => useSignIn({ redirectPath: '/dashboard' }));
 
@@ -64,7 +64,7 @@ describe('useAuth hook', () => {
       username: 'test@example.com',
       password: 'password123',
     });
-    expect(mockRefreshUser).toHaveBeenCalled();
+    expect(mockCheckUser).toHaveBeenCalled();
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
     expect(mockPush).toHaveBeenCalledWith('/dashboard');

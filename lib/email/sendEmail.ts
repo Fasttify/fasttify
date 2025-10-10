@@ -68,7 +68,7 @@ export async function sendEmail(params: SendEmailParams) {
  * @param params Parámetros del email
  */
 export async function sendTestEmail(params: SendEmailParams) {
-  if (process.env.APP_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production') {
     throw new Error('sendTestEmail only available in development');
   }
 

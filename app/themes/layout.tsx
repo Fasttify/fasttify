@@ -1,4 +1,4 @@
-import { inter } from '@/config/fonts';
+import { inter } from '@/lib/fonts';
 import '@/app/global.css';
 import { Metadata } from 'next';
 
