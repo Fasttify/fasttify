@@ -7,7 +7,6 @@ const STORE_LIMITS = {
   Royal: 1,
 };
 
-// Caché para almacenar promesas de datos
 const storeCache = new Map();
 
 /**

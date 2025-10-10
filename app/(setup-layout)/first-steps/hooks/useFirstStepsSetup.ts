@@ -4,13 +4,13 @@ import { useStepManager } from '@/app/(setup-layout)/first-steps/hooks/useStepMa
 import { useStoreCreation } from '@/app/(setup-layout)/first-steps/hooks/useStoreCreation';
 import { useTemplateUpload } from '@/app/(setup-layout)/first-steps/hooks/useTemplateUpload';
 import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
-import { useAuth } from '@/context/hooks/useAuth';
+import useAuthStore from '@/context/core/userStore';
 import { routes } from '@/utils/client/routes';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export const useFirstStepsSetup = () => {
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const { createStoreWithTemplate } = useUserStoreData();
   const { uploadTemplate } = useTemplateUpload();
 

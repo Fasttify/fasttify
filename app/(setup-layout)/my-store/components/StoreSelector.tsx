@@ -4,13 +4,13 @@ import { useUserStores } from '@/app/(setup-layout)/my-store/hooks/useUserStores
 import { StoreAvatar } from '@/app/(setup-layout)/my-store/components/StoreAvatar';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
-import { useAuth } from '@/context/hooks/useAuth';
 import { routes } from '@/utils/client/routes';
 import { AnimatePresence, motion } from 'framer-motion';
 import { PlusCircle } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
 import { Suspense } from 'react';
+import useAuthStore from '@/context/core/userStore';
+import Link from 'next/link';
+import Image from 'next/image';
 
 function StoreError({ message }: { message: string }) {
   return <div className="p-3 bg-red-50 text-red-600 rounded-lg text-xs sm:text-sm">{message}</div>;
@@ -102,7 +102,7 @@ function StoreData({ userId, userPlan }: { userId: string | null; userPlan?: str
 
 // Componente principal
 export function StoreSelector() {
-  const { user, loading: isLoading } = useAuth();
+  const { user, loading: isLoading } = useAuthStore();
   const cognitoUsername = user?.userId;
   const userPlan = user?.plan;
 

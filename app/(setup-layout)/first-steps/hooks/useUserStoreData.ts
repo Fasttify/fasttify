@@ -1,4 +1,3 @@
-import { useAuth } from '@/context/hooks/useAuth';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useState } from 'react';
 import {
@@ -10,6 +9,7 @@ import {
   type StoreInitializationResult,
   type CreateUserStoreInput,
 } from '@/lib/amplify-client';
+import useAuthStore from '@/context/core/userStore';
 
 // Re-exportar tipos para compatibilidad
 export type { PaymentGatewayType, PaymentGatewayConfig, StoreInitializationResult } from '@/lib/amplify-client';
@@ -17,7 +17,7 @@ export type { PaymentGatewayType, PaymentGatewayConfig, StoreInitializationResul
 export const useUserStoreData = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>(null);
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const { invalidateAllStoreCache, invalidateNavigationCache } = useCacheInvalidation();
 
   const performOperation = async <T>(operation: () => Promise<{ data: T; errors?: any[] }>): Promise<T | null> => {
