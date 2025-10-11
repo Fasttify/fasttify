@@ -1,7 +1,4 @@
-import {
-  handleAuthenticatedRedirectMiddleware,
-  handleAuthenticationMiddlewareNoRefresh,
-} from '@/middlewares/auth/auth';
+import { handleAuthenticatedRedirectMiddleware } from '@/middlewares/auth/auth';
 import { handleDomainRouting, analyzeDomain } from '@/middlewares/domain-handling/domainHandler';
 import { handleCollectionOwnershipMiddleware } from '@/middlewares/ownership/collectionOwnership';
 import { handlePagesOwnershipMiddleware } from '@/middlewares/ownership/pagesOwnership';
@@ -19,8 +16,6 @@ const PROTECTED_ROUTES = {
   OAUTH_CALLBACK: '/auth/callback',
   /** Rutas de órdenes */
   ORDERS: '/orders',
-  /** Configuración de cuenta */
-  ACCOUNT_SETTINGS: '/account-settings',
   /** Pasos iniciales de configuración */
   FIRST_STEPS: '/first-steps',
   /** Página de selección de tienda */
@@ -327,23 +322,6 @@ async function handleStoreAccess(
 }
 
 /**
- * Handler para proteger rutas de configuración de cuenta
- * @param request - Petición entrante
- * @param next - Función para continuar con el siguiente handler
- * @returns Respuesta del middleware de autenticación o null para continuar
- */
-async function handleAccountSettings(
-  request: NextRequest,
-  next: () => Promise<NextResponse | null>
-): Promise<NextResponse | null> {
-  if (request.nextUrl.pathname.startsWith(PROTECTED_ROUTES.ACCOUNT_SETTINGS)) {
-    return await handleAuthenticationMiddlewareNoRefresh(request, NextResponse.next());
-  }
-
-  return await next();
-}
-
-/**
  * Handler para manejar rutas de configuración inicial de tienda
  * @param request - Petición entrante
  * @param next - Función para continuar con el siguiente handler
@@ -425,12 +403,10 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     handlePagesOwnership,
     handleCollectionOwnership,
     handleStoreAccess,
-    handleAccountSettings,
     handleStoreSetup,
     handleLoginRedirect,
   ];
 
-  // Ejecutar recursivamente todos los handlers
   return await executeHandlers(handlers, request);
 }
 

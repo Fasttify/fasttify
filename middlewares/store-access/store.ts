@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { getSession, type AuthSession } from '@/middlewares/auth/auth';
+import { getSession, handleAuthenticationMiddleware, type AuthSession } from '@/middlewares/auth/auth';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -52,16 +52,18 @@ async function checkStoreLimit(userId: string, plan: string) {
 }
 
 export async function handleStoreMiddleware(request: NextRequest, response: NextResponse) {
-  // Usar cache para evitar múltiples forceRefresh en la misma request
-  const session = await getSession(request, response, false);
-
-  if (!session) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // Verificar autenticación usando el middleware centralizado
+  const authResponse = await handleAuthenticationMiddleware(request, response);
+  if (authResponse) {
+    return authResponse; // Si hay redirección de auth, retornarla
   }
+
+  // Obtener la sesión del usuario (ya validada)
+  const session = await getSession(request, response, false);
 
   const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
   const userPlan = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'];
-  const hasValidSubscription = await hasValidPlan(session);
+  const hasValidSubscription = await hasValidPlan(session as AuthSession);
 
   if (!hasValidSubscription) {
     return NextResponse.redirect(new URL('/pricing', request.url));
