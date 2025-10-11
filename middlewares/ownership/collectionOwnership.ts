@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { getSession, type AuthSession } from '@/middlewares/auth/auth';
+import { getSession, handleAuthenticationMiddleware, type AuthSession } from '@/middlewares/auth/auth';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -38,13 +38,14 @@ export async function handleCollectionOwnershipMiddleware(request: NextRequest) 
     return NextResponse.next();
   }
 
-  // Verificar autenticación del usuario
-  // Usar cache para evitar múltiples forceRefresh en la misma request
-  const session = await getSession(request, NextResponse.next(), false);
-
-  if (!session) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // Verificar autenticación usando el middleware centralizado
+  const authResponse = await handleAuthenticationMiddleware(request, NextResponse.next());
+  if (authResponse) {
+    return authResponse; // Si hay redirección de auth, retornarla
   }
+
+  // Obtener la sesión del usuario (ya validada)
+  const session = await getSession(request, NextResponse.next(), false);
 
   const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
 

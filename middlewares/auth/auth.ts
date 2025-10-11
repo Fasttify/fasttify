@@ -54,22 +54,12 @@ function getCacheKey(request: NextRequest): string {
 export async function getSession(request: NextRequest, response: NextResponse, forceRefresh = true) {
   const cacheKey = getCacheKey(request);
 
-  // Debug logs temporales
-  console.log('🔍 [GET SESSION DEBUG]', {
-    pathname: request.nextUrl.pathname,
-    forceRefresh,
-    cacheKey,
-    hasCached: !forceRefresh ? !!sessionCache.get(cacheKey) : 'N/A',
-  });
-
   // Verificar cache si no es forceRefresh
   if (!forceRefresh) {
     const cached = sessionCache.get(cacheKey);
     if (cached) {
-      console.log('✅ [GET SESSION] Cache hit:', cacheKey);
       return cached;
     }
-    console.log('❌ [GET SESSION] Cache miss:', cacheKey);
   }
 
   return runWithAmplifyServerContext({
@@ -79,21 +69,14 @@ export async function getSession(request: NextRequest, response: NextResponse, f
         const session = await fetchAuthSession(contextSpec, { forceRefresh });
         const result = session.tokens !== undefined ? session : null;
 
-        console.log('🔍 [FETCH AUTH SESSION]', {
-          hasTokens: !!session?.tokens,
-          result: !!result,
-          forceRefresh,
-        });
-
         // Guardar en cache solo si la sesión es válida
         if (result && result.tokens) {
           sessionCache.set(cacheKey, result);
-          console.log('💾 [GET SESSION] Saved to cache:', cacheKey);
         }
 
         return result;
       } catch (error) {
-        console.error('❌ [GET SESSION] Error fetching user session:', error);
+        console.error('Error fetching user session:', error);
         return null;
       }
     },
@@ -110,30 +93,10 @@ export async function handleAuthenticationMiddleware(request: NextRequest, respo
   return response;
 }
 
-export async function handleAuthenticationMiddlewareNoRefresh(request: NextRequest, response: NextResponse) {
-  const session = await getSession(request, response, false);
-
-  if (!session) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  return response;
-}
-
 export async function handleAuthenticatedRedirectMiddleware(request: NextRequest, response: NextResponse) {
   const session = await getSession(request, response, false);
 
-  // Debug logs temporales
-  console.log('🔍 [LOGIN REDIRECT DEBUG]', {
-    pathname: request.nextUrl.pathname,
-    hasSession: !!session,
-    sessionTokens: !!(session as any)?.tokens,
-    cookies: request.headers.get('cookie')?.substring(0, 100) + '...',
-    cacheKey: getCacheKey(request),
-  });
-
   if (session) {
-    console.log('✅ [LOGIN REDIRECT] Usuario autenticado detectado, redirigiendo...');
     const lastStoreId = getLastVisitedStore(request);
 
     if (lastStoreId) {
@@ -141,8 +104,6 @@ export async function handleAuthenticatedRedirectMiddleware(request: NextRequest
     } else {
       return NextResponse.redirect(new URL('/my-store', request.url));
     }
-  } else {
-    console.log('❌ [LOGIN REDIRECT] No hay sesión, permitiendo acceso a /login');
   }
 
   return response;

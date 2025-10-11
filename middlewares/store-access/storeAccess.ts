@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { getSession, type AuthSession } from '@/middlewares/auth/auth';
+import { getSession, handleAuthenticationMiddleware, type AuthSession } from '@/middlewares/auth/auth';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -23,12 +23,14 @@ import { NextRequest, NextResponse } from 'next/server';
  * Verifica que el usuario tenga acceso a la tienda solicitada y un plan de suscripción válido
  */
 export async function handleStoreAccessMiddleware(request: NextRequest) {
-  // Obtener la sesión del usuario
-  const session = await getSession(request, NextResponse.next(), false);
-  // Verificar autenticación
-  if (!session || !(session as AuthSession).tokens) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // Verificar autenticación usando el middleware centralizado
+  const authResponse = await handleAuthenticationMiddleware(request, NextResponse.next());
+  if (authResponse) {
+    return authResponse; // Si hay redirección de auth, retornarla
   }
+
+  // Obtener la sesión del usuario (ya validada)
+  const session = await getSession(request, NextResponse.next(), false);
 
   // Verificar plan de suscripción válido ANTES de verificar acceso a tienda
   const userPlan: string | undefined = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'] as
