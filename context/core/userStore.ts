@@ -111,7 +111,10 @@ const useAuthStore = create<UserState>((set, get) => ({
         } finally {
           // La acción más importante: limpiar el estado y recargar la aplicación
           get().clearUser();
-          window.location.href = '/login?reason=session_expired'; // Redirige y fuerza una recarga
+          // Usar replace para evitar bucles infinitos en el historial
+          if (!window.location.pathname.includes('/login')) {
+            window.location.replace('/login?reason=session_expired');
+          }
         }
       } else {
         // Para cualquier otro error, simplemente limpia el estado
@@ -124,13 +127,22 @@ const useAuthStore = create<UserState>((set, get) => ({
     }
   },
 
-  // Inicializar autenticación (sin cambios)
+  // Inicializar autenticación
   initializeAuth: () => {
     if (isInitialized) return;
     isInitialized = true;
 
-    // Al inicializar, siempre verifica al usuario.
-    get().checkUser();
+    // Si estamos en la página de login con reason=session_expired, no verificar usuario
+    const urlParams = new URLSearchParams(window.location.search);
+    const isSessionExpired = urlParams.get('reason') === 'session_expired';
+
+    if (!isSessionExpired) {
+      // Solo verificar usuario si no estamos manejando una sesión expirada
+      get().checkUser();
+    } else {
+      // Limpiar el estado si venimos de una sesión expirada
+      get().clearUser();
+    }
 
     hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
       switch (payload.event) {
@@ -166,7 +178,7 @@ const useAuthStore = create<UserState>((set, get) => ({
     } finally {
       get().clearUser();
       get().cleanup();
-      window.location.href = '/login';
+      window.location.replace('/login');
     }
   },
 }));
