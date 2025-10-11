@@ -135,7 +135,7 @@ describe('Auth Middleware', () => {
 
       const result = await handleAuthenticationMiddleware(mockRequest, mockResponse);
 
-      expect(result).toBe(mockResponse);
+      expect(result).toBeNull();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
     });
 
