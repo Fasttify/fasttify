@@ -4,7 +4,6 @@ import { middleware } from '@/middleware';
 // Mock de los middlewares específicos
 jest.mock('@/middlewares/auth/auth', () => ({
   handleAuthenticationMiddleware: jest.fn(),
-  handleAuthenticationMiddlewareNoRefresh: jest.fn(),
   handleAuthenticatedRedirectMiddleware: jest.fn(),
 }));
 
@@ -197,9 +196,9 @@ describe('Main Middleware Security Tests', () => {
 
       const mainDomainRequest = {
         nextUrl: {
-          pathname: '/account-settings',
+          pathname: '/my-store',
           clone: () => ({
-            pathname: '/account-settings',
+            pathname: '/my-store',
           }),
         },
         headers: {
@@ -207,14 +206,14 @@ describe('Main Middleware Security Tests', () => {
         },
       } as unknown as NextRequest;
 
-      const { handleAuthenticationMiddlewareNoRefresh } = require('@/middlewares/auth/auth');
-      handleAuthenticationMiddlewareNoRefresh.mockReturnValue({ type: 'auth' });
+      const { handleStoreMiddleware } = require('@/middlewares/store-access/store');
+      handleStoreMiddleware.mockReturnValue({ type: 'store' });
 
       const result = await middleware(mainDomainRequest);
 
-      // Debería ejecutar el middleware de autenticación para el dominio principal
-      expect(handleAuthenticationMiddlewareNoRefresh).toHaveBeenCalled();
-      expect(result).toEqual({ type: 'auth' });
+      // Debería ejecutar el middleware de store que internamente usa handleAuthenticationMiddleware
+      expect(handleStoreMiddleware).toHaveBeenCalled();
+      expect(result).toEqual({ type: 'store' });
     });
 
     it('should handle main domain correctly in development', async () => {
@@ -222,9 +221,9 @@ describe('Main Middleware Security Tests', () => {
 
       const mainDomainRequest = {
         nextUrl: {
-          pathname: '/account-settings',
+          pathname: '/my-store',
           clone: () => ({
-            pathname: '/account-settings',
+            pathname: '/my-store',
           }),
         },
         headers: {
@@ -232,14 +231,14 @@ describe('Main Middleware Security Tests', () => {
         },
       } as unknown as NextRequest;
 
-      const { handleAuthenticationMiddlewareNoRefresh } = require('@/middlewares/auth/auth');
-      handleAuthenticationMiddlewareNoRefresh.mockReturnValue({ type: 'auth' });
+      const { handleStoreMiddleware } = require('@/middlewares/store-access/store');
+      handleStoreMiddleware.mockReturnValue({ type: 'store' });
 
       const result = await middleware(mainDomainRequest);
 
-      // Debería ejecutar el middleware de autenticación para el dominio principal
-      expect(handleAuthenticationMiddlewareNoRefresh).toHaveBeenCalled();
-      expect(result).toEqual({ type: 'auth' });
+      // Debería ejecutar el middleware de store que internamente usa handleAuthenticationMiddleware
+      expect(handleStoreMiddleware).toHaveBeenCalled();
+      expect(result).toEqual({ type: 'store' });
     });
   });
 
