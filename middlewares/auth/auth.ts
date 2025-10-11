@@ -39,7 +39,7 @@ const sessionCache = new NodeCache({
 
 function getCacheKey(request: NextRequest): string {
   // Usar un hash simple de las cookies principales de autenticación
-  const cookies = request.headers.get('cookie') || '';
+  const cookies = request.headers?.get('cookie') || '';
 
   // Buscar el ID de usuario en las cookies para crear una clave estable
   const userIdMatch = cookies.match(/CognitoIdentityServiceProvider[^=]*=([^;]+)/);
