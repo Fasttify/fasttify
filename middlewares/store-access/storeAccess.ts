@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { getSession } from '@/middlewares/auth/auth';
+import { getSession, type AuthSession } from '@/middlewares/auth/auth';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -24,14 +24,16 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function handleStoreAccessMiddleware(request: NextRequest) {
   // Obtener la sesión del usuario
-  const session = await getSession(request, NextResponse.next());
+  const session = await getSession(request, NextResponse.next(), false);
   // Verificar autenticación
-  if (!session || !session.tokens) {
+  if (!session || !(session as AuthSession).tokens) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // Verificar plan de suscripción válido ANTES de verificar acceso a tienda
-  const userPlan: string | undefined = session.tokens?.idToken?.payload?.['custom:plan'] as string | undefined;
+  const userPlan: string | undefined = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'] as
+    | string
+    | undefined;
   const allowedPlans = ['Royal', 'Majestic', 'Imperial'];
 
   if (!userPlan || !allowedPlans.includes(userPlan)) {
@@ -39,7 +41,7 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
   }
 
   // Obtener el ID del usuario desde la sesión
-  const userId = session.tokens?.idToken?.payload?.['cognito:username'];
+  const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
 
   if (!userId) {
     return NextResponse.redirect(new URL('/login', request.url));

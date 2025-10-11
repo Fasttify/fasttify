@@ -54,7 +54,7 @@ export function setLastVisitedStore(response: NextResponse, storeId: string): Ne
  * @returns The store ID if found, null otherwise
  */
 export function getLastVisitedStore(request: NextRequest): string | null {
-  return request.cookies.get(LAST_STORE_COOKIE_CONFIG.name)?.value || null;
+  return request.cookies?.get(LAST_STORE_COOKIE_CONFIG.name)?.value || null;
 }
 
 /**

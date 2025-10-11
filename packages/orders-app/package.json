@@ -1,13 +1,17 @@
 {
   "name": "@fasttify/orders-app",
   "version": "1.0.0",
-  "description": "Package para la gestión y búsqueda de órdenes",
+  "description": "Orders app for Fasttify",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@react-email/tailwind": "^1.2.2",
