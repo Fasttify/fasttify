@@ -127,7 +127,7 @@ export async function handleAuthenticatedRedirectMiddleware(request: NextRequest
   console.log('🔍 [LOGIN REDIRECT DEBUG]', {
     pathname: request.nextUrl.pathname,
     hasSession: !!session,
-    sessionTokens: !!session?.tokens,
+    sessionTokens: !!(session as any)?.tokens,
     cookies: request.headers.get('cookie')?.substring(0, 100) + '...',
     cacheKey: getCacheKey(request),
   });
