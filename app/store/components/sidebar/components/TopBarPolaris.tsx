@@ -121,8 +121,8 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
           {
             items: [
               { content: 'Centro de Ayuda' },
+              { content: 'Cambiar de Tienda', onAction: () => handleChangeStore() },
               { content: 'Cerrar sesión', icon: ExitIcon, onAction: handleLogout },
-              { content: 'Cambiar de Tienda', icon: ExitIcon, onAction: () => handleChangeStore() },
             ],
           },
         ]}

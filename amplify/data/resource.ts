@@ -6,6 +6,7 @@ import { managePaymentKeys } from '../functions/managePaymentKeys/resource';
 import { onboardingProgress } from '../functions/onboardingProgress/resource';
 import { planScheduler } from '../functions/planScheduler/resource';
 import { webHookPlan } from '../functions/webHookPlan/resource';
+import { validateStoreLimits } from '../functions/validateStoreLimits/resource';
 
 // Importacion de modelos
 import { cartModel } from './models/cart';
@@ -112,6 +113,7 @@ export const storeSchema = a
     allow.resource(createStoreTemplate),
     allow.resource(managePaymentKeys),
     allow.resource(onboardingProgress),
+    allow.resource(validateStoreLimits),
   ]);
 
 // Schema completo incluyendo funciones de IA
@@ -325,6 +327,7 @@ const fullSchema = a
     allow.resource(createStoreTemplate),
     allow.resource(managePaymentKeys),
     allow.resource(onboardingProgress),
+    allow.resource(validateStoreLimits),
   ]);
 
 // Tipos separados para mejorar rendimiento del linter

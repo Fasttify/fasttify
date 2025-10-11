@@ -142,10 +142,10 @@ async function readFilterModules() {
         }
       }
     } catch (cssError) {
-      console.warn('⚠️  No se encontró el directorio de CSS de filtros:', cssDir);
+      console.warn('No se encontró el directorio de CSS de filtros:', cssDir);
     }
   } catch (error) {
-    console.warn('⚠️  No se encontró el directorio de módulos de filtros:', FILTER_MODULES_DIR);
+    console.warn('No se encontró el directorio de módulos de filtros:', FILTER_MODULES_DIR);
   }
 
   return files;
@@ -170,14 +170,14 @@ async function uploadTemplatesToS3(files) {
 
     try {
       await s3Client.send(command);
-      console.log(`✅ Subido: ${key}`);
+      console.log(`Subido: ${key}`);
       return {
         key,
         path: file.path,
         size: file.isBinaryFile ? file.content.length : Buffer.byteLength(file.content, 'utf-8'),
       };
     } catch (error) {
-      console.error(`❌ Error al subir ${key}:`, error);
+      console.error(`Error al subir ${key}:`, error);
       throw error;
     }
   });
@@ -204,14 +204,14 @@ async function uploadFilterModulesToS3(files) {
 
     try {
       await s3Client.send(command);
-      console.log(`✅ Subido: ${key}`);
+      console.log(`Subido: ${key}`);
       return {
         key,
         path: file.path,
         size: Buffer.byteLength(file.content, 'utf-8'),
       };
     } catch (error) {
-      console.error(`❌ Error al subir ${key}:`, error);
+      console.error(`Error al subir ${key}:`, error);
       throw error;
     }
   });
@@ -221,7 +221,7 @@ async function uploadFilterModulesToS3(files) {
 
 async function invalidateCloudFrontCache() {
   if (!CLOUDFRONT_DISTRIBUTION_ID) {
-    console.warn('⚠️  CLOUDFRONT_DISTRIBUTION_ID no configurado, saltando invalidación');
+    console.warn('CLOUDFRONT_DISTRIBUTION_ID no configurado, saltando invalidación');
     return;
   }
 
@@ -238,9 +238,9 @@ async function invalidateCloudFrontCache() {
     });
 
     await cloudFrontClient.send(command);
-    console.log('✅ Cache de CloudFront invalidado');
+    console.log('Cache de CloudFront invalidado');
   } catch (error) {
-    console.error('❌ Error al invalidar cache de CloudFront:', error);
+    console.error('Error al invalidar cache de CloudFront:', error);
   }
 }
 
@@ -254,29 +254,29 @@ async function main() {
     console.log(`Directorio de plantilla: ${TEMPLATE_DIR}`);
     console.log(`Directorio de módulos: ${FILTER_MODULES_DIR}`);
 
-    console.log('\n📁 Leyendo archivos de plantilla...');
+    console.log('\nLeyendo archivos de plantilla...');
     const templateFiles = await readTemplateFiles();
     console.log(`Se encontraron ${templateFiles.length} archivos de plantilla.`);
 
-    console.log('\n🔧 Leyendo módulos de filtros...');
+    console.log('\nLeyendo módulos de filtros...');
     const filterModules = await readFilterModules();
     console.log(`Se encontraron ${filterModules.length} módulos de filtros.`);
 
-    console.log('\n📤 Subiendo plantillas...');
+    console.log('\nSubiendo plantillas...');
     const templateResults = await uploadTemplatesToS3(templateFiles);
 
-    console.log('\n📤 Subiendo módulos de filtros...');
+    console.log('\nSubiendo módulos de filtros...');
     const moduleResults = await uploadFilterModulesToS3(filterModules);
 
-    console.log('\n✅ Subida completada con éxito!');
+    console.log('\nSubida completada con éxito!');
     console.log(`Se subieron ${templateResults.length} archivos de plantilla.`);
     console.log(`Se subieron ${moduleResults.length} módulos de filtros.`);
-    console.log(`\n🌐 Los módulos están disponibles en: https://cdn.fasttify.com/assets/`);
+    console.log(`\nLos módulos están disponibles en: https://cdn.fasttify.com/assets/`);
 
-    console.log('\n🔄 Invalidando cache de CloudFront...');
+    console.log('\nInvalidando cache de CloudFront...');
     await invalidateCloudFrontCache();
   } catch (error) {
-    console.error('❌ Error durante la subida:', error);
+    console.error('Error durante la subida:', error);
     process.exit(1);
   }
 }

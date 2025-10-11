@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export class FileUtils {
   private static readonly MIME_TYPES: Record<string, string> = {
     jpg: 'image/jpeg',
@@ -11,18 +13,14 @@ export class FileUtils {
    * Genera un UUID v4 simple sin dependencias externas
    */
   public static generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+    return crypto.randomUUID();
   }
 
   /**
    * Genera un ID único corto para evitar nombres muy largos
    */
   public static generateShortId(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return crypto.randomBytes(16).toString('hex');
   }
 
   /**

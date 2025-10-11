@@ -347,21 +347,13 @@ export class S3Service {
    * Esto asegura que el mismo archivo siempre tenga el mismo ID
    */
   private generateConsistentId(key: string): string {
-    // Usar una combinación de hash simple de la clave + timestamp para ID único
-    let hash = 0;
-    for (let i = 0; i < key.length; i++) {
-      const char = key.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-
-    // Combinar con timestamp de la clave si está disponible
+    const shortId = FileUtils.generateShortId();
     const keyParts = key.split('/');
     const filenamePart = keyParts[keyParts.length - 1];
     const timestampMatch = filenamePart.match(/^(\d+)-/);
     const timestamp = timestampMatch ? timestampMatch[1] : Date.now().toString();
 
-    return `img_${Math.abs(hash)}_${timestamp}`;
+    return `img_${shortId}_${timestamp}`;
   }
 
   /**

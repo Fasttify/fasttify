@@ -60,7 +60,7 @@ function addHeaderToFile(filePath) {
 
     // Si ya tiene header, saltar
     if (hasLicenseHeader(content)) {
-      console.log(`⏭️  Saltando ${filePath} (ya tiene header de licencia)`);
+      console.log(`Saltando ${filePath} (ya tiene header de licencia)`);
       return false;
     }
 
@@ -68,10 +68,10 @@ function addHeaderToFile(filePath) {
     const newContent = LICENSE_HEADER + '\n\n' + content;
     fs.writeFileSync(filePath, newContent, 'utf8');
 
-    console.log(`✅ Header agregado a ${filePath}`);
+    console.log(`Header agregado a ${filePath}`);
     return true;
   } catch (error) {
-    console.error(`❌ Error procesando ${filePath}:`, error.message);
+    console.error(`Error procesando ${filePath}:`, error.message);
     return false;
   }
 }
@@ -82,7 +82,7 @@ async function main() {
   const dryRun = args.includes('--dry-run') || args.includes('-d');
   const specificPath = args.find((arg) => !arg.startsWith('--'));
 
-  console.log('🔍 Buscando archivos para agregar header de licencia...\n');
+  console.log('Buscando archivos para agregar header de licencia...\n');
 
   let files = [];
 
@@ -119,14 +119,14 @@ async function main() {
   // Remover duplicados y ordenar
   files = [...new Set(files)].sort();
 
-  console.log(`📁 Encontrados ${files.length} archivos candidatos\n`);
+  console.log(`Encontrados ${files.length} archivos candidatos\n`);
 
   if (dryRun) {
-    console.log('🔍 MODO DRY-RUN - Solo mostrando archivos que serían modificados:\n');
+    console.log('MODO DRY-RUN - Solo mostrando archivos que serían modificados:\n');
     files.forEach((file) => {
       const content = fs.readFileSync(file, 'utf8');
       if (!hasLicenseHeader(content)) {
-        console.log(`  📝 ${file}`);
+        console.log(`   ${file}`);
       }
     });
     return;
@@ -143,10 +143,10 @@ async function main() {
     }
   }
 
-  console.log(`\n📊 Resumen:`);
-  console.log(`   ✅ Archivos procesados: ${processedCount}`);
-  console.log(`   ⏭️  Archivos saltados: ${skippedCount}`);
-  console.log(`   📁 Total de archivos: ${files.length}`);
+  console.log(`\nResumen:`);
+  console.log(`    Archivos procesados: ${processedCount}`);
+  console.log(`    Archivos saltados: ${skippedCount}`);
+  console.log(`    Total de archivos: ${files.length}`);
 }
 
 // Mostrar ayuda

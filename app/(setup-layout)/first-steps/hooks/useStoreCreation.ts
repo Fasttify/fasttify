@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useStoreLimitsValidator } from './useStoreLimitsValidator';
 
 interface StoreInput {
   userId: string;
@@ -34,6 +35,7 @@ export const useStoreCreation = ({ createStoreWithTemplate, uploadTemplate }: Us
   const [saving, setSaving] = useState(false);
   const [uploadingTemplate, setUploadingTemplate] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { validateLimits } = useStoreLimitsValidator();
 
   const createStoreAndUploadTemplate = async (
     storeInput: StoreInput,
@@ -42,6 +44,12 @@ export const useStoreCreation = ({ createStoreWithTemplate, uploadTemplate }: Us
     setSaving(true);
     setError(null);
     try {
+      // Validar límites antes de crear la tienda
+      const canCreate = await validateLimits();
+      if (!canCreate) {
+        throw new Error('You have reached the limit of stores for your current plan');
+      }
+
       const result = await createStoreWithTemplate(storeInput);
       if (result) {
         try {

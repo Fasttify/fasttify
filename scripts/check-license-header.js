@@ -42,7 +42,7 @@ function checkHeaderInFile(filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
     return hasLicenseHeader(content);
   } catch (error) {
-    console.error(`❌ Error leyendo ${filePath}:`, error.message);
+    console.error(`Error leyendo ${filePath}:`, error.message);
     return false;
   }
 }
@@ -53,7 +53,7 @@ async function main() {
   const specificPath = args.find((arg) => !arg.startsWith('--'));
   const exitOnMissing = args.includes('--exit-on-missing') || args.includes('-e');
 
-  console.log('🔍 Verificando headers de licencia...\n');
+  console.log('Verificando headers de licencia...\n');
 
   let files = [];
 
@@ -89,7 +89,7 @@ async function main() {
   // Remover duplicados y ordenar
   files = [...new Set(files)].sort();
 
-  console.log(`📁 Verificando ${files.length} archivos...\n`);
+  console.log(`Verificando ${files.length} archivos...\n`);
 
   let withHeader = 0;
   let withoutHeader = 0;
@@ -98,34 +98,34 @@ async function main() {
   for (const file of files) {
     if (checkHeaderInFile(file)) {
       withHeader++;
-      console.log(`✅ ${file}`);
+      console.log(`${file}`);
     } else {
       withoutHeader++;
       missingHeaderFiles.push(file);
-      console.log(`❌ ${file}`);
+      console.log(`${file}`);
     }
   }
 
-  console.log(`\n📊 Resumen:`);
-  console.log(`   ✅ Con header: ${withHeader}`);
-  console.log(`   ❌ Sin header: ${withoutHeader}`);
-  console.log(`   📁 Total archivos: ${files.length}`);
+  console.log(`\nResumen:`);
+  console.log(`    Con header: ${withHeader}`);
+  console.log(`    Sin header: ${withoutHeader}`);
+  console.log(`    Total archivos: ${files.length}`);
 
   if (withoutHeader > 0) {
-    console.log(`\n📝 Archivos sin header de licencia:`);
+    console.log(`\nArchivos sin header de licencia:`);
     missingHeaderFiles.forEach((file) => {
       console.log(`   - ${file}`);
     });
 
-    console.log(`\n💡 Para agregar headers automáticamente:`);
+    console.log(`\nPara agregar headers automáticamente:`);
     console.log(`   npm run license`);
 
     if (exitOnMissing) {
-      console.log(`\n❌ Exiting with error code due to missing license headers.`);
+      console.log(`\nExiting with error code due to missing license headers.`);
       process.exit(1);
     }
   } else {
-    console.log(`\n🎉 ¡Todos los archivos tienen header de licencia!`);
+    console.log(`\n¡Todos los archivos tienen header de licencia!`);
   }
 }
 

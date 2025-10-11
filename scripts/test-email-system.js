@@ -20,8 +20,8 @@ function getApiUrl() {
 
     return null;
   } catch (error) {
-    console.error('❌ Error leyendo amplify_outputs.json:', error.message);
-    console.log('💡 Asegúrate de que el sandbox esté ejecutándose: npx ampx sandbox');
+    console.error('Error leyendo amplify_outputs.json:', error.message);
+    console.log('Asegúrate de que el sandbox esté ejecutándose: npx ampx sandbox');
     process.exit(1);
   }
 }
@@ -29,15 +29,15 @@ function getApiUrl() {
 const API_BASE_URL = getApiUrl();
 
 if (!API_BASE_URL) {
-  console.error('❌ No se encontró la URL del API Gateway en amplify_outputs.json');
-  console.log('💡 Asegúrate de que el sandbox esté ejecutándose: npx ampx sandbox');
+  console.error('No se encontró la URL del API Gateway en amplify_outputs.json');
+  console.log('Asegúrate de que el sandbox esté ejecutándose: npx ampx sandbox');
   process.exit(1);
 }
 
-console.log(`🌐 Usando API Gateway: ${API_BASE_URL}`);
+console.log(`Usando API Gateway: ${API_BASE_URL}`);
 
 async function testEmailAPI() {
-  console.log('🧪 Probando sistema de emails con React Email...\n');
+  console.log('Probando sistema de emails con React Email...\n');
 
   // Test 1: Email de confirmación de pedido
   await testOrderConfirmation();
@@ -59,7 +59,7 @@ async function testEmailAPI() {
 }
 
 async function testOrderConfirmation() {
-  console.log('📧 Test 1: Confirmación de pedido');
+  console.log('Test 1: Confirmación de pedido');
 
   const testData = {
     templateId: 'order-confirmation',
@@ -86,7 +86,7 @@ async function testOrderConfirmation() {
 }
 
 async function testShippingUpdate() {
-  console.log('📦 Test 2: Actualización de envío');
+  console.log('Test 2: Actualización de envío');
 
   const testData = {
     templateId: 'shipping-update',
@@ -114,7 +114,7 @@ async function testShippingUpdate() {
 }
 
 async function testPromotion() {
-  console.log('🎉 Test 3: Email promocional');
+  console.log('Test 3: Email promocional');
 
   const testData = {
     templateId: 'promotion',
@@ -145,7 +145,7 @@ async function testPromotion() {
 }
 
 async function testBulkEmail() {
-  console.log('📨 Test 4: Email masivo (SQS)');
+  console.log('Test 4: Email masivo (SQS)');
 
   const testData = {
     templateId: 'promotion',
@@ -158,7 +158,7 @@ async function testBulkEmail() {
     ],
     templateVariables: {
       customerName: 'Cliente',
-      title: '🚀 React Email está funcionando!',
+      title: 'React Email está funcionando!',
       content: 'Este email fue generado con React Email + Tailwind y procesado por AWS Lambda.',
       discountCode: 'REACTEMAIL',
       discountPercentage: '25%',
@@ -180,7 +180,7 @@ async function testBulkEmail() {
 async function sendTestEmail(data, testName) {
   try {
     console.log(`   → Enviando ${testName}...`);
-    console.log(`   📡 URL: ${API_BASE_URL}/email/test-email`);
+    console.log(`    URL: ${API_BASE_URL}/email/test-email`);
 
     const response = await fetch(`${API_BASE_URL}/email/test-email`, {
       method: 'POST',
@@ -190,29 +190,29 @@ async function sendTestEmail(data, testName) {
       body: JSON.stringify(data),
     });
 
-    console.log(`   📊 Status: ${response.status} ${response.statusText}`);
+    console.log(`    Status: ${response.status} ${response.statusText}`);
 
     let result;
     try {
       result = await response.json();
-      console.log(`   📄 Response:`, JSON.stringify(result, null, 2));
+      console.log(`    Response:`, JSON.stringify(result, null, 2));
     } catch (parseError) {
       const text = await response.text();
-      console.log(`   📄 Raw response:`, text);
+      console.log(`    Raw response:`, text);
       result = { error: 'Invalid JSON response' };
     }
 
     if (response.ok && result.success) {
-      console.log(`   ✅ ${testName} enviado exitosamente`);
+      console.log(`    ${testName} enviado exitosamente`);
       if (result.jobId) {
-        console.log(`   📝 Job ID: ${result.jobId}`);
+        console.log(`    Job ID: ${result.jobId}`);
       }
     } else {
-      console.log(`   ❌ Error en ${testName}:`, result.error || `HTTP ${response.status}`);
+      console.log(`    Error en ${testName}:`, result.error || `HTTP ${response.status}`);
     }
   } catch (error) {
-    console.log(`   ❌ Error de conexión en ${testName}:`, error.message);
-    console.log(`   🔍 Error details:`, error);
+    console.log(`    Error de conexión en ${testName}:`, error.message);
+    console.log(`    Error details:`, error);
   }
 
   console.log(''); // Línea en blanco
@@ -221,7 +221,7 @@ async function sendTestEmail(data, testName) {
 async function sendBulkEmail(data, testName) {
   try {
     console.log(`   → Enviando ${testName} a ${data.recipients.length} destinatarios...`);
-    console.log(`   📡 URL: ${API_BASE_URL}/email/send-bulk`);
+    console.log(`    URL: ${API_BASE_URL}/email/send-bulk`);
 
     const response = await fetch(`${API_BASE_URL}/email/send-bulk`, {
       method: 'POST',
@@ -231,33 +231,33 @@ async function sendBulkEmail(data, testName) {
       body: JSON.stringify(data),
     });
 
-    console.log(`   📊 Status: ${response.status} ${response.statusText}`);
+    console.log(`    Status: ${response.status} ${response.statusText}`);
 
     let result;
     try {
       result = await response.json();
-      console.log(`   📄 Response:`, JSON.stringify(result, null, 2));
+      console.log(`    Response:`, JSON.stringify(result, null, 2));
     } catch (parseError) {
       const text = await response.text();
-      console.log(`   📄 Raw response:`, text);
+      console.log(`    Raw response:`, text);
       result = { error: 'Invalid JSON response' };
     }
 
     if (response.ok && result.success) {
-      console.log(`   ✅ ${testName} encolado exitosamente`);
-      console.log(`   📊 ${data.recipients.length} emails en cola`);
+      console.log(`    ${testName} encolado exitosamente`);
+      console.log(`    ${data.recipients.length} emails en cola`);
       if (result.campaignId) {
-        console.log(`   🎯 Campaign ID: ${result.campaignId}`);
+        console.log(`    Campaign ID: ${result.campaignId}`);
       }
       if (result.estimatedDelivery) {
-        console.log(`   ⏱️  Entrega estimada: ${result.estimatedDelivery}`);
+        console.log(`    Entrega estimada: ${result.estimatedDelivery}`);
       }
     } else {
-      console.log(`   ❌ Error en ${testName}:`, result.error || `HTTP ${response.status}`);
+      console.log(`    Error en ${testName}:`, result.error || `HTTP ${response.status}`);
     }
   } catch (error) {
-    console.log(`   ❌ Error de conexión en ${testName}:`, error.message);
-    console.log(`   🔍 Error details:`, error);
+    console.log(`    Error de conexión en ${testName}:`, error.message);
+    console.log(`    Error details:`, error);
   }
 
   console.log(''); // Línea en blanco
@@ -268,16 +268,16 @@ function delay(ms) {
 }
 
 // Ejecutar tests
-console.log('🚀 Iniciando tests del sistema de emails...\n');
+console.log('Iniciando tests del sistema de emails...\n');
 testEmailAPI()
   .then(() => {
-    console.log('✨ Tests completados!');
-    console.log('\n📋 Qué revisar:');
+    console.log('Tests completados!');
+    console.log('\nQué revisar:');
     console.log('   1. Revisa tu bandeja de entrada');
     console.log('   2. Verifica que los emails se vean bien');
     console.log('   3. Comprueba que las variables se reemplazaron correctamente');
     console.log('   4. Confirma que los estilos de Tailwind funcionan');
   })
   .catch((error) => {
-    console.error('❌ Error en los tests:', error);
+    console.error('Error en los tests:', error);
   });
