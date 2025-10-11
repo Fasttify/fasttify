@@ -18,7 +18,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/middlewares/auth/auth';
 
 export async function handleSubscriptionMiddleware(request: NextRequest, response: NextResponse) {
-  const session = await getSession(request, response);
+  // Usar cache para evitar múltiples forceRefresh en la misma request
+  const session = await getSession(request, response, false);
 
   if (!session) {
     return NextResponse.redirect(new URL('/pricing', request.url));

@@ -39,7 +39,8 @@ export async function handleCollectionOwnershipMiddleware(request: NextRequest) 
   }
 
   // Verificar autenticación del usuario
-  const session = await getSession(request, NextResponse.next());
+  // Usar cache para evitar múltiples forceRefresh en la misma request
+  const session = await getSession(request, NextResponse.next(), false);
 
   if (!session) {
     return NextResponse.redirect(new URL('/login', request.url));

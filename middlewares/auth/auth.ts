@@ -18,14 +18,52 @@ import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
 import { fetchAuthSession } from 'aws-amplify/auth/server';
 import { getLastVisitedStore } from '@/lib/cookies/last-store';
 import { NextRequest, NextResponse } from 'next/server';
+import NodeCache from 'node-cache';
+
+const sessionCache = new NodeCache({
+  stdTTL: 300, // 5 minutos
+  checkperiod: 60, // Verifica cada minuto
+  useClones: false,
+});
+
+function getCacheKey(request: NextRequest): string {
+  // Usar un hash simple de las cookies principales de autenticación
+  const cookies = request.headers.get('cookie') || '';
+
+  // Buscar el ID de usuario en las cookies para crear una clave estable
+  const userIdMatch = cookies.match(/CognitoIdentityServiceProvider[^=]*=([^;]+)/);
+  if (userIdMatch) {
+    return `user-${userIdMatch[1]}`;
+  }
+
+  // Fallback: usar toda la cadena de cookies como clave
+  return cookies ? `cookies-${cookies.length}` : 'no-auth';
+}
 
 export async function getSession(request: NextRequest, response: NextResponse, forceRefresh = true) {
+  const cacheKey = getCacheKey(request);
+
+  // Verificar cache si no es forceRefresh
+  if (!forceRefresh) {
+    const cached = sessionCache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+  }
+
   return runWithAmplifyServerContext({
     nextServerContext: { request, response },
     operation: async (contextSpec) => {
       try {
         const session = await fetchAuthSession(contextSpec, { forceRefresh });
-        return session.tokens !== undefined ? session : null;
+        const result = session.tokens !== undefined ? session : null;
+
+        // Guardar en cache solo si la sesión es válida
+        if (result && result.tokens) {
+          sessionCache.set(cacheKey, result);
+        }
+
+        return result;
       } catch (error) {
         console.error('Error fetching user session:', error);
         return null;
