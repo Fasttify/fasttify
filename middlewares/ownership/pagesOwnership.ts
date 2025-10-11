@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { getSession } from '@/middlewares/auth/auth';
+import { getSession, type AuthSession } from '@/middlewares/auth/auth';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -46,7 +46,7 @@ export async function handlePagesOwnershipMiddleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  const userId = session.tokens?.idToken?.payload?.['cognito:username'];
+  const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
 
   if (!userId || typeof userId !== 'string') {
     return NextResponse.redirect(new URL('/login', request.url));

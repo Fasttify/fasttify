@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { getSession } from '@/middlewares/auth/auth';
+import { getSession, type AuthSession } from '@/middlewares/auth/auth';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -24,7 +24,7 @@ const STORE_LIMITS = {
   Royal: 1,
 };
 
-async function hasValidPlan(session: any) {
+async function hasValidPlan(session: AuthSession) {
   const userPlan = session.tokens?.idToken?.payload?.['custom:plan'] as string | undefined;
   const allowedPlans = ['Royal', 'Majestic', 'Imperial'];
   return userPlan && allowedPlans.includes(userPlan);
@@ -59,8 +59,8 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  const userId = session.tokens.idToken?.payload?.['cognito:username'];
-  const userPlan = session.tokens.idToken?.payload?.['custom:plan'];
+  const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
+  const userPlan = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'];
   const hasValidSubscription = await hasValidPlan(session);
 
   if (!hasValidSubscription) {

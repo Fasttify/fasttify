@@ -20,6 +20,17 @@ import { getLastVisitedStore } from '@/lib/cookies/last-store';
 import { NextRequest, NextResponse } from 'next/server';
 import NodeCache from 'node-cache';
 
+export interface AuthSession {
+  tokens?: {
+    idToken?: {
+      payload?: {
+        'cognito:username'?: string;
+        'custom:plan'?: string;
+      };
+    };
+  };
+}
+
 const sessionCache = new NodeCache({
   stdTTL: 300, // 5 minutos
   checkperiod: 60, // Verifica cada minuto
