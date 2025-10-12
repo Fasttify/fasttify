@@ -2,6 +2,11 @@ import type { NextConfig } from 'next';
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
+  // TypeScript optimizations
+  typescript: {
+    tsconfigPath: './tsconfig.json',
+  },
+
   serverExternalPackages: [
     '@aws-sdk/client-acm',
     '@aws-sdk/client-bedrock-runtime',
