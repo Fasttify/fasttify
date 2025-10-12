@@ -1,4 +1,4 @@
-import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { useUserStoreData } from '@/app/(setup)/first-steps/hooks/useUserStoreData';
 import { CurrencySelector } from '@/app/store/components/domains/components/CurrencySelector';
 import { useCurrencyConfig } from '@/app/store/hooks/currency/useCurrencyConfig';
 import { HelpTooltip } from '@/app/store/components/navigation-management/components/HelpTooltip';

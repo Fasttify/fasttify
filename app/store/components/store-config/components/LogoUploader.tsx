@@ -13,7 +13,7 @@ import {
   InlineStack,
 } from '@shopify/polaris';
 import { useLogoUpload } from '@/app/store/hooks/storage/useLogoUpload';
-import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { useUserStoreData } from '@/app/(setup)/first-steps/hooks/useUserStoreData';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { InfoIcon } from '@shopify/polaris-icons';
 
