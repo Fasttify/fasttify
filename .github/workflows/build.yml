@@ -24,7 +24,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Set Node.js optimization environment variables
+        run: |
+          echo "TS_NODE_TRANSPILE_ONLY=true" >> $GITHUB_ENV
+          echo "TS_NODE_FILES=false" >> $GITHUB_ENV
 
       - name: Cache dependencies and build
         uses: actions/cache@v4
@@ -33,6 +39,7 @@ jobs:
             ~/.pnpm-store
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/.next/cache
+            ${{ github.workspace }}/.tsbuildinfo
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-
@@ -73,6 +80,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Type check (optimized)
+        run: |
+          echo "🚀 Running optimized type check..."
+          time pnpm run type-check
+          echo "✅ Type check completed"
 
       - name: Build project
         run: pnpm run build

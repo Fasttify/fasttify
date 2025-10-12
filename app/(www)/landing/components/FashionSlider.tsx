@@ -41,7 +41,7 @@ const slides: Slide[] = [
     bgColor: '#D7A594',
     title: 'Pagos seguros y sin complicaciones',
     description:
-      'Fasttify integra Mercado Pago y PayU para que tus clientes compren con confianza y tú recibas tus pagos sin problemas. La seguridad es nuestra prioridad.',
+      'Fasttify integra Mercado Pago y Wompi para que tus clientes compren con confianza y tú recibas tus pagos sin problemas. La seguridad es nuestra prioridad.',
     image: 'https://images.unsplash.com/photo-1738707060473-a23914a02d8a?q=80&w=1974&auto=format&fit=crop',
     ctaText: 'Ver métodos de pago',
     ctaLink: '#pagos',
