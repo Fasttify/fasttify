@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { post } from 'aws-amplify/api';
 import useStoreDataStore from '@/context/core/storeDataStore';
 
@@ -22,16 +23,8 @@ interface S3ImagesResponse {
 }
 
 export function useS3Images(options: UseS3ImagesOptions = {}) {
-  const [images, setImages] = useState<import('@/app/store/components/images-selector/types/s3-types').S3Image[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const { storeId } = useStoreDataStore();
-  const [nextContinuationToken, setNextContinuationToken] = useState<string | undefined>(undefined);
-  const [loadingMore, setLoadingMore] = useState(false);
-
-  // Ref para evitar peticiones duplicadas
-  const isFetching = useRef(false);
-  const lastFetchParams = useRef<string>('');
+  const queryClient = useQueryClient();
 
   // Memoizar las opciones para evitar re-renders innecesarios
   const memoizedOptions = useMemo(
@@ -42,107 +35,85 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
     [options.limit, options.prefix]
   );
 
-  const fetchImages = useCallback(
-    async (token?: string) => {
-      // Crear una clave única para esta petición
-      const fetchKey = `${storeId}-${memoizedOptions.limit}-${memoizedOptions.prefix}-${token || 'initial'}`;
-
-      // Si ya hay una petición en curso con los mismos parámetros, no hacer otra
-      if (isFetching.current && lastFetchParams.current === fetchKey) {
-        return;
-      }
-
+  // Función para hacer la petición de imágenes
+  const fetchImagesPage = useCallback(
+    async ({ pageParam }: { pageParam?: string }) => {
       if (!storeId || memoizedOptions.limit <= 0) {
-        setLoading(false);
-        setImages([]);
-        setNextContinuationToken(undefined);
-        return;
+        return {
+          images: [],
+          nextContinuationToken: undefined,
+        };
       }
 
-      // Marcar que estamos haciendo una petición
-      isFetching.current = true;
-      lastFetchParams.current = fetchKey;
+      const restOperation = post({
+        apiName: 'StoreImagesApi',
+        path: 'store-images',
+        options: {
+          body: {
+            action: 'list',
+            storeId,
+            limit: memoizedOptions.limit,
+            prefix: memoizedOptions.prefix,
+            continuationToken: pageParam,
+          } as any,
+        },
+      });
 
-      if (!token) {
-        setLoading(true);
-        setImages([]);
-      } else {
-        setLoadingMore(true);
+      const { body } = await restOperation.response;
+      const response = (await body.json()) as S3ImagesResponse;
+
+      if (!response.images) {
+        return {
+          images: [],
+          nextContinuationToken: undefined,
+        };
       }
-      setError(null);
 
-      try {
-        const restOperation = post({
-          apiName: 'StoreImagesApi',
-          path: 'store-images',
-          options: {
-            body: {
-              action: 'list',
-              storeId,
-              limit: memoizedOptions.limit,
-              prefix: memoizedOptions.prefix,
-              continuationToken: token,
-            } as any,
-          },
-        });
+      const processedImages = response.images.map((img) => ({
+        ...img,
+        lastModified: img.lastModified ? new Date(img.lastModified) : undefined,
+        id: img.id || generateFallbackId(img.key, img.filename),
+      }));
 
-        const { body } = await restOperation.response;
-        const response = (await body.json()) as S3ImagesResponse;
-
-        if (!response.images) {
-          if (!token) {
-            setImages([]);
-          }
-          setNextContinuationToken(undefined);
-          return;
-        }
-
-        const processedImages = response.images.map((img) => ({
-          ...img,
-          lastModified: img.lastModified ? new Date(img.lastModified) : undefined,
-          id: img.id || generateFallbackId(img.key, img.filename),
-        }));
-
-        setImages((prev) => (token ? [...prev, ...processedImages] : processedImages));
-        setNextContinuationToken(response.nextContinuationToken);
-      } catch (err) {
-        console.error(token ? 'Error fetching more S3 images:' : 'Error fetching S3 images:', err);
-        setError(err instanceof Error ? err : new Error('Unknown error occurred'));
-        setNextContinuationToken(undefined);
-      } finally {
-        // Resetear el flag de petición
-        isFetching.current = false;
-
-        if (!token) {
-          setLoading(false);
-        } else {
-          setLoadingMore(false);
-        }
-      }
+      return {
+        images: processedImages,
+        nextContinuationToken: response.nextContinuationToken,
+      };
     },
     [storeId, memoizedOptions.limit, memoizedOptions.prefix]
   );
 
-  // useEffect optimizado - solo se ejecuta cuando es necesario
-  useEffect(() => {
-    if (storeId && memoizedOptions.limit > 0) {
-      fetchImages();
-    }
-  }, [storeId, memoizedOptions.limit, memoizedOptions.prefix, fetchImages]);
+  // Configurar la query infinita de React Query
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
+    queryKey: ['s3-images', storeId, memoizedOptions.limit, memoizedOptions.prefix],
+    queryFn: fetchImagesPage,
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextContinuationToken,
+    enabled: !!storeId && memoizedOptions.limit > 0,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 10 * 60 * 1000, // 10 minutos
+  });
 
+  // Combinar todas las páginas de imágenes en una sola lista
+  const images = useMemo(() => {
+    if (!data?.pages) return [];
+    return data.pages.flatMap((page) => page.images);
+  }, [data]);
+
+  // Función para cargar más imágenes
   const fetchMoreImages = useCallback(() => {
-    if (nextContinuationToken && !loadingMore && !loading) {
-      fetchImages(nextContinuationToken);
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-  }, [nextContinuationToken, loadingMore, loading, fetchImages]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Función para verificar si necesitamos cargar más imágenes automáticamente
   const checkAndLoadMoreIfNeeded = useCallback(() => {
-    // Si no hay imágenes pero hay nextToken disponible, cargar automáticamente
-    if (images.length === 0 && nextContinuationToken && !loadingMore && !loading) {
+    // Si no hay imágenes pero hay más páginas disponibles, cargar automáticamente
+    if (images.length === 0 && hasNextPage && !isFetchingNextPage) {
       fetchMoreImages();
     }
-  }, [images.length, nextContinuationToken, loadingMore, loading, fetchMoreImages]);
+  }, [images.length, hasNextPage, isFetchingNextPage, fetchMoreImages]);
 
   // Función para actualizar imágenes después de operaciones exitosas
   const updateImages = useCallback(
@@ -151,20 +122,54 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
         prev: import('@/app/store/components/images-selector/types/s3-types').S3Image[]
       ) => import('@/app/store/components/images-selector/types/s3-types').S3Image[]
     ) => {
-      setImages(updater);
+      // Actualizar el cache de React Query
+      queryClient.setQueryData(
+        ['s3-images', storeId, memoizedOptions.limit, memoizedOptions.prefix],
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          const allImages = oldData.pages.flatMap((page: any) => page.images);
+          const updatedImages = updater(allImages);
+
+          // Reorganizar las imágenes actualizadas en páginas
+          const pageSize = memoizedOptions.limit;
+          const newPages = [];
+
+          for (let i = 0; i < updatedImages.length; i += pageSize) {
+            newPages.push({
+              images: updatedImages.slice(i, i + pageSize),
+              nextContinuationToken: i + pageSize < updatedImages.length ? 'continue' : undefined,
+            });
+          }
+
+          return {
+            ...oldData,
+            pages: newPages,
+          };
+        }
+      );
     },
-    []
+    [queryClient, storeId, memoizedOptions.limit, memoizedOptions.prefix]
   );
+
+  // Función para invalidar y refrescar el cache
+  const refreshImages = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: ['s3-images', storeId, memoizedOptions.limit, memoizedOptions.prefix],
+    });
+  }, [queryClient, storeId, memoizedOptions.limit, memoizedOptions.prefix]);
 
   return {
     images,
-    loading,
-    error,
+    loading: isLoading,
+    error: error as Error | null,
     fetchMoreImages,
-    loadingMore,
-    nextContinuationToken,
+    loadingMore: isFetchingNextPage,
+    nextContinuationToken: hasNextPage ? 'available' : undefined,
     checkAndLoadMoreIfNeeded,
     updateImages,
+    refreshImages,
+    refetch,
   };
 }
 

@@ -21,6 +21,7 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
     loadingMoreMessages,
     conversationName,
     sendMessage,
+    stopStreaming,
     loadConversationById,
     clearMessages,
     clearError,
@@ -78,6 +79,10 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
     clearMessages();
   }, [clearMessages]);
 
+  const handleStop = useCallback(() => {
+    stopStreaming();
+  }, [stopStreaming]);
+
   const _handleClearChat = useCallback(() => {
     clearMessages();
   }, [clearMessages]);
@@ -96,7 +101,7 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
 
   return (
     <div
-      className="fixed right-0 w-[20vw] border-l rounded-l-lg h-[calc(98vh-2rem)] animate-in slide-in-from-right duration-300 ease-out"
+      className="fixed right-0 w-[20vw] border-l rounded-l-lg h-[calc(98vh-2rem)] bg-white animate-in slide-in-from-right duration-300 ease-out"
       onClick={handleContentClick}
       onTouchStart={handleContentTouchStart}>
       {/* Loading Overlay */}
@@ -187,6 +192,7 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
             onSubmit={handleSubmit}
             className="py-2"
             loading={loading}
+            onStop={handleStop}
           />
         </Box>
       </div>

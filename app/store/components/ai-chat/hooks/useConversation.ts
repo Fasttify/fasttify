@@ -48,6 +48,7 @@ export interface UseConversationReturn {
   initializeConversation: () => Promise<void>;
   loadConversationById: (id: string) => Promise<void>;
   sendMessage: (message: string) => Promise<void>;
+  stopStreaming: () => void;
   resetConversation: () => void;
   clearError: () => void;
   listMessages: () => Promise<void>;
@@ -75,6 +76,7 @@ export function useConversation(): UseConversationReturn {
   const conversationRef = useRef(conversation);
   const isInitializingRef = useRef(isInitializing);
   const hasUpdatedNameRef = useRef(false);
+  const currentSubscriptionRef = useRef<any>(null);
 
   // Usar el contexto para persistir el ID de conversación
   const { conversationId, setConversationId, clearConversation: clearConversationContext } = useConversationContext();
@@ -191,6 +193,33 @@ export function useConversation(): UseConversationReturn {
   }, []);
 
   /**
+   * Detener el streaming actual
+   */
+  const stopStreaming = useCallback(() => {
+    if (currentSubscriptionRef.current) {
+      currentSubscriptionRef.current.unsubscribe();
+      currentSubscriptionRef.current = null;
+    }
+
+    // Si hay texto en streaming, agregarlo como mensaje final
+    if (streamingText) {
+      setMessages((prev) => {
+        const assistantMsg: Message = {
+          id: `assistant-${Date.now()}`,
+          content: streamingText,
+          role: 'assistant',
+          createdAt: new Date().toISOString(),
+        };
+        return [...prev, assistantMsg];
+      });
+    }
+
+    // Limpiar estado de streaming
+    setStreamingText('');
+    setIsLoading(false);
+  }, [streamingText]);
+
+  /**
    * Cargar una conversación existente por ID
    */
   const loadConversationById = useCallback(
@@ -232,6 +261,12 @@ export function useConversation(): UseConversationReturn {
    * Reiniciar conversación
    */
   const resetConversation = useCallback(() => {
+    // Detener streaming si está activo
+    if (currentSubscriptionRef.current) {
+      currentSubscriptionRef.current.unsubscribe();
+      currentSubscriptionRef.current = null;
+    }
+
     setConversation(null);
     setMessages([]);
     setError(null);
@@ -320,6 +355,7 @@ export function useConversation(): UseConversationReturn {
               setIsLoading(false);
               setStreamingText('');
               subscription.unsubscribe();
+              currentSubscriptionRef.current = null;
               return;
             }
 
@@ -350,6 +386,7 @@ export function useConversation(): UseConversationReturn {
 
               // Desuscribirse
               subscription.unsubscribe();
+              currentSubscriptionRef.current = null;
             }
           },
           error: (error: any) => {
@@ -357,8 +394,12 @@ export function useConversation(): UseConversationReturn {
             setError(`Error en streaming: ${error.message || 'Error desconocido'}`);
             setIsLoading(false);
             setStreamingText('');
+            currentSubscriptionRef.current = null;
           },
         });
+
+        // Guardar referencia de la suscripción para poder cancelarla
+        currentSubscriptionRef.current = subscription;
       } catch (error: any) {
         console.error('Error sending message:', error);
         setError(`Error al enviar mensaje: ${error.message || 'Error desconocido'}`);
@@ -445,6 +486,7 @@ export function useConversation(): UseConversationReturn {
     initializeConversation,
     loadConversationById,
     sendMessage,
+    stopStreaming,
     resetConversation,
     clearError,
     listMessages,

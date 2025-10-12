@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useAutoResizeTextarea } from '@/hooks/ui/use-auto-resize-textare';
 import { Button } from '@shopify/polaris';
-import { SendIcon } from '@shopify/polaris-icons';
+import { SendIcon, StopCircleIcon } from '@shopify/polaris-icons';
 
 interface AIInputWithSearchProps {
   id?: string;
@@ -16,6 +16,7 @@ interface AIInputWithSearchProps {
   onFileSelect?: (file: File) => void;
   className?: string;
   loading?: boolean;
+  onStop?: () => void;
 }
 
 export function AIInputWithSearch({
@@ -27,6 +28,7 @@ export function AIInputWithSearch({
   onFileSelect: _onFileSelect,
   className,
   loading = false,
+  onStop,
 }: AIInputWithSearchProps) {
   const [value, setValue] = useState('');
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
@@ -69,15 +71,23 @@ export function AIInputWithSearch({
 
           <div className="h-12 bg-black/5 dark:bg-white/5 rounded-b-xl">
             <div className="absolute right-3 bottom-3">
-              <Button
-                variant="plain"
-                size="slim"
-                onClick={handleSubmit}
-                loading={loading}
-                disabled={loading}
-                icon={!loading ? SendIcon : undefined}
-                accessibilityLabel="Enviar mensaje"
-              />
+              {loading ? (
+                <Button
+                  variant="plain"
+                  size="slim"
+                  onClick={onStop}
+                  icon={StopCircleIcon}
+                  accessibilityLabel="Detener respuesta"
+                />
+              ) : (
+                <Button
+                  variant="plain"
+                  size="slim"
+                  onClick={handleSubmit}
+                  icon={SendIcon}
+                  accessibilityLabel="Enviar mensaje"
+                />
+              )}
             </div>
           </div>
         </div>

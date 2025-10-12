@@ -21,6 +21,7 @@ export interface UseSimpleChatReturn {
 
   // Acciones simplificadas
   sendMessage: (message: string) => Promise<void>;
+  stopStreaming: () => void;
   loadConversationById: (id: string) => Promise<void>;
   clearMessages: () => void;
   clearError: () => void;
@@ -48,6 +49,7 @@ export function useSimpleChat(): UseSimpleChatReturn {
     initializeConversation,
     loadConversationById,
     sendMessage: sendMessageInternal,
+    stopStreaming: stopStreamingInternal,
     resetConversation,
     clearError: clearErrorInternal,
     loadMoreMessages: loadMoreMessagesInternal,
@@ -86,6 +88,13 @@ export function useSimpleChat(): UseSimpleChatReturn {
   const clearMessages = useCallback((): void => {
     resetConversation();
   }, [resetConversation]);
+
+  /**
+   * Detiene el streaming actual
+   */
+  const stopStreaming = useCallback((): void => {
+    stopStreamingInternal();
+  }, [stopStreamingInternal]);
 
   /**
    * Limpia el error actual
@@ -133,6 +142,7 @@ export function useSimpleChat(): UseSimpleChatReturn {
     loadingMoreMessages,
     conversationName,
     sendMessage,
+    stopStreaming,
     loadConversationById,
     clearMessages,
     clearError,
