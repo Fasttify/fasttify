@@ -1,4 +1,4 @@
-import { handleSignUp, handleConfirmSignUp } from '@/app/(setup-layout)/login/hooks/signUp';
+import { handleSignUp, handleConfirmSignUp } from '@/app/(setup)/login/hooks/signUp';
 import { signUp, confirmSignUp } from 'aws-amplify/auth';
 
 // Mock de los módulos de AWS Amplify
