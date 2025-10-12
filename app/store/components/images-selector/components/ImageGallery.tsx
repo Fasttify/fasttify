@@ -1,19 +1,9 @@
 import { useToast } from '@/app/store/context/ToastContext';
 import { S3Image } from '@/app/store/hooks/storage/useS3Images';
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Card,
-  EmptyState,
-  Grid,
-  InlineStack,
-  Spinner,
-  Text,
-  Thumbnail,
-} from '@shopify/polaris';
-import { DeleteIcon, SelectIcon } from '@shopify/polaris-icons';
+import { Box, Button, ButtonGroup, EmptyState, Grid, InlineStack, Spinner, Text } from '@shopify/polaris';
+import { DeleteIcon } from '@shopify/polaris-icons';
 import { useCallback, useState, memo } from 'react';
+import ImageCard from './ImageCard';
 
 interface ImageGalleryProps {
   images: S3Image[];
@@ -183,74 +173,30 @@ const ImageGallery = memo(function ImageGallery({
     selectAllForDeletion,
   ]);
 
-  // Memoizar renderizado de imágenes individuales
+  // Memoizar renderizado de imágenes individuales usando ImageCard
   const renderImage = useCallback(
-    (image: S3Image) => (
-      <Grid.Cell key={image.id || image.key} columnSpan={{ xs: 2, sm: 2, md: 2, lg: 4, xl: 4 }}>
-        <div
-          onClick={() => {
-            if (deleteMode) {
-              toggleDeleteSelection(image.key);
-            } else {
-              onImageSelect(image);
-            }
-          }}
-          style={{
-            cursor: 'pointer',
-            outline: deleteMode
-              ? isMarkedForDeletion(image.key)
-                ? '2px solid #d72c0d'
-                : '1px solid #e1e3e5'
-              : isSelected(image)
-                ? '2px solid #2962ff'
-                : 'none',
-            outlineOffset: '2px',
-            borderRadius: 'var(--p-border-radius-200)',
-            opacity: deleteMode && isMarkedForDeletion(image.key) ? 0.7 : 1,
-          }}>
-          <Card padding="0">
-            <Box position="relative" borderRadius="200">
-              {deleteMode && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '8px',
-                    left: '8px',
-                    zIndex: 2,
-                    backgroundColor: isMarkedForDeletion(image.key) ? '#d72c0d' : 'rgba(255,255,255,0.9)',
-                    borderRadius: '50%',
-                    padding: '4px',
-                  }}>
-                  <SelectIcon />
-                </div>
-              )}
+    (image: S3Image) => {
+      const COLUMN_SPAN_CONFIG = { xs: 3, sm: 3, md: 2, lg: 2, xl: 2 } as const;
 
-              {!deleteMode && isSelected(image) && (
-                <div
-                  style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1 }}
-                  onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                  <Button
-                    icon={DeleteIcon}
-                    size="slim"
-                    variant="primary"
-                    tone="critical"
-                    onClick={() => onDeleteImage(image.key)}
-                    accessibilityLabel="Eliminar imagen"
-                  />
-                </div>
-              )}
-
-              <Thumbnail source={image.url || ''} alt={image.filename} size="large" />
-            </Box>
-            <Box padding="200">
-              <Text as="p" variant="bodySm" truncate>
-                {image.filename}
-              </Text>
-            </Box>
-          </Card>
-        </div>
-      </Grid.Cell>
-    ),
+      return (
+        <Grid.Cell key={image.id || image.key} columnSpan={COLUMN_SPAN_CONFIG}>
+          <ImageCard
+            image={image}
+            isSelected={isSelected(image)}
+            isMarkedForDeletion={isMarkedForDeletion(image.key)}
+            deleteMode={deleteMode}
+            onImageClick={() => {
+              if (deleteMode) {
+                toggleDeleteSelection(image.key);
+              } else {
+                onImageSelect(image);
+              }
+            }}
+            onDeleteImage={onDeleteImage}
+          />
+        </Grid.Cell>
+      );
+    },
     [deleteMode, isMarkedForDeletion, isSelected, onImageSelect, onDeleteImage, toggleDeleteSelection]
   );
 

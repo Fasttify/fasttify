@@ -21,6 +21,8 @@ const nextConfig: NextConfig = {
 
     unoptimized: process.env.NODE_ENV === 'development',
 
+    qualities: [25, 50, 75, 85, 90, 95, 100],
+
     localPatterns: [
       {
         pathname: '/icons/**',
