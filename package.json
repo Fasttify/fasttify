@@ -27,7 +27,7 @@
     "test:coverage": "jest --coverage",
     "template-sync": "node scripts/template-sync.js",
     "type-check": "tsc --noEmit",
-    "type-check:fast": "tsc --noEmit --skipLibCheck --incremental false",
+    "type-check:fast": "tsc --noEmit --skipLibCheck",
     "build:fast": "next build --turbopack",
     "build:full": "pnpm run type-check && pnpm run build:fast",
     "workspace:install": "pnpm install --workspaces",
