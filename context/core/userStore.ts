@@ -71,8 +71,13 @@ const useAuthStore = create<UserState>((set, get) => ({
     try {
       set({ loading: true, error: null });
 
-      // Inicia la promesa para refrescar la sesión
-      refreshSessionPromise = fetchAuthSession({ forceRefresh: true });
+      // Verificar si estamos en rutas donde no se debe hacer refresh
+      const pathname = window.location.pathname;
+      const NO_REFRESH_ROUTES = ['/first-steps', '/my-store'];
+      const shouldSkipRefresh = NO_REFRESH_ROUTES.includes(pathname);
+
+      // Inicia la promesa para refrescar la sesión (sin forceRefresh en rutas específicas)
+      refreshSessionPromise = fetchAuthSession({ forceRefresh: !shouldSkipRefresh });
       const session = await refreshSessionPromise;
 
       if (session && session.tokens) {
@@ -98,16 +103,16 @@ const useAuthStore = create<UserState>((set, get) => ({
         get().clearUser();
       }
     } catch (error: any) {
-      console.error('Error al verificar la sesión del usuario:', error);
+      console.error('Error verifying user session:', error);
 
       if (error.name === 'NotAuthorizedException' || (error.message && error.message.includes('revoked'))) {
-        console.warn('Token revocado detectado. Forzando cierre de sesión y recarga completa.');
+        console.warn('Token revoked detected. Forcing logout and full reload.');
 
         try {
           // Intenta cerrar sesión en Cognito, pero no dejes que falle si ya hay problemas
           await signOut();
         } catch (signOutError) {
-          console.error('Error secundario al intentar signOut forzado:', signOutError);
+          console.error('Secondary error when trying to force signOut:', signOutError);
         } finally {
           // La acción más importante: limpiar el estado y recargar la aplicación
           get().clearUser();
@@ -174,7 +179,7 @@ const useAuthStore = create<UserState>((set, get) => ({
     try {
       await signOut();
     } catch (error) {
-      console.error('Error durante el logout en Amplify:', error);
+      console.error('Error during logout:', error);
     } finally {
       get().clearUser();
       get().cleanup();
