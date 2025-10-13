@@ -24,8 +24,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
 
       - name: Set Node.js optimization environment variables
         run: |
@@ -81,8 +81,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build project (includes type checking)
+      - name: Type check (separate)
         run: |
-          echo "Running Next.js build with type checking..."
-          time pnpm run build
+          echo "Running type check..."
+          time pnpm run type-check:fast
+          echo "Type check completed"
+
+      - name: Build project (fast)
+        run: |
+          echo "Running Next.js build (no type checking)..."
+          time pnpm run build:fast
           echo "Build completed"

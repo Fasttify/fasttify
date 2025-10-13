@@ -2,9 +2,9 @@ import type { NextConfig } from 'next';
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  // TypeScript optimizations
+  // TypeScript optimizations - disable type checking in build
   typescript: {
-    tsconfigPath: './tsconfig.json',
+    ignoreBuildErrors: true, // Disable type checking during build
   },
 
   serverExternalPackages: [
