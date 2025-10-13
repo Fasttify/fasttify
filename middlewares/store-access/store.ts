@@ -58,7 +58,7 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
     return authResponse; // Si hay redirección de auth, retornarla
   }
 
-  // Obtener la sesión del usuario (ya validada)
+  // Obtener la sesión del usuario (ya validada) - sin refresh para rutas específicas
   const session = await getSession(request, response, false);
 
   const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
