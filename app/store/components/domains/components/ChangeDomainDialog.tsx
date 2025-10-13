@@ -1,4 +1,4 @@
-import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { useUserStoreData } from '@/app/(setup)/first-steps/hooks/useUserStoreData';
 import { useToast } from '@/app/store/context/ToastContext';
 import { useDomainValidator } from '@/app/store/hooks/api/useDomainValidator';
 import { BlockStack, InlineStack, Modal, Spinner, Text, TextField } from '@shopify/polaris';

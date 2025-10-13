@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { LegacyStack, Text, Button, Badge } from '@shopify/polaris';
-import { PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { PaymentGatewayType } from '@/app/(setup)/first-steps/hooks/useUserStoreData';
 import { WompiPaymentIcons, MercadoPagoIcons } from '@/app/store/components/payments/components/PaymentMethodIcons';
 
 interface PaymentGatewayCardProps {

@@ -154,6 +154,7 @@ export function ChatHeader({
               allowMultiple={false}
               willLoadMoreResults={hasMore}
               onLoadMoreResults={handleLoadMoreResults}
+              listTitle="Conversaciones"
             />
           </div>
         </div>

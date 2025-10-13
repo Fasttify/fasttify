@@ -288,22 +288,22 @@ function generateDateRange(startDate, endDate, storeId) {
  * Función principal de testing con datos mock completos
  */
 async function main() {
-  console.log('📊 Poblando Base de Datos con Datos Mock de Analíticas\n');
+  console.log('Poblando Base de Datos con Datos Mock de Analíticas\n');
 
   // 1. Generar token de prueba
   console.log('1. Generando JWT token...');
   const testToken = generateTestToken('9441866', 'ORDER_CREATED');
-  console.log(`✅ Token generado: ${testToken.substring(0, 50)}...\n`);
+  console.log(`Token generado: ${testToken.substring(0, 50)}...\n`);
 
   // 2. Verificar token
   console.log('2. Verificando JWT token...');
   const verification = verifyTestToken(testToken);
   if (verification.isValid) {
-    console.log('✅ Token válido');
+    console.log('Token válido');
     console.log(`   Store ID: ${verification.payload.storeId}`);
     console.log(`   Event Type: ${verification.payload.eventType}\n`);
   } else {
-    console.log(`❌ Token inválido: ${verification.error}\n`);
+    console.log(`Token inválido: ${verification.error}\n`);
     return;
   }
 
@@ -342,11 +342,11 @@ async function main() {
       successCount++;
       if (successCount % 10 === 0) {
         // Mostrar progreso cada 10 eventos exitosos
-        console.log(`   ✅ Procesados ${successCount} eventos...`);
+        console.log(`    Procesados ${successCount} eventos...`);
       }
     } else {
       errorCount++;
-      console.log(`   ❌ ${event.type}: Error - Status: ${webhookResult.status || 'N/A'}`);
+      console.log(`    ${event.type}: Error - Status: ${webhookResult.status || 'N/A'}`);
       if (webhookResult.error) {
         console.log(`       Error: ${webhookResult.error}`);
       }
@@ -364,18 +364,18 @@ async function main() {
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  console.log(`\n📈 Resumen de inserción:`);
-  console.log(`   ✅ Exitosos: ${successCount}`);
-  console.log(`   ❌ Errores: ${errorCount}`);
-  console.log(`   📊 Total: ${allEvents.length}`);
+  console.log(`\nResumen de inserción:`);
+  console.log(`    Exitosos: ${successCount}`);
+  console.log(`    Errores: ${errorCount}`);
+  console.log(`    Total: ${allEvents.length}`);
 
-  console.log(`\n📋 Eventos por tipo:`);
+  console.log(`\nEventos por tipo:`);
   Object.entries(eventTypeCounts).forEach(([type, count]) => {
     console.log(`   ${type}: ${count} eventos`);
   });
 
   if (successCount > 0) {
-    console.log(`\n🎉 ¡Base de datos poblada exitosamente!`);
+    console.log(`\n¡Base de datos poblada exitosamente!`);
     console.log(`   Ahora puedes probar el hook useStoreAnalytics con datos reales.`);
     console.log(`   Los eventos procesados generarán automáticamente las analíticas correspondientes.`);
   }
@@ -398,11 +398,11 @@ async function main() {
 
   const expiredVerification = verifyTestToken(expiredToken);
   if (!expiredVerification.isValid) {
-    console.log(`✅ Token expirado correctamente rechazado: ${expiredVerification.error}`);
+    console.log(`Token expirado correctamente rechazado: ${expiredVerification.error}`);
   }
 
   // 6. Probar token con audiencia incorrecta
-  console.log('\n5. Probando token con audiencia incorrecta...');
+  console.log('\nProbando token con audiencia incorrecta...');
   const wrongAudienceToken = jwt.sign(
     {
       storeId: '9441866',
@@ -418,10 +418,10 @@ async function main() {
 
   const wrongAudienceVerification = verifyTestToken(wrongAudienceToken);
   if (!wrongAudienceVerification.isValid) {
-    console.log(`✅ Token con audiencia incorrecta rechazado: ${wrongAudienceVerification.error}`);
+    console.log(`Token con audiencia incorrecta rechazado: ${wrongAudienceVerification.error}`);
   }
 
-  console.log('\n🎉 Test completado!');
+  console.log('\nTest completado!');
 }
 
 // Ejecutar si es llamado directamente

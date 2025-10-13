@@ -1,4 +1,4 @@
-import { useSignIn } from '@/app/(setup-layout)/login/hooks/SignIn';
+import { useSignIn } from '@/app/(setup)/login/hooks/SignIn';
 import { act, renderHook } from '@testing-library/react';
 import { resendSignUpCode, signIn } from 'aws-amplify/auth';
 

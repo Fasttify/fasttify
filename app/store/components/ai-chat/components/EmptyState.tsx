@@ -1,6 +1,6 @@
 import { EmptyStateProps } from '@/app/store/components/ai-chat/types/chat-types';
 import { SUGGESTIONS } from '@/app/store/components/ai-chat/constants/chat-constants';
-import { Text, BlockStack, Card, Icon } from '@shopify/polaris';
+import { Text, BlockStack, Icon } from '@shopify/polaris';
 import { InfoIcon, StoreIcon, CircleUpIcon } from '@shopify/polaris-icons';
 import Orb from '@/app/store/components/ai-chat/components/Orb';
 
@@ -8,7 +8,7 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
   const suggestionIcons = [InfoIcon, StoreIcon, CircleUpIcon];
 
   return (
-    <Card>
+    <div className="bg-transparent">
       <BlockStack gap="400" align="center">
         <div className="relative w-full flex justify-center">
           <Orb rotateOnHover={false} hoverIntensity={0.0} />
@@ -19,7 +19,7 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
             Asistente de eCommerce
           </Text>
           <Text variant="bodyMd" as="p" tone="subdued">
-            ¿Qué te gustaría saber sobre ecommerce o dropshipping?
+            ¿En qué puedo ayudarte con tu tienda online?
           </Text>
         </div>
 
@@ -31,19 +31,19 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
           </div>
           <div className="space-y-3">
             {SUGGESTIONS.map((suggestion, index) => (
-              <div
+              <button
                 key={index}
                 onClick={() => onSuggestionClick(suggestion.text)}
-                className="bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 p-3 flex items-center justify-between cursor-pointer">
-                <div className="flex items-center">
-                  <Icon source={suggestionIcons[index % suggestionIcons.length]} tone="base" />
-                  <span className="text-left ml-3 text-blue-500">{suggestion.text}</span>
+                className="w-full bg-gray-50 hover:bg-gray-100 rounded-lg px-4 py-3 text-left transition-all duration-200 ease-out border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">{suggestion.text}</span>
+                  <Icon source={suggestionIcons[index % suggestionIcons.length]} tone="subdued" />
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
       </BlockStack>
-    </Card>
+    </div>
   );
 }

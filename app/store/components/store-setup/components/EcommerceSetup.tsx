@@ -4,7 +4,7 @@ import { BlockStack, Box, Card, Loading, Page } from '@shopify/polaris';
 import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { useUserStoreData } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { useUserStoreData } from '@/app/(setup)/first-steps/hooks/useUserStoreData';
 import { PricingDrawer } from '@/app/store/components/store-setup/components/PricingDrawer';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { getStoreId } from '@/utils/client/store-utils';

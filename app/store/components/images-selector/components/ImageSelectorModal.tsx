@@ -9,9 +9,11 @@ const ImageGallery = lazy(() => import('./ImageGallery'));
 const SearchAndFilters = lazy(() => import('./SearchAndFilters'));
 const UploadDropZone = lazy(() => import('./UploadDropZone'));
 
-// Hooks
+// Hooks y utilidades
 import { useImageSelection } from '@/app/store/components/images-selector/hooks/useImageSelection';
 import { useImageUpload } from '@/app/store/components/images-selector/hooks/useImageUpload';
+import { filterAndSortImages, getFilterStats } from '../utils/filterUtils';
+import type { FilterState } from '../hooks/useImageFilters';
 
 interface ImageSelectorModalProps {
   open: boolean;
@@ -29,6 +31,14 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
   allowMultipleSelection = false,
 }: ImageSelectorModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState<FilterState>({
+    searchTerm: '',
+    fileTypes: [],
+    fileSizes: [],
+    usedIn: [],
+    products: [],
+    sortBy: 'date-asc',
+  });
   const s3Options = useMemo(() => ({ limit: 18 }), []);
   const { showToast } = useToast();
 
@@ -36,11 +46,20 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
   const { images, loading, error, uploadImages, deleteImages, fetchMoreImages, loadingMore, nextContinuationToken } =
     useS3ImagesWithOperations(open ? s3Options : { limit: 0 });
 
+  // Filtrar y ordenar imágenes
+  const filteredImages = useMemo(() => {
+    return filterAndSortImages(images, filters);
+  }, [images, filters]);
+
+  const filterStats = useMemo(() => {
+    return getFilterStats(images, filteredImages);
+  }, [images, filteredImages]);
+
   const { selectedImage, handleImageSelect, getSelectedImages, removeFromSelection, addToSelection } =
     useImageSelection({
       initialSelectedImage,
       allowMultipleSelection,
-      images,
+      images: filteredImages,
     });
 
   const { isUploading, uploadProgress, handleDrop, resetUploadState } = useImageUpload({
@@ -58,11 +77,6 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
     },
     onUploadError: () => {},
   });
-
-  const filteredImages = useMemo(
-    () => images.filter((img) => img.filename.toLowerCase().includes(searchTerm.toLowerCase())),
-    [images, searchTerm]
-  );
 
   const handleConfirm = useCallback(() => {
     const selectedImages = getSelectedImages();
@@ -141,9 +155,22 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
     [nextContinuationToken, loadingMore, loading, fetchMoreImages]
   );
 
+  const handleFiltersChange = useCallback((newFilters: FilterState) => {
+    setFilters(newFilters);
+  }, []);
+
   const handleModalClose = useCallback(() => {
     // Limpiar estado al cerrar
     resetUploadState();
+    setSearchTerm('');
+    setFilters({
+      searchTerm: '',
+      fileTypes: [],
+      fileSizes: [],
+      usedIn: [],
+      products: [],
+      sortBy: 'date-desc',
+    });
     onOpenChange(false);
   }, [onOpenChange, resetUploadState]);
 
@@ -164,7 +191,7 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
       size="large"
       open={open}
       onClose={handleModalClose}
-      title="Seleccionar imagen"
+      title={`Seleccionar imagen${filterStats.isFiltered ? ` (${filterStats.filteredCount}/${filterStats.totalImages})` : ''}`}
       primaryAction={{
         content: 'Confirmar',
         onAction: handleConfirm,
@@ -176,7 +203,7 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
           onAction: handleModalClose,
         },
       ]}>
-      <Scrollable onScroll={handleScroll} style={{ height: '75vh', overflowY: 'auto' }}>
+      <Scrollable onScroll={handleScroll} style={{ height: '75vh', overflowY: 'auto', overflowX: 'hidden' }}>
         <Modal.Section>
           <BlockStack gap="400">
             {/* Solo mostrar banner para errores críticos de carga */}
@@ -188,7 +215,12 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
 
             {/* Lazy load de SearchAndFilters */}
             <Suspense>
-              <SearchAndFilters searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+              <SearchAndFilters
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                onFiltersChange={handleFiltersChange}
+                images={images}
+              />
             </Suspense>
 
             {/* Lazy load de UploadDropZone */}

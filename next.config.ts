@@ -2,6 +2,11 @@ import type { NextConfig } from 'next';
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
+  // TypeScript optimizations - disable type checking in build
+  typescript: {
+    ignoreBuildErrors: true, // Disable type checking during build
+  },
+
   serverExternalPackages: [
     '@aws-sdk/client-acm',
     '@aws-sdk/client-bedrock-runtime',
@@ -20,6 +25,8 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 
     unoptimized: process.env.NODE_ENV === 'development',
+
+    qualities: [25, 50, 75, 85, 90, 95, 100],
 
     localPatterns: [
       {

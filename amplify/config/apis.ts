@@ -13,6 +13,7 @@ export interface ApiResources {
   checkStoreDomainApi: RestApi;
   storeImagesApi: RestApi;
   bulkEmailApi: RestApi;
+  storeLimitsApi: RestApi;
   apiRestPolicy: Policy;
 }
 
@@ -120,6 +121,26 @@ export function createRestApis(stack: Stack, backend: any): ApiResources {
   emailResource.addResource('test-email').addMethod('POST', bulkEmailIntegration);
 
   /**
+   * API para Validar Límites de Tiendas
+   */
+  const storeLimitsApi = new RestApi(stack, 'StoreLimitsApi', {
+    restApiName: `StoreLimitsApi-${stageName}`,
+    deploy: true,
+    deployOptions: deployConfig,
+    defaultCorsPreflightOptions: corsConfig,
+  });
+
+  const storeLimitsIntegration = new LambdaIntegration(backend.validateStoreLimits.resources.lambda);
+
+  const storeLimitsResource = storeLimitsApi.root.addResource('validate-limits', {
+    defaultMethodOptions: {
+      authorizationType: isProduction ? AuthorizationType.IAM : AuthorizationType.NONE,
+    },
+  });
+
+  storeLimitsResource.addMethod('POST', storeLimitsIntegration);
+
+  /**
    * Política de IAM para Invocar las APIs
    */
   const apiRestPolicy = new Policy(stack, 'RestApiPolicy', {
@@ -132,6 +153,7 @@ export function createRestApis(stack: Stack, backend: any): ApiResources {
           `${checkStoreDomainApi.arnForExecuteApi('*', '/check-store-domain', stageName)}`,
           `${storeImagesApi.arnForExecuteApi('*', '/store-images', stageName)}`,
           `${bulkEmailApi.arnForExecuteApi('*', '/email/*', stageName)}`,
+          `${storeLimitsApi.arnForExecuteApi('*', '/validate-limits', stageName)}`,
         ],
       }),
     ],
@@ -143,6 +165,7 @@ export function createRestApis(stack: Stack, backend: any): ApiResources {
     checkStoreDomainApi,
     storeImagesApi,
     bulkEmailApi,
+    storeLimitsApi,
     apiRestPolicy,
   };
 }

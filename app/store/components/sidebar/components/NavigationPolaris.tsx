@@ -101,14 +101,16 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             url: `/store/${storeId}/setup`,
             label: 'Tienda Online',
             displayActionsOnHover: true,
-            secondaryAction: {
-              accessibilityLabel: 'Ver tienda online',
-              icon: ViewIcon,
-              tooltip: {
-                content: 'Ver tienda online',
+            secondaryActions: [
+              {
+                accessibilityLabel: 'Ver tienda online',
+                icon: ViewIcon,
+                tooltip: {
+                  content: 'Ver tienda online',
+                },
+                onClick: handleViewStore,
               },
-              onClick: handleViewStore,
-            },
+            ],
             icon: StoreIcon,
             selected: pathname.includes('/setup'),
             subNavigationItems: [

@@ -25,17 +25,42 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'pnpm'
 
-      - name: Cache dependencies and build
+      - name: Set Node.js optimization environment variables
+        run: |
+          echo "TS_NODE_TRANSPILE_ONLY=true" >> $GITHUB_ENV
+          echo "TS_NODE_FILES=false" >> $GITHUB_ENV
+
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.pnpm-store
             ${{ github.workspace }}/node_modules
-            ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-pnpm-
+
+      - name: Cache TypeScript build info
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.tsbuildinfo
+          key: ${{ runner.os }}-ts-${{ hashFiles('**/tsconfig*.json') }}-${{ hashFiles('**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-ts-${{ hashFiles('**/tsconfig*.json') }}-
+            ${{ runner.os }}-ts-
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('**/next.config.*', '**/package.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-next-${{ hashFiles('**/next.config.*', '**/package.json') }}-
+            ${{ runner.os }}-next-
 
       - name: Create dummy amplify_outputs.json
         run: |
@@ -74,5 +99,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build project
-        run: pnpm run build
+      - name: Type check (separate)
+        run: |
+          echo "Running type check..."
+          time pnpm run type-check:fast
+          echo "Type check completed"
+
+      - name: Build project (fast)
+        run: |
+          echo "Running Next.js build (no type checking)..."
+          time pnpm run build:fast
+          echo "Build completed"

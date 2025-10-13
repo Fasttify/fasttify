@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUserStoreData, PaymentGatewayType } from '@/app/(setup-layout)/first-steps/hooks/useUserStoreData';
+import { useUserStoreData, PaymentGatewayType } from '@/app/(setup)/first-steps/hooks/useUserStoreData';
 import { useAuth } from '@/context/hooks/useAuth';
 import { useToast } from '@/app/store/context/ToastContext';
 

@@ -12,7 +12,7 @@ export function MessageList({
   onLoadMore,
 }: MessageListProps) {
   return (
-    <div className="space-y-4 py-2">
+    <div className="space-y-1 py-4">
       {/* Botón de cargar más mensajes al inicio */}
       {hasMoreMessages && onLoadMore && (
         <div className="flex justify-center py-4">

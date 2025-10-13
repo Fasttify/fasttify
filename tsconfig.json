@@ -3,9 +3,15 @@
   "compilerOptions": {
     "noEmit": true,
     "forceConsistentCasingInFileNames": false,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "tsBuildInfoFile": ".tsbuildinfo/tsbuildinfo",
+    "assumeChangesOnlyAffectDirectDependencies": true
   },
-  "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": false
+  },
+  "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx", "**/*.test.ts"],
   "exclude": [
     "node_modules",
     ".next/cache/**/*",

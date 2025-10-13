@@ -3,6 +3,7 @@ import { customMessage } from './custom-message/resource';
 import { webHookPlan } from '../functions/webHookPlan/resource';
 import { postConfirmation } from './post-confirmation/resource';
 import { planScheduler } from '../functions/planScheduler/resource';
+import { validateStoreLimits } from '../functions/validateStoreLimits/resource';
 
 /**
  * Define and configure your auth resource
@@ -82,5 +83,6 @@ export const auth = defineAuth({
     allow.resource(webHookPlan).to(['updateUserAttributes', 'getUser']),
     allow.resource(planScheduler).to(['updateUserAttributes', 'getUser']),
     allow.resource(postConfirmation).to(['updateUserAttributes', 'getUser']),
+    allow.resource(validateStoreLimits).to(['updateUserAttributes', 'getUser']),
   ],
 });

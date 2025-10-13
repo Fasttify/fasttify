@@ -19,6 +19,7 @@ export interface BackendOutputs {
     CheckStoreDomainApi: ApiOutput;
     StoreImagesApi: ApiOutput;
     BulkEmailApi: ApiOutput;
+    StoreLimitsApi: ApiOutput;
   };
   EmailQueues: {
     emailQueueUrl: string;
@@ -42,6 +43,7 @@ export function createBackendOutputs(
   checkStoreDomainApi: RestApi,
   storeImagesApi: RestApi,
   bulkEmailApi: RestApi,
+  storeLimitsApi: RestApi,
   emailQueue: Queue,
   highPriorityEmailQueue: Queue
 ): BackendOutputs {
@@ -79,6 +81,12 @@ export function createBackendOutputs(
         endpoint: bulkEmailApi.url,
         region: Stack.of(bulkEmailApi).region,
         apiName: bulkEmailApi.restApiName,
+        stage: stageName,
+      },
+      StoreLimitsApi: {
+        endpoint: storeLimitsApi.url,
+        region: Stack.of(storeLimitsApi).region,
+        apiName: storeLimitsApi.restApiName,
         stage: stageName,
       },
     },

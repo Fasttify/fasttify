@@ -90,7 +90,7 @@ export async function handleAuthenticationMiddleware(request: NextRequest, respo
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  return response;
+  return null; // Permitir que el middleware continúe
 }
 
 export async function handleAuthenticatedRedirectMiddleware(request: NextRequest, response: NextResponse) {

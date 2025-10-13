@@ -16,6 +16,7 @@ import { managePaymentKeys } from './functions/managePaymentKeys/resource';
 import { planScheduler } from './functions/planScheduler/resource';
 import { storeImages } from './functions/storeImages/resource';
 import { webHookPlan } from './functions/webHookPlan/resource';
+import { validateStoreLimits } from './functions/validateStoreLimits/resource';
 import { storage } from './storage/resource';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
@@ -54,6 +55,7 @@ const backend = defineBackend({
   storeImages,
   managePaymentKeys,
   createProduct,
+  validateStoreLimits,
 });
 
 // Aplicar permisos de Bedrock para funciones de IA
@@ -102,8 +104,15 @@ applyDynamoDbPermissions(backend);
 const apiStack = backend.createStack('api-stack');
 
 // Crear todas las APIs REST
-const { subscriptionApi, webHookApi, checkStoreDomainApi, storeImagesApi, bulkEmailApi, apiRestPolicy } =
-  createRestApis(apiStack, backend);
+const {
+  subscriptionApi,
+  webHookApi,
+  checkStoreDomainApi,
+  storeImagesApi,
+  bulkEmailApi,
+  storeLimitsApi,
+  apiRestPolicy,
+} = createRestApis(apiStack, backend);
 
 // Aplicar políticas de acceso a las APIs
 applyApiAccessPolicies(backend, apiRestPolicy);
@@ -117,6 +126,7 @@ const backendOutputs = createBackendOutputs(
   checkStoreDomainApi,
   storeImagesApi,
   bulkEmailApi,
+  storeLimitsApi,
   emailQueue,
   highPriorityEmailQueue
 );

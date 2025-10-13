@@ -28,10 +28,14 @@ frontend:
         - env | grep -e LAMBDA_EMAIL_BULK >> .env.production
         - env | grep -e CLOUDFRONT_KEY_PAIR_ID >> .env.production
         - env | grep -e CLOUDFRONT_PRIVATE_KEY >> .env.production
+        - echo "TS_NODE_TRANSPILE_ONLY=true" >> .env.production
+        - echo "TS_NODE_FILES=false" >> .env.production
         - pnpm install --frozen-lockfile
     build:
       commands:
-        - pnpm run build
+        - echo "Running optimized build for Amplify..."
+        - pnpm run build:fast
+        - echo "Build completed"
   artifacts:
     baseDirectory: .next
     files:
@@ -40,5 +44,6 @@ frontend:
     paths:
       - .amplify/**/*
       - .next/cache/**/*
+      - .tsbuildinfo/**/*
       - ~/.pnpm-store/**/*
       - node_modules/**/*

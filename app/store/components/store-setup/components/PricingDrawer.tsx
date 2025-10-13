@@ -3,8 +3,8 @@ import { Modal, Text, Button, Box, Card, Badge, BlockStack } from '@shopify/pola
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/app/store/context/ToastContext';
-import { plans } from '@/app/(main-layout)/pricing/components/plans';
-import { faqItems } from '@/app/(main-layout)/pricing/components/FAQItem';
+import { plans } from '@/app/(www)/pricing/components/plans';
+import { faqItems } from '@/app/(www)/pricing/components/FAQItem';
 import { useIsClient } from '@/hooks/ui/useIsClient';
 import { Amplify } from 'aws-amplify';
 import { post } from 'aws-amplify/api';

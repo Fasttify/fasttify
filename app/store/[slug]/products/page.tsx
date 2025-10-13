@@ -1,3 +1,4 @@
+// Test comment for cache incremental verification
 import ProductsClient from './ProductsClient';
 
 export async function generateMetadata({ params: _params }: { params: Promise<{ slug: string }> }) {

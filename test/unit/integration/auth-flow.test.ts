@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/middlewares/auth/auth';
+import { getSession, type AuthSession } from '@/middlewares/auth/auth';
 import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
 import { fetchAuthSession } from 'aws-amplify/auth/server';
 
@@ -31,9 +31,8 @@ describe('Auth Flow Integration Tests', () => {
   let mockRequest: NextRequest;
   let mockResponse: NextResponse;
 
-  const mockSession = {
+  const mockSession: AuthSession = {
     tokens: {
-      accessToken: { toString: () => 'mock-access-token' },
       idToken: { payload: { 'cognito:username': 'test-user-123', 'custom:plan': 'Royal' } },
     },
   };
@@ -152,9 +151,9 @@ describe('Auth Flow Integration Tests', () => {
   describe('Consistencia de datos entre middlewares', () => {
     it('debe mantener consistencia de datos entre middlewares', async () => {
       // Simular múltiples middlewares que acceden a la misma sesión
-      const session1 = await getSession(mockRequest, mockResponse, false);
-      const session2 = await getSession(mockRequest, mockResponse, false);
-      const session3 = await getSession(mockRequest, mockResponse, false);
+      const session1: AuthSession | null = await getSession(mockRequest, mockResponse, false);
+      const session2: AuthSession | null = await getSession(mockRequest, mockResponse, false);
+      const session3: AuthSession | null = await getSession(mockRequest, mockResponse, false);
 
       // Verificar que todos los middlewares ven los mismos datos
       expect(session1).toEqual(session2);

@@ -17,6 +17,17 @@
 
 import { generateClient } from 'aws-amplify/data';
 import type { FullSchema, StoreSchema } from '@/data-schema';
+import outputs from '@/amplify_outputs.json';
+import { Amplify } from 'aws-amplify';
+Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+});
 
 // Alias de tipos explícitos para evitar tipos inferidos gigantes en la emisión
 export type FullClient = ReturnType<typeof generateClient<FullSchema>>;

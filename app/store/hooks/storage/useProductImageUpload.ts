@@ -1,11 +1,7 @@
-import outputs from '@/amplify_outputs.json';
 import { getCdnUrlForKey } from '@/utils/client';
-import { Amplify } from 'aws-amplify';
 import { uploadData } from 'aws-amplify/storage';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
-Amplify.configure(outputs);
 
 export interface UploadedImage {
   url: string;
@@ -34,7 +30,7 @@ export function useProductImageUpload() {
         data: file,
       }).result;
 
-      // Construir la URL pública usando la utilidad de CDN
+      // Construir la URL pública usando la utilidad CDN
       const publicUrl = getCdnUrlForKey(result.path);
 
       return {

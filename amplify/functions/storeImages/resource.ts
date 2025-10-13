@@ -3,6 +3,8 @@ import { defineFunction, secret } from '@aws-amplify/backend';
 export const storeImages = defineFunction({
   name: 'storeImages',
   entry: 'handler.ts',
+  timeoutSeconds: 60,
+  memoryMB: 1024,
   resourceGroupName: 'store-management',
   environment: {
     BUCKET_NAME: secret('BUCKET_NAME'),
