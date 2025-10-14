@@ -22,7 +22,7 @@ const BUCKET_NAME = process.env.BUCKET_NAME;
 const REGION = process.env.REGION_BUCKET || 'us-east-2';
 const CLOUDFRONT_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID;
 const BASE_TEMPLATE_PREFIX = 'base-templates/default/';
-const TEMPLATE_DIR = join(process.cwd(), 'template');
+const TEMPLATE_DIR = join(process.cwd(), 'packages/example-themes/fasttify/theme');
 const FILTER_MODULES_DIR = join(process.cwd(), 'packages/liquid-forge/liquid/tags/filters/js');
 const FILTER_MODULES_PREFIX = 'assets/';
 
