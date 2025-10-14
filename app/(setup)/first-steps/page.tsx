@@ -9,6 +9,18 @@ import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, InfoIcon, Store, User } from 'lucide-react';
 import Image from 'next/image';
+import outputs from '@/amplify_outputs.json';
+import { Amplify } from 'aws-amplify';
+
+Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+});
 
 export default function FirstStepsPage() {
   const {

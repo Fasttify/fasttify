@@ -1,6 +1,18 @@
 import { useState, useCallback } from 'react';
 import { post } from 'aws-amplify/api';
 import useAuthStore from '@/context/core/userStore';
+import outputs from '@/amplify_outputs.json';
+import { Amplify } from 'aws-amplify';
+
+Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.APIs,
+  },
+});
 
 /**
  * Hook personalizado para validar límites de creación de tiendas.
