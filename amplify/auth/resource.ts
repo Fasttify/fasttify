@@ -1,20 +1,19 @@
 import { defineAuth, secret } from '@aws-amplify/backend';
-// import { customMessage } from './custom-message/resource';
-// import { webHookPlan } from '../functions/webHookPlan/resource';
-// import { postConfirmation } from './post-confirmation/resource';
-// import { planScheduler } from '../functions/planScheduler/resource';
-// import { validateStoreLimits } from '../functions/validateStoreLimits/resource';
+import { customMessage } from './custom-message/resource';
+import { webHookPlan } from '../functions/webHookPlan/resource';
+import { postConfirmation } from './post-confirmation/resource';
+import { planScheduler } from '../functions/planScheduler/resource';
+import { validateStoreLimits } from '../functions/validateStoreLimits/resource';
 
 /**
  * Define and configure your auth resource
  * @see https://docs.amplify.aws/gen2/build-a-backend/auth
  */
 export const auth = defineAuth({
-  name: 'auth-v1',
-  // triggers: {
-  //   customMessage,
-  //   postConfirmation,
-  // },
+  triggers: {
+    customMessage,
+    postConfirmation,
+  },
 
   loginWith: {
     email: true,
@@ -80,10 +79,10 @@ export const auth = defineAuth({
     },
   },
 
-  // access: (allow) => [
-  //   allow.resource(webHookPlan).to(['updateUserAttributes', 'getUser']),
-  //   allow.resource(planScheduler).to(['updateUserAttributes', 'getUser']),
-  //   allow.resource(postConfirmation).to(['updateUserAttributes', 'getUser']),
-  //   allow.resource(validateStoreLimits).to(['updateUserAttributes', 'getUser']),
-  // ],
+  access: (allow) => [
+    allow.resource(webHookPlan).to(['updateUserAttributes', 'getUser']),
+    allow.resource(planScheduler).to(['updateUserAttributes', 'getUser']),
+    allow.resource(postConfirmation).to(['updateUserAttributes', 'getUser']),
+    allow.resource(validateStoreLimits).to(['updateUserAttributes', 'getUser']),
+  ],
 });

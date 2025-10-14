@@ -1,6 +1,6 @@
 import { defineBackend } from '@aws-amplify/backend';
-// import { postConfirmation } from './auth/post-confirmation/resource';
-// import { customMessage } from './auth/custom-message/resource';
+import { postConfirmation } from './auth/post-confirmation/resource';
+import { customMessage } from './auth/custom-message/resource';
 import { auth } from './auth/resource';
 import {
   data,
@@ -44,8 +44,8 @@ const backend = defineBackend({
   createSubscription,
   webHookPlan,
   planScheduler,
-  // postConfirmation,
-  // customMessage,
+  postConfirmation,
+  customMessage,
   generateHaikuFunction,
   checkStoreDomain,
   generateProductDescriptionFunction,

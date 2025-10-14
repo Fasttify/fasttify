@@ -24,10 +24,10 @@ export function applyBedrockPermissions(backend: any): void {
  * Aplica permisos de SES para envío de emails
  */
 export function applySesPermissions(backend: any): void {
-  // backend.postConfirmation.resources.lambda.addToRolePolicy(sesPolicyStatement);
+  backend.postConfirmation.resources.lambda.addToRolePolicy(sesPolicyStatement);
   backend.bulkEmailAPI.resources.lambda.addToRolePolicy(sesPolicyStatement);
   backend.bulkEmailProcessor.resources.lambda.addToRolePolicy(sesPolicyStatement);
-  // backend.customMessage.resources.lambda.addToRolePolicy(sesPolicyStatement);
+  backend.customMessage.resources.lambda.addToRolePolicy(sesPolicyStatement);
 }
 
 /**
