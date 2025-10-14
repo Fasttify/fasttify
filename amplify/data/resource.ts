@@ -1,5 +1,5 @@
 import { type ClientSchema, a, defineData, defineFunction } from '@aws-amplify/backend';
-import { postConfirmation } from '../auth/post-confirmation/resource';
+// import { postConfirmation } from '../auth/post-confirmation/resource';
 import { checkStoreDomain } from '../functions/checkStoreDomain/resource';
 import { createStoreTemplate } from '../functions/createStoreTemplate/resource';
 import { managePaymentKeys } from '../functions/managePaymentKeys/resource';
@@ -106,7 +106,7 @@ export const storeSchema = a
     StoreAnalytics: storeAnalyticsModel,
   })
   .authorization((allow) => [
-    allow.resource(postConfirmation),
+    // allow.resource(postConfirmation),
     allow.resource(webHookPlan),
     allow.resource(planScheduler),
     allow.resource(checkStoreDomain),
@@ -320,7 +320,7 @@ const fullSchema = a
     StoreAnalytics: storeAnalyticsModel,
   })
   .authorization((allow) => [
-    allow.resource(postConfirmation),
+    // allow.resource(postConfirmation),
     allow.resource(webHookPlan),
     allow.resource(planScheduler),
     allow.resource(checkStoreDomain),
