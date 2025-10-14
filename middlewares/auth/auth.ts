@@ -26,6 +26,8 @@ export interface AuthSession {
       payload?: {
         'cognito:username'?: string;
         'custom:plan'?: string;
+        email?: string;
+        nickname?: string;
       };
     };
   };

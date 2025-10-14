@@ -23,6 +23,7 @@ jest.mock('node-cache', () => {
   return jest.fn().mockImplementation(() => ({
     get: jest.fn(),
     set: jest.fn(),
+    del: jest.fn(),
     flushAll: jest.fn(),
   }));
 });

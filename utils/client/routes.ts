@@ -60,6 +60,10 @@ export const routes = {
       main: (storeId: string) => `/store/${storeId}/themes`,
       edit: (storeId: string, themeId: string) => `/store/${storeId}/themes/${themeId}`,
     },
+
+    accessAccount: {
+      checkout: (storeId: string) => `/store/${storeId}/access_account/checkout?no_redirect=true`,
+    },
   },
 
   auth: {

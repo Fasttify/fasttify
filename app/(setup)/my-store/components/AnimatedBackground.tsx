@@ -7,13 +7,17 @@ interface AnimatedBackgroundProps {
   backgroundColor?: string;
   shapeColor1?: string;
   shapeColor2?: string;
+  containerClassName?: string;
+  isModal?: boolean;
 }
 
 export function AnimatedBackground({
   minWidth = '1024px',
   backgroundColor = 'rgba(20, 20, 20, 1)',
-  shapeColor1 = 'rgba(255, 123, 142, 1)',
-  shapeColor2 = 'rgba(123, 255, 142, 1)',
+  shapeColor1 = 'rgba(142, 123, 255, 1)',
+  shapeColor2 = 'rgba(68, 242, 235, 1)',
+  containerClassName = '',
+  isModal = false,
 }: AnimatedBackgroundProps) {
   const [shouldRender, setShouldRender] = useState(false);
 
@@ -62,7 +66,7 @@ export function AnimatedBackground({
           75% {
             transform: translate(-30%, 40%) skew(15deg, 15deg) rotate(240deg);
           }
-          100% {
+          to {
             transform: translate(-30%, 40%) rotate(-20deg);
           }
         }
@@ -83,20 +87,21 @@ export function AnimatedBackground({
           80% {
             transform: translate(10%, -30%) rotate(180deg);
           }
-          100% {
+          to {
             transform: translate(20%, -40%) rotate(340deg);
           }
         }
 
         .animated-wrapper {
-          position: fixed;
+          position: ${isModal ? 'absolute' : 'fixed'};
           top: 0;
           left: 0;
           overflow: hidden;
           width: 100%;
           height: 100%;
           background: var(--background-color);
-          z-index: -1;
+          z-index: ${isModal ? '1' : '-1'};
+          border-radius: ${isModal ? '1rem' : '0'};
         }
 
         .shape-container {
@@ -182,7 +187,7 @@ export function AnimatedBackground({
         }
       `}</style>
 
-      <div className="animated-wrapper">
+      <div className={`animated-wrapper ${containerClassName}`}>
         <div className="shape-container">
           <div className="shape"></div>
           <div className="shape"></div>
