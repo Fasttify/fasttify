@@ -16,6 +16,7 @@
 
 import { getSession, handleAuthenticationMiddleware, type AuthSession } from '@/middlewares/auth/auth';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
+import { getLastVisitedStore } from '@/lib/cookies/last-store';
 import { NextRequest, NextResponse } from 'next/server';
 
 const STORE_LIMITS = {
@@ -23,12 +24,6 @@ const STORE_LIMITS = {
   Majestic: 3,
   Royal: 1,
 };
-
-async function hasValidPlan(session: AuthSession) {
-  const userPlan = session.tokens?.idToken?.payload?.['custom:plan'] as string | undefined;
-  const allowedPlans = ['Royal', 'Majestic', 'Imperial'];
-  return userPlan && allowedPlans.includes(userPlan);
-}
 
 async function checkStoreLimit(userId: string, plan: string) {
   try {
@@ -52,6 +47,13 @@ async function checkStoreLimit(userId: string, plan: string) {
 }
 
 export async function handleStoreMiddleware(request: NextRequest, response: NextResponse) {
+  const path = request.nextUrl.pathname;
+
+  // Excluir rutas de checkout completamente - no validar nada
+  if (path.includes('/access_account/checkout') || path.includes('/checkout')) {
+    return response;
+  }
+
   // Verificar autenticación usando el middleware centralizado
   const authResponse = await handleAuthenticationMiddleware(request, response);
   if (authResponse) {
@@ -63,24 +65,67 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
 
   const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
   const userPlan = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'];
-  const hasValidSubscription = await hasValidPlan(session as AuthSession);
 
-  if (!hasValidSubscription) {
-    return NextResponse.redirect(new URL('/pricing', request.url));
+  if (!userId) {
+    return NextResponse.redirect(new URL('/login', request.url), { status: 302 });
   }
 
-  const path = request.nextUrl.pathname;
+  // Verificar plan de suscripción - misma lógica que storeAccess.ts
+  const validPlans = ['Royal', 'Majestic', 'Imperial'];
+
+  if (!userPlan || !validPlans.includes(userPlan)) {
+    // Usuario con plan 'free' o sin plan - verificar si tiene suscripción en DB
+    try {
+      const { data: subscriptions } = await cookiesClient.models.UserSubscription.listUserSubscriptionByUserId({
+        userId,
+      });
+
+      if (subscriptions && subscriptions.length > 0) {
+        // Tiene suscripción en DB pero plan 'free' - necesita reactivar
+        const lastStoreId = getLastVisitedStore(request);
+        if (lastStoreId) {
+          return NextResponse.redirect(new URL(`/store/${lastStoreId}/access_account/checkout`, request.url), {
+            status: 302,
+          });
+        } else {
+          return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
+        }
+      } else {
+        // No tiene suscripción - usuario nuevo
+        const lastStoreId = getLastVisitedStore(request);
+        if (lastStoreId) {
+          return NextResponse.redirect(new URL(`/store/${lastStoreId}/access_account/checkout`, request.url), {
+            status: 302,
+          });
+        } else {
+          return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      // En caso de error, redirigir a última tienda
+      const lastStoreId = getLastVisitedStore(request);
+      if (lastStoreId) {
+        return NextResponse.redirect(new URL(`/store/${lastStoreId}/access_account/checkout`, request.url), {
+          status: 302,
+        });
+      } else {
+        return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
+      }
+    }
+  }
+
   const { hasStores, canCreateMore } = await checkStoreLimit(userId as string, userPlan as string);
 
   if (path === '/first-steps') {
     if (hasStores && !canCreateMore) {
-      return NextResponse.redirect(new URL('/my-store', request.url));
+      return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
     }
   }
 
   if (path === '/my-store') {
     if (!hasStores) {
-      return NextResponse.redirect(new URL('/first-steps', request.url));
+      return NextResponse.redirect(new URL('/first-steps', request.url), { status: 302 });
     }
   }
 

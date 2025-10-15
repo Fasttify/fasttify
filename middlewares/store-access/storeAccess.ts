@@ -16,6 +16,7 @@
 
 import { getSession, handleAuthenticationMiddleware, type AuthSession } from '@/middlewares/auth/auth';
 import { cookiesClient } from '@/utils/client/AmplifyUtils';
+import { getLastVisitedStore } from '@/lib/cookies/last-store';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -23,6 +24,9 @@ import { NextRequest, NextResponse } from 'next/server';
  * Verifica que el usuario tenga acceso a la tienda solicitada y un plan de suscripción válido
  */
 export async function handleStoreAccessMiddleware(request: NextRequest) {
+  // Extraer el ID de la tienda de la URL
+  const path = request.nextUrl.pathname;
+
   // Verificar autenticación usando el middleware centralizado
   const authResponse = await handleAuthenticationMiddleware(request, NextResponse.next());
   if (authResponse) {
@@ -32,32 +36,107 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
   // Obtener la sesión del usuario (ya validada)
   const session = await getSession(request, NextResponse.next(), false);
 
-  // Verificar plan de suscripción válido ANTES de verificar acceso a tienda
-  const userPlan: string | undefined = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'] as
-    | string
-    | undefined;
-  const allowedPlans = ['Royal', 'Majestic', 'Imperial'];
-
-  if (!userPlan || !allowedPlans.includes(userPlan)) {
-    return NextResponse.redirect(new URL('/pricing', request.url));
-  }
-
-  // Obtener el ID del usuario desde la sesión
+  // Obtener el ID del usuario y plan desde la sesión
   const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
+  const userPlan = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'] as string | undefined;
 
   if (!userId) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/login', request.url), { status: 302 });
   }
 
-  // Extraer el ID de la tienda de la URL
-  const path = request.nextUrl.pathname;
+  // Si es ruta de checkout, verificar que el usuario tenga el perfil correcto Y sea dueño de la tienda
+  if (path.includes('/access_account/checkout')) {
+    // Extraer el storeId de la URL
+    const storeIdMatch = path.match(/\/store\/([^\/]+)/);
+    if (!storeIdMatch || !storeIdMatch[1]) {
+      return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
+    }
+
+    const requestedStoreId = storeIdMatch[1];
+
+    // Si tiene plan válido, no debe estar aquí
+    const validPlans = ['Royal', 'Majestic', 'Imperial'];
+    if (userPlan && validPlans.includes(userPlan)) {
+      return NextResponse.redirect(new URL(`/store/${requestedStoreId}/home`, request.url), { status: 302 });
+    }
+
+    // Verificar que la tienda pertenece al usuario (CRÍTICO para seguridad)
+    try {
+      const { data: stores } = await cookiesClient.models.UserStore.listUserStoreByUserId(
+        {
+          userId: userId as string,
+        },
+        {
+          filter: {
+            storeId: { eq: requestedStoreId },
+          },
+          selectionSet: ['storeId'],
+        }
+      );
+
+      if (!stores || stores.length === 0) {
+        return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
+      }
+    } catch (error) {
+      console.error('Error verifying store ownership for checkout:', error);
+      return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
+    }
+
+    return NextResponse.next();
+  }
+
+  // Excluir otras rutas de checkout
+  if (path.includes('/checkout')) {
+    return NextResponse.next();
+  }
+
   const storeIdMatch = path.match(/\/store\/([^\/]+)/);
 
   if (!storeIdMatch || !storeIdMatch[1]) {
-    return NextResponse.redirect(new URL('/my-store', request.url));
+    return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
   }
 
   const requestedStoreId = storeIdMatch[1];
+
+  // Verificar plan de suscripción
+  const validPlans = ['Royal', 'Majestic', 'Imperial'];
+
+  if (!userPlan || !validPlans.includes(userPlan)) {
+    // Usuario con plan 'free' o sin plan - verificar si tiene suscripción en DB
+    try {
+      const { data: subscriptions } = await cookiesClient.models.UserSubscription.listUserSubscriptionByUserId({
+        userId,
+      });
+
+      if (subscriptions && subscriptions.length > 0) {
+        // Tiene suscripción en DB pero plan 'free' - necesita reactivar
+        return NextResponse.redirect(new URL(`/store/${requestedStoreId}/access_account/checkout`, request.url), {
+          status: 302,
+        });
+      } else {
+        // No tiene suscripción - usuario nuevo - redirigir a última tienda
+        const lastStoreId = getLastVisitedStore(request);
+        if (lastStoreId) {
+          return NextResponse.redirect(new URL(`/store/${lastStoreId}/access_account/checkout`, request.url), {
+            status: 302,
+          });
+        } else {
+          return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      // En caso de error, redirigir a última tienda
+      const lastStoreId = getLastVisitedStore(request);
+      if (lastStoreId) {
+        return NextResponse.redirect(new URL(`/store/${lastStoreId}/access_account/checkout`, request.url), {
+          status: 302,
+        });
+      } else {
+        return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
+      }
+    }
+  }
 
   try {
     // Verificar si la tienda pertenece al usuario
@@ -75,13 +154,13 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
 
     // Si la tienda no pertenece al usuario, redirigir a my-store
     if (!stores || stores.length === 0) {
-      return NextResponse.redirect(new URL('/my-store', request.url));
+      return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
     }
 
     // Si todo está bien (plan válido y tienda pertenece al usuario), permitir el acceso
     return NextResponse.next();
   } catch (error) {
     console.error('Error verifying store access:', error);
-    return NextResponse.redirect(new URL('/my-store', request.url));
+    return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
   }
 }

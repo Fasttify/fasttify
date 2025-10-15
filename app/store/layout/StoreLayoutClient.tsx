@@ -36,6 +36,7 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
 
   const [prefersReducedMotion, _setPrefersReducedMotion] = useState(false);
   const hideSidebar = pathname.includes('/editor') || pathname.includes('/profile');
+  const isCheckoutPage = pathname.includes('/access_account/checkout');
 
   return (
     <AppProvider i18n={esTranslations}>
@@ -44,6 +45,22 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
           <ConversationProvider>
             {hideSidebar ? (
               <div className="h-screen w-full overflow-hidden">{children}</div>
+            ) : isCheckoutPage ? (
+              <div className="relative">
+                {/* Layout completo con blur - Sidebar, TopBar y contenido */}
+                <div className="pointer-events-none" style={{ filter: 'blur(5px)' }}>
+                  <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
+                    <div className="rounded-lg shadow p-6">
+                      <h1 className="text-2xl font-bold text-gray-900 mb-4">Panel de Administración</h1>
+                      <p className="text-gray-600 mb-4">
+                        Este contenido está bloqueado hasta que renueves tu suscripción
+                      </p>
+                    </div>
+                  </PolarisLayout>
+                </div>
+                {/* Modal de checkout superpuesto */}
+                {children}
+              </div>
             ) : (
               <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
                 {children}

@@ -198,7 +198,7 @@ async function handleOAuthProtection(
 ): Promise<NextResponse | null> {
   if (request.nextUrl.pathname === PROTECTED_ROUTES.OAUTH_CALLBACK) {
     if (!isValidOAuthCallback(request.nextUrl)) {
-      return NextResponse.redirect(new URL(PROTECTED_ROUTES.LOGIN, request.url));
+      return NextResponse.redirect(new URL(PROTECTED_ROUTES.LOGIN, request.url), { status: 302 });
     }
   }
 
@@ -218,7 +218,7 @@ async function handleOrdersSubdomainProtection(
   const domainAnalysis = analyzeDomain(request);
 
   if (shouldBlockOrdersAccess(request.nextUrl.pathname, domainAnalysis.subdomain)) {
-    return NextResponse.redirect(new URL(PROTECTED_ROUTES.HOME, request.url));
+    return NextResponse.redirect(new URL(PROTECTED_ROUTES.HOME, request.url), { status: 302 });
   }
 
   return await next();

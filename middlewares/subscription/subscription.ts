@@ -33,7 +33,7 @@ export async function handleSubscriptionMiddleware(request: NextRequest, respons
   const allowedPlans = ['Royal', 'Majestic', 'Imperial'];
 
   if (!userPlan || !allowedPlans.includes(userPlan)) {
-    return NextResponse.redirect(new URL('/pricing', request.url));
+    return NextResponse.redirect(new URL('/checkout', request.url), { status: 302 });
   }
 
   return response;

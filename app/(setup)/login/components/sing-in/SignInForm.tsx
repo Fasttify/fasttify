@@ -59,6 +59,7 @@ export function SignInForm({ onForgotPassword, onVerificationNeeded, redirectPat
               <FormLabel>Correo electrónico</FormLabel>
               <FormControl>
                 <Input
+                  autoComplete="email"
                   placeholder="correo@ejemplo.com"
                   {...field}
                   onChange={(e) => {
@@ -92,6 +93,7 @@ export function SignInForm({ onForgotPassword, onVerificationNeeded, redirectPat
               <FormControl>
                 <div className="relative">
                   <Input
+                    autoComplete="current-password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Ingresa tu contraseña"
                     {...field}

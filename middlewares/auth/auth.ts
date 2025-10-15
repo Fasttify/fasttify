@@ -26,6 +26,8 @@ export interface AuthSession {
       payload?: {
         'cognito:username'?: string;
         'custom:plan'?: string;
+        email?: string;
+        nickname?: string;
       };
     };
   };
@@ -36,6 +38,15 @@ const sessionCache = new NodeCache({
   checkperiod: 60, // Verifica cada minuto
   useClones: false,
 });
+
+/**
+ * Limpia el caché de sesiones para un usuario específico
+ * Útil cuando se detectan problemas de autenticación
+ */
+export function clearUserSessionCache(request: NextRequest): void {
+  const cacheKey = getCacheKey(request);
+  sessionCache.del(cacheKey);
+}
 
 function getCacheKey(request: NextRequest): string {
   // Usar un hash simple de las cookies principales de autenticación
@@ -69,14 +80,20 @@ export async function getSession(request: NextRequest, response: NextResponse, f
         const session = await fetchAuthSession(contextSpec, { forceRefresh });
         const result = session.tokens !== undefined ? session : null;
 
-        // Guardar en cache solo si la sesión es válida
-        if (result && result.tokens) {
-          sessionCache.set(cacheKey, result);
+        // Limpiar caché si la sesión no es válida
+        if (!result || !result.tokens) {
+          sessionCache.del(cacheKey);
+          return null;
         }
+
+        // Guardar en cache solo si la sesión es válida
+        sessionCache.set(cacheKey, result);
 
         return result;
       } catch (error) {
         console.error('Error fetching user session:', error);
+        // Limpiar caché en caso de error
+        sessionCache.del(cacheKey);
         return null;
       }
     },
@@ -87,24 +104,31 @@ export async function handleAuthenticationMiddleware(request: NextRequest, respo
   const session = await getSession(request, response);
 
   if (!session) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    // Limpiar caché cuando no hay sesión válida
+    clearUserSessionCache(request);
+    return NextResponse.redirect(new URL('/login', request.url), { status: 302 });
   }
 
   return null; // Permitir que el middleware continúe
 }
 
 export async function handleAuthenticatedRedirectMiddleware(request: NextRequest, response: NextResponse) {
-  const session = await getSession(request, response, false);
+  // Siempre forzar refresh para verificar la sesión actual, especialmente importante
+  // cuando el usuario navega manualmente a /login
+  const session = await getSession(request, response, true);
 
-  if (session) {
+  if (session && typeof session === 'object' && 'tokens' in session && session.tokens) {
+    // Verificar que la sesión tiene tokens válidos antes de redirigir
     const lastStoreId = getLastVisitedStore(request);
 
     if (lastStoreId) {
-      return NextResponse.redirect(new URL(`/store/${lastStoreId}/home`, request.url));
+      return NextResponse.redirect(new URL(`/store/${lastStoreId}/home`, request.url), { status: 302 });
     } else {
-      return NextResponse.redirect(new URL('/my-store', request.url));
+      return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
     }
   }
 
+  // Si no hay sesión válida, limpiar caché y permitir continuar (mostrar login)
+  clearUserSessionCache(request);
   return response;
 }

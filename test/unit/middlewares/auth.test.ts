@@ -154,7 +154,7 @@ describe('Auth Middleware', () => {
 
       const result = await handleAuthenticationMiddleware(mockRequest, mockResponse);
 
-      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url), { status: 302 });
       expect(result).toBe(mockRedirectResponse);
     });
 
@@ -175,7 +175,7 @@ describe('Auth Middleware', () => {
 
       const result = await handleAuthenticationMiddleware(mockRequest, mockResponse);
 
-      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url), { status: 302 });
       expect(result).toBe(mockRedirectResponse);
 
       consoleErrorSpy.mockRestore();
@@ -211,7 +211,9 @@ describe('Auth Middleware', () => {
 
       const result = await handleAuthenticatedRedirectMiddleware(mockRequestWithCookies, mockResponse);
 
-      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/my-store', mockRequestWithCookies.url));
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/my-store', mockRequestWithCookies.url), {
+        status: 302,
+      });
       expect(result).toBe(mockRedirectResponse);
     });
 
@@ -243,7 +245,7 @@ describe('Auth Middleware', () => {
 
       await handleAuthenticationMiddleware(customRequest, mockResponse);
 
-      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', customRequest.url));
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', customRequest.url), { status: 302 });
     });
 
     it('should handle authenticated redirect with custom URL', async () => {
@@ -269,7 +271,7 @@ describe('Auth Middleware', () => {
 
       await handleAuthenticatedRedirectMiddleware(customRequest, mockResponse);
 
-      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/my-store', customRequest.url));
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/my-store', customRequest.url), { status: 302 });
     });
   });
 });
