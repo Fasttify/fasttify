@@ -1,24 +1,12 @@
 'use client';
 
-import outputs from '@/amplify_outputs.json';
 import { Footer } from '@/app/(www)/landing/components/Footer';
 import { faqItems } from '@/app/(www)/pricing/components/FAQItem';
 import { FAQSection } from '@/app/(www)/pricing/components/FAQSection';
 import { FeatureComparison } from '@/app/(www)/pricing/components/FeatureComparison';
 import { plans } from '@/app/(www)/pricing/components/plans';
 import { PricingCard } from '@/app/(www)/pricing/components/PricingCard';
-import { Amplify } from 'aws-amplify';
 import { motion } from 'framer-motion';
-
-Amplify.configure(outputs);
-const existingConfig = Amplify.getConfig();
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-});
 
 export default function PricingPage() {
   return (
