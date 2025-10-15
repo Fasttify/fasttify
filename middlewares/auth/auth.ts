@@ -106,7 +106,7 @@ export async function handleAuthenticationMiddleware(request: NextRequest, respo
   if (!session) {
     // Limpiar caché cuando no hay sesión válida
     clearUserSessionCache(request);
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/login', request.url), { status: 302 });
   }
 
   return null; // Permitir que el middleware continúe
@@ -122,9 +122,9 @@ export async function handleAuthenticatedRedirectMiddleware(request: NextRequest
     const lastStoreId = getLastVisitedStore(request);
 
     if (lastStoreId) {
-      return NextResponse.redirect(new URL(`/store/${lastStoreId}/home`, request.url));
+      return NextResponse.redirect(new URL(`/store/${lastStoreId}/home`, request.url), { status: 302 });
     } else {
-      return NextResponse.redirect(new URL('/my-store', request.url));
+      return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
     }
   }
 

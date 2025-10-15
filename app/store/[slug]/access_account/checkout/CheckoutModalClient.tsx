@@ -25,7 +25,7 @@ import useAuthStore from '@/context/core/userStore';
  * Componente cliente que maneja el modal de checkout bloqueante
  * Previene la navegación y aplica efectos visuales al fondo
  */
-export function CheckoutModalClient() {
+export function CheckoutModalClient({ storeId: _storeId }: { storeId: string }) {
   const { logout } = useAuthStore();
   /**
    * Previene la navegación del usuario mientras está en el modal de checkout

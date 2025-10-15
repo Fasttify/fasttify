@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import { CheckoutModalClient } from './CheckoutModalClient';
+import { CheckoutModalClient } from '@/app/store/[slug]/access_account/checkout/CheckoutModalClient';
 
 interface CheckoutPageProps {
   params: Promise<{ slug: string }>;
 }
 
 /**
- * Página de demostración del modal de checkout bloqueante
- * Esta página muestra el diseño visual sin lógica de autenticación
+ * Página de checkout para usuarios con suscripción expirada que necesitan reactivar
  */
 export default async function CheckoutPage({ params }: CheckoutPageProps) {
   const { slug: storeId } = await params;
 
+  // El middleware ya validó todo, solo renderizar el modal
   return <CheckoutModalClient storeId={storeId} />;
 }

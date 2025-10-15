@@ -50,7 +50,7 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
   const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
 
   if (!userId || typeof userId !== 'string') {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/login', request.url), { status: 302 });
   }
 
   // Extraer información de la URL
@@ -61,7 +61,7 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
 
   if (!currentStoreId) {
     const redirectUrl = new URL('/my-store', request.url);
-    const response = NextResponse.redirect(redirectUrl);
+    const response = NextResponse.redirect(redirectUrl, { status: 302 });
     response.headers.set('x-redirect-check', 'true');
     return response;
   }
@@ -87,7 +87,7 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
 
       if (!userStoreResult.data || userStoreResult.data.length === 0) {
         const redirectUrl = new URL('/my-store', request.url);
-        const response = NextResponse.redirect(redirectUrl);
+        const response = NextResponse.redirect(redirectUrl, { status: 302 });
         response.headers.set('x-redirect-check', 'true');
         return response;
       }
@@ -117,14 +117,14 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
 
     if (!product) {
       const redirectUrl = new URL(`/store/${currentStoreId}/products`, request.url);
-      const response = NextResponse.redirect(redirectUrl);
+      const response = NextResponse.redirect(redirectUrl, { status: 302 });
       response.headers.set('x-redirect-check', 'true');
       return response;
     }
 
     if (product.storeId !== currentStoreId) {
       const redirectUrl = new URL(`/store/${currentStoreId}/products`, request.url);
-      const response = NextResponse.redirect(redirectUrl);
+      const response = NextResponse.redirect(redirectUrl, { status: 302 });
       response.headers.set('x-redirect-check', 'true');
       return response;
     }
@@ -132,7 +132,7 @@ export async function handleProductOwnershipMiddleware(request: NextRequest) {
     return NextResponse.next();
   } catch (_error) {
     const redirectUrl = new URL(`/my-store`, request.url);
-    const response = NextResponse.redirect(redirectUrl);
+    const response = NextResponse.redirect(redirectUrl, { status: 302 });
     response.headers.set('x-redirect-check', 'true');
     return response;
   }
