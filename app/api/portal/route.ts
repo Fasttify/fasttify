@@ -21,8 +21,7 @@ export const GET = CustomerPortal({
       // Verificar autenticación directamente
       const session = await AuthGetCurrentUserServer();
       if (!session) {
-        const corsHeaders = await getNextCorsHeaders(request);
-        return NextResponse.json({ error: 'Authentication required' }, { status: 401, headers: corsHeaders });
+        throw new Error('Authentication required');
       }
 
       const externalId = session.username;
