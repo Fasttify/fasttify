@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useMobileDetection } from '@/app/store/components/ai-chat/hooks/useMobileDetection';
 
 interface ChatContextType {
   isOpen: boolean;
@@ -10,8 +11,7 @@ interface ChatContextType {
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
-  // Inicializar con el valor de sessionStorage si existe
-  const [isOpen, setIsOpen] = useState(() => {
+  const [internalIsOpen, setInternalIsOpen] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('chat-is-open');
       return saved === 'true';
@@ -19,14 +19,30 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     return false;
   });
 
+  // Usar el hook de detección móvil
+  const { preventMobileAction } = useMobileDetection(() => {
+    if (internalIsOpen) {
+      setInternalIsOpen(false);
+    }
+  }, true);
+
   // Persistir el estado en sessionStorage cuando cambie
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('chat-is-open', isOpen.toString());
+      sessionStorage.setItem('chat-is-open', internalIsOpen.toString());
     }
-  }, [isOpen]);
+  }, [internalIsOpen]);
 
-  return <ChatContext.Provider value={{ isOpen, setIsOpen }}>{children}</ChatContext.Provider>;
+  // Función personalizada para setIsOpen que previene abrir en móvil
+  const setIsOpenSafe = (open: boolean) => {
+    preventMobileAction(() => {
+      setInternalIsOpen(open);
+    });
+  };
+
+  return (
+    <ChatContext.Provider value={{ isOpen: internalIsOpen, setIsOpen: setIsOpenSafe }}>{children}</ChatContext.Provider>
+  );
 }
 
 export function useChatContext() {

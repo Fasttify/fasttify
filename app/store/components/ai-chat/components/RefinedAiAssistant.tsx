@@ -8,9 +8,17 @@ import { useSimpleChat } from '@/app/store/components/ai-chat/hooks/useSimpleCha
 import { RefinedAIAssistantSheetProps } from '@/app/store/components/ai-chat/types/chat-types';
 import { Box, Scrollable, Spinner } from '@shopify/polaris';
 import { useCallback, useEffect, useRef } from 'react';
+import { useMobileDetection } from '@/app/store/components/ai-chat/hooks/useMobileDetection';
 
 export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssistantSheetProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Usar el hook de detección móvil
+  const { renderOnDesktopOnly } = useMobileDetection(() => {
+    if (open) {
+      onOpenChange(false);
+    }
+  }, true);
 
   // Usar el hook de conversación AI
   const {
@@ -99,7 +107,7 @@ export function RefinedAIAssistantSheet({ open, onOpenChange }: RefinedAIAssista
 
   if (!open) return null;
 
-  return (
+  return renderOnDesktopOnly(
     <div
       className="fixed right-0 w-[20vw] border-l rounded-l-lg h-[calc(98vh-2rem)] bg-white animate-in slide-in-from-right duration-300 ease-out"
       onClick={handleContentClick}
