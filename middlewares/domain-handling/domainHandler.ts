@@ -25,8 +25,18 @@ const MAIN_DOMAINS = {
 /** Subdominios del sistema que no representan tiendas */
 const SYSTEM_SUBDOMAINS = ['orders', 'admin', 'orders-domain'] as const;
 
+/** Patrones de ngrok para desarrollo local */
+const NGROK_PATTERNS = /^[a-f0-9]{8,12}(\.ngrok(?:-free)?)?\.app$/i;
+
 /** Rutas que no deben ser reescritas por el middleware */
-const EXCLUDED_PATHS = ['/assets/', '/sitemap.xml', '/robots.txt'] as const;
+const EXCLUDED_PATHS = [
+  '/assets/',
+  '/sitemap.xml',
+  '/robots.txt',
+  '/api/checkout',
+  '/api/portal',
+  '/api/webhooks/polar',
+] as const;
 
 /** Número mínimo de segmentos para considerar un subdominio válido */
 const MIN_SUBDOMAIN_SEGMENTS = 2;
@@ -328,6 +338,15 @@ function isSystemSubdomain(subdomain: string): boolean {
 }
 
 /**
+ * Verifica si un hostname es de ngrok (para desarrollo local)
+ * @param hostname - Hostname a verificar
+ * @returns True si es un dominio de ngrok
+ */
+function isNgrokDomain(hostname: string): boolean {
+  return NGROK_PATTERNS.test(hostname);
+}
+
+/**
  * Función principal que maneja todos los tipos de dominios de forma recursiva
  * @param request - Petición de Next.js
  * @param analysis - Análisis del dominio (opcional, para recursión)
@@ -335,6 +354,16 @@ function isSystemSubdomain(subdomain: string): boolean {
  */
 export function handleDomainRouting(request: NextRequest, analysis?: DomainAnalysis): NextResponse | null {
   const domainAnalysis = analysis || analyzeDomain(request);
+
+  // Verificar si la ruta debe ser excluida del procesamiento de dominio
+  if (shouldExcludePath(request.nextUrl.pathname)) {
+    return null;
+  }
+
+  // Caso específico: dominios de ngrok (desarrollo local) - no procesar como tienda
+  if (isNgrokDomain(domainAnalysis.hostname)) {
+    return null;
+  }
 
   // Caso base: dominio principal
   if (domainAnalysis.isMainDomain) {

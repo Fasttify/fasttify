@@ -16,7 +16,7 @@ interface ProfileHeaderProps extends UserProps {
  * @returns {JSX.Element} Header del perfil con avatar y información básica
  */
 export function ProfileHeader({ user, loading, onEditClick, isGoogleUser = false }: ProfileHeaderProps) {
-  if (loading) {
+  if (loading || !user) {
     return (
       <Card>
         <div style={{ padding: '20px' }}>
@@ -26,18 +26,6 @@ export function ProfileHeader({ user, loading, onEditClick, isGoogleUser = false
               <SkeletonBodyText lines={2} />
             </div>
           </div>
-        </div>
-      </Card>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Card>
-        <div style={{ padding: '20px' }}>
-          <Text variant="headingMd" as="h2">
-            No se pudo cargar la información del usuario
-          </Text>
         </div>
       </Card>
     );

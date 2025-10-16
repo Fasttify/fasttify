@@ -2,7 +2,14 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { TopBar, ActionList, SkeletonThumbnail, SkeletonBodyText } from '@shopify/polaris';
-import { ExitIcon } from '@shopify/polaris-icons';
+import {
+  ExitIcon,
+  ProfileIcon,
+  SettingsIcon,
+  QuestionCircleIcon,
+  ExchangeIcon,
+  BillIcon,
+} from '@shopify/polaris-icons';
 import { useRouter } from 'next/navigation';
 import { generateSearchRoutes } from '@/app/store/components/search-bar/components/SearchRoutes';
 import { useAuth } from '@/context/hooks/useAuth';
@@ -26,12 +33,12 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
   const [searchValue, setSearchValue] = useState('');
   const { clearStore, currentStore } = useStoreDataStore();
   const storeName = currentStore?.storeName;
-  const userPicture = user?.picture;
+  const userPicture = user?.picture || undefined;
 
   const { url: secureUserPicture, isLoading: isPictureLoading } = useSecureUrl({
-    baseUrl: userPicture || '',
+    baseUrl: userPicture ?? '',
     type: 'profile-image',
-    enabled: !!userPicture,
+    enabled: Boolean(userPicture),
   });
 
   const handleChangeStore = async () => {
@@ -111,17 +118,24 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
               {
                 content: 'Configuración de Tienda',
                 onAction: () => router.push(`/store/${storeId}/setup`),
+                icon: SettingsIcon,
               },
               {
                 content: 'Mi Perfil',
                 onAction: () => window.open(`/store/${storeId}/profile`, '_blank'),
+                icon: ProfileIcon,
+              },
+              {
+                content: 'Plan',
+                onAction: () => router.push(`/store/${storeId}/suscribe/select-plan`),
+                icon: BillIcon,
               },
             ],
           },
           {
             items: [
-              { content: 'Centro de Ayuda' },
-              { content: 'Cambiar de Tienda', onAction: () => handleChangeStore() },
+              { content: 'Centro de Ayuda', icon: QuestionCircleIcon },
+              { content: 'Cambiar de Tienda', onAction: () => handleChangeStore(), icon: ExchangeIcon },
               { content: 'Cerrar sesión', icon: ExitIcon, onAction: handleLogout },
             ],
           },

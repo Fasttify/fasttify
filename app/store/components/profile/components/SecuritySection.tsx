@@ -15,23 +15,11 @@ interface SecuritySectionProps extends UserProps {
  * @returns {JSX.Element} Sección de seguridad con opción de cambio de contraseña
  */
 export function SecuritySection({ user, loading, onChangePasswordClick, isGoogleUser = false }: SecuritySectionProps) {
-  if (loading) {
+  if (loading || !user) {
     return (
       <Card>
         <div style={{ padding: '20px' }}>
           <SkeletonBodyText lines={6} />
-        </div>
-      </Card>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Card>
-        <div style={{ padding: '20px' }}>
-          <Text variant="headingMd" as="h3">
-            No se pudo cargar la información de seguridad
-          </Text>
         </div>
       </Card>
     );

@@ -27,6 +27,11 @@ export async function handleStoreAccessMiddleware(request: NextRequest) {
   // Extraer el ID de la tienda de la URL
   const path = request.nextUrl.pathname;
 
+  // Permitir acceso a la pantalla de selección de planes sin bloquear por plan
+  if (path.includes('/suscribe/select-plan')) {
+    return NextResponse.next();
+  }
+
   // Verificar autenticación usando el middleware centralizado
   const authResponse = await handleAuthenticationMiddleware(request, NextResponse.next());
   if (authResponse) {

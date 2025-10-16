@@ -1,21 +1,8 @@
 import { Card, Text, Button, Banner, SkeletonBodyText, Icon } from '@shopify/polaris';
 import { ExternalIcon, CheckCircleIcon } from '@shopify/polaris-icons';
 import { useState } from 'react';
-import { post } from 'aws-amplify/api';
-import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify_outputs.json';
+import { plans } from '@/app/(www)/pricing/components/plans';
 import type { UserProps } from '@/app/store/components/profile/types';
-
-// Configurar Amplify para la API REST
-Amplify.configure(outputs);
-const existingConfig = Amplify.getConfig();
-Amplify.configure({
-  ...existingConfig,
-  API: {
-    ...existingConfig.API,
-    REST: outputs.custom.APIs,
-  },
-});
 
 interface SubscriptionSectionProps extends UserProps {
   storeId: string;
@@ -43,30 +30,32 @@ export function SubscriptionSection({ user, loading }: SubscriptionSectionProps)
     setIsSubmitting(true);
 
     try {
-      const defaultPlanId = '149c6595-1611-477d-b0b4-61700d33c069';
+      // Si el usuario tiene un plan pagado, ir al portal de gestión
+      // Si no, ir al checkout para suscribirse
+      const isPaidPlan = user.plan && user.plan !== 'Gratuito';
 
-      const response = await post({
-        apiName: 'SubscriptionApi',
-        path: 'subscribe',
-        options: {
-          body: {
-            userId: user.userId,
-            email: user.email,
-            name: user.nickName,
-            plan: {
-              polarId: defaultPlanId,
-            },
-          },
-        },
-      });
-
-      const { body } = await response.response;
-      const responseUrl = (await body.json()) as { checkoutUrl?: string };
-
-      if (responseUrl && responseUrl.checkoutUrl) {
-        window.location.href = responseUrl.checkoutUrl;
+      if (isPaidPlan) {
+        // Redirigir al customer portal
+        const portalUrl = new URL('/api/portal', window.location.origin);
+        portalUrl.searchParams.set('customerExternalId', user.userId);
+        window.location.href = portalUrl.toString();
       } else {
-        console.warn('No checkout URL received.');
+        // Redirigir al checkout con el plan popular
+        const selectedPlan = plans.find((p) => p.popular) || plans[0];
+        const defaultPlanId = selectedPlan?.polarId;
+
+        if (!defaultPlanId) {
+          console.error('No default plan available to subscribe.');
+          return;
+        }
+
+        const checkoutUrl = new URL('/api/checkout', window.location.origin);
+        checkoutUrl.searchParams.set('products', defaultPlanId);
+        checkoutUrl.searchParams.set('customerExternalId', user.userId);
+        checkoutUrl.searchParams.set('customerEmail', user.email);
+        checkoutUrl.searchParams.set('customerName', user.nickName);
+
+        window.location.href = checkoutUrl.toString();
       }
     } catch (error) {
       console.error('Error redirecting to Polarsh:', error);
@@ -75,23 +64,11 @@ export function SubscriptionSection({ user, loading }: SubscriptionSectionProps)
     }
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <Card>
         <div style={{ padding: '20px' }}>
           <SkeletonBodyText lines={5} />
-        </div>
-      </Card>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Card>
-        <div style={{ padding: '20px' }}>
-          <Text variant="headingMd" as="h3">
-            No se pudo cargar la información de suscripción
-          </Text>
         </div>
       </Card>
     );

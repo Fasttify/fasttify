@@ -73,8 +73,9 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
   const logo = useMemo(
     () => ({
       topBarSource: 'https://cdn.fasttify.com/assets/b/fasttify-white.webp',
+      contextualSaveBarSource: 'https://cdn.fasttify.com/assets/b/fasttify-white.webp',
       width: 40,
-      url: routes.store.dashboard.main(storeId),
+      url: storeId ? routes.store.dashboard.main(storeId) : '/my-store',
       accessibilityLabel: 'Fasttify',
     }),
     [storeId]

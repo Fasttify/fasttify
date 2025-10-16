@@ -15,23 +15,11 @@ interface EmailSectionProps extends UserProps {
  * @returns {JSX.Element} Sección de email con opción de edición
  */
 export function EmailSection({ user, loading, onEditClick, isGoogleUser = false }: EmailSectionProps) {
-  if (loading) {
+  if (loading || !user) {
     return (
       <Card>
         <div style={{ padding: '20px' }}>
           <SkeletonBodyText lines={4} />
-        </div>
-      </Card>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Card>
-        <div style={{ padding: '20px' }}>
-          <Text variant="headingMd" as="h3">
-            No se pudo cargar la información de email
-          </Text>
         </div>
       </Card>
     );

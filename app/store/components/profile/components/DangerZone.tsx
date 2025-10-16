@@ -38,23 +38,11 @@ export function DangerZone({ user, loading, isGoogleUser = false }: DangerZonePr
     }
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <Card>
         <div style={{ padding: '20px' }}>
           <SkeletonBodyText lines={4} />
-        </div>
-      </Card>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Card>
-        <div style={{ padding: '20px' }}>
-          <Text variant="headingMd" as="h3">
-            No se pudo cargar la información de la cuenta
-          </Text>
         </div>
       </Card>
     );

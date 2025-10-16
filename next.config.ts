@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
     '@aws-sdk/client-s3',
     '@aws-sdk/client-ses',
     '@aws-sdk/s3-request-presigner',
-    '@polar-sh/sdk',
     'dotenv',
     'axios',
     'node-fetch',

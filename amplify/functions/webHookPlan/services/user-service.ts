@@ -169,8 +169,6 @@ export class CognitoUserService implements UserService {
    * Calculates pending plan based on remaining subscription time
    */
   private calculatePendingPlan(subscription: any): string {
-    // Add your logic here to calculate pending plan
-    // based on subscription data and remaining time
     return 'free'; // Simplified for now
   }
 
@@ -201,7 +199,7 @@ export class CognitoUserService implements UserService {
         planName: subscriptionData.planName,
         nextPaymentDate: subscriptionData.nextPaymentDate,
         lastFourDigits: subscriptionData.lastFourDigits,
-        pendingPlan: null, // Clear pending plan on successful payment
+        pendingPlan: null,
       };
 
       if (existingSubscription) {

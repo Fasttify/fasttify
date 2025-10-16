@@ -5,7 +5,6 @@ import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { useUserStoreData } from '@/app/(setup)/first-steps/hooks/useUserStoreData';
-import { PricingDrawer } from '@/app/store/components/store-setup/components/PricingDrawer';
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { getStoreId } from '@/utils/client/store-utils';
 
@@ -19,7 +18,6 @@ export function EcommerceSetup() {
   const [tasks, setTasks] = useState<Task[]>(defaultStoreTasks);
   const [expandedTaskId, setExpandedTaskId] = useState<string>('task-1');
   const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null);
-  const [isPricingOpen, setIsPricingOpen] = useState(false);
   const params = useParams();
   const pathname = usePathname();
   const { updateUserStore } = useUserStoreData();
@@ -88,7 +86,7 @@ export function EcommerceSetup() {
   return (
     <Page>
       <BlockStack gap="400">
-        <SetupAdBanner onActionClick={() => setIsPricingOpen(true)} />
+        <SetupAdBanner />
         <SetupHeader />
 
         <Card>
@@ -103,8 +101,6 @@ export function EcommerceSetup() {
             />
           </Box>
         </Card>
-
-        <PricingDrawer open={isPricingOpen} onOpenChange={setIsPricingOpen} />
       </BlockStack>
     </Page>
   );

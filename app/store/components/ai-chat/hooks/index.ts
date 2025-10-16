@@ -10,6 +10,9 @@ export { useSimpleChat } from './useSimpleChat';
 // Hooks de historial de conversaciones
 export { useCurrentConversation } from './useCurrentConversation';
 
+// Hooks de detección móvil
+export { useMobileDetection, useChatMobileDetection } from './useMobileDetection';
+
 // Hook existente (mantener compatibilidad) - REMOVIDO: useChat deprecated
 
 // Tipos
