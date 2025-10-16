@@ -36,22 +36,22 @@ describe('PolarService', () => {
 
     it('debe usar sandbox en desarrollo', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      (process.env as any).NODE_ENV = 'development';
 
       const service = new PolarService('test-token');
       expect(service).toBeInstanceOf(PolarService);
 
-      process.env.NODE_ENV = originalEnv;
+      (process.env as any).NODE_ENV = originalEnv;
     });
 
     it('debe usar production en producción', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
 
       const service = new PolarService('test-token');
       expect(service).toBeInstanceOf(PolarService);
 
-      process.env.NODE_ENV = originalEnv;
+      (process.env as any).NODE_ENV = originalEnv;
     });
   });
 
