@@ -1,8 +1,9 @@
 import { Card, Text, Button, Banner, SkeletonBodyText, Icon } from '@shopify/polaris';
 import { ExternalIcon, CheckCircleIcon } from '@shopify/polaris-icons';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { plans } from '@/app/(www)/pricing/components/plans';
 import type { UserProps } from '@/app/store/components/profile/types';
+import { useSubscriptionLogic } from '@/app/store/hooks/useSubscriptionLogic';
 
 interface SubscriptionSectionProps extends UserProps {
   storeId: string;
@@ -15,8 +16,9 @@ interface SubscriptionSectionProps extends UserProps {
  * @param {SubscriptionSectionProps} props - Propiedades del componente
  * @returns {JSX.Element} Sección de suscripción con redirección a Polarsh
  */
-export function SubscriptionSection({ user, loading }: SubscriptionSectionProps) {
+const SubscriptionSectionComponent = ({ user, loading }: SubscriptionSectionProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { subscriptionLoading, hasRealSubscription, isPaidPlan, currentPlan } = useSubscriptionLogic(user?.userId);
 
   /**
    * Maneja la redirección a Polarsh para gestionar la suscripción
@@ -30,11 +32,8 @@ export function SubscriptionSection({ user, loading }: SubscriptionSectionProps)
     setIsSubmitting(true);
 
     try {
-      // Si el usuario tiene un plan pagado, ir al portal de gestión
-      // Si no, ir al checkout para suscribirse
-      const isPaidPlan = user.plan && user.plan !== 'Gratuito';
-
-      if (isPaidPlan) {
+      // Usar hasRealSubscription del hook para determinar la acción
+      if (hasRealSubscription) {
         // Redirigir al customer portal
         const portalUrl = new URL('/api/portal', window.location.origin);
         portalUrl.searchParams.set('customerExternalId', user.userId);
@@ -64,7 +63,7 @@ export function SubscriptionSection({ user, loading }: SubscriptionSectionProps)
     }
   };
 
-  if (loading || !user) {
+  if (loading || !user || subscriptionLoading) {
     return (
       <Card>
         <div style={{ padding: '20px' }}>
@@ -74,8 +73,7 @@ export function SubscriptionSection({ user, loading }: SubscriptionSectionProps)
     );
   }
 
-  const currentPlan = user.plan || 'Gratuito';
-  const isPaidPlan = currentPlan !== 'Gratuito';
+  // Los valores ya vienen del hook
 
   return (
     <Card>
@@ -124,14 +122,22 @@ export function SubscriptionSection({ user, loading }: SubscriptionSectionProps)
           </div>
         )}
 
+        {isPaidPlan && !hasRealSubscription && (
+          <div style={{ marginBottom: '12px' }}>
+            <Banner tone="warning">
+              <p>Tienes un plan de prueba. Para gestionar tu suscripción, primero actualiza a un plan premium.</p>
+            </Banner>
+          </div>
+        )}
+
         <Button
           icon={ExternalIcon}
           onClick={handleRedirectToPolarsh}
           loading={isSubmitting}
-          variant={isPaidPlan ? undefined : 'primary'}
+          variant={hasRealSubscription ? undefined : 'primary'}
           size="slim"
           fullWidth>
-          {isSubmitting ? 'Redirigiendo...' : isPaidPlan ? 'Gestionar suscripción' : 'Actualizar plan'}
+          {isSubmitting ? 'Redirigiendo...' : hasRealSubscription ? 'Gestionar suscripción' : 'Actualizar plan'}
         </Button>
 
         <div style={{ marginTop: '12px' }}>
@@ -142,4 +148,6 @@ export function SubscriptionSection({ user, loading }: SubscriptionSectionProps)
       </div>
     </Card>
   );
-}
+};
+
+export const SubscriptionSection = memo(SubscriptionSectionComponent);
