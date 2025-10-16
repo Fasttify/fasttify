@@ -7,6 +7,7 @@ export class PolarApiService {
   constructor(accessToken: string) {
     this.polar = new Polar({
       accessToken,
+      server: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox',
     });
   }
 

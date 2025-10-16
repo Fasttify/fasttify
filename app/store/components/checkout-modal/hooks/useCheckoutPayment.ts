@@ -2,18 +2,12 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/context/hooks/useAuth';
-import { post } from 'aws-amplify/api';
 import { useToast } from '@/app/store/context/ToastContext';
-
-interface SubscriptionResponse {
-  checkoutUrl?: string;
-  error?: string;
-  details?: string;
-}
+import { plans } from '@/app/(www)/pricing/components/plans';
 
 /**
  * Hook personalizado para manejar el proceso de pago en el modal de checkout
- * Integra con Polar.sh para crear la sesión de pago
+ * Integra con Polar.sh usando el adaptador de Next.js
  */
 export function useCheckoutPayment() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,33 +31,23 @@ export function useCheckoutPayment() {
     setIsSubmitting(true);
 
     try {
-      // ID del plan Royal (el plan por defecto para el checkout)
-      const royalPlanId = 'e02f173f-1ca5-4f7b-a900-2e5c9413d8a6';
+      // Seleccionar el plan Royal desde plans.ts (respeta entorno)
+      const royalPlan = plans.find((p) => p.name === 'Royal');
+      const royalPlanId = royalPlan?.polarId;
 
-      const restOperation = post({
-        apiName: 'SubscriptionApi',
-        path: 'subscribe',
-        options: {
-          body: {
-            userId: user.userId,
-            email: user.email,
-            name: user.nickName,
-            plan: {
-              polarId: royalPlanId,
-            },
-          },
-        },
-      });
-
-      const { body } = await restOperation.response;
-      const response = (await body.json()) as SubscriptionResponse;
-
-      if (response && response.checkoutUrl) {
-        // Redirigir a Polar.sh para completar el pago
-        window.location.href = response.checkoutUrl;
-      } else {
-        throw new Error('No se recibió URL de checkout');
+      if (!royalPlanId) {
+        throw new Error('No se encontró el plan Royal');
       }
+
+      // Construir URL con query params para el adaptador de Polar
+      const url = new URL('/api/checkout', window.location.origin);
+      url.searchParams.set('products', royalPlanId);
+      url.searchParams.set('customerExternalId', user.userId);
+      url.searchParams.set('customerEmail', user.email);
+      url.searchParams.set('customerName', user.nickName);
+
+      // Redirigir directamente (el adaptador maneja la redirección)
+      window.location.href = url.toString();
     } catch (error) {
       console.error('Error procesando suscripción:', error);
       showToast('Hubo un error al procesar tu suscripción. Por favor, inténtalo de nuevo.', true);

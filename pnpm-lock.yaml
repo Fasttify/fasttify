@@ -71,6 +71,9 @@ importers:
       '@next/bundle-analyzer':
         specifier: ^15.5.2
         version: 15.5.4
+      '@polar-sh/nextjs':
+        specifier: ^0.4.9
+        version: 0.4.9(next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@polar-sh/sdk':
         specifier: ^0.34.3
         version: 0.34.17
@@ -216,7 +219,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.3.7(@types/react@18.3.25))(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       zod:
-        specifier: ^3.25.64
+        specifier: ^3.25.76
         version: 3.25.76
       zustand:
         specifier: ^5.0.6
@@ -2927,8 +2930,26 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
+  '@polar-sh/adapter-utils@0.2.8':
+    resolution: {integrity: sha512-VRCYectPSc8H63hYsGMNJK9rGy4WjpwL0G7LvnVHHYCpxBadkn90eWssS0AyaOsYaUiqCwwGcJd609UoDk3IQA==}
+
+  '@polar-sh/nextjs@0.4.9':
+    resolution: {integrity: sha512-3oePCaOFyBpmauFsekjsiGsclxzTVfib0vL91cQbuBlse0dTPgnA8BtuQoZWW5TY+ivaA3kiyuRKnTJr92SxYw==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      next: ^15.0.0 || ^15.2.0-canary.*
+
   '@polar-sh/sdk@0.34.17':
     resolution: {integrity: sha512-+eJAAyyP4CAtMy9Hd6gaNXErjaH3KuTXJFv72kqlCCvv7SweBlM4U2+zpeYAZvd/YMRZq/c447f0a0DD2e7UEA==}
+    hasBin: true
+    peerDependencies:
+      '@modelcontextprotocol/sdk': '>=1.5.0 <1.10.0'
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+
+  '@polar-sh/sdk@0.35.4':
+    resolution: {integrity: sha512-vv4Ptl5jNsHIZoLvzKr0wR+dGXJOpz8VWOOTEGqaiYx6YJvzIvrayg52qp8ZtBjsRBkySLZS2EVTV3wDHTACwA==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.5.0 <1.10.0'
@@ -14168,7 +14189,26 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
+  '@polar-sh/adapter-utils@0.2.8':
+    dependencies:
+      '@polar-sh/sdk': 0.35.4
+    transitivePeerDependencies:
+      - '@modelcontextprotocol/sdk'
+
+  '@polar-sh/nextjs@0.4.9(next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+    dependencies:
+      '@polar-sh/adapter-utils': 0.2.8
+      '@polar-sh/sdk': 0.35.4
+      next: 15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@modelcontextprotocol/sdk'
+
   '@polar-sh/sdk@0.34.17':
+    dependencies:
+      standardwebhooks: 1.0.0
+      zod: 3.25.76
+
+  '@polar-sh/sdk@0.35.4':
     dependencies:
       standardwebhooks: 1.0.0
       zod: 3.25.76

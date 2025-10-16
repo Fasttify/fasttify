@@ -53,13 +53,26 @@ export class PolarPaymentProcessor implements PaymentProcessor {
    * Determina el nombre del plan basado en el ID del producto
    */
   private getPlanFromProductId(productId: string): string {
-    // Mapeo de product_id a nombres de planes
-    // Esto debe configurarse según tus productos en Polar
+    // IDs por entorno
+    const isProd = process.env && process.env.NODE_ENV === 'production';
+
+    const DEV_ROYAL_ID = 'd889915d-bb1a-4c54-badd-de697857e624';
+    const DEV_MAJESTIC_ID = '442aacda-1fa3-47cd-8fba-6ad028285218';
+    const DEV_IMPERIAL_ID = '21e675ee-db9d-4cd7-9902-0fead14a85f5';
+
+    const PROD_ROYAL_ID = 'e02f173f-1ca5-4f7b-a900-2e5c9413d8a6';
+    const PROD_MAJESTIC_ID = '149c6595-1611-477d-b0b4-61700d33c069';
+    const PROD_IMPERIAL_ID = '3a85e94a-7deb-4f94-8aa4-99a972406f0f';
+
+    const ROYAL_ID = isProd ? PROD_ROYAL_ID : DEV_ROYAL_ID;
+    const MAJESTIC_ID = isProd ? PROD_MAJESTIC_ID : DEV_MAJESTIC_ID;
+    const IMPERIAL_ID = isProd ? PROD_IMPERIAL_ID : DEV_IMPERIAL_ID;
+
+    // Mapeo de product_id a nombres de planes según entorno
     const productMap: Record<string, string> = {
-      'e02f173f-1ca5-4f7b-a900-2e5c9413d8a6': 'Royal',
-      '149c6595-1611-477d-b0b4-61700d33c069': 'Majestic',
-      '3a85e94a-7deb-4f94-8aa4-99a972406f0f': 'Imperial',
-      // Añadir más mapeos según sea necesario
+      [ROYAL_ID]: 'Royal',
+      [MAJESTIC_ID]: 'Majestic',
+      [IMPERIAL_ID]: 'Imperial',
     };
 
     return productMap[productId];
