@@ -33,12 +33,12 @@ export function TopBarPolaris({ storeId, onNavigationToggle }: TopBarPolarisProp
   const [searchValue, setSearchValue] = useState('');
   const { clearStore, currentStore } = useStoreDataStore();
   const storeName = currentStore?.storeName;
-  const userPicture = user?.picture;
+  const userPicture = user?.picture || undefined;
 
   const { url: secureUserPicture, isLoading: isPictureLoading } = useSecureUrl({
-    baseUrl: userPicture || '',
+    baseUrl: userPicture ?? '',
     type: 'profile-image',
-    enabled: !!userPicture,
+    enabled: Boolean(userPicture),
   });
 
   const handleChangeStore = async () => {
