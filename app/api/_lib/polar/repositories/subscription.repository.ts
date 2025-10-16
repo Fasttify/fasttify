@@ -43,6 +43,11 @@ export class SubscriptionRepository {
    */
   async create(data: UserSubscriptionData): Promise<UserSubscriptionData> {
     try {
+      // Validar campos requeridos
+      if (!data.userId || !data.subscriptionId || !data.planName) {
+        throw new Error('Missing required fields: userId, subscriptionId, planName');
+      }
+
       const subscriptionPayload = {
         id: data.userId,
         userId: data.userId,
@@ -71,9 +76,20 @@ export class SubscriptionRepository {
    */
   async update(userId: string, data: Partial<UserSubscriptionData>): Promise<UserSubscriptionData> {
     try {
+      // Filtrar campos undefined/null para evitar errores en DynamoDB
+      const updateFields: Record<string, any> = {};
+
+      if (data.subscriptionId !== undefined) updateFields.subscriptionId = data.subscriptionId;
+      if (data.planName !== undefined) updateFields.planName = data.planName;
+      if (data.nextPaymentDate !== undefined) updateFields.nextPaymentDate = data.nextPaymentDate;
+      if (data.lastFourDigits !== undefined) updateFields.lastFourDigits = data.lastFourDigits;
+      if (data.pendingPlan !== undefined) updateFields.pendingPlan = data.pendingPlan;
+      if (data.pendingStartDate !== undefined) updateFields.pendingStartDate = data.pendingStartDate;
+      if (data.planPrice !== undefined) updateFields.planPrice = data.planPrice;
+
       const updatePayload = {
         id: userId,
-        ...data,
+        ...updateFields,
       };
 
       const response = await cookiesClient.models.UserSubscription.update(updatePayload);

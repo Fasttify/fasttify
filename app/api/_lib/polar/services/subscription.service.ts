@@ -65,10 +65,15 @@ export class SubscriptionService {
       }
 
       // Determinar acción basada en el estado de la suscripción
-      if (this.polarService.isSubscriptionActive(polarSubscription)) {
-        return await this.activateSubscription(userId, polarSubscription.productId);
-      } else if (this.polarService.isSubscriptionCanceled(polarSubscription)) {
-        return await this.cancelSubscription(userId);
+      const isActive = this.polarService.isSubscriptionActive(polarSubscription);
+      const isCanceled = this.polarService.isSubscriptionCanceled(polarSubscription);
+      const isScheduledForCancellation = this.polarService.isSubscriptionScheduledForCancellation(polarSubscription);
+
+      // Priorizar cancelación sobre activación
+      if (isCanceled || isScheduledForCancellation) {
+        return await this.cancelSubscription(userId, polarSubscription);
+      } else if (isActive) {
+        return await this.activateSubscription(userId, polarSubscription.productId, subscriptionId, polarSubscription);
       }
 
       return {
@@ -91,7 +96,12 @@ export class SubscriptionService {
   /**
    * Activa una suscripción para un usuario
    */
-  async activateSubscription(userId: string, productId: string): Promise<SubscriptionProcessResult> {
+  async activateSubscription(
+    userId: string,
+    productId: string,
+    subscriptionId?: string,
+    polarSubscription?: any
+  ): Promise<SubscriptionProcessResult> {
     try {
       const plan = this.mapProductIdToPlan(productId);
 
@@ -104,29 +114,60 @@ export class SubscriptionService {
         };
       }
 
-      // Actualizar plan en Cognito
-      await this.userRepository.updateUserPlan(userId, plan);
+      // Verificar si es una renovación o activación inicial
+      const existingSubscription = await this.subscriptionRepository.findByUserId(userId);
+      const isRenewal = existingSubscription && existingSubscription.planName === plan;
 
-      // Activar tiendas del usuario
-      await this.userRepository.updateStoresStatus(userId, true);
+      if (isRenewal) {
+        // RENOVACIÓN: Actualizar nextPaymentDate, planPrice y limpiar campos pendientes
+        const nextPaymentDate = polarSubscription?.currentPeriodEnd
+          ? new Date(polarSubscription.currentPeriodEnd).toISOString()
+          : undefined;
+        const planPrice = polarSubscription?.amount ? polarSubscription.amount / 100 : undefined;
 
-      // Crear o actualizar registro de suscripción
-      await this.subscriptionRepository.upsert({
-        id: userId,
-        userId,
-        subscriptionId: '', // Se actualizará cuando tengamos el ID real
-        planName: plan,
-        pendingPlan: null,
-      });
+        await this.subscriptionRepository.update(userId, {
+          nextPaymentDate,
+          planPrice,
+          pendingPlan: null,
+          pendingStartDate: null,
+        });
 
-      console.log(`Successfully activated subscription for user ${userId} with plan ${plan}`);
+        console.log(`Successfully renewed subscription for user ${userId} with plan ${plan}`);
+        return {
+          success: true,
+          userId,
+          plan,
+          message: `Subscription renewed with plan ${plan}`,
+        };
+      } else {
+        // ACTIVACIÓN INICIAL: Cambiar plan y activar tiendas
+        await this.userRepository.updateUserPlan(userId, plan);
+        await this.userRepository.updateStoresStatus(userId, true);
 
-      return {
-        success: true,
-        userId,
-        plan,
-        message: `Subscription activated with plan ${plan}`,
-      };
+        const nextPaymentDate = polarSubscription?.currentPeriodEnd
+          ? new Date(polarSubscription.currentPeriodEnd).toISOString()
+          : undefined;
+        const planPrice = polarSubscription?.amount ? polarSubscription.amount / 100 : undefined;
+
+        await this.subscriptionRepository.upsert({
+          id: userId,
+          userId,
+          subscriptionId: subscriptionId || '',
+          planName: plan,
+          nextPaymentDate,
+          planPrice,
+          pendingPlan: null,
+          pendingStartDate: null,
+        });
+
+        console.log(`Successfully activated subscription for user ${userId} with plan ${plan}`);
+        return {
+          success: true,
+          userId,
+          plan,
+          message: `Subscription activated with plan ${plan}`,
+        };
+      }
     } catch (error) {
       console.error(`Error activating subscription for user ${userId}:`, error);
       return {
@@ -141,24 +182,39 @@ export class SubscriptionService {
   /**
    * Cancela/downgrade una suscripción de un usuario
    */
-  async cancelSubscription(userId: string): Promise<SubscriptionProcessResult> {
+  async cancelSubscription(userId: string, polarSubscription?: any): Promise<SubscriptionProcessResult> {
     try {
-      // Downgrade a plan gratuito
-      await this.userRepository.updateUserPlan(userId, PlanType.FREE);
-
-      // Desactivar tiendas del usuario
-      await this.userRepository.updateStoresStatus(userId, false);
+      const cancelAtPeriodEnd = polarSubscription?.cancelAtPeriodEnd || false;
+      const currentPeriodEnd = polarSubscription?.currentPeriodEnd
+        ? new Date(polarSubscription.currentPeriodEnd)
+        : null;
 
       // Actualizar registro de suscripción
       const existingSubscription = await this.subscriptionRepository.findByUserId(userId);
-      if (existingSubscription) {
-        await this.subscriptionRepository.update(userId, {
-          planName: PlanType.FREE,
-          pendingPlan: null,
-        });
-      }
 
-      console.log(`Successfully canceled subscription for user ${userId}`);
+      if (existingSubscription) {
+        if (cancelAtPeriodEnd && currentPeriodEnd) {
+          // Cancelación al final del período - mantener plan actual, establecer pendingPlan
+          const updateData = {
+            pendingPlan: PlanType.FREE,
+            pendingStartDate: currentPeriodEnd.toISOString(),
+          };
+
+          await this.subscriptionRepository.update(userId, updateData);
+        } else {
+          // Cancelación inmediata - downgrade a plan gratuito
+          await this.userRepository.updateUserPlan(userId, PlanType.FREE);
+          await this.userRepository.updateStoresStatus(userId, false);
+
+          await this.subscriptionRepository.update(userId, {
+            planName: PlanType.FREE,
+            pendingPlan: null,
+            pendingStartDate: undefined,
+            nextPaymentDate: undefined,
+            planPrice: undefined,
+          });
+        }
+      }
 
       return {
         success: true,
