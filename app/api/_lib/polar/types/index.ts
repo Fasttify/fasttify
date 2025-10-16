@@ -21,7 +21,7 @@ export enum PlanType {
   ROYAL = 'Royal',
   MAJESTIC = 'Majestic',
   IMPERIAL = 'Imperial',
-  FREE = 'Free',
+  FREE = 'free',
 }
 
 /**
@@ -72,6 +72,8 @@ export interface UserSubscriptionData {
   nextPaymentDate?: string;
   lastFourDigits?: number;
   pendingPlan?: PlanType | null;
+  pendingStartDate?: string | null;
+  planPrice?: number;
 }
 
 /**

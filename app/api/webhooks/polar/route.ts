@@ -4,6 +4,7 @@ import { UserRepository } from '@/app/api/_lib/polar/repositories/user.repositor
 import { SubscriptionRepository } from '@/app/api/_lib/polar/repositories/subscription.repository';
 import { PolarService } from '@/app/api/_lib/polar/services/polar.service';
 import { SubscriptionService } from '@/app/api/_lib/polar/services/subscription.service';
+import { PolarWebhookProcessorService } from '@/app/api/_lib/polar/services/polar-webhook-processor.service';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 
 /**
@@ -19,36 +20,49 @@ export const POST = Webhooks({
   webhookSecret: process.env.POLAR_WEBHOOK_SECRET || '',
 
   onSubscriptionCreated: async (payload) => {
-    console.log('Subscription created:', payload.id);
-    await processSubscriptionEvent(payload.id);
+    if (payload.data?.id) {
+      await processSubscriptionEvent(payload.data.id);
+    } else {
+      console.error('Subscription created payload missing id:', payload);
+    }
   },
 
   onSubscriptionUpdated: async (payload) => {
-    console.log('Subscription updated:', payload.id);
-    await processSubscriptionEvent(payload.id);
+    if (payload.data?.id) {
+      await processSubscriptionEvent(payload.data.id);
+    } else {
+      console.error('Subscription updated payload missing id:', payload);
+    }
   },
 
   onSubscriptionActive: async (payload) => {
-    console.log('Subscription active:', payload.id);
-    await processSubscriptionEvent(payload.id);
+    if (payload.data?.id) {
+      await processSubscriptionEvent(payload.data.id);
+    } else {
+      console.error('Subscription active payload missing id:', payload);
+    }
   },
 
   onSubscriptionCanceled: async (payload) => {
-    console.log('Subscription canceled:', payload.id);
-    await processSubscriptionEvent(payload.id);
+    if (payload.data?.id) {
+      await processSubscriptionEvent(payload.data.id);
+    } else {
+      console.error('Subscription canceled payload missing id:', payload);
+    }
   },
 
   onSubscriptionRevoked: async (payload) => {
-    console.log('Subscription revoked:', payload.id);
-    await processSubscriptionEvent(payload.id);
+    if (payload.data?.id) {
+      await processSubscriptionEvent(payload.data.id);
+    } else {
+      console.error('Subscription revoked payload missing id:', payload);
+    }
   },
 
   onOrderCreated: async (payload) => {
-    console.log('Order created:', payload.id);
-
     // Si el pago está asociado a una suscripción, procesar la suscripción
-    if (payload.subscription_id) {
-      await processSubscriptionEvent(payload.subscription_id);
+    if (payload.data?.subscription_id) {
+      await processSubscriptionEvent(payload.data.subscription_id);
     }
   },
 });
@@ -56,8 +70,14 @@ export const POST = Webhooks({
 /**
  * Procesa un evento de suscripción usando los servicios de la aplicación
  */
-async function processSubscriptionEvent(subscriptionId: string): Promise<void> {
+async function processSubscriptionEvent(subscriptionId: string, payloadData?: any): Promise<void> {
   try {
+    // Validar que tenemos un subscriptionId válido
+    if (!subscriptionId || subscriptionId === 'undefined') {
+      console.error('Invalid subscription ID provided:', subscriptionId);
+      return;
+    }
+
     // Validar variables de entorno
     const userPoolId = process.env.USER_POOL_ID;
     const accessToken = process.env.POLAR_ACCESS_TOKEN;
@@ -74,7 +94,17 @@ async function processSubscriptionEvent(subscriptionId: string): Promise<void> {
     const subscriptionService = new SubscriptionService(userRepository, subscriptionRepository, polarService);
 
     // Procesar actualización de suscripción
-    const result = await subscriptionService.processSubscriptionUpdate(subscriptionId);
+    let result;
+    if (payloadData) {
+      const webhookProcessor = new PolarWebhookProcessorService(
+        userRepository,
+        subscriptionRepository,
+        subscriptionService.mapProductIdToPlan.bind(subscriptionService)
+      );
+      result = await webhookProcessor.processSubscriptionWithData(subscriptionId, payloadData);
+    } else {
+      result = await subscriptionService.processSubscriptionUpdate(subscriptionId);
+    }
 
     if (result.success) {
       console.log(`Successfully processed subscription ${subscriptionId}:`, result.message);

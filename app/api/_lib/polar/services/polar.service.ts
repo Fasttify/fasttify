@@ -172,11 +172,24 @@ export class PolarService {
   }
 
   /**
-   * Verifica si una suscripción está cancelada
+   * Verifica si una suscripción está cancelada (inmediatamente o programada)
    */
   isSubscriptionCanceled(subscription: PolarSubscription): boolean {
-    return [SubscriptionStatus.CANCELED, SubscriptionStatus.INCOMPLETE_EXPIRED, SubscriptionStatus.UNPAID].includes(
-      subscription.status
-    );
+    const isStatusCanceled = [
+      SubscriptionStatus.CANCELED,
+      SubscriptionStatus.INCOMPLETE_EXPIRED,
+      SubscriptionStatus.UNPAID,
+    ].includes(subscription.status);
+
+    const isScheduledForCancellation = subscription.cancelAtPeriodEnd === true;
+
+    return isStatusCanceled || isScheduledForCancellation;
+  }
+
+  /**
+   * Verifica si una suscripción está programada para cancelación
+   */
+  isSubscriptionScheduledForCancellation(subscription: PolarSubscription): boolean {
+    return subscription.status === SubscriptionStatus.ACTIVE && subscription.cancelAtPeriodEnd === true;
   }
 }

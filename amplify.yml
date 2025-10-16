@@ -28,6 +28,11 @@ frontend:
         - env | grep -e LAMBDA_EMAIL_BULK >> .env.production
         - env | grep -e CLOUDFRONT_KEY_PAIR_ID >> .env.production
         - env | grep -e CLOUDFRONT_PRIVATE_KEY >> .env.production
+        - env | grep -e POLAR_ACCESS_TOKEN >> .env.production
+        - env | grep -e POLAR_WEBHOOK_SECRET >> .env.production
+        - env | grep -e USER_POOL_ID >> .env.production
+        - env | grep -e POLAR_ORGANIZATION_ID >> .env.production
+        - env | grep -e SUCCESSS_URL >> .env.production
         - echo "TS_NODE_TRANSPILE_ONLY=true" >> .env.production
         - echo "TS_NODE_FILES=false" >> .env.production
         - pnpm install --frozen-lockfile
