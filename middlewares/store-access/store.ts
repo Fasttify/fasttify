@@ -50,7 +50,7 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
   const path = request.nextUrl.pathname;
 
   // Excluir rutas de checkout completamente - no validar nada
-  if (path.includes('/access_account/checkout') || path.includes('/checkout')) {
+  if (path.includes('/access_account/checkout') || path.includes('/suscribe/select-plan')) {
     return response;
   }
 

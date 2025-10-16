@@ -35,8 +35,10 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   useStore(storeId);
 
   const [prefersReducedMotion, _setPrefersReducedMotion] = useState(false);
-  const hideSidebar = pathname.includes('/editor') || pathname.includes('/profile');
+  const hideSidebar =
+    pathname.includes('/editor') || pathname.includes('/profile') || pathname.includes('/suscribe/select-plan');
   const isCheckoutPage = pathname.includes('/access_account/checkout');
+  const isSelectPlanPage = pathname.includes('/suscribe/select-plan');
 
   return (
     <AppProvider i18n={esTranslations}>
@@ -44,7 +46,11 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
         <ChatProvider>
           <ConversationProvider>
             {hideSidebar ? (
-              <div className="h-screen w-full overflow-hidden">{children}</div>
+              isSelectPlanPage ? (
+                <div className="min-h-screen w-full overflow-auto">{children}</div>
+              ) : (
+                <div className="h-screen w-full overflow-hidden">{children}</div>
+              )
             ) : isCheckoutPage ? (
               <div className="relative">
                 {/* Layout completo con blur - Sidebar, TopBar y contenido */}

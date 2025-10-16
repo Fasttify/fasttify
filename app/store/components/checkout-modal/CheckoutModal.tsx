@@ -20,6 +20,8 @@ import { Button, Card, Text, BlockStack } from '@shopify/polaris';
 import { ExitIcon } from '@shopify/polaris-icons';
 import { AnimatedBackground } from '@/app/(setup)/my-store/components/AnimatedBackground';
 import { useCheckoutPayment } from './hooks/useCheckoutPayment';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { getStoreId } from '@/utils/client/store-utils';
 
 interface CheckoutModalProps {
   open: boolean;
@@ -32,7 +34,10 @@ interface CheckoutModalProps {
  */
 export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const { isSubmitting, handlePayment } = useCheckoutPayment();
-
+  const router = useRouter();
+  const params = useParams();
+  const pathname = usePathname();
+  const storeId = getStoreId(params, pathname);
   if (!open) {
     return null;
   }
@@ -124,7 +129,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
               <div className="mt-36 flex justify-between">
                 <button
                   className="bg-transparent border-none text-white px-4 py-2 hover:bg-white/10 transition-colors cursor-pointer"
-                  onClick={() => console.log('Ver todos los planes')}>
+                  onClick={() => router.push(`/store/${storeId}/suscribe/select-plan`)}>
                   Ver todos los planes
                 </button>
                 <button

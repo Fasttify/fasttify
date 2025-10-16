@@ -64,23 +64,11 @@ export function SubscriptionSection({ user, loading }: SubscriptionSectionProps)
     }
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <Card>
         <div style={{ padding: '20px' }}>
           <SkeletonBodyText lines={5} />
-        </div>
-      </Card>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Card>
-        <div style={{ padding: '20px' }}>
-          <Text variant="headingMd" as="h3">
-            No se pudo cargar la información de suscripción
-          </Text>
         </div>
       </Card>
     );

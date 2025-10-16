@@ -71,3 +71,53 @@ export const plans = [
     className: 'bg-white',
   },
 ];
+
+export const planFaqs = [
+  {
+    question: '¿Qué es Fasttify y cómo funciona?',
+    paragraphs: [
+      'Fasttify es una plataforma integral de comercio para que emprendedores y empresas inicien, administren y hagan crecer su negocio en línea, en tienda física y en cualquier canal digital.',
+      'Estas son algunas de las cosas que puedes hacer con Fasttify:',
+    ],
+    bullets: [
+      'Crear y personalizar una tienda online.',
+      'Vender en web, móvil, redes sociales y tienda física.',
+      'Gestionar productos, inventario, pagos y envíos.',
+      'Crear, ejecutar y analizar campañas de marketing.',
+    ],
+  },
+  {
+    question: '¿Cuánto cuesta Fasttify?',
+    paragraphs: [
+      'Ofrecemos planes desde $55.000 COP/mes. Puedes elegir el plan que mejor se adapte a tu negocio y cambiar cuando lo necesites.',
+    ],
+  },
+  {
+    question: '¿Cuál es la duración de los contratos?',
+    paragraphs: ['La suscripción es mensual y flexible; no hay contratos a largo plazo.'],
+  },
+  {
+    question: '¿Puedo cancelar mi cuenta en cualquier momento?',
+    paragraphs: ['Sí. Puedes cancelar o cambiar de plan cuando quieras desde la configuración de tu tienda.'],
+  },
+  {
+    question: '¿Puedo cambiar mi plan más adelante?',
+    paragraphs: ['Sí. Puedes escalar o reducir tu plan en cualquier momento según tus necesidades.'],
+  },
+  {
+    question: '¿Ofrecen descuentos?',
+    paragraphs: ['Periódicamente ofrecemos promociones. Si necesitas facturación anual o por volumen, contáctanos.'],
+  },
+  {
+    question: '¿En qué países puedo usar Fasttify?',
+    paragraphs: [
+      'Fasttify funciona en la mayoría de países. La disponibilidad de métodos de pago puede variar por región.',
+    ],
+  },
+  {
+    question: '¿Fasttify es compatible con PCI o está certificado PCI?',
+    paragraphs: [
+      'Sí. Cumplimos con estándares de seguridad y buenas prácticas para el manejo de pagos y datos sensibles.',
+    ],
+  },
+];
