@@ -74,7 +74,13 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
   const validPlans = ['Royal', 'Majestic', 'Imperial'];
 
   if (!userPlan || !validPlans.includes(userPlan)) {
-    // Usuario con plan 'free' o sin plan - verificar si tiene suscripción en DB
+    // Usuario con plan 'free' o sin plan - permitir acceso a /my-store para selección de planes
+    if (path === '/my-store') {
+      // Permitir acceso a /my-store para usuarios con plan free
+      return response;
+    }
+
+    // Para otras rutas, verificar si tiene suscripción en DB
     try {
       const { data: subscriptions } = await cookiesClient.models.UserSubscription.listUserSubscriptionByUserId({
         userId,
@@ -91,27 +97,13 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
           return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
         }
       } else {
-        // No tiene suscripción - usuario nuevo
-        const lastStoreId = getLastVisitedStore(request);
-        if (lastStoreId) {
-          return NextResponse.redirect(new URL(`/store/${lastStoreId}/access_account/checkout`, request.url), {
-            status: 302,
-          });
-        } else {
-          return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
-        }
+        // No tiene suscripción - redirigir a /my-store para selección de planes
+        return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
       }
     } catch (error) {
       console.error('Error checking subscription:', error);
-      // En caso de error, redirigir a última tienda
-      const lastStoreId = getLastVisitedStore(request);
-      if (lastStoreId) {
-        return NextResponse.redirect(new URL(`/store/${lastStoreId}/access_account/checkout`, request.url), {
-          status: 302,
-        });
-      } else {
-        return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
-      }
+      // En caso de error, redirigir a /my-store
+      return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
     }
   }
 

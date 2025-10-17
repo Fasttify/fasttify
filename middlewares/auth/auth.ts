@@ -17,6 +17,7 @@
 import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
 import { fetchAuthSession } from 'aws-amplify/auth/server';
 import { getLastVisitedStore } from '@/lib/cookies/last-store';
+import { debugAuthIssues, validateAmplifyConfig } from '@/lib/debug/auth-debug';
 import { NextRequest, NextResponse } from 'next/server';
 import NodeCache from 'node-cache';
 
@@ -49,7 +50,6 @@ export function clearUserSessionCache(request: NextRequest): void {
 }
 
 function getCacheKey(request: NextRequest): string {
-  // Usar un hash simple de las cookies principales de autenticación
   const cookies = request.headers?.get('cookie') || '';
 
   // Buscar el ID de usuario en las cookies para crear una clave estable
@@ -58,8 +58,31 @@ function getCacheKey(request: NextRequest): string {
     return `user-${userIdMatch[1]}`;
   }
 
-  // Fallback: usar toda la cadena de cookies como clave
-  return cookies ? `cookies-${cookies.length}` : 'no-auth';
+  // Buscar cualquier cookie de Cognito para crear una clave única
+  const cognitoMatch = cookies.match(/CognitoIdentityServiceProvider[^=]*=([^;]+)/);
+  if (cognitoMatch) {
+    return `cognito-${cognitoMatch[1]}`;
+  }
+
+  // Buscar cookies de AWS Amplify (formato alternativo)
+  const amplifyMatch = cookies.match(/aws-amplify[^=]*=([^;]+)/);
+  if (amplifyMatch) {
+    return `amplify-${amplifyMatch[1]}`;
+  }
+
+  // Si no hay cookies de Cognito, usar un hash de todas las cookies para evitar conflictos
+  if (cookies) {
+    // Crear un hash simple pero único basado en el contenido de las cookies
+    let hash = 0;
+    for (let i = 0; i < cookies.length; i++) {
+      const char = cookies.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convertir a 32bit integer
+    }
+    return `cookies-${Math.abs(hash)}`;
+  }
+
+  return 'no-auth';
 }
 
 export async function getSession(request: NextRequest, response: NextResponse, forceRefresh = true) {
@@ -92,6 +115,25 @@ export async function getSession(request: NextRequest, response: NextResponse, f
         return result;
       } catch (error) {
         console.error('Error fetching user session:', error);
+
+        // En producción, ser más permisivo con errores de red/temporales
+        const isProduction = process.env.NODE_ENV === 'production';
+        const isNetworkError =
+          error instanceof Error &&
+          (error.message.includes('network') ||
+            error.message.includes('timeout') ||
+            error.message.includes('ECONNRESET') ||
+            error.message.includes('ENOTFOUND'));
+
+        // Si es un error de red en producción, intentar usar caché existente
+        if (isProduction && isNetworkError) {
+          const cached = sessionCache.get(cacheKey);
+          if (cached) {
+            console.log('Using cached session due to network error');
+            return cached;
+          }
+        }
+
         // Limpiar caché en caso de error
         sessionCache.del(cacheKey);
         return null;
@@ -101,9 +143,20 @@ export async function getSession(request: NextRequest, response: NextResponse, f
 }
 
 export async function handleAuthenticationMiddleware(request: NextRequest, response: NextResponse) {
+  // Validar configuración de Amplify en producción
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (isProduction && !validateAmplifyConfig()) {
+    console.error('Invalid Amplify configuration detected');
+  }
+
   const session = await getSession(request, response);
 
   if (!session) {
+    // Debug detallado en producción
+    if (isProduction) {
+      debugAuthIssues(request);
+    }
+
     // Limpiar caché cuando no hay sesión válida
     clearUserSessionCache(request);
     return NextResponse.redirect(new URL('/login', request.url), { status: 302 });
