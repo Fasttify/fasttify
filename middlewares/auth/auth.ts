@@ -143,8 +143,18 @@ export async function getSession(request: NextRequest, response: NextResponse, f
 }
 
 export async function handleAuthenticationMiddleware(request: NextRequest, response: NextResponse) {
-  // Validar configuración de Amplify en producción
   const isProduction = process.env.NODE_ENV === 'production';
+
+  // Log de entrada para debugging
+  if (isProduction) {
+    console.log('Auth middleware called:', {
+      path: request.nextUrl.pathname,
+      method: request.method,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  // Validar configuración de Amplify en producción
   if (isProduction && !validateAmplifyConfig()) {
     console.error('Invalid Amplify configuration detected');
   }
@@ -154,12 +164,17 @@ export async function handleAuthenticationMiddleware(request: NextRequest, respo
   if (!session) {
     // Debug detallado en producción
     if (isProduction) {
+      console.log('No session found, running debug...');
       debugAuthIssues(request);
     }
 
     // Limpiar caché cuando no hay sesión válida
     clearUserSessionCache(request);
     return NextResponse.redirect(new URL('/login', request.url), { status: 302 });
+  }
+
+  if (isProduction) {
+    console.log('Session found, continuing...');
   }
 
   return null; // Permitir que el middleware continúe

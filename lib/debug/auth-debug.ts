@@ -23,6 +23,8 @@ import outputs from '@/amplify_outputs.json';
 export function debugAuthIssues(request: NextRequest) {
   const isProduction = process.env.NODE_ENV === 'production';
 
+  console.log('debugAuthIssues called', { isProduction, path: request.nextUrl.pathname });
+
   if (!isProduction) {
     return null;
   }
