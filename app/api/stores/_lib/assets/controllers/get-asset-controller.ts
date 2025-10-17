@@ -23,7 +23,7 @@ import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 const s3Client = new S3Client({ region: process.env.REGION_BUCKET });
 const bucketName = process.env.BUCKET_NAME || '';
 const cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN_NAME || '';
-const appEnv = process.env.NODE_ENV || 'development';
+const appEnv = process.env.APP_ENV || 'development';
 
 export async function getAsset(request: NextRequest, storeId: string, assetPath: string): Promise<NextResponse> {
   const corsHeaders = await getNextCorsHeaders(request);

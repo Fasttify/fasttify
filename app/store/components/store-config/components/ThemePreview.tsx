@@ -1,46 +1,22 @@
 import { LogoUploader } from '@/app/store/components/store-config/components/LogoUploader';
-import { ThemeUploader } from '@/app/store/components/store-config/components/ThemeUploader';
 import { ThemeList } from '@/app/store/components/theme-management/components/ThemeList';
 import { useThemeList } from '@/app/store/components/theme-management/hooks/useThemeList';
 import useStoreDataStore from '@/context/core/storeDataStore';
-import { openStoreUrl } from '@/lib/utils/store-url';
-import {
-  Badge,
-  BlockStack,
-  Button,
-  ButtonGroup,
-  Card,
-  Layout,
-  MediaCard,
-  Page,
-  Spinner,
-  Tabs,
-  Text,
-} from '@shopify/polaris';
-import { MoneyFilledIcon } from '@shopify/polaris-icons';
+import { BlockStack, Card, Layout, MediaCard, Page, Spinner, Tabs, Text } from '@shopify/polaris';
 import Image from 'next/image';
 import { useCallback, useMemo, useState } from 'react';
 
 export function ThemePreview() {
   const { currentStore } = useStoreDataStore();
-  const customDomain = currentStore?.defaultDomain || '';
   const [selectedTab, setSelectedTab] = useState(0);
   const storeId = currentStore?.storeId || '';
   const { themes, loading } = useThemeList(storeId);
 
-  // Encontrar el tema activo y su preview URL (HTTPS o data URI si aún no se propaga)
   const activeTheme = useMemo(() => themes.find((t: any) => t.isActive) || themes[0], [themes]);
   const activePreviewUrl = activeTheme?.previewUrl;
   const isLoadingPreview = !storeId || loading || themes.length === 0;
 
   const handleTabChange = useCallback((index: number) => setSelectedTab(index), []);
-
-  const handleViewStore = useCallback(() => {
-    openStoreUrl({
-      storeId: storeId,
-      customDomain: customDomain,
-    });
-  }, [storeId, customDomain]);
 
   const tabs = [
     { id: 'preview', content: 'Vista previa' },
@@ -48,14 +24,9 @@ export function ThemePreview() {
   ];
 
   return (
-    <Page
-      title="Diseño"
-      primaryAction={{
-        content: 'Personalizar',
-        onAction: () => {},
-      }}>
+    <Page title="Diseño">
       <Layout>
-        <Layout.Section>
+        <Layout.Section variant="fullWidth">
           <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange} />
 
           {selectedTab === 0 && (
@@ -74,7 +45,6 @@ export function ThemePreview() {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          background: 'var(--p-color-bg-subdued)',
                         }}>
                         <Spinner accessibilityLabel="Cargando vista previa del tema" size="large" />
                       </div>
@@ -102,16 +72,8 @@ export function ThemePreview() {
                             {activeTheme?.name || 'Tema'}
                           </Text>
                         </BlockStack>
-                        <Badge tone="success" size="small">
-                          Diseño actual
-                        </Badge>
                       </Layout.Section>
-                      <Layout.Section variant="oneThird">
-                        <ButtonGroup>
-                          <Button onClick={handleViewStore}>Ver tienda</Button>
-                          <Button icon={MoneyFilledIcon} accessibilityLabel="Más opciones" />
-                        </ButtonGroup>
-                      </Layout.Section>
+                      <Layout.Section variant="oneThird"> </Layout.Section>
                     </Layout>
                   </BlockStack>
                 </BlockStack>
@@ -123,10 +85,14 @@ export function ThemePreview() {
                     Temas Disponibles
                   </Text>
                   <MediaCard
+                    size="small"
                     title="Explorar otros temas"
                     primaryAction={{
                       content: 'Ver temas',
                       url: '/themes',
+                      target: '_blank',
+                      external: true,
+                      accessibilityLabel: 'Ver temas disponibles',
                     }}
                     description="Explora nuestra colección de temas para encontrar el que mejor se adapte a tu marca.">
                     <div style={{ height: '150px', width: '100%', position: 'relative' }}>
@@ -154,15 +120,6 @@ export function ThemePreview() {
                   Logo de la tienda
                 </Text>
                 <LogoUploadCard currentStore={currentStore} />
-              </BlockStack>
-            </Card>
-
-            <Card>
-              <BlockStack gap="400">
-                <Text as="h2" variant="headingMd">
-                  Temas Personalizados
-                </Text>
-                <ThemeUploader />
               </BlockStack>
             </Card>
           </BlockStack>

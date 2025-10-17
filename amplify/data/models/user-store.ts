@@ -7,7 +7,6 @@ export const userStoreModel = a
       .required()
       .authorization((allow) => [
         allow.ownerDefinedIn('userId').to(['create', 'read', 'delete']),
-        allow.authenticated().to(['create', 'read']),
         allow.publicApiKey().to(['read']),
       ]),
     storeId: a
@@ -15,7 +14,6 @@ export const userStoreModel = a
       .required()
       .authorization((allow) => [
         allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
-        allow.authenticated().to(['create', 'read']),
         allow.publicApiKey().to(['read']),
       ]),
     storeName: a
@@ -23,7 +21,6 @@ export const userStoreModel = a
       .required()
       .authorization((allow) => [
         allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
-        allow.authenticated().to(['create', 'read', 'update']),
         allow.publicApiKey().to(['read']),
       ]),
     storeDescription: a.string(),
@@ -35,7 +32,12 @@ export const userStoreModel = a
     currencyLocale: a.string(),
     currencyDecimalPlaces: a.integer(),
     storeType: a.string(),
-    storeStatus: a.boolean(),
+    storeStatus: a
+      .boolean()
+      .authorization((allow) => [
+        allow.ownerDefinedIn('userId').to(['create', 'read']),
+        allow.publicApiKey().to(['read', 'update']),
+      ]),
     storeAdress: a.string(),
     contactEmail: a.string(),
     contactPhone: a.string(),
@@ -45,7 +47,6 @@ export const userStoreModel = a
       .required()
       .authorization((allow) => [
         allow.ownerDefinedIn('userId').to(['create', 'read', 'update', 'delete']),
-        allow.authenticated().to(['create', 'read', 'update']),
         allow.publicApiKey().to(['read']),
       ]),
     onboardingData: a.json(),
@@ -67,7 +68,6 @@ export const userStoreModel = a
   .identifier(['storeId'])
   .secondaryIndexes((index) => [index('userId'), index('storeName'), index('defaultDomain')])
   .authorization((allow) => [
-    allow.authenticated().to(['read', 'update', 'delete', 'create']),
     allow.publicApiKey().to(['read']),
     allow.ownerDefinedIn('userId').to(['read', 'update', 'delete', 'create']),
   ]);

@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import type { ThemeUploadResult } from '../types/theme-types';
+import { useCallback, useRef, useState } from 'react';
+import type { ThemeUploadResult } from '@/app/store/components/theme-management/types/theme-types';
 
 interface UseThemeUploadProps {
   storeId: string;
@@ -81,6 +81,12 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
 
       if (!result.success) {
         setError('Error al procesar el tema');
+        return;
+      }
+
+      // Si el tema es válido, automáticamente confirmarlo
+      if (result.validation?.isValid) {
+        setTimeout(() => handleConfirmRef.current?.(), 500);
       }
     } catch (err) {
       setError('Error al subir el tema. Por favor intenta de nuevo.');
@@ -89,6 +95,8 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
       setIsUploading(false);
     }
   }, [selectedFile, onUpload]);
+
+  const handleConfirmRef = useRef<() => void>();
 
   const handleConfirm = useCallback(async () => {
     if (!uploadResult || !selectedFile) return;
@@ -170,6 +178,8 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
       setIsConfirming(false);
     }
   }, [uploadResult, selectedFile, onConfirm, storeId]);
+
+  handleConfirmRef.current = handleConfirm;
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null);

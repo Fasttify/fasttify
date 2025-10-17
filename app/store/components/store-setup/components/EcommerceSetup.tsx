@@ -8,7 +8,6 @@ import { useUserStoreData } from '@/app/(setup)/first-steps/hooks/useUserStoreDa
 import useStoreDataStore from '@/context/core/storeDataStore';
 import { getStoreId } from '@/utils/client/store-utils';
 
-// Import new components
 import { SetupAdBanner } from '@/app/store/components/store-setup/components/ecommerce-setup-parts/SetupAdBanner';
 import { SetupHeader } from '@/app/store/components/store-setup/components/ecommerce-setup-parts/SetupHeader';
 import { SetupProgress } from '@/app/store/components/store-setup/components/ecommerce-setup-parts/SetupProgress';

@@ -76,12 +76,6 @@ export async function activateTheme(request: NextRequest, storeId: string): Prom
       );
     }
 
-    logger.info(
-      'Theme activation updated successfully',
-      { storeId, themeId, isActive: updatedTheme?.isActive },
-      'ThemeActivationAPI'
-    );
-
     return NextResponse.json(
       {
         success: true,
