@@ -22,7 +22,7 @@
  */
 
 export function getCdnBaseUrl(): string {
-  const appEnv = process.env.NODE_ENV || 'development';
+  const appEnv = process.env.APP_ENV || 'development';
 
   if (appEnv === 'production') {
     return 'https://cdn.fasttify.com';

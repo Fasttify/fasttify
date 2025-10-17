@@ -43,7 +43,7 @@ class TemplateLoader {
 
   private constructor() {
     this.bucketName = process.env.BUCKET_NAME || '';
-    this.isProduction = process.env.NODE_ENV === 'production';
+    this.isProduction = process.env.APP_ENV === 'production';
 
     if (this.bucketName) {
       this.s3Client = new S3Client({

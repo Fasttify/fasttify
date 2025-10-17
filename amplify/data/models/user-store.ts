@@ -35,7 +35,7 @@ export const userStoreModel = a
     storeStatus: a
       .boolean()
       .authorization((allow) => [
-        allow.ownerDefinedIn('userId').to(['read']),
+        allow.ownerDefinedIn('userId').to(['create', 'read']),
         allow.publicApiKey().to(['read', 'update']),
       ]),
     storeAdress: a.string(),

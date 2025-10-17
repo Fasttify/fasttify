@@ -1,17 +1,5 @@
 import { useState } from 'react';
-
-interface Theme {
-  id: string;
-  name: string;
-  version: string;
-  author: string;
-  description: string;
-  isActive: boolean;
-  fileCount: number;
-  totalSize: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Theme } from '@/app/store/components/theme-management/types/theme-types';
 
 interface UseThemeActionsProps {
   storeId: string;
@@ -81,6 +69,64 @@ export function useThemeActions({
     }
   };
 
+  const handlePreviewTheme = (theme: Theme) => {
+    const previewUrl = `/store/${_storeId}/${theme.name.toLowerCase().replace(/\s+/g, '-')}`;
+    const newWindow = window.open(previewUrl, '_blank', 'noopener,noreferrer');
+
+    if (!newWindow) {
+      throw new Error('could not open the preview window');
+    }
+  };
+
+  const handleRenameTheme = async (theme: Theme, newName: string) => {
+    try {
+      const response = await fetch(`/api/stores/${_storeId}/themes/${theme.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newName,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al renombrar el tema');
+      }
+
+      _refreshThemes();
+    } catch (error) {
+      console.error('Error renaming theme:', error);
+      throw error;
+    }
+  };
+
+  const handleThemeAction = (action: string, theme: Theme) => {
+    switch (action) {
+      case 'preview':
+        handlePreviewTheme(theme);
+        break;
+      case 'edit':
+        handleEditTheme();
+        break;
+      case 'activate':
+        openActivateModal(theme);
+        break;
+      case 'delete':
+        openDeleteModal(theme);
+        break;
+      case 'rename':
+        const newName = prompt('Nuevo nombre del tema:', theme.name);
+        if (newName && newName.trim() !== theme.name) {
+          handleRenameTheme(theme, newName.trim());
+        }
+        break;
+      default:
+        console.warn('Acción no reconocida:', action);
+    }
+  };
+
   return {
     selectedTheme,
     showActivateModal,
@@ -92,6 +138,7 @@ export function useThemeActions({
     handleEditTheme,
     handleActivateTheme,
     handleDeleteTheme,
+    handleThemeAction,
     closeActivateModal: () => setShowActivateModal(false),
     closeDeleteModal: () => setShowDeleteModal(false),
   };

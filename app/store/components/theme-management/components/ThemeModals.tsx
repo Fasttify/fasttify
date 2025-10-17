@@ -1,6 +1,6 @@
 'use client';
 
-import { BlockStack, Modal, Text } from '@shopify/polaris';
+import { BlockStack, Button, InlineStack, Modal, Text } from '@shopify/polaris';
 import { DeleteIcon, StatusActiveIcon } from '@shopify/polaris-icons';
 
 interface Theme {
@@ -43,24 +43,7 @@ export function ThemeModals({
     <>
       {/* Modal de confirmación de activación */}
       {showActivateModal && selectedTheme && (
-        <Modal
-          open={showActivateModal}
-          onClose={onCloseActivateModal}
-          title="Activar tema"
-          primaryAction={{
-            content: 'Activar',
-            onAction: onConfirmActivate,
-            icon: StatusActiveIcon,
-            loading: isActivating,
-            disabled: isActivating,
-          }}
-          secondaryActions={[
-            {
-              content: 'Cancelar',
-              onAction: onCloseActivateModal,
-              disabled: isActivating,
-            },
-          ]}>
+        <Modal open={showActivateModal} onClose={onCloseActivateModal} title="Activar tema" size="small">
           <Modal.Section>
             <BlockStack gap="400">
               <Text as="p" variant="bodyMd">
@@ -71,30 +54,28 @@ export function ThemeModals({
               </Text>
             </BlockStack>
           </Modal.Section>
+          <Modal.Section>
+            <InlineStack align="end" gap="200">
+              <Button onClick={onCloseActivateModal} disabled={isActivating} size="slim">
+                Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                icon={StatusActiveIcon}
+                onClick={onConfirmActivate}
+                loading={isActivating}
+                disabled={isActivating}
+                size="slim">
+                Activar
+              </Button>
+            </InlineStack>
+          </Modal.Section>
         </Modal>
       )}
 
       {/* Modal de confirmación de eliminación */}
       {showDeleteModal && selectedTheme && (
-        <Modal
-          open={showDeleteModal}
-          onClose={onCloseDeleteModal}
-          title="Eliminar tema"
-          primaryAction={{
-            content: 'Eliminar',
-            onAction: onConfirmDelete,
-            destructive: true,
-            icon: DeleteIcon,
-            loading: isDeleting,
-            disabled: isDeleting,
-          }}
-          secondaryActions={[
-            {
-              content: 'Cancelar',
-              onAction: onCloseDeleteModal,
-              disabled: isDeleting,
-            },
-          ]}>
+        <Modal open={showDeleteModal} onClose={onCloseDeleteModal} title="Eliminar tema" size="small">
           <Modal.Section>
             <BlockStack gap="400">
               <Text as="p" variant="bodyMd">
@@ -104,6 +85,23 @@ export function ThemeModals({
                 Esta acción no se puede deshacer. El tema se eliminará permanentemente.
               </Text>
             </BlockStack>
+          </Modal.Section>
+          <Modal.Section>
+            <InlineStack align="end" gap="200">
+              <Button onClick={onCloseDeleteModal} disabled={isDeleting} size="slim">
+                Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                tone="critical"
+                icon={DeleteIcon}
+                onClick={onConfirmDelete}
+                loading={isDeleting}
+                disabled={isDeleting}
+                size="slim">
+                Eliminar
+              </Button>
+            </InlineStack>
           </Modal.Section>
         </Modal>
       )}

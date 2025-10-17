@@ -1,17 +1,6 @@
 import { useState, useCallback } from 'react';
-import {
-  Modal,
-  Tabs,
-  Button,
-  DropZone,
-  BlockStack,
-  Text,
-  Thumbnail,
-  Banner,
-  Toast,
-  Tooltip,
-  InlineStack,
-} from '@shopify/polaris';
+import { Modal, Tabs, Button, DropZone, BlockStack, Text, Banner, Toast, Tooltip, InlineStack } from '@shopify/polaris';
+import Image from 'next/image';
 import { useLogoUpload } from '@/app/store/hooks/storage/useLogoUpload';
 import { useUserStoreData } from '@/app/(setup)/first-steps/hooks/useUserStoreData';
 import useStoreDataStore from '@/context/core/storeDataStore';
@@ -157,7 +146,16 @@ export function LogoUploader() {
                 <DropZone onDrop={handleLogoDrop} allowMultiple={false} variableHeight accept="image/*" type="image">
                   {logoUrl ? (
                     <BlockStack gap="100" inlineAlign="center">
-                      <Thumbnail source={logoUrl} alt="Logo preview" size="medium" />
+                      <div
+                        style={{
+                          width: '80px',
+                          height: '80px',
+                          position: 'relative',
+                          borderRadius: 'var(--p-border-radius-200)',
+                          overflow: 'hidden',
+                        }}>
+                        <Image src={logoUrl} alt="Logo preview" fill style={{ objectFit: 'contain' }} />
+                      </div>
                       <Button onClick={() => setLogoFile(null)} variant="plain">
                         Cambiar
                       </Button>
@@ -177,7 +175,16 @@ export function LogoUploader() {
                 <DropZone onDrop={handleFaviconDrop} allowMultiple={false} variableHeight accept="image/*" type="image">
                   {faviconUrl ? (
                     <BlockStack gap="100" inlineAlign="center">
-                      <Thumbnail source={faviconUrl} alt="Favicon preview" size="small" />
+                      <div
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          position: 'relative',
+                          borderRadius: 'var(--p-border-radius-200)',
+                          overflow: 'hidden',
+                        }}>
+                        <Image src={faviconUrl} alt="Favicon preview" fill style={{ objectFit: 'contain' }} />
+                      </div>
                       <Button onClick={() => setFaviconFile(null)} variant="plain">
                         Cambiar
                       </Button>
