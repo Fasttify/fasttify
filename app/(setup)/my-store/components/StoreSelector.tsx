@@ -88,38 +88,25 @@ export function StoreSelector() {
   }, []);
 
   return (
-    <div style={{ width: '100%', maxWidth: '483px', margin: '0 auto' }}>
-      {/* Card principal con todo el contenido */}
-      <div
-        style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          minHeight: '750px',
-          padding: '32px',
-        }}>
+    <div className="w-full max-w-[483px] mx-auto h-screen md:h-auto">
+      {/* Card principal con todo el contenido - responsive */}
+      <div className="bg-transparent rounded-none shadow-none min-h-screen p-4 md:bg-white md:rounded-xl md:shadow-lg md:min-h-[750px] md:p-8">
         {/* Header con logo y UserMenu dentro de la card */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '32px',
-          }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="flex justify-between items-center mb-6 px-4 md:mb-8 md:px-0">
+          <div className="flex items-center gap-2">
             <Image
               src="https://cdn.fasttify.com/assets/b/fast@4x.webp"
               alt="Fasttify"
               width={32}
               height={32}
-              style={{ height: '32px', width: '32px' }}
+              className="h-8 w-8"
             />
             <Image
               src="https://cdn.fasttify.com/assets/b/fastletras@4x.webp"
               alt="Fasttify"
               width={100}
               height={32}
-              style={{ height: '32px', width: 'auto' }}
+              className="h-8 w-auto"
             />
           </div>
           <UserMenu user={user} onLogout={() => useAuthStore.getState().logout()} />
@@ -127,13 +114,13 @@ export function StoreSelector() {
 
         {/* Contenido principal con un solo Suspense */}
         {!isClient ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          <div className="flex justify-center items-center h-96">
             <Spinner size="large" />
           </div>
         ) : (
           <Suspense
             fallback={
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+              <div className="flex justify-center items-center h-96">
                 <Spinner size="large" />
               </div>
             }>
