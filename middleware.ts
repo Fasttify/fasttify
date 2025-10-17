@@ -348,7 +348,15 @@ async function handleLoginRedirect(
   request: NextRequest,
   next: () => Promise<NextResponse | null>
 ): Promise<NextResponse | null> {
+  const isProduction = process.env.NODE_ENV === 'production';
+
   if (request.nextUrl.pathname === PROTECTED_ROUTES.LOGIN) {
+    if (isProduction) {
+      console.log('Login redirect handler called:', {
+        path: request.nextUrl.pathname,
+        timestamp: new Date().toISOString(),
+      });
+    }
     return await handleAuthenticatedRedirectMiddleware(request, NextResponse.next());
   }
 
