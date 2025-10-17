@@ -181,11 +181,24 @@ export async function handleAuthenticationMiddleware(request: NextRequest, respo
 }
 
 export async function handleAuthenticatedRedirectMiddleware(request: NextRequest, response: NextResponse) {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (isProduction) {
+    console.log('Authenticated redirect middleware called:', {
+      path: request.nextUrl.pathname,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   // Siempre forzar refresh para verificar la sesión actual, especialmente importante
   // cuando el usuario navega manualmente a /login
   const session = await getSession(request, response, true);
 
   if (session && typeof session === 'object' && 'tokens' in session && session.tokens) {
+    if (isProduction) {
+      console.log('User has valid session, redirecting...');
+    }
+
     // Verificar que la sesión tiene tokens válidos antes de redirigir
     const lastStoreId = getLastVisitedStore(request);
 
@@ -194,6 +207,10 @@ export async function handleAuthenticatedRedirectMiddleware(request: NextRequest
     } else {
       return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
     }
+  }
+
+  if (isProduction) {
+    console.log('No valid session found, allowing login page');
   }
 
   // Si no hay sesión válida, limpiar caché y permitir continuar (mostrar login)
