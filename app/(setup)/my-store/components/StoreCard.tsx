@@ -78,11 +78,11 @@ export function StoreCard({ store, onClick }: StoreCardProps) {
             }}>
             {initials}
           </div>
-          <BlockStack gap="50">
-            <Text variant="headingSm" as="h3" style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
+          <BlockStack gap="100">
+            <Text variant="headingSm" as="h3">
               {store.storeName}
             </Text>
-            <Text variant="bodySm" tone="subdued" style={{ margin: 0, fontSize: '14px' }}>
+            <Text variant="bodySm" tone="subdued" as="p">
               {domain}
             </Text>
           </BlockStack>
