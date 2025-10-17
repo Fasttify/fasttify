@@ -29,6 +29,7 @@ export const auth = defineAuth({
           email: 'email',
           nickname: 'name',
           profilePicture: 'picture',
+          emailVerified: 'email_verified',
         },
       },
 

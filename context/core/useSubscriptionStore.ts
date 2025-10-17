@@ -92,22 +92,24 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => {
     subscriptionResource,
     setCognitoUsername: (username) => {
       set({ cognitoUsername: username });
-      if (username) {
-        subscriptionResource.preload(username);
-      }
     },
     fetchSubscription: async () => {
-      const { cognitoUsername } = get();
+      const state = get();
 
-      if (!cognitoUsername) {
+      if (!state.cognitoUsername) {
         set({ subscription: null, loading: false, error: null });
         return null;
+      }
+
+      // Evitar peticiones duplicadas si ya está cargando
+      if (state.loading) {
+        return state.subscription;
       }
 
       set({ loading: true, error: null });
 
       try {
-        const subscription = await fetchSubscriptionData(cognitoUsername);
+        const subscription = await fetchSubscriptionData(state.cognitoUsername);
         set({
           subscription,
           loading: false,

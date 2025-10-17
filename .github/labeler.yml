@@ -1,0 +1,93 @@
+# Configuración de labels automáticos para el proyecto Fasttify
+# Basado en los archivos modificados en pull requests
+
+# Frontend y componentes UI
+frontend:
+  - app/**/*.tsx
+  - app/**/*.ts
+  - components/**/*.tsx
+  - components/**/*.ts
+  - packages/theme-editor/**/*
+  - packages/orders-app/**/*
+
+# Amplify y backend
+backend:
+  - amplify/**/*
+  - app/api/**/*
+  - lib/**/*.ts
+  - utils/**/*.ts
+  - middlewares/**/*.ts
+
+# Funciones Lambda
+lambda:
+  - amplify/functions/**/*
+  - amplify/data/functions/**/*
+
+# Configuración y DevOps
+config:
+  - '**/*.json'
+  - '**/*.yml'
+  - '**/*.yaml'
+  - '**/*.config.*'
+  - next.config.*
+  - tailwind.config.*
+  - tsconfig*.json
+  - package*.json
+  - pnpm-*.yaml
+
+# Temas y plantillas
+themes:
+  - packages/example-themes/**/*
+  - packages/liquid-forge/**/*
+  - app/themes/**/*
+
+# Documentación
+documentation:
+  - docs/**/*
+  - '**/*.md'
+  - README.md
+  - CONTRIBUTING.md
+  - SECURITY.md
+  - CODE_OF_CONDUCT.md
+
+# Tests
+tests:
+  - test/**/*
+  - '**/*.test.*'
+  - '**/*.spec.*'
+  - jest.*
+  - __tests__/**/*
+
+# Scripts y utilidades
+scripts:
+  - scripts/**/*
+
+# Email templates
+emails:
+  - packages/emails/**/*
+
+# Estilos y CSS
+styling:
+  - app/global.css
+  - '**/*.css'
+  - '**/*.scss'
+  - '**/*.sass'
+
+# Imágenes y assets
+assets:
+  - packages/image-optimization/**/*
+  - '**/*.png'
+  - '**/*.jpg'
+  - '**/*.jpeg'
+  - '**/*.gif'
+  - '**/*.svg'
+  - '**/*.webp'
+
+# Dominios y infraestructura
+infrastructure:
+  - packages/tenant-domains/**/*
+  - packages/lambda-edge-host-rewriter/**/*
+
+# Workflows de GitHub Actions
+github-actions:
+  - .github/**/*
