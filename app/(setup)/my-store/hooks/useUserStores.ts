@@ -1,5 +1,6 @@
 import { use } from 'react';
 import { client } from '@/lib/amplify-client';
+import type { Store, UseUserStoresResult } from '../types/store.types';
 
 const STORE_LIMITS = {
   Imperial: 5,
@@ -13,12 +14,13 @@ const storeCache = new Map();
  * Hook para obtener las tiendas de un usuario
  * Esta función es compatible con Suspense
  */
-export function useUserStores(userId: string | null, userPlan?: string) {
+export function useUserStores(userId: string | null, userPlan?: string): UseUserStoresResult {
   // Si no hay userId, devolver datos vacíos
   if (!userId) {
     return {
       stores: [],
-      allStores: [],
+      activeStores: [],
+      inactiveStores: [],
       canCreateStore: false,
       error: null,
       storeCount: 0,
@@ -40,7 +42,7 @@ export function useUserStores(userId: string | null, userPlan?: string) {
 /**
  * Función que realiza la consulta a la base de datos
  */
-async function fetchUserStores(userId: string, userPlan?: string) {
+async function fetchUserStores(userId: string, userPlan?: string): Promise<UseUserStoresResult> {
   try {
     // Obtener todas las tiendas del usuario (para verificar límites)
     const { data: allUserStores } = await client.models.UserStore.listUserStoreByUserId(
@@ -48,11 +50,15 @@ async function fetchUserStores(userId: string, userPlan?: string) {
         userId: userId,
       },
       {
-        selectionSet: ['storeId', 'storeName', 'storeType', 'onboardingCompleted'],
+        selectionSet: ['storeId', 'storeName', 'storeType', 'defaultDomain', 'storeStatus', 'onboardingCompleted'],
       }
     );
 
-    const completedStores = allUserStores || [];
+    const completedStores = (allUserStores || []) as Store[];
+
+    // Separar tiendas activas e inactivas
+    const activeStores = completedStores.filter((store) => store.storeStatus !== false);
+    const inactiveStores = completedStores.filter((store) => store.storeStatus === false);
 
     // Verificar límite de tiendas según el plan
     const currentCount = allUserStores?.length || 0;
@@ -60,7 +66,8 @@ async function fetchUserStores(userId: string, userPlan?: string) {
 
     return {
       stores: completedStores,
-      allStores: allUserStores || [],
+      activeStores,
+      inactiveStores,
       canCreateStore: currentCount < limit,
       error: null,
       storeCount: allUserStores?.length || 0,
@@ -69,9 +76,10 @@ async function fetchUserStores(userId: string, userPlan?: string) {
     console.error('getUserStores: Error fetching stores:', err);
     return {
       stores: [],
-      allStores: [],
+      activeStores: [],
+      inactiveStores: [],
       canCreateStore: false,
-      error: err,
+      error: err instanceof Error ? err.message : 'Error desconocido',
       storeCount: 0,
     };
   }
