@@ -394,6 +394,17 @@ async function executeHandlers(
  * @returns Respuesta procesada por los middlewares
  */
 export async function middleware(request: NextRequest): Promise<NextResponse> {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  // Log de entrada del middleware principal
+  if (isProduction) {
+    console.log('Main middleware called:', {
+      path: request.nextUrl.pathname,
+      method: request.method,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   // Definir la cadena de handlers en orden de ejecución
   const handlers: MiddlewareHandler[] = [
     handleOAuthProtection,
