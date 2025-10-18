@@ -99,19 +99,7 @@ export function useS3ImageDelete() {
     [storeId, processDeleteChunk]
   );
 
-  /**
-   * Función legacy para compatibilidad hacia atrás - elimina una sola imagen
-   */
-  const deleteImage = useCallback(
-    async (key: string): Promise<boolean> => {
-      const result = await deleteImages([key]);
-      return result ? result.successCount > 0 : false;
-    },
-    [deleteImages]
-  );
-
   return {
     deleteImages,
-    deleteImage, // Legacy
   };
 }

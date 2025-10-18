@@ -118,8 +118,8 @@ const ImageCard = memo(function ImageCard({
     ...CARD_STYLES.checkboxContainer,
     backgroundColor: deleteMode
       ? isMarkedForDeletion
-        ? '#d72c0d'
-        : 'rgba(255,255,255,0.9)'
+        ? 'transparent'
+        : 'transparent'
       : isSelected
         ? 'transparent'
         : 'rgba(255, 255, 255, 0.9)',
