@@ -61,10 +61,10 @@ export function useSubscriptionLogic(userId?: string): UseSubscriptionLogicResul
     return hasValidSubscriptionId;
   }, [subscription]);
 
-  // Determinar si es plan pagado basado en el precio del plan
+  // Determinar si es plan pagado basado en el nombre del plan
   const isPaidPlan = useMemo(() => {
-    if (!subscription) return false;
-    return (subscription.planPrice ?? 0) > 0;
+    if (!subscription || !subscription.planName) return false;
+    return subscription.planName !== 'free';
   }, [subscription]);
 
   // Obtener el plan actual
