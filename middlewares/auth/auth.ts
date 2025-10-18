@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
-import { fetchAuthSession } from 'aws-amplify/auth/server';
+import { AuthGetCurrentUserServer } from '@/utils/client/AmplifyUtils';
 import { getLastVisitedStore } from '@/lib/cookies/last-store';
 import { debugAuthIssues, validateAmplifyConfig } from '@/lib/debug/auth-debug';
 import { NextRequest, NextResponse } from 'next/server';
@@ -108,68 +107,77 @@ export async function getSession(request: NextRequest, response: NextResponse, f
     }
   }
 
-  return runWithAmplifyServerContext({
-    nextServerContext: { request, response },
-    operation: async (contextSpec) => {
-      try {
-        if (isProduction) {
-          console.log('Fetching auth session from Cognito...');
-        }
+  try {
+    if (isProduction) {
+      console.log('Getting current user from Cognito...');
+    }
 
-        const session = await fetchAuthSession(contextSpec, { forceRefresh });
-        const result = session.tokens !== undefined ? session : null;
+    const currentUser = await AuthGetCurrentUserServer();
 
-        if (isProduction) {
-          console.log('Session fetch result:', {
-            hasSession: !!session,
-            hasTokens: !!session?.tokens,
-            tokenTypes: session?.tokens ? Object.keys(session.tokens) : [],
-          });
-        }
+    if (isProduction) {
+      console.log('AuthGetCurrentUserServer result:', {
+        hasUser: !!currentUser,
+        username: currentUser?.username,
+        userId: currentUser?.userId,
+        signInDetails: currentUser?.signInDetails?.loginId,
+      });
+    }
 
-        // Limpiar caché si la sesión no es válida
-        if (!result || !result.tokens) {
-          if (isProduction) {
-            console.log('No valid session found, clearing cache');
-          }
-          sessionCache.del(cacheKey);
-          return null;
-        }
-
-        // Guardar en cache solo si la sesión es válida
-        sessionCache.set(cacheKey, result);
-
-        if (isProduction) {
-          console.log('Session cached successfully');
-        }
-
-        return result;
-      } catch (error) {
-        console.error('Error fetching user session:', error);
-
-        // En producción, ser más permisivo con errores de red/temporales
-        const isNetworkError =
-          error instanceof Error &&
-          (error.message.includes('network') ||
-            error.message.includes('timeout') ||
-            error.message.includes('ECONNRESET') ||
-            error.message.includes('ENOTFOUND'));
-
-        // Si es un error de red en producción, intentar usar caché existente
-        if (isProduction && isNetworkError) {
-          const cached = sessionCache.get(cacheKey);
-          if (cached) {
-            console.log('Using cached session due to network error');
-            return cached;
-          }
-        }
-
-        // Limpiar caché en caso de error
-        sessionCache.del(cacheKey);
-        return null;
+    // Si no hay usuario, limpiar caché
+    if (!currentUser) {
+      if (isProduction) {
+        console.log('No current user found, clearing cache');
       }
-    },
-  });
+      sessionCache.del(cacheKey);
+      return null;
+    }
+
+    // Crear objeto de sesión compatible con el formato esperado
+    const result = {
+      tokens: {
+        idToken: {
+          payload: {
+            'cognito:username': currentUser.username,
+            'custom:plan': currentUser.signInDetails?.loginId ? 'free' : undefined,
+            email: currentUser.signInDetails?.loginId || '',
+            nickname: currentUser.username,
+          },
+        },
+      },
+    };
+
+    // Guardar en cache solo si la sesión es válida
+    sessionCache.set(cacheKey, result);
+
+    if (isProduction) {
+      console.log('User session cached successfully');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error fetching user session:', error);
+
+    // En producción, ser más permisivo con errores de red/temporales
+    const isNetworkError =
+      error instanceof Error &&
+      (error.message.includes('network') ||
+        error.message.includes('timeout') ||
+        error.message.includes('ECONNRESET') ||
+        error.message.includes('ENOTFOUND'));
+
+    // Si es un error de red en producción, intentar usar caché existente
+    if (isProduction && isNetworkError) {
+      const cached = sessionCache.get(cacheKey);
+      if (cached) {
+        console.log('Using cached session due to network error');
+        return cached;
+      }
+    }
+
+    // Limpiar caché en caso de error
+    sessionCache.del(cacheKey);
+    return null;
+  }
 }
 
 export async function handleAuthenticationMiddleware(request: NextRequest, response: NextResponse) {
