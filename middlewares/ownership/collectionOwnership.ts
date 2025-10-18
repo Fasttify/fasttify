@@ -45,7 +45,7 @@ export async function handleCollectionOwnershipMiddleware(request: NextRequest) 
   }
 
   // Obtener la sesión del usuario (ya validada)
-  const session = await getSession(request, NextResponse.next(), false);
+  const session = await getSession(request, NextResponse.next());
 
   const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
 

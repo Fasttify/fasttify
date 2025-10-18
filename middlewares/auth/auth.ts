@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { AuthGetCurrentUserServer } from '@/utils/client/AmplifyUtils';
+import { AuthGetCurrentUserServer, AuthFetchUserAttributesServer } from '@/utils/client/AmplifyUtils';
 import { getLastVisitedStore } from '@/lib/cookies/last-store';
-import { debugAuthIssues, validateAmplifyConfig } from '@/lib/debug/auth-debug';
 import { NextRequest, NextResponse } from 'next/server';
 import NodeCache from 'node-cache';
 
@@ -39,6 +38,13 @@ const sessionCache = new NodeCache({
   useClones: false,
 });
 
+// Cache separado para userAttributes con TTL más corto (datos críticos)
+const userAttributesCache = new NodeCache({
+  stdTTL: 60, // 1 minuto para userAttributes
+  checkperiod: 30, // Verifica cada 30 segundos
+  useClones: false,
+});
+
 /**
  * Limpia el caché de sesiones para un usuario específico
  * Útil cuando se detectan problemas de autenticación
@@ -46,6 +52,37 @@ const sessionCache = new NodeCache({
 export function clearUserSessionCache(request: NextRequest): void {
   const cacheKey = getCacheKey(request);
   sessionCache.del(cacheKey);
+}
+
+/**
+ * Limpia todo el caché de sesiones
+ * Útil para tests
+ */
+export function clearAllSessionCache(): void {
+  sessionCache.flushAll();
+  userAttributesCache.flushAll();
+}
+
+/**
+ * Invalida el cache de un usuario específico
+ * Útil cuando se actualiza el plan del usuario
+ */
+export function invalidateUserCache(userId: string): void {
+  const sessionKeys = sessionCache.keys();
+  const attributeKeys = userAttributesCache.keys();
+
+  // Buscar y eliminar todas las claves de cache para este usuario
+  sessionKeys.forEach((key) => {
+    if (key.includes(userId)) {
+      sessionCache.del(key);
+    }
+  });
+
+  attributeKeys.forEach((key) => {
+    if (key.includes(userId)) {
+      userAttributesCache.del(key);
+    }
+  });
 }
 
 function getCacheKey(request: NextRequest): string {
@@ -84,52 +121,33 @@ function getCacheKey(request: NextRequest): string {
   return 'no-auth';
 }
 
-export async function getSession(request: NextRequest, response: NextResponse, forceRefresh = true) {
+export async function getSession(request: NextRequest, _response: NextResponse) {
   const cacheKey = getCacheKey(request);
-  const isProduction = process.env.NODE_ENV === 'production';
 
-  if (isProduction) {
-    console.log('getSession called:', {
-      cacheKey,
-      forceRefresh,
-      path: request.nextUrl.pathname,
-    });
-  }
-
-  // Verificar cache si no es forceRefresh
-  if (!forceRefresh) {
-    const cached = sessionCache.get(cacheKey);
-    if (cached) {
-      if (isProduction) {
-        console.log('Using cached session');
-      }
-      return cached;
-    }
+  // Verificar cache
+  const cached = sessionCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   try {
-    if (isProduction) {
-      console.log('Getting current user from Cognito...');
-    }
-
     const currentUser = await AuthGetCurrentUserServer();
-
-    if (isProduction) {
-      console.log('AuthGetCurrentUserServer result:', {
-        hasUser: !!currentUser,
-        username: currentUser?.username,
-        userId: currentUser?.userId,
-        signInDetails: currentUser?.signInDetails?.loginId,
-      });
-    }
 
     // Si no hay usuario, limpiar caché
     if (!currentUser) {
-      if (isProduction) {
-        console.log('No current user found, clearing cache');
-      }
       sessionCache.del(cacheKey);
+      userAttributesCache.del(cacheKey);
       return null;
+    }
+
+    // Verificar cache de userAttributes primero (datos críticos)
+    let userAttributes: Record<string, any> | undefined = userAttributesCache.get(cacheKey);
+    if (!userAttributes) {
+      const fetchedAttributes = await AuthFetchUserAttributesServer();
+      if (fetchedAttributes) {
+        userAttributes = fetchedAttributes;
+        userAttributesCache.set(cacheKey, userAttributes);
+      }
     }
 
     // Crear objeto de sesión compatible con el formato esperado
@@ -138,9 +156,9 @@ export async function getSession(request: NextRequest, response: NextResponse, f
         idToken: {
           payload: {
             'cognito:username': currentUser.username,
-            'custom:plan': currentUser.signInDetails?.loginId ? 'free' : undefined,
-            email: currentUser.signInDetails?.loginId || '',
-            nickname: currentUser.username,
+            'custom:plan': userAttributes?.['custom:plan'] || 'free',
+            email: userAttributes?.email || currentUser.signInDetails?.loginId || '',
+            nickname: userAttributes?.nickname || currentUser.username,
           },
         },
       },
@@ -149,15 +167,12 @@ export async function getSession(request: NextRequest, response: NextResponse, f
     // Guardar en cache solo si la sesión es válida
     sessionCache.set(cacheKey, result);
 
-    if (isProduction) {
-      console.log('User session cached successfully');
-    }
-
     return result;
   } catch (error) {
     console.error('Error fetching user session:', error);
 
     // En producción, ser más permisivo con errores de red/temporales
+    const isProduction = process.env.NODE_ENV === 'production';
     const isNetworkError =
       error instanceof Error &&
       (error.message.includes('network') ||
@@ -169,7 +184,6 @@ export async function getSession(request: NextRequest, response: NextResponse, f
     if (isProduction && isNetworkError) {
       const cached = sessionCache.get(cacheKey);
       if (cached) {
-        console.log('Using cached session due to network error');
         return cached;
       }
     }
@@ -181,62 +195,22 @@ export async function getSession(request: NextRequest, response: NextResponse, f
 }
 
 export async function handleAuthenticationMiddleware(request: NextRequest, response: NextResponse) {
-  const isProduction = process.env.NODE_ENV === 'production';
-
-  // Log de entrada para debugging
-  if (isProduction) {
-    console.log('Auth middleware called:', {
-      path: request.nextUrl.pathname,
-      method: request.method,
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  // Validar configuración de Amplify en producción
-  if (isProduction && !validateAmplifyConfig()) {
-    console.error('Invalid Amplify configuration detected');
-  }
-
   const session = await getSession(request, response);
 
   if (!session) {
-    // Debug detallado en producción
-    if (isProduction) {
-      console.log('No session found, running debug...');
-      debugAuthIssues(request);
-    }
-
     // Limpiar caché cuando no hay sesión válida
     clearUserSessionCache(request);
     return NextResponse.redirect(new URL('/login', request.url), { status: 302 });
-  }
-
-  if (isProduction) {
-    console.log('Session found, continuing...');
   }
 
   return null; // Permitir que el middleware continúe
 }
 
 export async function handleAuthenticatedRedirectMiddleware(request: NextRequest, response: NextResponse) {
-  const isProduction = process.env.NODE_ENV === 'production';
-
-  if (isProduction) {
-    console.log('Authenticated redirect middleware called:', {
-      path: request.nextUrl.pathname,
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  // Siempre forzar refresh para verificar la sesión actual, especialmente importante
-  // cuando el usuario navega manualmente a /login
-  const session = await getSession(request, response, true);
+  // Verificar la sesión actual cuando el usuario navega manualmente a /login
+  const session = await getSession(request, response);
 
   if (session && typeof session === 'object' && 'tokens' in session && session.tokens) {
-    if (isProduction) {
-      console.log('User has valid session, redirecting...');
-    }
-
     // Verificar que la sesión tiene tokens válidos antes de redirigir
     const lastStoreId = getLastVisitedStore(request);
 
@@ -245,10 +219,6 @@ export async function handleAuthenticatedRedirectMiddleware(request: NextRequest
     } else {
       return NextResponse.redirect(new URL('/my-store', request.url), { status: 302 });
     }
-  }
-
-  if (isProduction) {
-    console.log('No valid session found, allowing login page');
   }
 
   // Si no hay sesión válida, limpiar caché y permitir continuar (mostrar login)

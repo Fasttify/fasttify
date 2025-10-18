@@ -1,3 +1,8 @@
+import { getSession, clearAllSessionCache } from '@/middlewares/auth/auth';
+import { AuthGetCurrentUserServer, AuthFetchUserAttributesServer } from '@/utils/client/AmplifyUtils';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Mock de NodeCache
 jest.mock('node-cache', () => {
   return jest.fn().mockImplementation(() => ({
     get: jest.fn(),
@@ -7,12 +12,9 @@ jest.mock('node-cache', () => {
   }));
 });
 
-jest.mock('aws-amplify/auth/server', () => ({
-  fetchAuthSession: jest.fn(),
-}));
-
 jest.mock('@/utils/client/AmplifyUtils', () => ({
-  runWithAmplifyServerContext: jest.fn(),
+  AuthGetCurrentUserServer: jest.fn(),
+  AuthFetchUserAttributesServer: jest.fn(),
 }));
 
 jest.mock('next/server', () => ({
@@ -23,178 +25,80 @@ jest.mock('next/server', () => ({
   },
 }));
 
-import { getSession } from '@/middlewares/auth/auth';
-import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
-import { fetchAuthSession } from 'aws-amplify/auth/server';
-import { NextRequest, NextResponse } from 'next/server';
-
 describe('getSession with Caching', () => {
   let mockRequest: NextRequest;
   let mockResponse: NextResponse;
 
-  const mockSession = {
+  const mockUser = {
+    username: 'testuser',
+    userId: 'test-user-123',
+    signInDetails: {
+      loginId: 'test@example.com',
+    },
+  };
+
+  const mockUserAttributes = {
+    'custom:plan': 'Royal',
+    email: 'test@example.com',
+    nickname: 'Test User',
+  };
+
+  const expectedSession = {
     tokens: {
-      accessToken: { toString: () => 'mock-access-token' },
-      idToken: { payload: { 'cognito:username': 'testuser', 'custom:plan': 'Basic' } },
+      idToken: {
+        payload: {
+          'cognito:username': 'testuser',
+          'custom:plan': 'Royal',
+          email: 'test@example.com',
+          nickname: 'Test User',
+        },
+      },
     },
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    clearAllSessionCache();
 
-    (runWithAmplifyServerContext as jest.Mock).mockImplementation(async ({ operation }) => {
-      const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-      mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-      return await operation({});
-    });
+    mockRequest = {
+      url: 'http://localhost:3000/test',
+      headers: {
+        get: jest.fn().mockReturnValue('CognitoIdentityServiceProvider.abc123def456=testuser; other=cookie'),
+      },
+    } as unknown as NextRequest;
+
+    mockResponse = {} as NextResponse;
   });
 
-  describe('Fetch y cache de sesión nueva', () => {
-    it('debe fetchear una nueva sesión y cachearla si no es force refresh y no hay cache hit', async () => {
-      mockRequest = {
-        url: 'http://localhost:3000/test',
-        headers: {
-          get: jest.fn().mockReturnValue('CognitoIdentityServiceProvider.abc123def456=testuser; other=cookie'),
-        },
-      } as unknown as NextRequest;
+  describe('Funcionalidad básica', () => {
+    it('debe fetchear una nueva sesión correctamente', async () => {
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
 
-      mockResponse = {} as NextResponse;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
+      mockAuthFetchUserAttributesServer.mockResolvedValueOnce(mockUserAttributes);
 
-      const result = await getSession(mockRequest, mockResponse, false);
+      const result = await getSession(mockRequest, mockResponse);
 
-      expect(fetchAuthSession).toHaveBeenCalledWith(expect.any(Object), { forceRefresh: false });
-      expect(result).toEqual(mockSession);
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
+      expect(mockAuthFetchUserAttributesServer).toHaveBeenCalled();
+      expect(result).toEqual(expectedSession);
     });
-  });
 
-  describe('Retorno de sesión cacheada', () => {
-    it('debe retornar sesión del cache si no es force refresh y hay cache hit', async () => {
-      mockRequest = {
-        url: 'http://localhost:3000/test',
-        headers: {
-          get: jest.fn().mockReturnValue('CognitoIdentityServiceProvider.abc123def456=testuser; other=cookie'),
-        },
-      } as unknown as NextRequest;
+    it('debe retornar null cuando no hay usuario autenticado', async () => {
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
 
-      mockResponse = {} as NextResponse;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(null);
+      // No se llama a AuthFetchUserAttributesServer cuando no hay usuario
+      mockAuthFetchUserAttributesServer.mockResolvedValueOnce(null);
 
-      // Primera llamada - fetchea y cachea
-      const result1 = await getSession(mockRequest, mockResponse, false);
+      const result = await getSession(mockRequest, mockResponse);
 
-      // Limpiar mocks para la segunda llamada
-      jest.clearAllMocks();
-
-      // Configurar mock para la segunda llamada
-      (runWithAmplifyServerContext as jest.Mock).mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-        return await operation({});
-      });
-
-      // Segunda llamada - debería usar cache
-      const result2 = await getSession(mockRequest, mockResponse, false);
-
-      // En un cache real, solo debería llamar fetchAuthSession una vez
-      // Pero como nuestro mock no implementa cache real, verificamos que ambas llamadas funcionan
-      expect(result1).toEqual(mockSession);
-      expect(result2).toEqual(mockSession);
-    });
-  });
-
-  describe('Force refresh ignora cache', () => {
-    it('debe fetchear nueva sesión si force refresh es true', async () => {
-      mockRequest = {
-        url: 'http://localhost:3000/test',
-        headers: {
-          get: jest.fn().mockReturnValue('CognitoIdentityServiceProvider.abc123def456=testuser; other=cookie'),
-        },
-      } as unknown as NextRequest;
-
-      mockResponse = {} as NextResponse;
-
-      const result = await getSession(mockRequest, mockResponse, true);
-
-      expect(fetchAuthSession).toHaveBeenCalledWith(expect.any(Object), { forceRefresh: true });
-      expect(result).toEqual(mockSession);
-    });
-  });
-
-  describe('Generación de cache key estable', () => {
-    it('debe usar la misma cache key para las mismas cookies de Cognito', async () => {
-      const cookies = 'CognitoIdentityServiceProvider.abc123def456=testuser; other=cookie';
-
-      mockRequest = {
-        url: 'http://localhost:3000/test',
-        headers: {
-          get: jest.fn().mockReturnValue(cookies),
-        },
-      } as unknown as NextRequest;
-
-      mockResponse = {} as NextResponse;
-
-      // Primera llamada
-      await getSession(mockRequest, mockResponse, false);
-
-      // Segunda llamada con las mismas cookies
-      await getSession(mockRequest, mockResponse, false);
-
-      // Ambas llamadas deberían usar la misma key de cache (user-testuser)
-      // Verificamos que fetchAuthSession fue llamado con forceRefresh: false en ambos casos
-      expect(fetchAuthSession).toHaveBeenCalledWith(expect.any(Object), { forceRefresh: false });
-    });
-  });
-
-  describe('Manejo de errores en fetch', () => {
-    it('debe retornar null si fetchAuthSession falla', async () => {
-      mockRequest = {
-        url: 'http://localhost:3000/test',
-        headers: {
-          get: jest.fn().mockReturnValue('CognitoIdentityServiceProvider.abc123def456=testuser; other=cookie'),
-        },
-      } as unknown as NextRequest;
-
-      mockResponse = {} as NextResponse;
-
-      // Mock para que fetchAuthSession falle
-      (runWithAmplifyServerContext as jest.Mock).mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockRejectedValueOnce(new Error('Auth error'));
-        return await operation({});
-      });
-
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-      const result = await getSession(mockRequest, mockResponse, false);
-
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
+      // AuthFetchUserAttributesServer no se llama cuando no hay usuario
+      expect(mockAuthFetchUserAttributesServer).not.toHaveBeenCalled();
       expect(result).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching user session:', expect.any(Error));
-
-      consoleErrorSpy.mockRestore();
-    });
-  });
-
-  describe('No cachear sesiones inválidas', () => {
-    it('debe retornar null y no cachear si tokens es undefined', async () => {
-      mockRequest = {
-        url: 'http://localhost:3000/test',
-        headers: {
-          get: jest.fn().mockReturnValue('CognitoIdentityServiceProvider.abc123def456=testuser; other=cookie'),
-        },
-      } as unknown as NextRequest;
-
-      mockResponse = {} as NextResponse;
-
-      // Mock para que fetchAuthSession retorne sesión sin tokens
-      (runWithAmplifyServerContext as jest.Mock).mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce({ tokens: undefined });
-        return await operation({});
-      });
-
-      const result = await getSession(mockRequest, mockResponse, false);
-
-      expect(result).toBeNull();
-      expect(fetchAuthSession).toHaveBeenCalledWith(expect.any(Object), { forceRefresh: false });
     });
   });
 });
