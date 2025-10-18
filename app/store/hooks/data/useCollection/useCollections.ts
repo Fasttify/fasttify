@@ -1,7 +1,7 @@
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { useState } from 'react';
-import { storeClient, type StoreCollection } from '@/lib/amplify-client';
+import { storeClient, type StoreCollection } from '@/lib/clients/amplify-client';
 import { ensureUniqueCollectionSlug } from './utils/slugUnique';
 import { generateProductSlug } from '@/lib/utils/slug';
 

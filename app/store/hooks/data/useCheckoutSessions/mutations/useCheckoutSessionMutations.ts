@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCurrentUser } from 'aws-amplify/auth';
 import type { ICheckoutSession, CheckoutSessionCreateInput, CheckoutSessionUpdateInput } from '../types';
 import { useCheckoutSessionCacheUtils } from '../utils/checkoutSessionCacheUtils';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para manejar todas las mutaciones de sesiones de checkout

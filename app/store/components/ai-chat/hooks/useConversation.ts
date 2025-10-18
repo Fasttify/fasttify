@@ -5,7 +5,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useConversationContext } from '../context/ConversationContext';
 import { generateConversationName, generateTemporaryConversationName } from '../utils/conversation-naming';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 
 export interface Message {
   id: string;

@@ -3,7 +3,7 @@ import { CreatePageInput, createPageSchema, UpdatePageInput, updatePageSchema } 
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { useCallback, useState } from 'react';
-import { storeClient, type StorePage } from '@/lib/amplify-client';
+import { storeClient, type StorePage } from '@/lib/clients/amplify-client';
 import { ensureUniquePageSlug } from './utils/slugUnique';
 
 // Clave base para las consultas de páginas

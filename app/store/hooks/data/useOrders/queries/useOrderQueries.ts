@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { IOrder, PaginationOptions, OrdersQueryResult, OrderStatus, PaymentStatus } from '../types';
-import { storeClient } from '@/lib/amplify-client';
+import { storeClient } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para manejar las queries de órdenes

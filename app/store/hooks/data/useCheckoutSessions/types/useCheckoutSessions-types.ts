@@ -1,4 +1,4 @@
-import { type StoreCheckoutSession } from '@/lib/amplify-client';
+import { type StoreCheckoutSession } from '@/lib/clients/amplify-client';
 
 /**
  * Interfaz para representar una sesión de checkout

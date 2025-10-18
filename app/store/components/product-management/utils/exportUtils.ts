@@ -78,7 +78,9 @@ export const exportProductsToCSV = (products: IProduct[], fileName: string): boo
 
       // Prepara los datos de imágenes
       const imagesString = Array.isArray(product.images)
-        ? product.images.map((img) => img.url).join(', ')
+        ? product.images
+            .map((img: string | { url: string; alt?: string }) => (typeof img === 'string' ? img : img.url))
+            .join(', ')
         : typeof product.images === 'string'
           ? product.images
           : '';

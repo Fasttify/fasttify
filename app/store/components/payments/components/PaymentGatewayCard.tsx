@@ -10,7 +10,14 @@ interface PaymentGatewayCardProps {
 }
 
 export function PaymentGatewayCard({ gateway, isConfigured, onActivate }: PaymentGatewayCardProps) {
-  const gatewayConfig = {
+  const gatewayConfig: Record<
+    PaymentGatewayType,
+    {
+      name: string;
+      logo: string;
+      PaymentIcons: () => JSX.Element;
+    }
+  > = {
     wompi: {
       name: 'Wompi',
       logo: 'https://cdn.fasttify.com/assets/b/wompi.webp',

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { storeClient, type StoreUserSubscription } from '@/lib/amplify-client';
+import { storeClient, type StoreUserSubscription } from '@/lib/clients/amplify-client';
 
 // tipo con solo los campos necesarios
 export type MinimalSubscription = StoreUserSubscription;

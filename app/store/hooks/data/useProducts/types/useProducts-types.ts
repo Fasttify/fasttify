@@ -1,4 +1,4 @@
-import { type StoreProduct } from '@/lib/amplify-client';
+import { type StoreProduct } from '@/lib/clients/amplify-client';
 
 /**
  * Interfaz para representar un producto

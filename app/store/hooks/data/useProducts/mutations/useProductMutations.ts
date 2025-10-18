@@ -6,7 +6,7 @@ import type { IProduct, ProductCreateInput, ProductUpdateInput } from '../types'
 import { useProductCacheUtils } from '../utils';
 import { generateProductSlug } from '@/lib/utils/slug';
 import { ensureUniqueSlug } from '@/app/store/hooks/data/useProducts/utils/slugUnique';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para manejar todas las mutaciones de productos

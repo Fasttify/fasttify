@@ -12,7 +12,7 @@ import { verificationSchema, type VerificationFormData } from '@/lib/zod-schemas
 import { OTPInput, type SlotProps } from 'input-otp';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/hooks/useAuth';
-import { getConfirmSignUpErrorMessage } from '@/lib/auth-error-messages';
+import { getConfirmSignUpErrorMessage } from '@/lib/auth/auth-error-messages';
 
 interface VerificationFormProps {
   email: string;

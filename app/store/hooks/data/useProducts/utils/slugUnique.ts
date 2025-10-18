@@ -1,4 +1,4 @@
-import { storeClient } from '@/lib/amplify-client';
+import { storeClient } from '@/lib/clients/amplify-client';
 
 // Genera un slug único estilo Shopify: base, base-1, base-2, ...
 export async function ensureUniqueSlug(

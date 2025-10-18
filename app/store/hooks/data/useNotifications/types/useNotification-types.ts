@@ -1,5 +1,5 @@
 import { ConnectionState } from 'aws-amplify/api';
-import { type StoreNotification } from '@/lib/amplify-client';
+import { type StoreNotification } from '@/lib/clients/amplify-client';
 
 /**
  * Interfaz para representar una notificación

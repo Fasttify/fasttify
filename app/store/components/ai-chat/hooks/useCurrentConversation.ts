@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 
 interface UseCurrentConversationProps {
   conversationId?: string;

@@ -1,7 +1,7 @@
 import { CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
 import { create } from 'zustand';
-import { storeClient, type StoreUserStore } from '@/lib/amplify-client';
+import { storeClient, type StoreUserStore } from '@/lib/clients/amplify-client';
 
 type StoreType = StoreUserStore;
 
