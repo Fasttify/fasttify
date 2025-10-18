@@ -7,12 +7,8 @@ jest.mock('node-cache', () => {
   }));
 });
 
-jest.mock('aws-amplify/auth/server', () => ({
-  fetchAuthSession: jest.fn(),
-}));
-
 jest.mock('@/utils/client/AmplifyUtils', () => ({
-  runWithAmplifyServerContext: jest.fn(),
+  AuthGetCurrentUserServer: jest.fn(),
 }));
 
 jest.mock('next/server', () => ({
@@ -23,34 +19,44 @@ jest.mock('next/server', () => ({
   },
 }));
 
-import { getSession } from '@/middlewares/auth/auth';
-import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
-import { fetchAuthSession } from 'aws-amplify/auth/server';
+import { getSession, clearAllSessionCache } from '@/middlewares/auth/auth';
+import { AuthGetCurrentUserServer } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
 describe('getSession with Caching', () => {
   let mockRequest: NextRequest;
   let mockResponse: NextResponse;
 
-  const mockSession = {
+  const mockUser = {
+    username: 'testuser',
+    userId: 'test-user-123',
+    signInDetails: {
+      loginId: 'test@example.com',
+    },
+  };
+
+  const expectedSession = {
     tokens: {
-      accessToken: { toString: () => 'mock-access-token' },
-      idToken: { payload: { 'cognito:username': 'testuser', 'custom:plan': 'Basic' } },
+      idToken: {
+        payload: {
+          'cognito:username': 'testuser',
+          'custom:plan': 'free',
+          email: 'test@example.com',
+          nickname: 'testuser',
+        },
+      },
     },
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    (runWithAmplifyServerContext as jest.Mock).mockImplementation(async ({ operation }) => {
-      const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-      mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-      return await operation({});
-    });
+    // Limpiar caché entre tests
+    clearAllSessionCache();
   });
 
   describe('Fetch y cache de sesión nueva', () => {
-    it('debe fetchear una nueva sesión y cachearla si no es force refresh y no hay cache hit', async () => {
+    it('debe fetchear una nueva sesión y cachearla', async () => {
       mockRequest = {
         url: 'http://localhost:3000/test',
         headers: {
@@ -60,15 +66,18 @@ describe('getSession with Caching', () => {
 
       mockResponse = {} as NextResponse;
 
-      const result = await getSession(mockRequest, mockResponse, false);
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
 
-      expect(fetchAuthSession).toHaveBeenCalledWith(expect.any(Object), { forceRefresh: false });
-      expect(result).toEqual(mockSession);
+      const result = await getSession(mockRequest, mockResponse);
+
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
+      expect(result).toEqual(expectedSession);
     });
   });
 
   describe('Retorno de sesión cacheada', () => {
-    it('debe retornar sesión del cache si no es force refresh y hay cache hit', async () => {
+    it('debe retornar sesión del cache si hay cache hit', async () => {
       mockRequest = {
         url: 'http://localhost:3000/test',
         headers: {
@@ -78,31 +87,26 @@ describe('getSession with Caching', () => {
 
       mockResponse = {} as NextResponse;
 
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValue(mockUser);
+
       // Primera llamada - fetchea y cachea
-      const result1 = await getSession(mockRequest, mockResponse, false);
-
-      // Limpiar mocks para la segunda llamada
-      jest.clearAllMocks();
-
-      // Configurar mock para la segunda llamada
-      (runWithAmplifyServerContext as jest.Mock).mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-        return await operation({});
-      });
+      const result1 = await getSession(mockRequest, mockResponse);
 
       // Segunda llamada - debería usar cache
-      const result2 = await getSession(mockRequest, mockResponse, false);
+      const result2 = await getSession(mockRequest, mockResponse);
 
-      // En un cache real, solo debería llamar fetchAuthSession una vez
-      // Pero como nuestro mock no implementa cache real, verificamos que ambas llamadas funcionan
-      expect(result1).toEqual(mockSession);
-      expect(result2).toEqual(mockSession);
+      // Verificar que ambas llamadas retornan la misma sesión
+      expect(result1).toEqual(expectedSession);
+      expect(result2).toEqual(expectedSession);
+
+      // Verificar que AuthGetCurrentUserServer fue llamado
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
     });
   });
 
-  describe('Force refresh ignora cache', () => {
-    it('debe fetchear nueva sesión si force refresh es true', async () => {
+  describe('Cache siempre verifica primero', () => {
+    it('debe verificar cache antes de llamar AuthGetCurrentUserServer', async () => {
       mockRequest = {
         url: 'http://localhost:3000/test',
         headers: {
@@ -112,10 +116,13 @@ describe('getSession with Caching', () => {
 
       mockResponse = {} as NextResponse;
 
-      const result = await getSession(mockRequest, mockResponse, true);
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
 
-      expect(fetchAuthSession).toHaveBeenCalledWith(expect.any(Object), { forceRefresh: true });
-      expect(result).toEqual(mockSession);
+      const result = await getSession(mockRequest, mockResponse);
+
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
+      expect(result).toEqual(expectedSession);
     });
   });
 
@@ -132,20 +139,22 @@ describe('getSession with Caching', () => {
 
       mockResponse = {} as NextResponse;
 
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
+
       // Primera llamada
-      await getSession(mockRequest, mockResponse, false);
+      await getSession(mockRequest, mockResponse);
 
       // Segunda llamada con las mismas cookies
-      await getSession(mockRequest, mockResponse, false);
+      await getSession(mockRequest, mockResponse);
 
-      // Ambas llamadas deberían usar la misma key de cache (user-testuser)
-      // Verificamos que fetchAuthSession fue llamado con forceRefresh: false en ambos casos
-      expect(fetchAuthSession).toHaveBeenCalledWith(expect.any(Object), { forceRefresh: false });
+      // Verificar que AuthGetCurrentUserServer fue llamado
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
     });
   });
 
   describe('Manejo de errores en fetch', () => {
-    it('debe retornar null si fetchAuthSession falla', async () => {
+    it('debe retornar null si AuthGetCurrentUserServer falla', async () => {
       mockRequest = {
         url: 'http://localhost:3000/test',
         headers: {
@@ -155,16 +164,12 @@ describe('getSession with Caching', () => {
 
       mockResponse = {} as NextResponse;
 
-      // Mock para que fetchAuthSession falle
-      (runWithAmplifyServerContext as jest.Mock).mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockRejectedValueOnce(new Error('Auth error'));
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockRejectedValueOnce(new Error('Auth error'));
 
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await getSession(mockRequest, mockResponse, false);
+      const result = await getSession(mockRequest, mockResponse);
 
       expect(result).toBeNull();
       expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching user session:', expect.any(Error));
@@ -174,7 +179,7 @@ describe('getSession with Caching', () => {
   });
 
   describe('No cachear sesiones inválidas', () => {
-    it('debe retornar null y no cachear si tokens es undefined', async () => {
+    it('debe retornar null y no cachear si no hay usuario', async () => {
       mockRequest = {
         url: 'http://localhost:3000/test',
         headers: {
@@ -184,17 +189,13 @@ describe('getSession with Caching', () => {
 
       mockResponse = {} as NextResponse;
 
-      // Mock para que fetchAuthSession retorne sesión sin tokens
-      (runWithAmplifyServerContext as jest.Mock).mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce({ tokens: undefined });
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(null);
 
-      const result = await getSession(mockRequest, mockResponse, false);
+      const result = await getSession(mockRequest, mockResponse);
 
       expect(result).toBeNull();
-      expect(fetchAuthSession).toHaveBeenCalledWith(expect.any(Object), { forceRefresh: false });
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
     });
   });
 });

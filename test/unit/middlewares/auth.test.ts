@@ -1,20 +1,15 @@
 import {
   getSession,
-  type AuthSession,
   handleAuthenticatedRedirectMiddleware,
   handleAuthenticationMiddleware,
+  clearAllSessionCache,
 } from '@/middlewares/auth/auth';
-import { runWithAmplifyServerContext } from '@/utils/client/AmplifyUtils';
-import { fetchAuthSession } from 'aws-amplify/auth/server';
+import { AuthGetCurrentUserServer } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Mock de los módulos externos
-jest.mock('aws-amplify/auth/server', () => ({
-  fetchAuthSession: jest.fn(),
-}));
-
 jest.mock('@/utils/client/AmplifyUtils', () => ({
-  runWithAmplifyServerContext: jest.fn(),
+  AuthGetCurrentUserServer: jest.fn(),
 }));
 
 jest.mock('next/server', () => ({
@@ -38,100 +33,96 @@ describe('Auth Middleware', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
+
+    // Limpiar caché entre tests
+    clearAllSessionCache();
   });
 
   describe('getSession', () => {
     it('should return session when user is authenticated', async () => {
-      const mockSession = {
-        tokens: {
-          accessToken: { toString: () => 'mock-access-token' },
-          idToken: { toString: () => 'mock-id-token' },
+      const mockUser = {
+        username: 'testuser',
+        userId: 'test-user-123',
+        signInDetails: {
+          loginId: 'test@example.com',
         },
-      } as AuthSession;
+      };
 
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
 
       const result = await getSession(mockRequest, mockResponse);
 
-      expect(mockRunWithAmplifyServerContext).toHaveBeenCalledWith({
-        nextServerContext: { request: mockRequest, response: mockResponse },
-        operation: expect.any(Function),
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
+      expect(result).toEqual({
+        tokens: {
+          idToken: {
+            payload: {
+              'cognito:username': 'testuser',
+              'custom:plan': 'free',
+              email: 'test@example.com',
+              nickname: 'testuser',
+            },
+          },
+        },
       });
-      expect(result).toEqual(mockSession);
     });
 
     it('should return null when user is not authenticated', async () => {
-      const mockSession = { tokens: undefined };
-
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(null);
 
       const result = await getSession(mockRequest, mockResponse);
 
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
       expect(result).toBeNull();
     });
 
-    it('should return null when fetchAuthSession throws an error', async () => {
+    it('should return null when AuthGetCurrentUserServer throws an error', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockRejectedValueOnce(new Error('Auth error'));
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockRejectedValueOnce(new Error('Auth error'));
 
       const result = await getSession(mockRequest, mockResponse);
 
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
       expect(result).toBeNull();
       expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching user session:', expect.any(Error));
 
       consoleErrorSpy.mockRestore();
     });
 
-    it('should call fetchAuthSession with forceRefresh: true', async () => {
-      const mockSession = {
-        tokens: {
-          accessToken: { toString: () => 'mock-access-token' },
+    it('should call AuthGetCurrentUserServer', async () => {
+      const mockUser = {
+        username: 'testuser',
+        userId: 'test-user-123',
+        signInDetails: {
+          loginId: 'test@example.com',
         },
       };
 
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-        return await operation({ contextSpec: 'mock-context' });
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
 
       await getSession(mockRequest, mockResponse);
 
-      expect(fetchAuthSession).toHaveBeenCalledWith({ contextSpec: 'mock-context' }, { forceRefresh: true });
+      expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
     });
   });
 
   describe('handleAuthenticationMiddleware', () => {
     it('should return the original response when user is authenticated', async () => {
-      const mockSession = {
-        tokens: {
-          accessToken: { toString: () => 'mock-access-token' },
+      const mockUser = {
+        username: 'testuser',
+        userId: 'test-user-123',
+        signInDetails: {
+          loginId: 'test@example.com',
         },
       };
 
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
 
       const result = await handleAuthenticationMiddleware(mockRequest, mockResponse);
 
@@ -142,12 +133,8 @@ describe('Auth Middleware', () => {
     it('should redirect to login when user is not authenticated', async () => {
       const mockRedirectResponse = { type: 'redirect', url: '/login' };
 
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce({ tokens: undefined });
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(null);
 
       const mockNextResponseRedirect = NextResponse.redirect as jest.Mock;
       mockNextResponseRedirect.mockReturnValueOnce(mockRedirectResponse);
@@ -163,12 +150,8 @@ describe('Auth Middleware', () => {
 
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockRejectedValueOnce(new Error('Network error'));
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockRejectedValueOnce(new Error('Network error'));
 
       const mockNextResponseRedirect = NextResponse.redirect as jest.Mock;
       mockNextResponseRedirect.mockReturnValueOnce(mockRedirectResponse);
@@ -185,9 +168,11 @@ describe('Auth Middleware', () => {
   describe('handleAuthenticatedRedirectMiddleware', () => {
     it('should redirect to home when user is already authenticated', async () => {
       const mockRedirectResponse = { type: 'redirect', url: '/' };
-      const mockSession = {
-        tokens: {
-          accessToken: { toString: () => 'mock-access-token' },
+      const mockUser = {
+        username: 'testuser',
+        userId: 'test-user-123',
+        signInDetails: {
+          loginId: 'test@example.com',
         },
       };
 
@@ -199,12 +184,8 @@ describe('Auth Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
 
       const mockNextResponseRedirect = NextResponse.redirect as jest.Mock;
       mockNextResponseRedirect.mockReturnValueOnce(mockRedirectResponse);
@@ -236,12 +217,8 @@ describe('Auth Middleware', () => {
         url: 'https://example.com/custom-path',
       } as NextRequest;
 
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce({ tokens: undefined });
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(null);
 
       await handleAuthenticationMiddleware(customRequest, mockResponse);
 
@@ -256,18 +233,16 @@ describe('Auth Middleware', () => {
         },
       } as unknown as NextRequest;
 
-      const mockSession = {
-        tokens: {
-          accessToken: { toString: () => 'mock-access-token' },
+      const mockUser = {
+        username: 'testuser',
+        userId: 'test-user-123',
+        signInDetails: {
+          loginId: 'test@example.com',
         },
       };
 
-      const mockRunWithAmplifyServerContext = runWithAmplifyServerContext as jest.Mock;
-      mockRunWithAmplifyServerContext.mockImplementation(async ({ operation }) => {
-        const mockFetchAuthSession = fetchAuthSession as jest.Mock;
-        mockFetchAuthSession.mockResolvedValueOnce(mockSession);
-        return await operation({});
-      });
+      const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
 
       await handleAuthenticatedRedirectMiddleware(customRequest, mockResponse);
 

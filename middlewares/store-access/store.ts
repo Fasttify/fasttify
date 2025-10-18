@@ -61,7 +61,7 @@ export async function handleStoreMiddleware(request: NextRequest, response: Next
   }
 
   // Obtener la sesión del usuario (ya validada) - sin refresh para rutas específicas
-  const session = await getSession(request, response, false);
+  const session = await getSession(request, response);
 
   const userId = (session as AuthSession).tokens?.idToken?.payload?.['cognito:username'];
   const userPlan = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'];

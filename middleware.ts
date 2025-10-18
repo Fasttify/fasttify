@@ -348,15 +348,7 @@ async function handleLoginRedirect(
   request: NextRequest,
   next: () => Promise<NextResponse | null>
 ): Promise<NextResponse | null> {
-  const isProduction = process.env.NODE_ENV === 'production';
-
   if (request.nextUrl.pathname === PROTECTED_ROUTES.LOGIN) {
-    if (isProduction) {
-      console.log('Login redirect handler called:', {
-        path: request.nextUrl.pathname,
-        timestamp: new Date().toISOString(),
-      });
-    }
     return await handleAuthenticatedRedirectMiddleware(request, NextResponse.next());
   }
 
@@ -402,17 +394,6 @@ async function executeHandlers(
  * @returns Respuesta procesada por los middlewares
  */
 export async function middleware(request: NextRequest): Promise<NextResponse> {
-  const isProduction = process.env.NODE_ENV === 'production';
-
-  // Log de entrada del middleware principal
-  if (isProduction) {
-    console.log('Main middleware called:', {
-      path: request.nextUrl.pathname,
-      method: request.method,
-      timestamp: new Date().toISOString(),
-    });
-  }
-
   // Definir la cadena de handlers en orden de ejecución
   const handlers: MiddlewareHandler[] = [
     handleOAuthProtection,

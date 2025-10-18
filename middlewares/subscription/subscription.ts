@@ -25,7 +25,7 @@ export async function handleSubscriptionMiddleware(request: NextRequest, respons
   }
 
   // Obtener la sesión del usuario (ya validada)
-  const session = await getSession(request, response, false);
+  const session = await getSession(request, response);
 
   const userPlan: string | undefined = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'] as
     | string
