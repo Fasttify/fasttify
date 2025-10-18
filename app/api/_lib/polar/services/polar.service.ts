@@ -140,11 +140,19 @@ export class PolarService {
    * Mapea la respuesta de Polar a nuestro tipo PolarSubscription
    */
   private mapToPolarSubscription(polarResponse: any): PolarSubscription {
+    // Manejar tanto el campo antiguo como el nuevo
+    const customerExternalId =
+      polarResponse.customer?.externalId ||
+      polarResponse.customer?.external_customer_id ||
+      polarResponse.customer_external_id ||
+      polarResponse.external_customer_id ||
+      '';
+
     return {
       id: polarResponse.id,
       status: polarResponse.status as SubscriptionStatus,
       customerId: polarResponse.customer?.id || '',
-      customerExternalId: polarResponse.customer?.externalId || '',
+      customerExternalId,
       productId: polarResponse.productId || '',
       amount: polarResponse.amount || 0,
       currentPeriodEnd: polarResponse.currentPeriodEnd ? new Date(polarResponse.currentPeriodEnd) : new Date(),

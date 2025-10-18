@@ -16,7 +16,9 @@
 
 import { UserRepository } from '@/app/api/_lib/polar/repositories/user.repository';
 import { SubscriptionRepository } from '@/app/api/_lib/polar/repositories/subscription.repository';
+import { PolarService } from '@/app/api/_lib/polar/services/polar.service';
 import { PlanType, SubscriptionProcessResult } from '@/app/api/_lib/polar/types';
+import { extractPlanPrice } from '@/app/api/_lib/polar/utils/price-extractor.util';
 
 /**
  * Servicio para procesar datos de webhooks de Polar
@@ -34,9 +36,28 @@ export class PolarWebhookProcessorService {
    */
   async processSubscriptionWithData(subscriptionId: string, polarData: any): Promise<SubscriptionProcessResult> {
     try {
-      const userId = polarData.customerExternalId || polarData.customer?.externalId;
+      // Manejar tanto el campo antiguo como el nuevo
+      const userId =
+        polarData.customerExternalId ||
+        polarData.customer?.externalId ||
+        polarData.customer?.external_customer_id ||
+        polarData.customer_external_id ||
+        polarData.external_customer_id;
 
-      if (!userId) {
+      // Si no encontramos el external_id, intentar obtenerlo del customer_id
+      let finalUserId = userId;
+      if (!finalUserId && polarData.customer_id) {
+        console.log(`external_id not found in webhook payload, fetching from customer_id: ${polarData.customer_id}`);
+        try {
+          const polarService = new PolarService(process.env.POLAR_ACCESS_TOKEN || '');
+          const customer = await polarService.getCustomer(polarData.customer_id);
+          finalUserId = customer?.externalId || '';
+        } catch (error) {
+          console.error(`Error fetching customer ${polarData.customer_id}:`, error);
+        }
+      }
+
+      if (!finalUserId) {
         return {
           success: false,
           userId: '',
@@ -47,14 +68,14 @@ export class PolarWebhookProcessorService {
 
       // Determinar acción basada en el estado de la suscripción
       if (this.isSubscriptionActiveFromData(polarData)) {
-        return await this.activateSubscriptionWithData(userId, polarData);
+        return await this.activateSubscriptionWithData(finalUserId, polarData);
       } else if (this.isSubscriptionCanceledFromData(polarData)) {
-        return await this.cancelSubscriptionWithData(userId, polarData);
+        return await this.cancelSubscriptionWithData(finalUserId, polarData);
       }
 
       return {
         success: true,
-        userId,
+        userId: finalUserId,
         plan: PlanType.FREE,
         message: 'Subscription processed successfully',
       };
@@ -110,7 +131,7 @@ export class PolarWebhookProcessorService {
         const nextPaymentDate = polarData.currentPeriodEnd
           ? new Date(polarData.currentPeriodEnd).toISOString()
           : undefined;
-        const planPrice = polarData.amount ? polarData.amount / 100 : undefined;
+        const planPrice = extractPlanPrice(polarData);
 
         await this.subscriptionRepository.update(userId, {
           nextPaymentDate,
@@ -235,7 +256,7 @@ export class PolarWebhookProcessorService {
    */
   private extractSubscriptionDataFromPolar(userId: string, polarData: any, plan: PlanType): any {
     const nextPaymentDate = polarData.currentPeriodEnd ? new Date(polarData.currentPeriodEnd).toISOString() : undefined;
-    const planPrice = polarData.amount ? polarData.amount / 100 : undefined; // Convertir de centavos a dólares
+    const planPrice = extractPlanPrice(polarData); // Convertir de centavos a dólares
 
     return {
       id: userId,
