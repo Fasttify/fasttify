@@ -6,6 +6,7 @@ import { PolarService } from '@/app/api/_lib/polar/services/polar.service';
 import { SubscriptionService } from '@/app/api/_lib/polar/services/subscription.service';
 import { PolarWebhookProcessorService } from '@/app/api/_lib/polar/services/polar-webhook-processor.service';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
+import { invalidateUserAuthCache } from '@/lib/auth/cache-invalidation';
 
 /**
  * API Route para webhooks de Polar
@@ -108,6 +109,15 @@ async function processSubscriptionEvent(subscriptionId: string, payloadData?: an
 
     if (result.success) {
       console.log(`Successfully processed subscription ${subscriptionId}:`, result.message);
+
+      // Invalidar cache de autenticación del usuario para asegurar datos actualizados
+      // Esto es crítico para que el middleware obtenga el plan correcto inmediatamente
+      if (result.userId) {
+        console.log(`Invalidating auth cache for user: ${result.userId} (plan: ${result.plan})`);
+        invalidateUserAuthCache(result.userId);
+      } else {
+        console.warn(`No userId found in subscription result for ${subscriptionId}`);
+      }
     } else {
       console.error(`Failed to process subscription ${subscriptionId}:`, result.message);
     }

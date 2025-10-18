@@ -90,12 +90,14 @@ describe('getSession with Caching', () => {
       const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
 
       mockAuthGetCurrentUserServer.mockResolvedValueOnce(null);
+      // No se llama a AuthFetchUserAttributesServer cuando no hay usuario
       mockAuthFetchUserAttributesServer.mockResolvedValueOnce(null);
 
       const result = await getSession(mockRequest, mockResponse);
 
       expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
-      expect(mockAuthFetchUserAttributesServer).toHaveBeenCalled();
+      // AuthFetchUserAttributesServer no se llama cuando no hay usuario
+      expect(mockAuthFetchUserAttributesServer).not.toHaveBeenCalled();
       expect(result).toBeNull();
     });
   });

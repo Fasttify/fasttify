@@ -38,6 +38,13 @@ const sessionCache = new NodeCache({
   useClones: false,
 });
 
+// Cache separado para userAttributes con TTL más corto (datos críticos)
+const userAttributesCache = new NodeCache({
+  stdTTL: 60, // 1 minuto para userAttributes
+  checkperiod: 30, // Verifica cada 30 segundos
+  useClones: false,
+});
+
 /**
  * Limpia el caché de sesiones para un usuario específico
  * Útil cuando se detectan problemas de autenticación
@@ -53,6 +60,29 @@ export function clearUserSessionCache(request: NextRequest): void {
  */
 export function clearAllSessionCache(): void {
   sessionCache.flushAll();
+  userAttributesCache.flushAll();
+}
+
+/**
+ * Invalida el cache de un usuario específico
+ * Útil cuando se actualiza el plan del usuario
+ */
+export function invalidateUserCache(userId: string): void {
+  const sessionKeys = sessionCache.keys();
+  const attributeKeys = userAttributesCache.keys();
+
+  // Buscar y eliminar todas las claves de cache para este usuario
+  sessionKeys.forEach((key) => {
+    if (key.includes(userId)) {
+      sessionCache.del(key);
+    }
+  });
+
+  attributeKeys.forEach((key) => {
+    if (key.includes(userId)) {
+      userAttributesCache.del(key);
+    }
+  });
 }
 
 function getCacheKey(request: NextRequest): string {
@@ -102,12 +132,22 @@ export async function getSession(request: NextRequest, _response: NextResponse) 
 
   try {
     const currentUser = await AuthGetCurrentUserServer();
-    const userAttributes = await AuthFetchUserAttributesServer();
 
     // Si no hay usuario, limpiar caché
     if (!currentUser) {
       sessionCache.del(cacheKey);
+      userAttributesCache.del(cacheKey);
       return null;
+    }
+
+    // Verificar cache de userAttributes primero (datos críticos)
+    let userAttributes: Record<string, any> | undefined = userAttributesCache.get(cacheKey);
+    if (!userAttributes) {
+      const fetchedAttributes = await AuthFetchUserAttributesServer();
+      if (fetchedAttributes) {
+        userAttributes = fetchedAttributes;
+        userAttributesCache.set(cacheKey, userAttributes);
+      }
     }
 
     // Crear objeto de sesión compatible con el formato esperado
