@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { AuthGetCurrentUserServer } from '@/utils/client/AmplifyUtils';
+import { AuthGetCurrentUserServer, AuthFetchUserAttributesServer } from '@/utils/client/AmplifyUtils';
 import { getLastVisitedStore } from '@/lib/cookies/last-store';
 import { NextRequest, NextResponse } from 'next/server';
 import NodeCache from 'node-cache';
@@ -102,6 +102,7 @@ export async function getSession(request: NextRequest, _response: NextResponse) 
 
   try {
     const currentUser = await AuthGetCurrentUserServer();
+    const userAttributes = await AuthFetchUserAttributesServer();
 
     // Si no hay usuario, limpiar caché
     if (!currentUser) {
@@ -115,9 +116,9 @@ export async function getSession(request: NextRequest, _response: NextResponse) 
         idToken: {
           payload: {
             'cognito:username': currentUser.username,
-            'custom:plan': currentUser.signInDetails?.loginId ? 'free' : undefined,
-            email: currentUser.signInDetails?.loginId || '',
-            nickname: currentUser.username,
+            'custom:plan': userAttributes?.['custom:plan'] || 'free',
+            email: userAttributes?.email || currentUser.signInDetails?.loginId || '',
+            nickname: userAttributes?.nickname || currentUser.username,
           },
         },
       },

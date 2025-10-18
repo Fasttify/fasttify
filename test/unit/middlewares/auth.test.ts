@@ -4,12 +4,13 @@ import {
   handleAuthenticationMiddleware,
   clearAllSessionCache,
 } from '@/middlewares/auth/auth';
-import { AuthGetCurrentUserServer } from '@/utils/client/AmplifyUtils';
+import { AuthGetCurrentUserServer, AuthFetchUserAttributesServer } from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Mock de los módulos externos
 jest.mock('@/utils/client/AmplifyUtils', () => ({
   AuthGetCurrentUserServer: jest.fn(),
+  AuthFetchUserAttributesServer: jest.fn(),
 }));
 
 jest.mock('next/server', () => ({
@@ -48,20 +49,30 @@ describe('Auth Middleware', () => {
         },
       };
 
+      const mockUserAttributes = {
+        'custom:plan': 'Royal',
+        email: 'test@example.com',
+        nickname: 'Test User',
+      };
+
       const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
+
       mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
+      mockAuthFetchUserAttributesServer.mockResolvedValueOnce(mockUserAttributes);
 
       const result = await getSession(mockRequest, mockResponse);
 
       expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
+      expect(mockAuthFetchUserAttributesServer).toHaveBeenCalled();
       expect(result).toEqual({
         tokens: {
           idToken: {
             payload: {
               'cognito:username': 'testuser',
-              'custom:plan': 'free',
+              'custom:plan': 'Royal',
               email: 'test@example.com',
-              nickname: 'testuser',
+              nickname: 'Test User',
             },
           },
         },
