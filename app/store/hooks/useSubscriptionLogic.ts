@@ -58,10 +58,7 @@ export function useSubscriptionLogic(userId?: string): UseSubscriptionLogicResul
       subscription.subscriptionId && !subscription.subscriptionId.startsWith('trial-')
     );
 
-    // Verificar que tiene planPrice mayor a 0
-    const hasValidPrice = (subscription.planPrice ?? 0) > 0;
-
-    return hasValidSubscriptionId && hasValidPrice;
+    return hasValidSubscriptionId;
   }, [subscription]);
 
   // Determinar si es plan pagado basado en el precio del plan
