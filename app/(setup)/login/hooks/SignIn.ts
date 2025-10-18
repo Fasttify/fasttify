@@ -2,7 +2,7 @@ import { resendSignUpCode, signIn, type SignInInput } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { useAuth } from '@/context/hooks/useAuth';
-import { getSignInErrorMessage } from '@/lib/auth-error-messages';
+import { getSignInErrorMessage } from '@/lib/auth/auth-error-messages';
 import { getLastVisitedStoreClient } from '@/lib/cookies/last-store';
 
 interface UseAuthReturn {

@@ -5,7 +5,7 @@ import type {
   AnalyticsPeriod,
 } from '@/app/store/hooks/data/useStoreAnalytics/types';
 import { useAnalyticsCacheUtils, isValidDateFormatAnalytics } from '@/app/store/hooks/data/useStoreAnalytics/utils';
-import { storeClient } from '@/lib/amplify-client';
+import { storeClient } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para manejar las queries de analíticas de tienda

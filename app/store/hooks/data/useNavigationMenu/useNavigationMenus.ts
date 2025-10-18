@@ -3,7 +3,7 @@ import { validateMenuItems, validateNavigationMenu, validateUpdateNavigationMenu
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { useCallback, useState } from 'react';
-import { storeClient, type StoreNavigationMenu } from '@/lib/amplify-client';
+import { storeClient, type StoreNavigationMenu } from '@/lib/clients/amplify-client';
 
 const NAVIGATION_MENUS_KEY = 'navigationMenus';
 

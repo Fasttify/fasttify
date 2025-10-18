@@ -2,8 +2,8 @@ import { useToast } from '@/app/store/context/ToastContext';
 import { S3Image } from '@/app/store/hooks/storage/useS3Images';
 import { Box, Button, ButtonGroup, EmptyState, Grid, InlineStack, Spinner, Text } from '@shopify/polaris';
 import { DeleteIcon } from '@shopify/polaris-icons';
-import { useCallback, useState, memo } from 'react';
-import ImageCard from './ImageCard';
+import { useCallback, useState, memo, useMemo } from 'react';
+import ImageCard from '@/app/store/components/images-selector/components/ImageCard';
 
 interface ImageGalleryProps {
   images: S3Image[];
@@ -15,6 +15,10 @@ interface ImageGalleryProps {
   onImageSelect: (image: S3Image) => void;
   onDeleteImage: (key: string) => Promise<void>;
   onDeleteMultiple?: (keys: string[]) => Promise<void>;
+  nextContinuationToken?: string;
+  loadingMore?: boolean;
+  hasActiveFilters?: boolean;
+  allImages?: S3Image[];
 }
 
 const ImageGallery = memo(function ImageGallery({
@@ -27,12 +31,31 @@ const ImageGallery = memo(function ImageGallery({
   onImageSelect,
   onDeleteImage,
   onDeleteMultiple,
+  nextContinuationToken,
+  loadingMore = false,
+  hasActiveFilters = false,
+  allImages = [],
 }: ImageGalleryProps) {
   const [deleteMode, setDeleteMode] = useState(false);
   const [imagesToDelete, setImagesToDelete] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { showToast } = useToast();
+
+  // Determinar si debemos mostrar el estado de carga cuando no hay imágenes
+  const shouldShowLoadingState = useMemo(() => {
+    if (images.length > 0) return false;
+
+    // Si estamos cargando más, siempre mostrar spinner
+    if (loadingMore) return true;
+
+    // Si no hay filtros activos y no hay imágenes en total, pero hay más disponibles, mostrar spinner
+    if (!hasActiveFilters && nextContinuationToken && allImages.length === 0) {
+      return true;
+    }
+
+    return false;
+  }, [images.length, loadingMore, nextContinuationToken, hasActiveFilters, allImages.length]);
 
   // Memoizar funciones para evitar re-creaciones
   const isSelected = useCallback(
@@ -219,6 +242,15 @@ const ImageGallery = memo(function ImageGallery({
   }
 
   if (images.length === 0) {
+    // Si debemos mostrar estado de carga, mostrar spinner en lugar del estado vacío
+    if (shouldShowLoadingState) {
+      return (
+        <div className="flex justify-center items-center h-full">
+          <Spinner accessibilityLabel="Cargando más imágenes" size="small" />
+        </div>
+      );
+    }
+
     return (
       <EmptyState
         heading={searchTerm ? 'No se encontraron imágenes' : 'No tienes imágenes'}

@@ -21,7 +21,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Re-export all utilities for backward compatibility
 export { getContentType } from './utils/file-utils';
 export * from './utils/file-utils';
 export * from './utils/validation-utils';

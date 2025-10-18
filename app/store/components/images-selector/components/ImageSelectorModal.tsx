@@ -5,15 +5,15 @@ import { useS3ImagesWithOperations } from '@/app/store/hooks/storage/useS3Images
 import { Banner, BlockStack, Box, Modal, ProgressBar, Spinner, Text, InlineStack, Scrollable } from '@shopify/polaris';
 
 // Lazy load de componentes pesados
-const ImageGallery = lazy(() => import('./ImageGallery'));
-const SearchAndFilters = lazy(() => import('./SearchAndFilters'));
-const UploadDropZone = lazy(() => import('./UploadDropZone'));
+const ImageGallery = lazy(() => import('@/app/store/components/images-selector/components/ImageGallery'));
+const SearchAndFilters = lazy(() => import('@/app/store/components/images-selector/components/SearchAndFilters'));
+const UploadDropZone = lazy(() => import('@/app/store/components/images-selector/components/UploadDropZone'));
 
 // Hooks y utilidades
 import { useImageSelection } from '@/app/store/components/images-selector/hooks/useImageSelection';
 import { useImageUpload } from '@/app/store/components/images-selector/hooks/useImageUpload';
-import { filterAndSortImages, getFilterStats } from '../utils/filterUtils';
-import type { FilterState } from '../hooks/useImageFilters';
+import { filterAndSortImages, getFilterStats } from '@/app/store/components/images-selector/utils/filterUtils';
+import type { FilterState } from '@/app/store/components/images-selector/hooks/useImageFilters';
 
 interface ImageSelectorModalProps {
   open: boolean;
@@ -54,6 +54,17 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
   const filterStats = useMemo(() => {
     return getFilterStats(images, filteredImages);
   }, [images, filteredImages]);
+
+  // Calcular si hay filtros activos
+  const hasActiveFilters = useMemo(() => {
+    return (
+      filters.fileTypes.length > 0 ||
+      filters.fileSizes.length > 0 ||
+      filters.usedIn.length > 0 ||
+      filters.products.length > 0 ||
+      filters.searchTerm.length > 0
+    );
+  }, [filters]);
 
   const { selectedImage, handleImageSelect, getSelectedImages, removeFromSelection, addToSelection } =
     useImageSelection({
@@ -280,16 +291,12 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
                 onImageSelect={handleImageSelect}
                 onDeleteImage={handleDeleteImage}
                 onDeleteMultiple={handleDeleteMultiple}
+                nextContinuationToken={nextContinuationToken}
+                loadingMore={loadingMore}
+                hasActiveFilters={hasActiveFilters}
+                allImages={images}
               />
             </Suspense>
-
-            {loadingMore && (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                <Box paddingBlockStart="400">
-                  <Spinner accessibilityLabel="Cargando más imágenes" size="small" />
-                </Box>
-              </div>
-            )}
           </BlockStack>
         </Modal.Section>
       </Scrollable>

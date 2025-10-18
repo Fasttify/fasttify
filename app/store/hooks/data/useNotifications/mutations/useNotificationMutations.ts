@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import type { Notification } from '../types';
 import { useNotificationCacheUtils } from '../utils/notificationCacheUtils';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para manejar todas las mutaciones de notificaciones

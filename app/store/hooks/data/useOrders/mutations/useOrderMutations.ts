@@ -3,7 +3,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
 import type { IOrder, OrderCreateInput, OrderUpdateInput, OrderStatus, PaymentStatus } from '../types';
 import { useOrderCacheUtils } from '../utils/orderCacheUtils';
 import { useOrderNotifications } from '../notifications/useOrderNotifications';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para manejar todas las mutaciones de órdenes

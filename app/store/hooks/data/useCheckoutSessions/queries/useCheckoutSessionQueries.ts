@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ICheckoutSession, PaginationOptions, CheckoutSessionsQueryResult, CheckoutSessionStatus } from '../types';
-import { storeClient } from '@/lib/amplify-client';
+import { storeClient } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para manejar las queries de sesiones de checkout

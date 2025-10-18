@@ -8,11 +8,11 @@ import {
   type PaymentGatewayConfig,
   type StoreInitializationResult,
   type CreateUserStoreInput,
-} from '@/lib/amplify-client';
+} from '@/lib/clients/amplify-client';
 import useAuthStore from '@/context/core/userStore';
 
 // Re-exportar tipos para compatibilidad
-export type { PaymentGatewayType, PaymentGatewayConfig, StoreInitializationResult } from '@/lib/amplify-client';
+export type { PaymentGatewayType, PaymentGatewayConfig, StoreInitializationResult } from '@/lib/clients/amplify-client';
 
 export const useUserStoreData = () => {
   const [loading, setLoading] = useState<boolean>(false);

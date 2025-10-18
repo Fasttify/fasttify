@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { signUpSchema, type SignUpFormData } from '@/lib/zod-schemas/schemas';
 import Link from 'next/link';
 import { useAuth } from '@/context/hooks/useAuth';
-import { getSignUpErrorMessage } from '@/lib/auth-error-messages';
+import { getSignUpErrorMessage } from '@/lib/auth/auth-error-messages';
 
 interface SignUpFormProps {
   onVerificationNeeded: (email: string, password: string) => void;

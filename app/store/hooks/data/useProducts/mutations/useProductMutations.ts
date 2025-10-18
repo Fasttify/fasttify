@@ -1,4 +1,4 @@
-import { normalizeAttributesField, normalizeTagsField, withLowercaseName } from '@/app/store/hooks/utils/productUtils';
+import { normalizeAttributesField, normalizeTagsField } from '@/app/store/hooks/utils/productUtils';
 import { useCacheInvalidation } from '@/hooks/cache/useCacheInvalidation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -6,7 +6,7 @@ import type { IProduct, ProductCreateInput, ProductUpdateInput } from '../types'
 import { useProductCacheUtils } from '../utils';
 import { generateProductSlug } from '@/lib/utils/slug';
 import { ensureUniqueSlug } from '@/app/store/hooks/data/useProducts/utils/slugUnique';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para manejar todas las mutaciones de productos
@@ -34,7 +34,7 @@ export const useProductMutations = (storeId: string | undefined) => {
         slug = await ensureUniqueSlug(storeId, slug);
       }
 
-      const dataToSend = withLowercaseName({
+      const dataToSend = {
         ...productData,
         slug,
         attributes: normalizeAttributesField(
@@ -45,7 +45,8 @@ export const useProductMutations = (storeId: string | undefined) => {
         owner: username,
         status: productData.status || 'DRAFT',
         quantity: productData.quantity || 0,
-      });
+        nameLowercase: productData.name?.toLowerCase(),
+      };
 
       const { data } = await client.models.Product.create(dataToSend);
       return data as IProduct;
@@ -75,14 +76,15 @@ export const useProductMutations = (storeId: string | undefined) => {
         nextSlug = await ensureUniqueSlug(storeId, nextSlug, productData.id);
       }
 
-      const dataToSend = withLowercaseName({
+      const dataToSend = {
         ...productData,
         ...(nextSlug ? { slug: nextSlug } : {}),
         attributes: normalizeAttributesField(
           productData.attributes as string | { name?: string; values?: string[] }[] | undefined
         ),
         tags: normalizeTagsField(productData.tags as string[] | string | undefined),
-      });
+        nameLowercase: (productData as any).name?.toLowerCase(),
+      };
 
       const { data } = await client.models.Product.update(dataToSend);
       return data as IProduct;
@@ -174,7 +176,7 @@ export const useProductMutations = (storeId: string | undefined) => {
       duplicatedSlug = await ensureUniqueSlug(originalProduct.storeId, duplicatedSlug);
 
       // Crear una copia del producto sin campos que se generan automáticamente
-      const duplicatedProduct = withLowercaseName({
+      const duplicatedProduct = {
         storeId: originalProduct.storeId,
         name: duplicatedName,
         nameLowercase: duplicatedName.toLowerCase(),
@@ -196,7 +198,7 @@ export const useProductMutations = (storeId: string | undefined) => {
         collectionId: originalProduct.collectionId,
         supplier: originalProduct.supplier,
         owner: username,
-      });
+      };
 
       const { data } = await client.models.Product.create(duplicatedProduct);
       return data as IProduct;

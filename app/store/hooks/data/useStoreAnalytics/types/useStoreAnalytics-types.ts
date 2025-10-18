@@ -1,4 +1,4 @@
-import { type StoreAnalyticsType } from '@/lib/amplify-client';
+import { type StoreAnalyticsType } from '@/lib/clients/amplify-client';
 
 /**
  * Tipo principal para las analíticas de tienda

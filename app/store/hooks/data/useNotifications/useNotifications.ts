@@ -10,7 +10,7 @@ import { CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/api';
 import { Hub } from 'aws-amplify/utils';
 import { useNotificationMutations } from './mutations';
 import { useNotificationQueries } from './queries';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para gestionar notificaciones con paginación y caché usando React Query

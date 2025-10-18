@@ -4,7 +4,7 @@
  * y categoría del producto.
  */
 import { useState, useCallback } from 'react';
-import { aiClient } from '@/lib/amplify-client';
+import { aiClient } from '@/lib/clients/amplify-client';
 
 /**
  * Hook personalizado que gestiona la generación de descripciones de productos con IA.

@@ -1,5 +1,5 @@
 import { use } from 'react';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 import type { Store, UseUserStoresResult } from '../types/store.types';
 
 const STORE_LIMITS = {

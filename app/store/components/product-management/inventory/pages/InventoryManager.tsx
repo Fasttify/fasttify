@@ -37,7 +37,9 @@ export function InventoryManager({ storeId }: InventoryManagerProps) {
         images = undefined;
       }
     } else if (Array.isArray(product.images)) {
-      images = product.images.map((img) => (typeof img === 'string' ? { url: img } : img));
+      images = product.images.map((img: string | { url: string; alt?: string }) =>
+        typeof img === 'string' ? { url: img } : img
+      );
     }
 
     return {

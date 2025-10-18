@@ -1,4 +1,4 @@
-import { type StoreOrder, type StoreOrderItem } from '@/lib/amplify-client';
+import { type StoreOrder, type StoreOrderItem } from '@/lib/clients/amplify-client';
 
 /**
  * Interfaz para representar una orden

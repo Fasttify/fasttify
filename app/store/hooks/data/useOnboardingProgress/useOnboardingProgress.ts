@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { client } from '@/lib/amplify-client';
+import { client } from '@/lib/clients/amplify-client';
 
 interface OnboardingProgressParams {
   storeId: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { inter } from '@/lib/fonts';
+import { inter } from '@/lib/fonts/fonts';
 import { useAuthInitializer } from '@/hooks/auth/useAuthInitializer';
 import { AppProvider } from '@shopify/polaris';
 import '@shopify/polaris/build/esm/styles.css';

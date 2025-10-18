@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { StoreCart, StoreCartItem } from '@/lib/amplify-client';
+import type { StoreCart, StoreCartItem } from '@/lib/clients/amplify-client';
 
 export type Cart = Omit<StoreCart, 'items'> & {
   items: CartItem[];

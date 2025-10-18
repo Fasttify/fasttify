@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Notification, NotificationFilterOptions, NotificationsQueryResult, PaginationOptions } from '../types';
-import { storeClient } from '@/lib/amplify-client';
+import { storeClient } from '@/lib/clients/amplify-client';
 
 /**
  * Hook para manejar las queries de notificaciones

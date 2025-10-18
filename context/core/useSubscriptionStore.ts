@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { storeClient, type StoreUserSubscription } from '@/lib/amplify-client';
+import { storeClient, type StoreUserSubscription } from '@/lib/clients/amplify-client';
 
 // tipo con solo los campos necesarios
 export type MinimalSubscription = StoreUserSubscription;
@@ -60,9 +60,24 @@ function createResource() {
 // Función auxiliar para obtener los datos de suscripción
 async function fetchSubscriptionData(username: string): Promise<MinimalSubscription | null> {
   try {
-    const { data, errors } = await storeClient.models.UserSubscription.listUserSubscriptionByUserId({
-      userId: username,
-    });
+    const { data, errors } = await storeClient.models.UserSubscription.listUserSubscriptionByUserId(
+      {
+        userId: username,
+      },
+      {
+        selectionSet: [
+          'id',
+          'userId',
+          'subscriptionId',
+          'planName',
+          'createdAt',
+          'updatedAt',
+          'nextPaymentDate',
+          'pendingPlan',
+          'pendingStartDate',
+        ],
+      }
+    );
 
     if (errors && errors.length > 0) {
       throw new Error('Error getting subscription');

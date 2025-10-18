@@ -63,24 +63,26 @@ export function useS3ImagesWithOperations(options: UseS3ImagesWithOperationsOpti
         const failedKeys = new Set(result.failedDeletes.map((f) => f.key));
         const successfullyDeletedKeys = keys.filter((key) => !failedKeys.has(key));
 
+        // Verificar si necesitaremos auto-cargar antes de actualizar el estado
+        const willNeedAutoLoad =
+          images.length - successfullyDeletedKeys.length === 0 && nextContinuationToken && fetchMoreImages;
+
         updateImages((prev) => {
-          const newImages = prev.filter((img) => !successfullyDeletedKeys.includes(img.key));
-
-          // Si no quedan imágenes pero hay más disponibles, cargar automáticamente
-          if (newImages.length === 0 && nextContinuationToken) {
-            // Usar setTimeout para evitar conflictos con el estado actual
-            setTimeout(() => {
-              checkAndLoadMoreIfNeeded();
-            }, 100);
-          }
-
-          return newImages;
+          return prev.filter((img) => !successfullyDeletedKeys.includes(img.key));
         });
+
+        // Auto-cargar después de la actualización si es necesario
+        if (willNeedAutoLoad) {
+          // Usar setTimeout para permitir que la actualización del estado se complete
+          setTimeout(() => {
+            fetchMoreImages();
+          }, 150);
+        }
       }
 
       return result;
     },
-    [deleteImagesBase, updateImages, nextContinuationToken, checkAndLoadMoreIfNeeded]
+    [deleteImagesBase, updateImages, nextContinuationToken, fetchMoreImages, images.length]
   );
 
   /**
@@ -92,14 +94,6 @@ export function useS3ImagesWithOperations(options: UseS3ImagesWithOperationsOpti
       return result ? result.successfulImages : null;
     },
     [uploadImages]
-  );
-
-  const deleteImage = useCallback(
-    async (key: string): Promise<boolean> => {
-      const result = await deleteImages([key]);
-      return result ? result.successCount > 0 : false;
-    },
-    [deleteImages]
   );
 
   return {
@@ -120,7 +114,6 @@ export function useS3ImagesWithOperations(options: UseS3ImagesWithOperationsOpti
 
     // Funciones legacy
     uploadImage,
-    deleteImage,
 
     // Utilidades
     validateFile,
