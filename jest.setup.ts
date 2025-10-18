@@ -6,6 +6,19 @@ process.env.DEV_CACHE_ENABLED = 'true';
 
 global.console.warn = jest.fn();
 
+// Polyfill para Request y Response (necesario para el SDK de Polar)
+global.Request =
+  global.Request ||
+  class Request {
+    constructor(_input: string | Request, _init?: RequestInit) {}
+  };
+
+global.Response =
+  global.Response ||
+  class Response {
+    constructor(_body?: BodyInit | null, _init?: ResponseInit) {}
+  };
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({

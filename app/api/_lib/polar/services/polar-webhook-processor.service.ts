@@ -18,6 +18,7 @@ import { UserRepository } from '@/app/api/_lib/polar/repositories/user.repositor
 import { SubscriptionRepository } from '@/app/api/_lib/polar/repositories/subscription.repository';
 import { PolarService } from '@/app/api/_lib/polar/services/polar.service';
 import { PlanType, SubscriptionProcessResult } from '@/app/api/_lib/polar/types';
+import { extractPlanPrice } from '@/app/api/_lib/polar/utils/price-extractor.util';
 
 /**
  * Servicio para procesar datos de webhooks de Polar
@@ -130,7 +131,7 @@ export class PolarWebhookProcessorService {
         const nextPaymentDate = polarData.currentPeriodEnd
           ? new Date(polarData.currentPeriodEnd).toISOString()
           : undefined;
-        const planPrice = polarData.amount ? polarData.amount / 100 : undefined;
+        const planPrice = extractPlanPrice(polarData);
 
         await this.subscriptionRepository.update(userId, {
           nextPaymentDate,
@@ -255,7 +256,7 @@ export class PolarWebhookProcessorService {
    */
   private extractSubscriptionDataFromPolar(userId: string, polarData: any, plan: PlanType): any {
     const nextPaymentDate = polarData.currentPeriodEnd ? new Date(polarData.currentPeriodEnd).toISOString() : undefined;
-    const planPrice = polarData.amount ? polarData.amount / 100 : undefined; // Convertir de centavos a dólares
+    const planPrice = extractPlanPrice(polarData); // Convertir de centavos a dólares
 
     return {
       id: userId,

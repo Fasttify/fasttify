@@ -18,6 +18,7 @@ import { UserRepository } from '@/app/api/_lib/polar/repositories/user.repositor
 import { SubscriptionRepository } from '@/app/api/_lib/polar/repositories/subscription.repository';
 import { PolarService } from '@/app/api/_lib/polar/services/polar.service';
 import { PlanType, SubscriptionProcessResult, ProductConfig, ProductPlanMapping } from '@/app/api/_lib/polar/types';
+import { extractPlanPrice } from '@/app/api/_lib/polar/utils/price-extractor.util';
 
 /**
  * Servicio de aplicación para lógica de negocio de suscripciones
@@ -123,7 +124,7 @@ export class SubscriptionService {
         const nextPaymentDate = polarSubscription?.currentPeriodEnd
           ? new Date(polarSubscription.currentPeriodEnd).toISOString()
           : undefined;
-        const planPrice = polarSubscription?.amount ? polarSubscription.amount / 100 : undefined;
+        const planPrice = extractPlanPrice(polarSubscription);
 
         await this.subscriptionRepository.update(userId, {
           nextPaymentDate,
@@ -147,7 +148,7 @@ export class SubscriptionService {
         const nextPaymentDate = polarSubscription?.currentPeriodEnd
           ? new Date(polarSubscription.currentPeriodEnd).toISOString()
           : undefined;
-        const planPrice = polarSubscription?.amount ? polarSubscription.amount / 100 : undefined;
+        const planPrice = extractPlanPrice(polarSubscription);
 
         await this.subscriptionRepository.upsert({
           id: userId,
