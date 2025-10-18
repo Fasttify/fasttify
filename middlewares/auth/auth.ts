@@ -87,11 +87,23 @@ function getCacheKey(request: NextRequest): string {
 
 export async function getSession(request: NextRequest, response: NextResponse, forceRefresh = true) {
   const cacheKey = getCacheKey(request);
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (isProduction) {
+    console.log('getSession called:', {
+      cacheKey,
+      forceRefresh,
+      path: request.nextUrl.pathname,
+    });
+  }
 
   // Verificar cache si no es forceRefresh
   if (!forceRefresh) {
     const cached = sessionCache.get(cacheKey);
     if (cached) {
+      if (isProduction) {
+        console.log('Using cached session');
+      }
       return cached;
     }
   }
@@ -100,11 +112,26 @@ export async function getSession(request: NextRequest, response: NextResponse, f
     nextServerContext: { request, response },
     operation: async (contextSpec) => {
       try {
+        if (isProduction) {
+          console.log('Fetching auth session from Cognito...');
+        }
+
         const session = await fetchAuthSession(contextSpec, { forceRefresh });
         const result = session.tokens !== undefined ? session : null;
 
+        if (isProduction) {
+          console.log('Session fetch result:', {
+            hasSession: !!session,
+            hasTokens: !!session?.tokens,
+            tokenTypes: session?.tokens ? Object.keys(session.tokens) : [],
+          });
+        }
+
         // Limpiar caché si la sesión no es válida
         if (!result || !result.tokens) {
+          if (isProduction) {
+            console.log('No valid session found, clearing cache');
+          }
           sessionCache.del(cacheKey);
           return null;
         }
@@ -112,12 +139,15 @@ export async function getSession(request: NextRequest, response: NextResponse, f
         // Guardar en cache solo si la sesión es válida
         sessionCache.set(cacheKey, result);
 
+        if (isProduction) {
+          console.log('Session cached successfully');
+        }
+
         return result;
       } catch (error) {
         console.error('Error fetching user session:', error);
 
         // En producción, ser más permisivo con errores de red/temporales
-        const isProduction = process.env.NODE_ENV === 'production';
         const isNetworkError =
           error instanceof Error &&
           (error.message.includes('network') ||
