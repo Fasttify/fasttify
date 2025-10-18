@@ -1,13 +1,9 @@
-import outputs from '@/amplify_outputs.json';
 import { getCdnUrlForKey } from '@/utils/client';
-import { Amplify } from 'aws-amplify';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { uploadData } from 'aws-amplify/storage';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getFileExtension } from '@/lib/utils/file-utils';
-
-Amplify.configure(outputs);
 
 type UploadType = 'logo' | 'favicon';
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
