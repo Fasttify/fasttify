@@ -1,4 +1,5 @@
 import { Card, SkeletonBodyText, SkeletonThumbnail, SkeletonDisplayText } from '@shopify/polaris';
+import type { JSX } from 'react';
 
 interface ProfilePageSkeletonProps {
   isGoogleUser?: boolean;

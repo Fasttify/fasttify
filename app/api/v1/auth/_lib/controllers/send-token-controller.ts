@@ -47,7 +47,7 @@ export async function postSendToken(request: NextRequest) {
         token,
         email,
         storeName: storeId ? 'Tu Tienda' : 'Fasttify',
-      }) as React.ReactElement
+      }) as React.ReactElement<any>
     );
 
     // Enviar email

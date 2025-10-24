@@ -38,8 +38,8 @@ export interface EmptyStateProps {
 export interface MessageListProps {
   messages: Message[];
   loading: boolean;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
-  scrollRef?: React.RefObject<HTMLDivElement>;
+  messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  scrollRef?: React.RefObject<HTMLDivElement | null>;
   hasMoreMessages?: boolean;
   loadingMoreMessages?: boolean;
   onLoadMore?: () => Promise<void>;

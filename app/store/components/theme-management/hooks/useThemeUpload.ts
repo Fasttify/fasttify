@@ -96,7 +96,7 @@ export function useThemeUpload({ storeId, onUpload, onConfirm }: UseThemeUploadP
     }
   }, [selectedFile, onUpload]);
 
-  const handleConfirmRef = useRef<() => void>();
+  const handleConfirmRef = useRef<() => void>(undefined);
 
   const handleConfirm = useCallback(async () => {
     if (!uploadResult || !selectedFile) return;

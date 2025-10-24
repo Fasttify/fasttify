@@ -3,7 +3,7 @@ import { useRef, useState, memo, useCallback } from 'react';
 import { useUpdateProfilePicture } from '@/app/store/hooks/profile';
 import { useSecureUrl } from '@/hooks/auth/useSecureUrl';
 import { ImageIcon } from '@shopify/polaris-icons';
-import Image from 'next/image';
+import { OptimizedImage as Image } from '@/components/ui/optimized-image';
 
 interface UserAvatarProps {
   imageUrl?: string;

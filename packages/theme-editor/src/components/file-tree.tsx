@@ -132,10 +132,7 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
           direction,
         }}>
         <div className={cn('size-full', className)}>
-          <Scrollable
-            ref={ref as React.LegacyRef<ScrollableRef>}
-            className="h-full relative px-2"
-            dir={dir as Direction}>
+          <Scrollable ref={ref as React.Ref<ScrollableRef>} className="h-full relative px-2" dir={dir as Direction}>
             <AccordionPrimitive.Root
               {...props}
               type="multiple"

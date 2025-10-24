@@ -393,7 +393,7 @@ async function executeHandlers(
  * @param request - Petición entrante de Next.js
  * @returns Respuesta procesada por los middlewares
  */
-export async function middleware(request: NextRequest): Promise<NextResponse> {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
   // Definir la cadena de handlers en orden de ejecución
   const handlers: MiddlewareHandler[] = [
     handleOAuthProtection,

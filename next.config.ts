@@ -2,9 +2,9 @@ import type { NextConfig } from 'next';
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  // TypeScript optimizations - disable type checking in build
+  reactCompiler: true,
   typescript: {
-    ignoreBuildErrors: true, // Disable type checking during build
+    ignoreBuildErrors: true,
   },
 
   serverExternalPackages: [
@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 
-    unoptimized: process.env.NODE_ENV === 'development',
+    unoptimized: false,
 
     qualities: [25, 50, 75, 85, 90, 95, 100],
 
@@ -75,6 +75,9 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  experimental: {
+    turbopackFileSystemCacheForDev: true,
   },
 };
 

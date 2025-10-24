@@ -40,7 +40,7 @@ const slides: CompatibilitySlide[] = [
 ];
 
 export function Platform() {
-  const swiperRef = useRef<SwiperType>();
+  const swiperRef = useRef<SwiperType>(undefined);
   const [activeIndex, setActiveIndex] = useState(0);
   const [navigationLocked, setNavigationLocked] = useState(false);
   const [isAutoplay, setIsAutoplay] = useState(true);

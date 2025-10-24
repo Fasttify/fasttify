@@ -70,7 +70,7 @@ export function DateRangePicker({
           year={year}
           shouldShowMultiMonth={shouldShowMultiMonth}
           mdDown={mdDown}
-          popoverContentRef={popoverContentRef}
+          popoverContentRef={popoverContentRef as React.RefObject<HTMLDivElement>}
           onStartInputChange={handleStartInputValueChange}
           onEndInputChange={handleEndInputValueChange}
           onInputBlur={handleInputBlur}

@@ -29,7 +29,7 @@ interface UseNotificationPopoverResult {
 
   hasNextPage: boolean;
   loadMore: () => Promise<void>;
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   handleScroll: () => void;
 
   refreshNotifications: () => void;
