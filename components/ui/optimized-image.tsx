@@ -78,5 +78,24 @@ function shouldApplyCustomLoader(src: string | StaticImageData | undefined, useC
   }
 
   // Only use custom loader if explicitly requested and it's a Fasttify CDN or relative path
-  return useCustomLoader && (src.includes('fasttify.com') || src.startsWith('/'));
+  if (!useCustomLoader) {
+    return false;
+  }
+
+  // Check for relative paths (safe)
+  if (src.startsWith('/')) {
+    return true;
+  }
+
+  // Check for Fasttify CDN with proper URL validation
+  try {
+    const url = new URL(src);
+    const hostname = url.hostname.toLowerCase();
+
+    // Only allow exact Fasttify domains or subdomains
+    return hostname === 'fasttify.com' || hostname.endsWith('.fasttify.com');
+  } catch {
+    // If URL parsing fails, it's not a valid URL, so don't use custom loader
+    return false;
+  }
 }

@@ -24,6 +24,8 @@ const config: Config = {
     '^@/liquid-forge$': '<rootDir>/packages/liquid-forge',
     '^@/tenant-domains/(.*)$': '<rootDir>/packages/tenant-domains/$1',
     '^@/tenant-domains$': '<rootDir>/packages/tenant-domains',
+    '^@/packages/theme-editor/(.*)$': '<rootDir>/packages/theme-editor/src/$1',
+    '^@/packages/theme-editor$': '<rootDir>/packages/theme-editor/src',
     '^@/(.*)$': '<rootDir>/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
