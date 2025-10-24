@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Page, Card, Text, Button, InlineGrid, Box, Badge, BlockStack } from '@shopify/polaris';
-import { OptimizedImage } from '@/components/ui/optimized-image';
+import Image from 'next/image';
 import { ConnectModal } from '@/app/store/components/app-integration/components/ConnectModal';
 
 export function AppIntegrationPage() {
@@ -20,12 +20,7 @@ export function AppIntegrationPage() {
             padding: 'var(--p-space-600)',
           }}>
           <div style={{ position: 'relative', height: '12rem', width: '12rem' }}>
-            <OptimizedImage
-              src="/icons/mastershop-logo.png"
-              alt="Master Shop Logo"
-              fill
-              style={{ objectFit: 'contain' }}
-            />
+            <Image src="/icons/mastershop-logo.png" alt="Master Shop Logo" fill style={{ objectFit: 'contain' }} />
           </div>
         </div>
         <Box padding="600">
@@ -72,7 +67,7 @@ export function AppIntegrationPage() {
                 borderRadius: 'var(--p-border-radius-100)',
                 background: 'var(--p-color-bg-surface-secondary)',
               }}>
-              <OptimizedImage
+              <Image
                 src={`/placeholder.svg?height=40&width=40`}
                 alt={`App ${i} Logo`}
                 fill

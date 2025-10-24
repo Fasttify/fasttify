@@ -8,7 +8,7 @@ import { useFirstStepsSetup } from '@/app/(setup)/first-steps/hooks/useFirstStep
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, InfoIcon, Store, User } from 'lucide-react';
-import { OptimizedImage as Image } from '@/components/ui/optimized-image';
+import Image from 'next/image';
 import outputs from '@/amplify_outputs.json';
 import { Amplify } from 'aws-amplify';
 

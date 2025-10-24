@@ -1,6 +1,6 @@
 'use client';
 
-import { OptimizedImage as Image } from '@/components/ui/optimized-image';
+import Image from 'next/image';
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';

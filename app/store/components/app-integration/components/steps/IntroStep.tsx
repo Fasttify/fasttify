@@ -1,4 +1,4 @@
-import { OptimizedImage as Image } from '@/components/ui/optimized-image';
+import Image from 'next/image';
 import { BlockStack, InlineStack, Text, List, Icon, Box } from '@shopify/polaris';
 import { CheckCircleIcon } from '@shopify/polaris-icons';
 import { BENEFITS } from '@/app/store/components/app-integration/constants/connectModal';

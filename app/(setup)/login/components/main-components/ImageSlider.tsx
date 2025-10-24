@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { OptimizedImage } from '@/components/ui/optimized-image';
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade } from 'swiper/modules';
 import 'swiper/css';
@@ -65,7 +65,7 @@ const ImageSlider = () => {
         {slides.map((slide, index) => (
           <SwiperSlide key={index}>
             <div className="h-screen">
-              <OptimizedImage
+              <Image
                 src={slide.image}
                 alt={`Slide ${index + 1}`}
                 fill
