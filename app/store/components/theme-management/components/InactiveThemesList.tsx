@@ -34,16 +34,7 @@ export function InactiveThemesList({ themes, onAction }: InactiveThemesListProps
       icon: StatusActiveIcon,
       onAction: () => handleAction('activate', themeId),
     },
-    {
-      content: 'Vista previa',
-      icon: ViewIcon,
-      onAction: () => handleAction('preview', themeId),
-    },
-    {
-      content: 'Renombrar',
-      icon: EditIcon,
-      onAction: () => handleAction('rename', themeId),
-    },
+
     {
       content: 'Editar código',
       icon: EditIcon,

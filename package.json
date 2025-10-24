@@ -14,8 +14,8 @@
     "pnpm": ">=10.18.0"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -74,7 +74,7 @@
     "@fasttify/tenant-domains": "workspace:*",
     "@fasttify/theme-editor": "workspace:*",
     "@hookform/resolvers": "3.3.4",
-    "@next/bundle-analyzer": "^15.5.2",
+    "@next/bundle-analyzer": "16.0.0",
     "@polar-sh/nextjs": "^0.4.9",
     "@polar-sh/sdk": "^0.34.3",
     "@radix-ui/react-accordion": "^1.2.11",
@@ -105,13 +105,13 @@
     "liquidjs": "^10.21.1",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.1",
-    "next": "^15.5.0",
+    "next": "16.0.0",
     "node-cache": "^5.1.2",
     "node-fetch": "^3.3.2",
     "ogl": "^1.0.11",
-    "react": "^18.3.1",
+    "react": "19.2.0",
     "react-currency-input-field": "^3.10.0",
-    "react-dom": "^18.3.1",
+    "react-dom": "19.2.0",
     "react-hook-form": "^7.60.0",
     "react-markdown": "^10.1.0",
     "recharts": "^2.15.4",
@@ -143,18 +143,19 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24",
     "@types/node-cache": "^4.2.5",
-    "@types/react": "^18.3.23",
-    "@types/react-dom": "^18.3.7",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
     "@types/styled-components": "^5.1.34",
     "autoprefixer": "^10.4.21",
     "aws-cdk": "^2.1020.2",
     "aws-cdk-lib": "^2.218.0",
     "axios": "^1.10.0",
     "babel-jest": "^30.0.4",
+    "babel-plugin-react-compiler": "^1.0.0",
     "constructs": "^10.4.2",
     "esbuild": "^0.25.6",
     "eslint": "^9.35.0",
-    "eslint-config-next": "^15.3.5",
+    "eslint-config-next": "16.0.0",
     "git-format-staged": "^3.1.1",
     "glob": "^11.0.3",
     "husky": "^9.1.7",
@@ -168,5 +169,11 @@
     "tsx": "^4.20.3",
     "turbo": "^2.5.8",
     "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.2",
+      "@types/react-dom": "19.2.2"
+    }
   }
 }

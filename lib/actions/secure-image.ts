@@ -8,7 +8,6 @@ import { isExternalUrl } from '@/lib/utils/external-domains';
 async function _getSecureImageUrl(imageUrl: string): Promise<string> {
   if (!imageUrl) return imageUrl;
 
-  // En desarrollo, devolver URL directa
   if (process.env.NODE_ENV === 'development') {
     return imageUrl;
   }
@@ -70,7 +69,6 @@ async function _getSecureImageUrl(imageUrl: string): Promise<string> {
   return generateSignedUrl(s3Path, 30 * 24 * 60); // 30 días
 }
 
-// Función con cache nativo de Next.js - crear una función por URL única
 const createCachedSecureImageUrl = (imageUrl: string) => {
   return unstable_cache(
     () => _getSecureImageUrl(imageUrl),
@@ -95,7 +93,6 @@ export const getSecureImageUrl = async (imageUrl: string): Promise<string> => {
   if (typeof cachedFunction === 'function') {
     return await cachedFunction();
   } else {
-    // Fallback: return original imageUrl if cache entry is not a function
     return imageUrl;
   }
 };

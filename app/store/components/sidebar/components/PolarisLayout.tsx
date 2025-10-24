@@ -2,11 +2,8 @@
 
 import { NavigationPolaris } from '@/app/store/components/sidebar/components/NavigationPolaris';
 import { TopBarPolaris } from '@/app/store/components/sidebar/components/TopBarPolaris';
-import { PageTransition } from '@/components/ui/page-transition';
 import { AppProvider, Frame } from '@shopify/polaris';
 import { routes } from '@/utils/client/routes';
-import translations from '@shopify/polaris/locales/es.json';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useCallback, useMemo, memo } from 'react';
 import { ChatLayout } from '@/app/store/components/ai-chat/components/ChatLayout';
@@ -14,11 +11,13 @@ import { useChatContext } from '@/app/store/components/ai-chat/context/ChatConte
 import { ConversationProvider } from '@/app/store/components/ai-chat/context/ConversationContext';
 import { ConversationHistoryProvider } from '@/app/store/components/ai-chat/context/ConversationHistoryContext';
 import { RefinedAIAssistantSheet } from '@/app/store/components/ai-chat/components/RefinedAiAssistant';
+import { ViewTransition } from 'react';
+import Link from 'next/link';
+import translations from '@shopify/polaris/locales/es.json';
 
 interface PolarisLayoutProps {
   children: React.ReactNode;
   storeId: string;
-  prefersReducedMotion?: boolean;
 }
 
 const PolarisLinkComponent = memo(({ children, url = '', external = false, ...rest }: any) => {
@@ -66,7 +65,7 @@ const ChatComponent = memo(() => {
 
 ChatComponent.displayName = 'ChatComponent';
 
-export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = false }: PolarisLayoutProps) => {
+export const PolarisLayout = memo(({ children, storeId }: PolarisLayoutProps) => {
   const [mobileNavigationActive, setMobileNavigationActive] = useState(false);
   const { isOpen: isChatOpen } = useChatContext();
 
@@ -109,7 +108,9 @@ export const PolarisLayout = memo(({ children, storeId, prefersReducedMotion = f
               logo={logo}>
               <main className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-[#f3f4f6]">
                 <ChatLayout isChatOpen={isChatOpen}>
-                  <PageTransition enabled={!prefersReducedMotion}>{children}</PageTransition>
+                  <ViewTransition enter="fade-in" exit="fade-out">
+                    {children}
+                  </ViewTransition>
                 </ChatLayout>
                 <ChatComponent />
               </main>

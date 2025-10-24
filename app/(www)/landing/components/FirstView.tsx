@@ -30,7 +30,7 @@ const slides = [
 ];
 
 export function FirstView() {
-  const swiperRef = useRef<SwiperType>();
+  const swiperRef = useRef<SwiperType>(undefined);
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
 

@@ -147,13 +147,7 @@ export default function FirstStepsPage() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="absolute top-4 left-4 z-10">
-        <Image
-          src="https://cdn.fasttify.com/assets/b/fasttify-white.webp"
-          priority={true}
-          alt="Fasttify Logo"
-          width={50}
-          height={50}
-        />
+        <Image src="https://cdn.fasttify.com/assets/b/fasttify-white.webp" alt="Fasttify Logo" width={50} height={50} />
       </div>
       <div className="absolute inset-0 z-0 sm:block hidden">
         <AnimatedBackground

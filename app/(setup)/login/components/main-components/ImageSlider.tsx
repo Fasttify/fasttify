@@ -66,7 +66,7 @@ const ImageSlider = () => {
           <SwiperSlide key={index}>
             <div className="h-screen">
               <Image
-                src={slide.image || '/placeholder.svg'}
+                src={slide.image}
                 alt={`Slide ${index + 1}`}
                 fill
                 className="object-cover"

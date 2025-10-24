@@ -10,7 +10,6 @@ import '@shopify/polaris/build/esm/styles.css';
 import esTranslations from '@shopify/polaris/locales/es.json';
 import { Amplify } from 'aws-amplify';
 import { useParams, usePathname } from 'next/navigation';
-import { useState } from 'react';
 import { ChatProvider } from '@/app/store/components/ai-chat/context/ChatContext';
 import { ConversationProvider } from '@/app/store/components/ai-chat/context/ConversationContext';
 
@@ -34,7 +33,6 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   useAuthInitializer();
   useStore(storeId);
 
-  const [prefersReducedMotion, _setPrefersReducedMotion] = useState(false);
   const hideSidebar =
     pathname.includes('/editor') || pathname.includes('/profile') || pathname.includes('/suscribe/select-plan');
   const isCheckoutPage = pathname.includes('/access_account/checkout');
@@ -55,7 +53,7 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
               <div className="relative">
                 {/* Layout completo con blur - Sidebar, TopBar y contenido */}
                 <div className="pointer-events-none" style={{ filter: 'blur(5px)' }}>
-                  <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
+                  <PolarisLayout storeId={storeId}>
                     <div className="rounded-lg shadow p-6">
                       <h1 className="text-2xl font-bold text-gray-900 mb-4">Panel de Administración</h1>
                       <p className="text-gray-600 mb-4">
@@ -68,9 +66,7 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
                 {children}
               </div>
             ) : (
-              <PolarisLayout storeId={storeId} prefersReducedMotion={prefersReducedMotion}>
-                {children}
-              </PolarisLayout>
+              <PolarisLayout storeId={storeId}>{children}</PolarisLayout>
             )}
           </ConversationProvider>
         </ChatProvider>

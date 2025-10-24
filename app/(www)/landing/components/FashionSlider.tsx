@@ -49,7 +49,7 @@ const slides: Slide[] = [
 ];
 
 export function FashionSlider() {
-  const swiperRef = useRef<SwiperType>();
+  const swiperRef = useRef<SwiperType>(undefined);
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -138,13 +138,7 @@ export function FashionSlider() {
             </div>
 
             <div className="fashion-slider-image absolute w-full h-full overflow-hidden">
-              <Image
-                src={slide.image || '/placeholder.svg'}
-                alt={slide.title}
-                fill
-                className="object-cover"
-                priority={index === 0}
-              />
+              <Image src={slide.image} alt={slide.title} fill className="object-cover" />
             </div>
           </SwiperSlide>
         ))}

@@ -6,7 +6,7 @@ interface ContextMenuBaseProps {
   position: { x: number; y: number };
   children: ReactNode;
   className?: string;
-  menuRef?: React.RefObject<HTMLDivElement>;
+  menuRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export const ContextMenuBase = ({

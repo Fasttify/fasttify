@@ -6,6 +6,7 @@ import { domainResolver } from '@fasttify/liquid-forge';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,7 +80,7 @@ export default async function StorePage({ params, searchParams }: StorePageProps
     return (
       <>
         <div dangerouslySetInnerHTML={{ __html: result.html }} />
-        <DevAutoReloadScript />
+        {process.env.NODE_ENV === 'development' && <DevAutoReloadScript />}
       </>
     );
   } catch (error: any) {

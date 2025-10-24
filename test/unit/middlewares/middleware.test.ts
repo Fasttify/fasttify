@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { middleware } from '@/middleware';
+import { proxy } from '@/proxy';
 
 // Mock de los middlewares específicos
 jest.mock('@/middlewares/auth/auth', () => ({
@@ -71,7 +71,7 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.rewrite as jest.Mock;
       mockNextResponse.mockReturnValue(mockRewrite());
 
-      const result = await middleware(customDomainRequest);
+      const result = await proxy(customDomainRequest);
 
       // Debería reescribir la URL porque es un dominio personalizado válido
       expect(NextResponse.rewrite).toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.rewrite as jest.Mock;
       mockNextResponse.mockReturnValue(mockRewrite());
 
-      const result = await middleware(customDomainRequest);
+      const result = await proxy(customDomainRequest);
 
       // Debería reescribir la URL porque es un dominio personalizado válido
       expect(NextResponse.rewrite).toHaveBeenCalled();
@@ -129,7 +129,7 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.rewrite as jest.Mock;
       mockNextResponse.mockReturnValue(mockRewrite());
 
-      const result = await middleware(validRequest);
+      const result = await proxy(validRequest);
 
       // Debería reescribir la URL porque es un dominio válido
       expect(NextResponse.rewrite).toHaveBeenCalled();
@@ -158,7 +158,7 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.rewrite as jest.Mock;
       mockNextResponse.mockReturnValue(mockRewrite());
 
-      const result = await middleware(validRequest);
+      const result = await proxy(validRequest);
 
       // Debería reescribir la URL porque es un dominio válido
       expect(NextResponse.rewrite).toHaveBeenCalled();
@@ -184,7 +184,7 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.next as jest.Mock;
       mockNextResponse.mockReturnValue(mockNext());
 
-      const result = await middleware(multiSubdomainRequest);
+      const result = await proxy(multiSubdomainRequest);
 
       // No debería reescribir porque tiene múltiples subdominios (no es válido)
       expect(NextResponse.rewrite).not.toHaveBeenCalled();
@@ -209,7 +209,7 @@ describe('Main Middleware Security Tests', () => {
       const { handleStoreMiddleware } = require('@/middlewares/store-access/store');
       handleStoreMiddleware.mockReturnValue({ type: 'store' });
 
-      const result = await middleware(mainDomainRequest);
+      const result = await proxy(mainDomainRequest);
 
       // Debería ejecutar el middleware de store que internamente usa handleAuthenticationMiddleware
       expect(handleStoreMiddleware).toHaveBeenCalled();
@@ -234,7 +234,7 @@ describe('Main Middleware Security Tests', () => {
       const { handleStoreMiddleware } = require('@/middlewares/store-access/store');
       handleStoreMiddleware.mockReturnValue({ type: 'store' });
 
-      const result = await middleware(mainDomainRequest);
+      const result = await proxy(mainDomainRequest);
 
       // Debería ejecutar el middleware de store que internamente usa handleAuthenticationMiddleware
       expect(handleStoreMiddleware).toHaveBeenCalled();
@@ -263,7 +263,7 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.rewrite as jest.Mock;
       mockNextResponse.mockReturnValue(mockRewrite());
 
-      const result = await middleware(emptyHostRequest);
+      const result = await proxy(emptyHostRequest);
 
       // Hostname vacío se trata como dominio personalizado
       expect(result).toEqual({ type: 'rewrite' });
@@ -291,7 +291,7 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.rewrite as jest.Mock;
       mockNextResponse.mockReturnValue(mockRewrite());
 
-      const result = await middleware(portRequest);
+      const result = await proxy(portRequest);
 
       expect(NextResponse.rewrite).toHaveBeenCalled();
       expect(result).toEqual({ type: 'rewrite' });
@@ -320,7 +320,7 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.rewrite as jest.Mock;
       mockNextResponse.mockReturnValue(mockRewrite());
 
-      const result = await middleware(evilRequest);
+      const result = await proxy(evilRequest);
 
       // Debería tratarse como dominio personalizado, no como fasttify.com
       expect(NextResponse.rewrite).toHaveBeenCalled();
@@ -350,7 +350,7 @@ describe('Main Middleware Security Tests', () => {
       const mockNextResponse = NextResponse.rewrite as jest.Mock;
       mockNextResponse.mockReturnValue(mockRewrite());
 
-      const result = await middleware(evilLocalRequest);
+      const result = await proxy(evilLocalRequest);
 
       // Debería tratarse como dominio personalizado, no como localhost
       expect(NextResponse.rewrite).toHaveBeenCalled();
