@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { AuthGetCurrentUserServer, AuthFetchUserAttributesServer } from '@/utils/client/AmplifyUtils';
+import {
+  AuthGetCurrentUserServer,
+  AuthFetchUserAttributesServer,
+  AuthFetchAuthSessionServer,
+} from '@/utils/client/AmplifyUtils';
 import { getLastVisitedStore } from '@/lib/cookies/last-store';
 import { NextRequest, NextResponse } from 'next/server';
 import NodeCache from 'node-cache';
@@ -131,10 +135,11 @@ export async function getSession(request: NextRequest, _response: NextResponse) 
   }
 
   try {
+    const currentSession = await AuthFetchAuthSessionServer();
     const currentUser = await AuthGetCurrentUserServer();
 
     // Si no hay usuario, limpiar caché
-    if (!currentUser) {
+    if (!currentSession || !currentUser) {
       sessionCache.del(cacheKey);
       userAttributesCache.del(cacheKey);
       return null;
