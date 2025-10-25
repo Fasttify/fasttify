@@ -2,18 +2,15 @@
  * Mensajes de error centralizados para autenticación
  */
 
-export interface AuthError {
-  code?: string;
-  message?: string;
-}
+import { AuthError } from 'aws-amplify/auth';
+export type { AuthError };
 
 /**
  * Obtiene el mensaje de error traducido para errores de registro
  */
 export function getSignUpErrorMessage(error: AuthError): string {
-  // Manejo por código de error
-  if (error.code) {
-    switch (error.code) {
+  if (error.name) {
+    switch (error.name) {
       case 'UsernameExistsException':
         return 'Este correo electrónico ya está registrado';
       case 'InvalidParameterException':
@@ -27,7 +24,7 @@ export function getSignUpErrorMessage(error: AuthError): string {
     }
   }
 
-  // Manejo por mensaje de error
+  // Fallback al mensaje si no hay nombre específico
   switch (error.message) {
     case 'Username should be an email.':
       return 'El correo electrónico no tiene un formato válido';
@@ -44,7 +41,7 @@ export function getSignUpErrorMessage(error: AuthError): string {
       if (error.message?.includes('Exceeded daily email limit')) {
         return 'Se ha excedido el límite diario de envío de correos. Por favor, intenta mañana o contacta al soporte';
       }
-      return 'Ha ocurrido un error. Por favor, intenta nuevamente';
+      return error.recoverySuggestion || 'Ha ocurrido un error. Por favor, intenta nuevamente';
   }
 }
 
@@ -52,9 +49,9 @@ export function getSignUpErrorMessage(error: AuthError): string {
  * Obtiene el mensaje de error traducido para errores de confirmación de registro
  */
 export function getConfirmSignUpErrorMessage(error: AuthError): string {
-  // Manejo por código de error
-  if (error.code) {
-    switch (error.code) {
+  // Usar el nombre del error (más confiable que el mensaje)
+  if (error.name) {
+    switch (error.name) {
       case 'CodeMismatchException':
         return 'El código ingresado no es válido. Por favor, verifica e intenta nuevamente';
       case 'ExpiredCodeException':
@@ -70,7 +67,7 @@ export function getConfirmSignUpErrorMessage(error: AuthError): string {
     }
   }
 
-  // Manejo por mensaje de error
+  // Fallback al mensaje si no hay nombre específico
   switch (error.message) {
     case 'Invalid verification code provided, please try again.':
       return 'Código de verificación inválido, por favor intenta nuevamente';
@@ -85,7 +82,7 @@ export function getConfirmSignUpErrorMessage(error: AuthError): string {
       if (error.message?.includes('Exceeded daily email limit')) {
         return 'Se ha excedido el límite diario de envío de correos. Por favor, intenta mañana o contacta al soporte';
       }
-      return 'Ha ocurrido un error durante la verificación. Por favor, intenta nuevamente';
+      return error.recoverySuggestion || 'Ha ocurrido un error durante la verificación. Por favor, intenta nuevamente';
   }
 }
 
@@ -93,6 +90,27 @@ export function getConfirmSignUpErrorMessage(error: AuthError): string {
  * Obtiene el mensaje de error traducido para errores de inicio de sesión
  */
 export function getSignInErrorMessage(error: AuthError): string {
+  // Usar el nombre del error (más confiable que el mensaje)
+  if (error.name) {
+    switch (error.name) {
+      case 'NotAuthorizedException':
+        return 'Email o contraseña incorrectos';
+      case 'UserNotConfirmedException':
+        return 'Por favor confirma tu cuenta primero';
+      case 'TooManyRequestsException':
+        return 'Demasiados intentos. Por favor, intenta más tarde';
+      case 'UserNotFoundException':
+        return 'No se encontró una cuenta con este correo electrónico';
+      case 'InvalidParameterException':
+        return 'Uno o más campos contienen datos inválidos';
+      case 'LimitExceededException':
+        return 'Se ha excedido el límite de intentos. Por favor, intenta más tarde';
+      case 'NetworkError':
+        return 'Error de conexión. Por favor, verifica tu internet';
+    }
+  }
+
+  // Fallback al mensaje si no hay nombre específico
   switch (error.message) {
     case 'Incorrect username or password.':
       return 'Email o contraseña incorrectos';
@@ -107,6 +125,7 @@ export function getSignInErrorMessage(error: AuthError): string {
     case 'There is already a signed in user.':
       return 'Ya hay un usuario autenticado. Por favor, cierra la sesión primero';
     default:
-      return error.message || 'Ha ocurrido un error durante el inicio de sesión';
+      // Usar recoverySuggestion si está disponible, sino el mensaje por defecto
+      return error.recoverySuggestion || error.message || 'Ha ocurrido un error durante el inicio de sesión';
   }
 }

@@ -8,7 +8,8 @@ import { SignInForm } from '@/app/(setup)/login/components/sing-in/SignInForm';
 import { SignUpForm } from '@/app/(setup)/login/components/sing-up/SignUpForm';
 import { ForgotPasswordForm } from '@/app/(setup)/login/components/forgot-password/ForgotPasswordForm';
 import { VerificationForm } from '@/app/(setup)/login/components/verification-form/VerificationForm';
-import { signInWithRedirect } from 'aws-amplify/auth';
+import { signInWithRedirect, AuthError } from 'aws-amplify/auth';
+import { getSignInErrorMessage } from '@/lib/auth/auth-error-messages';
 
 type AuthState = 'signin' | 'signup' | 'forgot-password' | 'verification';
 
@@ -16,6 +17,11 @@ export function AuthForm() {
   const [authState, setAuthState] = useState<AuthState>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [googleError, setGoogleError] = useState<string | null>(null);
+
+  const clearGoogleError = useCallback(() => {
+    setGoogleError(null);
+  }, []);
 
   const renderForm = useCallback(() => {
     switch (authState) {
@@ -24,11 +30,13 @@ export function AuthForm() {
           <SignInForm
             onForgotPassword={() => {
               setAuthState('forgot-password');
+              clearGoogleError();
             }}
             onVerificationNeeded={(email, password) => {
               setEmail(email);
               setPassword(password);
               setAuthState('verification');
+              clearGoogleError();
             }}
           />
         );
@@ -39,15 +47,32 @@ export function AuthForm() {
               setEmail(email);
               setPassword(password);
               setAuthState('verification');
+              clearGoogleError();
             }}
           />
         );
       case 'forgot-password':
-        return <ForgotPasswordForm onBack={() => setAuthState('signin')} />;
+        return (
+          <ForgotPasswordForm
+            onBack={() => {
+              setAuthState('signin');
+              clearGoogleError();
+            }}
+          />
+        );
       case 'verification':
-        return <VerificationForm email={email} password={password} onBack={() => setAuthState('signup')} />;
+        return (
+          <VerificationForm
+            email={email}
+            password={password}
+            onBack={() => {
+              setAuthState('signup');
+              clearGoogleError();
+            }}
+          />
+        );
     }
-  }, [authState, email, password]);
+  }, [authState, email, password, clearGoogleError]);
 
   const handleLoginClick = async () => {
     try {
@@ -56,6 +81,10 @@ export function AuthForm() {
       });
     } catch (error) {
       console.error('Error during sign-in:', error);
+
+      if (error instanceof AuthError) {
+        setGoogleError(getSignInErrorMessage(error));
+      }
     }
   };
 
@@ -117,6 +146,9 @@ export function AuthForm() {
           </motion.div>
         </AnimatePresence>
 
+        {/* Mostrar error de Google Auth */}
+        {googleError && <div className="p-3 rounded-md bg-red-50 text-red-500 text-sm">{googleError}</div>}
+
         {(authState === 'signin' || authState === 'signup') && (
           <>
             <div className="relative">
@@ -155,14 +187,26 @@ export function AuthForm() {
               {authState === 'signin' ? (
                 <>
                   ¿No tienes una cuenta?{' '}
-                  <button type="button" className="underline" onClick={() => setAuthState('signup')}>
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => {
+                      setAuthState('signup');
+                      clearGoogleError();
+                    }}>
                     Regístrate
                   </button>
                 </>
               ) : (
                 <>
                   ¿Ya tienes una cuenta?{' '}
-                  <button type="button" className="underline" onClick={() => setAuthState('signin')}>
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => {
+                      setAuthState('signin');
+                      clearGoogleError();
+                    }}>
                     Inicia sesión
                   </button>
                 </>
