@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession, type AuthSession, clearAllSessionCache } from '@/middlewares/auth/auth';
-import { AuthGetCurrentUserServer, AuthFetchUserAttributesServer } from '@/utils/client/AmplifyUtils';
+import {
+  AuthGetCurrentUserServer,
+  AuthFetchUserAttributesServer,
+  AuthFetchAuthSessionServer,
+} from '@/utils/client/AmplifyUtils';
 
 jest.mock('@/utils/client/AmplifyUtils', () => ({
   AuthGetCurrentUserServer: jest.fn(),
   AuthFetchUserAttributesServer: jest.fn(),
+  AuthFetchAuthSessionServer: jest.fn(),
 }));
 
 jest.mock('next/server', () => ({
@@ -71,7 +76,19 @@ describe('Auth Flow Integration Tests', () => {
 
     const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
     const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
+    const mockAuthFetchAuthSessionServer = AuthFetchAuthSessionServer as jest.Mock;
 
+    const mockAuthSession = {
+      tokens: {
+        idToken: {
+          payload: {
+            'cognito:username': 'test-user-123',
+          },
+        },
+      },
+    };
+
+    mockAuthFetchAuthSessionServer.mockResolvedValue(mockAuthSession);
     mockAuthGetCurrentUserServer.mockResolvedValue(mockUser);
     mockAuthFetchUserAttributesServer.mockResolvedValue(mockUserAttributes);
   });
@@ -86,6 +103,7 @@ describe('Auth Flow Integration Tests', () => {
       expect(storeAccessSession).toEqual(expectedSession);
       expect(storeSession).toEqual(expectedSession);
 
+      expect(AuthFetchAuthSessionServer).toHaveBeenCalled();
       expect(AuthGetCurrentUserServer).toHaveBeenCalled();
       expect(AuthFetchUserAttributesServer).toHaveBeenCalled();
     });
@@ -103,7 +121,8 @@ describe('Auth Flow Integration Tests', () => {
         expect(result).toEqual(expectedSession);
       });
 
-      // Verificar que AuthGetCurrentUserServer fue llamado
+      // Verificar que las funciones fueron llamadas
+      expect(AuthFetchAuthSessionServer).toHaveBeenCalled();
       expect(AuthGetCurrentUserServer).toHaveBeenCalled();
       expect(AuthFetchUserAttributesServer).toHaveBeenCalled();
     });
@@ -137,6 +156,7 @@ describe('Auth Flow Integration Tests', () => {
         const session = await getSession(regionRequest, mockResponse);
 
         expect(session).toEqual(expectedSession);
+        expect(AuthFetchAuthSessionServer).toHaveBeenCalled();
         expect(AuthGetCurrentUserServer).toHaveBeenCalled();
         expect(AuthFetchUserAttributesServer).toHaveBeenCalled();
       }
