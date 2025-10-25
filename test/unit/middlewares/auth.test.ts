@@ -4,13 +4,18 @@ import {
   handleAuthenticationMiddleware,
   clearAllSessionCache,
 } from '@/middlewares/auth/auth';
-import { AuthGetCurrentUserServer, AuthFetchUserAttributesServer } from '@/utils/client/AmplifyUtils';
+import {
+  AuthGetCurrentUserServer,
+  AuthFetchUserAttributesServer,
+  AuthFetchAuthSessionServer,
+} from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Mock de los módulos externos
 jest.mock('@/utils/client/AmplifyUtils', () => ({
   AuthGetCurrentUserServer: jest.fn(),
   AuthFetchUserAttributesServer: jest.fn(),
+  AuthFetchAuthSessionServer: jest.fn(),
 }));
 
 jest.mock('next/server', () => ({
@@ -57,12 +62,16 @@ describe('Auth Middleware', () => {
 
       const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
       const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
+      const mockAuthFetchAuthSessionServer = AuthFetchAuthSessionServer as jest.Mock;
 
+      // Mock AuthFetchAuthSessionServer para que retorne una sesión válida
+      mockAuthFetchAuthSessionServer.mockResolvedValueOnce({ tokens: { idToken: { payload: {} } } });
       mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
       mockAuthFetchUserAttributesServer.mockResolvedValueOnce(mockUserAttributes);
 
       const result = await getSession(mockRequest, mockResponse);
 
+      expect(mockAuthFetchAuthSessionServer).toHaveBeenCalled();
       expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
       expect(mockAuthFetchUserAttributesServer).toHaveBeenCalled();
       expect(result).toEqual({
@@ -133,7 +142,13 @@ describe('Auth Middleware', () => {
       };
 
       const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      const mockAuthFetchAuthSessionServer = AuthFetchAuthSessionServer as jest.Mock;
+      const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
+
+      // Mock AuthFetchAuthSessionServer para que retorne una sesión válida
+      mockAuthFetchAuthSessionServer.mockResolvedValueOnce({ tokens: { idToken: { payload: {} } } });
       mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
+      mockAuthFetchUserAttributesServer.mockResolvedValueOnce({});
 
       const result = await handleAuthenticationMiddleware(mockRequest, mockResponse);
 
@@ -196,7 +211,13 @@ describe('Auth Middleware', () => {
       } as unknown as NextRequest;
 
       const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      const mockAuthFetchAuthSessionServer = AuthFetchAuthSessionServer as jest.Mock;
+      const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
+
+      // Mock AuthFetchAuthSessionServer para que retorne una sesión válida
+      mockAuthFetchAuthSessionServer.mockResolvedValueOnce({ tokens: { idToken: { payload: {} } } });
       mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
+      mockAuthFetchUserAttributesServer.mockResolvedValueOnce({});
 
       const mockNextResponseRedirect = NextResponse.redirect as jest.Mock;
       mockNextResponseRedirect.mockReturnValueOnce(mockRedirectResponse);
@@ -253,7 +274,13 @@ describe('Auth Middleware', () => {
       };
 
       const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
+      const mockAuthFetchAuthSessionServer = AuthFetchAuthSessionServer as jest.Mock;
+      const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
+
+      // Mock AuthFetchAuthSessionServer para que retorne una sesión válida
+      mockAuthFetchAuthSessionServer.mockResolvedValueOnce({ tokens: { idToken: { payload: {} } } });
       mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
+      mockAuthFetchUserAttributesServer.mockResolvedValueOnce({});
 
       await handleAuthenticatedRedirectMiddleware(customRequest, mockResponse);
 

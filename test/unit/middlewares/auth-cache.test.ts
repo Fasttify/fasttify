@@ -1,5 +1,9 @@
 import { getSession, clearAllSessionCache } from '@/middlewares/auth/auth';
-import { AuthGetCurrentUserServer, AuthFetchUserAttributesServer } from '@/utils/client/AmplifyUtils';
+import {
+  AuthGetCurrentUserServer,
+  AuthFetchUserAttributesServer,
+  AuthFetchAuthSessionServer,
+} from '@/utils/client/AmplifyUtils';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Mock de NodeCache
@@ -15,6 +19,7 @@ jest.mock('node-cache', () => {
 jest.mock('@/utils/client/AmplifyUtils', () => ({
   AuthGetCurrentUserServer: jest.fn(),
   AuthFetchUserAttributesServer: jest.fn(),
+  AuthFetchAuthSessionServer: jest.fn(),
 }));
 
 jest.mock('next/server', () => ({
@@ -74,12 +79,25 @@ describe('getSession with Caching', () => {
     it('debe fetchear una nueva sesión correctamente', async () => {
       const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
       const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
+      const mockAuthFetchAuthSessionServer = AuthFetchAuthSessionServer as jest.Mock;
 
+      const mockAuthSession = {
+        tokens: {
+          idToken: {
+            payload: {
+              'cognito:username': 'testuser',
+            },
+          },
+        },
+      };
+
+      mockAuthFetchAuthSessionServer.mockResolvedValueOnce(mockAuthSession);
       mockAuthGetCurrentUserServer.mockResolvedValueOnce(mockUser);
       mockAuthFetchUserAttributesServer.mockResolvedValueOnce(mockUserAttributes);
 
       const result = await getSession(mockRequest, mockResponse);
 
+      expect(mockAuthFetchAuthSessionServer).toHaveBeenCalled();
       expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
       expect(mockAuthFetchUserAttributesServer).toHaveBeenCalled();
       expect(result).toEqual(expectedSession);
@@ -88,13 +106,16 @@ describe('getSession with Caching', () => {
     it('debe retornar null cuando no hay usuario autenticado', async () => {
       const mockAuthGetCurrentUserServer = AuthGetCurrentUserServer as jest.Mock;
       const mockAuthFetchUserAttributesServer = AuthFetchUserAttributesServer as jest.Mock;
+      const mockAuthFetchAuthSessionServer = AuthFetchAuthSessionServer as jest.Mock;
 
+      mockAuthFetchAuthSessionServer.mockResolvedValueOnce(null);
       mockAuthGetCurrentUserServer.mockResolvedValueOnce(null);
       // No se llama a AuthFetchUserAttributesServer cuando no hay usuario
       mockAuthFetchUserAttributesServer.mockResolvedValueOnce(null);
 
       const result = await getSession(mockRequest, mockResponse);
 
+      expect(mockAuthFetchAuthSessionServer).toHaveBeenCalled();
       expect(mockAuthGetCurrentUserServer).toHaveBeenCalled();
       // AuthFetchUserAttributesServer no se llama cuando no hay usuario
       expect(mockAuthFetchUserAttributesServer).not.toHaveBeenCalled();
