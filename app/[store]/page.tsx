@@ -1,19 +1,10 @@
-import DevAutoReloadScript from '@/app/[store]/components/DevAutoReloadScript';
-import { generateStoreMetadata, getCachedRenderResult, isAssetPath } from '@/app/[store]/lib/store-page-utils';
-import { logger } from '@fasttify/liquid-forge';
-import { storeViewsTracker } from '@fasttify/liquid-forge';
-import { domainResolver } from '@fasttify/liquid-forge';
+import DevAutoReloadScript from '@/app/[store]/src/components/DevAutoReloadScript';
+import { StorePageController } from '@/app/[store]/src/_lib/controllers/store-page-controller';
+import { StoreMetadataController } from '@/app/[store]/src/_lib/controllers/store-metadata-controller';
+import { isAssetPath } from '@/app/[store]/src/lib/store-page-utils';
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
-import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
-
-/**
- * Función cacheada usando React.cache() que persiste entre generateMetadata y StorePage
- * Esta es la forma oficial de Next.js para compartir datos entre estas funciones
- */
 
 interface StorePageProps {
   params: Promise<{
@@ -28,54 +19,14 @@ interface StorePageProps {
 /**
  * Página principal de tienda con SSR
  * Maneja todas las rutas de tienda: /, /products/slug, /collections/slug, etc
+ *
+ * Esta página solo orquesta la llamada al controller, delegando toda la lógica
  */
-export default async function StorePage({ params, searchParams }: StorePageProps) {
-  const requestHeaders = await headers();
-  const xOriginalHost = requestHeaders.get('x-original-host');
-
-  const hostname =
-    xOriginalHost ||
-    (requestHeaders.get('cf-connecting-ip')
-      ? requestHeaders.get('x-forwarded-host') || requestHeaders.get('host') || ''
-      : requestHeaders.get('host') || '');
-
-  const cleanHostname = hostname?.split(':')[0] || '';
-
-  const isMainDomain =
-    cleanHostname === 'fasttify.com' || cleanHostname === 'www.fasttify.com' || cleanHostname === 'localhost';
-
-  if (isMainDomain) {
-    notFound();
-  }
-
-  const { store } = await params;
-  const awaitedSearchParams = await searchParams;
-  const path = awaitedSearchParams.path || '/';
-
-  if (isAssetPath(path)) {
-    notFound();
-  }
+export default async function StorePage(props: StorePageProps) {
+  const controller = new StorePageController();
 
   try {
-    const domain = store.includes('.') ? store : `${store}.fasttify.com`;
-
-    const result = await getCachedRenderResult(domain, path, awaitedSearchParams);
-
-    // Trackear la vista de la tienda de forma asíncrona
-    try {
-      const headersObj = Object.fromEntries(requestHeaders.entries());
-      const fullUrl = `https://${cleanHostname}${path}`;
-
-      const storeRecord = await domainResolver.resolveStoreByDomain(domain);
-      const realStoreId = storeRecord.storeId;
-
-      const viewData = storeViewsTracker.captureStoreView(realStoreId, path, headersObj, fullUrl);
-      storeViewsTracker.trackStoreView(viewData).catch((trackError) => {
-        logger.error(`[StorePage] Failed to track store view for ${realStoreId}`, trackError, 'StorePage');
-      });
-    } catch (trackError) {
-      logger.error(`[StorePage] Error capturing store view for ${domain}`, trackError, 'StorePage');
-    }
+    const result = await controller.handle(props);
 
     return (
       <>
@@ -84,16 +35,12 @@ export default async function StorePage({ params, searchParams }: StorePageProps
       </>
     );
   } catch (error: any) {
-    logger.error(`Error rendering store page ${store}${path}`, error, 'StorePage');
-
+    // Si hay HTML de error disponible, renderizarlo
     if (error.html) {
       return <div dangerouslySetInnerHTML={{ __html: error.html }} />;
     }
 
-    if (error.type === 'STORE_NOT_FOUND' && error.statusCode === 404) {
-      notFound();
-    }
-
+    // Re-lanzar otros errores
     throw error;
   }
 }
@@ -101,17 +48,16 @@ export default async function StorePage({ params, searchParams }: StorePageProps
 /**
  * Genera metadata SEO para la página
  */
-export async function generateMetadata({ params, searchParams }: StorePageProps): Promise<Metadata> {
-  const { store } = await params;
-  const awaitedSearchParams = await searchParams;
-  const path = awaitedSearchParams.path || '/';
+export async function generateMetadata(props: StorePageProps): Promise<Metadata> {
+  const { path } = await props.searchParams;
 
-  if (isAssetPath(path)) {
+  if (path && isAssetPath(path)) {
     return {
       title: 'Asset',
       description: 'Static asset',
     };
   }
 
-  return generateStoreMetadata(store, path, awaitedSearchParams);
+  const controller = new StoreMetadataController();
+  return controller.handle(props);
 }

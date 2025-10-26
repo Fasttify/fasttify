@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { INITIAL_FILTER_STATE } from 'https://cdn.fasttify.com/assets/filter-config.js';
+import { INITIAL_FILTER_STATE } from 'https://cdn.fasttify.com/assets/global-static/filter-config.js';
 
 /**
  * Gestor del estado del filtro

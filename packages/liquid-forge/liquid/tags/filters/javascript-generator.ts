@@ -65,7 +65,7 @@ export class FilterJavaScriptGenerator {
    */
   private static buildScriptContent(filterConfig: string): string {
     return `
-      import { initFilterSystem } from 'https://cdn.fasttify.com/assets/filter-main.js';
+      import { initFilterSystem } from 'https://cdn.fasttify.com/assets/global-static/filter-main.js';
       const FILTER_CONFIG = ${filterConfig};
       initFilterSystem(FILTER_CONFIG);
     `;

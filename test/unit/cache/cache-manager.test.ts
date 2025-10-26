@@ -1,4 +1,4 @@
-import { cacheManager } from '@/packages/liquid-forge/services/core/cache';
+import { cacheManager } from '@fasttify/liquid-forge/services/core/cache';
 
 describe('CacheManager (node-cache integration)', () => {
   beforeEach(() => {

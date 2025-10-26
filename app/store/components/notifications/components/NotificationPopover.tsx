@@ -1,12 +1,12 @@
 import { memo, useRef, useMemo } from 'react';
 import { Popover, Badge, Spinner, TopBar, Icon } from '@shopify/polaris';
-import { NotificationHeader } from './NotificationHeader';
-import { NotificationList } from './NotificationList';
-import { NotificationFooter } from './NotificationFooter';
-import { NotificationEmptyState } from './NotificationEmptyState';
+import { NotificationHeader } from '@/app/store/components/notifications/components/NotificationHeader';
+import { NotificationList } from '@/app/store/components/notifications/components/NotificationList';
+import { NotificationFooter } from '@/app/store/components/notifications/components/NotificationFooter';
+import { NotificationEmptyState } from '@/app/store/components/notifications/components/NotificationEmptyState';
 import { NotificationIcon } from '@shopify/polaris-icons';
-import { useNotificationPopover } from '../hooks';
-import { formatNotificationTime } from '../utils/formatNotificationTime';
+import { useNotificationPopover } from '@/app/store/components/notifications/hooks';
+import { formatNotificationTime } from '@/app/store/components/notifications/utils/formatNotificationTime';
 
 interface NotificationPopoverProps {
   storeId?: string;

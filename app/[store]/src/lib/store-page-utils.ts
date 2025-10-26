@@ -1,34 +1,21 @@
 import { storeRenderer, logger } from '@fasttify/liquid-forge';
 import { Metadata } from 'next';
 import { cache } from 'react';
+import { ASSET_EXTENSIONS, ASSET_PATH_PATTERNS, DOMAIN_CONFIG } from '@/app/[store]/src/_lib/constants/store.constants';
 
 /**
  * Verifica si el path corresponde a un asset estático para evitar procesarlo como una página de tienda.
  */
 export function isAssetPath(path: string): boolean {
-  const assetExtensions = [
-    '.png',
-    '.jpg',
-    '.jpeg',
-    '.gif',
-    '.svg',
-    '.webp',
-    '.ico',
-    '.css',
-    '.js',
-    '.woff',
-    '.woff2',
-    '.ttf',
-    '.eot',
-  ];
-  return (
-    assetExtensions.some((ext) => path.toLowerCase().endsWith(ext)) ||
-    path.startsWith('/assets/') ||
-    path.startsWith('/_next/') ||
-    path.includes('/icons/')
-  );
-}
+  const { ASSETS_FOLDER, NEXT_FOLDER, ICONS_FOLDER } = ASSET_PATH_PATTERNS;
 
+  const hasAssetExtension = ASSET_EXTENSIONS.some((ext) => path.toLowerCase().endsWith(ext));
+
+  const matchesPathPattern =
+    path.startsWith(ASSETS_FOLDER) || path.startsWith(NEXT_FOLDER) || path.includes(ICONS_FOLDER);
+
+  return hasAssetExtension || matchesPathPattern;
+}
 /**
  * Función cacheada usando React.cache() que persiste entre generateMetadata y StorePage.
  * Esta es la forma oficial de Next.js para compartir datos entre estas funciones.
@@ -47,7 +34,8 @@ export async function generateStoreMetadata(
   searchParams: Record<string, any>
 ): Promise<Metadata> {
   try {
-    const domain = store.includes('.') ? store : `${store}.fasttify.com`;
+    const { BASE_DOMAIN } = DOMAIN_CONFIG;
+    const domain = store.includes('.') ? store : `${store}.${BASE_DOMAIN}`;
     const result = await getCachedRenderResult(domain, path, searchParams);
     const { metadata } = result;
 

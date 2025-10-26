@@ -1,5 +1,5 @@
 import { Liquid } from 'liquidjs';
-import { ecommerceFilters } from '@/packages/liquid-forge/liquid/filters/ecommerce-filters';
+import { ecommerceFilters } from '@fasttify/liquid-forge/liquid/filters/ecommerce-filters';
 
 describe('Ecommerce Filters - Image Optimization', () => {
   let liquid: Liquid;

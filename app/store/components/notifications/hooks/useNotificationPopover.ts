@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNotifications } from '@/app/store/hooks/data/useNotifications';
 import useStoreDataStore from '@/context/core/storeDataStore';
-import { useNotificationSound } from './useNotificationSound';
+import { useNotificationSound } from '@/app/store/components/notifications/hooks/useNotificationSound';
 
 interface UseNotificationPopoverProps {
   storeId?: string;

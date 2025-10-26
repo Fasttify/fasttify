@@ -1,9 +1,9 @@
-jest.mock('@/packages/liquid-forge/services/rendering/render-page-content', () => ({
+jest.mock('@fasttify/liquid-forge/services/rendering/render-page-content', () => ({
   renderPageContent: jest.fn().mockResolvedValue('contenido-renderizado'),
 }));
 
-import { renderContentStep } from '@/packages/liquid-forge/renderers/pipeline-steps/render-content-step';
-import { renderPageContent } from '@/packages/liquid-forge/services/rendering/render-page-content';
+import { renderContentStep } from '@fasttify/liquid-forge/renderers/pipeline-steps/render-content-step';
+import { renderPageContent } from '@fasttify/liquid-forge/services/rendering/render-page-content';
 
 describe('renderContentStep', () => {
   it('debe renderizar el contenido de la página y asignarlo a renderedContent', async () => {

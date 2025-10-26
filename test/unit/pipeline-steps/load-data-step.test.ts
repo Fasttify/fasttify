@@ -1,5 +1,5 @@
 // Mocks para dependencias
-jest.mock('@/packages/liquid-forge/services/templates/template-loader', () => ({
+jest.mock('@fasttify/liquid-forge/services/templates/template-loader', () => ({
   templateLoader: {
     loadMainLayout: jest.fn().mockResolvedValue('layout-content'),
     loadMainLayoutCompiled: jest.fn().mockResolvedValue(['compiled-layout']),
@@ -7,25 +7,25 @@ jest.mock('@/packages/liquid-forge/services/templates/template-loader', () => ({
     loadCompiledTemplate: jest.fn().mockResolvedValue(['compiled-page-template']),
   },
 }));
-jest.mock('@/packages/liquid-forge/services/page/dynamic-data-loader', () => ({
+jest.mock('@fasttify/liquid-forge/services/page/dynamic-data-loader', () => ({
   dynamicDataLoader: {
     loadDynamicData: jest
       .fn()
       .mockResolvedValue({ analysis: { requiredData: new Map(), liquidObjects: [], dependencies: [] } }),
   },
 }));
-jest.mock('@/packages/liquid-forge/services/fetchers/data-fetcher', () => ({
+jest.mock('@fasttify/liquid-forge/services/fetchers/data-fetcher', () => ({
   dataFetcher: {
     getStoreNavigationMenus: jest.fn().mockResolvedValue('store-template'),
   },
 }));
-jest.mock('@/packages/liquid-forge/config/page-config', () => ({
+jest.mock('@fasttify/liquid-forge/config/page-config', () => ({
   pageConfig: {
     getTemplatePath: jest.fn().mockReturnValue('page.liquid'),
   },
 }));
 
-import { loadDataStep } from '@/packages/liquid-forge/renderers/pipeline-steps/load-data-step';
+import { loadDataStep } from '@fasttify/liquid-forge/renderers/pipeline-steps/load-data-step';
 
 describe('loadDataStep', () => {
   it('debe cargar layout, compilados, datos dinámicos y template en paralelo', async () => {
