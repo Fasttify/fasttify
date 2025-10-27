@@ -56,7 +56,7 @@
                 {% if link.title == 'Todos los Productos' %}
                 <div class="container">
                   <div class="dropdown-products-grid">
-                    {% assign featured_collection = collections['nuevos-productos'] %}
+                    {% assign featured_collection = collections['new-products'] %}
                     {% for product in featured_collection.products limit: 4 %}
                     <div class="product-card">
                       <div class="product-image-wrapper">
