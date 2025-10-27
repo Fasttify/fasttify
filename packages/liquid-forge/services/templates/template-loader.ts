@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { liquidEngine } from '@/liquid-forge/liquid/engine';
+import { liquidEngine } from '../../liquid/engine';
 import {
   cacheManager,
   getAssetCacheKey,
@@ -22,8 +22,8 @@ import {
   getCompiledTemplatesPrefix,
   getTemplateCacheKey,
   getTemplatesPrefix,
-} from '@/liquid-forge/services/core/cache';
-import type { TemplateCache, TemplateError } from '@/liquid-forge/types';
+} from '../core/cache';
+import type { TemplateCache, TemplateError } from '../../types';
 import { getCdnUrlForKey } from '@/utils/server';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import type { Template } from 'liquidjs';

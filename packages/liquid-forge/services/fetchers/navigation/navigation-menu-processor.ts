@@ -10,8 +10,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { NavigationMenuItem, ProcessedNavigationMenu } from '@/liquid-forge/types/store';
+import { logger } from '../../../lib/logger';
+import type { NavigationMenuItem, ProcessedNavigationMenu } from '../../../types/store';
 import type { NavigationMenuData, ProcessedMenuItemData } from './types/navigation-types';
 
 export class NavigationMenuProcessor {

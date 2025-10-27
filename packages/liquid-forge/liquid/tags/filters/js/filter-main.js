@@ -17,15 +17,15 @@
 /**
  * Sistema principal de filtros
  */
-import { DOMManager } from 'https://cdn.fasttify.com/assets/dom-manager.js';
-import { EventHandler } from 'https://cdn.fasttify.com/assets/event-handler.js';
-import { FilterAPI } from 'https://cdn.fasttify.com/assets/filter-api.js';
-import { createFilterConfig } from 'https://cdn.fasttify.com/assets/filter-config.js';
-import { FilterStateManager } from 'https://cdn.fasttify.com/assets/filter-state.js';
-import { PriceSlider } from 'https://cdn.fasttify.com/assets/price-slider.js';
-import { ProductRenderer } from 'https://cdn.fasttify.com/assets/product-renderer.js';
-import { URLLoader } from 'https://cdn.fasttify.com/assets/url-loader.js';
-import { FilterUtils } from 'https://cdn.fasttify.com/assets/utils.js';
+import { DOMManager } from 'https://cdn.fasttify.com/assets/global-static/dom-manager.js';
+import { EventHandler } from 'https://cdn.fasttify.com/assets/global-static/event-handler.js';
+import { FilterAPI } from 'https://cdn.fasttify.com/assets/global-static/filter-api.js';
+import { createFilterConfig } from 'https://cdn.fasttify.com/assets/global-static/filter-config.js';
+import { FilterStateManager } from 'https://cdn.fasttify.com/assets/global-static/filter-state.js';
+import { PriceSlider } from 'https://cdn.fasttify.com/assets/global-static/price-slider.js';
+import { ProductRenderer } from 'https://cdn.fasttify.com/assets/global-static/product-renderer.js';
+import { URLLoader } from 'https://cdn.fasttify.com/assets/global-static/url-loader.js';
+import { FilterUtils } from 'https://cdn.fasttify.com/assets/global-static/utils.js';
 
 /**
  * Clase principal del sistema de filtros

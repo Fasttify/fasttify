@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { liquidEngine } from '@/liquid-forge/liquid/engine';
-import { schemaParser } from '@/liquid-forge/services/templates/parsing/schema-parser';
-import { templateLoader } from '@/liquid-forge/services/templates/template-loader';
-import type { RenderContext } from '@/liquid-forge/types';
+import { logger } from '../../lib/logger';
+import { liquidEngine } from '../../liquid/engine';
+import { schemaParser } from '../templates/parsing/schema-parser';
+import { templateLoader } from '../templates/template-loader';
+import type { RenderContext } from '../../types';
 
 export class SectionRenderer {
   /**

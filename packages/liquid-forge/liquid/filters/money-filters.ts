@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { LiquidFilter } from '@/liquid-forge/types';
+import type { LiquidFilter } from '../../types';
 
 /**
  * Filtro para extraer el símbolo de la moneda

@@ -1,5 +1,5 @@
 // Mock para liquidEngine y assetCollector
-jest.mock('@/packages/liquid-forge/liquid/engine', () => ({
+jest.mock('@fasttify/liquid-forge/liquid/engine', () => ({
   liquidEngine: {
     assetCollector: {
       clear: jest.fn(),
@@ -7,8 +7,8 @@ jest.mock('@/packages/liquid-forge/liquid/engine', () => ({
   },
 }));
 
-import { liquidEngine } from '@/packages/liquid-forge/liquid/engine';
-import { initializeEngineStep } from '@/packages/liquid-forge/renderers/pipeline-steps/initialize-engine-step';
+import { liquidEngine } from '@fasttify/liquid-forge/liquid/engine';
+import { initializeEngineStep } from '@fasttify/liquid-forge/renderers/pipeline-steps/initialize-engine-step';
 
 describe('initializeEngineStep', () => {
   it('debe limpiar el assetCollector y retornar los datos sin modificar', async () => {

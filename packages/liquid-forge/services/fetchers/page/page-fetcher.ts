@@ -10,8 +10,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { PageContext, TemplateError } from '@/liquid-forge/types';
+import { logger } from '../../../lib/logger';
+import type { PageContext, TemplateError } from '../../../types';
 import { pageCacheManager } from './page-cache-manager';
 import { pageQueryManager } from './page-query-manager';
 import { pageTransformer } from './page-transformer';

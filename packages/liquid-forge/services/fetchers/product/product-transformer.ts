@@ -10,8 +10,8 @@
  * limitations under the License.
  */
 
-import { dataTransformer } from '@/liquid-forge/services/core/data-transformer';
-import type { ProductAttribute, ProductContext } from '@/liquid-forge/types';
+import { dataTransformer } from '../../core/data-transformer';
+import type { ProductAttribute, ProductContext } from '../../../types';
 import type { ProductData } from './types/product-types';
 
 export class ProductTransformer {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { TemplateError } from '@/liquid-forge/types';
+import type { TemplateError } from '../../types';
 
 /**
  * Crea un objeto TemplateError estándar

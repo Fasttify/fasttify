@@ -23,7 +23,7 @@ export * from './services/core/cache';
  *
  * @example
  * ```typescript
- * import { storeRenderer } from '@/liquid-forge';
+ * import { storeRenderer } from './';
  *
  * const result = await storeRenderer.renderPage('mystore.com', '/products/my-product');
  * ```

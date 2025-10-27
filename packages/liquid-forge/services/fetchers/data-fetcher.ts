@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { cacheManager } from '@/liquid-forge/services/core/cache';
-import { cartFetcher } from '@/liquid-forge/services/fetchers/cart';
-import { collectionFetcher } from '@/liquid-forge/services/fetchers/collection';
-import { navigationFetcher } from '@/liquid-forge/services/fetchers/navigation';
-import { pageFetcher } from '@/liquid-forge/services/fetchers/page';
-import { checkoutFetcher } from '@/liquid-forge/services/fetchers/checkout';
-import { productFetcher } from '@/liquid-forge/services/fetchers/product';
+import { cacheManager } from '../core/cache';
+import { cartFetcher } from './cart';
+import { collectionFetcher } from './collection';
+import { navigationFetcher } from './navigation';
+import { pageFetcher } from './page';
+import { checkoutFetcher } from './checkout';
+import { productFetcher } from './product';
 import type {
   AddToCartRequest,
   Cart,
@@ -35,7 +35,7 @@ import type {
   CheckoutResponse,
   CheckoutSession,
   CheckoutStatus,
-} from '@/liquid-forge/types';
+} from '../../types';
 
 interface PaginationOptions {
   limit?: number;

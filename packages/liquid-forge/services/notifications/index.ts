@@ -30,6 +30,7 @@ export type {
   OrderConfirmationEmailRequest,
 } from './email-notification-service';
 
-// Exportar servicios de notificación para el panel admin
-export { NotificationCreator, notificationCreator } from './notification-creator';
+// NOTE: NotificationCreator y notificationCreator son server-only
+// y se exportan desde './server.ts' para evitar que sean incluidos en bundles del cliente
+
 export type { CreateAdminNotificationRequest } from './types/notification-types';

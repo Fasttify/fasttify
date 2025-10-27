@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
 
+  transpilePackages: [
+    '@fasttify/liquid-forge',
+    '@fasttify/tenant-domains',
+    '@fasttify/orders-app',
+    '@fasttify/theme-editor',
+  ],
+
   serverExternalPackages: [
     '@aws-sdk/client-acm',
     '@aws-sdk/client-bedrock-runtime',

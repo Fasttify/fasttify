@@ -3,7 +3,7 @@ import { ExternalIcon, CheckCircleIcon } from '@shopify/polaris-icons';
 import { useState, memo } from 'react';
 import { plans } from '@/app/(www)/pricing/components/plans';
 import type { UserProps } from '@/app/store/components/profile/types';
-import { useSubscriptionLogic } from '@/app/store/hooks/useSubscriptionLogic';
+import { useSubscriptionLogic } from '@/app/store/hooks/utils/useSubscriptionLogic';
 
 interface SubscriptionSectionProps extends UserProps {
   storeId: string;

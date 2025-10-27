@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+import { JSON_PARSING_PATTERNS, MINIFICATION_PATTERNS } from '../../../lib/regex-patterns';
+
 export class SchemaParser {
-  private static readonly SCHEMA_REGEX = /{%\s*schema\s*%}([\s\S]*?){%\s*endschema\s*%}/i;
+  private static readonly SCHEMA_REGEX = JSON_PARSING_PATTERNS.liquidSchema;
 
   /**
    * Extrae y parsea el schema completo de un template (una sola vez)
@@ -44,11 +46,11 @@ export class SchemaParser {
    */
   private cleanJSON(content: string): string {
     return content
-      .replace(/\/\/.*$/gm, '') // Comentarios //
-      .replace(/\/\*[\s\S]*?\*\//g, '') // Comentarios /* */
-      .replace(/,(\s*[}\]])/g, '$1') // Comas finales
-      .replace(/,,+/g, ',') // Comas dobles
-      .replace(/\s+/g, ' ') // Espacios extra
+      .replace(JSON_PARSING_PATTERNS.lineComment, '')
+      .replace(JSON_PARSING_PATTERNS.blockComment, '')
+      .replace(JSON_PARSING_PATTERNS.trailingComma, '$1')
+      .replace(JSON_PARSING_PATTERNS.multipleCommas, ',')
+      .replace(MINIFICATION_PATTERNS.multipleSpaces, ' ')
       .trim();
   }
 

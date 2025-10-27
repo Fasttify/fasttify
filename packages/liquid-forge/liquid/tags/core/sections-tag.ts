@@ -15,7 +15,7 @@
  */
 
 import { Tag, TagToken, Context, TopLevelToken, Liquid } from 'liquidjs';
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '../../../lib/logger';
 
 /**
  * Custom Sections Tag para manejar {% sections 'section-group' %} en LiquidJS

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { CheckoutResponse, CheckoutSession } from '@/liquid-forge/types';
+import { logger } from '../../../lib/logger';
+import type { CheckoutResponse, CheckoutSession } from '../../../types';
 import { orderFetcher, type CreateOrderRequest } from '../order';
 
 export class CheckoutOrderCreator {

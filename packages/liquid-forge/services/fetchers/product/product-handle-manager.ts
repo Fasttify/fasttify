@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { dataTransformer } from '@/liquid-forge/services/core/data-transformer';
+import { dataTransformer } from '../../core/data-transformer';
 import { productCacheManager } from './product-cache-manager';
 import { productQueryManager } from './product-query-manager';
 import type { ProductData, ProductHandleMap } from './types/product-types';

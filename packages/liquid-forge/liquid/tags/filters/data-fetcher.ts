@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { dataFetcher } from '@/liquid-forge/services/fetchers/data-fetcher';
+import { dataFetcher } from '../../../services/fetchers/data-fetcher';
 import { AvailableFilters } from './types';
 
 export class FilterDataFetcher {

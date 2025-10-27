@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { coreDataLoader, searchDataLoader } from '@/liquid-forge/services/page/data-loader';
-import type { CoreData } from '@/liquid-forge/services/page/data-loader/core/core-data-loader';
-import type { SearchData } from '@/liquid-forge/services/page/data-loader/search/search-data-loader';
-import type { CartContext } from '@/liquid-forge/types';
-import type { PageRenderOptions, PaginationInfo } from '@/liquid-forge/types/template';
+import { logger } from '../../lib/logger';
+import { coreDataLoader, searchDataLoader } from './data-loader';
+import type { CoreData } from './data-loader/core/core-data-loader';
+import type { SearchData } from './data-loader/search/search-data-loader';
+import type { CartContext } from '../../types';
+import type { PageRenderOptions, PaginationInfo } from '../../types/template';
 
 /**
  * Resultado de la carga dinámica de datos

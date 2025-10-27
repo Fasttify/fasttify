@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { CheckoutContext, CheckoutSession } from '@/liquid-forge/types';
+import { logger } from '../../../lib/logger';
+import type { CheckoutContext, CheckoutSession } from '../../../types';
 
 /**
  * Transformador de datos específico para checkout

@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import type { CollectionContext } from '@/liquid-forge/types';
+import type { CollectionContext } from '../../../../types';
 
 export type { CollectionContext };
 

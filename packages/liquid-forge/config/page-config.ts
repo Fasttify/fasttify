@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { cacheManager } from '@/liquid-forge/services/core/cache';
-import type { PageType } from '@/liquid-forge/types/template';
+import { cacheManager } from '../services/core/cache';
+import type { PageType } from '../types/template';
 
 const templatePaths: Record<PageType, string> = {
   index: 'templates/index.json',

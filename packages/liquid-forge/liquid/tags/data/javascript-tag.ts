@@ -15,25 +15,20 @@
  */
 
 import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs';
-import { AssetCollector } from '@/liquid-forge/services/rendering/asset-collector';
-import { logger } from '@/liquid-forge/lib/logger';
+import { AssetCollector } from '../../../services/rendering/asset-collector';
+import { logger } from '../../../lib/logger';
+import { MINIFICATION_PATTERNS } from '../../../lib/regex-patterns';
 
 /**
  * Optimiza y limpia el JavaScript generado
  */
 function optimizeJS(js: string): string {
-  return (
-    js
-      // Remover comentarios de línea (// ...)
-      .replace(/\/\/.*$/gm, '')
-      // Remover comentarios de bloque (/* ... */)
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      // Remover espacios múltiples
-      .replace(/\s+/g, ' ')
-      // Limpiar líneas vacías
-      .replace(/^\s*[\r\n]/gm, '')
-      .trim()
-  );
+  return js
+    .replace(MINIFICATION_PATTERNS.lineComment, '')
+    .replace(MINIFICATION_PATTERNS.blockComment, '')
+    .replace(MINIFICATION_PATTERNS.multipleSpaces, ' ')
+    .replace(/^\s*[\r\n]/gm, '')
+    .trim();
 }
 
 /**

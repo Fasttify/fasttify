@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '../../../lib/logger';
 import { Context, Emitter, Liquid, Tag, TagToken, Template, TopLevelToken } from 'liquidjs';
 
 /**

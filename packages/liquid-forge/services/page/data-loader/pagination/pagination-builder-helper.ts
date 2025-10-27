@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import type { TemplateAnalysis } from '@/liquid-forge/services/templates/analysis/template-analyzer';
-import type { PaginationInfo } from '@/liquid-forge/types/template';
+import type { TemplateAnalysis } from '../../../templates/analysis/template-analyzer';
+import type { PaginationInfo } from '../../../../types/template';
 
 interface LoadedData {
   products?: any[];

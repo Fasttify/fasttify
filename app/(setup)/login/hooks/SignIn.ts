@@ -1,4 +1,4 @@
-import { resendSignUpCode, signIn, type SignInInput } from 'aws-amplify/auth';
+import { resendSignUpCode, signIn, type SignInInput, AuthError } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { useAuth } from '@/context/hooks/useAuth';
@@ -12,11 +12,6 @@ interface UseAuthReturn {
   isAuthenticated: boolean;
   clearError: () => void;
   resendConfirmationCode: (email: string) => Promise<void>;
-}
-
-interface AuthError {
-  code: string;
-  message: string;
 }
 
 interface UseAuthProps {

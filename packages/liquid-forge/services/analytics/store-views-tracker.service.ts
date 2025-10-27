@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '../../lib/logger';
 import { randomUUID } from 'crypto';
 import { AnalyticsWebhookJWTAuth } from '@/api/webhooks/_lib/middleware/jwt-auth.middleware';
 

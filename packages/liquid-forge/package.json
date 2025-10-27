@@ -12,7 +12,9 @@
     "test": "jest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "convert-imports": "tsx scripts/convert-imports-to-relative.ts",
+    "convert-imports:dry": "tsx scripts/convert-imports-to-relative.ts --dry-run"
   },
   "dependencies": {
     "browserslist": "^4.26.3",
@@ -27,17 +29,18 @@
     "cssnano": "^7.1.1",
     "eslint": "^8.0.0",
     "jest": "^30.0.4",
+    "tsx": "^4.20.6",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
-    "dotenv": "^17.2.0",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "@aws-sdk/lib-storage": "^3.903.0",
     "@aws-sdk/client-lambda": "^3.901.0",
     "@aws-sdk/client-s3": "^3.844.0",
-    "uuid": "^11.1.0",
+    "@aws-sdk/lib-storage": "^3.903.0",
+    "autoprefixer": "^10.4.21",
+    "dotenv": "^17.2.0",
+    "liquidjs": "^10.21.1",
     "node-cache": "^5.1.2",
-    "liquidjs": "^10.21.1"
+    "postcss": "^8.5.6",
+    "uuid": "^11.1.0"
   }
 }

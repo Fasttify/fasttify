@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '../../../lib/logger';
 import type {
   Cart,
   CartSnapshot,
@@ -24,7 +24,7 @@ import type {
   CheckoutStatus,
   StartCheckoutRequest,
   UpdateCustomerInfoRequest,
-} from '@/liquid-forge/types';
+} from '../../../types';
 import { checkoutDataTransformer } from './checkout-data-transformer';
 import { checkoutOrderCreator } from './checkout-order-creator';
 import { checkoutSessionManager } from './checkout-session-manager';

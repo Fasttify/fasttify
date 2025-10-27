@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import { TemplateAnalysis } from '@/liquid-forge/exports';
-import { RendererLogger } from '@/liquid-forge/lib/logger';
-import { SchemaParser } from '@/liquid-forge/services/templates/parsing/schema-parser';
+import { TemplateAnalysis } from '../../../exports';
+import { RendererLogger } from '../../../lib/logger';
+import { SchemaParser } from '../../templates/parsing/schema-parser';
 import { PostCSSProcessor } from '../optimization/postcss-processor';
+import { SANITIZATION_PATTERNS } from '../../../lib/regex-patterns';
 import JSZip from 'jszip';
 import type {
   ProcessedTheme,
@@ -407,7 +408,7 @@ export class ThemeProcessor {
    */
   private generateThemeId(name: string, storeId: string): string {
     const timestamp = Date.now();
-    const sanitizedName = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const sanitizedName = name.toLowerCase().replace(SANITIZATION_PATTERNS.themeName, '-');
     return `${sanitizedName}-${storeId}-${timestamp}`;
   }
 

@@ -24,7 +24,7 @@ const CLOUDFRONT_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID;
 const BASE_TEMPLATE_PREFIX = 'base-templates/default/';
 const TEMPLATE_DIR = join(process.cwd(), 'packages/example-themes/fasttify/theme');
 const FILTER_MODULES_DIR = join(process.cwd(), 'packages/liquid-forge/liquid/tags/filters/js');
-const FILTER_MODULES_PREFIX = 'assets/';
+const FILTER_MODULES_PREFIX = 'assets/global-static/';
 
 const s3Client = new S3Client({
   region: REGION,
@@ -231,7 +231,7 @@ async function invalidateCloudFrontCache() {
       InvalidationBatch: {
         Paths: {
           Quantity: 1,
-          Items: ['/assets/*'],
+          Items: ['/assets/global-static/*'],
         },
         CallerReference: `invalidation-${Date.now()}`,
       },
@@ -271,7 +271,7 @@ async function main() {
     console.log('\nSubida completada con éxito!');
     console.log(`Se subieron ${templateResults.length} archivos de plantilla.`);
     console.log(`Se subieron ${moduleResults.length} módulos de filtros.`);
-    console.log(`\nLos módulos están disponibles en: https://cdn.fasttify.com/assets/`);
+    console.log(`\nLos módulos están disponibles en: https://cdn.fasttify.com/assets/global-static/`);
 
     console.log('\nInvalidando cache de CloudFront...');
     await invalidateCloudFrontCache();

@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import type { Order } from '@/liquid-forge/types';
+import type { Order } from '../../types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 import { EmailNotificationService, EmailFormattingUtils, type Address } from './index';
 

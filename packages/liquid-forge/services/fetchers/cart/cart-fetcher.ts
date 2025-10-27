@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { dataFetcher } from '@/liquid-forge/services/fetchers/data-fetcher';
-import type { Cart, CartRaw } from '@/liquid-forge/types';
+import { logger } from '../../../lib/logger';
+import { dataFetcher } from '../data-fetcher';
+import type { Cart, CartRaw } from '../../../types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 import { cartContextTransformer } from './cart-context-transformer';
 import { cartItemTransformer } from './cart-item-transformer';

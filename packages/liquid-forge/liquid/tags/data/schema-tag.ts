@@ -15,7 +15,7 @@
  */
 
 import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs';
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '../../../lib/logger';
 
 /**
  * Custom Schema Tag para manejar {% schema %} de Shopify en LiquidJS

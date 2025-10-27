@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { OpenGraphData, RenderResult, SchemaData, TwitterCardData } from '@/liquid-forge/types/template';
+import type { OpenGraphData, RenderResult, SchemaData, TwitterCardData } from '../../types/template';
 
 export class MetadataGenerator {
   /**

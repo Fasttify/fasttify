@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { getPageCacheKey } from '@/liquid-forge/services/core/cache/cache-keys';
-import { cacheManager } from '@/liquid-forge/services/core/cache';
-import type { PageRenderOptions } from '@/liquid-forge/types/template';
+import { getPageCacheKey } from '../core/cache/cache-keys';
+import { cacheManager } from '../core/cache';
+import type { PageRenderOptions } from '../../types/template';
 
 export interface CachedPageRender {
   html: string;

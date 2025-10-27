@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { LiquidFilter } from '@/liquid-forge/types';
+import type { LiquidFilter } from '../../types';
 
 /**
  * Filtro para obtener una colección específica por handle desde el contexto

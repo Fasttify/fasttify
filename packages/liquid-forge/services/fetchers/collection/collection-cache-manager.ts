@@ -16,7 +16,7 @@ import {
   getCollectionPrefix,
   getCollectionsCacheKey,
   getCollectionsPrefix,
-} from '@/liquid-forge/services/core/cache';
+} from '../../core/cache';
 import type { CollectionContext, CollectionsResponse } from './types/collection-types';
 
 export class CollectionCacheManager {

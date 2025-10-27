@@ -16,7 +16,7 @@ import {
   getNavigationMenuCacheKey,
   getNavigationMenuPrefix,
   getNavigationPrefix,
-} from '@/liquid-forge/services/core/cache';
+} from '../../core/cache';
 import type { NavigationMenusResponse, ProcessedNavigationMenu } from './types/navigation-types';
 
 export class NavigationCacheManager {

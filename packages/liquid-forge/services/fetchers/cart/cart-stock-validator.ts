@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { dataFetcher } from '@/liquid-forge/services/fetchers/data-fetcher';
+import { logger } from '../../../lib/logger';
+import { dataFetcher } from '../data-fetcher';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 
 export interface StockValidationResult {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '../../../lib/logger';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 import crypto from 'crypto';
 import type { CheckoutSessionData, UserStoreCurrency } from './types/checkout-types';

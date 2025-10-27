@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { extractPaginationLimitFromTemplate } from '@/liquid-forge/services/page/data-loader/pagination/pagination-limit-extractor';
-import type { TemplateAnalysis } from '@/liquid-forge/services/templates/analysis/template-analyzer';
-import { templateAnalyzer } from '@/liquid-forge/services/templates/analysis/template-analyzer';
-import { templateLoader } from '@/liquid-forge/services/templates/template-loader';
-import type { PageRenderOptions } from '@/liquid-forge/types/template';
+import { logger } from '../../../../lib/logger';
+import { extractPaginationLimitFromTemplate } from '../pagination/pagination-limit-extractor';
+import type { TemplateAnalysis } from '../../../templates/analysis/template-analyzer';
+import { templateAnalyzer } from '../../../templates/analysis/template-analyzer';
+import { templateLoader } from '../../../templates/template-loader';
+import type { PageRenderOptions } from '../../../../types/template';
 
 /**
  * Tipo para cargadores de templates

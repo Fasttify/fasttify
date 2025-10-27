@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { MINIFICATION_PATTERNS, CSS_MINIFICATION_PATTERNS } from '../../../lib/regex-patterns';
+
 export interface PostCSSOptions {
   autoprefixer: boolean;
   removeComments: boolean;
@@ -65,14 +67,13 @@ export class PostCSSProcessor {
       this.cssProcessor = null;
     }
 
-    // Para JS usamos minificación simple (como hacen los desarrolladores de Shopify)
     this.jsProcessor = {
       minify: (js: string): string => {
         return js
-          .replace(/\/\/.*$/gm, '') // Comentarios de línea
-          .replace(/\/\*[\s\S]*?\*\//g, '') // Comentarios de bloque
-          .replace(/\s+/g, ' ') // Espacios
-          .replace(/\s*([=+\-*/%&|^!~?:,;{}()\[\]<>])\s*/g, '$1')
+          .replace(MINIFICATION_PATTERNS.lineComment, '')
+          .replace(MINIFICATION_PATTERNS.blockComment, '')
+          .replace(MINIFICATION_PATTERNS.multipleSpaces, ' ')
+          .replace(MINIFICATION_PATTERNS.operatorSpaces, '$1')
           .trim();
       },
     };

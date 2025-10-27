@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import type { Order } from '@/liquid-forge/types';
+import type { Order } from '../../types';
 import { getOrderStatus, getPaymentStatus } from './status-translations';
 import { EmailFormattingUtils, type Address, type AddressInfo } from './email-formatting-utils';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';

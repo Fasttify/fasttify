@@ -1,12 +1,13 @@
-import { RenderTag } from '@/packages/liquid-forge/liquid/tags/core/render-tag';
+import { RenderTag } from '@fasttify/liquid-forge/liquid/tags/core/render-tag';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Liquid } from 'liquidjs';
 import { createTestContext, createTestLiquid, mockTemplateLoader } from './setup';
 
-// Mock del TemplateLoader
-jest.mock('@/packages/liquid-forge/services/templates/template-loader', () => ({
+const mockGetInstance = jest.fn(() => mockTemplateLoader);
+
+jest.mock('@fasttify/liquid-forge/services/templates/template-loader', () => ({
   TemplateLoader: {
-    getInstance: () => mockTemplateLoader,
+    getInstance: mockGetInstance,
   },
 }));
 
@@ -18,7 +19,9 @@ describe('RenderTag', () => {
     liquid.registerTag('render', RenderTag);
 
     // Reset mocks
-    jest.clearAllMocks();
+    mockGetInstance.mockClear();
+    mockTemplateLoader.loadTemplate.mockClear();
+    mockTemplateLoader.loadTemplate.mockResolvedValue('<div>Mock Template</div>');
   });
 
   it('should render a basic snippet', async () => {

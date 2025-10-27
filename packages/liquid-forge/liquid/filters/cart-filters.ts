@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { LiquidFilter } from '@/liquid-forge/types';
+import type { LiquidFilter } from '../../types';
 
 /**
  * Filtro cart_url - Genera URL del carrito

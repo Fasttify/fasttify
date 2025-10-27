@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { RendererLogger } from '@/liquid-forge/lib/logger';
+import { RendererLogger } from '../../../lib/logger';
 import type { ThemeFile, ThemeValidationConfig, ValidationResult } from '../types';
 import { FileStructureRules } from './rules/file-structure-rules';
 import { LiquidSyntaxRules } from './rules/liquid-syntax-rules';

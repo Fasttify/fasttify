@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import type { LiquidFilter } from '@/liquid-forge/types';
+import type { LiquidFilter } from '../../types';
+import { ESCAPE_PATTERNS, HANDLE_PATTERNS, URL_PATTERNS } from '../../lib/regex-patterns';
 
 /**
  * Filtro para formatear fechas
@@ -67,16 +68,16 @@ export const handleizeFilter: LiquidFilter = {
     return text
       .toLowerCase()
       .trim()
-      .replace(/[áàäâã]/g, 'a')
-      .replace(/[éèëê]/g, 'e')
-      .replace(/[íìïî]/g, 'i')
-      .replace(/[óòöôõ]/g, 'o')
-      .replace(/[úùüû]/g, 'u')
-      .replace(/[ñ]/g, 'n')
-      .replace(/[ç]/g, 'c')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(HANDLE_PATTERNS.aVariants, 'a')
+      .replace(HANDLE_PATTERNS.eVariants, 'e')
+      .replace(HANDLE_PATTERNS.iVariants, 'i')
+      .replace(HANDLE_PATTERNS.oVariants, 'o')
+      .replace(HANDLE_PATTERNS.uVariants, 'u')
+      .replace(HANDLE_PATTERNS.enye, 'n')
+      .replace(HANDLE_PATTERNS.cCedilla, 'c')
+      .replace(HANDLE_PATTERNS.nonAlphanumeric, '-')
+      .replace(HANDLE_PATTERNS.multipleDashes, '-')
+      .replace(HANDLE_PATTERNS.leadingTrailingDash, '');
   },
 };
 
@@ -119,11 +120,11 @@ export const escapeFilter: LiquidFilter = {
     }
 
     return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;');
+      .replace(ESCAPE_PATTERNS.ampersand, '&amp;')
+      .replace(ESCAPE_PATTERNS.lessThan, '&lt;')
+      .replace(ESCAPE_PATTERNS.greaterThan, '&gt;')
+      .replace(ESCAPE_PATTERNS.doubleQuote, '&quot;')
+      .replace(ESCAPE_PATTERNS.apostrophe, '&#x27;');
   },
 };
 

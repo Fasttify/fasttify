@@ -1,5 +1,5 @@
-jest.mock('@/packages/liquid-forge/services/core/cache/cache-manager', () => {
-  const original = jest.requireActual('@/packages/liquid-forge/services/core/cache/cache-manager');
+jest.mock('@fasttify/liquid-forge/services/core/cache/cache-manager', () => {
+  const original = jest.requireActual('@fasttify/liquid-forge/services/core/cache/cache-manager');
   return {
     ...original,
     cacheManager: {
@@ -11,8 +11,7 @@ jest.mock('@/packages/liquid-forge/services/core/cache/cache-manager', () => {
   };
 });
 
-import { cacheInvalidationService } from '@/packages/liquid-forge/services/core/cache/cache-invalidation-service';
-import { cacheManager } from '@/packages/liquid-forge/services/core/cache';
+import { cacheInvalidationService, cacheManager } from '@fasttify/liquid-forge/services/core/cache';
 
 describe('CacheInvalidationService', () => {
   beforeEach(() => {

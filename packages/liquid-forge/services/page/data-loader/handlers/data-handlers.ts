@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { checkoutFetcher } from '@/liquid-forge/services/fetchers/checkout';
-import { dataFetcher } from '@/liquid-forge/services/fetchers/data-fetcher';
-import type { DataLoadOptions, DataRequirement } from '@/liquid-forge/services/templates/analysis/template-analyzer';
-import type { PageRenderOptions } from '@/liquid-forge/types/template';
+import { logger } from '../../../../lib/logger';
+import { checkoutFetcher } from '../../../fetchers/checkout';
+import { dataFetcher } from '../../../fetchers/data-fetcher';
+import type { DataLoadOptions, DataRequirement } from '../../../templates/analysis/template-analyzer';
+import type { PageRenderOptions } from '../../../../types/template';
 
 /**
  * Tipo para las funciones handlers de datos

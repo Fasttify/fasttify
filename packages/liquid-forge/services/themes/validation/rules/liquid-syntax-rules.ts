@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LiquidEngine } from '@/liquid-forge/liquid/engine';
+import { LiquidEngine } from '../../../../liquid/engine';
 import type {
   ThemeFile,
   ThemeValidationConfig,
