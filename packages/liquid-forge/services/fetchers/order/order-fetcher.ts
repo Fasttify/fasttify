@@ -10,16 +10,16 @@
  * limitations under the License.
  */
 
-import type { Order } from '@/liquid-forge/types';
+import type { Order } from '../../../types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
-import { customerInfoManager } from '@/liquid-forge/services/fetchers/order/customer-info-manager';
-import { orderItemCreator } from '@/liquid-forge/services/fetchers/order/order-item-creator';
-import { orderNumberGenerator } from '@/liquid-forge/services/fetchers/order/order-number-generator';
-import { orderValidator } from '@/liquid-forge/services/fetchers/order/order-validator';
+import { customerInfoManager } from './customer-info-manager';
+import { orderItemCreator } from './order-item-creator';
+import { orderNumberGenerator } from './order-number-generator';
+import { orderValidator } from './order-validator';
 import type { CreateOrderRequest, CreateOrderResponse } from './types/order-types';
-import { EmailOrderService } from '@/liquid-forge/services/notifications/email-order-service';
-import { notificationCreator } from '@/liquid-forge/services/notifications/server';
-import { analyticsWebhookService } from '@/liquid-forge/services/analytics';
+import { EmailOrderService } from '../../notifications/email-order-service';
+import { notificationCreator } from '../../notifications/server';
+import { analyticsWebhookService } from '../../analytics';
 
 export class OrderFetcher {
   /**

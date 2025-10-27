@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import type {
-  DataLoadOptions,
-  DataRequirement,
-  TemplateAnalysis,
-} from '@/liquid-forge/services/templates/analysis/template-analyzer';
+import type { DataLoadOptions, DataRequirement, TemplateAnalysis } from '../analysis/template-analyzer';
 
 /**
  * Tipo para detectores de objetos Liquid

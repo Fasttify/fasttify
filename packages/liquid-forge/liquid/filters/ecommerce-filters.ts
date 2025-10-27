@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { LiquidFilter } from '@/liquid-forge/types';
+import type { LiquidFilter } from '../../types';
 
 /**
  * Interfaz para parámetros de optimización de imágenes

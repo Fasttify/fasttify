@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { cacheManager } from '@/liquid-forge/services/core/cache';
-import { cacheInvalidationService } from '@/liquid-forge/services/core/cache/cache-invalidation-service';
-import { templateLoader } from '@/liquid-forge/services/templates/template-loader';
-import { PostCSSProcessor } from '@/liquid-forge/services/themes/optimization/postcss-processor';
+import { logger } from '../../../lib/logger';
+import { cacheManager } from '../../core/cache';
+import { cacheInvalidationService } from '../../core/cache/cache-invalidation-service';
+import { templateLoader } from '../template-loader';
+import { PostCSSProcessor } from '../../themes/optimization/postcss-processor';
 import { getContentType, isBinaryFile } from '@/lib/utils/file-utils';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';

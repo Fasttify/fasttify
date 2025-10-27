@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { pathToRenderOptions } from '@/liquid-forge/config/route-matchers';
-import { logger } from '@/liquid-forge/lib/logger';
-import { DynamicPageRenderer } from '@/liquid-forge/renderers/dynamic-page-renderer';
-import type { RenderResult } from '@/liquid-forge/types';
+import { pathToRenderOptions } from '../config/route-matchers';
+import { logger } from '../lib/logger';
+import { DynamicPageRenderer } from '../renderers/dynamic-page-renderer';
+import type { RenderResult } from '../types';
 
 /**
  * Factory principal del sistema de renderizado de tiendas

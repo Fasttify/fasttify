@@ -15,7 +15,7 @@
  */
 
 // Helpers para mensajes, títulos, descripciones y sugerencias de errores
-import type { TemplateError } from '@/liquid-forge/types';
+import type { TemplateError } from '../../types';
 
 export function getFriendlyMessage(errorType: TemplateError['type']): string {
   const messages = {

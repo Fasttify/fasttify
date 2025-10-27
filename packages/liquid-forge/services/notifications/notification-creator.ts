@@ -15,8 +15,8 @@
  */
 
 import { cookiesClient } from '@/utils/server/AmplifyServer';
-import type { Order } from '@/liquid-forge/types';
-import { logger } from '@/liquid-forge/lib/logger';
+import type { Order } from '../../types';
+import { logger } from '../../lib/logger';
 import type { CreateAdminNotificationRequest } from './types/notification-types';
 import { EmailFormattingUtils } from './email-formatting-utils';
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { LiquidSyntaxDetector } from '@/liquid-forge/services/templates/parsing/liquid-syntax-detector';
+import { logger } from '../../../lib/logger';
+import { LiquidSyntaxDetector } from '../parsing/liquid-syntax-detector';
 
 /**
  * Tipo de datos que pueden ser detectados en una plantilla
@@ -116,7 +116,7 @@ export class TemplateAnalyzer {
     storeId: string,
     initialTemplates: { [path: string]: string }
   ): Promise<TemplateAnalysis> {
-    const { templateLoader } = await import('@/liquid-forge/services/templates/template-loader');
+    const { templateLoader } = await import('../template-loader');
 
     const combinedAnalysis: TemplateAnalysis = {
       requiredData: new Map(),

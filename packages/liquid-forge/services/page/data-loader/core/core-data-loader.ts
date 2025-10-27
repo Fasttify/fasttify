@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { loadDataFromAnalysis } from '@/liquid-forge/services/page/data-loader';
-import { buildContextData } from '@/liquid-forge/services/page/data-loader/core/context-builder-helper';
-import { analyzeRequiredTemplates } from '@/liquid-forge/services/page/data-loader/core/template-analyzer-helper';
-import { buildPaginationObject } from '@/liquid-forge/services/page/data-loader/pagination/pagination-builder-helper';
-import type { TemplateAnalysis } from '@/liquid-forge/services/templates/analysis/template-analyzer';
-import type { PageRenderOptions, PaginationInfo } from '@/liquid-forge/types/template';
+import { logger } from '../../../../lib/logger';
+import { loadDataFromAnalysis } from '..';
+import { buildContextData } from './context-builder-helper';
+import { analyzeRequiredTemplates } from './template-analyzer-helper';
+import { buildPaginationObject } from '../pagination/pagination-builder-helper';
+import type { TemplateAnalysis } from '../../../templates/analysis/template-analyzer';
+import type { PageRenderOptions, PaginationInfo } from '../../../../types/template';
 
 /**
  * Interfaz para los datos principales cargados

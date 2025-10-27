@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { cacheManager, getDomainCacheKey } from '@/liquid-forge/services/core/cache';
-import { logger } from '@/liquid-forge/lib/logger';
-import type { Store, TemplateError } from '@/liquid-forge/types';
+import { cacheManager, getDomainCacheKey } from './cache';
+import { logger } from '../../lib/logger';
+import type { Store, TemplateError } from '../../types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 
 class DomainResolver {

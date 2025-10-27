@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { liquidEngine } from '@/liquid-forge/liquid/engine';
-import type { RenderingData } from '@/liquid-forge/renderers/dynamic-page-renderer';
+import { liquidEngine } from '../../liquid/engine';
+import type { RenderingData } from '../dynamic-page-renderer';
 
 /**
  * Paso 2: Inicializar motor de rendering

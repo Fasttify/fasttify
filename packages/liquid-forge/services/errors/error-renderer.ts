@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { liquidEngine } from '@/liquid-forge/liquid/engine';
-import type { RenderResult, ShopContext, TemplateError } from '@/liquid-forge/types';
+import { logger } from '../../lib/logger';
+import { liquidEngine } from '../../liquid/engine';
+import type { RenderResult, ShopContext, TemplateError } from '../../types';
 import {
   extractStoreName,
   getErrorDescription,
   getErrorSuggestions,
   getErrorTitle,
   getFriendlyMessage,
-} from '@/liquid-forge/services/errors/error-messages';
+} from './error-messages';
 import {
   getDataErrorTemplate,
   getFallbackErrorPageTemplate,
@@ -31,7 +31,7 @@ import {
   getStoreNotActiveTemplate,
   getStoreNotFoundTemplate,
   getTemplateNotFoundTemplate,
-} from '@/liquid-forge/services/errors/error-templates';
+} from './error-templates';
 
 export interface ErrorRenderOptions {
   storeId?: string;

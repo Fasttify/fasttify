@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import type { ProductContext } from '@/liquid-forge/types';
+import type { ProductContext } from '../../../../types';
 
 export type { ProductContext };
 

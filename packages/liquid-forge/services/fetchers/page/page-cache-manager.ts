@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { cacheManager, getPageCacheKey, getPagesCacheKey, getPagesPrefix } from '@/liquid-forge/services/core/cache';
+import { cacheManager, getPageCacheKey, getPagesCacheKey, getPagesPrefix } from '../../core/cache';
 import type { PageContext, PagesResponse } from './types/page-types';
 
 export class PageCacheManager {

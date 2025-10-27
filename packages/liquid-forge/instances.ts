@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { StoreRendererFactory } from '@/liquid-forge/factories/store-renderer-factory';
+import { StoreRendererFactory } from './factories/store-renderer-factory';
 
 /**
  * Instancia singleton del renderizador de tiendas

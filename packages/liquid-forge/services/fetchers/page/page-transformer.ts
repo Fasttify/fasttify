@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { dataTransformer } from '@/liquid-forge/services/core/data-transformer';
+import { dataTransformer } from '../../core/data-transformer';
 import type { PageContext, PageData } from './types/page-types';
 
 export class PageTransformer {

@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import type { CartSnapshot, OrderItem } from '@/liquid-forge/types';
+import type { CartSnapshot, OrderItem } from '../../../types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 import type { OrderItemData, ProductSnapshotData } from './types/order-types';
 

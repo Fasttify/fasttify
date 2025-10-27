@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { TemplateAnalysis } from '@/liquid-forge/exports';
-import { RendererLogger } from '@/liquid-forge/lib/logger';
-import { SchemaParser } from '@/liquid-forge/services/templates/parsing/schema-parser';
+import { TemplateAnalysis } from '../../../exports';
+import { RendererLogger } from '../../../lib/logger';
+import { SchemaParser } from '../../templates/parsing/schema-parser';
 import { PostCSSProcessor } from '../optimization/postcss-processor';
 import JSZip from 'jszip';
 import type {

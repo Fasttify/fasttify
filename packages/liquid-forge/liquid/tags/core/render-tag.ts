@@ -15,7 +15,7 @@
  */
 
 import { Tag, TagToken, Context, TopLevelToken, Liquid } from 'liquidjs';
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '../../../lib/logger';
 
 /**
  * Custom Render Tag para manejar {% render 'snippet' %} en LiquidJS
@@ -121,8 +121,7 @@ export class RenderTag extends Tag {
       }
 
       // Usar el TemplateLoader para cargar el snippet
-      const { TemplateLoader } = await import('@/liquid-forge/services/templates/template-loader');
-      const templateLoader = TemplateLoader.getInstance();
+      const { templateLoader } = await import('../../../services/templates/template-loader');
 
       // Los snippets están en la carpeta 'snippets'
       const snippetFileName = snippetName.endsWith('.liquid') ? snippetName : `${snippetName}.liquid`;

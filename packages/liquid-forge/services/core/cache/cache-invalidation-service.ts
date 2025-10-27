@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '../../../lib/logger';
 import {
   cacheManager,
   getCollectionPrefix,
@@ -29,7 +29,7 @@ import {
   getProductsPrefix,
   getNavigationPrefix,
   getNavigationMenuPrefix,
-} from '@/liquid-forge/services/core/cache';
+} from './';
 
 /**
  * Tipos de cambios que pueden ocurrir en una tienda

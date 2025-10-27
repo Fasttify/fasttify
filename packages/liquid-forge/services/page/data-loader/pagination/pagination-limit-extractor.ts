@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { DataRequirement, TemplateAnalysis } from '@/liquid-forge/services/templates/analysis/template-analyzer';
-import type { PageRenderOptions } from '@/liquid-forge/types/template';
+import { logger } from '../../../../lib/logger';
+import type { DataRequirement, TemplateAnalysis } from '../../../templates/analysis/template-analyzer';
+import type { PageRenderOptions } from '../../../../types/template';
 
 /**
  * Mapeo declarativo de tipos de página a paths de templates.

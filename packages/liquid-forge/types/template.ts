@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { AssetCollector } from '@/liquid-forge/services/rendering/asset-collector';
+import type { AssetCollector } from '../services/rendering/asset-collector';
 
 export interface TemplateFile {
   path: string;

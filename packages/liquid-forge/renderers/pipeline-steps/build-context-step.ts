@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import type { RenderingData } from '@/liquid-forge/renderers/dynamic-page-renderer';
-import { contextBuilder } from '@/liquid-forge/services/rendering/global-context';
+import type { RenderingData } from '../dynamic-page-renderer';
+import { contextBuilder } from '../../services/rendering/global-context';
 
 /**
  * Helper para exponer solo propiedades definidas

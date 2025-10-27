@@ -15,8 +15,8 @@
  */
 
 import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs';
-import { AssetCollector } from '@/liquid-forge/services/rendering/asset-collector';
-import { logger } from '@/liquid-forge/lib/logger';
+import { AssetCollector } from '../../../services/rendering/asset-collector';
+import { logger } from '../../../lib/logger';
 
 /**
  * Optimiza y limpia el CSS generado

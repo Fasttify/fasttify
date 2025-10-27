@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { Order } from '@/liquid-forge/types';
+import type { Order } from '../../../types';
 
 export interface CreateAdminNotificationRequest {
   order: Order;

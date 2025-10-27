@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { RendererLogger } from '@/liquid-forge/lib/logger';
+import { RendererLogger } from '../../../lib/logger';
 import { getCdnUrlForKey } from '@/utils/server';
 import { getContentType } from '@/lib/utils';
 import {

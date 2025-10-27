@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import type { DataRequirement } from '@/liquid-forge/services/templates/analysis/template-analyzer';
-import type { PaginationInfo } from '@/liquid-forge/types/template';
+import type { DataRequirement } from '../../../templates/analysis/template-analyzer';
+import type { PaginationInfo } from '../../../../types/template';
 
 /**
  * Tipo para procesadores de respuesta de datos

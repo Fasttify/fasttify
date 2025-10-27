@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { TemplateAnalysis } from '@/liquid-forge/services/templates/analysis/template-analyzer';
-import type { PageRenderOptions, PaginationInfo } from '@/liquid-forge/types/template';
+import { logger } from '../../../lib/logger';
+import type { TemplateAnalysis } from '../../templates/analysis/template-analyzer';
+import type { PageRenderOptions, PaginationInfo } from '../../../types/template';
 import { loadSpecificData } from './handlers/data-handlers';
 import { responseProcessors } from './handlers/response-processors';
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { pageConfig } from '@/liquid-forge/config/page-config';
-import type { RenderingData } from '@/liquid-forge/renderers/dynamic-page-renderer';
-import { renderPageContent } from '@/liquid-forge/services/rendering/render-page-content';
+import { pageConfig } from '../../config/page-config';
+import type { RenderingData } from '../dynamic-page-renderer';
+import { renderPageContent } from '../../services/rendering/render-page-content';
 
 /**
  * Paso 6: Renderizar contenido de la página

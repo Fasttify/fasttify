@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { Cart, CartContext } from '@/liquid-forge/types';
+import { logger } from '../../../lib/logger';
+import type { Cart, CartContext } from '../../../types';
 
 export class CartContextTransformer {
   /**

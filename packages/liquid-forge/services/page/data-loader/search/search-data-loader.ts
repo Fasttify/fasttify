@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { dataFetcher } from '@/liquid-forge/services/fetchers/data-fetcher';
-import { productTransformer } from '@/liquid-forge/services/fetchers/product';
-import { extractSearchLimitsFromSettings } from '@/liquid-forge/services/page/data-loader/search/search-limits-extractor';
-import type { ProductContext } from '@/liquid-forge/types';
+import { logger } from '../../../../lib/logger';
+import { dataFetcher } from '../../../fetchers/data-fetcher';
+import { productTransformer } from '../../../fetchers/product';
+import { extractSearchLimitsFromSettings } from './search-limits-extractor';
+import type { ProductContext } from '../../../../types';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 
 /**

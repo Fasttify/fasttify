@@ -15,26 +15,22 @@
  */
 
 // Core utilities
-import { injectAssets } from '@/liquid-forge/lib/inject-assets';
-import { logger } from '@/liquid-forge/lib/logger';
+import { injectAssets } from '../lib/inject-assets';
+import { logger } from '../lib/logger';
 
 // Liquid engine
-import { liquidEngine } from '@/liquid-forge/liquid/engine';
+import { liquidEngine } from '../liquid/engine';
 
 // Services
-import { pageConfig } from '@/liquid-forge/config/page-config';
+import { pageConfig } from '../config/page-config';
 // Clave y caché de HTML gestionados en utilidades dedicadas
-import {
-  getCachedPageRender,
-  makePageCacheKey,
-  setCachedPageRender,
-} from '@/liquid-forge/services/rendering/page-html-cache';
-import { domainResolver } from '@/liquid-forge/services/core/domain-resolver';
-import { errorRenderer } from '@/liquid-forge/services/errors/error-renderer';
-import { createTemplateError } from '@/liquid-forge/services/errors/error-utils';
-import { metadataGenerator } from '@/liquid-forge/services/rendering/metadata-generator';
-import { sectionRenderer } from '@/liquid-forge/services/rendering/section-renderer';
-import { templateLoader } from '@/liquid-forge/services/templates/template-loader';
+import { getCachedPageRender, makePageCacheKey, setCachedPageRender } from '../services/rendering/page-html-cache';
+import { domainResolver } from '../services/core/domain-resolver';
+import { errorRenderer } from '../services/errors/error-renderer';
+import { createTemplateError } from '../services/errors/error-utils';
+import { metadataGenerator } from '../services/rendering/metadata-generator';
+import { sectionRenderer } from '../services/rendering/section-renderer';
+import { templateLoader } from '../services/templates/template-loader';
 
 // Pipeline steps
 import {
@@ -43,11 +39,11 @@ import {
   loadDataStep,
   renderContentStep,
   resolveStoreStep,
-} from '@/liquid-forge/renderers/pipeline-steps';
+} from './pipeline-steps';
 
 // Types
-import type { RenderResult, ShopContext, TemplateError } from '@/liquid-forge/types';
-import type { PageRenderOptions } from '@/liquid-forge/types/template';
+import type { RenderResult, ShopContext, TemplateError } from '../types';
+import type { PageRenderOptions } from '../types/template';
 import type { Template } from 'liquidjs';
 
 /**

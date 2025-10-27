@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { allFilters } from '@/liquid-forge/liquid/filters';
+import { allFilters } from './filters';
 import {
   FiltersTag,
   FormTag,
@@ -28,9 +28,9 @@ import {
   SectionsTag,
   StyleTag,
   StylesheetTag,
-} from '@/liquid-forge/liquid/tags';
-import { AssetCollector } from '@/liquid-forge/services/rendering/asset-collector';
-import type { LiquidContext, LiquidEngineConfig, TemplateError } from '@/liquid-forge/types';
+} from './tags';
+import { AssetCollector } from '../services/rendering/asset-collector';
+import type { LiquidContext, LiquidEngineConfig, TemplateError } from '../types';
 import { Liquid, Template } from 'liquidjs';
 
 class LiquidEngine {

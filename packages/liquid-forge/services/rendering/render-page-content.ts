@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { liquidEngine } from '@/liquid-forge/liquid/engine';
-import { sectionRenderer } from '@/liquid-forge/services/rendering/section-renderer';
-import { templateLoader } from '@/liquid-forge/services/templates/template-loader';
-import type { PageRenderOptions } from '@/liquid-forge/types/template';
+import { logger } from '../../lib/logger';
+import { liquidEngine } from '../../liquid/engine';
+import { sectionRenderer } from './section-renderer';
+import { templateLoader } from '../templates/template-loader';
+import type { PageRenderOptions } from '../../types/template';
 import type { Template } from 'liquidjs';
 
 /**

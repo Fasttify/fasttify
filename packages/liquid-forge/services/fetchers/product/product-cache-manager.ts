@@ -18,7 +18,7 @@ import {
   getProductHandleMapCacheKey,
   getProductsCacheKey,
   getProductsPrefix,
-} from '@/liquid-forge/services/core/cache';
+} from '../../core/cache';
 import type { ProductContext, ProductsResponse } from './types/product-types';
 
 export class ProductCacheManager {

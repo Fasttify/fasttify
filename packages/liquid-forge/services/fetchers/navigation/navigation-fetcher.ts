@@ -10,8 +10,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { ProcessedNavigationMenu } from '@/liquid-forge/types/store';
+import { logger } from '../../../lib/logger';
+import type { ProcessedNavigationMenu } from '../../../types/store';
 import { cookiesClient } from '@/utils/server/AmplifyServer';
 import { navigationCacheManager } from './navigation-cache-manager';
 import { navigationMenuProcessor } from './navigation-menu-processor';

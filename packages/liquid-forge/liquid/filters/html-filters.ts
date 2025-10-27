@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { LiquidFilter } from '@/liquid-forge/types';
+import { logger } from '../../lib/logger';
+import type { LiquidFilter } from '../../types';
 
 /**
  * Filtro asset_url - Para archivos estáticos (CSS, JS, imágenes de tema)
@@ -213,7 +213,7 @@ export const inlineAssetContentFilter: LiquidFilter = {
 
     try {
       // Importar templateLoader dinámicamente para evitar dependencias circulares
-      const { templateLoader } = await import('@/liquid-forge/services/templates/template-loader');
+      const { templateLoader } = await import('../../services/templates/template-loader');
 
       // Cargar el contenido del asset
       const assetContent = await templateLoader.loadAsset(storeId, cleanFilename);

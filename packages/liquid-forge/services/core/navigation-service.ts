@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { dataFetcher } from '@/liquid-forge/services/fetchers/data-fetcher';
-import type { ProcessedNavigationMenu } from '@/liquid-forge/types/store';
-import { logger } from '@/liquid-forge/lib/logger';
+import { dataFetcher } from '../fetchers/data-fetcher';
+import type { ProcessedNavigationMenu } from '../../types/store';
+import { logger } from '../../lib/logger';
 
 export interface LinkListItem {
   title: string;

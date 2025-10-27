@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { pageConfig } from '@/liquid-forge/config/page-config';
-import { logger } from '@/liquid-forge/lib/logger';
-import type { RenderingData } from '@/liquid-forge/renderers/dynamic-page-renderer';
-import { dataFetcher } from '@/liquid-forge/services/fetchers/data-fetcher';
-import { dynamicDataLoader } from '@/liquid-forge/services/page/dynamic-data-loader';
-import { templateLoader } from '@/liquid-forge/services/templates/template-loader';
+import { pageConfig } from '../../config/page-config';
+import { logger } from '../../lib/logger';
+import type { RenderingData } from '../dynamic-page-renderer';
+import { dataFetcher } from '../../services/fetchers/data-fetcher';
+import { dynamicDataLoader } from '../../services/page/dynamic-data-loader';
+import { templateLoader } from '../../services/templates/template-loader';
 
 /**
  * Paso 4: Cargar todos los datos en paralelo

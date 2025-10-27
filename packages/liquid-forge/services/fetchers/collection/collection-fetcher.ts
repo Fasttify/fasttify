@@ -10,8 +10,8 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import type { CollectionContext, TemplateError } from '@/liquid-forge/types';
+import { logger } from '../../../lib/logger';
+import type { CollectionContext, TemplateError } from '../../../types';
 import { productFetcher } from '../product';
 import { collectionCacheManager } from './collection-cache-manager';
 import { collectionQueryManager } from './collection-query-manager';

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
-import { flexibleLinkListService, linkListService } from '@/liquid-forge/services/core/navigation-service';
-import type { CartContext, PageContext, RenderContext, ShopContext } from '@/liquid-forge/types';
+import { logger } from '../../lib/logger';
+import { flexibleLinkListService, linkListService } from '../core/navigation-service';
+import type { CartContext, PageContext, RenderContext, ShopContext } from '../../types';
 
 export class ContextBuilder {
   /**

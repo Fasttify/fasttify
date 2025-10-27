@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { logger } from '@/liquid-forge/lib/logger';
+import { logger } from '../../../../lib/logger';
 
 /**
  * Extrae los límites de búsqueda del archivo settings_schema.json

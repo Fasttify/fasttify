@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import type { RenderingData } from '@/liquid-forge/renderers/dynamic-page-renderer';
-import { domainResolver } from '@/liquid-forge/services/core/domain-resolver';
+import type { RenderingData } from '../dynamic-page-renderer';
+import { domainResolver } from '../../services/core/domain-resolver';
 
 /**
  * Paso 1: Resolver dominio a tienda

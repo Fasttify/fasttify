@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { PageRenderOptions } from '@/liquid-forge/types/template';
+import type { PageRenderOptions } from '../../../../types/template';
 
 /**
  * Tipo para builders de contexto por página
