@@ -17,6 +17,7 @@
 import { logger } from '../../../lib/logger';
 import { cacheManager } from '../../core/cache';
 import { cacheInvalidationService } from '../../core/cache/cache-invalidation-service';
+import { PATH_PATTERNS } from '../../../lib/regex-patterns';
 import { templateLoader } from '../template-loader';
 import { PostCSSProcessor } from '../../themes/optimization/postcss-processor';
 import { getContentType, isBinaryFile } from '@/lib/utils/file-utils';
@@ -190,17 +191,12 @@ export class TemplateDevSynchronizer {
       throw new Error(`Unsafe path: ${filePath}`);
     }
     const validatedPath = path.resolve(filePath);
-    const relativePath = path.relative(this.localDir, validatedPath).replace(/\\/g, '/');
+    const relativePath = path.relative(this.localDir, validatedPath).replace(PATH_PATTERNS.backslashes, '/');
     return { validatedPath, relativePath };
   }
 
-  /**
-   * Construye la clave de S3 para un archivo relativo al directorio local.
-   * @param relativePath - Ruta relativa desde el directorio local
-   * @returns Clave S3 normalizada
-   */
   private buildS3Key(relativePath: string): string {
-    return `templates/${this.storeId}/${relativePath}`.replace(/\\/g, '/');
+    return `templates/${this.storeId}/${relativePath}`.replace(PATH_PATTERNS.backslashes, '/');
   }
 
   /**
@@ -240,7 +236,7 @@ export class TemplateDevSynchronizer {
         await this.deleteFileFromS3(s3Key);
       }
 
-      const templateName = relativePath.replace(/\\/g, '/');
+      const templateName = relativePath.replace(PATH_PATTERNS.backslashes, '/');
 
       templateLoader.invalidateTemplateCache(this.storeId, templateName);
 
@@ -275,7 +271,7 @@ export class TemplateDevSynchronizer {
 
       const isBinary = isBinaryFile(validatedPath);
 
-      const relativePath = path.relative(this.localDir, validatedPath).replace(/\\/g, '/');
+      const relativePath = path.relative(this.localDir, validatedPath).replace(PATH_PATTERNS.backslashes, '/');
 
       let body;
       if (isBinary) {

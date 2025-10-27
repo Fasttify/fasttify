@@ -22,6 +22,11 @@ import type {
   ValidationWarning,
 } from '../../types';
 import { filterTextFiles } from '../utils/file-filters';
+import {
+  SECURITY_PATTERNS,
+  DANGEROUS_FUNCTION_PATTERNS,
+  SENSITIVE_DATA_PATTERNS,
+} from '../../../../lib/regex-patterns';
 
 export class SecurityRules {
   /**
@@ -49,8 +54,7 @@ export class SecurityRules {
         }
       }
 
-      // Verificar scripts externos
-      const externalScriptMatches = content.match(/<script[^>]*src=["'](https?:\/\/[^"']+)["'][^>]*>/gi);
+      const externalScriptMatches = content.match(SECURITY_PATTERNS.externalScript);
       if (externalScriptMatches) {
         warnings.push({
           type: 'security',
@@ -60,8 +64,7 @@ export class SecurityRules {
         });
       }
 
-      // Verificar CSS externo
-      const externalCssMatches = content.match(/<link[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>/gi);
+      const externalCssMatches = content.match(SECURITY_PATTERNS.externalCss);
       if (externalCssMatches) {
         warnings.push({
           type: 'security',
@@ -83,14 +86,14 @@ export class SecurityRules {
     const warnings: ValidationWarning[] = [];
 
     const dangerousPatterns = [
-      /eval\s*\(/,
-      /Function\s*\(/,
-      /setTimeout\s*\(/,
-      /setInterval\s*\(/,
-      /document\.write/,
-      /document\.writeln/,
-      /innerHTML\s*=/,
-      /outerHTML\s*=/,
+      DANGEROUS_FUNCTION_PATTERNS.eval,
+      DANGEROUS_FUNCTION_PATTERNS.functionConstructor,
+      DANGEROUS_FUNCTION_PATTERNS.setTimeout,
+      DANGEROUS_FUNCTION_PATTERNS.setInterval,
+      DANGEROUS_FUNCTION_PATTERNS.documentWrite,
+      DANGEROUS_FUNCTION_PATTERNS.documentWriteln,
+      DANGEROUS_FUNCTION_PATTERNS.innerHTML,
+      DANGEROUS_FUNCTION_PATTERNS.outerHTML,
     ];
 
     // Filtrar solo archivos basados en texto
@@ -127,8 +130,7 @@ export class SecurityRules {
     for (const file of textFiles) {
       const content = file.content as string;
 
-      // Buscar URLs externas
-      const urlMatches = content.match(/https?:\/\/[^\s"']+/gi);
+      const urlMatches = content.match(SECURITY_PATTERNS.externalUrl);
       if (urlMatches) {
         for (const url of urlMatches) {
           // Verificar si es un dominio sospechoso
@@ -154,7 +156,14 @@ export class SecurityRules {
     const errors: ValidationError[] = [];
     const warnings: ValidationWarning[] = [];
 
-    const sensitivePatterns = [/api_key/, /secret/, /password/, /token/, /private_key/, /access_key/];
+    const sensitivePatterns = [
+      SENSITIVE_DATA_PATTERNS.apiKey,
+      SENSITIVE_DATA_PATTERNS.secret,
+      SENSITIVE_DATA_PATTERNS.password,
+      SENSITIVE_DATA_PATTERNS.token,
+      SENSITIVE_DATA_PATTERNS.privateKey,
+      SENSITIVE_DATA_PATTERNS.accessKey,
+    ];
 
     // Filtrar solo archivos basados en texto
     const textFiles = filterTextFiles(files);

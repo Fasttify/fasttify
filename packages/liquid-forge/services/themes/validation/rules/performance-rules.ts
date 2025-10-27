@@ -22,6 +22,7 @@ import type {
   ValidationWarning,
 } from '../../types';
 import { filterAssetFiles, filterTextFiles } from '../utils/file-filters';
+import { SECURITY_PATTERNS } from '../../../../lib/regex-patterns';
 
 export class PerformanceRules {
   /**
@@ -139,10 +140,9 @@ export class PerformanceRules {
     for (const file of textFiles) {
       const content = file.content as string;
 
-      // Contar recursos externos
-      const externalScripts = (content.match(/<script[^>]*src=["'](https?:\/\/[^"']+)["'][^>]*>/gi) || []).length;
-      const externalCss = (content.match(/<link[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>/gi) || []).length;
-      const externalImages = (content.match(/src=["'](https?:\/\/[^"']+)["']/gi) || []).length;
+      const externalScripts = (content.match(SECURITY_PATTERNS.externalScript) || []).length;
+      const externalCss = (content.match(SECURITY_PATTERNS.externalCss) || []).length;
+      const externalImages = (content.match(SECURITY_PATTERNS.externalImage) || []).length;
 
       if (externalScripts > 5) {
         warnings.push({

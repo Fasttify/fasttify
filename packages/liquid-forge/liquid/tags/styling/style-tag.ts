@@ -17,25 +17,20 @@
 import { Tag, TagToken, Context, TopLevelToken, Liquid, TokenKind } from 'liquidjs';
 import { AssetCollector } from '../../../services/rendering/asset-collector';
 import { logger } from '../../../lib/logger';
+import { CSS_OPTIMIZATION_PATTERNS, MINIFICATION_PATTERNS } from '../../../lib/regex-patterns';
 
 /**
  * Optimiza y limpia el CSS generado
  */
 function optimizeCSS(css: string): string {
-  return (
-    css
-      // Remover comentarios CSS
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      // Remover espacios múltiples (pero preservar selectores)
-      .replace(/\s+/g, ' ')
-      // Limpiar espacios alrededor de llaves y punto y coma (pero NO en selectores)
-      .replace(/\s*{\s*/g, '{')
-      .replace(/\s*}\s*/g, '}')
-      .replace(/\s*;\s*/g, ';')
-      // Limpiar líneas vacías
-      .replace(/^\s*[\r\n]/gm, '')
-      .trim()
-  );
+  return css
+    .replace(CSS_OPTIMIZATION_PATTERNS.comments, '')
+    .replace(MINIFICATION_PATTERNS.multipleSpaces, ' ')
+    .replace(/\s*{\s*/g, '{')
+    .replace(/\s*}\s*/g, '}')
+    .replace(/\s*;\s*/g, ';')
+    .replace(CSS_OPTIMIZATION_PATTERNS.emptyLines, '')
+    .trim();
 }
 
 /**

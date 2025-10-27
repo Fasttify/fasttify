@@ -15,6 +15,14 @@
  */
 
 import type { DataLoadOptions, DataRequirement, TemplateAnalysis } from '../analysis/template-analyzer';
+import {
+  LIQUID_OBJECT_PATTERNS,
+  LIQUID_COLLECTION_ACCESS_PATTERNS,
+  LIQUID_FILTER_PATTERNS,
+  LIQUID_TAG_PATTERNS,
+  LIQUID_PAGINATION_PATTERNS,
+  LIQUID_OPTION_EXTRACTOR_PATTERNS,
+} from '../../../lib/regex-patterns';
 
 /**
  * Tipo para detectores de objetos Liquid
@@ -34,14 +42,16 @@ type PaginationHandler = (match: string, analysis: TemplateAnalysis) => void;
  */
 const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLoadOptions> = {
   products: (content: string) => {
-    const limitMatch = content.match(/products[^}]*limit:\s*(\d+)/i);
+    const limitMatch = content.match(LIQUID_FILTER_PATTERNS.productsLimit);
     return {
       limit: limitMatch ? parseInt(limitMatch[1], 10) : undefined,
     };
   },
 
   collection_products: (content: string) => {
-    const collectionMatch = content.match(/collections\.([a-zA-Z0-9_-]+)\.products[^}]*limit:\s*(\d+)/i);
+    const collectionMatch = content.match(
+      new RegExp(`collections\\.([a-zA-Z0-9_-]+)\\.products[^}]*limit:\\s*(\\d+)`, 'i')
+    );
     if (collectionMatch) {
       return {
         collectionHandle: collectionMatch[1],
@@ -49,12 +59,12 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
       };
     }
 
-    const collectionOnlyMatch = content.match(/collections\.([a-zA-Z0-9_-]+)\.products/i);
+    const collectionOnlyMatch = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.collectionProducts);
     return collectionOnlyMatch ? { collectionHandle: collectionOnlyMatch[1], limit: 8 } : { limit: 8 };
   },
 
   collections: (content: string) => {
-    const limitMatch = content.match(/collections[^}]*limit:\s*(\d+)/i);
+    const limitMatch = content.match(LIQUID_FILTER_PATTERNS.collectionsLimit);
     return {
       limit: limitMatch ? parseInt(limitMatch[1], 10) : undefined,
     };
@@ -64,20 +74,18 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   specific_collection: (content: string) => {
     const handles: string[] = [];
 
-    // Detectar collections['handle'] y collections["handle"]
-    const bracketMatches = content.match(/collections\[['"]([^'"]+)['"]\]/g);
+    const bracketMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.bracketNotation);
     if (bracketMatches) {
       bracketMatches.forEach((match) => {
-        const handleMatch = match.match(/collections\[['"]([^'"]+)['"]\]/);
+        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.bracketNotation);
         if (handleMatch) handles.push(handleMatch[1]);
       });
     }
 
-    // Detectar collections.handle (acceso directo por propiedad)
-    const dotMatches = content.match(/collections\.([a-zA-Z0-9_-]+)(?!\.\w)/g);
+    const dotMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.dotNotation);
     if (dotMatches) {
       dotMatches.forEach((match) => {
-        const handleMatch = match.match(/collections\.([a-zA-Z0-9_-]+)/);
+        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractCollectionHandle);
         if (handleMatch && !handles.includes(handleMatch[1])) {
           handles.push(handleMatch[1]);
         }
@@ -90,11 +98,10 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   specific_product: (content: string) => {
     const handles: string[] = [];
 
-    // Detectar products['handle'] y products["handle"]
-    const bracketMatches = content.match(/products\[['"]([^'"]+)['"]\]/g);
+    const bracketMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.specificProduct);
     if (bracketMatches) {
       bracketMatches.forEach((match) => {
-        const handleMatch = match.match(/products\[['"]([^'"]+)['"]\]/);
+        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.specificProduct);
         if (handleMatch) handles.push(handleMatch[1]);
       });
     }
@@ -104,14 +111,13 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
 
   products_by_collection: (content: string) => {
     const handles: string[] = [];
-    const limitMatch = content.match(/limit:\s*(\d+)/i);
+    const limitMatch = content.match(LIQUID_FILTER_PATTERNS.generalLimit);
     const limit = limitMatch ? parseInt(limitMatch[1], 10) : 8;
 
-    // Extraer handles de colecciones mencionadas para cargar sus productos
-    const collectionRefs = content.match(/collections\.([a-zA-Z0-9_-]+)\.products/g);
+    const collectionRefs = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.collectionProducts);
     if (collectionRefs) {
       collectionRefs.forEach((ref) => {
-        const handleMatch = ref.match(/collections\.([a-zA-Z0-9_-]+)/);
+        const handleMatch = ref.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractCollectionHandle);
         if (handleMatch && !handles.includes(handleMatch[1])) {
           handles.push(handleMatch[1]);
         }
@@ -122,7 +128,7 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   },
 
   related_products: (content: string) => {
-    const limitMatch = content.match(/related_products[^}]*limit:\s*(\d+)/i);
+    const limitMatch = content.match(LIQUID_FILTER_PATTERNS.productRelated);
     return {
       limit: limitMatch ? parseInt(limitMatch[1], 10) : 4,
     };
@@ -131,20 +137,18 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   specific_page: (content: string) => {
     const handles: string[] = [];
 
-    // Detectar pages['handle'] y pages["handle"]
-    const bracketMatches = content.match(/pages\[['"]([^'"]+)['"]\]/g);
+    const bracketMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesBracket);
     if (bracketMatches) {
       bracketMatches.forEach((match) => {
-        const handleMatch = match.match(/pages\[['"]([^'"]+)['"]\]/);
+        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.pagesBracketExtract);
         if (handleMatch) handles.push(handleMatch[1]);
       });
     }
 
-    // Detectar pages.handle (acceso directo por propiedad)
-    const dotMatches = content.match(/pages\.([a-zA-Z0-9_-]+)(?!\.\w)/g);
+    const dotMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesDot);
     if (dotMatches) {
       dotMatches.forEach((match) => {
-        const handleMatch = match.match(/pages\.([a-zA-Z0-9_-]+)/);
+        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesHandle);
         if (handleMatch && !handles.includes(handleMatch[1])) {
           handles.push(handleMatch[1]);
         }
@@ -155,7 +159,7 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   },
 
   pages: (content: string) => {
-    const limitMatch = content.match(/pages[^}]*limit:\s*(\d+)/i);
+    const limitMatch = content.match(LIQUID_PAGINATION_PATTERNS.pagesLimit);
     return {
       limit: limitMatch ? parseInt(limitMatch[1], 10) : 10,
     };
@@ -174,20 +178,18 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   page: (content: string) => {
     const handles: string[] = [];
 
-    // Detectar pages['handle'] y pages["handle"]
-    const bracketMatches = content.match(/pages\[['"]([^'"]+)['"]\]/g);
+    const bracketMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesBracket);
     if (bracketMatches) {
       bracketMatches.forEach((match) => {
-        const handleMatch = match.match(/pages\[['"]([^'"]+)['"]\]/);
+        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.pagesBracketExtract);
         if (handleMatch) handles.push(handleMatch[1]);
       });
     }
 
-    // Detectar pages.handle (acceso directo por propiedad)
-    const dotMatches = content.match(/pages\.([a-zA-Z0-9_-]+)(?!\.\w)/g);
+    const dotMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesDot);
     if (dotMatches) {
       dotMatches.forEach((match) => {
-        const handleMatch = match.match(/pages\.([a-zA-Z0-9_-]+)/);
+        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesHandle);
         if (handleMatch && !handles.includes(handleMatch[1])) {
           handles.push(handleMatch[1]);
         }
@@ -207,92 +209,85 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
  */
 const objectDetectors: Record<DataRequirement, ObjectDetector> = {
   products: {
-    pattern: /\{\{\s*products\s*[\|\}]/g,
+    pattern: LIQUID_OBJECT_PATTERNS.products,
     optionsExtractor: loadOptionsExtractors.products,
   },
   collection_products: {
-    pattern: /collections\.([a-zA-Z0-9_-]+)\.products/g,
+    pattern: LIQUID_COLLECTION_ACCESS_PATTERNS.collectionProducts,
     optionsExtractor: loadOptionsExtractors.collection_products,
   },
   collections: {
-    pattern: /\{\{\s*collections\s*[\|\}]/g,
+    pattern: LIQUID_OBJECT_PATTERNS.collections,
     optionsExtractor: loadOptionsExtractors.collections,
   },
-
-  // Nuevos detectores para acceso específico
   specific_collection: {
-    pattern: /collections\[['"]([^'"]+)['"]\]|collections\.([a-zA-Z0-9_-]+)(?!\.\w)/g,
+    pattern: LIQUID_COLLECTION_ACCESS_PATTERNS.specificAccess,
     optionsExtractor: loadOptionsExtractors.specific_collection,
   },
   specific_product: {
-    pattern: /products\[['"]([^'"]+)['"]\]/g,
+    pattern: LIQUID_COLLECTION_ACCESS_PATTERNS.specificProduct,
     optionsExtractor: loadOptionsExtractors.specific_product,
   },
   products_by_collection: {
-    pattern: /collections\.([a-zA-Z0-9_-]+)\.products/g,
+    pattern: LIQUID_COLLECTION_ACCESS_PATTERNS.collectionProducts,
     optionsExtractor: loadOptionsExtractors.products_by_collection,
   },
   related_products: {
-    pattern: /related_products|product\s*\|\s*related/g,
+    pattern: LIQUID_OBJECT_PATTERNS.relatedProducts,
     optionsExtractor: loadOptionsExtractors.related_products,
   },
   product: {
-    pattern: /\{\{\s*product\./g,
+    pattern: LIQUID_OBJECT_PATTERNS.product,
     optionsExtractor: loadOptionsExtractors.product,
   },
   collection: {
-    pattern: /\{\{\s*collection\./g,
+    pattern: LIQUID_OBJECT_PATTERNS.collection,
     optionsExtractor: loadOptionsExtractors.collection,
   },
   linklists: {
-    pattern: /\{\{\s*linklists\./g,
+    pattern: LIQUID_OBJECT_PATTERNS.linklists,
     optionsExtractor: loadOptionsExtractors.linklists,
   },
   shop: {
-    pattern: /\{\{\s*shop\./g,
+    pattern: LIQUID_OBJECT_PATTERNS.shop,
     optionsExtractor: loadOptionsExtractors.shop,
   },
   specific_page: {
-    pattern: /pages\[['"]([^'"]+)['"]\]|pages\.([a-zA-Z0-9_-]+)(?!\.\w)/g,
+    pattern: LIQUID_COLLECTION_ACCESS_PATTERNS.specificPage,
     optionsExtractor: loadOptionsExtractors.specific_page,
   },
   pages: {
-    pattern: /\{\{\s*pages\s*[\|\}]/g,
+    pattern: LIQUID_OBJECT_PATTERNS.pages,
     optionsExtractor: loadOptionsExtractors.pages,
   },
   policies: {
-    pattern: /for\s+item\s+in\s+policies|for\s+policy\s+in\s+policies|\{\{\s*policies\s*[\|\}]/g,
+    pattern: LIQUID_PAGINATION_PATTERNS.policies,
     optionsExtractor: loadOptionsExtractors.policies,
   },
   page: {
-    pattern: /\{\{\s*page\./g,
+    pattern: LIQUID_OBJECT_PATTERNS.page,
     optionsExtractor: loadOptionsExtractors.page,
   },
   blog: {
-    pattern: /\{\{\s*blog\./g,
+    pattern: LIQUID_OBJECT_PATTERNS.blog,
     optionsExtractor: loadOptionsExtractors.blog,
   },
   pagination: {
-    pattern: /\{\%\s*paginate/g,
+    pattern: LIQUID_OBJECT_PATTERNS.pagination,
     optionsExtractor: loadOptionsExtractors.pagination,
   },
   checkout: {
-    pattern: /\{\{\s*checkout\./g,
+    pattern: LIQUID_OBJECT_PATTERNS.checkout,
     optionsExtractor: loadOptionsExtractors.checkout,
   },
   checkout_confirmation: {
-    pattern: /\{\{\s*checkout\./g,
+    pattern: LIQUID_OBJECT_PATTERNS.checkout,
     optionsExtractor: loadOptionsExtractors.checkout_confirmation,
   },
 };
 
 export class LiquidSyntaxDetector {
-  private static readonly TAG_PATTERNS = {
-    paginate: /\{\%\s*paginate\s+([^%]+)\%\}/g,
-    section: /\{\%\s*section\s+['"]([^'"]+)['"]\s*\%\}/g,
-    render: /\{\%\s*render\s+['"]([^'"]+)['"]/g,
-    include: /\{\%\s*include\s+['"]([^'"]+)['"]/g,
-  };
+  private static readonly TAG_PATTERNS = LIQUID_TAG_PATTERNS;
 
   public static detectLiquidObjects(content: string, analysis: TemplateAnalysis): void {
     for (const [objectType, detector] of Object.entries(objectDetectors)) {
@@ -306,14 +301,12 @@ export class LiquidSyntaxDetector {
   }
 
   public static detectPagination(content: string, analysis: TemplateAnalysis): void {
-    const paginatePattern = /\{%\s*paginate\s+(.+?)\s*%\}/;
-    const match = content.match(paginatePattern);
+    const match = content.match(LIQUID_PAGINATION_PATTERNS.paginate);
 
     if (match) {
       analysis.hasPagination = true;
-      const paginatedObject = match[1].split(/\s+by\s+/)[0];
+      const paginatedObject = match[1].split(LIQUID_FILTER_PATTERNS.paginateBy)[0];
 
-      // Determinar si se paginan productos o colecciones
       if (paginatedObject.includes('products')) {
         analysis.requiredData.set('products', {});
       } else if (paginatedObject.includes('collections')) {
@@ -324,20 +317,18 @@ export class LiquidSyntaxDetector {
   }
 
   public static detectDependencies(content: string, analysis: TemplateAnalysis): void {
-    // Detectar secciones
     this.extractMatches(content, this.TAG_PATTERNS.section, (match) => {
-      const sectionName = this.extractName(match, /section\s+['"]([^'"]+)['"]/i);
+      const sectionName = this.extractName(match, LIQUID_OPTION_EXTRACTOR_PATTERNS.sectionName);
       if (sectionName) {
         analysis.usedSections.push(sectionName);
         analysis.dependencies.push(`sections/${sectionName}.liquid`);
       }
     });
 
-    // Detectar snippets (render e include)
     const snippetPatterns = [this.TAG_PATTERNS.render, this.TAG_PATTERNS.include];
     for (const pattern of snippetPatterns) {
       this.extractMatches(content, pattern, (match) => {
-        const snippetName = this.extractName(match, /(?:render|include)\s+['"]([^'"]+)['"]/i);
+        const snippetName = this.extractName(match, LIQUID_OPTION_EXTRACTOR_PATTERNS.snippetName);
         if (snippetName) {
           analysis.dependencies.push(`snippets/${snippetName}.liquid`);
         }

@@ -16,6 +16,7 @@
 
 import { logger } from '../../lib/logger';
 import type { LiquidFilter } from '../../types';
+import { PATH_PATTERNS } from '../../lib/regex-patterns';
 
 /**
  * Filtro asset_url - Para archivos estáticos (CSS, JS, imágenes de tema)
@@ -28,7 +29,7 @@ export const assetUrlFilter: LiquidFilter = {
       return '';
     }
 
-    const cleanFilename = filename.replace(/^\/+/, '');
+    const cleanFilename = filename.replace(PATH_PATTERNS.leadingSlash, '');
 
     // Acceder al storeId desde el contexto de LiquidJS
     const storeId = this.context?.getSync(['shop', 'storeId']);
@@ -199,7 +200,7 @@ export const inlineAssetContentFilter: LiquidFilter = {
       return '';
     }
 
-    const cleanFilename = filename.replace(/^\/+/, '');
+    const cleanFilename = filename.replace(PATH_PATTERNS.leadingSlash, '');
 
     // Acceder al storeId desde el contexto de LiquidJS
     const storeId = this.context?.getSync(['shop', 'storeId']);

@@ -15,6 +15,7 @@
  */
 
 import type { LiquidFilter } from '../../types';
+import { PATH_PATTERNS } from '../../lib/regex-patterns';
 
 /**
  * Interfaz para parámetros de optimización de imágenes
@@ -135,7 +136,7 @@ export const imgUrlFilter: LiquidFilter = {
 
     // Si es una ruta relativa, construir URL completa
     const baseImageUrl = '/images';
-    const cleanImageUrl = url.replace(/^\/+/, '');
+    const cleanImageUrl = url.replace(PATH_PATTERNS.leadingSlash, '');
     const fullUrl = `${baseImageUrl}/${cleanImageUrl}`;
 
     return buildOptimizedImageUrl(fullUrl, params);

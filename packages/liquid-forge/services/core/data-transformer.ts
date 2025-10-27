@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
+import { HANDLE_PATTERNS } from '../../lib/regex-patterns';
+
 export class DataTransformer {
-  /**
-   * Crea un handle SEO-friendly a partir de un texto
-   */
   public static createHandle(text: string): string {
     return text
       .toLowerCase()
       .trim()
-      .replace(/[áàäâã]/g, 'a')
-      .replace(/[éèëê]/g, 'e')
-      .replace(/[íìïî]/g, 'i')
-      .replace(/[óòöôõ]/g, 'o')
-      .replace(/[úùüû]/g, 'u')
-      .replace(/[ñ]/g, 'n')
-      .replace(/[ç]/g, 'c')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(HANDLE_PATTERNS.aVariants, 'a')
+      .replace(HANDLE_PATTERNS.eVariants, 'e')
+      .replace(HANDLE_PATTERNS.iVariants, 'i')
+      .replace(HANDLE_PATTERNS.oVariants, 'o')
+      .replace(HANDLE_PATTERNS.uVariants, 'u')
+      .replace(HANDLE_PATTERNS.enye, 'n')
+      .replace(HANDLE_PATTERNS.cCedilla, 'c')
+      .replace(HANDLE_PATTERNS.nonAlphanumeric, '-')
+      .replace(HANDLE_PATTERNS.multipleDashes, '-')
+      .replace(HANDLE_PATTERNS.leadingTrailingDash, '');
   }
 
   /**
