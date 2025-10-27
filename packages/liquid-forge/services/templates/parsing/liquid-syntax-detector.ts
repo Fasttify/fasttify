@@ -74,22 +74,18 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   specific_collection: (content: string) => {
     const handles: string[] = [];
 
-    const bracketMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.bracketNotation);
-    if (bracketMatches) {
-      bracketMatches.forEach((match) => {
-        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.bracketNotation);
-        if (handleMatch) handles.push(handleMatch[1]);
-      });
+    const bracketMatches = content.matchAll(LIQUID_COLLECTION_ACCESS_PATTERNS.bracketNotation);
+    for (const match of bracketMatches) {
+      if (match[1] && !handles.includes(match[1])) {
+        handles.push(match[1]);
+      }
     }
 
-    const dotMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.dotNotation);
-    if (dotMatches) {
-      dotMatches.forEach((match) => {
-        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractCollectionHandle);
-        if (handleMatch && !handles.includes(handleMatch[1])) {
-          handles.push(handleMatch[1]);
-        }
-      });
+    const dotMatches = content.matchAll(LIQUID_COLLECTION_ACCESS_PATTERNS.dotNotation);
+    for (const match of dotMatches) {
+      if (match[1] && !handles.includes(match[1])) {
+        handles.push(match[1]);
+      }
     }
 
     return { handles };
@@ -98,12 +94,11 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   specific_product: (content: string) => {
     const handles: string[] = [];
 
-    const bracketMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.specificProduct);
-    if (bracketMatches) {
-      bracketMatches.forEach((match) => {
-        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.specificProduct);
-        if (handleMatch) handles.push(handleMatch[1]);
-      });
+    const bracketMatches = content.matchAll(LIQUID_COLLECTION_ACCESS_PATTERNS.specificProduct);
+    for (const match of bracketMatches) {
+      if (match[1] && !handles.includes(match[1])) {
+        handles.push(match[1]);
+      }
     }
 
     return { handles };
@@ -114,14 +109,11 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
     const limitMatch = content.match(LIQUID_FILTER_PATTERNS.generalLimit);
     const limit = limitMatch ? parseInt(limitMatch[1], 10) : 8;
 
-    const collectionRefs = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.collectionProducts);
-    if (collectionRefs) {
-      collectionRefs.forEach((ref) => {
-        const handleMatch = ref.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractCollectionHandle);
-        if (handleMatch && !handles.includes(handleMatch[1])) {
-          handles.push(handleMatch[1]);
-        }
-      });
+    const collectionRefs = content.matchAll(LIQUID_COLLECTION_ACCESS_PATTERNS.collectionProducts);
+    for (const match of collectionRefs) {
+      if (match[1] && !handles.includes(match[1])) {
+        handles.push(match[1]);
+      }
     }
 
     return { handles, limit };
@@ -137,22 +129,18 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   specific_page: (content: string) => {
     const handles: string[] = [];
 
-    const bracketMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesBracket);
-    if (bracketMatches) {
-      bracketMatches.forEach((match) => {
-        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.pagesBracketExtract);
-        if (handleMatch) handles.push(handleMatch[1]);
-      });
+    const bracketMatches = content.matchAll(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesBracket);
+    for (const match of bracketMatches) {
+      if (match[1] && !handles.includes(match[1])) {
+        handles.push(match[1]);
+      }
     }
 
-    const dotMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesDot);
-    if (dotMatches) {
-      dotMatches.forEach((match) => {
-        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesHandle);
-        if (handleMatch && !handles.includes(handleMatch[1])) {
-          handles.push(handleMatch[1]);
-        }
-      });
+    const dotMatches = content.matchAll(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesDot);
+    for (const match of dotMatches) {
+      if (match[1] && !handles.includes(match[1])) {
+        handles.push(match[1]);
+      }
     }
 
     return { handles };
@@ -178,22 +166,18 @@ const loadOptionsExtractors: Record<DataRequirement, (content: string) => DataLo
   page: (content: string) => {
     const handles: string[] = [];
 
-    const bracketMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesBracket);
-    if (bracketMatches) {
-      bracketMatches.forEach((match) => {
-        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.pagesBracketExtract);
-        if (handleMatch) handles.push(handleMatch[1]);
-      });
+    const bracketMatches = content.matchAll(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesBracket);
+    for (const match of bracketMatches) {
+      if (match[1] && !handles.includes(match[1])) {
+        handles.push(match[1]);
+      }
     }
 
-    const dotMatches = content.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesDot);
-    if (dotMatches) {
-      dotMatches.forEach((match) => {
-        const handleMatch = match.match(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesHandle);
-        if (handleMatch && !handles.includes(handleMatch[1])) {
-          handles.push(handleMatch[1]);
-        }
-      });
+    const dotMatches = content.matchAll(LIQUID_COLLECTION_ACCESS_PATTERNS.extractPagesDot);
+    for (const match of dotMatches) {
+      if (match[1] && !handles.includes(match[1])) {
+        handles.push(match[1]);
+      }
     }
 
     return handles.length > 0 ? { handles } : {};
