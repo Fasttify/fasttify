@@ -18,7 +18,7 @@ import { orderNumberGenerator } from '@/liquid-forge/services/fetchers/order/ord
 import { orderValidator } from '@/liquid-forge/services/fetchers/order/order-validator';
 import type { CreateOrderRequest, CreateOrderResponse } from './types/order-types';
 import { EmailOrderService } from '@/liquid-forge/services/notifications/email-order-service';
-import { notificationCreator } from '@/liquid-forge/services/notifications';
+import { notificationCreator } from '@/liquid-forge/services/notifications/server';
 import { analyticsWebhookService } from '@/liquid-forge/services/analytics';
 
 export class OrderFetcher {

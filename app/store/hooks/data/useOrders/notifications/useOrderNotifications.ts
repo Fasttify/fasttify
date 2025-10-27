@@ -1,8 +1,11 @@
 import { useCallback } from 'react';
 import { useEmailNotifications } from '@/app/store/hooks/api/useEmailNotifications';
 import type { OrderStatus, PaymentStatus } from '@/app/store/hooks/data/useOrders/types';
-import { EmailFormattingUtils } from '@fasttify/liquid-forge/services/notifications';
-import { getOrderStatus, getPaymentStatus } from '@fasttify/liquid-forge/services/notifications/status-translations';
+import {
+  EmailFormattingUtils,
+  getOrderStatus,
+  getPaymentStatus,
+} from '@fasttify/liquid-forge/services/notifications/client-utils';
 
 /**
  * Hook para manejar las notificaciones de email relacionadas con órdenes
