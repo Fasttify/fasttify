@@ -17,8 +17,9 @@ const MAX_FILE_SIZE_MB = 10; // Aumentado a 10MB por imagen individual
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 // Threshold para decidir cuándo usar Presigned URLs
-const PRESIGNED_URL_THRESHOLD = 7 * 1024 * 1024; // 7MB
-const PRESIGNED_URL_COUNT_THRESHOLD = 25; // Más de 25 archivos
+// Usar presigned URLs para archivos > 5MB (más seguro para API Gateway 10MB limit)
+const PRESIGNED_URL_THRESHOLD = 5 * 1024 * 1024; // 5MB
+const PRESIGNED_URL_COUNT_THRESHOLD = 10; // Más de 10 archivos
 
 export function useS3ImageUpload() {
   const { storeId } = useStoreDataStore();
@@ -107,8 +108,8 @@ export function useS3ImageUpload() {
 
         // Decidir estrategia: ¿usar Presigned URLs?
         const shouldUsePresignedUrls =
-          files.length > PRESIGNED_URL_COUNT_THRESHOLD || // Más de 25 archivos
-          files.some((file) => file.size > PRESIGNED_URL_THRESHOLD); // Algún archivo > 7MB
+          files.length > PRESIGNED_URL_COUNT_THRESHOLD || // Más de 10 archivos
+          files.some((file) => file.size > PRESIGNED_URL_THRESHOLD); // Algún archivo > 5MB
 
         if (shouldUsePresignedUrls) {
           console.log(`Using Presigned URLs for ${files.length} files`);
