@@ -50,7 +50,7 @@ export function DraggableMenuItems({
       handle: '.drag-handle',
       mirror: {
         constrainDimensions: true,
-        appendTo: getModalContainer,
+        appendTo: getModalContainer() as unknown as HTMLElement,
         xAxis: false,
         yAxis: true,
       },
@@ -60,6 +60,7 @@ export function DraggableMenuItems({
         easingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)',
       },
       swapAnimation: {
+        horizontal: false,
         duration: 300,
         easingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)',
       },
