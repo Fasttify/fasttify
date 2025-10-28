@@ -88,6 +88,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@react-email/components": "^0.5.5",
     "@react-email/render": "^0.0.12",
+    "@shopify/draggable": "^1.2.1",
     "@shopify/polaris": "^13.9.5",
     "@shopify/polaris-icons": "^9.3.1",
     "@shopify/react-form": "^2.7.3",
