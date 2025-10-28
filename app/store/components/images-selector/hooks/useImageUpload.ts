@@ -35,20 +35,12 @@ export function useImageUpload({ uploadImages, onImagesUploaded, onUploadError }
         return null;
       }
 
-      // Reducir límite a 25 archivos para evitar problemas de payload
-      if (imageFiles.length > 25) {
-        const errorMessage = `Solo puedes subir hasta 25 imágenes a la vez. Has seleccionado ${imageFiles.length} archivos.`;
-        showToast(errorMessage, true);
-        onUploadError?.(errorMessage);
-        return null;
-      }
-
       // Validar tamaños de archivo para evitar error 413
-      const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
       const oversizedFiles = imageFiles.filter((file) => file.size > MAX_FILE_SIZE);
 
       if (oversizedFiles.length > 0) {
-        const errorMessage = `${oversizedFiles.length} archivo(s) superan el límite de 8MB. Tamaño máximo permitido: 8MB.`;
+        const errorMessage = `${oversizedFiles.length} archivo(s) superan el límite de 10MB. Tamaño máximo permitido: 10MB.`;
         showToast(errorMessage, true);
         onUploadError?.(errorMessage);
         return null;
@@ -87,11 +79,6 @@ export function useImageUpload({ uploadImages, onImagesUploaded, onUploadError }
             const errorMessage = `${failedUploads.length} imagen(es) no pudieron subirse`;
             showToast(errorMessage, true);
             onUploadError?.(errorMessage);
-          }
-
-          // Mostrar información sobre chunking si es relevante
-          if (imageFiles.length > 10) {
-            showToast(`Procesadas en lotes pequeños para optimizar la carga`, false);
           }
 
           return result;

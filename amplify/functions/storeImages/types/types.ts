@@ -11,7 +11,14 @@ export interface APIGatewayResponse {
 }
 
 export interface RequestBody {
-  action: 'list' | 'upload' | 'delete' | 'batchUpload' | 'batchDelete';
+  action:
+    | 'list'
+    | 'upload'
+    | 'delete'
+    | 'batchUpload'
+    | 'batchDelete'
+    | 'generatePresignedUrl'
+    | 'generateBatchPresignedUrls';
   storeId: string;
   // Lista
   limit?: number;
@@ -31,6 +38,13 @@ export interface RequestBody {
   key?: string;
   // Batch Delete
   keys?: string[];
+  // Generate Presigned URL
+  expiresIn?: number;
+  // Generate Batch Presigned URLs
+  filesInfo?: {
+    filename: string;
+    contentType: string;
+  }[];
 }
 
 export interface ImageItem {
@@ -78,6 +92,18 @@ export interface S3Config {
   bucketName: string;
   awsRegion: string;
   cloudFrontDomainBase: string;
+}
+
+export interface PresignedUrlResponse {
+  presignedUrl: string;
+  s3Key: string;
+  url: string;
+  expiresAt: number;
+}
+
+export interface BatchPresignedUrlsResponse {
+  urls: PresignedUrlResponse[];
+  success: boolean;
 }
 
 export interface ErrorResponse {

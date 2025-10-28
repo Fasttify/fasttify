@@ -10,13 +10,19 @@ import type {
 import { UPLOAD_CHUNK_SIZE } from '@/app/store/components/images-selector/types/s3-types';
 import { chunkArray, fileToBase64, generateFallbackId } from '@/app/store/components/images-selector/utils/s3-utils';
 import { validateFile } from '@/lib/utils/validation-utils';
+import { usePresignedUrls } from '@/app/store/hooks/storage/usePresignedUrls';
 
 // Configuración para validación de archivos
-const MAX_FILE_SIZE_MB = 8; // Máximo 8MB por imagen individual
+const MAX_FILE_SIZE_MB = 10; // Aumentado a 10MB por imagen individual
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+// Threshold para decidir cuándo usar Presigned URLs
+const PRESIGNED_URL_THRESHOLD = 7 * 1024 * 1024; // 7MB
+const PRESIGNED_URL_COUNT_THRESHOLD = 25; // Más de 25 archivos
 
 export function useS3ImageUpload() {
   const { storeId } = useStoreDataStore();
+  const { uploadImagesWithPresignedUrls } = usePresignedUrls();
 
   // Función para validar un archivo individual
   const validateFileCallback = useCallback((file: File): { isValid: boolean; error?: string } => {
@@ -84,6 +90,7 @@ export function useS3ImageUpload() {
   /**
    * Función optimizada para subir múltiples imágenes usando batch upload con chunking
    * Incluye validación de tamaño para evitar error 413
+   * Usa Presigned URLs automáticamente cuando sea necesario
    */
   const uploadImages = useCallback(
     async (files: File[]): Promise<BatchUploadResult | null> => {
@@ -97,6 +104,16 @@ export function useS3ImageUpload() {
         }));
 
         const validFiles = validationResults.filter((result) => result.validation.isValid).map((result) => result.file);
+
+        // Decidir estrategia: ¿usar Presigned URLs?
+        const shouldUsePresignedUrls =
+          files.length > PRESIGNED_URL_COUNT_THRESHOLD || // Más de 25 archivos
+          files.some((file) => file.size > PRESIGNED_URL_THRESHOLD); // Algún archivo > 7MB
+
+        if (shouldUsePresignedUrls) {
+          console.log(`Using Presigned URLs for ${files.length} files`);
+          return await uploadImagesWithPresignedUrls(validFiles);
+        }
 
         const invalidFiles = validationResults
           .filter((result) => !result.validation.isValid)
@@ -184,7 +201,7 @@ export function useS3ImageUpload() {
         };
       }
     },
-    [storeId, validateFileCallback, processImageChunk]
+    [storeId, validateFileCallback, processImageChunk, uploadImagesWithPresignedUrls]
   );
 
   /**
