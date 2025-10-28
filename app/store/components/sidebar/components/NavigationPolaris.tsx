@@ -11,6 +11,7 @@ import {
   SettingsIcon,
   StoreIcon,
   ViewIcon,
+  ContentIcon,
 } from '@shopify/polaris-icons';
 import { usePathname } from 'next/navigation';
 
@@ -85,6 +86,21 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
             ],
           },
           {
+            url: `/store/${storeId}/content/files`,
+            label: 'Contenido',
+            icon: ContentIcon,
+            selected: pathname.includes('/content/files'),
+            disabled: false,
+            subNavigationItems: [
+              {
+                url: `/store/${storeId}/content/menus`,
+                label: 'Menús',
+                disabled: false,
+              },
+            ],
+          },
+
+          {
             url: `/store/${storeId}/customers`,
             label: 'Clientes',
             icon: PersonIcon,
@@ -133,11 +149,6 @@ export function NavigationPolaris({ storeId }: NavigationPolarisProps) {
                 url: `/store/${storeId}/setup/apps`,
                 label: 'Apps',
                 disabled: true,
-              },
-              {
-                url: `/store/${storeId}/setup/navigation`,
-                label: 'Navegación',
-                disabled: false,
               },
             ],
           },

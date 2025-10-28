@@ -64,6 +64,9 @@ export const routes = {
     accessAccount: {
       checkout: (storeId: string) => `/store/${storeId}/access_account/checkout?no_redirect=true`,
     },
+    content: {
+      files: (storeId: string) => `/store/${storeId}/content/files`,
+    },
   },
 
   auth: {

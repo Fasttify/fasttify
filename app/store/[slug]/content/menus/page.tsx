@@ -2,8 +2,8 @@ import NavigationClient from './NavigationClient';
 
 export async function generateMetadata({ params: _params }: { params: Promise<{ slug: string }> }) {
   return {
-    title: 'Navegación - Admin Panel',
-    description: 'Configura el menú de navegación de tu tienda',
+    title: 'Menús - Admin Panel',
+    description: 'Configura los menús de navegación de tu tienda',
   };
 }
 

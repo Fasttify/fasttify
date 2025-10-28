@@ -73,19 +73,11 @@ export function NavigationManager({ storeId }: NavigationManagerProps) {
   };
 
   return (
-    <Page title="Navegación" subtitle="Gestiona los menús de navegación de tu tienda" fullWidth>
+    <Page title="Menús" subtitle="Gestiona los menús de navegación de tu tienda" fullWidth>
       <Layout>
         <Layout.Section>
           <Card>
             <div className="flex justify-between items-center mb-6">
-              <div>
-                <Text variant="headingMd" as="h2">
-                  Menús de navegación
-                </Text>
-                <Text variant="bodyMd" tone="subdued" as="p">
-                  Gestiona los menús de navegación de tu tienda
-                </Text>
-              </div>
               <Button variant="primary" icon={PlusIcon} onClick={handleCreateMenu}>
                 Crear menú
               </Button>

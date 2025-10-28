@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 
-    unoptimized: false,
+    unoptimized: process.env.NODE_ENV === 'production' ? false : true,
 
     qualities: [25, 50, 75, 85, 90, 95, 100],
 
@@ -79,6 +79,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'photos.google.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.shopify.com',
         pathname: '/**',
       },
     ],
