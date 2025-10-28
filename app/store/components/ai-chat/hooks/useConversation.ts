@@ -2,7 +2,7 @@
  * @fileoverview Hook sencillo para conversaciones AI con Amplify Gen 2.
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useConversationContext } from '../context/ConversationContext';
 import { generateConversationName, generateTemporaryConversationName } from '../utils/conversation-naming';
 import { client } from '@/lib/clients/amplify-client';
@@ -81,9 +81,14 @@ export function useConversation(): UseConversationReturn {
   // Usar el contexto para persistir el ID de conversación
   const { conversationId, setConversationId, clearConversation: clearConversationContext } = useConversationContext();
 
-  // Actualizar refs cuando cambien los valores
-  conversationRef.current = conversation;
-  isInitializingRef.current = isInitializing;
+  // Actualizar refs cuando cambien los valores (fuera del render)
+  useEffect(() => {
+    conversationRef.current = conversation;
+  }, [conversation]);
+
+  useEffect(() => {
+    isInitializingRef.current = isInitializing;
+  }, [isInitializing]);
 
   /**
    * Cargar mensajes existentes de una conversación

@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, BlockStack, Text, Button } from '@shopify/polaris';
+import { Modal, BlockStack, Text } from '@shopify/polaris';
 
 interface ContentDeleteConfirmModalProps {
   open: boolean;

@@ -33,11 +33,15 @@ export function useAutocomplete({ options, value, onChange }: UseAutocompletePro
   // Actualizar inputValue cuando cambie el valor externo
   useEffect(() => {
     if (!value || value === '') {
-      setInputValue('');
+      requestAnimationFrame(() => {
+        setInputValue('');
+      });
     } else {
       const option = options.find((opt) => opt.value === value);
       if (option) {
-        setInputValue(option.label);
+        requestAnimationFrame(() => {
+          setInputValue(option.label);
+        });
       }
     }
   }, [value, options]);

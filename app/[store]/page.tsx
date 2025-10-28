@@ -25,24 +25,27 @@ interface StorePageProps {
 export default async function StorePage(props: StorePageProps) {
   const controller = new StorePageController();
 
+  let html: string | null = null;
+  let errorHtml: string | null = null;
+
   try {
     const result = await controller.handle(props);
-
-    return (
-      <>
-        <div dangerouslySetInnerHTML={{ __html: result.html }} />
-        {process.env.NODE_ENV === 'development' && <DevAutoReloadScript />}
-      </>
-    );
+    html = result.html;
   } catch (error: any) {
-    // Si hay HTML de error disponible, renderizarlo
-    if (error.html) {
-      return <div dangerouslySetInnerHTML={{ __html: error.html }} />;
-    }
-
-    // Re-lanzar otros errores
-    throw error;
+    errorHtml = error?.html ?? null;
+    if (!errorHtml) throw error;
   }
+
+  if (errorHtml) {
+    return <div dangerouslySetInnerHTML={{ __html: errorHtml }} />;
+  }
+
+  return (
+    <>
+      {html && <div dangerouslySetInnerHTML={{ __html: html }} />}
+      {process.env.NODE_ENV === 'development' && <DevAutoReloadScript />}
+    </>
+  );
 }
 
 /**

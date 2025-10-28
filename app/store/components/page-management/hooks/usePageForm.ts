@@ -51,14 +51,18 @@ export const usePageForm = ({
 
   useEffect(() => {
     const data = getInitialData();
-    setInitialData(data);
-    setFormData(data);
-    setIsDirty(false);
+    requestAnimationFrame(() => {
+      setInitialData(data);
+      setFormData(data);
+      setIsDirty(false);
+    });
   }, [getInitialData]);
 
   useEffect(() => {
     if (isEditing) {
-      setIsDirty(JSON.stringify(formData) !== JSON.stringify(initialData));
+      requestAnimationFrame(() => {
+        setIsDirty(JSON.stringify(formData) !== JSON.stringify(initialData));
+      });
     }
   }, [formData, initialData, isEditing]);
 

@@ -59,11 +59,17 @@ export function PriceInput({
   useEffect(() => {
     if (!isFocused) {
       if (value === null || value === undefined) {
-        setDisplayValue('');
+        requestAnimationFrame(() => {
+          setDisplayValue('');
+        });
       } else if (value === 0) {
-        setDisplayValue('');
+        requestAnimationFrame(() => {
+          setDisplayValue('');
+        });
       } else {
-        setDisplayValue(formatNumberOnly(value));
+        requestAnimationFrame(() => {
+          setDisplayValue(formatNumberOnly(value));
+        });
       }
     }
   }, [value, isFocused, formatNumberOnly]);

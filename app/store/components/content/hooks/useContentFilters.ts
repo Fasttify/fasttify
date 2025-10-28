@@ -13,8 +13,7 @@ export function useContentFilters(images: S3Image[]) {
   const [sortDirection, setSortDirection] = useState<SortDirection | null>(null);
 
   const debouncedSearchTerm = useDebounce(inputValue, 300);
-  const { filters, updateSearchTerm, filterOptions, updateFileTypes, updateFileSizes, clearAllFilters } =
-    useImageFilters(images);
+  const { filters, updateSearchTerm, filterOptions, updateFileTypes, updateFileSizes } = useImageFilters(images);
 
   useEffect(() => {
     updateSearchTerm(debouncedSearchTerm);

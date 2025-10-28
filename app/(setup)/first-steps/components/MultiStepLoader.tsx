@@ -91,8 +91,8 @@ export const MultiStepLoader = ({
 
   useEffect(() => {
     if (!loading) {
-      setCurrentState(0);
-      return;
+      const raf = requestAnimationFrame(() => setCurrentState(0));
+      return () => cancelAnimationFrame(raf);
     }
     const timeout = setTimeout(() => {
       setCurrentState((prevState) =>

@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
+import { isValidMediaFile } from '@/lib/utils/validation-utils';
 import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import { useToast } from '@/app/store/context/ToastContext';
 
@@ -8,8 +9,14 @@ export interface BatchUploadResult {
   totalProcessed: number;
 }
 
+interface UploadProgressOptionsUI {
+  onStart?: (totalFiles: number) => void;
+  onProgress?: (overallPercent: number, perFile: number[]) => void;
+  onComplete?: () => void;
+}
+
 interface UseImageUploadProps {
-  uploadImages: (files: File[]) => Promise<BatchUploadResult | null>;
+  uploadImages: (files: File[], options?: any) => Promise<BatchUploadResult | null>;
   onImagesUploaded?: (result: BatchUploadResult) => void;
   onUploadError?: (error: string) => void;
 }
@@ -20,83 +27,116 @@ export function useImageUpload({ uploadImages, onImagesUploaded, onUploadError }
     total: number;
     completed: number;
     failed: number;
+    overallPercent: number;
+    perFilePercent: number[];
   } | null>(null);
+  const completedSetRef = useRef<Set<number>>(new Set());
 
   const { showToast } = useToast();
 
   const handleDrop = useCallback(
-    async (files: File[]) => {
-      const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+    async (files: File[], _options?: UploadProgressOptionsUI) => {
+      const isValidFile = (file: File) => isValidMediaFile(file);
 
-      if (imageFiles.length === 0) {
-        const errorMessage = 'No se encontraron archivos de imagen válidos';
+      const mediaFiles = files.filter(isValidFile);
+
+      if (mediaFiles.length === 0) {
+        const errorMessage =
+          'No se encontraron archivos multimedia válidos. Tipos permitidos: imágenes, videos y audio.';
         showToast(errorMessage, true);
         onUploadError?.(errorMessage);
         return null;
       }
 
-      // Validar tamaños de archivo para evitar error 413
-      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-      const oversizedFiles = imageFiles.filter((file) => file.size > MAX_FILE_SIZE);
+      const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB para archivos multimedia
+      const oversizedFiles = mediaFiles.filter((file) => file.size > MAX_FILE_SIZE);
 
       if (oversizedFiles.length > 0) {
-        const errorMessage = `${oversizedFiles.length} archivo(s) superan el límite de 10MB. Tamaño máximo permitido: 10MB.`;
+        const errorMessage = `${oversizedFiles.length} archivo(s) superan el límite de 50MB. Tamaño máximo permitido: 50MB.`;
         showToast(errorMessage, true);
         onUploadError?.(errorMessage);
         return null;
       }
 
       setIsUploading(true);
+      const perFilePercentInit = new Array<number>(mediaFiles.length).fill(0);
+      completedSetRef.current = new Set();
       setUploadProgress({
-        total: imageFiles.length,
+        total: mediaFiles.length,
         completed: 0,
         failed: 0,
+        overallPercent: 0,
+        perFilePercent: perFilePercentInit,
       });
 
       try {
-        console.log(`Starting upload of ${imageFiles.length} images`);
-
-        const result = await uploadImages(imageFiles);
+        const result = await uploadImages(mediaFiles, {
+          onFileProgress: (index: number, percent: number) => {
+            setUploadProgress((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    perFilePercent: prev.perFilePercent.map((p, i) => (i === index ? percent : p)),
+                  }
+                : prev
+            );
+            if (percent >= 100 && !completedSetRef.current.has(index)) {
+              completedSetRef.current.add(index);
+              setUploadProgress((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      completed: Math.min(prev.total, prev.completed + 1),
+                    }
+                  : prev
+              );
+            }
+          },
+          onOverallProgress: (percent: number) => {
+            setUploadProgress((prev) => (prev ? { ...prev, overallPercent: percent } : prev));
+          },
+        });
 
         if (result) {
           const { successfulImages, failedUploads, totalProcessed } = result;
 
-          setUploadProgress({
-            total: totalProcessed,
-            completed: successfulImages.length,
-            failed: failedUploads.length,
-          });
+          setUploadProgress((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  total: totalProcessed,
+                  completed: successfulImages.length,
+                  failed: failedUploads.length,
+                }
+              : prev
+          );
 
-          // Notificar resultados con toasts
           if (successfulImages.length > 0) {
-            console.log(`Successfully uploaded ${successfulImages.length} images`);
-            showToast(`${successfulImages.length} imagen(es) subida(s) correctamente`, false);
+            showToast(`${successfulImages.length} archivo(s) subido(s) correctamente`, false);
             onImagesUploaded?.(result);
           }
 
           if (failedUploads.length > 0) {
-            console.warn(`Failed to upload ${failedUploads.length} images:`, failedUploads);
-            const errorMessage = `${failedUploads.length} imagen(es) no pudieron subirse`;
+            const errorMessage = `${failedUploads.length} archivo(s) no pudieron subirse`;
             showToast(errorMessage, true);
             onUploadError?.(errorMessage);
           }
 
           return result;
         } else {
-          const errorMessage = 'Error al procesar la carga de imágenes';
+          const errorMessage = 'Error al procesar la carga de archivos';
           showToast(errorMessage, true);
           onUploadError?.(errorMessage);
           return null;
         }
       } catch (error) {
         console.error('Error in upload:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Error desconocido al subir imágenes';
+        const errorMessage = error instanceof Error ? error.message : 'Error desconocido al subir archivos';
         showToast(errorMessage, true);
         onUploadError?.(errorMessage);
         return null;
       } finally {
         setIsUploading(false);
-        // Limpiar el progreso después de un tiempo
         setTimeout(() => setUploadProgress(null), 3000);
       }
     },

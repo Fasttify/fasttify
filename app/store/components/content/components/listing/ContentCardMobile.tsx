@@ -18,7 +18,7 @@ interface ContentCardMobileProps {
 export function ContentCardMobile({
   images,
   selectedContents,
-  handleSelectContent,
+  handleSelectContent: _handleSelectContent,
   visibleColumns,
   onViewDetails,
   onDelete,

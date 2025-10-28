@@ -32,7 +32,7 @@ export function ContentManager({ storeId }: ContentManagerProps) {
     openModal(image);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (_id: string) => {
     if (!selectedImage) return;
 
     try {

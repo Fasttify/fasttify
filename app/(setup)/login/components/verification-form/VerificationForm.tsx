@@ -13,6 +13,7 @@ import { OTPInput, type SlotProps } from 'input-otp';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/hooks/useAuth';
 import { getConfirmSignUpErrorMessage } from '@/lib/auth/auth-error-messages';
+import { useRouter } from 'next/navigation';
 
 interface VerificationFormProps {
   email: string;
@@ -24,6 +25,7 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
   const [error, setError] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { checkUser } = useAuth();
+  const router = useRouter();
 
   const form = useForm<VerificationFormData>({
     resolver: zodResolver(verificationSchema),
@@ -41,7 +43,7 @@ export function VerificationForm({ email, password, onBack }: VerificationFormPr
         await signIn({ username: email, password: password });
         // Refrescar el estado del usuario después del login
         await checkUser();
-        window.location.href = '/';
+        router.replace('/');
       }
     } catch (err: any) {
       setError(getConfirmSignUpErrorMessage(err));

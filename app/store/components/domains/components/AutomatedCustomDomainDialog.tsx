@@ -56,9 +56,11 @@ export function AutomatedCustomDomainDialog({
   }, [resetValidation]);
 
   useEffect(() => {
+    let raf: number;
     if (!open) {
-      resetDialog();
+      raf = requestAnimationFrame(() => resetDialog());
     }
+    return () => cancelAnimationFrame(raf);
   }, [open, resetDialog]);
 
   const validation = validateDomain(domainName);

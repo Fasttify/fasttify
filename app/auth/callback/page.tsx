@@ -69,7 +69,7 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     if (!loading && user && !isRedirecting) {
-      setIsRedirecting(true);
+      const raf = requestAnimationFrame(() => setIsRedirecting(true));
 
       const lastStoreId = getLastVisitedStoreClient();
 
@@ -78,6 +78,8 @@ export default function AuthCallbackPage() {
       } else {
         window.location.href = '/my-store';
       }
+
+      return () => cancelAnimationFrame(raf);
     }
   }, [user, loading, isRedirecting, router]);
 

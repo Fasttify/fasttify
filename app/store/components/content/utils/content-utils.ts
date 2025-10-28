@@ -55,13 +55,52 @@ export function getFileName(key: string): string {
 
 export function getFileIcon(type?: string): string {
   const iconMap: Record<string, string> = {
+    // Imágenes
     'image/jpeg': 'Image',
+    'image/jpg': 'Image',
     'image/png': 'Image',
     'image/gif': 'Image',
     'image/webp': 'Image',
     'image/svg+xml': 'Image',
+    'image/avif': 'Image',
+    'image/heic': 'Image',
+    'image/heif': 'Image',
+    // Videos
+    'video/mp4': 'Video',
+    'video/webm': 'Video',
+    'video/quicktime': 'Video',
+    'video/x-msvideo': 'Video',
+    'video/ogg': 'Video',
+    'video/mpeg': 'Video',
+    // Audio
+    'audio/mpeg': 'Audio',
+    'audio/wav': 'Audio',
+    'audio/webm': 'Audio',
+    'audio/ogg': 'Audio',
+    'audio/mp4': 'Audio',
+    'audio/aac': 'Audio',
+    // Documentos
     'application/pdf': 'Document',
     'text/plain': 'Document',
+    'application/msword': 'Document',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Document',
+    'application/vnd.ms-excel': 'Document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Document',
+    'application/vnd.ms-powerpoint': 'Document',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'Document',
+    'text/csv': 'Document',
   };
-  return iconMap[type || ''] || 'Document';
+
+  // Intentar coincidencia exacta
+  if (type && iconMap[type.toLowerCase()]) {
+    return iconMap[type.toLowerCase()];
+  }
+
+  // Detectar por categoría de MIME type
+  if (type?.startsWith('image/')) return 'Image';
+  if (type?.startsWith('video/')) return 'Video';
+  if (type?.startsWith('audio/')) return 'Audio';
+  if (type?.startsWith('text/')) return 'Document';
+
+  return 'Document';
 }

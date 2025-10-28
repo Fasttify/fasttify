@@ -2,12 +2,13 @@ import { lazy, Suspense, useCallback, useMemo, useState, memo } from 'react';
 import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import { useToast } from '@/app/store/context/ToastContext';
 import { useS3ImagesWithOperations } from '@/app/store/hooks/storage/useS3ImagesWithOperations';
-import { Banner, BlockStack, Box, Modal, ProgressBar, Spinner, Text, InlineStack, Scrollable } from '@shopify/polaris';
+import { Banner, BlockStack, Box, Modal, Spinner, Text, InlineStack, Scrollable } from '@shopify/polaris';
 
 // Lazy load de componentes pesados
 const ImageGallery = lazy(() => import('@/app/store/components/images-selector/components/ImageGallery'));
 const SearchAndFilters = lazy(() => import('@/app/store/components/images-selector/components/SearchAndFilters'));
 const UploadDropZone = lazy(() => import('@/app/store/components/images-selector/components/UploadDropZone'));
+const UploadProgress = lazy(() => import('@/app/store/components/images-selector/components/UploadProgress'));
 
 // Hooks y utilidades
 import { useImageSelection } from '@/app/store/components/images-selector/hooks/useImageSelection';
@@ -192,10 +193,8 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
     return selectedImage !== null;
   }, [selectedImage, allowMultipleSelection]);
 
-  // Calcular progreso de carga
-  const uploadProgressPercentage = uploadProgress
-    ? Math.round(((uploadProgress.completed + uploadProgress.failed) / uploadProgress.total) * 100)
-    : 0;
+  // Progreso en tiempo real proveniente de hooks (overallPercent ya viene calculado)
+  const uploadProgressPercentage = uploadProgress?.overallPercent ?? 0;
 
   return (
     <Modal
@@ -247,13 +246,15 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
                     Subiendo imágenes...
                   </Text>
                   {uploadProgress && (
-                    <>
-                      <ProgressBar progress={uploadProgressPercentage} size="small" />
-                      <Text as="p" variant="bodySm" tone="subdued">
-                        {uploadProgress.completed} de {uploadProgress.total} completadas
-                        {uploadProgress.failed > 0 && ` (${uploadProgress.failed} fallidas)`}
-                      </Text>
-                    </>
+                    <Suspense>
+                      <UploadProgress
+                        overallPercent={uploadProgressPercentage}
+                        perFilePercent={uploadProgress.perFilePercent}
+                        total={uploadProgress.total}
+                        completed={uploadProgress.completed}
+                        failed={uploadProgress.failed}
+                      />
+                    </Suspense>
                   )}
                   {!uploadProgress && <Spinner accessibilityLabel="Subiendo imagen" size="small" />}
                 </BlockStack>

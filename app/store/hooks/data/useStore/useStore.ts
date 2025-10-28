@@ -47,7 +47,7 @@ export function useStore(storeId: string): UseStoreReturn {
         fetchInProgress.current = false;
       });
     }
-  }, [storeId, user?.userId, isClient, fetchStoreData]);
+  }, [storeId, user, isClient, fetchStoreData]);
 
   // Efecto para cargar los datos de la tienda
   useEffect(() => {

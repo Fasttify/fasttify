@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense, useEffect } from 'react';
+import { useState, Suspense } from 'react';
 import { Page, Layout, Spinner } from '@shopify/polaris';
 import Image from 'next/image';
 import { useUserStores } from '@/app/(setup)/my-store/hooks/useUserStores';
@@ -81,11 +81,7 @@ export function StoreSelector() {
   const cognitoUsername = user?.userId;
   const userPlan = user?.plan;
   const [selectedTab, setSelectedTab] = useState(0);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const [isClient] = useState<boolean>(() => typeof window !== 'undefined');
 
   return (
     <div className="w-full max-w-[483px] mx-auto h-screen md:h-auto">

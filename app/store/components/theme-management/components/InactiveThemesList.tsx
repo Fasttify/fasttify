@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionList, BlockStack, Button, Card, InlineStack, Popover, Text } from '@shopify/polaris';
-import { DeleteIcon, EditIcon, MenuHorizontalIcon, StatusActiveIcon, ViewIcon } from '@shopify/polaris-icons';
+import { DeleteIcon, EditIcon, MenuHorizontalIcon, StatusActiveIcon } from '@shopify/polaris-icons';
 import { useState } from 'react';
 import Image from 'next/image';
 import type { InactiveThemesListProps } from '@/app/store/components/theme-management/types/theme-types';

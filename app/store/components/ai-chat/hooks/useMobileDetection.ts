@@ -8,7 +8,10 @@ import { useState, useEffect, useCallback } from 'react';
  * @param autoClose - Si debe cerrar automáticamente en móvil (default: true)
  */
 export function useMobileDetection(onMobileDetected?: () => void, autoClose: boolean = true) {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  });
 
   const checkIsMobile = useCallback(() => {
     if (typeof window === 'undefined') return false;
@@ -16,29 +19,32 @@ export function useMobileDetection(onMobileDetected?: () => void, autoClose: boo
   }, []);
 
   useEffect(() => {
-    // Verificar al cargar
-    const mobile = checkIsMobile();
-    setIsMobile(mobile);
-
-    // Si es móvil y hay callback, ejecutarlo
-    if (mobile && autoClose && onMobileDetected) {
-      onMobileDetected();
-    }
-
     const handleResize = () => {
       const mobile = checkIsMobile();
-      const wasDesktop = !isMobile;
-      setIsMobile(mobile);
+      requestAnimationFrame(() => {
+        setIsMobile(mobile);
+      });
 
       // Si cambió de desktop a móvil, ejecutar callback
-      if (mobile && wasDesktop && autoClose && onMobileDetected) {
+      if (mobile && !isMobile && autoClose && onMobileDetected) {
         onMobileDetected();
       }
     };
 
+    const raf1 = requestAnimationFrame(() => {
+      const mobile = checkIsMobile();
+      setIsMobile(mobile);
+      if (mobile && autoClose && onMobileDetected) {
+        onMobileDetected();
+      }
+    });
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [checkIsMobile, isMobile, autoClose, onMobileDetected]);
+    return () => {
+      cancelAnimationFrame(raf1);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [checkIsMobile, autoClose, onMobileDetected, isMobile]);
 
   // Función para prevenir acciones en móvil
   const preventMobileAction = useCallback(
