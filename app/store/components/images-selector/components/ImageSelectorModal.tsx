@@ -4,13 +4,11 @@ import { useToast } from '@/app/store/context/ToastContext';
 import { useS3ImagesWithOperations } from '@/app/store/hooks/storage/useS3ImagesWithOperations';
 import { Banner, BlockStack, Box, Modal, Spinner, Text, InlineStack, Scrollable } from '@shopify/polaris';
 
-// Lazy load de componentes pesados
 const ImageGallery = lazy(() => import('@/app/store/components/images-selector/components/ImageGallery'));
 const SearchAndFilters = lazy(() => import('@/app/store/components/images-selector/components/SearchAndFilters'));
 const UploadDropZone = lazy(() => import('@/app/store/components/images-selector/components/UploadDropZone'));
 const UploadProgress = lazy(() => import('@/app/store/components/images-selector/components/UploadProgress'));
 
-// Hooks y utilidades
 import { useImageSelection } from '@/app/store/components/images-selector/hooks/useImageSelection';
 import { useImageUpload } from '@/app/store/components/images-selector/hooks/useImageUpload';
 import { filterAndSortImages, getFilterStats } from '@/app/store/components/images-selector/utils/filterUtils';
@@ -249,7 +247,6 @@ const ImageSelectorModal = memo(function ImageSelectorModal({
                     <Suspense>
                       <UploadProgress
                         overallPercent={uploadProgressPercentage}
-                        perFilePercent={uploadProgress.perFilePercent}
                         total={uploadProgress.total}
                         completed={uploadProgress.completed}
                         failed={uploadProgress.failed}

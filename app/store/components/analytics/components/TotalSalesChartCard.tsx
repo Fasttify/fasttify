@@ -23,10 +23,7 @@ interface TotalSalesChartCardProps {
 
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: Array<{
-    value: number;
-    dataKey: string;
-  }>;
+  payload?: any;
   label?: string;
   chartData: Array<{ name: string; value: number }>;
   totalSales: number;
