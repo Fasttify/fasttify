@@ -37,13 +37,17 @@ export function EditProfileDialog({ isOpen, onClose }: EditProfileDialogProps) {
       const fullName = user.nickName || '';
       const nameParts = fullName.split(' ');
 
-      setFormData({
-        firstName: nameParts[0] || '',
-        lastName: nameParts[nameParts.length - 1] || '',
-        phone: user.phone || '',
-        bio: user.bio || '',
+      requestAnimationFrame(() => {
+        setFormData({
+          firstName: nameParts[0] || '',
+          lastName: nameParts[nameParts.length - 1] || '',
+          phone: user.phone || '',
+          bio: user.bio || '',
+        });
       });
-      setValidationErrors({});
+      requestAnimationFrame(() => {
+        setValidationErrors({});
+      });
       clearError();
     }
   }, [user, isOpen, clearError]);

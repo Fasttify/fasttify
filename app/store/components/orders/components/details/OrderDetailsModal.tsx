@@ -37,7 +37,9 @@ export function OrderDetailsModal({
   // Actualizar la orden local cuando cambie el prop o cuando se abra el modal
   useEffect(() => {
     if (order && open) {
-      setCurrentOrder(order);
+      requestAnimationFrame(() => {
+        setCurrentOrder(order);
+      });
     }
   }, [order, open]);
 

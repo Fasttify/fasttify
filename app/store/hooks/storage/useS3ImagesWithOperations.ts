@@ -38,8 +38,8 @@ export function useS3ImagesWithOperations(options: UseS3ImagesWithOperationsOpti
    * Sube imágenes y actualiza el estado automáticamente
    */
   const uploadImages = useCallback(
-    async (files: File[]): Promise<BatchUploadResult | null> => {
-      const result = await uploadImagesBase(files);
+    async (files: File[], options?: any): Promise<BatchUploadResult | null> => {
+      const result = await uploadImagesBase(files, options);
 
       if (result && result.successfulImages.length > 0) {
         // Agregar las nuevas imágenes al principio de la lista

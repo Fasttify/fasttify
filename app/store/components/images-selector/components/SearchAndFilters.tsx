@@ -1,10 +1,10 @@
 import { TextField, InlineStack, BlockStack, Button } from '@shopify/polaris';
 import { SearchIcon, DeleteIcon } from '@shopify/polaris-icons';
 import { useState, useCallback, useEffect } from 'react';
-import { useDebounce } from '../hooks/useDebounce';
-import { useImageFilters } from '../hooks/useImageFilters';
-import FilterCombobox from './FilterCombobox';
-import SortPopover from './SortPopover';
+import { useDebounce } from '@/app/store/components/images-selector/hooks/useDebounce';
+import { useImageFilters } from '@/app/store/components/images-selector/hooks/useImageFilters';
+import FilterCombobox from '@/app/store/components/images-selector/components/FilterCombobox';
+import SortPopover from '@/app/store/components/images-selector/components/SortPopover';
 import type { S3Image } from '@/app/store/hooks/storage/useS3Images';
 
 interface SearchAndFiltersProps {

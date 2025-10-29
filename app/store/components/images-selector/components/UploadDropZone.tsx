@@ -1,5 +1,6 @@
 import { DropZone, Text, BlockStack, InlineStack, Icon } from '@shopify/polaris';
 import { ImageIcon } from '@shopify/polaris-icons';
+import { isValidMediaFile } from '@/lib/utils/validation-utils';
 import { useCallback, useState } from 'react';
 
 interface UploadDropZoneProps {
@@ -13,12 +14,12 @@ export default function UploadDropZone({ onDrop, allowMultipleSelection }: Uploa
 
   const handleDropZoneDrop = useCallback(
     (_dropFiles: File[], acceptedFiles: File[], _rejectedFiles: File[]) => {
-      const imageFiles = acceptedFiles.filter((file) => file.type.startsWith('image/'));
+      const mediaFiles = acceptedFiles.filter((file) => isValidMediaFile(file));
 
-      setFileCount(imageFiles.length);
-      setTotalSize(imageFiles.reduce((total, file) => total + file.size, 0));
+      setFileCount(mediaFiles.length);
+      setTotalSize(mediaFiles.reduce((total, file) => total + file.size, 0));
 
-      onDrop(imageFiles);
+      onDrop(mediaFiles);
 
       // Limpiar el contador después de un momento para mostrar que se procesaron
       setTimeout(() => {
@@ -39,7 +40,7 @@ export default function UploadDropZone({ onDrop, allowMultipleSelection }: Uploa
 
   return (
     <BlockStack gap="300">
-      <DropZone allowMultiple={allowMultipleSelection} onDrop={handleDropZoneDrop} accept="image/*">
+      <DropZone allowMultiple={allowMultipleSelection} onDrop={handleDropZoneDrop} accept="image/*,video/*,audio/*">
         <DropZone.FileUpload actionHint="o arrástralos y suéltalos" />
       </DropZone>
 
@@ -56,8 +57,7 @@ export default function UploadDropZone({ onDrop, allowMultipleSelection }: Uploa
             <Icon source={ImageIcon} tone="subdued" />
             <BlockStack gap="050">
               <Text as="p" variant="bodySm" fontWeight="medium">
-                {fileCount} imagen{fileCount !== 1 ? 'es' : ''} seleccionada
-                {fileCount !== 1 ? 's' : ''}
+                {fileCount} archivo{fileCount !== 1 ? 's' : ''} seleccionado{fileCount !== 1 ? 's' : ''}
               </Text>
               {totalSize > 0 && (
                 <Text as="p" variant="bodySm" tone="subdued">

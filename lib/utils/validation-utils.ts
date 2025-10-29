@@ -38,6 +38,80 @@ export function isValidImageFile(file: File): boolean {
 }
 
 /**
+ * Valida si un archivo es un tipo multimedia válido para una tienda online
+ * @param file - Archivo a validar
+ * @returns true si es un tipo de archivo multimedia válido
+ */
+export function isValidMediaFile(file: File): boolean {
+  const validMimeTypes = [
+    // Imágenes
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
+    'image/avif',
+    'image/heic',
+    'image/heif',
+    // Videos
+    'video/mp4',
+    'video/webm',
+    'video/quicktime',
+    'video/x-msvideo',
+    'video/ogg',
+    'video/mpeg',
+    // Audio
+    'audio/mpeg',
+    'audio/wav',
+    'audio/webm',
+    'audio/ogg',
+    'audio/mp4',
+    'audio/aac',
+  ];
+
+  // Respaldo por extensión cuando el MIME viene vacío o genérico
+  const allowedExtensions = new Set([
+    // Imágenes
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'webp',
+    'svg',
+    'avif',
+    'heic',
+    'heif',
+    // Videos
+    'mp4',
+    'webm',
+    'mov',
+    'avi',
+    'ogg',
+    'mpeg',
+    // Audio
+    'mp3',
+    'wav',
+    'ogg',
+    'aac',
+    'm4a',
+    'webm',
+  ]);
+
+  const name = (file.name || '').toLowerCase();
+  const ext = name.includes('.') ? name.substring(name.lastIndexOf('.') + 1) : '';
+
+  return (
+    (!!file.type &&
+      (validMimeTypes.includes(file.type) ||
+        file.type.startsWith('image/') ||
+        file.type.startsWith('video/') ||
+        file.type.startsWith('audio/'))) ||
+    (ext !== '' && allowedExtensions.has(ext))
+  );
+}
+
+/**
  * Valida el tamaño de un archivo
  * @param file - Archivo a validar
  * @param maxSizeBytes - Tamaño máximo en bytes
@@ -59,13 +133,18 @@ export function validateFile(
     maxSizeBytes?: number;
     allowedTypes?: string[];
     isImage?: boolean;
+    isMedia?: boolean;
   } = {}
 ): { isValid: boolean; error?: string } {
-  const { maxSizeBytes, allowedTypes, isImage = false } = options;
+  const { maxSizeBytes, allowedTypes, isImage = false, isMedia = false } = options;
 
   // Validar tipo de archivo
   if (isImage && !isValidImageFile(file)) {
     return { isValid: false, error: 'El archivo no es una imagen válida' };
+  }
+
+  if (isMedia && !isValidMediaFile(file)) {
+    return { isValid: false, error: 'El archivo no es un tipo multimedia válido' };
   }
 
   if (allowedTypes && allowedTypes.length > 0) {

@@ -37,20 +37,22 @@ export function useImageFilters(images: S3Image[]) {
   const filterOptions: FilterOptions = useMemo(
     () => ({
       fileTypeOptions: [
-        { label: 'Imágenes', value: 'images' },
-        { label: 'Videos', value: 'videos' },
-        { label: 'Videos externos', value: 'external-videos' },
-        { label: 'Modelos 3D', value: '3d' },
+        { label: 'Imágenes (JPEG, PNG, GIF, WebP, SVG, AVIF, HEIC)', value: 'images' },
+        { label: 'Videos (MP4, WebM, MOV, AVI, OGG, MPEG)', value: 'videos' },
+        { label: 'Audio (MP3, WAV, OGG, AAC, WebM)', value: 'audio' },
       ],
       fileSizeOptions: [
         { label: 'Pequeño (< 1MB)', value: 'small' },
         { label: 'Mediano (1-5MB)', value: 'medium' },
-        { label: 'Grande (> 5MB)', value: 'large' },
+        { label: 'Grande (5-20MB)', value: 'large' },
+        { label: 'Muy Grande (> 20MB)', value: 'xlarge' },
       ],
       usedInOptions: [
         { label: 'Productos', value: 'products' },
         { label: 'Páginas', value: 'pages' },
         { label: 'Blog', value: 'blog' },
+        { label: 'Galerías', value: 'galleries' },
+        { label: 'Banners', value: 'banners' },
       ],
       productOptions: [{ label: 'Producto específico', value: 'specific' }],
       sortOptions: [

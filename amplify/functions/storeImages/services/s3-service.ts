@@ -6,13 +6,16 @@ import {
   S3Client,
   _Object,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ConfigService } from '../config/config';
 import {
   BatchDeleteResponse,
+  BatchPresignedUrlsResponse,
   BatchUploadResponse,
   DeleteImageResponse,
   ImageItem,
   ListImagesResponse,
+  PresignedUrlResponse,
   UploadImageResponse,
 } from '../types/types';
 import { FileUtils } from './utils';
@@ -230,6 +233,73 @@ export class S3Service {
     } catch (error) {
       console.error('Error deleting image:', error);
       throw new Error('Failed to delete image');
+    }
+  }
+
+  /**
+   * Genera una URL presignada para subir una imagen directamente a S3
+   */
+  public async generatePresignedUrl(
+    storeId: string,
+    filename: string,
+    contentType: string,
+    expiresInSeconds: number = 900
+  ): Promise<PresignedUrlResponse> {
+    try {
+      const config = this.configService.getConfig();
+      const s3Key = FileUtils.generateS3Key(storeId, filename);
+      const url = this.configService.generateImageUrl(s3Key);
+
+      const putCommand = new PutObjectCommand({
+        Bucket: config.bucketName,
+        Key: s3Key,
+        ContentType: contentType,
+        CacheControl: 'max-age=31536000',
+        Metadata: {
+          storeId,
+          originalFilename: filename,
+          uploadDate: new Date().toISOString(),
+        },
+      });
+
+      const presignedUrl = await getSignedUrl(this.s3Client, putCommand, { expiresIn: expiresInSeconds });
+
+      return {
+        presignedUrl,
+        s3Key,
+        url,
+        expiresAt: Date.now() + expiresInSeconds * 1000,
+      };
+    } catch (error) {
+      console.error('Error generating presigned URL:', error);
+      throw new Error('Failed to generate presigned URL');
+    }
+  }
+
+  /**
+   * Genera múltiples URLs presignadas en una sola operación para eficiencia
+   */
+  public async generateBatchPresignedUrls(
+    storeId: string,
+    files: { filename: string; contentType: string }[],
+    expiresInSeconds: number = 900
+  ): Promise<BatchPresignedUrlsResponse> {
+    try {
+      console.log(`Generating batch presigned URLs for ${files.length} files`);
+
+      // Generar todas las URLs en paralelo
+      const urlPromises = files.map((file) =>
+        this.generatePresignedUrl(storeId, file.filename, file.contentType, expiresInSeconds)
+      );
+      const urls = await Promise.all(urlPromises);
+
+      return {
+        urls,
+        success: true,
+      };
+    } catch (error) {
+      console.error('Error generating batch presigned URLs:', error);
+      throw new Error('Failed to generate batch presigned URLs');
     }
   }
 

@@ -71,7 +71,15 @@ export class ValidationUtils {
    * Valida que la acción sea válida
    */
   public static validateAction(action?: string): void {
-    const validActions = ['list', 'upload', 'delete', 'batchUpload', 'batchDelete'];
+    const validActions = [
+      'list',
+      'upload',
+      'delete',
+      'batchUpload',
+      'batchDelete',
+      'generatePresignedUrl',
+      'generateBatchPresignedUrls',
+    ];
     if (!action || !validActions.includes(action)) {
       throw new Error('Invalid action');
     }
@@ -126,15 +134,39 @@ export class ValidationUtils {
       throw new Error('At least one key is required for batch delete');
     }
 
-    // Mantener límite de 50 para delete ya que los keys son pequeños
-    if (keys.length > 50) {
-      throw new Error('Maximum of 50 keys can be deleted in a single batch');
+    // Aumentar límite a 100 para delete ya que los keys son pequeños
+    if (keys.length > 100) {
+      throw new Error('Maximum of 100 keys can be deleted in a single batch');
     }
 
     // Validar cada clave en el lote
     keys.forEach((key, index) => {
       if (!key) {
         throw new Error(`Invalid key at index ${index}: key cannot be empty`);
+      }
+    });
+  }
+
+  /**
+   * Valida los parámetros requeridos para generar presigned URL
+   */
+  public static validatePresignedUrlParams(filename?: string, contentType?: string): void {
+    if (!filename || !contentType) {
+      throw new Error('filename and contentType are required for generatePresignedUrl');
+    }
+  }
+
+  /**
+   * Valida los parámetros requeridos para generar batch presigned URLs
+   */
+  public static validateBatchPresignedUrlsParams(filesInfo?: { filename: string; contentType: string }[]): void {
+    if (!filesInfo || !Array.isArray(filesInfo) || filesInfo.length === 0) {
+      throw new Error('At least one file is required for generateBatchPresignedUrls');
+    }
+
+    filesInfo.forEach((file, index) => {
+      if (!file.filename || !file.contentType) {
+        throw new Error(`Invalid file data at index ${index}: filename and contentType are required`);
       }
     });
   }

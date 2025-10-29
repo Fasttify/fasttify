@@ -19,7 +19,14 @@ export function AnimatedBackground({
   containerClassName = '',
   isModal = false,
 }: AnimatedBackgroundProps) {
-  const [shouldRender, setShouldRender] = useState(false);
+  const [shouldRender, setShouldRender] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return window.matchMedia(`(min-width: ${minWidth})`).matches;
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(`(min-width: ${minWidth})`);
@@ -28,13 +35,14 @@ export function AnimatedBackground({
       setShouldRender(e.matches);
     };
 
-    // Check initial state
-    setShouldRender(mediaQuery.matches);
+    // Sincronizar al cambiar el minWidth, evitando actualización sincrónica
+    const raf = requestAnimationFrame(() => setShouldRender(mediaQuery.matches));
 
     // Listen for changes
     mediaQuery.addEventListener('change', handleChange);
 
     return () => {
+      cancelAnimationFrame(raf);
       mediaQuery.removeEventListener('change', handleChange);
     };
   }, [minWidth]);

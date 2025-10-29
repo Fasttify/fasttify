@@ -2,8 +2,6 @@ import { useCallback, useMemo } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { post } from 'aws-amplify/api';
 import useStoreDataStore from '@/context/core/storeDataStore';
-
-// Re-exportar tipos y hooks relacionados
 export type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 export type { BatchUploadResult, BatchDeleteResult } from '@/app/store/components/images-selector/types/s3-types';
 export { useS3ImageUpload } from '@/app/store/hooks/storage/useS3ImageUpload';
@@ -14,7 +12,6 @@ interface UseS3ImagesOptions {
   prefix?: string;
 }
 
-// Definir el tipo de la respuesta esperada del API
 interface S3ImagesResponse {
   images?: import('@/app/store/components/images-selector/types/s3-types').S3Image[];
   success?: boolean;
@@ -26,7 +23,6 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
   const { storeId } = useStoreDataStore();
   const queryClient = useQueryClient();
 
-  // Memoizar las opciones para evitar re-renders innecesarios
   const memoizedOptions = useMemo(
     () => ({
       limit: options.limit || 18,
@@ -35,7 +31,6 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
     [options.limit, options.prefix]
   );
 
-  // Función para hacer la petición de imágenes
   const fetchImagesPage = useCallback(
     async ({ pageParam }: { pageParam?: string }) => {
       if (!storeId || memoizedOptions.limit <= 0) {
@@ -84,15 +79,16 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
   );
 
   // Configurar la query infinita de React Query
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
-    queryKey: ['s3-images', storeId, memoizedOptions.limit, memoizedOptions.prefix],
-    queryFn: fetchImagesPage,
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) => lastPage.nextContinuationToken,
-    enabled: !!storeId && memoizedOptions.limit > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos
-  });
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, isPending } =
+    useInfiniteQuery({
+      queryKey: ['s3-images', storeId, memoizedOptions.limit, memoizedOptions.prefix],
+      queryFn: fetchImagesPage,
+      initialPageParam: undefined as string | undefined,
+      getNextPageParam: (lastPage) => lastPage.nextContinuationToken,
+      enabled: !!storeId && memoizedOptions.limit > 0,
+      staleTime: 5 * 60 * 1000, // 5 minutos
+      gcTime: 10 * 60 * 1000, // 10 minutos
+    });
 
   // Combinar todas las páginas de imágenes en una sola lista
   const images = useMemo(() => {
@@ -161,7 +157,7 @@ export function useS3Images(options: UseS3ImagesOptions = {}) {
 
   return {
     images,
-    loading: isLoading,
+    loading: isLoading || isPending,
     error: error as Error | null,
     fetchMoreImages,
     loadingMore: isFetchingNextPage,

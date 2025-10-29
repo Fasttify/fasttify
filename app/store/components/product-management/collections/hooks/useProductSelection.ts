@@ -27,7 +27,9 @@ export const useProductSelection = ({
   // Inicializar productos seleccionados en el diálogo cuando se abre
   useEffect(() => {
     if (isDialogOpen) {
-      setDialogSelectedProducts(selectedProducts.map((p) => p.id));
+      requestAnimationFrame(() => {
+        setDialogSelectedProducts(selectedProducts.map((p) => p.id));
+      });
     }
   }, [isDialogOpen, selectedProducts]);
 

@@ -42,7 +42,7 @@ export interface S3BatchResponse {
 
 // Configuración para chunking
 export const UPLOAD_CHUNK_SIZE = 10; // Máximo 10 imágenes por chunk para evitar límite de API Gateway
-export const DELETE_CHUNK_SIZE = 20; // Para delete podemos usar chunks más grandes
+export const DELETE_CHUNK_SIZE = 50; // Para delete podemos usar chunks más grandes
 
 // Archivo preparado para upload
 export interface FileForUpload {

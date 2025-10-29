@@ -42,7 +42,7 @@ export function ThemeUploader() {
         throw new Error(result.error || result.message || 'Upload failed');
       }
     },
-    [currentStore?.storeId]
+    [currentStore]
   );
 
   const handleConfirm = useCallback(
@@ -79,7 +79,7 @@ export function ThemeUploader() {
         return { ok: false };
       }
     },
-    [currentStore?.storeId, showToast]
+    [currentStore, showToast]
   );
 
   return (

@@ -116,7 +116,9 @@ export function LogoCarousel({ columnCount = 2, logos }: LogoCarouselProps) {
 
   useEffect(() => {
     const distributedLogos = distributeLogos(logos, columnCount);
-    setLogoSets(distributedLogos);
+    requestAnimationFrame(() => {
+      setLogoSets(distributedLogos);
+    });
   }, [logos, columnCount]);
 
   return (

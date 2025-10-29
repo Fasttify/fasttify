@@ -114,6 +114,9 @@ importers:
       '@react-email/render':
         specifier: ^0.0.12
         version: 0.0.12
+      '@shopify/draggable':
+        specifier: ^1.2.1
+        version: 1.2.1
       '@shopify/polaris':
         specifier: ^13.9.5
         version: 13.9.5(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -308,11 +311,14 @@ importers:
         specifier: ^0.25.6
         version: 0.25.10
       eslint:
-        specifier: ^9.35.0
+        specifier: ^9.37.0
         version: 9.37.0(jiti@1.21.7)
       eslint-config-next:
         specifier: 16.0.0
         version: 16.0.0(@typescript-eslint/parser@8.46.2(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3))(eslint@9.37.0(jiti@1.21.7))(typescript@5.9.3)
+      eslint-config-prettier:
+        specifier: ^10.1.8
+        version: 10.1.8(eslint@9.37.0(jiti@1.21.7))
       git-format-staged:
         specifier: ^3.1.1
         version: 3.1.1
@@ -3508,6 +3514,9 @@ packages:
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
 
+  '@shopify/draggable@1.2.1':
+    resolution: {integrity: sha512-hYKhd99nl1mkO4ybA8i3rxvZgYS2A4Imcxpq7BoUu7h4LmFt997YxHLy8Mm5J7ST+G4DTQXqBsTx9mDid6piZg==}
+
   '@shopify/polaris-icons@9.3.1':
     resolution: {integrity: sha512-16BIFAT93LJ8X4YRXz5cR9ZPHeErMg3DYS0gyTPNPkd0E5IBPoTxPINjn2b4Mr9Sc1x4RfI4AqPcV8ut0D1J5w==}
     engines: {node: '>=20.10.0'}
@@ -5522,6 +5531,12 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  eslint-config-prettier@10.1.8:
+    resolution: {integrity: sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=7.0.0'
 
   eslint-import-resolver-node@0.3.9:
     resolution: {integrity: sha512-WFj2isz22JahUv+B788TlO3N6zL3nNJGU8CcZbPZvVEkBPaJdCV4vy5wyghty5ROFbCRnm132v8BScu5/1BQ8g==}
@@ -14898,6 +14913,8 @@ snapshots:
       domhandler: 5.0.3
       selderee: 0.11.0
 
+  '@shopify/draggable@1.2.1': {}
+
   '@shopify/polaris-icons@9.3.1(react@19.2.0)':
     dependencies:
       react: 19.2.0
@@ -17346,6 +17363,10 @@ snapshots:
       - eslint-import-resolver-webpack
       - eslint-plugin-import-x
       - supports-color
+
+  eslint-config-prettier@10.1.8(eslint@9.37.0(jiti@1.21.7)):
+    dependencies:
+      eslint: 9.37.0(jiti@1.21.7)
 
   eslint-import-resolver-node@0.3.9:
     dependencies:

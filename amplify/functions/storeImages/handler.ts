@@ -1,7 +1,7 @@
 import { APIGatewayEvent, APIGatewayResponse } from './types/types';
 import { ImageController } from './services/image-controller';
+import { getCorsHeaders } from '../shared/cors';
 
-// Instancia única del controlador para reutilización
 const imageController = new ImageController();
 
 /**
@@ -25,7 +25,11 @@ export const handler = async (event: APIGatewayEvent): Promise<APIGatewayRespons
     // Manejar solicitudes OPTIONS para CORS preflight
     if (event.httpMethod === 'OPTIONS') {
       const origin = event.headers?.origin || event.headers?.Origin;
-      return imageController.handleOptions(origin);
+      return {
+        statusCode: 200,
+        headers: getCorsHeaders(origin),
+        body: '',
+      };
     }
 
     // Procesar la solicitud principal
@@ -36,13 +40,8 @@ export const handler = async (event: APIGatewayEvent): Promise<APIGatewayRespons
     // Respuesta de emergencia en caso de fallo catastrófico
     return {
       statusCode: 500,
+      headers: getCorsHeaders(origin),
       body: JSON.stringify({ message: 'Internal server error' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      },
     };
   }
 };

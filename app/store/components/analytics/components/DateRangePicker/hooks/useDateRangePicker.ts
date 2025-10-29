@@ -162,30 +162,32 @@ export function useDateRangePicker({ selectedRange, onRangeChange }: UseDateRang
   // Sincronizar con cambios externos
   useEffect(() => {
     if (selectedRange) {
-      setTempRange(selectedRange);
-      setInputValues({
-        since: formatDate(selectedRange.period.since),
-        until: formatDate(selectedRange.period.until),
-      });
-
-      function monthDiff(referenceDate: { year: number; month: number }, newDate: { year: number; month: number }) {
-        return newDate.month - referenceDate.month + 12 * (referenceDate.year - newDate.year);
-      }
-
-      const monthDifference = monthDiff(
-        { year, month },
-        {
-          year: selectedRange.period.until.getFullYear(),
-          month: selectedRange.period.until.getMonth(),
-        }
-      );
-
-      if (monthDifference > 1 || monthDifference < 0) {
-        setDate({
-          month: selectedRange.period.until.getMonth(),
-          year: selectedRange.period.until.getFullYear(),
+      requestAnimationFrame(() => {
+        setTempRange(selectedRange);
+        setInputValues({
+          since: formatDate(selectedRange.period.since),
+          until: formatDate(selectedRange.period.until),
         });
-      }
+
+        function monthDiff(referenceDate: { year: number; month: number }, newDate: { year: number; month: number }) {
+          return newDate.month - referenceDate.month + 12 * (referenceDate.year - newDate.year);
+        }
+
+        const monthDifference = monthDiff(
+          { year, month },
+          {
+            year: selectedRange.period.until.getFullYear(),
+            month: selectedRange.period.until.getMonth(),
+          }
+        );
+
+        if (monthDifference > 1 || monthDifference < 0) {
+          setDate({
+            month: selectedRange.period.until.getMonth(),
+            year: selectedRange.period.until.getFullYear(),
+          });
+        }
+      });
     }
   }, [selectedRange, year, month]);
 

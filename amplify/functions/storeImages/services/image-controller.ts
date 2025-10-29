@@ -7,6 +7,8 @@ import {
   DeleteImageResponse,
   BatchUploadResponse,
   BatchDeleteResponse,
+  BatchPresignedUrlsResponse,
+  PresignedUrlResponse,
   ErrorResponse,
 } from '../types/types';
 import { S3Service } from './s3-service';
@@ -56,6 +58,10 @@ export class ImageController {
           return await this.handleBatchUploadImages(body, origin);
         case 'batchDelete':
           return await this.handleBatchDeleteImages(body, origin);
+        case 'generatePresignedUrl':
+          return await this.handleGeneratePresignedUrl(body, origin);
+        case 'generateBatchPresignedUrls':
+          return await this.handleGenerateBatchPresignedUrls(body, origin);
         default:
           return this.createErrorResponse(400, 'Invalid action', origin);
       }
@@ -165,6 +171,61 @@ export class ImageController {
     } catch (error) {
       console.error('Error in batch delete:', error);
       const message = error instanceof Error ? error.message : 'Error processing batch delete';
+      return this.createErrorResponse(500, message, origin);
+    }
+  }
+
+  /**
+   * Maneja la operación de generar URL presignada para subir imagen directamente a S3
+   */
+  private async handleGeneratePresignedUrl(body: RequestBody, origin?: string): Promise<APIGatewayResponse> {
+    try {
+      ValidationUtils.validatePresignedUrlParams(body.filename, body.contentType);
+
+      const expiresIn = body.expiresIn || 900; // 15 minutos por defecto
+
+      console.log(`Generating presigned URL for ${body.filename} (expires in ${expiresIn}s)`);
+
+      const result: PresignedUrlResponse = await this.s3Service.generatePresignedUrl(
+        body.storeId,
+        body.filename!,
+        body.contentType!,
+        expiresIn
+      );
+
+      console.log(`Presigned URL generated successfully for ${body.filename}`);
+
+      return this.createSuccessResponse(result, origin);
+    } catch (error) {
+      console.error('Error generating presigned URL:', error);
+      const message = error instanceof Error ? error.message : 'Error generating presigned URL';
+      return this.createErrorResponse(500, message, origin);
+    }
+  }
+
+  /**
+   * Maneja la operación de generar múltiples URLs presignadas en lote
+   */
+  private async handleGenerateBatchPresignedUrls(body: RequestBody, origin?: string): Promise<APIGatewayResponse> {
+    try {
+      ValidationUtils.validateBatchPresignedUrlsParams(body.filesInfo);
+
+      const expiresIn = body.expiresIn || 900; // 15 minutos por defecto
+
+      console.log(`Generating batch presigned URLs for ${body.filesInfo!.length} files (expires in ${expiresIn}s)`);
+
+      const result: BatchPresignedUrlsResponse = await this.s3Service.generateBatchPresignedUrls(
+        body.storeId,
+        body.filesInfo!,
+        expiresIn
+      );
+
+      console.log(`Batch presigned URLs generated successfully for ${body.filesInfo!.length} files`);
+
+      return this.createSuccessResponse(result, origin);
+    } catch (error) {
+      console.error('Error generating batch presigned URLs:', error);
+      const message = error instanceof Error ? error.message : 'Error generating batch presigned URLs';
       return this.createErrorResponse(500, message, origin);
     }
   }

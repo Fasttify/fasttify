@@ -21,6 +21,76 @@ interface TotalSalesChartCardProps {
   className?: string;
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: any;
+  label?: string;
+  chartData: Array<{ name: string; value: number }>;
+  totalSales: number;
+  formatCurrency: (value: number) => string;
+  formatPercentage: (value: number) => string;
+}
+
+function CustomTooltip({
+  active,
+  payload,
+  label,
+  chartData,
+  totalSales,
+  formatCurrency,
+  formatPercentage,
+}: CustomTooltipProps) {
+  if (active && payload && payload.length && label) {
+    const currentValue = payload[0].value;
+    const currentIndex = chartData.findIndex((item) => item.name === label);
+    const previousValue = currentIndex > 0 ? chartData[currentIndex - 1].value : null;
+
+    const change = previousValue !== null ? currentValue - previousValue : null;
+    const changePercentage =
+      previousValue && previousValue > 0 && change !== null ? (change / previousValue) * 100 : null;
+
+    const percentageOfTotal = totalSales > 0 ? (currentValue / totalSales) * 100 : 0;
+
+    return (
+      <div
+        style={{
+          backgroundColor: '#fff',
+          border: '1px solid #e1e5e9',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          minWidth: '200px',
+        }}>
+        <BlockStack gap="150">
+          <Text variant="bodyMd" as="p" fontWeight="bold">
+            {formatDateForChartAnalytics(label)}
+          </Text>
+          <Text variant="bodySm" as="p">
+            Ventas: {formatCurrency(currentValue)}
+          </Text>
+          <Text variant="bodySm" as="p">
+            % del total: {formatPercentage(percentageOfTotal)}
+          </Text>
+          {change !== null && (
+            <Text variant="bodySm" as="p" tone={change >= 0 ? 'success' : 'critical'} fontWeight="medium">
+              Cambio vs día anterior: {change >= 0 ? '+' : ''}
+              {formatCurrency(change)}
+              {changePercentage !== null && (
+                <span>
+                  {' '}
+                  ({change >= 0 ? '+' : ''}
+                  {formatPercentage(changePercentage)})
+                </span>
+              )}
+            </Text>
+          )}
+        </BlockStack>
+      </div>
+    );
+  }
+  return null;
+}
+
 export function TotalSalesChartCard({
   value,
   data,
@@ -32,61 +102,6 @@ export function TotalSalesChartCard({
 
   // Calcular el total de ventas para porcentajes
   const totalSales = chartData.reduce((sum, item) => sum + item.value, 0);
-
-  // Función personalizada para el tooltip
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const currentValue = payload[0].value;
-      const currentIndex = chartData.findIndex((item) => item.name === label);
-      const previousValue = currentIndex > 0 ? chartData[currentIndex - 1].value : null;
-
-      // Calcular cambio vs día anterior
-      const change = previousValue !== null ? currentValue - previousValue : null;
-      const changePercentage =
-        previousValue && previousValue > 0 && change !== null ? (change / previousValue) * 100 : null;
-
-      // Calcular % del total
-      const percentageOfTotal = totalSales > 0 ? (currentValue / totalSales) * 100 : 0;
-
-      return (
-        <div
-          style={{
-            backgroundColor: '#fff',
-            border: '1px solid #e1e5e9',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            minWidth: '200px',
-          }}>
-          <BlockStack gap="150">
-            <Text variant="bodyMd" as="p" fontWeight="bold">
-              {formatDateForChartAnalytics(label)}
-            </Text>
-            <Text variant="bodySm" as="p">
-              Ventas: {formatCurrency(currentValue)}
-            </Text>
-            <Text variant="bodySm" as="p">
-              % del total: {formatPercentage(percentageOfTotal)}
-            </Text>
-            {change !== null && (
-              <Text variant="bodySm" as="p" tone={change >= 0 ? 'success' : 'critical'} fontWeight="medium">
-                Cambio vs día anterior: {change >= 0 ? '+' : ''}
-                {formatCurrency(change)}
-                {changePercentage !== null && (
-                  <span>
-                    {' '}
-                    ({change >= 0 ? '+' : ''}
-                    {formatPercentage(changePercentage)})
-                  </span>
-                )}
-              </Text>
-            )}
-          </BlockStack>
-        </div>
-      );
-    }
-    return null;
-  };
   const tooltipContent = (
     <BlockStack gap="100">
       <Text variant="bodyMd" as="p" fontWeight="bold">
@@ -130,7 +145,17 @@ export function TotalSalesChartCard({
                     tickLine={{ stroke: '#e1e5e9' }}
                     tickFormatter={(value) => formatCurrency(value)}
                   />
-                  <RechartsTooltip content={<CustomTooltip />} />
+                  <RechartsTooltip
+                    content={(props) => (
+                      <CustomTooltip
+                        {...props}
+                        chartData={chartData}
+                        totalSales={totalSales}
+                        formatCurrency={formatCurrency}
+                        formatPercentage={formatPercentage}
+                      />
+                    )}
+                  />
                   <Line
                     type="monotone"
                     dataKey="value"
