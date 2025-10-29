@@ -1,10 +1,11 @@
 'use client';
 
-import { Card, Thumbnail, Text, Button } from '@shopify/polaris';
+import { Card, Text, Button } from '@shopify/polaris';
 import { DeleteIcon, ViewIcon } from '@shopify/polaris-icons';
 import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import { formatFileSize, formatDate, getFileName } from '@/app/store/components/content/utils/content-utils';
 import type { VisibleColumns } from '@/app/store/components/content/types/content-types';
+import { ContentThumbnail } from '../media/ContentThumbnail';
 
 interface ContentCardMobileProps {
   images: S3Image[];
@@ -29,7 +30,7 @@ export function ContentCardMobile({
         {images.map((image) => (
           <Card key={image.id || image.key}>
             <div className="flex items-start gap-3">
-              <Thumbnail source={image.url} alt={image.filename} size="small" />
+              <ContentThumbnail src={image.url} alt={image.filename} size="small" />
 
               <div className="flex-1 min-w-0">
                 <Text variant="bodySm" fontWeight="semibold" as="p">

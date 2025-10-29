@@ -1,8 +1,9 @@
 'use client';
 
-import { Modal, Thumbnail, Text } from '@shopify/polaris';
+import { Modal, Text } from '@shopify/polaris';
 import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import { formatFileSize, formatDate, getFileName } from '@/app/store/components/content/utils/content-utils';
+import { ContentThumbnail } from '@/app/store/components/content/components/media/ContentThumbnail';
 
 interface ContentDetailsModalProps {
   image: S3Image | null;
@@ -40,7 +41,7 @@ export function ContentDetailsModal({ image, open, onClose, onDelete }: ContentD
       <Modal.Section>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <Thumbnail source={image.url} alt={image.filename} size="large" />
+            <ContentThumbnail src={image.url} alt={image.filename} size="large" />
             <div>
               <Text variant="headingMd" as="h2">
                 {getFileName(image.filename)}
