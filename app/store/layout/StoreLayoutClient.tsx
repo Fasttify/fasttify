@@ -34,7 +34,10 @@ export const StoreLayoutClient = ({ children }: { children: React.ReactNode }) =
   useStore(storeId);
 
   const hideSidebar =
-    pathname.includes('/editor') || pathname.includes('/profile') || pathname.includes('/suscribe/select-plan');
+    pathname.includes('/editor') ||
+    pathname.includes('/profile') ||
+    pathname.includes('/suscribe/select-plan') ||
+    pathname.includes('/studio');
   const isCheckoutPage = pathname.includes('/access_account/checkout');
   const isSelectPlanPage = pathname.includes('/suscribe/select-plan');
 
