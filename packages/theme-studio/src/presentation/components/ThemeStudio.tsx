@@ -57,7 +57,19 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
             <Sidebar storeId={storeId} apiBaseUrl={apiBaseUrl} />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>
-            <PreviewPane storeId={storeId} domain={domain} device={device} currentPath={currentPath} />
+            <PreviewPane
+              storeId={storeId}
+              domain={domain}
+              device={device}
+              currentPath={currentPath}
+              onPathChange={(newPath) => {
+                setCurrentPath(newPath);
+                const page = pages.find((p) => p.url === newPath);
+                if (page) {
+                  setCurrentPageId(page.id);
+                }
+              }}
+            />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>
             <SettingsPane storeId={storeId} />

@@ -6,24 +6,31 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePreviewUrl } from '../../hooks/usePreviewUrl';
+import { useIframeNavigation } from '../../hooks/useIframeNavigation';
 
 interface PreviewPaneProps {
   storeId: string;
   domain: string | null;
   device: 'desktop' | 'tablet' | 'mobile';
   currentPath?: string;
+  onPathChange?: (newPath: string) => void;
 }
 
-export function PreviewPane({ domain, device, currentPath = '/' }: PreviewPaneProps) {
+export function PreviewPane({ domain, device, currentPath = '/', onPathChange }: PreviewPaneProps) {
   const { previewUrl } = usePreviewUrl({ domain, path: currentPath });
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const { isNavigating } = useIframeNavigation({
+    iframeRef,
+    domain,
+    currentPath,
+    onPathChange,
+  });
 
-  // Actualizar el iframe cuando cambie la URL
   useEffect(() => {
-    if (iframeRef.current && previewUrl) {
+    if (iframeRef.current && previewUrl && !isNavigating) {
       iframeRef.current.src = previewUrl;
     }
-  }, [previewUrl]);
+  }, [previewUrl, isNavigating]);
 
   const targetWidth = device === 'desktop' ? 1231 : device === 'tablet' ? 834 : 390;
 
@@ -56,6 +63,7 @@ export function PreviewPane({ domain, device, currentPath = '/' }: PreviewPanePr
     <div ref={containerRef} style={{ height: '100%', padding: 'var(--p-space-200) 0' }}>
       <div style={{ display: 'grid', placeItems: 'center', height: '100%' }}>
         <iframe
+          ref={iframeRef}
           title="preview"
           src={previewUrl}
           style={{

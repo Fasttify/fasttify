@@ -11,10 +11,7 @@
     "home-collections": {
       "type": "sections/home-collections",
       "settings": {
-        "type": "number",
-        "id": "collections_per_page",
-        "label": "Collections per page",
-        "default": 2
+        "collections_per_page": 2
       }
     }
   },

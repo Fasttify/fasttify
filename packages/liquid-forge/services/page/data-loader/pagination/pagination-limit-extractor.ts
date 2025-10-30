@@ -54,11 +54,6 @@ export function extractPaginationLimitFromTemplate(
   options: PageRenderOptions,
   analysis: TemplateAnalysis
 ): void {
-  // No necesitamos un `hasPagination` general aquí, ya que los límites se aplicarán por tipo de dato.
-  // if (!analysis.hasPagination) {
-  //   return;
-  // }
-
   const templatePath = getTemplatePath(options.pageType);
   const pageTemplateContent = loadedTemplates[templatePath];
 

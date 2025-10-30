@@ -28,28 +28,53 @@ export class SectionRenderer {
     sectionName: string,
     templateContent: string,
     baseContext: RenderContext,
-    storeTemplate?: any
+    storeTemplate?: any,
+    sectionId?: string,
+    pageType?: string
   ): Promise<string> {
     const schemaSettings = schemaParser.extractSchemaSettings(templateContent);
 
-    // LIMPIAR EL CONTENIDO: Eliminar el bloque schema antes de renderizar
     const schemaRegex = /{%-?\s*schema\s*-?%}([\s\S]*?){%-?\s*endschema\s*-?%}/;
     const cleanedContent = templateContent.replace(schemaRegex, '').trim();
 
     try {
       // Obtener settings y blocks reales del storeTemplate si existe
-      const storeSection = storeTemplate?.sections?.[sectionName];
-      const actualSettings = storeSection?.settings || {};
-      const actualBlocks = storeSection?.blocks || [];
+      // Estructura: storeTemplate.templates[pageType].sections[sectionId]
+      let actualSettings: Record<string, any> = {};
+      let actualBlocks: any[] = [];
 
-      // Combinar settings: schema defaults + store actual
+      if (storeTemplate && sectionId && pageType) {
+        const templateConfig = storeTemplate.templates?.[pageType];
+        const storeSection = templateConfig?.sections?.[sectionId];
+        if (storeSection) {
+          // Validar que settings sea un objeto de valores, no definiciones
+          if (storeSection.settings && typeof storeSection.settings === 'object') {
+            // Si tiene propiedades 'type', 'id', 'label', 'default' es una definición incorrecta
+            if ('type' in storeSection.settings || 'id' in storeSection.settings) {
+              logger.warn(
+                `Template section ${sectionId} has incorrect settings format (should be values, not definitions)`,
+                undefined,
+                'SectionRenderer'
+              );
+              actualSettings = {};
+            } else {
+              actualSettings = storeSection.settings;
+            }
+          }
+          actualBlocks = storeSection.blocks || [];
+        }
+      }
+
+      // Combinar settings: schema defaults + store actual (valores del template sobrescriben defaults)
       const finalSettings = { ...schemaSettings, ...actualSettings };
 
       // Crear contexto específico para esta sección
+      // Usar sectionId si está disponible (ID en el template), si no usar sectionName (tipo de sección)
+      const sectionIdForContext = sectionId || sectionName;
       const sectionContext = {
         ...baseContext,
         section: {
-          id: sectionName,
+          id: sectionIdForContext,
           settings: finalSettings,
           blocks: actualBlocks,
         },
@@ -65,10 +90,11 @@ export class SectionRenderer {
         logger.warn(`Attempting simplified render for section ${sectionName}...`, undefined, 'SectionRenderer');
         try {
           // Contexto más básico sin blocks complejos
+          const sectionIdForContext = sectionId || sectionName;
           const simpleContext = {
             ...baseContext,
             section: {
-              id: sectionName,
+              id: sectionIdForContext,
               settings: schemaSettings, // Solo usar defaults del schema
             },
           };
