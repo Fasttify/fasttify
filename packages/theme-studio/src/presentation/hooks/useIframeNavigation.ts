@@ -116,13 +116,35 @@ export function useIframeNavigation({
           originalPushState = iframeWindow.history.pushState.bind(iframeWindow.history);
           originalReplaceState = iframeWindow.history.replaceState.bind(iframeWindow.history);
 
+          // Función helper para extraer el path real del iframe
+          const extractRealPath = (pathOrUrl: string): string | null => {
+            if (!pathOrUrl) return null;
+
+            // Si el path es /preview, extraer el path real del query parameter
+            if (pathOrUrl.startsWith('/preview')) {
+              try {
+                const url = new URL(pathOrUrl, window.location.origin);
+                const pathParam = url.searchParams.get('path');
+                return pathParam || '/';
+              } catch {
+                return null;
+              }
+            }
+
+            // Si no es /preview, usar el path directamente
+            return pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+          };
+
           iframeWindow.history.pushState = function (...args) {
             try {
               if (originalPushState && iframeDocument.readyState === 'complete') {
                 originalPushState(...args);
               }
-              const newPath = args[2] as string;
-              if (newPath && newPath !== currentPath && isMountedRef.current) {
+              const rawPath = args[2] as string;
+              const newPath = extractRealPath(rawPath);
+
+              // Solo actualizar si el path es diferente y no es una navegación a /preview
+              if (newPath && newPath !== currentPath && newPath !== '/preview' && isMountedRef.current) {
                 safeSetIsNavigating(true);
                 safeOnPathChange(newPath);
               }
@@ -136,8 +158,11 @@ export function useIframeNavigation({
               if (originalReplaceState && iframeDocument.readyState === 'complete') {
                 originalReplaceState(...args);
               }
-              const newPath = args[2] as string;
-              if (newPath && newPath !== currentPath && isMountedRef.current) {
+              const rawPath = args[2] as string;
+              const newPath = extractRealPath(rawPath);
+
+              // Solo actualizar si el path es diferente y no es una navegación a /preview
+              if (newPath && newPath !== currentPath && newPath !== '/preview' && isMountedRef.current) {
                 safeSetIsNavigating(true);
                 safeOnPathChange(newPath);
               }

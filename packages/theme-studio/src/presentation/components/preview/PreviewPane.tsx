@@ -25,10 +25,15 @@ export function PreviewPane({ domain, device, currentPath = '/', onPathChange }:
     currentPath,
     onPathChange,
   });
+  const lastUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (iframeRef.current && previewUrl && !isNavigating) {
-      iframeRef.current.src = previewUrl;
+      // Solo actualizar si la URL es diferente a la última cargada
+      if (lastUrlRef.current !== previewUrl) {
+        lastUrlRef.current = previewUrl;
+        iframeRef.current.src = previewUrl;
+      }
     }
   }, [previewUrl, isNavigating]);
 
