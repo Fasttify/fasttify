@@ -5,16 +5,7 @@
 'use client';
 
 import { InlineStack, Button, ButtonGroup, Badge, Text, Box, Tooltip, Icon } from '@shopify/polaris';
-import {
-  DesktopIcon,
-  TabletIcon,
-  MobileIcon,
-  SearchIcon,
-  UndoIcon,
-  RedoIcon,
-  SaveIcon,
-  ExitIcon,
-} from '@shopify/polaris-icons';
+import { DesktopIcon, TabletIcon, MobileIcon, UndoIcon, RedoIcon, ExitIcon } from '@shopify/polaris-icons';
 
 interface EditorHeaderProps {
   pageTitle?: string;
@@ -45,8 +36,8 @@ export function EditorHeader({
     <Box padding="300" borderColor="border" borderBlockEndWidth="025">
       <InlineStack align="space-between" blockAlign="center">
         <InlineStack gap="300" blockAlign="center">
-          <Tooltip content="Exit">
-            <Button variant="plain" onClick={onExit} accessibilityLabel="Exit" icon={<Icon source={ExitIcon} />} />
+          <Tooltip content="Salir">
+            <Button variant="plain" onClick={onExit} accessibilityLabel="Salir" icon={<Icon source={ExitIcon} />} />
           </Tooltip>
           {live && <Badge tone="success">Live</Badge>}
           <Text as="p" variant="bodyMd">
@@ -90,14 +81,6 @@ export function EditorHeader({
             </ButtonGroup>
           </Box>
 
-          <Tooltip content="Inspector">
-            <Button
-              onClick={onInspector}
-              accessibilityLabel="Inspector"
-              icon={<Icon source={SearchIcon} />}
-              variant="tertiary"
-            />
-          </Tooltip>
           <Tooltip content="Deshacer (Ctrl+Z)">
             <Button
               onClick={onUndo}
@@ -121,8 +104,9 @@ export function EditorHeader({
               onClick={onSave}
               loading={isSaving}
               accessibilityLabel="Guardar"
-              icon={<Icon source={SaveIcon} />}
-            />
+              disabled={isSaving}>
+              {isSaving ? 'Guardando...' : 'Guardar'}
+            </Button>
           </Tooltip>
         </InlineStack>
       </InlineStack>
