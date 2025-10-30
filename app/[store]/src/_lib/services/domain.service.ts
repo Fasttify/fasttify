@@ -6,10 +6,16 @@ import { DOMAIN_CONFIG, COMMON_ASSETS } from '@/app/[store]/src/_lib/constants/s
 export class DomainService {
   /**
    * Resuelve el dominio de la tienda a partir del parámetro store
+   * Maneja tanto parámetros codificados como sin codificar
    */
   resolveDomainFromParam(store: string): string {
     const { BASE_DOMAIN } = DOMAIN_CONFIG;
-    return store.includes('.') ? store : `${store}.${BASE_DOMAIN}`;
+
+    // Decodificar el parámetro si viene codificado (ej: tienda-695a7d7%2Efasttify%2Ecom)
+    const decodedStore = decodeURIComponent(store);
+
+    // Si el store decodificado tiene puntos, ya es un dominio completo
+    return decodedStore.includes('.') ? decodedStore : `${decodedStore}.${BASE_DOMAIN}`;
   }
 
   /**

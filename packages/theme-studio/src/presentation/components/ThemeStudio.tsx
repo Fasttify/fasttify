@@ -13,9 +13,10 @@ import { useState } from 'react';
 export interface ThemeStudioProps {
   storeId: string;
   apiBaseUrl: string;
+  domain: string | null;
 }
 
-export function ThemeStudio({ storeId, apiBaseUrl }: ThemeStudioProps) {
+export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   return (
@@ -39,7 +40,7 @@ export function ThemeStudio({ storeId, apiBaseUrl }: ThemeStudioProps) {
             <Sidebar storeId={storeId} apiBaseUrl={apiBaseUrl} />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>
-            <PreviewPane storeId={storeId} device={device} />
+            <PreviewPane storeId={storeId} domain={domain} device={device} />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>
             <SettingsPane storeId={storeId} />

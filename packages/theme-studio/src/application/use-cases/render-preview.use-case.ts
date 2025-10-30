@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import type { Template } from '../../domain/entities/template.entity';
 import type {
   IPreviewRenderer,
   RenderPreviewParams,

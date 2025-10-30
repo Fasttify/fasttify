@@ -4,15 +4,17 @@
 
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { usePreviewUrl } from '../../hooks/usePreviewUrl';
 
 interface PreviewPaneProps {
   storeId: string;
+  domain: string | null;
   device: 'desktop' | 'tablet' | 'mobile';
 }
 
-export function PreviewPane({ storeId, device }: PreviewPaneProps) {
-  const previewUrl = useMemo(() => `/${storeId}?path=/`, [storeId]);
+export function PreviewPane({ domain, device }: PreviewPaneProps) {
+  const { previewUrl } = usePreviewUrl({ domain });
 
   const targetWidth = device === 'desktop' ? 1231 : device === 'tablet' ? 834 : 390;
 
@@ -38,6 +40,8 @@ export function PreviewPane({ storeId, device }: PreviewPaneProps) {
   }, []);
 
   const width = availableWidth == null ? targetWidth : Math.min(targetWidth, availableWidth);
+
+  if (!previewUrl) return null;
 
   return (
     <div ref={containerRef} style={{ height: '100%', padding: 'var(--p-space-200) 0' }}>
