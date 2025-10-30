@@ -54,7 +54,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr 360px', height: '100%', minHeight: 0 }}>
           <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>
-            <Sidebar storeId={storeId} apiBaseUrl={apiBaseUrl} />
+            <Sidebar storeId={storeId} apiBaseUrl={apiBaseUrl} currentPageId={currentPageId} />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>
             <PreviewPane
