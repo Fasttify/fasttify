@@ -18,6 +18,7 @@ import { useMemo } from 'react';
 
 interface UsePreviewUrlParams {
   domain: string | null;
+  path?: string;
 }
 
 interface UsePreviewUrlResult {
@@ -29,7 +30,7 @@ interface UsePreviewUrlResult {
  * En desarrollo usa /preview?domain=... para evitar cross-origin
  * En producción usa el dominio completo como hostname
  */
-export function usePreviewUrl({ domain }: UsePreviewUrlParams): UsePreviewUrlResult {
+export function usePreviewUrl({ domain, path = '/' }: UsePreviewUrlParams): UsePreviewUrlResult {
   const previewUrl = useMemo(() => {
     if (!domain) return null;
 
@@ -40,12 +41,12 @@ export function usePreviewUrl({ domain }: UsePreviewUrlParams): UsePreviewUrlRes
     if (isLocalhost) {
       // Pasar el dominio como query parameter para evitar problemas con puntos en path
       const encodedDomain = encodeURIComponent(domain);
-      return `${currentOrigin}/preview?domain=${encodedDomain}&path=/`;
+      return `${currentOrigin}/preview?domain=${encodedDomain}&path=${encodeURIComponent(path)}`;
     }
 
     // En producción, usar el dominio completo como hostname
-    return `${protocol}//${domain}?path=/`;
-  }, [domain]);
+    return `${protocol}//${domain}${path}`;
+  }, [domain, path]);
 
   return { previewUrl };
 }

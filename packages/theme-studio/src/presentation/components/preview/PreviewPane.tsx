@@ -11,10 +11,19 @@ interface PreviewPaneProps {
   storeId: string;
   domain: string | null;
   device: 'desktop' | 'tablet' | 'mobile';
+  currentPath?: string;
 }
 
-export function PreviewPane({ domain, device }: PreviewPaneProps) {
-  const { previewUrl } = usePreviewUrl({ domain });
+export function PreviewPane({ domain, device, currentPath = '/' }: PreviewPaneProps) {
+  const { previewUrl } = usePreviewUrl({ domain, path: currentPath });
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  // Actualizar el iframe cuando cambie la URL
+  useEffect(() => {
+    if (iframeRef.current && previewUrl) {
+      iframeRef.current.src = previewUrl;
+    }
+  }, [previewUrl]);
 
   const targetWidth = device === 'desktop' ? 1231 : device === 'tablet' ? 834 : 390;
 

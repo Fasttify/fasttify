@@ -8,7 +8,9 @@ import { Sidebar } from './sidebar/Sidebar';
 import { PreviewPane } from './preview/PreviewPane';
 import { SettingsPane } from './settings/SettingsPane';
 import { EditorHeader } from './header/EditorHeader';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useStoreTemplates } from '../hooks/useStoreTemplates';
 
 export interface ThemeStudioProps {
   storeId: string;
@@ -18,20 +20,35 @@ export interface ThemeStudioProps {
 
 export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [currentPath, setCurrentPath] = useState('/');
+  const [currentPageId, setCurrentPageId] = useState('index');
+  const { pages } = useStoreTemplates({ storeId, apiBaseUrl });
+  const router = useRouter();
+
+  const currentPageTitle = useMemo(() => {
+    const page = pages.find((p) => p.id === currentPageId);
+    return page?.name;
+  }, [pages, currentPageId]);
 
   return (
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <EditorHeader
-        pageTitle="Home page"
+        storeId={storeId}
+        apiBaseUrl={apiBaseUrl}
+        pageTitle={currentPageTitle}
         live
         device={device}
         onChangeDevice={setDevice}
-        onExit={() => history.back()}
+        onExit={() => router.back()}
         onInspector={() => {}}
         onUndo={() => {}}
         onRedo={() => {}}
         onSave={() => {}}
         isSaving={false}
+        onPageSelect={(pageId, pageUrl) => {
+          setCurrentPath(pageUrl);
+          setCurrentPageId(pageId);
+        }}
       />
 
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
@@ -40,7 +57,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
             <Sidebar storeId={storeId} apiBaseUrl={apiBaseUrl} />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>
-            <PreviewPane storeId={storeId} domain={domain} device={device} />
+            <PreviewPane storeId={storeId} domain={domain} device={device} currentPath={currentPath} />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>
             <SettingsPane storeId={storeId} />

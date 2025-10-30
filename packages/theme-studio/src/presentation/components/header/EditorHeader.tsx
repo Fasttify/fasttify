@@ -4,10 +4,14 @@
 
 'use client';
 
-import { InlineStack, Button, ButtonGroup, Badge, Text, Box, Tooltip, Icon } from '@shopify/polaris';
+import { InlineStack, Button, ButtonGroup, Badge, Text, Box, Tooltip, Icon, SkeletonBodyText } from '@shopify/polaris';
 import { DesktopIcon, TabletIcon, MobileIcon, UndoIcon, RedoIcon, ExitIcon } from '@shopify/polaris-icons';
+import { PageSelector } from '../page-selector/PageSelector';
+import { useStoreTemplates } from '../../hooks/useStoreTemplates';
 
 interface EditorHeaderProps {
+  storeId?: string;
+  apiBaseUrl?: string;
   pageTitle?: string;
   live?: boolean;
   device: 'desktop' | 'tablet' | 'mobile';
@@ -18,9 +22,12 @@ interface EditorHeaderProps {
   onRedo?: () => void;
   onSave?: () => void;
   isSaving?: boolean;
+  onPageSelect?: (pageId: string, pageUrl: string) => void;
 }
 
 export function EditorHeader({
+  storeId,
+  apiBaseUrl,
   pageTitle = 'Home page',
   live = true,
   device,
@@ -31,18 +38,39 @@ export function EditorHeader({
   onRedo,
   onSave,
   isSaving,
+  onPageSelect,
 }: EditorHeaderProps) {
+  const { isLoading: isLoadingTemplates } = useStoreTemplates({
+    storeId,
+    apiBaseUrl: apiBaseUrl || '',
+  });
+
   return (
     <Box padding="300" borderColor="border" borderBlockEndWidth="025">
       <InlineStack align="space-between" blockAlign="center">
-        <InlineStack gap="300" blockAlign="center">
+        <InlineStack gap="200" blockAlign="center">
           <Tooltip content="Salir">
             <Button variant="plain" onClick={onExit} accessibilityLabel="Salir" icon={<Icon source={ExitIcon} />} />
           </Tooltip>
           {live && <Badge tone="success">Live</Badge>}
-          <Text as="p" variant="bodyMd">
-            {pageTitle}
-          </Text>
+          {storeId && apiBaseUrl ? (
+            isLoadingTemplates ? (
+              <div style={{ minHeight: '36px', minWidth: '120px', display: 'flex', alignItems: 'center' }}>
+                <SkeletonBodyText lines={1} />
+              </div>
+            ) : (
+              <PageSelector
+                storeId={storeId}
+                apiBaseUrl={apiBaseUrl}
+                currentPage={pageTitle}
+                onPageSelect={onPageSelect}
+              />
+            )
+          ) : (
+            <Text as="p" variant="bodyMd">
+              {pageTitle}
+            </Text>
+          )}
         </InlineStack>
 
         <InlineStack gap="300" blockAlign="center">
