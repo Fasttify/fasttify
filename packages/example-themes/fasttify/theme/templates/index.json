@@ -2,7 +2,25 @@
   "sections": {
     "hero": {
       "type": "sections/hero",
-      "settings": {}
+      "settings": {},
+      "blocks": [
+        {
+          "id": "hero-button-1",
+          "type": "hero_item",
+          "settings": {
+            "label": "EXPLORAR COLECCIÓN",
+            "link": "/collections/new-products"
+          }
+        },
+        {
+          "id": "hero-button-2",
+          "type": "hero_item",
+          "settings": {
+            "label": "VER TODAS",
+            "link": "/collections"
+          }
+        }
+      ]
     },
     "featured-products": {
       "type": "sections/featured-products",

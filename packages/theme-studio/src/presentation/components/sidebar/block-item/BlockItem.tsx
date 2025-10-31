@@ -18,7 +18,9 @@
 
 import { useState } from 'react';
 import { Box, Text, Icon, InlineStack, Button } from '@shopify/polaris';
-import { ChevronRightIcon, DragHandleIcon, DeleteIcon, ViewIcon } from '@shopify/polaris-icons';
+import { DragHandleIcon, DeleteIcon, ViewIcon } from '@shopify/polaris-icons';
+import type { ComponentProps } from 'react';
+import type { ReactNode } from 'react';
 
 export interface BlockItemProps {
   block: {
@@ -42,67 +44,65 @@ export function BlockItem({ block, sectionId, isSelected, onSelect, onDelete, on
   const displayName = getBlockDisplayName(block);
 
   return (
-    <div
-      onClick={onSelect}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{
-        padding: 'var(--p-space-200)',
-        paddingLeft: 'var(--p-space-400)',
-        backgroundColor: isSelected ? 'var(--p-color-bg-surface-selected)' : undefined,
-        cursor: 'pointer',
-      }}>
-      <InlineStack gap="200" blockAlign="center" align="space-between">
-        <InlineStack gap="200" blockAlign="center">
-          <InlineStack gap="050" blockAlign="center">
-            <Icon source={ChevronRightIcon} tone="subdued" />
-            <div
-              style={{
-                position: 'relative',
-                width: '20px',
-                height: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <div
-                style={{
-                  position: 'absolute',
-                  opacity: isHovered ? 1 : 0,
-                  transition: 'opacity 0.2s ease-in-out',
-                }}>
-                <Icon source={DragHandleIcon} tone="subdued" />
-              </div>
-            </div>
-          </InlineStack>
-          <Text as="span" variant="bodySm" tone={isSelected ? 'success' : 'subdued'}>
-            {displayName}
-          </Text>
-        </InlineStack>
+    <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+      <Button
+        variant="tertiary"
+        fullWidth
+        textAlign="left"
+        onClick={onSelect}
+        {...({
+          children: (
+            <InlineStack gap="200" blockAlign="center" align="space-between">
+              <InlineStack gap="200" blockAlign="center">
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      opacity: isHovered ? 1 : 0,
+                      transition: 'opacity 0.2s ease-in-out',
+                    }}>
+                    <Icon source={DragHandleIcon} tone="subdued" />
+                  </div>
+                </div>
+                <Text as="span" variant="bodySm">
+                  {displayName}
+                </Text>
+              </InlineStack>
 
-        {(isHovered || isSelected) && (
-          <InlineStack gap="050">
-            {onToggleVisibility && (
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleVisibility();
-                }}>
-                <Button variant="plain" icon={<Icon source={ViewIcon} />} />
-              </div>
-            )}
-            {onDelete && (
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}>
-                <Button variant="plain" icon={<Icon source={DeleteIcon} />} />
-              </div>
-            )}
-          </InlineStack>
-        )}
-      </InlineStack>
+              {(isHovered || isSelected) && (
+                <InlineStack gap="050">
+                  {onToggleVisibility && (
+                    <div
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        onToggleVisibility();
+                      }}>
+                      <Button variant="plain" icon={<Icon source={ViewIcon} />} />
+                    </div>
+                  )}
+                  {onDelete && (
+                    <div
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        onDelete();
+                      }}>
+                      <Button variant="plain" icon={<Icon source={DeleteIcon} />} />
+                    </div>
+                  )}
+                </InlineStack>
+              )}
+            </InlineStack>
+          ),
+        } as ComponentProps<typeof Button> & { children: ReactNode })}
+      />
     </div>
   );
 }

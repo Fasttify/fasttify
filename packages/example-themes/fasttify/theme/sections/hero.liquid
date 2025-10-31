@@ -72,20 +72,36 @@ class="collection-hero-section">
 
         <!-- Action Buttons -->
         <div class="hero-actions">
-          {% if hero_collection.url %}
-            <a href="{{ hero_collection.url }}" class="hero-btn hero-btn-primary">
-              <span>{{ section.settings.primary_button_text }}</span>
-            </a>
-          {% elsif section.settings.primary_button_text != blank %}
-            <a href="{{ section.settings.primary_button_url }}" class="hero-btn hero-btn-primary">
-              <span>{{ section.settings.primary_button_text }}</span>
-            </a>
+          <!-- Bloques personalizados desde el Theme Studio -->
+          {% if section.blocks.size > 0 %}
+            {% for block in section.blocks %}
+              {% if block.type == 'hero_item' %}
+                {% if block.settings.label != blank and block.settings.link != blank %}
+                  <a href="{{ block.settings.link }}" class="hero-btn hero-btn-primary">
+                    <span>{{ block.settings.label }}</span>
+                  </a>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
           {% endif %}
 
-          {% if section.settings.secondary_button_text != blank %}
-            <a href="{{ section.settings.secondary_button_url }}" class="hero-btn hero-btn-secondary">
-              <span>{{ section.settings.secondary_button_text }}</span>
-            </a>
+          <!-- Botones del schema (se muestran si no hay bloques personalizados) -->
+          {% if section.blocks.size == 0 %}
+            {% if hero_collection.url %}
+              <a href="{{ hero_collection.url }}" class="hero-btn hero-btn-primary">
+                <span>{{ section.settings.primary_button_text }}</span>
+              </a>
+            {% elsif section.settings.primary_button_text != blank %}
+              <a href="{{ section.settings.primary_button_url }}" class="hero-btn hero-btn-primary">
+                <span>{{ section.settings.primary_button_text }}</span>
+              </a>
+            {% endif %}
+
+            {% if section.settings.secondary_button_text != blank %}
+              <a href="{{ section.settings.secondary_button_url }}" class="hero-btn hero-btn-secondary">
+                <span>{{ section.settings.secondary_button_text }}</span>
+              </a>
+            {% endif %}
           {% endif %}
         </div>
       </div>
