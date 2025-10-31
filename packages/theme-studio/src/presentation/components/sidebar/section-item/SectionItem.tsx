@@ -82,10 +82,35 @@ export function SectionItem({
             children: (
               <InlineStack gap="200" blockAlign="center" align="space-between">
                 <InlineStack gap="200" blockAlign="center">
-                  {isHovered && <Icon source={DragHandleIcon} tone="subdued" />}
-                  {!isHovered && <Box minWidth="20px" />}
-                  <Icon source={ChevronIcon} tone="subdued" />
-                  <Icon source={getSectionIcon(section)} tone="subdued" />
+                  <InlineStack gap="050" blockAlign="center">
+                    <Icon source={ChevronIcon} tone="subdued" />
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '20px',
+                        height: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          opacity: isHovered ? 0 : 1,
+                          transition: 'opacity 0.2s ease-in-out',
+                        }}>
+                        <Icon source={getSectionIcon(section)} tone="subdued" />
+                      </div>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          opacity: isHovered ? 1 : 0,
+                          transition: 'opacity 0.2s ease-in-out',
+                        }}>
+                        <Icon source={DragHandleIcon} tone="subdued" />
+                      </div>
+                    </div>
+                  </InlineStack>
                   <Text as="span" variant="bodyMd" fontWeight={isSelected ? 'semibold' : 'regular'}>
                     {section.name}
                   </Text>

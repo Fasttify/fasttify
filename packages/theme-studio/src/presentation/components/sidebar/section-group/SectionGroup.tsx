@@ -16,7 +16,7 @@
 
 'use client';
 
-import { Box, Text, Button, BlockStack } from '@shopify/polaris';
+import { Box, Text, Button, BlockStack, Icon } from '@shopify/polaris';
 import { PlusCircleIcon } from '@shopify/polaris-icons';
 import { TemplateSection } from '../../../hooks/useTemplateStructure';
 import { LayoutSection } from '../../../hooks/useLayoutStructure';
@@ -78,28 +78,25 @@ export function SectionGroup({
 
   return (
     <Box>
-      <BlockStack gap="300">
+      <BlockStack gap="200">
         <Text as="h3" variant="headingSm" fontWeight="semibold">
           {title}
         </Text>
 
-        {sortedSections.length > 0 && (
-          <BlockStack gap="050">
-            {sortedSections.map((section) => (
-              <SectionItem
-                key={section.id}
-                section={section}
-                isExpanded={expandedSections.has(section.id)}
-                isSelected={selectedSectionId === section.id}
-                onToggleExpand={() => onToggleSection(section.id)}
-                onSelect={() => onSelectSection(section.id)}
-              />
-            ))}
-          </BlockStack>
-        )}
+        {sortedSections.length > 0 &&
+          sortedSections.map((section) => (
+            <SectionItem
+              key={section.id}
+              section={section}
+              isExpanded={expandedSections.has(section.id)}
+              isSelected={selectedSectionId === section.id}
+              onToggleExpand={() => onToggleSection(section.id)}
+              onSelect={() => onSelectSection(section.id)}
+            />
+          ))}
 
         {onAddSection && (
-          <Button variant="tertiary" icon={<PlusCircleIcon />} onClick={onAddSection}>
+          <Button variant="tertiary" icon={<Icon source={PlusCircleIcon} />} onClick={onAddSection}>
             Agregar sección
           </Button>
         )}
