@@ -71,8 +71,10 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId }: SidebarProps) {
                     sections={layout?.header?.sections ?? []}
                     expandedSections={expandedSections}
                     selectedSectionId={selectedSectionId}
+                    selectedBlockId={selectedBlockId}
                     onToggleSection={toggleSection}
                     onSelectSection={selectSection}
+                    onSelectBlock={selectBlock}
                     onAddSection={() => {
                       // TODO: Implementar modal de agregar sección
                     }}
@@ -92,8 +94,10 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId }: SidebarProps) {
                     sectionOrder={template?.order}
                     expandedSections={expandedSections}
                     selectedSectionId={selectedSectionId}
+                    selectedBlockId={selectedBlockId}
                     onToggleSection={toggleSection}
                     onSelectSection={selectSection}
+                    onSelectBlock={selectBlock}
                     onAddSection={() => {
                       // TODO: Implementar modal de agregar sección
                     }}
@@ -112,8 +116,10 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId }: SidebarProps) {
                     sections={layout?.footer?.sections ?? []}
                     expandedSections={expandedSections}
                     selectedSectionId={selectedSectionId}
+                    selectedBlockId={selectedBlockId}
                     onToggleSection={toggleSection}
                     onSelectSection={selectSection}
+                    onSelectBlock={selectBlock}
                     onAddSection={() => {
                       // TODO: Implementar modal de agregar sección
                     }}

@@ -331,3 +331,30 @@
 
 <!-- Cargar el archivo JavaScript -->
 {{ 'header.js' | asset_url | script_tag }}
+
+{% schema %}
+  {
+    "name": "header",
+    "settings": [],
+    "blocks": [
+      {
+        "type": "menu_item",
+        "name": "Menu Item",
+        "settings": [
+          {
+            "type": "text",
+            "id": "label",
+            "label": "Label",
+            "default": "Menu Item"
+          },
+          {
+            "type": "url",
+            "id": "link",
+            "label": "Link"
+          }
+        ]
+      }
+    ],
+    "presets": []
+  }
+{% endschema %}

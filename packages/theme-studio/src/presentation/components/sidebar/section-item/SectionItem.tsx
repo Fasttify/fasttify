@@ -35,8 +35,10 @@ export interface SectionItemProps {
   section: TemplateSection | LayoutSection;
   isExpanded: boolean;
   isSelected: boolean;
+  selectedBlockId: string | null;
   onToggleExpand: () => void;
   onSelect: () => void;
+  onSelectBlock: (blockId: string) => void;
   onDelete?: () => void;
   onToggleVisibility?: () => void;
 }
@@ -49,16 +51,18 @@ export function SectionItem({
   section,
   isExpanded,
   isSelected,
+  selectedBlockId,
   onToggleExpand,
   onSelect,
+  onSelectBlock,
   onDelete,
   onToggleVisibility,
 }: SectionItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const isTemplateSection = 'blocks' in section;
-  const hasBlocks =
-    isTemplateSection && ((section.blocks?.length ?? 0) > 0 || (section.schema?.blocks?.length ?? 0) > 0);
-  const canExpand = hasBlocks;
+  const hasBlocksInSchema = (section.schema?.blocks?.length ?? 0) > 0;
+  const hasCurrentBlocks = isTemplateSection && (section.blocks?.length ?? 0) > 0;
+  const canExpand = hasBlocksInSchema;
 
   const handleClick = () => {
     if (canExpand) {
@@ -144,20 +148,30 @@ export function SectionItem({
         />
       </div>
 
-      {isExpanded && hasBlocks && isTemplateSection && section.blocks && section.blocks.length > 0 && (
+      {isExpanded && canExpand && (
         <Collapsible open={isExpanded} id={`section-${section.id}-blocks`}>
           <Box>
-            {section.blocks.map((block: { id: string; type: string; settings: Record<string, any> }) => (
-              <BlockItem
-                key={block.id}
-                block={block}
-                sectionId={section.id}
-                isSelected={false}
-                onSelect={() => {
-                  onSelect();
-                }}
-              />
-            ))}
+            {hasCurrentBlocks && section.blocks ? (
+              section.blocks.map((block: { id: string; type: string; settings: Record<string, any> }) => (
+                <BlockItem
+                  key={block.id}
+                  block={block}
+                  sectionId={section.id}
+                  isSelected={selectedBlockId === block.id}
+                  onSelect={() => {
+                    onSelectBlock(block.id);
+                  }}
+                  onDelete={onDelete}
+                  onToggleVisibility={onToggleVisibility}
+                />
+              ))
+            ) : (
+              <Box padding="200">
+                <Text as="p" variant="bodySm" tone="subdued">
+                  No hay bloques en esta sección
+                </Text>
+              </Box>
+            )}
           </Box>
         </Collapsible>
       )}

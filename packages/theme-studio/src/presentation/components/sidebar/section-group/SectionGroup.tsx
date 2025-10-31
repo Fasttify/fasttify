@@ -28,8 +28,10 @@ export interface SectionGroupProps {
   sectionOrder?: string[];
   expandedSections: Set<string>;
   selectedSectionId: string | null;
+  selectedBlockId: string | null;
   onToggleSection: (sectionId: string) => void;
   onSelectSection: (sectionId: string) => void;
+  onSelectBlock: (blockId: string, sectionId: string) => void;
   onAddSection?: () => void;
 }
 
@@ -66,8 +68,10 @@ export function SectionGroup({
   sectionOrder,
   expandedSections,
   selectedSectionId,
+  selectedBlockId,
   onToggleSection,
   onSelectSection,
+  onSelectBlock,
   onAddSection,
 }: SectionGroupProps) {
   const sortedSections = sortSectionsByOrder(sections, sectionOrder);
@@ -90,8 +94,10 @@ export function SectionGroup({
               section={section}
               isExpanded={expandedSections.has(section.id)}
               isSelected={selectedSectionId === section.id}
+              selectedBlockId={selectedBlockId}
               onToggleExpand={() => onToggleSection(section.id)}
               onSelect={() => onSelectSection(section.id)}
+              onSelectBlock={(blockId) => onSelectBlock(blockId, section.id)}
             />
           ))}
 
