@@ -4,7 +4,7 @@
 
 'use client';
 
-import { Card, BlockStack, Text, Scrollable, Box } from '@shopify/polaris';
+import { Card, BlockStack, Text, Scrollable, Box, Divider } from '@shopify/polaris';
 import { useTemplateStructure } from '../../hooks/useTemplateStructure';
 import { useLayoutStructure } from '../../hooks/useLayoutStructure';
 import { useStoreTemplates } from '../../hooks/useStoreTemplates';
@@ -60,10 +60,12 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId }: SidebarProps) {
                 {currentPageTitle}
               </Text>
             </Box>
-            <Box borderColor="border" borderBlockEndWidth="025" />
+            <div style={{ marginLeft: 'calc(-1 * var(--p-space-300))', marginRight: 'calc(-1 * var(--p-space-300))' }}>
+              <Divider borderColor="border" />
+            </div>
             <Scrollable style={{ height: 'calc(100vh - 160px)' }}>
               <Box padding="200">
-                <BlockStack gap="400">
+                <BlockStack>
                   <SectionGroup
                     title="Header"
                     sections={layout?.header?.sections ?? []}
@@ -75,6 +77,14 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId }: SidebarProps) {
                       // TODO: Implementar modal de agregar sección
                     }}
                   />
+
+                  <div
+                    style={{
+                      marginLeft: 'calc(-1 * var(--p-space-200))',
+                      marginRight: 'calc(-1 * var(--p-space-200))',
+                    }}>
+                    <Divider borderColor="border" />
+                  </div>
 
                   <SectionGroup
                     title="Template"
@@ -88,6 +98,14 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId }: SidebarProps) {
                       // TODO: Implementar modal de agregar sección
                     }}
                   />
+
+                  <div
+                    style={{
+                      marginLeft: 'calc(-1 * var(--p-space-200))',
+                      marginRight: 'calc(-1 * var(--p-space-200))',
+                    }}>
+                    <Divider borderColor="border" />
+                  </div>
 
                   <SectionGroup
                     title="Footer"
