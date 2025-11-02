@@ -5,7 +5,7 @@ backend:
       commands:
         - export NODE_OPTIONS='--max-old-space-size=7000'
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
-        - npm install -g pnpm@10.18.0
+        - npm install -g pnpm@10.20.0
         - pnpm install --frozen-lockfile
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 
@@ -15,7 +15,7 @@ frontend:
       commands:
         - export NODE_OPTIONS='--max-old-space-size=7000'
         - node -e "console.log('Total available heap size (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)"
-        - npm install -g pnpm@10.18.0
+        - npm install -g pnpm@10.20.0
         - env | grep -e BUCKET_NAME >> .env.production
         - env | grep -e CLOUDFRONT_DOMAIN_NAME >> .env.production
         - env | grep -e APP_URL >> .env.production
