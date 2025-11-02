@@ -65,6 +65,8 @@ interface InvalidationConfig {
  */
 export class CacheInvalidationService {
   private static instance: CacheInvalidationService;
+  private invalidationCount: number = 0;
+  private lastInvalidationTime?: Date;
 
   private readonly invalidationConfig: Record<ChangeType, InvalidationConfig> = {
     product_created: {
@@ -123,8 +125,8 @@ export class CacheInvalidationService {
 
     template_updated: {
       cacheKeys: [],
-      patterns: ['template_', 'compiled_template_'],
-      description: 'Template actualizado - invalidar templates',
+      patterns: ['template_', 'compiled_template_', 'page_'],
+      description: 'Template actualizado - invalidar templates y HTML renderizado',
     },
 
     store_settings_updated: {
@@ -140,8 +142,8 @@ export class CacheInvalidationService {
     },
     template_store_updated: {
       cacheKeys: [],
-      patterns: ['template_', 'compiled_template_'],
-      description: 'Plantilla de tienda actualizada - invalidar plantillas de tienda y compiladas',
+      patterns: ['template_', 'compiled_template_', 'page_'],
+      description: 'Plantilla de tienda actualizada - invalidar plantillas, compiladas y HTML renderizado',
     },
   };
 
@@ -164,17 +166,99 @@ export class CacheInvalidationService {
       return;
     }
 
-    this.invalidateByPatterns(config.patterns, storeId, entityId);
+    logger.info(
+      `Invalidating cache for ${changeType} - Store: ${storeId}, Entity: ${entityId || 'N/A'}, Path: ${path || 'N/A'}`,
+      undefined,
+      'CacheInvalidationService'
+    );
+
+    // Detectar si es cambio en layout o sección compartida para invalidación agresiva
+    const isLayoutOrSharedSection = path && (path.includes('layout/') || path.includes('sections/'));
+
+    if (isLayoutOrSharedSection) {
+      logger.info(
+        `Layout/shared section detected: ${path} - Invalidating all pages for store ${storeId}`,
+        undefined,
+        'CacheInvalidationService'
+      );
+      // Invalidar TODAS las páginas cuando cambia layout o sección compartida
+      cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+    }
+
+    this.invalidateByPatterns(config.patterns, storeId, entityId, path);
 
     if (entityId) {
       this.invalidateSpecificKeys(changeType, storeId, entityId);
     }
+
+    // Invalidación adicional basada en path
+    if (path) {
+      this.invalidateByPath(changeType, storeId, path);
+    }
+
+    // Registrar invalidación para estadísticas
+    this.recordInvalidation();
+  }
+
+  /**
+   * Invalida caché basado en el path del template
+   */
+  private invalidateByPath(changeType: ChangeType, storeId: string, templatePath: string): void {
+    // Detectar tipo de template por path
+    if (templatePath.includes('layout/')) {
+      // Layout cambia → Invalidar TODAS las páginas (todas usan layout)
+      logger.info(
+        `Layout template changed: ${templatePath} - Invalidating all pages`,
+        undefined,
+        'CacheInvalidationService'
+      );
+      cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+    } else if (templatePath.includes('sections/')) {
+      // Sección cambia → Invalidar todas las páginas (las secciones se usan en múltiples lugares)
+      logger.info(
+        `Section template changed: ${templatePath} - Invalidating all pages`,
+        undefined,
+        'CacheInvalidationService'
+      );
+      cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+    } else if (templatePath.includes('snippets/')) {
+      // Snippet cambia → Invalidar páginas que lo usan (más complejo, por ahora invalidar todas)
+      logger.info(
+        `Snippet template changed: ${templatePath} - Invalidating all pages`,
+        undefined,
+        'CacheInvalidationService'
+      );
+      cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+    } else if (templatePath.includes('templates/')) {
+      // Template específico cambia → Invalidar ese tipo de página
+      const pageType = this.extractPageTypeFromTemplatePath(templatePath);
+      if (pageType) {
+        logger.info(
+          `Page template changed: ${templatePath} - Invalidating ${pageType} pages`,
+          undefined,
+          'CacheInvalidationService'
+        );
+        // Invalidar páginas de ese tipo específico
+        cacheManager.deleteByPrefix(`page_${storeId}_${pageType}|`);
+      } else {
+        // Si no se puede determinar, invalidar todas
+        cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+      }
+    }
+  }
+
+  /**
+   * Extrae el tipo de página desde el path del template
+   */
+  private extractPageTypeFromTemplatePath(templatePath: string): string | null {
+    const match = templatePath.match(/templates\/([^\/]+)\.(json|liquid)/);
+    return match ? match[1] : null;
   }
 
   /**
    * Invalida caché por patrones de claves
    */
-  private invalidateByPatterns(patterns: string[], storeId: string, entityId?: string): void {
+  private invalidateByPatterns(patterns: string[], storeId: string, entityId?: string, path?: string): void {
     for (const pattern of patterns) {
       // Mapear patrones a prefijos concretos usando helpers
       switch (pattern) {
@@ -215,12 +299,29 @@ export class CacheInvalidationService {
         case 'template_':
           cacheManager.deleteByPrefix(`template_${storeId}_`);
           // Templates actualizados impactan páginas renderizadas
+          // CRÍTICO: Invalidar HTML renderizado cuando cambian templates
           cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+          logger.debug(
+            `Invalidated template_ prefix and all pages for store ${storeId}`,
+            undefined,
+            'CacheInvalidationService'
+          );
           break;
         case 'compiled_template_':
           cacheManager.deleteByPrefix(`compiled_template_${storeId}_`);
           // Templates compilados también deben invalidar HTML
+          // CRÍTICO: Invalidar HTML renderizado cuando cambian templates compilados
           cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+          logger.debug(
+            `Invalidated compiled_template_ prefix and all pages for store ${storeId}`,
+            undefined,
+            'CacheInvalidationService'
+          );
+          break;
+        case 'page_':
+          // Invalidar todas las páginas HTML renderizadas
+          cacheManager.deleteByPrefix(getPagesPrefix(storeId));
+          logger.debug(`Invalidated all page HTML cache for store ${storeId}`, undefined, 'CacheInvalidationService');
           break;
         case 'search_products_':
           // Búsquedas por tienda con prefijo conocido
@@ -290,12 +391,20 @@ export class CacheInvalidationService {
   }
 
   /**
+   * Registra una invalidación para estadísticas
+   */
+  private recordInvalidation(): void {
+    this.invalidationCount++;
+    this.lastInvalidationTime = new Date();
+  }
+
+  /**
    * Obtiene estadísticas de invalidación
    */
   public getInvalidationStats(): { totalInvalidations: number; lastInvalidation?: Date } {
     return {
-      totalInvalidations: 0,
-      lastInvalidation: undefined,
+      totalInvalidations: this.invalidationCount,
+      lastInvalidation: this.lastInvalidationTime,
     };
   }
 }
