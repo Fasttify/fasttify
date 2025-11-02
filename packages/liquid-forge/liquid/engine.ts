@@ -191,8 +191,6 @@ class LiquidEngine {
   }
 }
 
-// Export singleton instance
 export const liquidEngine = LiquidEngine.getInstance();
 
-// Export class for testing
 export { LiquidEngine };
