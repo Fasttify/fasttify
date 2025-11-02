@@ -15,6 +15,7 @@
  */
 
 import { liquidEngine } from '../../liquid/engine';
+import { compileTemplate } from '../../compiler';
 import {
   cacheManager,
   getAssetCacheKey,
@@ -209,7 +210,7 @@ class TemplateLoader {
     const cachedCompiled = cacheManager.getCached(compiledCacheKey) as Template[] | null;
     if (cachedCompiled) return cachedCompiled;
     const rawContent = await this.loadTemplate(storeId, templateName);
-    const compiledTemplate = liquidEngine.parse(rawContent);
+    const compiledTemplate = compileTemplate(rawContent, liquidEngine.assetCollector);
     cacheManager.setCached(compiledCacheKey, compiledTemplate, this.getTemplateCacheTTL());
     return compiledTemplate;
   }

@@ -20,6 +20,7 @@ export { logger } from './lib';
 export { DynamicPageRenderer } from './renderers/dynamic-page-renderer';
 
 export { liquidEngine } from './liquid/engine';
+export { LiquidCompiler, compileTemplate, LiquidInstanceFactory, SharedLiquidInstance } from './compiler';
 
 export { domainResolver } from './services/core/domain-resolver';
 export { linkListService } from './services/core/navigation-service';
