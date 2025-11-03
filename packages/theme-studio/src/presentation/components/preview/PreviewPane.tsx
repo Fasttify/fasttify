@@ -42,6 +42,7 @@ export function PreviewPane({
     iframeRef,
     selectedSectionId: selectedSectionId || null,
     selectedBlockId: selectedBlockId || null,
+    domain,
     onElementClick,
   });
 

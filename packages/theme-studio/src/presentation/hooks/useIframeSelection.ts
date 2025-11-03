@@ -22,6 +22,7 @@ interface UseIframeSelectionParams {
   iframeRef: RefObject<HTMLIFrameElement | null>;
   selectedSectionId: string | null;
   selectedBlockId: string | null;
+  domain?: string | null;
   onElementClick?: (sectionId: string | null, blockId: string | null) => void;
 }
 
@@ -37,6 +38,7 @@ export function useIframeSelection({
   iframeRef,
   selectedSectionId,
   selectedBlockId,
+  domain,
   onElementClick,
 }: UseIframeSelectionParams) {
   const scriptInjectedRef = useRef(false);
@@ -79,7 +81,7 @@ export function useIframeSelection({
         // Crear y agregar el script
         const script = iframeDocument.createElement('script');
         script.setAttribute('data-fasttify-selection', 'true');
-        script.textContent = iframeSelectionScript;
+        script.textContent = iframeSelectionScript(domain || null);
         iframeDocument.head.appendChild(script);
 
         scriptInjectedRef.current = true;
@@ -105,7 +107,7 @@ export function useIframeSelection({
     return () => {
       iframe.removeEventListener('load', handleLoad);
     };
-  }, [iframeRef]);
+  }, [iframeRef, domain]);
 
   // Escuchar mensajes del iframe
   useEffect(() => {
@@ -152,34 +154,43 @@ export function useIframeSelection({
       const iframeWindow = iframe.contentWindow;
       if (!iframeWindow) return;
 
+      const timestamp = Date.now();
       const message = {
         type: 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT',
         sectionId: selectedSectionId,
         blockId: selectedBlockId,
+        timestamp,
       };
 
+      // Enviar inmediatamente
       try {
         iframeWindow.postMessage(message, '*');
       } catch (e) {
         // Ignorar errores silenciosamente
       }
 
-      // También intentar enviar directamente después de varios delays para asegurar que el script esté listo
-      setTimeout(function () {
+      // Guardar referencia a los timeouts para poder cancelarlos
+      const timeout1 = setTimeout(function () {
         try {
           iframeWindow.postMessage(message, '*');
         } catch (e) {
           // Ignorar errores silenciosamente
         }
-      }, 100);
+      }, 50);
 
-      setTimeout(function () {
+      const timeout2 = setTimeout(function () {
         try {
           iframeWindow.postMessage(message, '*');
         } catch (e) {
           // Ignorar errores silenciosamente
         }
-      }, 500);
+      }, 200);
+
+      // Cleanup: cancelar timeouts si el efecto se ejecuta de nuevo antes de que completen
+      return () => {
+        clearTimeout(timeout1);
+        clearTimeout(timeout2);
+      };
     } catch (error) {
       console.debug('Cannot send message to iframe (cross-origin):', error);
     }
