@@ -41,9 +41,8 @@ function constantsModule(storeDomain) {
     '[data-block-id].' +
     SELECTED_CLASS +
     ' {' +
-    '  outline: 2px solid #006fbb !important;' +
-    '  outline-offset: 2px !important;' +
     '  position: relative !important;' +
+    '  box-shadow: inset 0 0 0 2px #006fbb !important;' +
     '}' +
     '[data-section-id].' +
     HOVER_CLASS +
@@ -51,9 +50,8 @@ function constantsModule(storeDomain) {
     '[data-block-id].' +
     HOVER_CLASS +
     ' {' +
-    '  outline: 2px dashed #006fbb !important;' +
-    '  outline-offset: 2px !important;' +
     '  position: relative !important;' +
+    '  box-shadow: inset 0 0 0 2px rgba(0, 111, 187, 0.6) !important;' +
     '}';
   document.head.appendChild(style);
   let currentSelectedElement = null;
