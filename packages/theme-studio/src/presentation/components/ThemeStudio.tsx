@@ -17,9 +17,15 @@ export interface ThemeStudioProps {
   storeId: string;
   apiBaseUrl: string;
   domain: string | null;
+  imageSelectorComponent?: (props: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSelect?: (image: { url: string } | null) => void;
+    initialSelectedImage?: string | null;
+  }) => React.ReactElement | null;
 }
 
-export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
+export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponent }: ThemeStudioProps) {
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [currentPath, setCurrentPath] = useState('/');
   const [currentPageId, setCurrentPageId] = useState('index');
@@ -96,7 +102,13 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
             />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>
-            <SettingsPane storeId={storeId} />
+            <SettingsPane
+              storeId={storeId}
+              apiBaseUrl={apiBaseUrl}
+              currentPageId={currentPageId}
+              sidebarState={sidebarState}
+              imageSelectorComponent={imageSelectorComponent}
+            />
           </div>
         </div>
       </div>
