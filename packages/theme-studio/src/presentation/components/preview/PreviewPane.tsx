@@ -7,16 +7,28 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePreviewUrl } from '../../hooks/usePreviewUrl';
 import { useIframeNavigation } from '../../hooks/useIframeNavigation';
+import { useIframeSelection } from '../../hooks/useIframeSelection';
 
 interface PreviewPaneProps {
   storeId: string;
   domain: string | null;
   device: 'desktop' | 'tablet' | 'mobile';
   currentPath?: string;
+  selectedSectionId?: string | null;
+  selectedBlockId?: string | null;
   onPathChange?: (newPath: string) => void;
+  onElementClick?: (sectionId: string | null, blockId: string | null) => void;
 }
 
-export function PreviewPane({ domain, device, currentPath = '/', onPathChange }: PreviewPaneProps) {
+export function PreviewPane({
+  domain,
+  device,
+  currentPath = '/',
+  selectedSectionId,
+  selectedBlockId,
+  onPathChange,
+  onElementClick,
+}: PreviewPaneProps) {
   const { previewUrl } = usePreviewUrl({ domain, path: currentPath });
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const { isNavigating } = useIframeNavigation({
@@ -25,6 +37,14 @@ export function PreviewPane({ domain, device, currentPath = '/', onPathChange }:
     currentPath,
     onPathChange,
   });
+
+  useIframeSelection({
+    iframeRef,
+    selectedSectionId: selectedSectionId || null,
+    selectedBlockId: selectedBlockId || null,
+    onElementClick,
+  });
+
   const lastUrlRef = useRef<string | null>(null);
 
   useEffect(() => {

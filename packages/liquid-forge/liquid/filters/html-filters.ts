@@ -228,6 +228,92 @@ export const inlineAssetContentFilter: LiquidFilter = {
   },
 };
 
+/**
+ * Filtro fasttify_attributes - Genera atributos data-section-id y data-block-id para selección en Theme Studio
+ * Compatible con el formato de Shopify: {{ block.fasttify_attributes }} o {{ section.fasttify_attributes }}
+ *
+ * Uso:
+ * - En bloques: <div {{ block.fasttify_attributes }}>
+ * - En secciones: <section {{ section.fasttify_attributes }}>
+ *
+ * Genera: data-section-id="hero" data-block-id="hero-button-1"
+ */
+export const fasttifyAttributesFilter: LiquidFilter = {
+  name: 'fasttify_attributes',
+  filter: function (obj?: any): string {
+    try {
+      let sectionId: string | undefined;
+      let blockId: string | undefined;
+
+      // Cuando se llama {{ block.fasttify_attributes }}, obj es el objeto block
+      // Cuando se llama {{ section.fasttify_attributes }}, obj es el objeto section
+      if (obj && typeof obj === 'object') {
+        // Detectar si es un block o una section
+        // Los blocks típicamente tienen 'type' y están dentro de un contexto de section
+        // Las sections tienen 'blocks' array o están en el contexto global de section
+        const isBlock = 'type' in obj && typeof obj.type === 'string' && !('blocks' in obj);
+
+        if (isBlock) {
+          // Es un block, necesitamos block.id y section.id del contexto
+          blockId = obj.id;
+
+          // Intentar obtener section.id del contexto
+          try {
+            const section = this.context?.getSync(['section']);
+            if (section?.id) {
+              sectionId = section.id;
+            }
+          } catch (error) {
+            // Ignorar errores silenciosamente
+          }
+        } else {
+          // Es una section, solo necesitamos section.id
+          if (obj.id) {
+            sectionId = obj.id;
+          }
+        }
+      }
+
+      // Si aún no tenemos sectionId o blockId, intentar leer del contexto directamente
+      if (!sectionId || !blockId) {
+        try {
+          if (!sectionId) {
+            const section = this.context?.getSync(['section']);
+            if (section?.id) {
+              sectionId = section.id;
+            }
+          }
+
+          if (!blockId) {
+            const block = this.context?.getSync(['block']);
+            if (block?.id) {
+              blockId = block.id;
+            }
+          }
+        } catch (error) {
+          // Ignorar errores silenciosamente
+        }
+      }
+
+      // Construir los atributos
+      const attributes: string[] = [];
+
+      if (sectionId) {
+        attributes.push(`data-section-id="${sectionId}"`);
+      }
+
+      if (blockId) {
+        attributes.push(`data-block-id="${blockId}"`);
+      }
+
+      return attributes.length > 0 ? ` ${attributes.join(' ')}` : '';
+    } catch (error) {
+      logger.error('fasttify_attributes: Error generating fasttify attributes', error);
+      return '';
+    }
+  },
+};
+
 export const htmlFilters: LiquidFilter[] = [
   assetUrlFilter,
   linkToFilter,
@@ -236,4 +322,5 @@ export const htmlFilters: LiquidFilter[] = [
   defaultPaginationFilter,
   imgTagFilter,
   inlineAssetContentFilter,
+  fasttifyAttributesFilter,
 ];

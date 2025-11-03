@@ -8,7 +8,7 @@ import { Card, BlockStack, Text, Scrollable, Box, Divider } from '@shopify/polar
 import { useTemplateStructure } from '../../hooks/useTemplateStructure';
 import { useLayoutStructure } from '../../hooks/useLayoutStructure';
 import { useStoreTemplates } from '../../hooks/useStoreTemplates';
-import { useSidebarState } from '../../hooks/useSidebarState';
+import type { UseSidebarStateResult } from '../../hooks/useSidebarState';
 import { SidebarLoading } from './SidebarLoading';
 import { SectionGroup } from './section-group/SectionGroup';
 
@@ -16,9 +16,10 @@ interface SidebarProps {
   storeId: string;
   apiBaseUrl: string;
   currentPageId: string;
+  sidebarState: UseSidebarStateResult;
 }
 
-export function Sidebar({ storeId, apiBaseUrl, currentPageId }: SidebarProps) {
+export function Sidebar({ storeId, apiBaseUrl, currentPageId, sidebarState }: SidebarProps) {
   const { template, isLoading: isLoadingTemplate } = useTemplateStructure({
     storeId,
     apiBaseUrl,
@@ -32,15 +33,8 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId }: SidebarProps) {
 
   const { pages, isLoading: isLoadingPages } = useStoreTemplates({ storeId, apiBaseUrl });
 
-  const {
-    expandedSections,
-    selectedSectionId,
-    selectedBlockId,
-    toggleSection,
-    selectSection,
-    selectBlock,
-    clearSelection,
-  } = useSidebarState();
+  const { expandedSections, selectedSectionId, selectedBlockId, toggleSection, selectSection, selectBlock } =
+    sidebarState;
 
   const currentPageTitle = pages.find((p) => p.id === currentPageId)?.name || 'Página';
 

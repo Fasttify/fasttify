@@ -1,6 +1,5 @@
 {{ 'hero.css' | asset_url | stylesheet_tag }}
-<section
-class="collection-hero-section">
+<section class="collection-hero-section" {{ section.fasttify_attributes }}>
   <!-- Header integrado solo para esta sección -->
   {% render 'header' %}
   {% assign hero_collection = collections['new-products'] %}
@@ -77,7 +76,7 @@ class="collection-hero-section">
             {% for block in section.blocks %}
               {% if block.type == 'hero_item' %}
                 {% if block.settings.label != blank and block.settings.link != blank %}
-                  <a href="{{ block.settings.link }}" class="hero-btn hero-btn-primary">
+                  <a href="{{ block.settings.link }}" class="hero-btn hero-btn-primary" {{ block.fasttify_attributes }}>
                     <span>{{ block.settings.label }}</span>
                   </a>
                 {% endif %}

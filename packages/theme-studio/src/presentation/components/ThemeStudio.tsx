@@ -8,9 +8,10 @@ import { Sidebar } from './sidebar/Sidebar';
 import { PreviewPane } from './preview/PreviewPane';
 import { SettingsPane } from './settings/SettingsPane';
 import { EditorHeader } from './header/EditorHeader';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStoreTemplates } from '../hooks/useStoreTemplates';
+import { useSidebarState } from '../hooks/useSidebarState';
 
 export interface ThemeStudioProps {
   storeId: string;
@@ -24,6 +25,21 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
   const [currentPageId, setCurrentPageId] = useState('index');
   const { pages } = useStoreTemplates({ storeId, apiBaseUrl });
   const router = useRouter();
+
+  const sidebarState = useSidebarState();
+
+  const handleElementClick = useCallback(
+    (sectionId: string | null, blockId: string | null) => {
+      if (blockId && sectionId) {
+        sidebarState.selectBlock(blockId, sectionId);
+      } else if (sectionId) {
+        sidebarState.selectSection(sectionId);
+      } else {
+        sidebarState.clearSelection();
+      }
+    },
+    [sidebarState]
+  );
 
   const currentPageTitle = useMemo(() => {
     const page = pages.find((p) => p.id === currentPageId);
@@ -54,7 +70,12 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr 360px', height: '100%', minHeight: 0 }}>
           <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>
-            <Sidebar storeId={storeId} apiBaseUrl={apiBaseUrl} currentPageId={currentPageId} />
+            <Sidebar
+              storeId={storeId}
+              apiBaseUrl={apiBaseUrl}
+              currentPageId={currentPageId}
+              sidebarState={sidebarState}
+            />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>
             <PreviewPane
@@ -62,6 +83,8 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
               domain={domain}
               device={device}
               currentPath={currentPath}
+              selectedSectionId={sidebarState.selectedSectionId}
+              selectedBlockId={sidebarState.selectedBlockId}
               onPathChange={(newPath) => {
                 setCurrentPath(newPath);
                 const page = pages.find((p) => p.url === newPath);
@@ -69,6 +92,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain }: ThemeStudioProps) {
                   setCurrentPageId(page.id);
                 }
               }}
+              onElementClick={handleElementClick}
             />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>

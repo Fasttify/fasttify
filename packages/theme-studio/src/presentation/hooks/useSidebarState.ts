@@ -16,7 +16,7 @@
 
 import { useState, useCallback } from 'react';
 
-interface UseSidebarStateResult {
+export interface UseSidebarStateResult {
   expandedSections: Set<string>;
   selectedSectionId: string | null;
   selectedBlockId: string | null;

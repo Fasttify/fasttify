@@ -19,6 +19,7 @@ import { liquidEngine } from '../../liquid/engine';
 import { schemaParser } from '../templates/parsing/schema-parser';
 import { templateLoader } from '../templates/template-loader';
 import type { RenderContext } from '../../types';
+import { createSectionWithAttributes } from './fasttify-attributes-builder';
 
 export class SectionRenderer {
   /**
@@ -71,13 +72,13 @@ export class SectionRenderer {
       // Crear contexto específico para esta sección
       // Usar sectionId si está disponible (ID en el template), si no usar sectionName (tipo de sección)
       const sectionIdForContext = sectionId || sectionName;
+
+      // Crear objeto section con la propiedad fasttify_attributes
+      const sectionObject = createSectionWithAttributes(sectionIdForContext, finalSettings, actualBlocks);
+
       const sectionContext = {
         ...baseContext,
-        section: {
-          id: sectionIdForContext,
-          settings: finalSettings,
-          blocks: actualBlocks,
-        },
+        section: sectionObject,
       };
 
       // Renderizar la sección con el contexto enriquecido
