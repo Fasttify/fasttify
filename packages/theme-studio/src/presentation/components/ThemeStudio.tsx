@@ -8,11 +8,12 @@ import { Sidebar } from './sidebar/Sidebar';
 import { PreviewPane } from './preview/PreviewPane';
 import { SettingsPane } from './settings/SettingsPane';
 import { EditorHeader } from './header/EditorHeader';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStoreTemplates } from '../hooks/useStoreTemplates';
 import { useSidebarState } from '../hooks/useSidebarState';
 import { useSelectedSection } from '../hooks/useSelectedSection';
+import { useHotReload } from '../hooks/useHotReload';
 
 export interface ThemeStudioProps {
   storeId: string;
@@ -34,6 +35,15 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
   const router = useRouter();
 
   const sidebarState = useSidebarState();
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  const hotReload = useHotReload({
+    storeId,
+    apiBaseUrl,
+    iframeRef,
+    currentPageId,
+    enabled: true,
+  });
 
   const selectedSectionData = useSelectedSection({
     storeId,
@@ -124,6 +134,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
               selectedBlockId={sidebarState.selectedBlockId}
               selectedSubBlockId={sidebarState.selectedSubBlockId}
               selectedElementName={selectedElementName}
+              iframeRef={iframeRef}
               onPathChange={(newPath) => {
                 setCurrentPath(newPath);
                 const page = pages.find((p) => p.url === newPath);
@@ -141,6 +152,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
               currentPageId={currentPageId}
               sidebarState={sidebarState}
               imageSelectorComponent={imageSelectorComponent}
+              hotReload={hotReload}
             />
           </div>
         </div>

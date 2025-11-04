@@ -20,6 +20,7 @@ interface PreviewPaneProps {
   selectedElementName?: string | null;
   onPathChange?: (newPath: string) => void;
   onElementClick?: (sectionId: string | null, blockId: string | null, subBlockId?: string | null) => void;
+  iframeRef?: React.RefObject<HTMLIFrameElement | null>;
 }
 
 export function PreviewPane({
@@ -32,9 +33,11 @@ export function PreviewPane({
   selectedElementName,
   onPathChange,
   onElementClick,
+  iframeRef: externalIframeRef,
 }: PreviewPaneProps) {
   const { previewUrl } = usePreviewUrl({ domain, path: currentPath });
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const internalIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const iframeRef = externalIframeRef || internalIframeRef;
   const { isNavigating } = useIframeNavigation({
     iframeRef,
     domain,

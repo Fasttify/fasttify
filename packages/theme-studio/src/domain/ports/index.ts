@@ -18,3 +18,13 @@ export type { ITemplateRepository } from './template-repository.port';
 export type { ISectionRepository } from './section-repository.port';
 export type { IPreviewRenderer, RenderPreviewParams, RenderPreviewResult } from './preview-renderer.port';
 export type { IThemeRepository } from './theme-repository.port';
+export type {
+  IDevServer,
+  UpdateSectionSettingParams,
+  UpdateBlockSettingParams,
+  UpdateSubBlockSettingParams,
+  ChangeAppliedCallback,
+  ErrorCallback,
+} from './dev-server.port';
+export type { ITemplateRenderer, RenderSectionParams, RenderSectionResult } from './template-renderer.port';
+export type { ITemplateManager } from './template-manager.port';

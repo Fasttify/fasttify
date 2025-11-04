@@ -40,8 +40,8 @@ export class TemplateRepositoryAdapter implements ITemplateRepository {
     return this.mapToTemplate(data, templateType);
   }
 
-  async saveTemplate(storeId: string, template: Template): Promise<void> {
-    const response = await fetch(`${this.apiBaseUrl}/stores/${storeId}/themes/templates/${template.type}`, {
+  async saveTemplate(storeId: string, templateType: TemplateType, template: Template): Promise<void> {
+    const response = await fetch(`${this.apiBaseUrl}/stores/${storeId}/themes/templates/${templateType}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

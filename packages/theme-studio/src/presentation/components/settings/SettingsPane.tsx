@@ -20,7 +20,8 @@ import { Card, BlockStack, Text, Button, Box, Scrollable, InlineStack } from '@s
 import { useSelectedSection } from '../../hooks/useSelectedSection';
 import type { UseSidebarStateResult } from '../../hooks/useSidebarState';
 import { SettingsGroup } from './SettingsGroup';
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useSettingsPane } from '../../hooks/useSettingsPane';
+import { useMemo, useCallback } from 'react';
 
 interface SettingsPaneProps {
   storeId: string;
@@ -33,6 +34,18 @@ interface SettingsPaneProps {
     onSelect?: (image: { url: string } | null) => void;
     initialSelectedImage?: string | null;
   }) => React.ReactElement | null;
+  hotReload?: {
+    updateSectionSetting: (sectionId: string, settingId: string, value: unknown) => Promise<void>;
+    updateBlockSetting: (sectionId: string, blockId: string, settingId: string, value: unknown) => Promise<void>;
+    updateSubBlockSetting: (
+      sectionId: string,
+      blockId: string,
+      subBlockId: string,
+      settingId: string,
+      value: unknown
+    ) => Promise<void>;
+    isConnected: boolean;
+  };
 }
 
 export function SettingsPane({
@@ -41,6 +54,7 @@ export function SettingsPane({
   currentPageId,
   sidebarState,
   imageSelectorComponent,
+  hotReload,
 }: SettingsPaneProps) {
   const { section, block, schema, currentSettings } = useSelectedSection({
     storeId,
@@ -48,9 +62,14 @@ export function SettingsPane({
     currentPageId,
     selectedSectionId: sidebarState.selectedSectionId,
     selectedBlockId: sidebarState.selectedBlockId,
+    selectedSubBlockId: sidebarState.selectedSubBlockId,
   });
 
-  const [localSettings, setLocalSettings] = useState<Record<string, any>>(currentSettings);
+  const { localSettings, handleSettingChange } = useSettingsPane({
+    currentSettings,
+    sidebarState,
+    hotReload,
+  });
 
   // Agrupar settings por headers
   const groupedSettings = useMemo(() => {
@@ -83,24 +102,23 @@ export function SettingsPane({
     return groups;
   }, [schema]);
 
-  // Sincronizar localSettings con currentSettings cuando cambian
-  useEffect(() => {
-    setLocalSettings(currentSettings);
-  }, [currentSettings]);
-
-  const handleSettingChange = useCallback((settingId: string, value: any) => {
-    setLocalSettings((prev) => ({
-      ...prev,
-      [settingId]: value,
-    }));
-  }, []);
-
   const handleRemoveBlock = useCallback(() => {
     if (!section || !block) return;
 
     // TODO: Implementar eliminación de bloque
     console.log('Remove block:', block.id);
   }, [section, block]);
+
+  const displayName = useMemo(() => {
+    if (block) {
+      if (block.name && typeof block.name === 'string') {
+        return block.name;
+      }
+      const blockSchema = section?.schema?.blocks?.find((b: any) => b.type === block.type);
+      return blockSchema?.name || block.type;
+    }
+    return section?.name || 'Sección';
+  }, [block, section]);
 
   if (!sidebarState.selectedSectionId) {
     return (
@@ -122,17 +140,6 @@ export function SettingsPane({
       </div>
     );
   }
-
-  const displayName = useMemo(() => {
-    if (block) {
-      if (block.name && typeof block.name === 'string') {
-        return block.name;
-      }
-      const blockSchema = section?.schema?.blocks?.find((b: any) => b.type === block.type);
-      return blockSchema?.name || block.type;
-    }
-    return section?.name || 'Sección';
-  }, [block, section]);
 
   return (
     <div>

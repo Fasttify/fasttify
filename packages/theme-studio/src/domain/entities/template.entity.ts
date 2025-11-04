@@ -38,6 +38,8 @@ export interface TemplateBlock {
   id: string;
   type: string;
   settings: Record<string, unknown>;
+  name?: string;
+  blocks?: TemplateBlock[];
 }
 
 export interface TemplateSection {

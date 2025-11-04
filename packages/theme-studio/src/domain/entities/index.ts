@@ -22,3 +22,4 @@
 export type { Theme } from './theme.entity';
 export type { Template, TemplateType, TemplateSection, TemplateBlock } from './template.entity';
 export type { Section, SectionSchema, SettingDefinition, SettingType, BlockDefinition, Preset } from './section.entity';
+export type { EditorSession, TemplateChange, AppliedChange, ChangeType } from './editor-session.entity';

@@ -16,3 +16,7 @@
 
 export { LoadTemplateUseCase } from './load-template.use-case';
 export { RenderPreviewUseCase } from './render-preview.use-case';
+export { UpdateSectionSettingUseCase } from './update-section-setting.use-case';
+export { UpdateBlockSettingUseCase } from './update-block-setting.use-case';
+export { UpdateSubBlockSettingUseCase } from './update-sub-block-setting.use-case';
+export { SaveChangesUseCase } from './save-changes.use-case';

@@ -14,35 +14,25 @@
  * limitations under the License.
  */
 
-import type { Template, TemplateType } from '../entities/template.entity';
+import type { Template, TemplateType } from '@fasttify/theme-studio';
 
 /**
- * Puerto: Repositorio de Templates
- * Define el contrato para obtener y guardar templates
- *
- * Esta interfaz será implementada en la capa de infraestructura
+ * Puerto (interfaz) para cargar templates
+ * Define el contrato para obtener templates desde el almacenamiento
  */
-export interface ITemplateRepository {
+export interface ITemplateLoader {
   /**
-   * Obtiene un template por tipo desde el almacenamiento
+   * Cargar template por tipo
    * @param storeId - ID de la tienda
-   * @param templateType - Tipo de template a obtener
-   * @returns Template o null si no existe
+   * @param templateType - Tipo de template
    */
-  getTemplate(storeId: string, templateType: TemplateType): Promise<Template | null>;
+  loadTemplate(storeId: string, templateType: TemplateType): Promise<Template>;
 
   /**
-   * Guarda un template en el almacenamiento
+   * Guardar template
    * @param storeId - ID de la tienda
    * @param templateType - Tipo de template
    * @param template - Template a guardar
    */
   saveTemplate(storeId: string, templateType: TemplateType, template: Template): Promise<void>;
-
-  /**
-   * Lista todos los tipos de templates disponibles para un store
-   * @param storeId - ID de la tienda
-   * @returns Array de tipos de templates disponibles
-   */
-  listTemplates(storeId: string): Promise<TemplateType[]>;
 }
