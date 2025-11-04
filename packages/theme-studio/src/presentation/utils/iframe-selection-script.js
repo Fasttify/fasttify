@@ -24,6 +24,7 @@
  * - selection: Funciones de selección y scroll
  * - event-handlers: Handlers de eventos del usuario
  * - domain-links: Configuración de enlaces con dominio
+ * - compatibility: Sistema de compatibilidad para temas sin fasttify_attributes
  * - init: Inicialización y cleanup
  *
  * @module iframe-selection-script
@@ -34,17 +35,19 @@ import { createUtilsCode } from './iframe-selection-script/utils.js';
 import { createSelectionCode } from './iframe-selection-script/selection.js';
 import { createEventHandlersCode } from './iframe-selection-script/event-handlers.js';
 import { createDomainLinksCode } from './iframe-selection-script/domain-links.js';
+import { createCompatibilityCode } from './iframe-selection-script/compatibility.js';
 import { createInitCode } from './iframe-selection-script/init.js';
 
 /**
  * Genera el script completo de selección del iframe con el dominio de la tienda inyectado
  *
  * El script generado:
- * 1. Detecta clicks en elementos con data-section-id o data-block-id
- * 2. Envía postMessage al padre con el ID encontrado
- * 3. Escucha mensajes del padre para aplicar/quitar resaltado
- * 4. Aplica estilos CSS para el outline azul
- * 5. Configura enlaces relativos con el dominio de la tienda
+ * 1. Detecta comentarios de compatibilidad y agrega atributos automáticamente
+ * 2. Detecta clicks en elementos con data-section-id o data-block-id
+ * 3. Envía postMessage al padre con el ID encontrado
+ * 4. Escucha mensajes del padre para aplicar/quitar resaltado
+ * 5. Aplica estilos CSS para el outline azul
+ * 6. Configura enlaces relativos con el dominio de la tienda
  *
  * @param {string|null} storeDomain - El dominio de la tienda a inyectar (ej: 'mystore.com')
  * @returns {string} El script completo listo para inyectar en el iframe como string
@@ -59,9 +62,11 @@ export function iframeSelectionScript(storeDomain) {
   const selection = createSelectionCode();
   const eventHandlers = createEventHandlersCode();
   const domainLinks = createDomainLinksCode();
+  const compatibility = createCompatibilityCode();
   const init = createInitCode();
 
   // Combinar todos los módulos en un IIFE
+  // El módulo de compatibilidad se ejecuta primero para agregar atributos antes de la inicialización
   return `(function() {
 ${constants}
 
@@ -72,6 +77,8 @@ ${selection}
 ${eventHandlers}
 
 ${domainLinks}
+
+${compatibility}
 
 ${init}
 })();`;

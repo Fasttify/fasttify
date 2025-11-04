@@ -20,6 +20,7 @@ import { schemaParser } from '../templates/parsing/schema-parser';
 import { templateLoader } from '../templates/template-loader';
 import type { RenderContext } from '../../types';
 import { createSectionWithAttributes } from './fasttify-attributes-builder';
+import { FasttifyAttributesDetector } from './fasttify-attributes-detector';
 
 export class SectionRenderer {
   /**
@@ -89,8 +90,20 @@ export class SectionRenderer {
         section: sectionObject,
       };
 
+      // Detectar si el template tiene fasttify_attributes configurado para secciones
+      const hasSectionAttributes = FasttifyAttributesDetector.hasSectionFasttifyAttributes(templateContent);
+
       // Renderizar la sección con el contexto enriquecido
-      return await liquidEngine.render(cleanedContent, sectionContext, `section_${sectionName}`);
+      const renderedContent = await liquidEngine.render(cleanedContent, sectionContext, `section_${sectionName}`);
+
+      // Si el template no tiene {{ section.fasttify_attributes }}, aplicar sistema de compatibilidad
+      // Esto permite que temas sin el filtro funcionen con el selector azul
+      if (!hasSectionAttributes) {
+        return this.wrapWithCompatibilityMarkers(renderedContent, sectionIdForContext);
+      }
+
+      // Si ya tiene fasttify_attributes, retornar sin modificaciones (comportamiento normal)
+      return renderedContent;
     } catch (error) {
       logger.error(`Error rendering section ${sectionName}`, error, 'SectionRenderer');
 
@@ -196,6 +209,19 @@ export class SectionRenderer {
 
     // Para otros grupos, retornar vacío por ahora
     return [];
+  }
+
+  /**
+   * Envuelve el contenido renderizado con comentarios de marcado para compatibilidad
+   * Estos comentarios permiten que el script post-renderizado identifique la sección
+   * y agregue los atributos data-section-id automáticamente
+   */
+  private wrapWithCompatibilityMarkers(renderedContent: string, sectionId: string): string {
+    // Los comentarios son invisibles visualmente pero permiten identificar la sección
+    const startMarker = `<!-- FASTTIFY_SECTION_START:${sectionId} -->`;
+    const endMarker = `<!-- FASTTIFY_SECTION_END:${sectionId} -->`;
+
+    return `${startMarker}\n${renderedContent}\n${endMarker}`;
   }
 }
 
