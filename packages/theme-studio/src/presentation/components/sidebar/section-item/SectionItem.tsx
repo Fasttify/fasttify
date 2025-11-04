@@ -36,9 +36,11 @@ export interface SectionItemProps {
   isExpanded: boolean;
   isSelected: boolean;
   selectedBlockId: string | null;
+  selectedSubBlockId?: string | null;
   onToggleExpand: () => void;
   onSelect: () => void;
   onSelectBlock: (blockId: string) => void;
+  onSelectSubBlock?: (subBlockId: string) => void;
   onDelete?: () => void;
   onToggleVisibility?: () => void;
 }
@@ -52,9 +54,11 @@ export function SectionItem({
   isExpanded,
   isSelected,
   selectedBlockId,
+  selectedSubBlockId,
   onToggleExpand,
   onSelect,
   onSelectBlock,
+  onSelectSubBlock,
   onDelete,
   onToggleVisibility,
 }: SectionItemProps) {
@@ -73,6 +77,9 @@ export function SectionItem({
 
   const handleSectionClick = () => {
     onSelect();
+    if (canExpand && !isExpanded) {
+      onToggleExpand();
+    }
   };
 
   const ChevronIcon = isExpanded ? ChevronDownIcon : ChevronRightIcon;
@@ -164,23 +171,28 @@ export function SectionItem({
         <Collapsible open={isExpanded} id={`section-${section.id}-blocks`}>
           <Box>
             {hasCurrentBlocks && section.blocks ? (
-              section.blocks.map((block: { id: string; type: string; settings: Record<string, any> }) => {
-                const blockSchema = section.schema?.blocks?.find((b: any) => b.type === block.type);
-                return (
-                  <BlockItem
-                    key={block.id}
-                    block={block}
-                    sectionId={section.id}
-                    blockSchema={blockSchema}
-                    isSelected={selectedBlockId === block.id}
-                    onSelect={() => {
-                      onSelectBlock(block.id);
-                    }}
-                    onDelete={onDelete}
-                    onToggleVisibility={onToggleVisibility}
-                  />
-                );
-              })
+              section.blocks.map(
+                (block: { id: string; type: string; settings: Record<string, any>; name?: string; blocks?: any[] }) => {
+                  const blockSchema = section.schema?.blocks?.find((b: any) => b.type === block.type);
+                  return (
+                    <BlockItem
+                      key={block.id}
+                      block={block}
+                      sectionId={section.id}
+                      blockSchema={blockSchema}
+                      isSelected={selectedBlockId === block.id}
+                      selectedSubBlockId={selectedSubBlockId}
+                      onSelect={() => {
+                        onSelectBlock(block.id);
+                      }}
+                      onSelectSubBlock={onSelectSubBlock}
+                      parentBlockId={block.id}
+                      onDelete={onDelete}
+                      onToggleVisibility={onToggleVisibility}
+                    />
+                  );
+                }
+              )
             ) : (
               <Box padding="200">
                 <Text as="p" variant="bodySm" tone="subdued">

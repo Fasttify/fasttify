@@ -33,8 +33,16 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId, sidebarState }: Si
 
   const { pages, isLoading: isLoadingPages } = useStoreTemplates({ storeId, apiBaseUrl });
 
-  const { expandedSections, selectedSectionId, selectedBlockId, toggleSection, selectSection, selectBlock } =
-    sidebarState;
+  const {
+    expandedSections,
+    selectedSectionId,
+    selectedBlockId,
+    selectedSubBlockId,
+    toggleSection,
+    selectSection,
+    selectBlock,
+    selectSubBlock,
+  } = sidebarState;
 
   const currentPageTitle = pages.find((p) => p.id === currentPageId)?.name || 'Página';
 
@@ -66,9 +74,11 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId, sidebarState }: Si
                     expandedSections={expandedSections}
                     selectedSectionId={selectedSectionId}
                     selectedBlockId={selectedBlockId}
+                    selectedSubBlockId={selectedSubBlockId}
                     onToggleSection={toggleSection}
                     onSelectSection={selectSection}
                     onSelectBlock={selectBlock}
+                    onSelectSubBlock={selectSubBlock}
                     onAddSection={() => {
                       // TODO: Implementar modal de agregar sección
                     }}
@@ -89,9 +99,11 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId, sidebarState }: Si
                     expandedSections={expandedSections}
                     selectedSectionId={selectedSectionId}
                     selectedBlockId={selectedBlockId}
+                    selectedSubBlockId={selectedSubBlockId}
                     onToggleSection={toggleSection}
                     onSelectSection={selectSection}
                     onSelectBlock={selectBlock}
+                    onSelectSubBlock={selectSubBlock}
                     onAddSection={() => {
                       // TODO: Implementar modal de agregar sección
                     }}
@@ -111,9 +123,11 @@ export function Sidebar({ storeId, apiBaseUrl, currentPageId, sidebarState }: Si
                     expandedSections={expandedSections}
                     selectedSectionId={selectedSectionId}
                     selectedBlockId={selectedBlockId}
+                    selectedSubBlockId={selectedSubBlockId}
                     onToggleSection={toggleSection}
                     onSelectSection={selectSection}
                     onSelectBlock={selectBlock}
+                    onSelectSubBlock={selectSubBlock}
                     onAddSection={() => {
                       // TODO: Implementar modal de agregar sección
                     }}

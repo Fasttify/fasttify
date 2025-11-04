@@ -40,6 +40,7 @@ interface UseSelectedSectionParams {
   currentPageId: string;
   selectedSectionId: string | null;
   selectedBlockId: string | null;
+  selectedSubBlockId?: string | null;
 }
 
 export function useSelectedSection({
@@ -48,6 +49,7 @@ export function useSelectedSection({
   currentPageId,
   selectedSectionId,
   selectedBlockId,
+  selectedSubBlockId,
 }: UseSelectedSectionParams): SelectedSectionData {
   const { template } = useTemplateStructure({
     storeId,
@@ -98,9 +100,23 @@ export function useSelectedSection({
       };
     }
 
-    // Si hay un bloque seleccionado, obtener sus datos
+    // Si hay un sub-bloque seleccionado, obtener sus datos primero
     let block = null;
-    if (selectedBlockId && section.blocks) {
+    if (selectedSubBlockId && selectedBlockId && section.blocks) {
+      const parentBlock = section.blocks.find((b: any) => b.id === selectedBlockId);
+      if (parentBlock?.blocks) {
+        const foundSubBlock = parentBlock.blocks.find((sb: any) => sb.id === selectedSubBlockId);
+        if (foundSubBlock) {
+          block = {
+            id: foundSubBlock.id,
+            type: foundSubBlock.type,
+            settings: foundSubBlock.settings || {},
+            name: foundSubBlock.name,
+          };
+        }
+      }
+    } else if (selectedBlockId && section.blocks) {
+      // Si hay un bloque seleccionado (no sub-bloque), obtener sus datos
       const foundBlock = section.blocks.find((b: any) => b.id === selectedBlockId);
       if (foundBlock) {
         block = {
@@ -112,17 +128,29 @@ export function useSelectedSection({
       }
     }
 
-    // Determinar qué schema usar (bloque o sección)
+    // Determinar qué schema usar (sub-bloque, bloque o sección)
     let schema = null;
     let currentSettings: Record<string, any> = {};
 
-    if (block) {
+    if (block && selectedSubBlockId && selectedBlockId) {
+      // Si es un sub-bloque, buscar su schema dentro del bloque padre
+      const parentBlock = section.blocks?.find((b: any) => b.id === selectedBlockId);
+      const parentBlockSchema = section.schema.blocks?.find((b: any) => b.type === parentBlock?.type);
+      const subBlockSchema = parentBlockSchema?.blocks?.find((b: any) => b.type === block.type);
+      if (subBlockSchema) {
+        schema = {
+          settings: subBlockSchema.settings || [],
+          blocks: [],
+        };
+        currentSettings = block.settings;
+      }
+    } else if (block) {
       // Buscar el schema del bloque en schema.blocks
       const blockSchema = section.schema.blocks?.find((b: any) => b.type === block.type);
       if (blockSchema) {
         schema = {
           settings: blockSchema.settings || [],
-          blocks: [],
+          blocks: blockSchema.blocks || [],
         };
         currentSettings = block.settings;
       }
@@ -141,5 +169,5 @@ export function useSelectedSection({
       schema,
       currentSettings,
     };
-  }, [template, layout, selectedSectionId, selectedBlockId]);
+  }, [template, layout, selectedSectionId, selectedBlockId, selectedSubBlockId]);
 }

@@ -20,9 +20,11 @@ export interface UseSidebarStateResult {
   expandedSections: Set<string>;
   selectedSectionId: string | null;
   selectedBlockId: string | null;
+  selectedSubBlockId: string | null;
   toggleSection: (sectionId: string) => void;
   selectSection: (sectionId: string) => void;
   selectBlock: (blockId: string, sectionId: string) => void;
+  selectSubBlock: (subBlockId: string, blockId: string, sectionId: string) => void;
   clearSelection: () => void;
 }
 
@@ -30,6 +32,7 @@ export function useSidebarState(): UseSidebarStateResult {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [selectedSubBlockId, setSelectedSubBlockId] = useState<string | null>(null);
 
   const toggleSection = useCallback((sectionId: string) => {
     setExpandedSections((prev) => {
@@ -46,25 +49,36 @@ export function useSidebarState(): UseSidebarStateResult {
   const selectSection = useCallback((sectionId: string) => {
     setSelectedSectionId(sectionId);
     setSelectedBlockId(null);
+    setSelectedSubBlockId(null);
   }, []);
 
   const selectBlock = useCallback((blockId: string, sectionId: string) => {
     setSelectedSectionId(sectionId);
     setSelectedBlockId(blockId);
+    setSelectedSubBlockId(null);
+  }, []);
+
+  const selectSubBlock = useCallback((subBlockId: string, blockId: string, sectionId: string) => {
+    setSelectedSectionId(sectionId);
+    setSelectedBlockId(blockId);
+    setSelectedSubBlockId(subBlockId);
   }, []);
 
   const clearSelection = useCallback(() => {
     setSelectedSectionId(null);
     setSelectedBlockId(null);
+    setSelectedSubBlockId(null);
   }, []);
 
   return {
     expandedSections,
     selectedSectionId,
     selectedBlockId,
+    selectedSubBlockId,
     toggleSection,
     selectSection,
     selectBlock,
+    selectSubBlock,
     clearSelection,
   };
 }

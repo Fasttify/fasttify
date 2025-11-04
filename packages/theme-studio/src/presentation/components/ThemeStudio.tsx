@@ -41,6 +41,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
     currentPageId,
     selectedSectionId: sidebarState.selectedSectionId,
     selectedBlockId: sidebarState.selectedBlockId,
+    selectedSubBlockId: sidebarState.selectedSubBlockId,
   });
 
   const selectedElementName = useMemo(() => {

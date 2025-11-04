@@ -58,12 +58,13 @@ export interface SettingDefinition {
 }
 
 /**
- * Definición de un block dentro de una sección
+ * Definición de un block dentro de una sección o dentro de otro bloque
  */
 export interface BlockDefinition {
   type: string;
   name: string;
   settings?: SettingDefinition[];
+  blocks?: BlockDefinition[];
 }
 
 /**

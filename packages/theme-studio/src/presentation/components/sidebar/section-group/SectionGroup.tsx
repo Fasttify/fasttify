@@ -29,9 +29,11 @@ export interface SectionGroupProps {
   expandedSections: Set<string>;
   selectedSectionId: string | null;
   selectedBlockId: string | null;
+  selectedSubBlockId?: string | null;
   onToggleSection: (sectionId: string) => void;
   onSelectSection: (sectionId: string) => void;
   onSelectBlock: (blockId: string, sectionId: string) => void;
+  onSelectSubBlock?: (subBlockId: string, blockId: string, sectionId: string) => void;
   onAddSection?: () => void;
 }
 
@@ -69,9 +71,11 @@ export function SectionGroup({
   expandedSections,
   selectedSectionId,
   selectedBlockId,
+  selectedSubBlockId,
   onToggleSection,
   onSelectSection,
   onSelectBlock,
+  onSelectSubBlock,
   onAddSection,
 }: SectionGroupProps) {
   const sortedSections = sortSectionsByOrder(sections, sectionOrder);
@@ -95,9 +99,17 @@ export function SectionGroup({
               isExpanded={expandedSections.has(section.id)}
               isSelected={selectedSectionId === section.id}
               selectedBlockId={selectedBlockId}
+              selectedSubBlockId={selectedSubBlockId}
               onToggleExpand={() => onToggleSection(section.id)}
               onSelect={() => onSelectSection(section.id)}
               onSelectBlock={(blockId) => onSelectBlock(blockId, section.id)}
+              onSelectSubBlock={(subBlockId) => {
+                const sectionBlocks = 'blocks' in section ? section.blocks : [];
+                const parentBlock = sectionBlocks?.find((b: any) => b.blocks?.some((sb: any) => sb.id === subBlockId));
+                if (parentBlock && onSelectSubBlock) {
+                  onSelectSubBlock(subBlockId, parentBlock.id, section.id);
+                }
+              }}
             />
           ))}
 
