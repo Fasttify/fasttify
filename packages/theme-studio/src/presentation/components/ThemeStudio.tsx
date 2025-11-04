@@ -45,6 +45,9 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
 
   const selectedElementName = useMemo(() => {
     if (selectedSectionData.block && selectedSectionData.schema) {
+      if (selectedSectionData.block.name && typeof selectedSectionData.block.name === 'string') {
+        return selectedSectionData.block.name;
+      }
       const blockSchema = selectedSectionData.section?.schema.blocks?.find(
         (b: any) => b.type === selectedSectionData.block?.type
       );

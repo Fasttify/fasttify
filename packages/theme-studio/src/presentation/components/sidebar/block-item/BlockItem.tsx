@@ -27,6 +27,7 @@ export interface BlockItemProps {
     id: string;
     type: string;
     settings: Record<string, any>;
+    name?: string;
   };
   sectionId: string;
   blockSchema?: {
@@ -41,6 +42,9 @@ export interface BlockItemProps {
 }
 
 function getBlockDisplayName(block: BlockItemProps['block'], blockSchema?: BlockItemProps['blockSchema']): string {
+  if (block.name && typeof block.name === 'string') {
+    return block.name;
+  }
   if (blockSchema?.name) {
     return blockSchema.name;
   }

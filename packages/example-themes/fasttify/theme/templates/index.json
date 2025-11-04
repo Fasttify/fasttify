@@ -7,6 +7,7 @@
         {
           "id": "hero-button-1",
           "type": "hero_item",
+          "name": "Botón de la colección 1",
           "settings": {
             "label": "Hola mundo",
             "link": "/collections/new-products"
@@ -15,6 +16,7 @@
         {
           "id": "hero-button-2",
           "type": "hero_item",
+          "name": "Botón de la colección 2",
           "settings": {
             "label": "VER TODAS",
             "link": "/collections"

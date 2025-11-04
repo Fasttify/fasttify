@@ -306,11 +306,22 @@ export const fasttifyAttributesFilter: LiquidFilter = {
         attributes.push(`data-block-id="${blockId}"`);
         try {
           const section = this.context?.getSync(['section']);
-          if (section?.schema?.blocks) {
+          // Prioridad: nombre personalizado del bloque > nombre del schema
+          let blockName: string | undefined;
+
+          // 1. Intentar obtener el nombre personalizado del bloque (si existe en el JSON)
+          if (obj.name && typeof obj.name === 'string') {
+            blockName = obj.name;
+          }
+
+          // 2. Si no hay nombre personalizado, usar el nombre del schema
+          if (!blockName && section?.schema?.blocks) {
             const blockSchema = section.schema.blocks.find((b: any) => b.type === obj.type);
-            if (blockSchema?.name) {
-              attributes.push(`data-block-name="${blockSchema.name}"`);
-            }
+            blockName = blockSchema?.name;
+          }
+
+          if (blockName) {
+            attributes.push(`data-block-name="${blockName}"`);
           }
         } catch (error) {}
       } else if (sectionId) {

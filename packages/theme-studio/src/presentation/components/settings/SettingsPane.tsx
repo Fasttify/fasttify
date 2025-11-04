@@ -125,6 +125,9 @@ export function SettingsPane({
 
   const displayName = useMemo(() => {
     if (block) {
+      if (block.name && typeof block.name === 'string') {
+        return block.name;
+      }
       const blockSchema = section?.schema?.blocks?.find((b: any) => b.type === block.type);
       return blockSchema?.name || block.type;
     }

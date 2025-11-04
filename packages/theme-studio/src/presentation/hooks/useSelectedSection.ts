@@ -25,6 +25,7 @@ export interface SelectedSectionData {
     id: string;
     type: string;
     settings: Record<string, any>;
+    name?: string;
   } | null;
   schema: {
     settings: any[];
@@ -106,6 +107,7 @@ export function useSelectedSection({
           id: foundBlock.id,
           type: foundBlock.type,
           settings: foundBlock.settings || {},
+          name: foundBlock.name,
         };
       }
     }
