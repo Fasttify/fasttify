@@ -69,12 +69,20 @@ export class SectionRenderer {
       // Combinar settings: schema defaults + store actual (valores del template sobrescriben defaults)
       const finalSettings = { ...schemaSettings, ...actualSettings };
 
+      // Extraer el schema completo para pasarlo al objeto section
+      const fullSchema = schemaParser.extractFullSchema(templateContent);
+
       // Crear contexto específico para esta sección
       // Usar sectionId si está disponible (ID en el template), si no usar sectionName (tipo de sección)
       const sectionIdForContext = sectionId || sectionName;
 
       // Crear objeto section con la propiedad fasttify_attributes
-      const sectionObject = createSectionWithAttributes(sectionIdForContext, finalSettings, actualBlocks);
+      const sectionObject = createSectionWithAttributes(
+        sectionIdForContext,
+        finalSettings,
+        actualBlocks,
+        fullSchema || undefined
+      );
 
       const sectionContext = {
         ...baseContext,

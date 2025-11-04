@@ -115,14 +115,12 @@ function eventHandlersModule() {
 
       // Pequeño delay para evitar parpadeos rápidos
       hoverTimeout = setTimeout(function () {
-        // Verificar nuevamente que el elemento sigue siendo válido
         if (selectableElement && selectableElement !== currentSelectedElement) {
           selectableElement.classList.add(HOVER_CLASS);
           hoveredElement = selectableElement;
-          const { sectionId, blockId } = getElementIds(selectableElement);
-          const labelText = blockId || sectionId || '';
-          if (labelText && typeof window.updateLabel === 'function') {
-            window.updateLabel(selectableElement, labelText, true);
+          const elementName = getElementName(selectableElement);
+          if (elementName && typeof window.updateLabel === 'function') {
+            window.updateLabel(selectableElement, elementName, true);
           }
         }
         hoverTimeout = null;

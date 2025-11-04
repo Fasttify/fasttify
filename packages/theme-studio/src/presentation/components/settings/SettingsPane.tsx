@@ -123,7 +123,13 @@ export function SettingsPane({
     );
   }
 
-  const displayName = block ? block.type : section?.name || 'Sección';
+  const displayName = useMemo(() => {
+    if (block) {
+      const blockSchema = section?.schema?.blocks?.find((b: any) => b.type === block.type);
+      return blockSchema?.name || block.type;
+    }
+    return section?.name || 'Sección';
+  }, [block, section]);
 
   return (
     <div>

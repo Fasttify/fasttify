@@ -55,6 +55,22 @@ function utilsModule() {
       blockId: element.getAttribute('data-block-id'),
     };
   }
+
+  /**
+   * Extrae el nombre del elemento desde los atributos data
+   * @param {Element} element - El elemento del cual extraer el nombre
+   * @returns {string|null} El nombre del elemento o null
+   */
+  function getElementName(element) {
+    if (!element) return null;
+    // Prioridad: data-block-name > data-section-name > blockId > sectionId
+    const blockName = element.getAttribute('data-block-name');
+    if (blockName) return blockName;
+    const sectionName = element.getAttribute('data-section-name');
+    if (sectionName) return sectionName;
+    const { blockId, sectionId } = getElementIds(element);
+    return blockId || sectionId || null;
+  }
 }
 
 /**

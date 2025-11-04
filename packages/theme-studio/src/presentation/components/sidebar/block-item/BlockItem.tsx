@@ -17,7 +17,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Text, Icon, InlineStack, Button } from '@shopify/polaris';
+import { Text, Icon, InlineStack, Button } from '@shopify/polaris';
 import { DragHandleIcon, DeleteIcon, ViewIcon } from '@shopify/polaris-icons';
 import type { ComponentProps } from 'react';
 import type { ReactNode } from 'react';
@@ -29,19 +29,35 @@ export interface BlockItemProps {
     settings: Record<string, any>;
   };
   sectionId: string;
+  blockSchema?: {
+    type: string;
+    name: string;
+    settings?: any[];
+  };
   isSelected: boolean;
   onSelect: () => void;
   onDelete?: () => void;
   onToggleVisibility?: () => void;
 }
 
-function getBlockDisplayName(block: BlockItemProps['block']): string {
+function getBlockDisplayName(block: BlockItemProps['block'], blockSchema?: BlockItemProps['blockSchema']): string {
+  if (blockSchema?.name) {
+    return blockSchema.name;
+  }
   return block.settings.name || block.settings.title || block.type;
 }
 
-export function BlockItem({ block, sectionId, isSelected, onSelect, onDelete, onToggleVisibility }: BlockItemProps) {
+export function BlockItem({
+  block,
+  sectionId,
+  blockSchema,
+  isSelected,
+  onSelect,
+  onDelete,
+  onToggleVisibility,
+}: BlockItemProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const displayName = getBlockDisplayName(block);
+  const displayName = getBlockDisplayName(block, blockSchema);
 
   return (
     <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>

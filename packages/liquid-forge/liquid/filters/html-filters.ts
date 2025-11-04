@@ -304,6 +304,22 @@ export const fasttifyAttributesFilter: LiquidFilter = {
 
       if (blockId) {
         attributes.push(`data-block-id="${blockId}"`);
+        try {
+          const section = this.context?.getSync(['section']);
+          if (section?.schema?.blocks) {
+            const blockSchema = section.schema.blocks.find((b: any) => b.type === obj.type);
+            if (blockSchema?.name) {
+              attributes.push(`data-block-name="${blockSchema.name}"`);
+            }
+          }
+        } catch (error) {}
+      } else if (sectionId) {
+        try {
+          const section = this.context?.getSync(['section']);
+          if (section?.schema?.name) {
+            attributes.push(`data-section-name="${section.schema.name}"`);
+          }
+        } catch (error) {}
       }
 
       return attributes.length > 0 ? ` ${attributes.join(' ')}` : '';

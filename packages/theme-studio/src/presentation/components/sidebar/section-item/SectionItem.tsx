@@ -152,19 +152,23 @@ export function SectionItem({
         <Collapsible open={isExpanded} id={`section-${section.id}-blocks`}>
           <Box>
             {hasCurrentBlocks && section.blocks ? (
-              section.blocks.map((block: { id: string; type: string; settings: Record<string, any> }) => (
-                <BlockItem
-                  key={block.id}
-                  block={block}
-                  sectionId={section.id}
-                  isSelected={selectedBlockId === block.id}
-                  onSelect={() => {
-                    onSelectBlock(block.id);
-                  }}
-                  onDelete={onDelete}
-                  onToggleVisibility={onToggleVisibility}
-                />
-              ))
+              section.blocks.map((block: { id: string; type: string; settings: Record<string, any> }) => {
+                const blockSchema = section.schema?.blocks?.find((b: any) => b.type === block.type);
+                return (
+                  <BlockItem
+                    key={block.id}
+                    block={block}
+                    sectionId={section.id}
+                    blockSchema={blockSchema}
+                    isSelected={selectedBlockId === block.id}
+                    onSelect={() => {
+                      onSelectBlock(block.id);
+                    }}
+                    onDelete={onDelete}
+                    onToggleVisibility={onToggleVisibility}
+                  />
+                );
+              })
             ) : (
               <Box padding="200">
                 <Text as="p" variant="bodySm" tone="subdued">

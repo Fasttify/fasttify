@@ -20,6 +20,14 @@ interface SectionWithAttributes {
   id: string;
   settings: Record<string, any>;
   blocks: BlockWithAttributes[];
+  schema?: {
+    name?: string;
+    blocks?: Array<{
+      type: string;
+      name?: string;
+      settings?: any[];
+    }>;
+  };
   fasttify_attributes: string;
 }
 
@@ -37,13 +45,22 @@ interface BlockWithAttributes {
 export function createSectionWithAttributes(
   sectionId: string,
   settings: Record<string, any>,
-  blocks: any[]
+  blocks: any[],
+  schema?: {
+    name?: string;
+    blocks?: Array<{
+      type: string;
+      name?: string;
+      settings?: any[];
+    }>;
+  }
 ): SectionWithAttributes {
   // Crear primero el objeto section sin los bloques para evitar referencia circular
   const sectionObject: SectionWithAttributes = {
     id: sectionId,
     settings,
     blocks: [], // Se asignará después
+    schema, // Incluir el schema para que el filtro pueda acceder a él
     get fasttify_attributes() {
       const mockContext = {
         getSync: (path: string[]) => {
