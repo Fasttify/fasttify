@@ -64,12 +64,15 @@ export function SectionItem({
   const hasCurrentBlocks = isTemplateSection && (section.blocks?.length ?? 0) > 0;
   const canExpand = hasBlocksInSchema;
 
-  const handleClick = () => {
+  const handleChevronClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (canExpand) {
       onToggleExpand();
-    } else {
-      onSelect();
     }
+  };
+
+  const handleSectionClick = () => {
+    onSelect();
   };
 
   const ChevronIcon = isExpanded ? ChevronDownIcon : ChevronRightIcon;
@@ -81,13 +84,22 @@ export function SectionItem({
           variant="tertiary"
           fullWidth
           textAlign="left"
-          onClick={handleClick}
+          onClick={handleSectionClick}
           {...({
             children: (
               <InlineStack gap="200" blockAlign="center" align="space-between">
                 <InlineStack gap="200" blockAlign="center">
                   <InlineStack gap="050" blockAlign="center">
-                    <Icon source={ChevronIcon} tone="subdued" />
+                    <div
+                      onClick={handleChevronClick}
+                      style={{
+                        cursor: canExpand ? 'pointer' : 'default',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '2px',
+                      }}>
+                      <Icon source={ChevronIcon} tone="subdued" />
+                    </div>
                     <div
                       style={{
                         position: 'relative',
