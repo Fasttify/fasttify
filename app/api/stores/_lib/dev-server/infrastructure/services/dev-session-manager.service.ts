@@ -16,6 +16,7 @@
 
 import type { DevSession } from '../../domain/entities/dev-session.entity';
 import type { Template, TemplateType } from '@fasttify/theme-studio';
+import crypto from 'crypto';
 
 /**
  * Servicio: Dev Session Manager
@@ -39,7 +40,7 @@ export class DevSessionManagerService {
     }
 
     const newSession: DevSession = {
-      sessionId: `session-${Date.now()}-${Math.random()}`,
+      sessionId: `session-${Date.now()}-${crypto.randomBytes(16).toString('hex')}`,
       storeId,
       templateType,
       template,
