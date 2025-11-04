@@ -48,14 +48,14 @@ function selectionModule() {
     label.textContent = labelText;
 
     // Calcular posición relativa al viewport visible del elemento
+    // getBoundingClientRect() ya devuelve coordenadas relativas al viewport
     const rect = element.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
     // Posicionar la etiqueta en la esquina superior izquierda visible
+    // Como usamos position: fixed, solo necesitamos las coordenadas del viewport
     label.style.position = 'fixed';
-    label.style.top = Math.max(0, rect.top + scrollTop - 2) + 'px';
-    label.style.left = Math.max(0, rect.left + scrollLeft - 2) + 'px';
+    label.style.top = Math.max(0, rect.top - 2) + 'px';
+    label.style.left = Math.max(0, rect.left - 2) + 'px';
 
     document.body.appendChild(label);
 
@@ -67,12 +67,11 @@ function selectionModule() {
     }
 
     // Actualizar posición en scroll y resize
+    // getBoundingClientRect() ya devuelve coordenadas relativas al viewport
     const updatePosition = function () {
       const newRect = element.getBoundingClientRect();
-      const newScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const newScrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-      label.style.top = Math.max(0, newRect.top + newScrollTop - 2) + 'px';
-      label.style.left = Math.max(0, newRect.left + newScrollLeft - 2) + 'px';
+      label.style.top = Math.max(0, newRect.top - 2) + 'px';
+      label.style.left = Math.max(0, newRect.left - 2) + 'px';
     };
 
     // Agregar listeners temporales para actualizar posición

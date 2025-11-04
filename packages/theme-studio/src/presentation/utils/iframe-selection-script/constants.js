@@ -54,19 +54,18 @@ function constantsModule(storeDomain) {
     '  box-shadow: inset 0 0 0 2px rgba(0, 111, 187, 0.6) !important;' +
     '}' +
     '.fasttify-selector-label {' +
-    '  position: absolute;' +
-    '  top: -2px;' +
-    '  left: -2px;' +
-    '  background-color: #006fbb;' +
+    '  position: fixed;' +
+    '  background-color: #005cd4;' +
     '  color: white;' +
-    '  font-size: 11px;' +
+    '  font-size: 12px;' +
     '  font-weight: 600;' +
-    '  padding: 2px 6px;' +
+    '  padding: 4px 10px;' +
     '  line-height: 1.4;' +
     '  white-space: nowrap;' +
     '  z-index: 999999;' +
-    '  pointer-events: none;';
-  ('}');
+    '  pointer-events: none;' +
+    '  border-radius: 4px;' +
+    '}';
   document.head.appendChild(style);
   let currentSelectedElement = null;
   let hoveredElement = null;
