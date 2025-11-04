@@ -37,29 +37,7 @@ export function ColorSetting({ id, label, value, onChange, info }: ColorSettingP
 
   return (
     <BlockStack gap="200">
-      <TextField
-        id={id}
-        label={label}
-        value={value}
-        onChange={handleChange}
-        helpText={info}
-        autoComplete="off"
-        prefix={
-          <Box
-            style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '4px',
-              backgroundColor: value || '#000000',
-              border: '1px solid #e1e3e5',
-              cursor: 'pointer',
-            }}
-            onClick={() => {
-              // TODO: Abrir color picker
-            }}
-          />
-        }
-      />
+      <TextField id={id} label={label} value={value} onChange={handleChange} helpText={info} autoComplete="off" />
     </BlockStack>
   );
 }

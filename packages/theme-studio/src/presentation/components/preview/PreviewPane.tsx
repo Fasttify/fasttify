@@ -16,6 +16,7 @@ interface PreviewPaneProps {
   currentPath?: string;
   selectedSectionId?: string | null;
   selectedBlockId?: string | null;
+  selectedElementName?: string | null;
   onPathChange?: (newPath: string) => void;
   onElementClick?: (sectionId: string | null, blockId: string | null) => void;
 }
@@ -26,6 +27,7 @@ export function PreviewPane({
   currentPath = '/',
   selectedSectionId,
   selectedBlockId,
+  selectedElementName,
   onPathChange,
   onElementClick,
 }: PreviewPaneProps) {
@@ -42,6 +44,7 @@ export function PreviewPane({
     iframeRef,
     selectedSectionId: selectedSectionId || null,
     selectedBlockId: selectedBlockId || null,
+    selectedElementName: selectedElementName || null,
     domain,
     onElementClick,
   });

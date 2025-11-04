@@ -27,11 +27,93 @@ import { extractFunctionBody } from './extract-function-body.js';
  */
 function selectionModule() {
   /**
+   * Crea o actualiza la etiqueta visual del selector
+   * @param {Element} element - El elemento al que agregar la etiqueta
+   * @param {string} labelText - El texto a mostrar en la etiqueta
+   * @param {boolean} isHover - Si es true, usa la etiqueta de hover; si es false, usa la de selección
+   */
+  window.updateLabel = function (element, labelText, isHover) {
+    if (!element || !labelText) return;
+
+    // Remover etiqueta anterior si existe
+    const labelVar = isHover ? 'hoverLabelElement' : 'currentLabelElement';
+    const existingLabel = isHover ? hoverLabelElement : currentLabelElement;
+    if (existingLabel && existingLabel.parentNode) {
+      existingLabel.parentNode.removeChild(existingLabel);
+    }
+
+    // Crear nueva etiqueta
+    const label = document.createElement('div');
+    label.className = 'fasttify-selector-label';
+    label.textContent = labelText;
+
+    // Calcular posición relativa al viewport visible del elemento
+    const rect = element.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+    // Posicionar la etiqueta en la esquina superior izquierda visible
+    label.style.position = 'fixed';
+    label.style.top = Math.max(0, rect.top + scrollTop - 2) + 'px';
+    label.style.left = Math.max(0, rect.left + scrollLeft - 2) + 'px';
+
+    document.body.appendChild(label);
+
+    // Guardar referencia
+    if (isHover) {
+      hoverLabelElement = label;
+    } else {
+      currentLabelElement = label;
+    }
+
+    // Actualizar posición en scroll y resize
+    const updatePosition = function () {
+      const newRect = element.getBoundingClientRect();
+      const newScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const newScrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      label.style.top = Math.max(0, newRect.top + newScrollTop - 2) + 'px';
+      label.style.left = Math.max(0, newRect.left + newScrollLeft - 2) + 'px';
+    };
+
+    // Agregar listeners temporales para actualizar posición
+    window.addEventListener('scroll', updatePosition, { passive: true });
+    window.addEventListener('resize', updatePosition, { passive: true });
+
+    // Guardar función de cleanup en el elemento label
+    label._cleanup = function () {
+      window.removeEventListener('scroll', updatePosition);
+      window.removeEventListener('resize', updatePosition);
+    };
+  };
+
+  /**
+   * Remueve la etiqueta del selector
+   * @param {boolean} isHover - Si es true, remueve la etiqueta de hover; si es false, remueve la de selección
+   */
+  window.removeLabel = function (isHover) {
+    const label = isHover ? hoverLabelElement : currentLabelElement;
+    if (label && label.parentNode) {
+      if (label._cleanup) {
+        label._cleanup();
+      }
+      label.parentNode.removeChild(label);
+    }
+    if (isHover) {
+      hoverLabelElement = null;
+    } else {
+      currentLabelElement = null;
+    }
+  };
+
+  /**
    * Limpia la selección actual removiendo la clase de selección del elemento
    */
   function clearSelection() {
     if (currentSelectedElement) {
       currentSelectedElement.classList.remove(SELECTED_CLASS);
+      if (typeof window.removeLabel === 'function') {
+        window.removeLabel(false);
+      }
       currentSelectedElement = null;
     }
   }
@@ -41,8 +123,9 @@ function selectionModule() {
    * @param {string|null} sectionId - ID de la sección a seleccionar
    * @param {string|null} blockId - ID del bloque a seleccionar
    * @param {number} [timestamp] - Timestamp para ignorar mensajes obsoletos
+   * @param {string} [elementName] - Nombre del elemento a mostrar en la etiqueta
    */
-  function selectElement(sectionId, blockId, timestamp) {
+  function selectElement(sectionId, blockId, timestamp, elementName) {
     // Ignorar mensajes obsoletos
     if (timestamp && timestamp < lastSelectionTimestamp) {
       return;
@@ -68,6 +151,11 @@ function selectionModule() {
         element.classList.add(SELECTED_CLASS);
         currentSelectedElement = element;
 
+        // Mostrar etiqueta con el nombre del elemento
+        if (elementName && typeof window.updateLabel === 'function') {
+          window.updateLabel(element, elementName, false);
+        }
+
         // Cancelar scroll anterior si hay uno pendiente
         if (scrollAnimationFrame !== null) {
           cancelAnimationFrame(scrollAnimationFrame);
@@ -82,6 +170,12 @@ function selectionModule() {
             behavior: 'smooth',
             block: 'center',
           });
+          // Actualizar posición de la etiqueta después del scroll
+          if (elementName && currentLabelElement && typeof window.updateLabel === 'function') {
+            setTimeout(function () {
+              window.updateLabel(element, elementName, false);
+            }, 100);
+          }
         });
       }
     }

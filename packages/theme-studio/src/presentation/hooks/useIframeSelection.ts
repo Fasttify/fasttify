@@ -22,6 +22,7 @@ interface UseIframeSelectionParams {
   iframeRef: RefObject<HTMLIFrameElement | null>;
   selectedSectionId: string | null;
   selectedBlockId: string | null;
+  selectedElementName?: string | null;
   domain?: string | null;
   onElementClick?: (sectionId: string | null, blockId: string | null) => void;
 }
@@ -38,6 +39,7 @@ export function useIframeSelection({
   iframeRef,
   selectedSectionId,
   selectedBlockId,
+  selectedElementName,
   domain,
   onElementClick,
 }: UseIframeSelectionParams) {
@@ -159,6 +161,7 @@ export function useIframeSelection({
         type: 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT',
         sectionId: selectedSectionId,
         blockId: selectedBlockId,
+        elementName: selectedElementName || null,
         timestamp,
       };
 
@@ -194,7 +197,7 @@ export function useIframeSelection({
     } catch (error) {
       console.debug('Cannot send message to iframe (cross-origin):', error);
     }
-  }, [iframeRef, selectedSectionId, selectedBlockId]);
+  }, [iframeRef, selectedSectionId, selectedBlockId, selectedElementName]);
 
   // Limpiar selección cuando se desmonta el componente
   useEffect(() => {

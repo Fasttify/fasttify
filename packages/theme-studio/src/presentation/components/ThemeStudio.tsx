@@ -12,6 +12,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStoreTemplates } from '../hooks/useStoreTemplates';
 import { useSidebarState } from '../hooks/useSidebarState';
+import { useSelectedSection } from '../hooks/useSelectedSection';
 
 export interface ThemeStudioProps {
   storeId: string;
@@ -33,6 +34,27 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
   const router = useRouter();
 
   const sidebarState = useSidebarState();
+
+  const selectedSectionData = useSelectedSection({
+    storeId,
+    apiBaseUrl,
+    currentPageId,
+    selectedSectionId: sidebarState.selectedSectionId,
+    selectedBlockId: sidebarState.selectedBlockId,
+  });
+
+  const selectedElementName = useMemo(() => {
+    if (selectedSectionData.block && selectedSectionData.schema) {
+      const blockSchema = selectedSectionData.section?.schema.blocks?.find(
+        (b: any) => b.type === selectedSectionData.block?.type
+      );
+      return blockSchema?.name || selectedSectionData.block.type;
+    }
+    if (selectedSectionData.section) {
+      return selectedSectionData.section.name || selectedSectionData.section.id;
+    }
+    return null;
+  }, [selectedSectionData]);
 
   const handleElementClick = useCallback(
     (sectionId: string | null, blockId: string | null) => {
@@ -91,6 +113,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
               currentPath={currentPath}
               selectedSectionId={sidebarState.selectedSectionId}
               selectedBlockId={sidebarState.selectedBlockId}
+              selectedElementName={selectedElementName}
               onPathChange={(newPath) => {
                 setCurrentPath(newPath);
                 const page = pages.find((p) => p.url === newPath);
