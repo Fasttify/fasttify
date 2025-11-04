@@ -22,9 +22,10 @@ interface UseIframeSelectionParams {
   iframeRef: RefObject<HTMLIFrameElement | null>;
   selectedSectionId: string | null;
   selectedBlockId: string | null;
+  selectedSubBlockId?: string | null;
   selectedElementName?: string | null;
   domain?: string | null;
-  onElementClick?: (sectionId: string | null, blockId: string | null) => void;
+  onElementClick?: (sectionId: string | null, blockId: string | null, subBlockId?: string | null) => void;
 }
 
 /**
@@ -39,6 +40,7 @@ export function useIframeSelection({
   iframeRef,
   selectedSectionId,
   selectedBlockId,
+  selectedSubBlockId,
   selectedElementName,
   domain,
   onElementClick,
@@ -46,6 +48,7 @@ export function useIframeSelection({
   const scriptInjectedRef = useRef(false);
   const lastSelectedSectionIdRef = useRef<string | null>(null);
   const lastSelectedBlockIdRef = useRef<string | null>(null);
+  const lastSelectedSubBlockIdRef = useRef<string | null>(null);
 
   // Inyectar script en el iframe cuando carga
   useEffect(() => {
@@ -123,11 +126,11 @@ export function useIframeSelection({
       }
 
       if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_ELEMENT_CLICKED') {
-        const { sectionId, blockId } = event.data;
+        const { sectionId, blockId, subBlockId } = event.data;
 
-        // Notificar al componente padre
+        // Notificar al componente padre con todos los IDs disponibles
         if (onElementClick) {
-          onElementClick(sectionId || null, blockId || null);
+          onElementClick(sectionId || null, blockId || null, subBlockId || null);
         }
       }
     };
@@ -145,12 +148,17 @@ export function useIframeSelection({
     if (!iframe) return;
 
     // Solo enviar si realmente cambió la selección
-    if (selectedSectionId === lastSelectedSectionIdRef.current && selectedBlockId === lastSelectedBlockIdRef.current) {
+    if (
+      selectedSectionId === lastSelectedSectionIdRef.current &&
+      selectedBlockId === lastSelectedBlockIdRef.current &&
+      selectedSubBlockId === lastSelectedSubBlockIdRef.current
+    ) {
       return;
     }
 
     lastSelectedSectionIdRef.current = selectedSectionId;
     lastSelectedBlockIdRef.current = selectedBlockId;
+    lastSelectedSubBlockIdRef.current = selectedSubBlockId || null;
 
     try {
       const iframeWindow = iframe.contentWindow;
@@ -161,6 +169,7 @@ export function useIframeSelection({
         type: 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT',
         sectionId: selectedSectionId,
         blockId: selectedBlockId,
+        subBlockId: selectedSubBlockId || null,
         elementName: selectedElementName || null,
         timestamp,
       };

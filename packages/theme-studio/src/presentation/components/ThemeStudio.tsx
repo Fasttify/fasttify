@@ -61,10 +61,15 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
   }, [selectedSectionData]);
 
   const handleElementClick = useCallback(
-    (sectionId: string | null, blockId: string | null) => {
-      if (blockId && sectionId) {
+    (sectionId: string | null, blockId: string | null, subBlockId?: string | null) => {
+      if (subBlockId && blockId && sectionId) {
+        // Si hay subBlockId, seleccionar el sub-bloque
+        sidebarState.selectSubBlock(subBlockId, blockId, sectionId);
+      } else if (blockId && sectionId) {
+        // Si solo hay blockId, seleccionar el bloque
         sidebarState.selectBlock(blockId, sectionId);
       } else if (sectionId) {
+        // Si solo hay sectionId, seleccionar la sección
         sidebarState.selectSection(sectionId);
       } else {
         sidebarState.clearSelection();
@@ -117,6 +122,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
               currentPath={currentPath}
               selectedSectionId={sidebarState.selectedSectionId}
               selectedBlockId={sidebarState.selectedBlockId}
+              selectedSubBlockId={sidebarState.selectedSubBlockId}
               selectedElementName={selectedElementName}
               onPathChange={(newPath) => {
                 setCurrentPath(newPath);

@@ -118,13 +118,14 @@ function selectionModule() {
   }
 
   /**
-   * Selecciona un elemento por su sectionId o blockId y hace scroll suave hacia él
+   * Selecciona un elemento por su sectionId, blockId o subBlockId y hace scroll suave hacia él
    * @param {string|null} sectionId - ID de la sección a seleccionar
    * @param {string|null} blockId - ID del bloque a seleccionar
+   * @param {string|null} subBlockId - ID del sub-bloque a seleccionar
    * @param {number} [timestamp] - Timestamp para ignorar mensajes obsoletos
    * @param {string} [elementName] - Nombre del elemento a mostrar en la etiqueta
    */
-  function selectElement(sectionId, blockId, timestamp, elementName) {
+  function selectElement(sectionId, blockId, subBlockId, timestamp, elementName) {
     // Ignorar mensajes obsoletos
     if (timestamp && timestamp < lastSelectionTimestamp) {
       return;
@@ -137,12 +138,17 @@ function selectionModule() {
     }
 
     clearSelection();
-    if (!sectionId && !blockId) return;
+    if (!sectionId && !blockId && !subBlockId) return;
     let selector = '';
-    if (blockId) {
-      selector = '[data-block-id="' + blockId + '"]';
+    if (subBlockId) {
+      // Si hay subBlockId, buscar por data-sub-block-id
+      selector = '[data-sub-block-id="' + subBlockId + '"]';
+    } else if (blockId) {
+      // Si hay blockId pero no subBlockId, buscar por data-block-id (y asegurarse de que no tenga data-sub-block-id)
+      selector = '[data-block-id="' + blockId + '"]:not([data-sub-block-id])';
     } else if (sectionId) {
-      selector = '[data-section-id="' + sectionId + '"]';
+      // Si solo hay sectionId, buscar por data-section-id (y asegurarse de que no tenga data-block-id)
+      selector = '[data-section-id="' + sectionId + '"]:not([data-block-id])';
     }
     if (selector) {
       const element = document.querySelector(selector);

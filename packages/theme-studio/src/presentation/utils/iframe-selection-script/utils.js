@@ -27,7 +27,7 @@ import { extractFunctionBody } from './extract-function-body.js';
  */
 function utilsModule() {
   /**
-   * Busca el elemento seleccionable más cercano (con data-section-id o data-block-id)
+   * Busca el elemento seleccionable más cercano (con data-section-id, data-block-id o data-sub-block-id)
    * subiendo en el árbol DOM desde el elemento dado
    * @param {Element|null} element - El elemento desde donde comenzar la búsqueda
    * @returns {Element|null} El elemento seleccionable encontrado o null
@@ -36,7 +36,12 @@ function utilsModule() {
     if (!element) return null;
     let current = element;
     while (current && current.nodeType === 1) {
-      if (current.hasAttribute && (current.hasAttribute('data-section-id') || current.hasAttribute('data-block-id'))) {
+      if (
+        current.hasAttribute &&
+        (current.hasAttribute('data-section-id') ||
+          current.hasAttribute('data-block-id') ||
+          current.hasAttribute('data-sub-block-id'))
+      ) {
         return current;
       }
       current = current.parentElement;
@@ -45,14 +50,15 @@ function utilsModule() {
   }
 
   /**
-   * Extrae los IDs de sección y bloque de un elemento
+   * Extrae los IDs de sección, bloque y sub-bloque de un elemento
    * @param {Element} element - El elemento del cual extraer los IDs
-   * @returns {{sectionId: string|null, blockId: string|null}} Objeto con sectionId y blockId
+   * @returns {{sectionId: string|null, blockId: string|null, subBlockId: string|null}} Objeto con sectionId, blockId y subBlockId
    */
   function getElementIds(element) {
     return {
       sectionId: element.getAttribute('data-section-id'),
       blockId: element.getAttribute('data-block-id'),
+      subBlockId: element.getAttribute('data-sub-block-id'),
     };
   }
 
@@ -63,13 +69,15 @@ function utilsModule() {
    */
   function getElementName(element) {
     if (!element) return null;
-    // Prioridad: data-block-name > data-section-name > blockId > sectionId
+    // Prioridad: data-sub-block-name > data-block-name > data-section-name > subBlockId > blockId > sectionId
+    const subBlockName = element.getAttribute('data-sub-block-name');
+    if (subBlockName) return subBlockName;
     const blockName = element.getAttribute('data-block-name');
     if (blockName) return blockName;
     const sectionName = element.getAttribute('data-section-name');
     if (sectionName) return sectionName;
-    const { blockId, sectionId } = getElementIds(element);
-    return blockId || sectionId || null;
+    const { subBlockId, blockId, sectionId } = getElementIds(element);
+    return subBlockId || blockId || sectionId || null;
   }
 }
 

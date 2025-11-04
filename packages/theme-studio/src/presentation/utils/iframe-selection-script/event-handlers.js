@@ -59,13 +59,14 @@ function eventHandlersModule() {
       }
 
       // Siempre enviar el mensaje de selección, pero no interferir con elementos interactivos
-      const { sectionId, blockId } = getElementIds(selectableElement);
+      const { sectionId, blockId, subBlockId } = getElementIds(selectableElement);
       if (window.parent) {
         window.parent.postMessage(
           {
             type: 'FASTTIFY_THEME_STUDIO_ELEMENT_CLICKED',
             sectionId,
             blockId,
+            subBlockId,
           },
           '*'
         );
@@ -176,7 +177,13 @@ function eventHandlersModule() {
     const isSameOrigin = event.origin === window.location.origin;
     if (!isSameOrigin && !isLocalhost) return;
     if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT') {
-      selectElement(event.data.sectionId, event.data.blockId, event.data.timestamp, event.data.elementName);
+      selectElement(
+        event.data.sectionId,
+        event.data.blockId,
+        event.data.subBlockId,
+        event.data.timestamp,
+        event.data.elementName
+      );
     } else if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_CLEAR_SELECTION') {
       clearSelection();
       lastSelectionTimestamp = 0;
