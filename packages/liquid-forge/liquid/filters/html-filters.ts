@@ -17,6 +17,7 @@
 import { logger } from '../../lib/logger';
 import type { LiquidFilter } from '../../types';
 import { PATH_PATTERNS } from '../../lib/regex-patterns';
+import { fasttifyAttributesFilter } from './fasttify-attributes-filter';
 
 /**
  * Filtro asset_url - Para archivos estáticos (CSS, JS, imágenes de tema)
@@ -236,4 +237,5 @@ export const htmlFilters: LiquidFilter[] = [
   defaultPaginationFilter,
   imgTagFilter,
   inlineAssetContentFilter,
+  fasttifyAttributesFilter,
 ];

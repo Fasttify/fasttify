@@ -74,7 +74,18 @@ export const fasttifyAttributesFilter: LiquidFilter = {
 
         if (isBlock) {
           // Verificar si es un sub-bloque (tiene parentBlock o está dentro de otro bloque)
-          if (parentBlock || (this.context?.getSync && this.context.getSync(['parentBlock']))) {
+          let hasParentBlock = false;
+          if (parentBlock) {
+            hasParentBlock = true;
+          } else {
+            try {
+              hasParentBlock = !!(this.context?.getSync && this.context.getSync(['parentBlock']));
+            } catch (error) {
+              // Ignorar errores silenciosamente
+            }
+          }
+
+          if (hasParentBlock) {
             isSubBlock = true;
             subBlockId = obj.id;
             // Si hay parentBlock pasado como argumento, obtener su blockId
@@ -150,7 +161,14 @@ export const fasttifyAttributesFilter: LiquidFilter = {
 
         try {
           const section = this.context?.getSync(['section']);
-          const parentBlockFromContext = parentBlock || this.context?.getSync(['parentBlock']);
+          let parentBlockFromContext = parentBlock;
+          if (!parentBlockFromContext) {
+            try {
+              parentBlockFromContext = this.context?.getSync(['parentBlock']);
+            } catch (error) {
+              // Ignorar errores silenciosamente
+            }
+          }
 
           // Prioridad: nombre personalizado del sub-bloque > nombre del schema
           let subBlockName: string | undefined;
