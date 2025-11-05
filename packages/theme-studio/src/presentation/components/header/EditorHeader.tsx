@@ -22,6 +22,7 @@ interface EditorHeaderProps {
   onRedo?: () => void;
   onSave?: () => void;
   isSaving?: boolean;
+  hasPendingChanges?: boolean;
   onPageSelect?: (pageId: string, pageUrl: string) => void;
 }
 
@@ -38,6 +39,7 @@ export function EditorHeader({
   onRedo,
   onSave,
   isSaving,
+  hasPendingChanges = false,
   onPageSelect,
 }: EditorHeaderProps) {
   const { isLoading: isLoadingTemplates } = useStoreTemplates({
@@ -134,7 +136,7 @@ export function EditorHeader({
               onClick={onSave}
               loading={isSaving}
               accessibilityLabel="Guardar"
-              disabled={isSaving}>
+              disabled={isSaving || !hasPendingChanges}>
               {isSaving ? 'Guardando...' : 'Guardar'}
             </Button>
           </Tooltip>

@@ -15,6 +15,7 @@ import { useSidebarState } from '../hooks/useSidebarState';
 import { useSelectedSection } from '../hooks/useSelectedSection';
 import { useHotReload } from '../hooks/useHotReload';
 import { useHistory } from '../hooks/useHistory';
+import { useSaveChanges } from '../hooks/useSaveChanges';
 
 export interface ThemeStudioProps {
   storeId: string;
@@ -51,6 +52,13 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
     devServer: hotReload.devServer,
     templateManager: hotReload.templateManager,
     historyManager: hotReload.historyManager,
+  });
+
+  const saveChanges = useSaveChanges({
+    storeId,
+    apiBaseUrl,
+    templateManager: hotReload.templateManager,
+    templateType: currentPageId as any,
   });
 
   const selectedSectionData = useSelectedSection({
@@ -114,8 +122,9 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
         onInspector={() => {}}
         onUndo={history.canUndo ? history.undo : undefined}
         onRedo={history.canRedo ? history.redo : undefined}
-        onSave={() => {}}
-        isSaving={false}
+        onSave={saveChanges.save}
+        isSaving={saveChanges.isSaving}
+        hasPendingChanges={hotReload.hasPendingChanges}
         onPageSelect={(pageId, pageUrl) => {
           setCurrentPath(pageUrl);
           setCurrentPageId(pageId);
