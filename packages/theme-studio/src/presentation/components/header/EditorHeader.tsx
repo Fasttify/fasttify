@@ -115,6 +115,7 @@ export function EditorHeader({
               accessibilityLabel="Deshacer"
               icon={<Icon source={UndoIcon} />}
               variant="tertiary"
+              disabled={!onUndo}
             />
           </Tooltip>
           <Tooltip content="Rehacer (Ctrl+Y)">
@@ -123,6 +124,7 @@ export function EditorHeader({
               accessibilityLabel="Rehacer"
               icon={<Icon source={RedoIcon} />}
               variant="tertiary"
+              disabled={!onRedo}
             />
           </Tooltip>
 

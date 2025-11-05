@@ -16,6 +16,7 @@
 
 import type { IDevServer, UpdateBlockSettingParams } from '../../domain/ports/dev-server.port';
 import type { ITemplateManager } from '../../domain/ports/template-manager.port';
+import type { IHistoryManager } from '../../domain/ports/history-manager.port';
 import type { ChangeType } from '../../domain/entities/editor-session.entity';
 
 /**
@@ -25,12 +26,18 @@ import type { ChangeType } from '../../domain/entities/editor-session.entity';
 export class UpdateBlockSettingUseCase {
   constructor(
     private readonly devServer: IDevServer,
-    private readonly templateManager: ITemplateManager
+    private readonly templateManager: ITemplateManager,
+    private readonly historyManager?: IHistoryManager
   ) {}
 
   async execute(params: UpdateBlockSettingParams): Promise<void> {
     if (!this.devServer.isConnected()) {
       throw new Error('Dev Server is not connected');
+    }
+
+    const templateBefore = this.templateManager.getCurrentTemplate();
+    if (!templateBefore) {
+      throw new Error('No template loaded');
     }
 
     const change = {
@@ -43,7 +50,12 @@ export class UpdateBlockSettingUseCase {
       timestamp: Date.now(),
     };
 
-    this.templateManager.applyChange(change);
+    const templateAfter = this.templateManager.applyChange(change);
+
+    if (this.historyManager) {
+      this.historyManager.recordChange(change, templateBefore, templateAfter);
+    }
+
     await this.devServer.updateBlockSetting(params);
   }
 }

@@ -16,6 +16,7 @@
 
 import type { IDevServer, UpdateSectionSettingParams } from '../../domain/ports/dev-server.port';
 import type { ITemplateManager } from '../../domain/ports/template-manager.port';
+import type { IHistoryManager } from '../../domain/ports/history-manager.port';
 import type { ChangeType } from '../../domain/entities/editor-session.entity';
 
 /**
@@ -25,7 +26,8 @@ import type { ChangeType } from '../../domain/entities/editor-session.entity';
 export class UpdateSectionSettingUseCase {
   constructor(
     private readonly devServer: IDevServer,
-    private readonly templateManager: ITemplateManager
+    private readonly templateManager: ITemplateManager,
+    private readonly historyManager?: IHistoryManager
   ) {}
 
   async execute(params: UpdateSectionSettingParams): Promise<void> {
@@ -34,7 +36,13 @@ export class UpdateSectionSettingUseCase {
       throw new Error('Dev Server is not connected');
     }
 
-    // 2. Aplicar cambio al template en memoria (optimistic update)
+    // 2. Obtener template antes del cambio para el historial
+    const templateBefore = this.templateManager.getCurrentTemplate();
+    if (!templateBefore) {
+      throw new Error('No template loaded');
+    }
+
+    // 3. Aplicar cambio al template en memoria (optimistic update)
     const change = {
       id: `change-${Date.now()}-${Math.random()}`,
       type: 'UPDATE_SECTION_SETTING' as ChangeType,
@@ -44,9 +52,14 @@ export class UpdateSectionSettingUseCase {
       timestamp: Date.now(),
     };
 
-    this.templateManager.applyChange(change);
+    const templateAfter = this.templateManager.applyChange(change);
 
-    // 3. Enviar cambio al Dev Server para re-renderizado
+    // 4. Registrar en el historial si está disponible
+    if (this.historyManager) {
+      this.historyManager.recordChange(change, templateBefore, templateAfter);
+    }
+
+    // 5. Enviar cambio al Dev Server para re-renderizado
     await this.devServer.updateSectionSetting(params);
   }
 }

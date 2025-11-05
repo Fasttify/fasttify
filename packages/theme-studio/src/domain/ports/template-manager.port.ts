@@ -35,6 +35,13 @@ export interface ITemplateManager {
   getCurrentTemplate(): Template | null;
 
   /**
+   * Establecer el template directamente sin cargarlo desde el repositorio
+   * Útil cuando el template ya está disponible (por ejemplo, recibido por SSE o undo/redo)
+   * @param template - Template a establecer
+   */
+  setTemplate(template: Template): void;
+
+  /**
    * Aplicar un cambio al template en memoria
    * @param change - Cambio a aplicar
    */

@@ -21,9 +21,11 @@ import { UpdateSubBlockSettingUseCase } from '../../application/use-cases/update
 import { DevServerAdapter } from '../../infrastructure/adapters/dev-server.adapter';
 import { TemplateManagerAdapter } from '../../infrastructure/adapters/template-manager.adapter';
 import { TemplateRepositoryAdapter } from '../../infrastructure/adapters/template-repository.adapter';
+import { HistoryManagerAdapter } from '../../infrastructure/adapters/history-manager.adapter';
 import type { RefObject } from 'react';
 import type { TemplateType } from '../../domain/entities/template.entity';
 import type { ChangeAppliedCallback, ErrorCallback } from '../../domain/ports/dev-server.port';
+import type { IHistoryManager } from '../../domain/ports/history-manager.port';
 
 interface UseHotReloadParams {
   storeId: string;
@@ -45,6 +47,9 @@ interface UseHotReloadResult {
   ) => Promise<void>;
   isConnected: boolean;
   hasPendingChanges: boolean;
+  devServer: DevServerAdapter | null;
+  templateManager: TemplateManagerAdapter | null;
+  historyManager: IHistoryManager | null;
 }
 
 /**
@@ -61,6 +66,7 @@ export function useHotReload({
 }: UseHotReloadParams): UseHotReloadResult {
   const devServerRef = useRef<DevServerAdapter | null>(null);
   const templateManagerRef = useRef<TemplateManagerAdapter | null>(null);
+  const historyManagerRef = useRef<HistoryManagerAdapter | null>(null);
   const updateSectionSettingUseCaseRef = useRef<UpdateSectionSettingUseCase | null>(null);
   const updateBlockSettingUseCaseRef = useRef<UpdateBlockSettingUseCase | null>(null);
   const updateSubBlockSettingUseCaseRef = useRef<UpdateSubBlockSettingUseCase | null>(null);
@@ -109,19 +115,32 @@ export function useHotReload({
       const devServer = new DevServerAdapter(apiBaseUrl);
       const templateRepository = new TemplateRepositoryAdapter(apiBaseUrl);
       const templateManager = new TemplateManagerAdapter(templateRepository);
+      const historyManager = new HistoryManagerAdapter();
 
       devServerRef.current = devServer;
       templateManagerRef.current = templateManager;
-      updateSectionSettingUseCaseRef.current = new UpdateSectionSettingUseCase(devServer, templateManager);
-      updateBlockSettingUseCaseRef.current = new UpdateBlockSettingUseCase(devServer, templateManager);
-      updateSubBlockSettingUseCaseRef.current = new UpdateSubBlockSettingUseCase(devServer, templateManager);
+      historyManagerRef.current = historyManager;
+      updateSectionSettingUseCaseRef.current = new UpdateSectionSettingUseCase(
+        devServer,
+        templateManager,
+        historyManager
+      );
+      updateBlockSettingUseCaseRef.current = new UpdateBlockSettingUseCase(devServer, templateManager, historyManager);
+      updateSubBlockSettingUseCaseRef.current = new UpdateSubBlockSettingUseCase(
+        devServer,
+        templateManager,
+        historyManager
+      );
     }
 
     const devServer = devServerRef.current!;
     const templateManager = templateManagerRef.current!;
+    const historyManager = historyManagerRef.current!;
 
     // Reconectar si cambió la página
     if (needsReconnect) {
+      // Limpiar historial al cambiar de página
+      historyManager.clear();
       devServer
         .disconnect()
         .then(() => connectAndLoadTemplate(devServer, templateManager, currentPageId))
@@ -198,5 +217,8 @@ export function useHotReload({
     updateSubBlockSetting,
     isConnected,
     hasPendingChanges,
+    devServer: devServerRef.current,
+    templateManager: templateManagerRef.current,
+    historyManager: historyManagerRef.current,
   };
 }

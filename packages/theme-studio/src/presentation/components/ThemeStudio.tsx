@@ -14,6 +14,7 @@ import { useStoreTemplates } from '../hooks/useStoreTemplates';
 import { useSidebarState } from '../hooks/useSidebarState';
 import { useSelectedSection } from '../hooks/useSelectedSection';
 import { useHotReload } from '../hooks/useHotReload';
+import { useHistory } from '../hooks/useHistory';
 
 export interface ThemeStudioProps {
   storeId: string;
@@ -43,6 +44,13 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
     iframeRef,
     currentPageId,
     enabled: true,
+  });
+
+  const history = useHistory({
+    storeId,
+    devServer: hotReload.devServer,
+    templateManager: hotReload.templateManager,
+    historyManager: hotReload.historyManager,
   });
 
   const selectedSectionData = useSelectedSection({
@@ -104,8 +112,8 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
         onChangeDevice={setDevice}
         onExit={() => router.back()}
         onInspector={() => {}}
-        onUndo={() => {}}
-        onRedo={() => {}}
+        onUndo={history.canUndo ? history.undo : undefined}
+        onRedo={history.canRedo ? history.redo : undefined}
         onSave={() => {}}
         isSaving={false}
         onPageSelect={(pageId, pageUrl) => {

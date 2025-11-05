@@ -20,3 +20,6 @@ export { UpdateSectionSettingUseCase } from './update-section-setting.use-case';
 export { UpdateBlockSettingUseCase } from './update-block-setting.use-case';
 export { UpdateSubBlockSettingUseCase } from './update-sub-block-setting.use-case';
 export { SaveChangesUseCase } from './save-changes.use-case';
+export { RecordChangeUseCase } from './record-change.use-case';
+export { UndoChangeUseCase } from './undo-change.use-case';
+export { RedoChangeUseCase } from './redo-change.use-case';

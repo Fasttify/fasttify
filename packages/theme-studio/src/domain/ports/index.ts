@@ -28,3 +28,4 @@ export type {
 } from './dev-server.port';
 export type { ITemplateRenderer, RenderSectionParams, RenderSectionResult } from './template-renderer.port';
 export type { ITemplateManager } from './template-manager.port';
+export type { IHistoryManager } from './history-manager.port';
