@@ -9,7 +9,8 @@ import { PreviewPane } from './preview/PreviewPane';
 import { SettingsPane } from './settings/SettingsPane';
 import { EditorHeader } from './header/EditorHeader';
 import { ShortcutsModal } from './shortcuts/ShortcutsModal';
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { UnsavedChangesModal } from './unsaved-changes/UnsavedChangesModal';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStoreTemplates } from '../hooks/useStoreTemplates';
 import { useSidebarState } from '../hooks/useSidebarState';
@@ -37,6 +38,8 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
   const [currentPageId, setCurrentPageId] = useState('index');
   const [inspectorEnabled, setInspectorEnabled] = useState(true);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
+  const [pendingExit, setPendingExit] = useState<(() => void) | null>(null);
   const { pages } = useStoreTemplates({ storeId, apiBaseUrl });
   const router = useRouter();
 
@@ -125,6 +128,44 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
     setShowShortcutsModal(false);
   }, []);
 
+  const handleExit = useCallback(() => {
+    if (hotReload.hasPendingChanges) {
+      setPendingExit(() => router.back);
+      setShowUnsavedChangesModal(true);
+    } else {
+      router.back();
+    }
+  }, [hotReload.hasPendingChanges, router]);
+
+  const handleStay = useCallback(() => {
+    setShowUnsavedChangesModal(false);
+    setPendingExit(null);
+  }, []);
+
+  const handleLeave = useCallback(() => {
+    setShowUnsavedChangesModal(false);
+    if (pendingExit) {
+      pendingExit();
+      setPendingExit(null);
+    }
+  }, [pendingExit]);
+
+  // Prevenir cierre de la pestaña/ventana con cambios sin guardar
+  useEffect(() => {
+    if (!hotReload.hasPendingChanges) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hotReload.hasPendingChanges]);
+
   useKeyboardShortcuts({
     onUndo: history.canUndo ? history.undo : undefined,
     onRedo: history.canRedo ? history.redo : undefined,
@@ -142,7 +183,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
         live
         device={device}
         onChangeDevice={setDevice}
-        onExit={() => router.back()}
+        onExit={handleExit}
         onInspector={handleToggleInspector}
         onUndo={history.canUndo ? history.undo : undefined}
         onRedo={history.canRedo ? history.redo : undefined}
@@ -200,6 +241,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
         </div>
       </div>
       <ShortcutsModal open={showShortcutsModal} onClose={handleCloseShortcuts} />
+      <UnsavedChangesModal open={showUnsavedChangesModal} onStay={handleStay} onLeave={handleLeave} />
     </div>
   );
 }
