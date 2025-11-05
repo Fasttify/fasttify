@@ -21,6 +21,7 @@ import { useSelectedSection } from '../../hooks/useSelectedSection';
 import type { UseSidebarStateResult } from '../../hooks/useSidebarState';
 import { SettingsGroup } from './SettingsGroup';
 import { useSettingsPane } from '../../hooks/useSettingsPane';
+import { EmptySettingsState } from './EmptySettingsState';
 import { useMemo, useCallback } from 'react';
 
 interface SettingsPaneProps {
@@ -121,24 +122,7 @@ export function SettingsPane({
   }, [block, section]);
 
   if (!sidebarState.selectedSectionId) {
-    return (
-      <div>
-        <Box padding="200">
-          <Card padding="300">
-            <BlockStack gap="300">
-              <Text as="h2" variant="headingMd">
-                Ajustes
-              </Text>
-              <Box padding="200">
-                <Text as="p" variant="bodyMd" tone="subdued">
-                  Selecciona una sección o bloque para editar sus ajustes
-                </Text>
-              </Box>
-            </BlockStack>
-          </Card>
-        </Box>
-      </div>
-    );
+    return <EmptySettingsState />;
   }
 
   return (
