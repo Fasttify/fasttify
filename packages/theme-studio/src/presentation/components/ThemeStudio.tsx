@@ -8,6 +8,7 @@ import { Sidebar } from './sidebar/Sidebar';
 import { PreviewPane } from './preview/PreviewPane';
 import { SettingsPane } from './settings/SettingsPane';
 import { EditorHeader } from './header/EditorHeader';
+import { ShortcutsModal } from './shortcuts/ShortcutsModal';
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStoreTemplates } from '../hooks/useStoreTemplates';
@@ -16,6 +17,7 @@ import { useSelectedSection } from '../hooks/useSelectedSection';
 import { useHotReload } from '../hooks/useHotReload';
 import { useHistory } from '../hooks/useHistory';
 import { useSaveChanges } from '../hooks/useSaveChanges';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 export interface ThemeStudioProps {
   storeId: string;
@@ -33,6 +35,8 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [currentPath, setCurrentPath] = useState('/');
   const [currentPageId, setCurrentPageId] = useState('index');
+  const [inspectorEnabled, setInspectorEnabled] = useState(true);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const { pages } = useStoreTemplates({ storeId, apiBaseUrl });
   const router = useRouter();
 
@@ -109,6 +113,26 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
     return page?.name;
   }, [pages, currentPageId]);
 
+  const handleToggleInspector = useCallback(() => {
+    setInspectorEnabled((prev) => !prev);
+  }, []);
+
+  const handleShowShortcuts = useCallback(() => {
+    setShowShortcutsModal(true);
+  }, []);
+
+  const handleCloseShortcuts = useCallback(() => {
+    setShowShortcutsModal(false);
+  }, []);
+
+  useKeyboardShortcuts({
+    onUndo: history.canUndo ? history.undo : undefined,
+    onRedo: history.canRedo ? history.redo : undefined,
+    onSave: saveChanges.save,
+    onToggleInspector: handleToggleInspector,
+    onShowShortcuts: handleShowShortcuts,
+  });
+
   return (
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <EditorHeader
@@ -119,7 +143,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
         device={device}
         onChangeDevice={setDevice}
         onExit={() => router.back()}
-        onInspector={() => {}}
+        onInspector={handleToggleInspector}
         onUndo={history.canUndo ? history.undo : undefined}
         onRedo={history.canRedo ? history.redo : undefined}
         onSave={saveChanges.save}
@@ -152,6 +176,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
               selectedSubBlockId={sidebarState.selectedSubBlockId}
               selectedElementName={selectedElementName}
               iframeRef={iframeRef}
+              inspectorEnabled={inspectorEnabled}
               onPathChange={(newPath) => {
                 setCurrentPath(newPath);
                 const page = pages.find((p) => p.url === newPath);
@@ -174,6 +199,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
           </div>
         </div>
       </div>
+      <ShortcutsModal open={showShortcutsModal} onClose={handleCloseShortcuts} />
     </div>
   );
 }

@@ -67,12 +67,41 @@ function constantsModule(storeDomain) {
     '  border-radius: 4px;' +
     '}';
   document.head.appendChild(style);
+  let inspectorEnabled = true;
   let currentSelectedElement = null;
   let hoveredElement = null;
   let currentLabelElement = null;
   let hoverLabelElement = null;
   let lastSelectionTimestamp = 0;
   let scrollAnimationFrame = null;
+
+  /**
+   * Función global para toggle el inspector
+   * @param {boolean} enabled - Si el inspector está habilitado
+   */
+  window.toggleInspector = function (enabled) {
+    inspectorEnabled = enabled !== undefined ? enabled : !inspectorEnabled;
+    if (style) {
+      style.disabled = !inspectorEnabled;
+    }
+    // Limpiar selección cuando se desactiva
+    if (!inspectorEnabled) {
+      if (currentSelectedElement) {
+        currentSelectedElement.classList.remove(SELECTED_CLASS);
+        if (typeof window.removeLabel === 'function') {
+          window.removeLabel(false);
+        }
+        currentSelectedElement = null;
+      }
+      if (hoveredElement) {
+        hoveredElement.classList.remove(HOVER_CLASS);
+        if (typeof window.removeLabel === 'function') {
+          window.removeLabel(true);
+        }
+        hoveredElement = null;
+      }
+    }
+  };
 }
 
 /**

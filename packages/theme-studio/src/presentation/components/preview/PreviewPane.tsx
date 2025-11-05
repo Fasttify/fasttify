@@ -21,6 +21,7 @@ interface PreviewPaneProps {
   onPathChange?: (newPath: string) => void;
   onElementClick?: (sectionId: string | null, blockId: string | null, subBlockId?: string | null) => void;
   iframeRef?: React.RefObject<HTMLIFrameElement | null>;
+  inspectorEnabled?: boolean;
 }
 
 export function PreviewPane({
@@ -34,6 +35,7 @@ export function PreviewPane({
   onPathChange,
   onElementClick,
   iframeRef: externalIframeRef,
+  inspectorEnabled = true,
 }: PreviewPaneProps) {
   const { previewUrl } = usePreviewUrl({ domain, path: currentPath });
   const internalIframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -53,6 +55,7 @@ export function PreviewPane({
     selectedElementName: selectedElementName || null,
     domain,
     onElementClick,
+    inspectorEnabled,
   });
 
   const lastUrlRef = useRef<string | null>(null);

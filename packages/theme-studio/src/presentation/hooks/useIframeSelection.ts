@@ -26,6 +26,7 @@ interface UseIframeSelectionParams {
   selectedElementName?: string | null;
   domain?: string | null;
   onElementClick?: (sectionId: string | null, blockId: string | null, subBlockId?: string | null) => void;
+  inspectorEnabled?: boolean;
 }
 
 /**
@@ -44,6 +45,7 @@ export function useIframeSelection({
   selectedElementName,
   domain,
   onElementClick,
+  inspectorEnabled = true,
 }: UseIframeSelectionParams) {
   const scriptInjectedRef = useRef(false);
   const lastSelectedSectionIdRef = useRef<string | null>(null);
@@ -116,6 +118,8 @@ export function useIframeSelection({
 
   // Escuchar mensajes del iframe
   useEffect(() => {
+    if (!inspectorEnabled) return;
+
     const handleMessage = (event: MessageEvent) => {
       // Validar origen
       const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -140,10 +144,32 @@ export function useIframeSelection({
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [onElementClick]);
+  }, [inspectorEnabled, onElementClick]);
+
+  // Enviar mensaje al iframe cuando cambia el estado del inspector
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    try {
+      const iframeWindow = iframe.contentWindow;
+      if (!iframeWindow) return;
+
+      const message = {
+        type: 'FASTTIFY_THEME_STUDIO_TOGGLE_INSPECTOR',
+        enabled: inspectorEnabled,
+      };
+
+      iframeWindow.postMessage(message, '*');
+    } catch (error) {
+      console.debug('Cannot send message to iframe (cross-origin):', error);
+    }
+  }, [iframeRef, inspectorEnabled]);
 
   // Enviar mensaje al iframe cuando cambia la selección del sidebar
   useEffect(() => {
+    if (!inspectorEnabled) return;
+
     const iframe = iframeRef.current;
     if (!iframe) return;
 
@@ -206,7 +232,7 @@ export function useIframeSelection({
     } catch (error) {
       console.debug('Cannot send message to iframe (cross-origin):', error);
     }
-  }, [iframeRef, selectedSectionId, selectedBlockId, selectedElementName]);
+  }, [iframeRef, inspectorEnabled, selectedSectionId, selectedBlockId, selectedSubBlockId, selectedElementName]);
 
   // Limpiar selección cuando se desmonta el componente
   useEffect(() => {

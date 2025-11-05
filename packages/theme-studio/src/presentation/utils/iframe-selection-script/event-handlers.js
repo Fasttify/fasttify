@@ -33,6 +33,7 @@ function eventHandlersModule() {
    * @param {MouseEvent} event - El evento de click
    */
   function handleClick(event) {
+    if (inspectorEnabled === false) return;
     const target = event.target;
     const selectableElement = findSelectableElement(target);
 
@@ -93,6 +94,7 @@ function eventHandlersModule() {
    * @param {MouseEvent} event - El evento mouseenter
    */
   function handleMouseEnter(event) {
+    if (inspectorEnabled === false) return;
     // Cancelar cualquier timeout de leave pendiente
     if (leaveTimeout) {
       clearTimeout(leaveTimeout);
@@ -176,14 +178,20 @@ function eventHandlersModule() {
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const isSameOrigin = event.origin === window.location.origin;
     if (!isSameOrigin && !isLocalhost) return;
-    if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT') {
-      selectElement(
-        event.data.sectionId,
-        event.data.blockId,
-        event.data.subBlockId,
-        event.data.timestamp,
-        event.data.elementName
-      );
+    if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_TOGGLE_INSPECTOR') {
+      if (typeof window.toggleInspector === 'function') {
+        window.toggleInspector(event.data.enabled);
+      }
+    } else if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT') {
+      if (inspectorEnabled !== false) {
+        selectElement(
+          event.data.sectionId,
+          event.data.blockId,
+          event.data.subBlockId,
+          event.data.timestamp,
+          event.data.elementName
+        );
+      }
     } else if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_CLEAR_SELECTION') {
       clearSelection();
       lastSelectionTimestamp = 0;
