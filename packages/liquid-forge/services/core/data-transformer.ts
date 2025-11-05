@@ -47,6 +47,7 @@ export class DataTransformer {
 
   /**
    * Transforma array de imágenes desde JSON string o array
+   * Preserva URLs completas tal como vienen de la Lambda/CDN
    */
   public static transformImages(images: any, productName: string): any[] {
     let imagesArray = [];
@@ -64,10 +65,23 @@ export class DataTransformer {
     }
 
     return Array.isArray(imagesArray)
-      ? imagesArray.map((img: any) => ({
-          url: img.url || img.src || '',
-          alt: img.altText || img.alt || productName || '',
-        }))
+      ? imagesArray
+          .map((img: any) => {
+            // Preservar URL completa si existe, de lo contrario usar string vacío
+            const imageUrl = img.url || img.src || '';
+            const cleanUrl = typeof imageUrl === 'string' && imageUrl.trim() !== '' ? imageUrl : '';
+
+            // Solo incluir si hay URL válida
+            if (!cleanUrl) {
+              return null;
+            }
+
+            return {
+              url: cleanUrl,
+              alt: img.altText || img.alt || productName || '',
+            };
+          })
+          .filter((img): img is { url: string; alt: string } => img !== null)
       : [];
   }
 
