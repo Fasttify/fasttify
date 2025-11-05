@@ -9,13 +9,13 @@
       {% if hero_collection.image %}
         <img
           class="hero-image"
-          src="{{ hero_collection.image | img_url: '1920x1080' }}"
+          src="{{ hero_collection.image | img_url: 'webp', 1920, 1080 }}"
           alt="{{ hero_collection.title | escape }}"
           loading="lazy">
       {% elsif section.settings.fallback_image %}
         <img
           class="hero-image"
-          src="{{ section.settings.fallback_image | img_url: '1920x1080' }}"
+          src="{{ section.settings.fallback_image | img_url: 'webp', 1920, 1080 }}"
           alt="{{ hero_collection.title }}"
           loading="lazy">
       {% else %}

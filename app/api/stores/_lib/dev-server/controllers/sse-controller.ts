@@ -91,7 +91,7 @@ export async function handleSSEConnection(request: NextRequest): Promise<NextRes
       // Ping cada 30 segundos para mantener la conexión viva
       const pingInterval = setInterval(() => {
         try {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'ping' })}\n\n`));
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'PING' })}\n\n`));
         } catch (_error) {
           clearInterval(pingInterval);
         }
@@ -143,14 +143,24 @@ export function broadcastChangeApplied(
     payload: change,
   });
 
+  const deadConnections: ReadableStreamDefaultController[] = [];
+
   connections.forEach((controller) => {
     try {
       controller.enqueue(encoder.encode(`data: ${message}\n\n`));
-    } catch (error) {
-      logger.error('Error sending SSE change message', error, 'SSEController');
-      connections.delete(controller);
+    } catch (_error) {
+      deadConnections.push(controller);
     }
   });
+
+  // Limpiar conexiones muertas
+  deadConnections.forEach((controller) => {
+    connections.delete(controller);
+  });
+
+  if (deadConnections.length > 0 && connections.size === 0) {
+    activeConnections.delete(connectionKey);
+  }
 }
 
 /**
@@ -178,14 +188,24 @@ export function broadcastRenderError(
     },
   });
 
+  const deadConnections: ReadableStreamDefaultController[] = [];
+
   connections.forEach((controller) => {
     try {
       controller.enqueue(encoder.encode(`data: ${message}\n\n`));
-    } catch (err) {
-      logger.error('Error sending SSE error message', err, 'SSEController');
-      connections.delete(controller);
+    } catch (_err) {
+      deadConnections.push(controller);
     }
   });
+
+  // Limpiar conexiones muertas
+  deadConnections.forEach((controller) => {
+    connections.delete(controller);
+  });
+
+  if (deadConnections.length > 0 && connections.size === 0) {
+    activeConnections.delete(connectionKey);
+  }
 }
 
 /**
@@ -207,12 +227,22 @@ export function broadcastTemplateLoaded(storeId: string, templateType: TemplateT
     },
   });
 
+  const deadConnections: ReadableStreamDefaultController[] = [];
+
   connections.forEach((controller) => {
     try {
       controller.enqueue(encoder.encode(`data: ${message}\n\n`));
-    } catch (err) {
-      logger.error('Error sending SSE template loaded message', err, 'SSEController');
-      connections.delete(controller);
+    } catch (_err) {
+      deadConnections.push(controller);
     }
   });
+
+  // Limpiar conexiones muertas
+  deadConnections.forEach((controller) => {
+    connections.delete(controller);
+  });
+
+  if (deadConnections.length > 0 && connections.size === 0) {
+    activeConnections.delete(connectionKey);
+  }
 }

@@ -40,8 +40,10 @@ interface TemplateLoadPromise {
   reject: (error: Error) => void;
 }
 
-const CONNECTION_TIMEOUT_MS = 5000;
-const TEMPLATE_LOAD_TIMEOUT_MS = 10000;
+const CONNECTION_TIMEOUT_MS = 10000;
+const TEMPLATE_LOAD_TIMEOUT_MS = 15000;
+const RECONNECT_DELAY_MS = 2000;
+const MAX_RECONNECT_ATTEMPTS = 5;
 
 // Helper: Construir URL del SSE endpoint
 const buildSSEUrl = (apiBaseUrl: string, storeId: string, templateType: TemplateType): string => {
@@ -68,6 +70,9 @@ export class DevServerAdapter implements IDevServer {
   private storeId: string | null = null;
   private templateType: TemplateType | null = null;
   private templateLoadPromise: TemplateLoadPromise | null = null;
+  private reconnectAttempts: number = 0;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private isReconnecting: boolean = false;
 
   constructor(apiBaseUrl: string) {
     this.apiBaseUrl = apiBaseUrl;
@@ -83,10 +88,14 @@ export class DevServerAdapter implements IDevServer {
       return;
     }
 
+    // Cancelar reconexión pendiente si existe
+    this.cancelReconnect();
+
     this.changeAppliedCallback = onChangeApplied;
     this.errorCallback = onError;
     this.storeId = storeId;
     this.templateType = templateType;
+    this.reconnectAttempts = 0;
 
     return this.establishConnection(storeId, templateType);
   }
@@ -130,7 +139,17 @@ export class DevServerAdapter implements IDevServer {
     };
 
     this.eventSource.onerror = () => {
-      if (!connectionState.hasResolved && this.eventSource?.readyState === EventSource.CLOSED) {
+      const readyState = this.eventSource?.readyState;
+
+      // Si ya estaba conectado y ahora hay error, intentar reconectar
+      if (connectionState.hasResolved && readyState === EventSource.CLOSED) {
+        // No rechazar la promesa aquí, solo programar reconexión
+        this.scheduleReconnect();
+        return;
+      }
+
+      // Si aún no se resolvió y está cerrado, rechazar
+      if (!connectionState.hasResolved && readyState === EventSource.CLOSED) {
         connectionState.hasResolved = true;
         reject(createError('SSE connection failed'));
       }
@@ -162,6 +181,7 @@ export class DevServerAdapter implements IDevServer {
   }
 
   async disconnect(): Promise<void> {
+    this.cancelReconnect();
     this.closeEventSource();
     this.clearCallbacks();
     this.clearState();
@@ -183,6 +203,61 @@ export class DevServerAdapter implements IDevServer {
     this.storeId = null;
     this.templateType = null;
     this.templateLoadPromise = null;
+    this.reconnectAttempts = 0;
+    this.isReconnecting = false;
+  }
+
+  private scheduleReconnect(): void {
+    if (this.isReconnecting || !this.storeId || !this.templateType) {
+      return;
+    }
+
+    // Si ya está conectado, no reconectar
+    if (isConnected(this.eventSource)) {
+      return;
+    }
+
+    if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      this.handleError(createError('Max reconnection attempts reached'));
+      return;
+    }
+
+    this.isReconnecting = true;
+    this.reconnectAttempts++;
+
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      this.isReconnecting = false;
+
+      if (!this.storeId || !this.templateType || !this.changeAppliedCallback || !this.errorCallback) {
+        return;
+      }
+
+      // Si ya está conectado durante el delay, cancelar reconexión
+      if (isConnected(this.eventSource)) {
+        this.reconnectAttempts = 0;
+        return;
+      }
+
+      this.closeEventSource();
+
+      this.establishConnection(this.storeId!, this.templateType!)
+        .then(() => {
+          this.reconnectAttempts = 0;
+        })
+        .catch((error) => {
+          this.handleError(error);
+          this.scheduleReconnect();
+        });
+    }, RECONNECT_DELAY_MS * this.reconnectAttempts);
+  }
+
+  private cancelReconnect(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    this.isReconnecting = false;
   }
 
   async loadTemplate(storeId: string, templateType: TemplateType): Promise<Template> {
