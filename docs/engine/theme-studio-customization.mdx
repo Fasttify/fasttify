@@ -1,0 +1,1025 @@
+# Guía de Personalización de Temas en Theme Studio
+
+Esta guía te enseñará cómo crear secciones y bloques personalizables que pueden ser editados desde el Theme Studio, permitiendo a los usuarios modificar colores, textos, tamaños y otros aspectos visuales sin necesidad de editar código.
+
+## Tabla de Contenidos
+
+1. [Introducción](#introducción)
+2. [Conceptos Básicos](#conceptos-básicos)
+3. [Creando Secciones Personalizables](#creando-secciones-personalizables)
+4. [Definiendo Settings](#definiendo-settings)
+5. [Aplicando Estilos Dinámicos](#aplicando-estilos-dinámicos)
+6. [Usando Bloques (Blocks)](#usando-bloques-blocks)
+7. [Atributos de Selección](#atributos-de-selección)
+8. [Ejemplos Prácticos](#ejemplos-prácticos)
+9. [Mejores Prácticas](#mejores-prácticas)
+
+## Introducción
+
+El Theme Studio es una herramienta visual que permite personalizar temas sin escribir código. Para que una sección sea personalizable desde el Theme Studio, necesitas definir un **schema** en tu archivo Liquid que especifique qué opciones estarán disponibles para el usuario.
+
+Cuando defines un schema, cada opción (setting) aparece automáticamente en el panel lateral del Theme Studio, permitiendo al usuario cambiar valores que se reflejan en tiempo real en la vista previa.
+
+## Conceptos Básicos
+
+### ¿Qué es una Sección?
+
+Una sección es un archivo `.liquid` ubicado en `sections/` que representa un bloque de contenido reutilizable. Por ejemplo, un hero, un carrusel de productos, o una galería de imágenes.
+
+### ¿Qué es el Schema?
+
+El schema es una definición JSON que especifica qué opciones de personalización estarán disponibles para una sección. Se define al final del archivo Liquid usando `{% schema %}`.
+
+### ¿Qué son los Settings?
+
+Los settings son opciones individuales de personalización, como colores, textos, tamaños, etc. Cada setting tiene un tipo (text, color, range, etc.) y aparece como un campo en el Theme Studio.
+
+### ¿Qué son los Blocks?
+
+Los blocks son elementos repetibles dentro de una sección. Por ejemplo, puedes tener una sección "Galería" con múltiples bloques "Imagen", permitiendo al usuario agregar o eliminar imágenes dinámicamente.
+
+## Creando Secciones Personalizables
+
+Para crear una sección personalizable, necesitas:
+
+1. Crear un archivo `.liquid` en la carpeta `sections/`
+2. Agregar el código HTML/Liquid de la sección
+3. Definir el schema al final del archivo
+
+### Estructura Básica de una Sección
+
+```liquid
+<section class="mi-seccion" {{ section.fasttify_attributes }}>
+  <!-- Contenido de la sección -->
+  <h2>{{ section.settings.titulo }}</h2>
+</section>
+
+{% schema %}
+{
+  "name": "Mi Sección",
+  "settings": [
+    {
+      "type": "text",
+      "id": "titulo",
+      "label": "Título",
+      "default": "Título por defecto"
+    }
+  ]
+}
+{% endschema %}
+```
+
+El atributo `{{ section.fasttify_attributes }}` es esencial: permite que el Theme Studio identifique y seleccione la sección cuando el usuario hace clic en ella en el preview.
+
+## Definiendo Settings
+
+Los settings se definen dentro del array `settings` del schema. Cada setting debe tener al menos:
+
+- `type`: El tipo de control (text, color, range, etc.)
+- `id`: Un identificador único para acceder al valor
+- `label`: El texto que se muestra en el Theme Studio
+
+### Tipos de Settings Disponibles
+
+#### Text
+
+Campo de texto simple para títulos, descripciones, etc.
+
+```json
+{
+  "type": "text",
+  "id": "titulo",
+  "label": "Título de la sección",
+  "default": "Mi Título",
+  "info": "Texto informativo que aparece debajo del campo"
+}
+```
+
+Acceso en Liquid: `{{ section.settings.titulo }}`
+
+#### Textarea
+
+Campo de texto multilínea para descripciones largas.
+
+```json
+{
+  "type": "textarea",
+  "id": "descripcion",
+  "label": "Descripción",
+  "default": "Descripción por defecto"
+}
+```
+
+#### Color
+
+Selector de color para fondos, textos, etc.
+
+```json
+{
+  "type": "color",
+  "id": "color_fondo",
+  "label": "Color de fondo"
+}
+```
+
+Acceso en Liquid: `{{ section.settings.color_fondo }}` (devuelve un valor hexadecimal como `#ff0000`)
+
+#### Range
+
+Slider numérico para tamaños, espaciados, etc.
+
+```json
+{
+  "type": "range",
+  "id": "tamaño_fuente",
+  "min": 10,
+  "max": 100,
+  "step": 2,
+  "label": "Tamaño de fuente (px)",
+  "default": 24
+}
+```
+
+Acceso en Liquid: `{{ section.settings.tamaño_fuente }}` (devuelve un número)
+
+#### Select
+
+Menú desplegable para opciones predefinidas.
+
+```json
+{
+  "type": "select",
+  "id": "alineacion",
+  "label": "Alineación del texto",
+  "options": [
+    { "value": "left", "label": "Izquierda" },
+    { "value": "center", "label": "Centro" },
+    { "value": "right", "label": "Derecha" }
+  ],
+  "default": "center"
+}
+```
+
+#### Checkbox
+
+Casilla de verificación para opciones booleanas.
+
+```json
+{
+  "type": "checkbox",
+  "id": "mostrar_boton",
+  "label": "Mostrar botón",
+  "default": true
+}
+```
+
+Acceso en Liquid: `{{ section.settings.mostrar_boton }}` (devuelve `true` o `false`)
+
+#### Image Picker
+
+Selector de imagen para fondos, logos, etc.
+
+```json
+{
+  "type": "image_picker",
+  "id": "imagen_fondo",
+  "label": "Imagen de fondo",
+  "info": "Recomendado: 1920x1080px"
+}
+```
+
+Acceso en Liquid: `{{ section.settings.imagen_fondo | img_url: '1920x1080' }}`
+
+#### URL
+
+Campo para enlaces.
+
+```json
+{
+  "type": "url",
+  "id": "enlace_boton",
+  "label": "Enlace del botón"
+}
+```
+
+Acceso en Liquid: `{{ section.settings.enlace_boton }}`
+
+#### Header
+
+No es un setting real, sino un separador visual para organizar los settings.
+
+```json
+{
+  "type": "header",
+  "content": "Configuración de Colores"
+}
+```
+
+### Organizando Settings con Headers
+
+Para mejorar la organización, agrupa los settings relacionados usando headers:
+
+```json
+{
+  "name": "Mi Sección",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Contenido"
+    },
+    {
+      "type": "text",
+      "id": "titulo",
+      "label": "Título"
+    },
+    {
+      "type": "textarea",
+      "id": "descripcion",
+      "label": "Descripción"
+    },
+    {
+      "type": "header",
+      "content": "Estilos"
+    },
+    {
+      "type": "color",
+      "id": "color_fondo",
+      "label": "Color de fondo"
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "label": "Padding (px)",
+      "default": 20
+    }
+  ]
+}
+```
+
+## Aplicando Estilos Dinámicos
+
+Para aplicar estilos dinámicos basados en los settings, tienes dos opciones:
+
+### Opción 1: Estilos Inline en el HTML
+
+Puedes aplicar estilos directamente en los elementos HTML:
+
+```liquid
+<div
+  style="
+    background-color: {{ section.settings.color_fondo }};
+    padding: {{ section.settings.padding }}px;
+    color: {{ section.settings.color_texto }};
+  ">
+  {{ section.settings.contenido }}
+</div>
+```
+
+### Opción 2: Bloque de Estilos Dinámicos (Recomendado)
+
+La forma más limpia es usar un bloque `<style>` al inicio de la sección:
+
+```liquid
+<style>
+  .mi-seccion {
+    {% if section.settings.color_fondo != blank %}
+      background-color: {{ section.settings.color_fondo }};
+    {% endif %}
+    {% if section.settings.padding != blank %}
+      padding: {{ section.settings.padding }}px;
+    {% endif %}
+  }
+
+  .mi-seccion h2 {
+    {% if section.settings.color_texto != blank %}
+      color: {{ section.settings.color_texto }};
+    {% endif %}
+    {% if section.settings.tamaño_fuente != blank %}
+      font-size: {{ section.settings.tamaño_fuente }}px;
+    {% endif %}
+  }
+</style>
+
+<section class="mi-seccion" {{ section.fasttify_attributes }}>
+  <h2>{{ section.settings.titulo }}</h2>
+</section>
+```
+
+### Manejo de Valores Vacíos
+
+Es importante verificar si un setting tiene valor antes de aplicarlo, especialmente para colores:
+
+```liquid
+{% if section.settings.color_fondo != blank
+   and section.settings.color_fondo != '#000000'
+   and section.settings.color_fondo != '#000' %}
+  background-color: {{ section.settings.color_fondo }};
+{% else %}
+  background-color: unset;
+{% endif %}
+```
+
+Esto evita que valores por defecto (como negro) sobrescriban estilos base cuando el usuario no ha configurado el setting.
+
+### Revertir Estilos cuando se Elimina un Setting
+
+Cuando un usuario elimina un valor (lo deja en blanco), debes asegurarte de que el estilo se revierta usando `unset`:
+
+```liquid
+.product-card {
+  {% if section.settings.card_background_color != blank %}
+    background-color: {{ section.settings.card_background_color }};
+  {% else %}
+    background-color: unset;
+  {% endif %}
+
+  {% if section.settings.card_border_radius != blank %}
+    border-radius: {{ section.settings.card_border_radius }}px;
+  {% else %}
+    border-radius: unset;
+  {% endif %}
+}
+```
+
+## Usando Bloques (Blocks)
+
+Los blocks permiten crear elementos repetibles dentro de una sección. Por ejemplo, una galería de imágenes donde el usuario puede agregar o eliminar imágenes.
+
+### Definir Blocks en el Schema
+
+```json
+{
+  "name": "Galería de Imágenes",
+  "settings": [
+    {
+      "type": "text",
+      "id": "titulo",
+      "label": "Título de la galería"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "imagen",
+      "name": "Imagen",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "imagen",
+          "label": "Imagen"
+        },
+        {
+          "type": "text",
+          "id": "titulo",
+          "label": "Título de la imagen"
+        },
+        {
+          "type": "url",
+          "id": "enlace",
+          "label": "Enlace"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Renderizar Blocks en Liquid
+
+```liquid
+<section class="galeria" {{ section.fasttify_attributes }}>
+  <h2>{{ section.settings.titulo }}</h2>
+
+  <div class="galeria-grid">
+    {% for block in section.blocks %}
+      {% if block.type == 'imagen' %}
+        <div class="galeria-item" {{ block.fasttify_attributes }}>
+          {% if block.settings.enlace != blank %}
+            <a href="{{ block.settings.enlace }}">
+          {% endif %}
+
+          {% if block.settings.imagen != blank %}
+            <img
+              src="{{ block.settings.imagen | img_url: '800x600' }}"
+              alt="{{ block.settings.titulo }}">
+          {% endif %}
+
+          {% if block.settings.titulo != blank %}
+            <h3>{{ block.settings.titulo }}</h3>
+          {% endif %}
+
+          {% if block.settings.enlace != blank %}
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+```
+
+### Blocks con Límite
+
+Puedes limitar el número de blocks de un tipo específico:
+
+```json
+{
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "Product Card",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "color",
+          "id": "card_background_color",
+          "label": "Color de fondo de la card"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Cuando usas `limit: 1`, significa que solo puede haber un bloque de ese tipo, y sus settings se aplican a todos los elementos de ese tipo en la sección. Esto es útil para estilos globales.
+
+### Aplicar Estilos de un Block a Múltiples Elementos
+
+Si tienes un block con `limit: 1` que define estilos para todos los productos en un carrusel:
+
+```liquid
+{% comment %} Buscar el bloque de configuración de Product Card {% endcomment %}
+{% assign product_card_block = null %}
+{% for block in section.blocks %}
+  {% if block.type == 'product_card' %}
+    {% assign product_card_block = block %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% for product in collection.products %}
+  <div class="product-card" {% if product_card_block %}{{ product_card_block.fasttify_attributes }}{% endif %}>
+    <!-- Contenido del producto -->
+  </div>
+{% endfor %}
+
+<style>
+  .product-card {
+    {% if product_card_block %}
+      {% if product_card_block.settings.card_background_color != blank %}
+        background-color: {{ product_card_block.settings.card_background_color }};
+      {% else %}
+        background-color: unset;
+      {% endif %}
+
+      {% if product_card_block.settings.card_border_radius != blank %}
+        border-radius: {{ product_card_block.settings.card_border_radius }}px;
+      {% else %}
+        border-radius: unset;
+      {% endif %}
+    {% endif %}
+  }
+</style>
+```
+
+## Atributos de Selección
+
+### fasttify_attributes
+
+El atributo `{{ section.fasttify_attributes }}` y `{{ block.fasttify_attributes }}` es esencial para la integración con el Theme Studio. Permite que:
+
+1. El elemento sea seleccionable en el preview
+2. Cuando se selecciona en el preview, se resalte con un borde azul
+3. Cuando se selecciona en el sidebar, se resalte en el preview
+
+**Siempre incluye este atributo en el elemento principal de la sección y en cada block:**
+
+```liquid
+<section class="mi-seccion" {{ section.fasttify_attributes }}>
+  <!-- Contenido -->
+
+  {% for block in section.blocks %}
+    <div class="mi-block" {{ block.fasttify_attributes }}>
+      <!-- Contenido del block -->
+    </div>
+  {% endfor %}
+</section>
+```
+
+## Ejemplos Prácticos
+
+### Ejemplo 1: Hero Simple Personalizable
+
+```liquid
+<style>
+  .hero {
+    {% if section.settings.imagen_fondo != blank %}
+      background-image: url('{{ section.settings.imagen_fondo | img_url: '1920x1080' }}');
+    {% endif %}
+    {% if section.settings.color_fondo != blank %}
+      background-color: {{ section.settings.color_fondo }};
+    {% endif %}
+    {% if section.settings.altura != blank %}
+      min-height: {{ section.settings.altura }}px;
+    {% endif %}
+    {% if section.settings.padding != blank %}
+      padding: {{ section.settings.padding }}px;
+    {% endif %}
+  }
+
+  .hero h1 {
+    {% if section.settings.color_titulo != blank %}
+      color: {{ section.settings.color_titulo }};
+    {% endif %}
+    {% if section.settings.tamaño_titulo != blank %}
+      font-size: {{ section.settings.tamaño_titulo }}px;
+    {% endif %}
+  }
+
+  .hero p {
+    {% if section.settings.color_texto != blank %}
+      color: {{ section.settings.color_texto }};
+    {% endif %}
+  }
+
+  .hero-btn {
+    {% if section.settings.color_boton_fondo != blank %}
+      background-color: {{ section.settings.color_boton_fondo }};
+    {% endif %}
+    {% if section.settings.color_boton_texto != blank %}
+      color: {{ section.settings.color_boton_texto }};
+    {% endif %}
+    {% if section.settings.boton_border_radius != blank %}
+      border-radius: {{ section.settings.boton_border_radius }}px;
+    {% endif %}
+  }
+</style>
+
+<section class="hero" {{ section.fasttify_attributes }}>
+  <div class="hero-content">
+    {% if section.settings.titulo != blank %}
+      <h1>{{ section.settings.titulo }}</h1>
+    {% endif %}
+
+    {% if section.settings.descripcion != blank %}
+      <p>{{ section.settings.descripcion }}</p>
+    {% endif %}
+
+    {% if section.settings.texto_boton != blank and section.settings.enlace_boton != blank %}
+      <a href="{{ section.settings.enlace_boton }}" class="hero-btn">
+        {{ section.settings.texto_boton }}
+      </a>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Contenido"
+    },
+    {
+      "type": "text",
+      "id": "titulo",
+      "label": "Título",
+      "default": "Bienvenido"
+    },
+    {
+      "type": "textarea",
+      "id": "descripcion",
+      "label": "Descripción",
+      "default": "Descripción del hero"
+    },
+    {
+      "type": "text",
+      "id": "texto_boton",
+      "label": "Texto del botón",
+      "default": "Comprar ahora"
+    },
+    {
+      "type": "url",
+      "id": "enlace_boton",
+      "label": "Enlace del botón"
+    },
+    {
+      "type": "header",
+      "content": "Imagen"
+    },
+    {
+      "type": "image_picker",
+      "id": "imagen_fondo",
+      "label": "Imagen de fondo",
+      "info": "Recomendado: 1920x1080px"
+    },
+    {
+      "type": "header",
+      "content": "Estilos"
+    },
+    {
+      "type": "color",
+      "id": "color_fondo",
+      "label": "Color de fondo"
+    },
+    {
+      "type": "range",
+      "id": "altura",
+      "min": 300,
+      "max": 800,
+      "step": 50,
+      "label": "Altura mínima (px)",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "label": "Padding (px)",
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "color_titulo",
+      "label": "Color del título"
+    },
+    {
+      "type": "range",
+      "id": "tamaño_titulo",
+      "min": 24,
+      "max": 120,
+      "step": 4,
+      "label": "Tamaño del título (px)",
+      "default": 48
+    },
+    {
+      "type": "color",
+      "id": "color_texto",
+      "label": "Color del texto"
+    },
+    {
+      "type": "header",
+      "content": "Botón"
+    },
+    {
+      "type": "color",
+      "id": "color_boton_fondo",
+      "label": "Color de fondo del botón"
+    },
+    {
+      "type": "color",
+      "id": "color_boton_texto",
+      "label": "Color de texto del botón"
+    },
+    {
+      "type": "range",
+      "id": "boton_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "label": "Radio de borde del botón (px)",
+      "default": 4
+    }
+  ]
+}
+{% endschema %}
+```
+
+### Ejemplo 2: Sección con Blocks Repetibles
+
+```liquid
+<style>
+  .testimonios {
+    {% if section.settings.color_fondo != blank %}
+      background-color: {{ section.settings.color_fondo }};
+    {% endif %}
+    {% if section.settings.padding != blank %}
+      padding: {{ section.settings.padding }}px;
+    {% endif %}
+  }
+
+  .testimonio-item {
+    {% if section.settings.color_fondo_item != blank %}
+      background-color: {{ section.settings.color_fondo_item }};
+    {% endif %}
+    {% if section.settings.border_radius_item != blank %}
+      border-radius: {{ section.settings.border_radius_item }}px;
+    {% endif %}
+  }
+</style>
+
+<section class="testimonios" {{ section.fasttify_attributes }}>
+  {% if section.settings.titulo != blank %}
+    <h2>{{ section.settings.titulo }}</h2>
+  {% endif %}
+
+  <div class="testimonios-grid">
+    {% for block in section.blocks %}
+      {% if block.type == 'testimonio' %}
+        <div class="testimonio-item" {{ block.fasttify_attributes }}>
+          {% if block.settings.imagen != blank %}
+            <img
+              src="{{ block.settings.imagen | img_url: '200x200' }}"
+              alt="{{ block.settings.nombre }}">
+          {% endif %}
+
+          {% if block.settings.texto != blank %}
+            <p>{{ block.settings.texto }}</p>
+          {% endif %}
+
+          {% if block.settings.nombre != blank %}
+            <strong>{{ block.settings.nombre }}</strong>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Testimonios",
+  "settings": [
+    {
+      "type": "text",
+      "id": "titulo",
+      "label": "Título de la sección",
+      "default": "Lo que dicen nuestros clientes"
+    },
+    {
+      "type": "color",
+      "id": "color_fondo",
+      "label": "Color de fondo de la sección"
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "label": "Padding (px)",
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "color_fondo_item",
+      "label": "Color de fondo de los testimonios"
+    },
+    {
+      "type": "range",
+      "id": "border_radius_item",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "label": "Radio de borde de los testimonios (px)",
+      "default": 8
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonio",
+      "name": "Testimonio",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "imagen",
+          "label": "Foto del cliente"
+        },
+        {
+          "type": "textarea",
+          "id": "texto",
+          "label": "Texto del testimonio"
+        },
+        {
+          "type": "text",
+          "id": "nombre",
+          "label": "Nombre del cliente"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+```
+
+### Ejemplo 3: Block con Limit para Estilos Globales
+
+Este ejemplo muestra cómo usar un block con `limit: 1` para definir estilos que se aplican a todos los elementos de un tipo:
+
+```liquid
+{% comment %} Buscar el bloque de configuración de Product Card {% endcomment %}
+{% assign product_card_block = null %}
+{% for block in section.blocks %}
+  {% if block.type == 'product_card' %}
+    {% assign product_card_block = block %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+<style>
+  .product-card {
+    {% if product_card_block %}
+      {% if product_card_block.settings.card_background_color != blank %}
+        background-color: {{ product_card_block.settings.card_background_color }};
+      {% else %}
+        background-color: unset;
+      {% endif %}
+
+      {% if product_card_block.settings.card_border_radius != blank %}
+        border-radius: {{ product_card_block.settings.card_border_radius }}px;
+      {% else %}
+        border-radius: unset;
+      {% endif %}
+
+      {% if product_card_block.settings.card_border_width != blank %}
+        border: {{ product_card_block.settings.card_border_width }}px solid
+                {% if product_card_block.settings.card_border_color != blank %}
+                  {{ product_card_block.settings.card_border_color }}
+                {% else %}
+                  transparent
+                {% endif %};
+      {% else %}
+        border: unset;
+      {% endif %}
+    {% endif %}
+  }
+</style>
+
+<section class="productos" {{ section.fasttify_attributes }}>
+  {% for product in collection.products %}
+    <div class="product-card" {% if product_card_block %}{{ product_card_block.fasttify_attributes }}{% endif %}>
+      <!-- Contenido del producto -->
+      <h3>{{ product.title }}</h3>
+    </div>
+  {% endfor %}
+</section>
+
+{% schema %}
+{
+  "name": "Productos",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "Product Card",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Configuración de la Card"
+        },
+        {
+          "type": "color",
+          "id": "card_background_color",
+          "label": "Color de fondo de la card"
+        },
+        {
+          "type": "range",
+          "id": "card_border_radius",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "label": "Radio de borde de la card (px)",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "card_border_width",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "label": "Ancho del borde de la card (px)",
+          "default": 0
+        },
+        {
+          "type": "color",
+          "id": "card_border_color",
+          "label": "Color del borde de la card"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+```
+
+En este ejemplo, el block "Product Card" con `limit: 1` define los estilos que se aplican a todas las cards de producto en el carrusel. Cuando el usuario selecciona este block en el Theme Studio, puede cambiar los estilos que afectan a todas las cards.
+
+## Mejores Prácticas
+
+### 1. Organiza tus Settings con Headers
+
+Agrupa settings relacionados usando headers para mejorar la experiencia del usuario:
+
+```json
+{
+  "settings": [
+    { "type": "header", "content": "Contenido" },
+    { "type": "text", "id": "titulo", "label": "Título" },
+    { "type": "textarea", "id": "descripcion", "label": "Descripción" },
+    { "type": "header", "content": "Estilos" },
+    { "type": "color", "id": "color_fondo", "label": "Color de fondo" },
+    { "type": "range", "id": "padding", "min": 0, "max": 100, "step": 10, "label": "Padding" }
+  ]
+}
+```
+
+### 2. Usa Valores por Defecto Sensatos
+
+Siempre proporciona valores por defecto que funcionen bien:
+
+```json
+{
+  "type": "text",
+  "id": "titulo",
+  "label": "Título",
+  "default": "Mi Título"
+}
+```
+
+### 3. Proporciona Información Útil
+
+Usa el campo `info` para guiar al usuario:
+
+```json
+{
+  "type": "image_picker",
+  "id": "imagen",
+  "label": "Imagen de fondo",
+  "info": "Recomendado: 1920x1080px para mejor calidad"
+}
+```
+
+### 4. Valida Valores Vacíos
+
+Siempre verifica si un setting tiene valor antes de usarlo:
+
+```liquid
+{% if section.settings.color_fondo != blank %}
+  background-color: {{ section.settings.color_fondo }};
+{% endif %}
+```
+
+### 5. Maneja Colores Negros por Defecto
+
+Para colores, verifica también valores negros por defecto:
+
+```liquid
+{% if section.settings.color_fondo != blank
+   and section.settings.color_fondo != '#000000'
+   and section.settings.color_fondo != '#000' %}
+  background-color: {{ section.settings.color_fondo }};
+{% else %}
+  background-color: unset;
+{% endif %}
+```
+
+### 6. Usa unset para Revertir Estilos
+
+Cuando un setting está vacío, usa `unset` para revertir el estilo:
+
+```liquid
+.product-card {
+  {% if section.settings.background_color != blank %}
+    background-color: {{ section.settings.background_color }};
+  {% else %}
+    background-color: unset;
+  {% endif %}
+}
+```
+
+### 7. Siempre Incluye fasttify_attributes
+
+Nunca olvides incluir `{{ section.fasttify_attributes }}` en el elemento principal y `{{ block.fasttify_attributes }}` en cada block para que funcionen con el Theme Studio.
+
+### 8. Mantén los Estilos Dinámicos Separados
+
+Separa los estilos dinámicos (en el bloque `<style>`) de los estilos base (en archivos CSS estáticos). Esto hace el código más mantenible.
+
+### 9. Usa Blocks con Limit para Estilos Globales
+
+Cuando quieras que un estilo se aplique a todos los elementos de un tipo, usa un block con `limit: 1` en lugar de settings de sección.
+
+### 10. Prueba con Valores Vacíos
+
+Siempre prueba tu sección con todos los settings vacíos para asegurar que se ve bien con los valores por defecto del CSS base.
+
+## Resumen
+
+Para crear secciones personalizables en el Theme Studio:
+
+1. Define un schema con `{% schema %}` al final de tu archivo Liquid
+2. Agrega settings con tipos apropiados (text, color, range, etc.)
+3. Organiza los settings con headers
+4. Aplica los valores usando `{{ section.settings.id }}` o `{{ block.settings.id }}`
+5. Usa bloques `<style>` para aplicar estilos dinámicos
+6. Valida valores vacíos y usa `unset` para revertir estilos
+7. Incluye siempre `{{ section.fasttify_attributes }}` y `{{ block.fasttify_attributes }}`
+8. Usa blocks con `limit: 1` para estilos globales aplicados a múltiples elementos
+
+Siguiendo estas prácticas, crearás secciones completamente personalizables que los usuarios pueden modificar fácilmente desde el Theme Studio sin necesidad de editar código.
