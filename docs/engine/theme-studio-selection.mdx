@@ -1,0 +1,225 @@
+# Selección Bidireccional en Theme Studio
+
+La selección bidireccional permite sincronizar la selección visual entre el preview del tema (iframe) y el sidebar del Theme Studio, similar a cómo funciona el editor de temas de Shopify.
+
+## ¿Qué es y para qué sirve?
+
+Este sistema permite:
+
+- **Selección visual en el preview**: Al hacer click en una sección o bloque en el preview del tema, se selecciona automáticamente en el sidebar
+- **Selección desde el sidebar**: Al seleccionar una sección o bloque en el sidebar, se resalta visualmente en el preview con un borde azul
+- **Navegación rápida**: Facilita la edición de secciones y bloques específicos identificándolos visualmente
+
+## Filtro `fasttify_attributes`
+
+El filtro `fasttify_attributes` genera atributos HTML `data-section-id` y `data-block-id` que permiten identificar elementos seleccionables en el Theme Studio.
+
+### Uso en Templates Liquid
+
+#### En Secciones
+
+Agrega el filtro al elemento contenedor principal de la sección:
+
+```liquid
+<section class="my-section" {{ section.fasttify_attributes }}>
+  <!-- Contenido de la sección -->
+</section>
+```
+
+#### En Bloques
+
+Agrega el filtro a cada elemento de bloque dentro de un loop:
+
+```liquid
+{% for block in section.blocks %}
+  {% if block.type == 'my_block_type' %}
+    <div class="my-block" {{ block.fasttify_attributes }}>
+      <!-- Contenido del bloque -->
+    </div>
+  {% endif %}
+{% endfor %}
+```
+
+### Ejemplo Completo
+
+```liquid
+<section class="hero-section" {{ section.fasttify_attributes }}>
+  <div class="hero-content">
+    <h1>{{ section.settings.title }}</h1>
+
+    {% if section.blocks.size > 0 %}
+      <div class="hero-actions">
+        {% for block in section.blocks %}
+          {% if block.type == 'button' %}
+            <a href="{{ block.settings.link }}" class="btn" {{ block.fasttify_attributes }}>
+              {{ block.settings.label }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+```
+
+### Atributos Generados
+
+El filtro genera automáticamente los siguientes atributos HTML:
+
+- `data-section-id`: ID de la sección (ej: `"hero"`)
+- `data-block-id`: ID del bloque (ej: `"hero-button-1"`)
+
+**Ejemplo de HTML generado:**
+
+```html
+<section class="hero-section" data-section-id="hero">
+  <a href="/collections" class="btn" data-section-id="hero" data-block-id="hero-button-1"> Ver Colección </a>
+</section>
+```
+
+## Cómo Funciona
+
+### 1. Generación de Atributos
+
+Cuando LiquidJS renderiza un template que usa `{{ section.fasttify_attributes }}` o `{{ block.fasttify_attributes }}`:
+
+1. El filtro detecta si el objeto es una `section` o un `block`
+2. Extrae el `id` del objeto (`section.id` o `block.id`)
+3. Para bloques, también obtiene el `section.id` del contexto
+4. Genera los atributos HTML correspondientes
+
+### 2. Script de Selección en el Iframe
+
+Un script JavaScript se inyecta automáticamente en el iframe del preview que:
+
+- **Detecta clicks**: Escucha clicks en elementos con `data-section-id` o `data-block-id`
+- **Envía mensajes**: Notifica al Theme Studio cuando se hace click en un elemento
+- **Aplica resaltado**: Resalta visualmente los elementos seleccionados desde el sidebar
+- **Maneja hover**: Muestra un preview visual al pasar el mouse sobre elementos seleccionables
+
+### 3. Comunicación Bidireccional
+
+La comunicación entre el iframe y el Theme Studio usa la API `postMessage`:
+
+**Del iframe al Theme Studio:**
+
+```javascript
+{
+  type: 'FASTTIFY_THEME_STUDIO_ELEMENT_CLICKED',
+  sectionId: 'hero',
+  blockId: 'hero-button-1'
+}
+```
+
+**Del Theme Studio al iframe:**
+
+```javascript
+{
+  type: 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT',
+  sectionId: 'hero',
+  blockId: 'hero-button-1'
+}
+```
+
+## Estilos Visuales
+
+El script aplica automáticamente los siguientes estilos CSS:
+
+### Elemento Seleccionado
+
+- **Borde sólido azul** (`#006fbb`) de 2px
+- **Offset** de 2px desde el borde del elemento
+- **Scroll automático** al elemento cuando se selecciona desde el sidebar
+
+### Elemento en Hover
+
+- **Borde punteado azul** (`#006fbb`) de 2px
+- Muestra un preview visual antes de seleccionar
+
+## Compatibilidad con Elementos Interactivos
+
+El sistema está diseñado para **no interferir** con elementos interactivos:
+
+- Los enlaces (`<a>`) funcionan normalmente
+- Los botones (`<button>`) funcionan normalmente
+- Los inputs y otros controles de formulario funcionan normalmente
+
+El script solo previene el comportamiento por defecto cuando se hace click directamente en el contenedor seleccionable (como el `<section>`), no en sus hijos interactivos.
+
+## Mejores Prácticas
+
+### 1. Agregar a Todas las Secciones
+
+Agrega `{{ section.fasttify_attributes }}` a todas tus secciones para que sean seleccionables:
+
+```liquid
+<section class="my-section" {{ section.fasttify_attributes }}>
+  <!-- Contenido -->
+</section>
+```
+
+### 2. Agregar a Bloques Importantes
+
+Agrega `{{ block.fasttify_attributes }}` a bloques que quieras que sean seleccionables individualmente:
+
+```liquid
+{% for block in section.blocks %}
+  <div class="block" {{ block.fasttify_attributes }}>
+    <!-- Contenido del bloque -->
+  </div>
+{% endfor %}
+```
+
+### 3. Mantener Compatibilidad
+
+El filtro es compatible con temas existentes. Si no se usa, simplemente no genera atributos y el sistema de selección no afecta el tema.
+
+## Implementación Técnica
+
+### Arquitectura
+
+```
+┌─────────────────┐         ┌──────────────────┐
+│  Theme Studio   │◄───────►│  Iframe Preview  │
+│   (Sidebar)     │         │   (Tema Render)   │
+└─────────────────┘         └──────────────────┘
+       │                              │
+       │                              │
+       ▼                              ▼
+┌─────────────────┐         ┌──────────────────┐
+│ useIframeSelection│        │ iframe-selection  │
+│      Hook        │         │     Script        │
+└─────────────────┘         └──────────────────┘
+```
+
+### Componentes Principales
+
+1. **Filtro Liquid**: `fasttify_attributes` en `packages/liquid-forge/liquid/filters/html-filters.ts`
+2. **Builder de Atributos**: `fasttify-attributes-builder.ts` que crea objetos con getters
+3. **Hook React**: `useIframeSelection.ts` que maneja la comunicación
+4. **Script del Iframe**: `iframe-selection-script.js` que se inyecta en el preview
+
+## Troubleshooting
+
+### Los elementos no se resaltan
+
+1. Verifica que el filtro esté agregado correctamente en el template
+2. Inspecciona el HTML generado y busca los atributos `data-section-id` y `data-block-id`
+3. Verifica en la consola del navegador si hay errores de JavaScript
+
+### Los clicks no funcionan en enlaces
+
+El sistema está diseñado para permitir clicks normales en elementos interactivos. Si tienes problemas, verifica que los enlaces estén dentro del elemento con `data-section-id` o `data-block-id`.
+
+### La selección no se sincroniza
+
+Asegúrate de que:
+
+- El script se está inyectando correctamente en el iframe
+- Los mensajes `postMessage` están llegando (revisa la consola del navegador)
+- El origen del iframe es el mismo o está en localhost
+
+## Referencias
+
+- [Theme Development Guide](./theme-development-guide.mdx) - Guía completa de desarrollo de temas
+- [Filters & Tags](./filters-tags.mdx) - Documentación de todos los filtros disponibles

@@ -2,7 +2,7 @@ import { useCallback, memo, useState } from 'react';
 import type { S3Image } from '@/app/store/hooks/storage/useS3Images';
 import { Checkbox } from '@shopify/polaris';
 import { DeleteIcon } from '@shopify/polaris-icons';
-import Image from 'next/image';
+import { ContentThumbnail } from '@/app/store/components/content/components/media/ContentThumbnail';
 
 const CARD_BG_COLOR = '#FFFFFF';
 const HOVER_OVERLAY_COLOR = 'rgba(0, 0, 0, 0.05)';
@@ -168,18 +168,7 @@ const ImageCard = memo(function ImageCard({
           </div>
         )}
 
-        <Image
-          src={image.url || ''}
-          alt={image.filename}
-          fill
-          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
-          style={{
-            objectFit: 'cover',
-          }}
-          priority={false}
-          quality={85}
-          loading="lazy"
-        />
+        <ContentThumbnail src={image.url || ''} alt={image.filename} size="large" />
       </div>
 
       {/* Información del archivo */}

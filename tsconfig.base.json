@@ -27,6 +27,8 @@
       "@/data-schema": ["./amplify/data/resource"],
       "@/liquid-forge/*": ["./packages/liquid-forge/*"],
       "@/liquid-forge": ["./packages/liquid-forge"],
+      "@/theme-studio/*": ["./packages/theme-studio/src/*"],
+      "@/theme-studio": ["./packages/theme-studio/src"],
       "@/context/*": ["./context/*"],
       "@/hooks/*": ["./hooks/*"],
       "@/tenant-domains/*": ["./packages/tenant-domains/*"],

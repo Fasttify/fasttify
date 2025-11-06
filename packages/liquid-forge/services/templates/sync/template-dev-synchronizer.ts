@@ -15,7 +15,7 @@
  */
 
 import { logger } from '../../../lib/logger';
-import { cacheManager } from '../../core/cache';
+import { cacheManager, getPagesPrefix } from '../../core/cache';
 import { cacheInvalidationService } from '../../core/cache/cache-invalidation-service';
 import { PATH_PATTERNS } from '../../../lib/regex-patterns';
 import { templateLoader } from '../template-loader';
@@ -44,6 +44,19 @@ interface FileChange {
   event: 'add' | 'change' | 'unlink';
   timestamp: number;
 }
+
+/**
+ * Tipos de templates y sus rutas correspondientes
+ */
+const TEMPLATE_TYPES = {
+  layout: ['layout/'],
+  config: ['config/'],
+  section: ['sections/'],
+  snippet: ['snippets/'],
+  template: ['templates/'],
+} as const;
+
+type TemplateType = keyof typeof TEMPLATE_TYPES;
 
 /**
  * Sistema de desarrollo para sincronizar plantillas locales con S3 en tiempo real
@@ -214,6 +227,20 @@ export class TemplateDevSynchronizer {
   }
 
   /**
+   * Detecta el tipo de template basado en su ruta
+   * @param templatePath - Ruta del template
+   * @returns Tipo de template o null si no coincide con ningún tipo conocido
+   */
+  private detectTemplateType(templatePath: string): TemplateType | null {
+    for (const [type, paths] of Object.entries(TEMPLATE_TYPES)) {
+      if (paths.some((path) => templatePath.includes(path))) {
+        return type as TemplateType;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Maneja los cambios en archivos
    * @param filePath - Ruta absoluta del archivo cambiado
    * @param event - Tipo de evento (add|change|unlink)
@@ -238,12 +265,22 @@ export class TemplateDevSynchronizer {
 
       const templateName = relativePath.replace(PATH_PATTERNS.backslashes, '/');
 
+      // Invalidar template específico primero
       templateLoader.invalidateTemplateCache(this.storeId, templateName);
 
-      if (templateName.includes('layout/') || templateName.includes('config/')) {
-        cacheManager.invalidateStoreCache(this.storeId); // Invalidar toda la caché de la tienda
-      }
+      // Detectar tipo de template para invalidación apropiada
+      const templateType = this.detectTemplateType(templateName);
 
+      // Si es layout o config, invalidar TODA la caché de la tienda (impacto global)
+      if (templateType === 'layout' || templateType === 'config') {
+        logger.info(
+          `${templateType === 'layout' ? 'Layout' : 'Config'} change detected: ${templateName} - Invalidating entire store cache`,
+          undefined,
+          'TemplateDevSynchronizer'
+        );
+        cacheManager.invalidateStoreCache(this.storeId);
+        cacheManager.deleteByPrefix(getPagesPrefix(this.storeId));
+      }
       cacheInvalidationService.invalidateCache('template_store_updated', this.storeId, undefined, templateName);
 
       this.recordRecentChange({ path: templateName, event, timestamp: Date.now() });

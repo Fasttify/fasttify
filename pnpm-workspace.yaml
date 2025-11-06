@@ -3,3 +3,4 @@ packages:
   - 'packages/orders-app'
   - 'packages/theme-editor'
   - 'packages/tenant-domains'
+  - 'packages/theme-studio'

@@ -32,6 +32,7 @@ import {
 import { AssetCollector } from '../services/rendering/asset-collector';
 import type { LiquidContext, LiquidEngineConfig, TemplateError } from '../types';
 import { Liquid, Template } from 'liquidjs';
+import { compileTemplate } from '../compiler';
 
 class LiquidEngine {
   private static instance: LiquidEngine;
@@ -96,7 +97,7 @@ class LiquidEngine {
    * @returns La plantilla compilada (un array de nodos AST).
    */
   public parse(templateContent: string): Template[] {
-    return this.liquid.parse(templateContent);
+    return compileTemplate(templateContent, this.assetCollector);
   }
 
   /**
@@ -190,8 +191,6 @@ class LiquidEngine {
   }
 }
 
-// Export singleton instance
 export const liquidEngine = LiquidEngine.getInstance();
 
-// Export class for testing
 export { LiquidEngine };

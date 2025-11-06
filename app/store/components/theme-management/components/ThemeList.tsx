@@ -3,6 +3,7 @@
 import { Banner, BlockStack, Button, Card, Spinner, Text } from '@shopify/polaris';
 import { AlertCircleIcon } from '@shopify/polaris-icons';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useThemeList } from '@/app/store/components/theme-management/hooks/useThemeList';
 import { useThemeActions } from '@/app/store/components/theme-management/hooks/useThemeActions';
 import { ThemeModals } from '@/app/store/components/theme-management/components/ThemeModals';
@@ -11,6 +12,7 @@ import { ThemePreviewCard } from '@/app/store/components/theme-management/compon
 import { InactiveThemesList } from '@/app/store/components/theme-management/components/InactiveThemesList';
 
 export function ThemeList({ storeId }: { storeId: string }) {
+  const router = useRouter();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const { themes, loading, error, activateTheme, deleteTheme, refreshThemes } = useThemeList(storeId);
 
@@ -63,9 +65,7 @@ export function ThemeList({ storeId }: { storeId: string }) {
   const inactiveThemes = themes.filter((theme) => !theme.isActive);
 
   const handleCustomize = () => {
-    if (activeTheme) {
-      handleThemeAction('edit', activeTheme);
-    }
+    router.push(`/store/${storeId}/studio`);
   };
 
   const handleUploadTheme = () => {

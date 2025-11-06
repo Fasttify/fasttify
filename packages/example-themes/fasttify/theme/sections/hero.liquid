@@ -1,23 +1,22 @@
 {{ 'hero.css' | asset_url | stylesheet_tag }}
-<section
-class="collection-hero-section">
+<section class="collection-hero-section" {{ section.fasttify_attributes }}>
   <!-- Header integrado solo para esta sección -->
   {% render 'header' %}
-  {% assign hero_collection = collections['nuevos-productos'] %}
+  {% assign hero_collection = collections['new-products'] %}
     <div class="hero-container">
     <!-- Background Image -->
     <div class="hero-background">
-      {% if hero_collection.image %}
+      {% if section.settings.fallback_image %}
         <img
           class="hero-image"
-          src="{{ hero_collection.image | img_url: '1920x1080' }}"
+          src="{{ section.settings.fallback_image | img_url: 'webp', 1920, 1080 }}"
           alt="{{ hero_collection.title | escape }}"
           loading="lazy">
-      {% elsif section.settings.fallback_image %}
+      {% elsif hero_collection.image %}
         <img
           class="hero-image"
-          src="{{ section.settings.fallback_image | img_url: '1920x1080' }}"
-          alt="{{ hero_collection.title | default: 'Hero' | escape }}"
+          src="{{ hero_collection.image | img_url: 'webp', 1920, 1080 }}"
+          alt="{{ hero_collection.title | escape }}"
           loading="lazy">
       {% else %}
         <div class="hero-placeholder">
@@ -72,20 +71,36 @@ class="collection-hero-section">
 
         <!-- Action Buttons -->
         <div class="hero-actions">
-          {% if hero_collection.url %}
-            <a href="{{ hero_collection.url }}" class="hero-btn hero-btn-primary">
-              <span>{{ section.settings.primary_button_text | default: 'EXPLORAR COLECCIÓN' }}</span>
-            </a>
-          {% elsif section.settings.primary_button_text != blank %}
-            <a href="{{ section.settings.primary_button_url }}" class="hero-btn hero-btn-primary">
-              <span>{{ section.settings.primary_button_text }}</span>
-            </a>
+          <!-- Bloques personalizados desde el Theme Studio -->
+          {% if section.blocks.size > 0 %}
+            {% for block in section.blocks %}
+              {% if block.type == 'hero_item' %}
+                {% if block.settings.label != blank and block.settings.link != blank %}
+                  <a href="{{ block.settings.link }}" class="hero-btn hero-btn-primary" {{ block.fasttify_attributes }}>
+                    <span>{{ block.settings.label }}</span>
+                  </a>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
           {% endif %}
 
-          {% if section.settings.secondary_button_text != blank %}
-            <a href="{{ section.settings.secondary_button_url | default: '/collections' }}" class="hero-btn hero-btn-secondary">
-              <span>{{ section.settings.secondary_button_text | default: 'VER TODAS' }}</span>
-            </a>
+          <!-- Botones del schema (se muestran si no hay bloques personalizados) -->
+          {% if section.blocks.size == 0 %}
+            {% if hero_collection.url %}
+              <a href="{{ hero_collection.url }}" class="hero-btn hero-btn-primary">
+                <span>{{ section.settings.primary_button_text }}</span>
+              </a>
+            {% elsif section.settings.primary_button_text != blank %}
+              <a href="{{ section.settings.primary_button_url }}" class="hero-btn hero-btn-primary">
+                <span>{{ section.settings.primary_button_text }}</span>
+              </a>
+            {% endif %}
+
+            {% if section.settings.secondary_button_text != blank %}
+              <a href="{{ section.settings.secondary_button_url }}" class="hero-btn hero-btn-secondary">
+                <span>{{ section.settings.secondary_button_text }}</span>
+              </a>
+            {% endif %}
           {% endif %}
         </div>
       </div>
@@ -106,7 +121,7 @@ class="collection-hero-section">
         "type": "text",
         "id": "collection_handle",
         "label": "Handle de la colección",
-        "default": "nuevos-productos",
+        "default": "new-products",
         "info": "El handle de la colección a mostrar (ej: nuevos-productos)"
       },
       {
@@ -127,7 +142,7 @@ class="collection-hero-section">
         "type": "text",
         "id": "hero_subtitle",
         "label": "Subtítulo personalizado",
-        "default": "LIMITED SALE",
+        "default": "VENTAS LIMITADAS",
         "info": "Opcional: Subtítulo que aparece sobre el título de la colección"
       },
       {
@@ -141,37 +156,43 @@ class="collection-hero-section">
         "id": "hero_description",
         "label": "Descripción personalizada",
         "info": "Opcional: Si está vacío, usa la descripción de la colección"
-      },
+      }
+    ],
+    "blocks": [
       {
-        "type": "header",
-        "content": "Botones de Acción"
-      },
-      {
-        "type": "text",
-        "id": "primary_button_text",
-        "label": "Texto botón principal",
-        "default": "EXPLORAR COLECCIÓN",
-        "info": "El botón principal siempre apunta a la colección"
-      },
-      {
-        "type": "text",
-        "id": "secondary_button_text",
-        "label": "Texto botón secundario",
-        "default": "VER TODAS"
-      },
-      {
-        "type": "url",
-        "id": "secondary_button_url",
-        "label": "URL botón secundario",
-        "default": "/collections"
+        "type": "hero_item",
+        "name": "Botón de la colección",
+        "settings": [
+          {
+            "type": "header",
+            "content": "Texto del Botón"
+          },
+          {
+            "type": "text",
+            "id": "label",
+            "label": "Label",
+            "default": "Botón de la colección",
+            "info": "Texto que aparece en el botón"
+          },
+          {
+            "type": "header",
+            "content": "Navegación"
+          },
+          {
+            "type": "url",
+            "id": "link",
+            "label": "Link",
+            "info": "URL a la que dirige el botón"
+          }
+        ]
       }
     ],
     "presets": [
       {
         "name": "Hero de Colección",
         "settings": {
-          "collection_handle": "nuevos-productos",
-          "hero_subtitle": "LIMITED SALE",
+          "collection_handle": "new-products",
+          "hero_subtitle": "VENTAS LIMITADAS",
           "primary_button_text": "EXPLORAR COLECCIÓN",
           "secondary_button_text": "VER TODAS",
           "secondary_button_url": "/collections"

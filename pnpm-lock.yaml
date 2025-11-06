@@ -69,6 +69,9 @@ importers:
       '@fasttify/theme-editor':
         specifier: workspace:*
         version: link:packages/theme-editor
+      '@fasttify/theme-studio':
+        specifier: workspace:*
+        version: link:packages/theme-studio
       '@hookform/resolvers':
         specifier: 3.3.4
         version: 3.3.4(react-hook-form@7.64.0(react@19.2.0))
@@ -509,6 +512,40 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.82.0
         version: 5.90.2(react@18.3.1)
+      '@types/react':
+        specifier: 19.2.2
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: 19.2.2
+        version: 19.2.2(@types/react@19.2.2)
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
+  packages/theme-studio:
+    dependencies:
+      '@shopify/draggable':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@shopify/polaris':
+        specifier: ^13.9.5
+        version: 13.9.5(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@shopify/polaris-icons':
+        specifier: ^9.3.1
+        version: 9.3.1(react@19.2.0)
+      '@tanstack/react-query':
+        specifier: ^5.82.0
+        version: 5.90.2(react@19.2.0)
+      react:
+        specifier: ^18.3.1 || ^19.0.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^18.3.1 || ^19.0.0
+        version: 19.2.0(react@19.2.0)
+      zustand:
+        specifier: ^5.0.6
+        version: 5.0.8(@types/react@19.2.2)(immer@9.0.6)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
+    devDependencies:
       '@types/react':
         specifier: 19.2.2
         version: 19.2.2
@@ -10861,7 +10898,7 @@ snapshots:
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
-      '@aws-sdk/client-sso-oidc': 3.621.0(@aws-sdk/client-sts@3.901.0)
+      '@aws-sdk/client-sso-oidc': 3.621.0(@aws-sdk/client-sts@3.621.0)
       '@aws-sdk/client-sts': 3.621.0
       '@aws-sdk/core': 3.621.0
       '@aws-sdk/credential-provider-node': 3.621.0(@aws-sdk/client-sso-oidc@3.621.0(@aws-sdk/client-sts@3.621.0))(@aws-sdk/client-sts@3.621.0)
@@ -10999,7 +11036,7 @@ snapshots:
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
-      '@aws-sdk/client-sso-oidc': 3.621.0(@aws-sdk/client-sts@3.621.0)
+      '@aws-sdk/client-sso-oidc': 3.621.0(@aws-sdk/client-sts@3.901.0)
       '@aws-sdk/client-sts': 3.621.0
       '@aws-sdk/core': 3.621.0
       '@aws-sdk/credential-provider-node': 3.621.0(@aws-sdk/client-sso-oidc@3.621.0(@aws-sdk/client-sts@3.621.0))(@aws-sdk/client-sts@3.621.0)

@@ -229,7 +229,8 @@ async function renderSectionsFromConfig(
   templateConfig: any,
   storeId: string,
   context: any,
-  storeTemplate: any
+  storeTemplate: any,
+  pageType?: string
 ): Promise<string> {
   const sectionPromises = templateConfig.order.map(async (sectionId: string) => {
     const sectionConfig = templateConfig.sections[sectionId];
@@ -237,7 +238,14 @@ async function renderSectionsFromConfig(
 
     try {
       const sectionContent = await templateLoader.loadTemplate(storeId, `${sectionConfig.type}.liquid`);
-      return await sectionRenderer.renderSectionWithSchema(sectionConfig.type, sectionContent, context, storeTemplate);
+      return await sectionRenderer.renderSectionWithSchema(
+        sectionConfig.type,
+        sectionContent,
+        context,
+        storeTemplate,
+        sectionId,
+        pageType
+      );
     } catch (error) {
       logger.warn(`Section ${sectionConfig.type} not found`, error, 'DynamicPageRenderer');
       return `<!-- Section '${sectionConfig.type}' not found -->`;

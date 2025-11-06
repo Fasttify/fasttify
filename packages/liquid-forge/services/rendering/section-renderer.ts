@@ -19,6 +19,8 @@ import { liquidEngine } from '../../liquid/engine';
 import { schemaParser } from '../templates/parsing/schema-parser';
 import { templateLoader } from '../templates/template-loader';
 import type { RenderContext } from '../../types';
+import { createSectionWithAttributes } from './fasttify-attributes-builder';
+import { FasttifyAttributesDetector } from './fasttify-attributes-detector';
 
 export class SectionRenderer {
   /**
@@ -28,35 +30,80 @@ export class SectionRenderer {
     sectionName: string,
     templateContent: string,
     baseContext: RenderContext,
-    storeTemplate?: any
+    storeTemplate?: any,
+    sectionId?: string,
+    pageType?: string
   ): Promise<string> {
     const schemaSettings = schemaParser.extractSchemaSettings(templateContent);
 
-    // LIMPIAR EL CONTENIDO: Eliminar el bloque schema antes de renderizar
     const schemaRegex = /{%-?\s*schema\s*-?%}([\s\S]*?){%-?\s*endschema\s*-?%}/;
     const cleanedContent = templateContent.replace(schemaRegex, '').trim();
 
     try {
       // Obtener settings y blocks reales del storeTemplate si existe
-      const storeSection = storeTemplate?.sections?.[sectionName];
-      const actualSettings = storeSection?.settings || {};
-      const actualBlocks = storeSection?.blocks || [];
+      // Estructura: storeTemplate.templates[pageType].sections[sectionId]
+      let actualSettings: Record<string, any> = {};
+      let actualBlocks: any[] = [];
 
-      // Combinar settings: schema defaults + store actual
+      if (storeTemplate && sectionId && pageType) {
+        const templateConfig = storeTemplate.templates?.[pageType];
+        const storeSection = templateConfig?.sections?.[sectionId];
+        if (storeSection) {
+          // Validar que settings sea un objeto de valores, no definiciones
+          if (storeSection.settings && typeof storeSection.settings === 'object') {
+            // Si tiene propiedades 'type', 'id', 'label', 'default' es una definición incorrecta
+            if ('type' in storeSection.settings || 'id' in storeSection.settings) {
+              logger.warn(
+                `Template section ${sectionId} has incorrect settings format (should be values, not definitions)`,
+                undefined,
+                'SectionRenderer'
+              );
+              actualSettings = {};
+            } else {
+              actualSettings = storeSection.settings;
+            }
+          }
+          actualBlocks = storeSection.blocks || [];
+        }
+      }
+
+      // Combinar settings: schema defaults + store actual (valores del template sobrescriben defaults)
       const finalSettings = { ...schemaSettings, ...actualSettings };
 
+      // Extraer el schema completo para pasarlo al objeto section
+      const fullSchema = schemaParser.extractFullSchema(templateContent);
+
       // Crear contexto específico para esta sección
+      // Usar sectionId si está disponible (ID en el template), si no usar sectionName (tipo de sección)
+      const sectionIdForContext = sectionId || sectionName;
+
+      // Crear objeto section con la propiedad fasttify_attributes
+      const sectionObject = createSectionWithAttributes(
+        sectionIdForContext,
+        finalSettings,
+        actualBlocks,
+        fullSchema || undefined
+      );
+
       const sectionContext = {
         ...baseContext,
-        section: {
-          id: sectionName,
-          settings: finalSettings,
-          blocks: actualBlocks,
-        },
+        section: sectionObject,
       };
 
+      // Detectar si el template tiene fasttify_attributes configurado para secciones
+      const hasSectionAttributes = FasttifyAttributesDetector.hasSectionFasttifyAttributes(templateContent);
+
       // Renderizar la sección con el contexto enriquecido
-      return await liquidEngine.render(cleanedContent, sectionContext, `section_${sectionName}`);
+      const renderedContent = await liquidEngine.render(cleanedContent, sectionContext, `section_${sectionName}`);
+
+      // Si el template no tiene {{ section.fasttify_attributes }}, aplicar sistema de compatibilidad
+      // Esto permite que temas sin el filtro funcionen con el selector azul
+      if (!hasSectionAttributes) {
+        return this.wrapWithCompatibilityMarkers(renderedContent, sectionIdForContext);
+      }
+
+      // Si ya tiene fasttify_attributes, retornar sin modificaciones (comportamiento normal)
+      return renderedContent;
     } catch (error) {
       logger.error(`Error rendering section ${sectionName}`, error, 'SectionRenderer');
 
@@ -65,10 +112,11 @@ export class SectionRenderer {
         logger.warn(`Attempting simplified render for section ${sectionName}...`, undefined, 'SectionRenderer');
         try {
           // Contexto más básico sin blocks complejos
+          const sectionIdForContext = sectionId || sectionName;
           const simpleContext = {
             ...baseContext,
             section: {
-              id: sectionName,
+              id: sectionIdForContext,
               settings: schemaSettings, // Solo usar defaults del schema
             },
           };
@@ -161,6 +209,19 @@ export class SectionRenderer {
 
     // Para otros grupos, retornar vacío por ahora
     return [];
+  }
+
+  /**
+   * Envuelve el contenido renderizado con comentarios de marcado para compatibilidad
+   * Estos comentarios permiten que el script post-renderizado identifique la sección
+   * y agregue los atributos data-section-id automáticamente
+   */
+  private wrapWithCompatibilityMarkers(renderedContent: string, sectionId: string): string {
+    // Los comentarios son invisibles visualmente pero permiten identificar la sección
+    const startMarker = `<!-- FASTTIFY_SECTION_START:${sectionId} -->`;
+    const endMarker = `<!-- FASTTIFY_SECTION_END:${sectionId} -->`;
+
+    return `${startMarker}\n${renderedContent}\n${endMarker}`;
   }
 }
 

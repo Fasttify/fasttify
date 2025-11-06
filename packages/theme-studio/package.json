@@ -1,0 +1,37 @@
+{
+  "name": "@fasttify/theme-studio",
+  "version": "1.0.0",
+  "description": "Visual theme editor for Fasttify",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@shopify/draggable": "^1.2.1",
+    "@shopify/polaris": "^13.9.5",
+    "@shopify/polaris-icons": "^9.3.1",
+    "@tanstack/react-query": "^5.82.0",
+    "zustand": "^5.0.6"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1 || ^19.0.0",
+    "react-dom": "^18.3.1 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1 || ^19.2.2",
+    "@types/react-dom": "^18.3.1 || ^19.2.2",
+    "typescript": "^5.8.3"
+  },
+  "keywords": ["theme", "editor", "visual", "polaris", "fasttify"],
+  "author": "Fasttify Team",
+  "license": "Apache-2.0"
+}
+
+

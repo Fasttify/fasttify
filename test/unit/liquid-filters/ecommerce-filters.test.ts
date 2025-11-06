@@ -13,34 +13,34 @@ describe('Ecommerce Filters - Image Optimization', () => {
 
   describe('img_url filter', () => {
     it('should handle legacy size parameter', async () => {
-      const template = `{{ 'image.jpg' | img_url: '600x800' }}`;
+      const template = `{{ 'https://example.com/image.jpg' | img_url: '600x800' }}`;
       const result = await liquid.parseAndRender(template, {});
 
-      expect(result).toBe('/images/image.jpg?size=600x800');
+      expect(result).toBe('https://example.com/image.jpg?size=600x800');
     });
 
     it('should handle format, width, height parameters', async () => {
-      const template = `{{ 'image.jpg' | img_url: 'webp', 600, 800 }}`;
+      const template = `{{ 'https://example.com/image.jpg' | img_url: 'webp', 600, 800 }}`;
       const result = await liquid.parseAndRender(template, {});
 
-      expect(result).toBe('/images/image.jpg?format=webp&width=600&height=800');
+      expect(result).toBe('https://example.com/image.jpg?format=webp&width=600&height=800');
     });
 
     it('should handle only width and height', async () => {
-      const template = `{{ 'image.jpg' | img_url: 600, 800 }}`;
+      const template = `{{ 'https://example.com/image.jpg' | img_url: 600, 800 }}`;
       const result = await liquid.parseAndRender(template, {});
 
-      expect(result).toBe('/images/image.jpg?width=600&height=800');
+      expect(result).toBe('https://example.com/image.jpg?width=600&height=800');
     });
 
     it('should handle object parameters', async () => {
-      const template = `{{ 'image.jpg' | img_url: params }}`;
+      const template = `{{ 'https://example.com/image.jpg' | img_url: params }}`;
       const context = {
         params: { width: 600, height: 800, format: 'auto' },
       };
       const result = await liquid.parseAndRender(template, context);
 
-      expect(result).toBe('/images/image.jpg?format=auto&width=600&height=800');
+      expect(result).toBe('https://example.com/image.jpg?format=auto&width=600&height=800');
     });
 
     it('should handle full URLs', async () => {
@@ -110,12 +110,12 @@ describe('Ecommerce Filters - Image Optimization', () => {
       const template = `{{ product.featured_image | img_url: 'webp', 600, 800 }}`;
       const context = {
         product: {
-          featured_image: 'product-image.jpg',
+          featured_image: 'https://cdn.example.com/product-image.jpg',
         },
       };
       const result = await liquid.parseAndRender(template, context);
 
-      expect(result).toBe('/images/product-image.jpg?format=webp&width=600&height=800');
+      expect(result).toBe('https://cdn.example.com/product-image.jpg?format=webp&width=600&height=800');
     });
 
     it('should handle collection image with auto format', async () => {

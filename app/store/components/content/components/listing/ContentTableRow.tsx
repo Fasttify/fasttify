@@ -5,7 +5,7 @@ import { ViewIcon, LinkIcon } from '@shopify/polaris-icons';
 import type { S3Image } from '@/app/store/components/images-selector/types/s3-types';
 import { formatFileSize, formatDate } from '@/app/store/components/content/utils/content-utils';
 import type { VisibleColumns } from '@/app/store/components/content/types/content-types';
-import Image from 'next/image';
+import { ContentThumbnail } from '@/app/store/components/content/components/media/ContentThumbnail';
 
 interface ContentTableRowProps {
   image: S3Image;
@@ -31,9 +31,7 @@ export function ContentTableRow({
       position={index}>
       <IndexTable.Cell>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: 40, height: 40, borderRadius: 4, overflow: 'hidden', flexShrink: 0 }}>
-            <Image src={image.url} alt={image.filename} width={40} height={40} style={{ objectFit: 'cover' }} />
-          </div>
+          <ContentThumbnail src={image.url} alt={image.filename} size="small" />
           <div>
             <Text variant="bodySm" as="p">
               {image.filename.split('.')[0] || image.filename}

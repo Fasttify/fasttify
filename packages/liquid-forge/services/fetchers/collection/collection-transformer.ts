@@ -28,6 +28,9 @@ export class CollectionTransformer {
       collection.slug || collection.name || collection.title || `collection-${collection.id}`
     );
 
+    // Preservar URL completa de imagen si existe, de lo contrario usar fallback
+    const imageValue = collection.image && collection.image.trim() !== '' ? collection.image : 'collection-img';
+
     return {
       id: collection.id,
       storeId: collection.storeId,
@@ -35,7 +38,7 @@ export class CollectionTransformer {
       description: collection.description,
       slug: handle,
       url: `/collections/${handle}`,
-      image: collection.image || 'collection-img',
+      image: imageValue,
       products,
       nextToken,
       owner: collection.owner,

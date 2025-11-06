@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LiquidEngine } from '../../../../liquid/engine';
+import { compileTemplate } from '../../../../compiler';
 import type {
   ThemeFile,
   ThemeValidationConfig,
@@ -31,7 +31,6 @@ export class LiquidSyntaxRules {
   static async validateLiquidSyntax(files: ThemeFile[], config: ThemeValidationConfig): Promise<ValidationResult> {
     const errors: ValidationError[] = [];
     const warnings: ValidationWarning[] = [];
-    const engine = LiquidEngine.getInstance();
 
     // Filtrar solo archivos Liquid
     const liquidFiles = filterLiquidFiles(files);
@@ -39,7 +38,7 @@ export class LiquidSyntaxRules {
     for (const file of liquidFiles) {
       try {
         // Validar sintaxis básica
-        engine.parse(file.content as string);
+        compileTemplate(file.content as string);
 
         // Verificar tamaño del archivo
         if (file.size > 1024 * 1024) {

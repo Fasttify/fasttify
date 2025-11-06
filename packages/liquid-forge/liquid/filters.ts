@@ -21,6 +21,7 @@ export { dataAccessFilters } from './filters/data-access-filters';
 export { ecommerceFilters } from './filters/ecommerce-filters';
 export { htmlFilters } from './filters/html-filters';
 export { moneyFilters } from './filters/money-filters';
+export { fasttifyAttributesFilter } from './filters/fasttify-attributes-filter';
 
 // Importar todos los filtros para el array principal
 import { baseFilters } from './filters/base-filters';
@@ -29,6 +30,7 @@ import { dataAccessFilters } from './filters/data-access-filters';
 import { ecommerceFilters } from './filters/ecommerce-filters';
 import { htmlFilters } from './filters/html-filters';
 import { moneyFilters } from './filters/money-filters';
+import { fasttifyAttributesFilter } from './filters/fasttify-attributes-filter';
 
 import type { LiquidFilter } from '../types';
 
@@ -42,6 +44,7 @@ export const allFilters: LiquidFilter[] = [
   ...htmlFilters,
   ...cartFilters,
   ...dataAccessFilters,
+  fasttifyAttributesFilter,
 ];
 
 export const ecommerceFiltersLegacy = allFilters;

@@ -16,6 +16,7 @@
 
 import type { LiquidFilter } from '../../types';
 import { PATH_PATTERNS } from '../../lib/regex-patterns';
+import { getCdnUrlForKey } from '@/utils/server/cdn-url';
 
 /**
  * Interfaz para parámetros de optimización de imágenes
@@ -92,7 +93,7 @@ export const collectionUrlFilter: LiquidFilter = {
  */
 export const imgUrlFilter: LiquidFilter = {
   name: 'img_url',
-  filter: (url: string, ...args: any[]): string => {
+  filter: function (url: string, ...args: any[]): string {
     if (!url) {
       return '';
     }
@@ -129,17 +130,39 @@ export const imgUrlFilter: LiquidFilter = {
       }
     }
 
-    // Si ya es una URL completa, aplicar optimizaciones
+    // Si ya es una URL completa (http/https), aplicar optimizaciones directamente
     if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
       return buildOptimizedImageUrl(url, params);
     }
 
-    // Si es una ruta relativa, construir URL completa
-    const baseImageUrl = '/images';
+    // Si es un string simple sin protocolo (como 'collection-img'), NO intentar construir URL
+    // Estos son fallbacks que no corresponden a imágenes reales en S3
     const cleanImageUrl = url.replace(PATH_PATTERNS.leadingSlash, '');
-    const fullUrl = `${baseImageUrl}/${cleanImageUrl}`;
 
-    return buildOptimizedImageUrl(fullUrl, params);
+    // Lista de fallbacks conocidos que no son URLs reales
+    const knownFallbacks = ['collection-img', 'product-img', 'placeholder'];
+
+    if (knownFallbacks.includes(cleanImageUrl)) {
+      // Si es un fallback conocido, devolver string vacío para que no se renderice la imagen
+      return '';
+    }
+
+    // Si parece ser una ruta de S3/CDN sin protocolo (contiene / y no es un fallback)
+    // Intentar construir la URL del CDN solo si parece ser una ruta válida
+    if (cleanImageUrl.includes('/') && !cleanImageUrl.startsWith('/')) {
+      // Parece ser una ruta de S3 (ej: "images/storeId/file.jpg" o "products/storeId/file.jpg")
+      try {
+        const cdnUrl = getCdnUrlForKey(cleanImageUrl);
+        return buildOptimizedImageUrl(cdnUrl, params);
+      } catch {
+        // Si falla al construir la URL del CDN, devolver string vacío
+        return '';
+      }
+    }
+
+    // Si no es una URL completa ni una ruta de S3 válida, devolver string vacío
+    // No intentar construir URLs que no existen en el bucket
+    return '';
   },
 };
 

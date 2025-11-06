@@ -6,9 +6,10 @@
     "packages/liquid-forge",
     "packages/orders-app",
     "packages/theme-editor",
-    "packages/tenant-domains"
+    "packages/tenant-domains",
+    "packages/theme-studio"
   ],
-  "packageManager": "pnpm@10.18.0",
+  "packageManager": "pnpm@10.20.0",
   "engines": {
     "node": ">=20.18.3",
     "pnpm": ">=10.18.0"
@@ -73,6 +74,7 @@
     "@fasttify/orders-app": "workspace:*",
     "@fasttify/tenant-domains": "workspace:*",
     "@fasttify/theme-editor": "workspace:*",
+    "@fasttify/theme-studio": "workspace:*",
     "@hookform/resolvers": "3.3.4",
     "@next/bundle-analyzer": "16.0.0",
     "@polar-sh/nextjs": "^0.4.9",
