@@ -26,7 +26,35 @@
     },
     "featured-products": {
       "type": "sections/featured-products",
-      "settings": {}
+      "settings": {
+        "collection_handle": "new-products",
+        "section_subtitle": "NUEVA COLECCIÓN",
+        "section_title": "NUEVOS PRODUCTOS",
+        "section_description": "Descubre nuestros últimos diseños y tendencias de moda",
+        "products_count": 8,
+        "show_add_to_cart": true,
+        "show_view_all_button": true,
+        "view_all_text": "VER TODA LA COLECCIÓN",
+        "show_badges": true,
+        "show_new_badge": true,
+        "show_bestseller_badge": true,
+        "show_trending_badge": true,
+        "show_sale_badge": true,
+        "show_carousel_nav": true,
+        "show_marquee": true,
+        "marquee_background": "#000000",
+        "marquee_text_color": "#ffffff",
+        "button_primary_text": "VER PRODUCTO",
+        "button_secondary_text": "AÑADIR AL CARRITO"
+      },
+      "blocks": [
+        {
+          "id": "product-card-1",
+          "type": "product_card",
+          "name": "Product Card",
+          "settings": {}
+        }
+      ]
     },
     "home-collections": {
       "type": "sections/home-collections",
