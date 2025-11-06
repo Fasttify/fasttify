@@ -17,6 +17,9 @@ import type {
   UpdateSectionSettingParams,
   UpdateBlockSettingParams,
   UpdateSubBlockSettingParams,
+  ReorderSectionsParams,
+  ReorderBlocksParams,
+  ReorderSubBlocksParams,
 } from '../../domain/ports/dev-server.port';
 
 /**
@@ -62,27 +65,21 @@ export class UndoChangeUseCase {
   private async renderAffectedSection(storeId: string, entry: any): Promise<void> {
     const { inversePayload, type } = entry;
 
-    // Re-aplicar el valor anterior usando el payload inverso según el tipo de cambio
-    if (!inversePayload || !inversePayload.settingId) {
-      return;
-    }
-
-    // previousValue puede ser undefined si el setting no existía antes (eso es válido)
-    // Pasamos undefined al servidor para eliminar el setting
-
     switch (type) {
       case 'UPDATE_SECTION_SETTING':
-        const sectionParams: UpdateSectionSettingParams = {
-          storeId,
-          sectionId: inversePayload.sectionId,
-          settingId: inversePayload.settingId,
-          value: inversePayload.previousValue, // Puede ser undefined
-        };
-        await this.devServer.updateSectionSetting(sectionParams);
+        if (inversePayload?.settingId) {
+          const sectionParams: UpdateSectionSettingParams = {
+            storeId,
+            sectionId: inversePayload.sectionId,
+            settingId: inversePayload.settingId,
+            value: inversePayload.previousValue, // Puede ser undefined
+          };
+          await this.devServer.updateSectionSetting(sectionParams);
+        }
         break;
 
       case 'UPDATE_BLOCK_SETTING':
-        if (inversePayload.blockId) {
+        if (inversePayload?.blockId && inversePayload?.settingId) {
           const blockParams: UpdateBlockSettingParams = {
             storeId,
             sectionId: inversePayload.sectionId,
@@ -95,7 +92,7 @@ export class UndoChangeUseCase {
         break;
 
       case 'UPDATE_SUB_BLOCK_SETTING':
-        if (inversePayload.blockId && inversePayload.subBlockId) {
+        if (inversePayload?.blockId && inversePayload?.subBlockId && inversePayload?.settingId) {
           const subBlockParams: UpdateSubBlockSettingParams = {
             storeId,
             sectionId: inversePayload.sectionId,
@@ -105,6 +102,46 @@ export class UndoChangeUseCase {
             value: inversePayload.previousValue,
           };
           await this.devServer.updateSubBlockSetting(subBlockParams);
+        }
+        break;
+
+      case 'REORDER_SECTIONS':
+        if (inversePayload?.oldIndex !== undefined && inversePayload?.newIndex !== undefined) {
+          const reorderParams: ReorderSectionsParams = {
+            storeId,
+            oldIndex: inversePayload.oldIndex,
+            newIndex: inversePayload.newIndex,
+          };
+          await this.devServer.reorderSections(reorderParams);
+        }
+        break;
+
+      case 'REORDER_BLOCKS':
+        if (inversePayload?.oldIndex !== undefined && inversePayload?.newIndex !== undefined) {
+          const reorderParams: ReorderBlocksParams = {
+            storeId,
+            sectionId: inversePayload.sectionId,
+            oldIndex: inversePayload.oldIndex,
+            newIndex: inversePayload.newIndex,
+          };
+          await this.devServer.reorderBlocks(reorderParams);
+        }
+        break;
+
+      case 'REORDER_SUB_BLOCKS':
+        if (
+          inversePayload?.blockId &&
+          inversePayload?.oldIndex !== undefined &&
+          inversePayload?.newIndex !== undefined
+        ) {
+          const reorderParams: ReorderSubBlocksParams = {
+            storeId,
+            sectionId: inversePayload.sectionId,
+            blockId: inversePayload.blockId,
+            oldIndex: inversePayload.oldIndex,
+            newIndex: inversePayload.newIndex,
+          };
+          await this.devServer.reorderSubBlocks(reorderParams);
         }
         break;
 

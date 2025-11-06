@@ -35,6 +35,8 @@ export class HistoryManagerAdapter implements IHistoryManager {
       subBlockId: change.subBlockId,
       settingId: change.settingId,
       value: change.value,
+      oldIndex: change.oldIndex,
+      newIndex: change.newIndex,
     };
 
     // Crear payload inverso para revertir el cambio
@@ -187,9 +189,22 @@ export class HistoryManagerAdapter implements IHistoryManager {
         }
         break;
 
+      case 'REORDER_SECTIONS':
+        // Para revertir REORDER_SECTIONS, intercambiamos oldIndex y newIndex
+        inversePayload.oldIndex = change.newIndex;
+        inversePayload.newIndex = change.oldIndex;
+        break;
+
       case 'REORDER_BLOCKS':
-        // Para revertir REORDER_BLOCKS, necesitamos el índice anterior
-        inversePayload.index = change.value as number;
+        // Para revertir REORDER_BLOCKS, intercambiamos oldIndex y newIndex
+        inversePayload.oldIndex = change.newIndex;
+        inversePayload.newIndex = change.oldIndex;
+        break;
+
+      case 'REORDER_SUB_BLOCKS':
+        // Para revertir REORDER_SUB_BLOCKS, intercambiamos oldIndex y newIndex
+        inversePayload.oldIndex = change.newIndex;
+        inversePayload.newIndex = change.oldIndex;
         break;
 
       default:

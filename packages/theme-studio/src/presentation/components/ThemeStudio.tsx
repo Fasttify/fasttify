@@ -204,6 +204,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
               apiBaseUrl={apiBaseUrl}
               currentPageId={currentPageId}
               sidebarState={sidebarState}
+              hotReload={hotReload}
             />
           </div>
           <div style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>

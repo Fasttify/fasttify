@@ -25,7 +25,9 @@ export type ChangeType =
   | 'UPDATE_SUB_BLOCK_SETTING'
   | 'ADD_BLOCK'
   | 'DELETE_BLOCK'
+  | 'REORDER_SECTIONS'
   | 'REORDER_BLOCKS'
+  | 'REORDER_SUB_BLOCKS'
   | 'ADD_SUB_BLOCK'
   | 'DELETE_SUB_BLOCK';
 
@@ -41,6 +43,8 @@ export interface TemplateChange {
   subBlockId?: string;
   settingId?: string;
   value?: unknown;
+  oldIndex?: number;
+  newIndex?: number;
   timestamp: number;
 }
 

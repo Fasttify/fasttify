@@ -19,6 +19,9 @@ import type {
   UpdateSectionSettingParams,
   UpdateBlockSettingParams,
   UpdateSubBlockSettingParams,
+  ReorderSectionsParams,
+  ReorderBlocksParams,
+  ReorderSubBlocksParams,
   ChangeAppliedCallback,
   ErrorCallback,
 } from '../../domain/ports/dev-server.port';
@@ -311,13 +314,31 @@ export class DevServerAdapter implements IDevServer {
     await this.sendUpdateRequest('UPDATE_SUB_BLOCK_SETTING', params, params.storeId);
   }
 
+  async reorderSections(params: ReorderSectionsParams): Promise<void> {
+    await this.sendUpdateRequest('REORDER_SECTIONS', params, params.storeId);
+  }
+
+  async reorderBlocks(params: ReorderBlocksParams): Promise<void> {
+    await this.sendUpdateRequest('REORDER_BLOCKS', params, params.storeId);
+  }
+
+  async reorderSubBlocks(params: ReorderSubBlocksParams): Promise<void> {
+    await this.sendUpdateRequest('REORDER_SUB_BLOCKS', params, params.storeId);
+  }
+
   isConnected(): boolean {
     return isConnected(this.eventSource);
   }
 
   private async sendUpdateRequest(
     type: string,
-    payload: UpdateSectionSettingParams | UpdateBlockSettingParams | UpdateSubBlockSettingParams,
+    payload:
+      | UpdateSectionSettingParams
+      | UpdateBlockSettingParams
+      | UpdateSubBlockSettingParams
+      | ReorderSectionsParams
+      | ReorderBlocksParams
+      | ReorderSubBlocksParams,
     storeId: string
   ): Promise<void> {
     this.ensureConnected();
@@ -340,7 +361,13 @@ export class DevServerAdapter implements IDevServer {
 
   private async postUpdateRequest(
     type: string,
-    payload: UpdateSectionSettingParams | UpdateBlockSettingParams | UpdateSubBlockSettingParams,
+    payload:
+      | UpdateSectionSettingParams
+      | UpdateBlockSettingParams
+      | UpdateSubBlockSettingParams
+      | ReorderSectionsParams
+      | ReorderBlocksParams
+      | ReorderSubBlocksParams,
     storeId: string
   ): Promise<Response> {
     return fetch(`${this.apiBaseUrl}/stores/${storeId}/dev/update`, {

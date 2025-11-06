@@ -110,7 +110,55 @@ export interface IDevServer {
   updateSubBlockSetting(params: UpdateSubBlockSettingParams): Promise<void>;
 
   /**
+   * Reordenar secciones
+   * @param params - Parámetros del reordenamiento
+   */
+  reorderSections(params: ReorderSectionsParams): Promise<void>;
+
+  /**
+   * Reordenar bloques dentro de una sección
+   * @param params - Parámetros del reordenamiento
+   */
+  reorderBlocks(params: ReorderBlocksParams): Promise<void>;
+
+  /**
+   * Reordenar sub-bloques dentro de un bloque
+   * @param params - Parámetros del reordenamiento
+   */
+  reorderSubBlocks(params: ReorderSubBlocksParams): Promise<void>;
+
+  /**
    * Obtener el estado de conexión
    */
   isConnected(): boolean;
+}
+
+/**
+ * Parámetros para reordenar secciones
+ */
+export interface ReorderSectionsParams {
+  storeId: string;
+  oldIndex: number;
+  newIndex: number;
+}
+
+/**
+ * Parámetros para reordenar bloques
+ */
+export interface ReorderBlocksParams {
+  storeId: string;
+  sectionId: string;
+  oldIndex: number;
+  newIndex: number;
+}
+
+/**
+ * Parámetros para reordenar sub-bloques
+ */
+export interface ReorderSubBlocksParams {
+  storeId: string;
+  sectionId: string;
+  blockId: string;
+  oldIndex: number;
+  newIndex: number;
 }

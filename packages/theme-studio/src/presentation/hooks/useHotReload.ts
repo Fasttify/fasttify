@@ -18,6 +18,9 @@ import { useCallback, useEffect, useRef } from 'react';
 import { UpdateSectionSettingUseCase } from '../../application/use-cases/update-section-setting.use-case';
 import { UpdateBlockSettingUseCase } from '../../application/use-cases/update-block-setting.use-case';
 import { UpdateSubBlockSettingUseCase } from '../../application/use-cases/update-sub-block-setting.use-case';
+import { ReorderSectionsUseCase } from '../../application/use-cases/reorder-sections.use-case';
+import { ReorderBlocksUseCase } from '../../application/use-cases/reorder-blocks.use-case';
+import { ReorderSubBlocksUseCase } from '../../application/use-cases/reorder-sub-blocks.use-case';
 import { DevServerAdapter } from '../../infrastructure/adapters/dev-server.adapter';
 import { TemplateManagerAdapter } from '../../infrastructure/adapters/template-manager.adapter';
 import { TemplateRepositoryAdapter } from '../../infrastructure/adapters/template-repository.adapter';
@@ -45,6 +48,9 @@ interface UseHotReloadResult {
     settingId: string,
     value: unknown
   ) => Promise<void>;
+  reorderSections: (oldIndex: number, newIndex: number) => Promise<void>;
+  reorderBlocks: (sectionId: string, oldIndex: number, newIndex: number) => Promise<void>;
+  reorderSubBlocks: (sectionId: string, blockId: string, oldIndex: number, newIndex: number) => Promise<void>;
   isConnected: boolean;
   hasPendingChanges: boolean;
   devServer: DevServerAdapter | null;
@@ -70,6 +76,9 @@ export function useHotReload({
   const updateSectionSettingUseCaseRef = useRef<UpdateSectionSettingUseCase | null>(null);
   const updateBlockSettingUseCaseRef = useRef<UpdateBlockSettingUseCase | null>(null);
   const updateSubBlockSettingUseCaseRef = useRef<UpdateSubBlockSettingUseCase | null>(null);
+  const reorderSectionsUseCaseRef = useRef<ReorderSectionsUseCase | null>(null);
+  const reorderBlocksUseCaseRef = useRef<ReorderBlocksUseCase | null>(null);
+  const reorderSubBlocksUseCaseRef = useRef<ReorderSubBlocksUseCase | null>(null);
   const lastPageIdRef = useRef<string | null>(null);
 
   // Helper para manejar cambios aplicados en el iframe
@@ -131,6 +140,9 @@ export function useHotReload({
         templateManager,
         historyManager
       );
+      reorderSectionsUseCaseRef.current = new ReorderSectionsUseCase(devServer, templateManager, historyManager);
+      reorderBlocksUseCaseRef.current = new ReorderBlocksUseCase(devServer, templateManager, historyManager);
+      reorderSubBlocksUseCaseRef.current = new ReorderSubBlocksUseCase(devServer, templateManager, historyManager);
     }
 
     const devServer = devServerRef.current!;
@@ -208,6 +220,27 @@ export function useHotReload({
     [storeId, executeUseCase]
   );
 
+  const reorderSections = useCallback(
+    async (oldIndex: number, newIndex: number): Promise<void> => {
+      await executeUseCase(reorderSectionsUseCaseRef, { storeId, oldIndex, newIndex });
+    },
+    [storeId, executeUseCase]
+  );
+
+  const reorderBlocks = useCallback(
+    async (sectionId: string, oldIndex: number, newIndex: number): Promise<void> => {
+      await executeUseCase(reorderBlocksUseCaseRef, { storeId, sectionId, oldIndex, newIndex });
+    },
+    [storeId, executeUseCase]
+  );
+
+  const reorderSubBlocks = useCallback(
+    async (sectionId: string, blockId: string, oldIndex: number, newIndex: number): Promise<void> => {
+      await executeUseCase(reorderSubBlocksUseCaseRef, { storeId, sectionId, blockId, oldIndex, newIndex });
+    },
+    [storeId, executeUseCase]
+  );
+
   const isConnected = devServerRef.current?.isConnected() ?? false;
   const hasPendingChanges = templateManagerRef.current?.hasPendingChanges() ?? false;
 
@@ -215,6 +248,9 @@ export function useHotReload({
     updateSectionSetting,
     updateBlockSetting,
     updateSubBlockSetting,
+    reorderSections,
+    reorderBlocks,
+    reorderSubBlocks,
     isConnected,
     hasPendingChanges,
     devServer: devServerRef.current,

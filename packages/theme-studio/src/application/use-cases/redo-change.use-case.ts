@@ -17,6 +17,9 @@ import type {
   UpdateSectionSettingParams,
   UpdateBlockSettingParams,
   UpdateSubBlockSettingParams,
+  ReorderSectionsParams,
+  ReorderBlocksParams,
+  ReorderSubBlocksParams,
 } from '../../domain/ports/dev-server.port';
 
 /**
@@ -62,10 +65,9 @@ export class RedoChangeUseCase {
   private async renderAffectedSection(storeId: string, entry: any): Promise<void> {
     const { payload, type } = entry;
 
-    // Re-aplicar el valor original usando el payload según el tipo de cambio
-    if (payload.settingId && payload.value !== undefined) {
-      switch (type) {
-        case 'UPDATE_SECTION_SETTING':
+    switch (type) {
+      case 'UPDATE_SECTION_SETTING':
+        if (payload?.settingId && payload.value !== undefined) {
           const sectionParams: UpdateSectionSettingParams = {
             storeId,
             sectionId: payload.sectionId,
@@ -73,38 +75,74 @@ export class RedoChangeUseCase {
             value: payload.value,
           };
           await this.devServer.updateSectionSetting(sectionParams);
-          break;
+        }
+        break;
 
-        case 'UPDATE_BLOCK_SETTING':
-          if (payload.blockId) {
-            const blockParams: UpdateBlockSettingParams = {
-              storeId,
-              sectionId: payload.sectionId,
-              blockId: payload.blockId,
-              settingId: payload.settingId,
-              value: payload.value,
-            };
-            await this.devServer.updateBlockSetting(blockParams);
-          }
-          break;
+      case 'UPDATE_BLOCK_SETTING':
+        if (payload?.blockId && payload?.settingId && payload.value !== undefined) {
+          const blockParams: UpdateBlockSettingParams = {
+            storeId,
+            sectionId: payload.sectionId,
+            blockId: payload.blockId,
+            settingId: payload.settingId,
+            value: payload.value,
+          };
+          await this.devServer.updateBlockSetting(blockParams);
+        }
+        break;
 
-        case 'UPDATE_SUB_BLOCK_SETTING':
-          if (payload.blockId && payload.subBlockId) {
-            const subBlockParams: UpdateSubBlockSettingParams = {
-              storeId,
-              sectionId: payload.sectionId,
-              blockId: payload.blockId,
-              subBlockId: payload.subBlockId,
-              settingId: payload.settingId,
-              value: payload.value,
-            };
-            await this.devServer.updateSubBlockSetting(subBlockParams);
-          }
-          break;
+      case 'UPDATE_SUB_BLOCK_SETTING':
+        if (payload?.blockId && payload?.subBlockId && payload?.settingId && payload.value !== undefined) {
+          const subBlockParams: UpdateSubBlockSettingParams = {
+            storeId,
+            sectionId: payload.sectionId,
+            blockId: payload.blockId,
+            subBlockId: payload.subBlockId,
+            settingId: payload.settingId,
+            value: payload.value,
+          };
+          await this.devServer.updateSubBlockSetting(subBlockParams);
+        }
+        break;
 
-        default:
-          break;
-      }
+      case 'REORDER_SECTIONS':
+        if (payload?.oldIndex !== undefined && payload?.newIndex !== undefined) {
+          const reorderParams: ReorderSectionsParams = {
+            storeId,
+            oldIndex: payload.oldIndex,
+            newIndex: payload.newIndex,
+          };
+          await this.devServer.reorderSections(reorderParams);
+        }
+        break;
+
+      case 'REORDER_BLOCKS':
+        if (payload?.oldIndex !== undefined && payload?.newIndex !== undefined) {
+          const reorderParams: ReorderBlocksParams = {
+            storeId,
+            sectionId: payload.sectionId,
+            oldIndex: payload.oldIndex,
+            newIndex: payload.newIndex,
+          };
+          await this.devServer.reorderBlocks(reorderParams);
+        }
+        break;
+
+      case 'REORDER_SUB_BLOCKS':
+        if (payload?.blockId && payload?.oldIndex !== undefined && payload?.newIndex !== undefined) {
+          const reorderParams: ReorderSubBlocksParams = {
+            storeId,
+            sectionId: payload.sectionId,
+            blockId: payload.blockId,
+            oldIndex: payload.oldIndex,
+            newIndex: payload.newIndex,
+          };
+          await this.devServer.reorderSubBlocks(reorderParams);
+        }
+        break;
+
+      default:
+        break;
     }
   }
 }

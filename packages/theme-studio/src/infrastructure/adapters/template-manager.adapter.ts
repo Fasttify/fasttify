@@ -62,6 +62,7 @@ export class TemplateManagerAdapter implements ITemplateManager {
     const updatedTemplate: Template = {
       ...this.currentTemplate,
       sections: { ...this.currentTemplate.sections },
+      order: [...this.currentTemplate.order],
     };
 
     // Aplicar cambio según el tipo
@@ -126,6 +127,53 @@ export class TemplateManagerAdapter implements ITemplateManager {
                           }
                         : subBlock
                     ),
+                  };
+                }
+                return block;
+              }),
+            };
+          }
+        }
+        break;
+
+      case 'REORDER_SECTIONS':
+        if (change.oldIndex !== undefined && change.newIndex !== undefined) {
+          const newOrder = [...updatedTemplate.order];
+          const [movedSectionId] = newOrder.splice(change.oldIndex, 1);
+          newOrder.splice(change.newIndex, 0, movedSectionId);
+          updatedTemplate.order = newOrder;
+        }
+        break;
+
+      case 'REORDER_BLOCKS':
+        if (change.oldIndex !== undefined && change.newIndex !== undefined) {
+          const section = updatedTemplate.sections[change.sectionId];
+          if (section?.blocks) {
+            const newBlocks = [...section.blocks];
+            const [movedBlock] = newBlocks.splice(change.oldIndex, 1);
+            newBlocks.splice(change.newIndex, 0, movedBlock);
+            updatedTemplate.sections[change.sectionId] = {
+              ...section,
+              blocks: newBlocks,
+            };
+          }
+        }
+        break;
+
+      case 'REORDER_SUB_BLOCKS':
+        if (change.blockId && change.oldIndex !== undefined && change.newIndex !== undefined) {
+          const section = updatedTemplate.sections[change.sectionId];
+          if (section?.blocks) {
+            updatedTemplate.sections[change.sectionId] = {
+              ...section,
+              blocks: section.blocks.map((block) => {
+                if (block.id === change.blockId && block.blocks) {
+                  const newSubBlocks = [...block.blocks];
+                  const [movedSubBlock] = newSubBlocks.splice(change.oldIndex!, 1);
+                  newSubBlocks.splice(change.newIndex!, 0, movedSubBlock);
+                  return {
+                    ...block,
+                    blocks: newSubBlocks,
                   };
                 }
                 return block;

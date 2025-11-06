@@ -41,6 +41,8 @@ export interface ChangePayload {
   settingId?: string;
   value?: unknown;
   previousValue?: unknown;
+  oldIndex?: number;
+  newIndex?: number;
   blockData?: {
     id: string;
     type: string;
