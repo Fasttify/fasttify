@@ -14,10 +14,7 @@ export const websocketConnectionModel = a
     storeIdTemplateType: a.string().required(), // GSI key: storeId#templateType
     ttl: a.integer(), // TTL para limpiar conexiones muertas automáticamente
   })
-  .authorization((allow) => [
-    allow.authenticated().to(['read', 'create', 'update', 'delete']),
-    allow.publicApiKey().to(['read', 'create', 'update', 'delete']),
-  ])
+  .authorization((allow) => [allow.authenticated().to(['read', 'create', 'update', 'delete'])])
   .identifier(['connectionId'])
   .secondaryIndexes((index) => [
     index('storeIdTemplateType').queryField('listWebSocketConnectionByStoreIdTemplateType'),
