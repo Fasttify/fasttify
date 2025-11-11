@@ -17,16 +17,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { withAuthHandler } from '@/api/_lib/auth-middleware';
+import { logger } from '@/liquid-forge';
 import { TemplateLoaderAdapter } from '@/app/api/stores/_lib/dev-server/infrastructure/adapters/template-loader.adapter';
 import { SectionRendererAdapter } from '@/app/api/stores/_lib/dev-server/infrastructure/adapters/section-renderer.adapter';
 import { UpdateSectionSettingUseCase } from '@/app/api/stores/_lib/dev-server/application/use-cases/update-section-setting.use-case';
 import { UpdateBlockSettingUseCase } from '@/app/api/stores/_lib/dev-server/application/use-cases/update-block-setting.use-case';
 import { UpdateSubBlockSettingUseCase } from '@/app/api/stores/_lib/dev-server/application/use-cases/update-sub-block-setting.use-case';
 import { devSessionManager } from '@/app/api/stores/_lib/dev-server/infrastructure/services/dev-session-manager.service';
-import {
-  broadcastChangeApplied,
-  broadcastRenderError,
-} from '@/app/api/stores/_lib/dev-server/controllers/sse-controller';
+import { websocketBroadcastService } from '@/app/api/stores/_lib/dev-server/infrastructure/services/websocket-broadcast.service';
 
 const templateLoader = new TemplateLoaderAdapter();
 const sectionRenderer = new SectionRendererAdapter();
@@ -36,7 +34,7 @@ const updateSubBlockSettingUseCase = new UpdateSubBlockSettingUseCase(templateLo
 
 /**
  * Endpoint POST para recibir actualizaciones de settings desde el cliente
- * Procesa el cambio y envía la actualización por SSE
+ * Procesa el cambio y envía la actualización por WebSocket
  */
 export const POST = withAuthHandler(
   async (request: NextRequest, { storeId, corsHeaders }) => {
@@ -87,11 +85,17 @@ export const POST = withAuthHandler(
           return NextResponse.json({ error: 'Invalid message type' }, { status: 400, headers: corsHeaders });
       }
 
-      // Enviar resultado a través de SSE
+      // Enviar resultado a través de WebSocket
       if (result.success) {
-        broadcastChangeApplied(storeId, templateType, result);
+        websocketBroadcastService.broadcastChangeApplied(storeId, templateType, result).catch((error) => {
+          logger.error('Error broadcasting WebSocket message', error, 'UpdateRoute');
+        });
       } else {
-        broadcastRenderError(storeId, templateType, result.error || 'Unknown error', result.sectionId);
+        websocketBroadcastService
+          .broadcastRenderError(storeId, templateType, result.error || 'Unknown error', result.sectionId)
+          .catch((error) => {
+            logger.error('Error broadcasting WebSocket error', error, 'UpdateRoute');
+          });
       }
 
       return NextResponse.json({ success: true }, { headers: corsHeaders });

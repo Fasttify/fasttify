@@ -21,13 +21,13 @@ import { UpdateSubBlockSettingUseCase } from '../../application/use-cases/update
 import { ReorderSectionsUseCase } from '../../application/use-cases/reorder-sections.use-case';
 import { ReorderBlocksUseCase } from '../../application/use-cases/reorder-blocks.use-case';
 import { ReorderSubBlocksUseCase } from '../../application/use-cases/reorder-sub-blocks.use-case';
-import { DevServerAdapter } from '../../infrastructure/adapters/dev-server.adapter';
+import { WebSocketDevServerAdapter } from '../../infrastructure/adapters/websocket-dev-server.adapter';
 import { TemplateManagerAdapter } from '../../infrastructure/adapters/template-manager.adapter';
 import { TemplateRepositoryAdapter } from '../../infrastructure/adapters/template-repository.adapter';
 import { HistoryManagerAdapter } from '../../infrastructure/adapters/history-manager.adapter';
 import type { RefObject } from 'react';
 import type { TemplateType } from '../../domain/entities/template.entity';
-import type { ChangeAppliedCallback, ErrorCallback } from '../../domain/ports/dev-server.port';
+import type { ChangeAppliedCallback, ErrorCallback, IDevServer } from '../../domain/ports/dev-server.port';
 import type { IHistoryManager } from '../../domain/ports/history-manager.port';
 
 interface UseHotReloadParams {
@@ -36,6 +36,7 @@ interface UseHotReloadParams {
   iframeRef: RefObject<HTMLIFrameElement | null>;
   currentPageId?: string;
   enabled?: boolean;
+  websocketEndpoint: string;
 }
 
 interface UseHotReloadResult {
@@ -53,7 +54,7 @@ interface UseHotReloadResult {
   reorderSubBlocks: (sectionId: string, blockId: string, oldIndex: number, newIndex: number) => Promise<void>;
   isConnected: boolean;
   hasPendingChanges: boolean;
-  devServer: DevServerAdapter | null;
+  devServer: IDevServer | null;
   templateManager: TemplateManagerAdapter | null;
   historyManager: IHistoryManager | null;
 }
@@ -69,8 +70,9 @@ export function useHotReload({
   iframeRef,
   currentPageId = 'index',
   enabled = true,
+  websocketEndpoint,
 }: UseHotReloadParams): UseHotReloadResult {
-  const devServerRef = useRef<DevServerAdapter | null>(null);
+  const devServerRef = useRef<IDevServer | null>(null);
   const templateManagerRef = useRef<TemplateManagerAdapter | null>(null);
   const historyManagerRef = useRef<HistoryManagerAdapter | null>(null);
   const updateSectionSettingUseCaseRef = useRef<UpdateSectionSettingUseCase | null>(null);
@@ -102,7 +104,7 @@ export function useHotReload({
 
   // Helper para conectar y cargar template
   const connectAndLoadTemplate = useCallback(
-    async (devServer: DevServerAdapter, templateManager: TemplateManagerAdapter, pageId: string) => {
+    async (devServer: IDevServer, templateManager: TemplateManagerAdapter, pageId: string) => {
       await devServer.connect(storeId, handleChangeApplied, handleError, pageId as TemplateType);
       const template = await devServer.loadTemplate(storeId, pageId as any);
       if (template) {
@@ -121,7 +123,12 @@ export function useHotReload({
 
     // Inicializar adaptadores solo si no están inicializados
     if (!isInitialized) {
-      const devServer = new DevServerAdapter(apiBaseUrl);
+      if (!websocketEndpoint) {
+        console.error('WebSocket endpoint is required for hot reload');
+        return;
+      }
+
+      const devServer = new WebSocketDevServerAdapter(websocketEndpoint, apiBaseUrl);
       const templateRepository = new TemplateRepositoryAdapter(apiBaseUrl);
       const templateManager = new TemplateManagerAdapter(templateRepository);
       const historyManager = new HistoryManagerAdapter();
@@ -173,7 +180,7 @@ export function useHotReload({
         });
       }
     };
-  }, [storeId, apiBaseUrl, enabled, currentPageId, connectAndLoadTemplate]);
+  }, [storeId, apiBaseUrl, enabled, currentPageId, websocketEndpoint, connectAndLoadTemplate]);
 
   // Helper genérico para ejecutar casos de uso
   const executeUseCase = useCallback(

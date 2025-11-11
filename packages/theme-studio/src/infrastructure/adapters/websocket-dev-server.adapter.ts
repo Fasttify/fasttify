@@ -29,7 +29,7 @@ import type { Template, TemplateType } from '../../domain/entities/template.enti
 import type { AppliedChange } from '../../domain/entities/editor-session.entity';
 
 /**
- * Mensajes SSE del servidor al cliente
+ * Mensajes del servidor al cliente
  */
 type ServerMessage =
   | { type: 'CHANGE_APPLIED'; payload: AppliedChange }
@@ -37,6 +37,18 @@ type ServerMessage =
   | { type: 'TEMPLATE_LOADED'; payload: { template: Template } }
   | { type: 'CONNECTED' }
   | { type: 'PING' };
+
+/**
+ * Mensajes del cliente al servidor
+ */
+type ClientMessage =
+  | { type: 'UPDATE_SECTION_SETTING'; payload: UpdateSectionSettingParams; templateType: TemplateType }
+  | { type: 'UPDATE_BLOCK_SETTING'; payload: UpdateBlockSettingParams; templateType: TemplateType }
+  | { type: 'UPDATE_SUB_BLOCK_SETTING'; payload: UpdateSubBlockSettingParams; templateType: TemplateType }
+  | { type: 'REORDER_SECTIONS'; payload: ReorderSectionsParams; templateType: TemplateType }
+  | { type: 'REORDER_BLOCKS'; payload: ReorderBlocksParams; templateType: TemplateType }
+  | { type: 'REORDER_SUB_BLOCKS'; payload: ReorderSubBlocksParams; templateType: TemplateType }
+  | { type: 'LOAD_TEMPLATE'; payload: { storeId: string; templateType: TemplateType } };
 
 interface TemplateLoadPromise {
   resolve: (template: Template) => void;
@@ -47,28 +59,23 @@ const CONNECTION_TIMEOUT_MS = 10000;
 const TEMPLATE_LOAD_TIMEOUT_MS = 15000;
 const RECONNECT_DELAY_MS = 2000;
 const MAX_RECONNECT_ATTEMPTS = 5;
+const PING_INTERVAL_MS = 30000;
 
-// Helper: Construir URL del SSE endpoint
-const buildSSEUrl = (apiBaseUrl: string, storeId: string, templateType: TemplateType): string => {
-  return `${apiBaseUrl}/stores/${storeId}/dev/ws?storeId=${storeId}&templateType=${templateType}`;
-};
-
-// Helper: Crear error estándar
 const createError = (message: string): Error => new Error(message);
 
-// Helper: Validar conexión SSE
-const isConnected = (eventSource: EventSource | null): boolean => {
-  return eventSource !== null && eventSource.readyState === EventSource.OPEN;
+const buildWebSocketUrl = (websocketEndpoint: string, storeId: string, templateType: TemplateType): string => {
+  return `${websocketEndpoint}?storeId=${storeId}&templateType=${templateType}`;
 };
 
 /**
- * Adaptador: Dev Server (SSE)
- * Implementación concreta del cliente SSE para comunicación con el Dev Server
+ * Adaptador: Dev Server (WebSocket)
+ * Implementación concreta del cliente WebSocket para comunicación con el Dev Server
  */
-export class DevServerAdapter implements IDevServer {
-  private eventSource: EventSource | null = null;
+export class WebSocketDevServerAdapter implements IDevServer {
+  private websocket: WebSocket | null = null;
   private changeAppliedCallback: ChangeAppliedCallback | null = null;
   private errorCallback: ErrorCallback | null = null;
+  private websocketEndpoint: string;
   private apiBaseUrl: string;
   private storeId: string | null = null;
   private templateType: TemplateType | null = null;
@@ -76,8 +83,12 @@ export class DevServerAdapter implements IDevServer {
   private reconnectAttempts: number = 0;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private isReconnecting: boolean = false;
+  private pingTimer: ReturnType<typeof setInterval> | null = null;
+  private connectionState: { hasResolved: boolean } = { hasResolved: false };
+  private connectionResolve: (() => void) | null = null;
 
-  constructor(apiBaseUrl: string) {
+  constructor(websocketEndpoint: string, apiBaseUrl: string) {
+    this.websocketEndpoint = websocketEndpoint;
     this.apiBaseUrl = apiBaseUrl;
   }
 
@@ -87,12 +98,12 @@ export class DevServerAdapter implements IDevServer {
     onError: ErrorCallback,
     templateType: TemplateType = 'index'
   ): Promise<void> {
-    if (isConnected(this.eventSource)) {
+    if (this.isConnected()) {
       return;
     }
 
-    // Cancelar reconexión pendiente si existe
     this.cancelReconnect();
+    this.stopPing();
 
     this.changeAppliedCallback = onChangeApplied;
     this.errorCallback = onError;
@@ -106,13 +117,13 @@ export class DevServerAdapter implements IDevServer {
   private establishConnection(storeId: string, templateType: TemplateType): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        const sseUrl = buildSSEUrl(this.apiBaseUrl, storeId, templateType);
-        this.eventSource = new EventSource(sseUrl);
+        const wsUrl = buildWebSocketUrl(this.websocketEndpoint, storeId, templateType);
+        this.websocket = new WebSocket(wsUrl);
+        this.connectionState = { hasResolved: false };
+        this.connectionResolve = resolve;
 
-        const connectionState = { hasResolved: false };
-
-        this.setupEventHandlers(connectionState, resolve, reject);
-        this.setupConnectionTimeout(connectionState, resolve, reject);
+        this.setupEventHandlers(this.connectionState, resolve, reject);
+        this.setupConnectionTimeout(this.connectionState, resolve, reject);
       } catch (error) {
         reject(error);
       }
@@ -124,37 +135,52 @@ export class DevServerAdapter implements IDevServer {
     resolve: () => void,
     reject: (error: Error) => void
   ): void {
-    if (!this.eventSource) return;
+    if (!this.websocket) return;
 
-    this.eventSource.onopen = () => this.resolveConnection(connectionState, resolve);
+    this.websocket.onopen = () => {
+      this.startPing();
+      // Resolver la conexión cuando el WebSocket se abre
+      // El servidor puede enviar CONNECTED, pero no es necesario esperarlo
+      if (!connectionState.hasResolved) {
+        // Dar un pequeño delay para asegurar que el servidor haya procesado la conexión
+        setTimeout(() => {
+          this.resolveConnection(connectionState, resolve);
+        }, 100);
+      }
+    };
 
-    this.eventSource.onmessage = (event) => {
+    this.websocket.onmessage = (event) => {
       try {
         const message: ServerMessage = JSON.parse(event.data);
         this.handleServerMessage(message);
-
-        if (message.type === 'CONNECTED') {
-          this.resolveConnection(connectionState, resolve);
-        }
       } catch (error) {
         this.handleError(error instanceof Error ? error : createError('Error parsing message'));
       }
     };
 
-    this.eventSource.onerror = () => {
-      const readyState = this.eventSource?.readyState;
+    this.websocket.onerror = () => {
+      const error = createError('WebSocket connection error');
+      if (!connectionState.hasResolved) {
+        connectionState.hasResolved = true;
+        reject(error);
+      } else {
+        this.handleError(error);
+      }
+    };
 
-      // Si ya estaba conectado y ahora hay error, intentar reconectar
-      if (connectionState.hasResolved && readyState === EventSource.CLOSED) {
-        // No rechazar la promesa aquí, solo programar reconexión
+    this.websocket.onclose = (event) => {
+      this.stopPing();
+
+      // Si ya estaba conectado y ahora se cerró, intentar reconectar
+      if (connectionState.hasResolved && !this.isReconnecting) {
         this.scheduleReconnect();
         return;
       }
 
-      // Si aún no se resolvió y está cerrado, rechazar
-      if (!connectionState.hasResolved && readyState === EventSource.CLOSED) {
+      // Si aún no se resolvió y se cerró con error, rechazar
+      if (!connectionState.hasResolved) {
         connectionState.hasResolved = true;
-        reject(createError('SSE connection failed'));
+        reject(createError(`WebSocket connection closed: ${event.code} ${event.reason || ''}`));
       }
     };
   }
@@ -168,10 +194,10 @@ export class DevServerAdapter implements IDevServer {
       if (connectionState.hasResolved) return;
 
       connectionState.hasResolved = true;
-      if (isConnected(this.eventSource)) {
+      if (this.isConnected()) {
         resolve();
       } else {
-        reject(createError('SSE connection timeout'));
+        reject(createError('WebSocket connection timeout'));
       }
     }, CONNECTION_TIMEOUT_MS);
   }
@@ -185,15 +211,16 @@ export class DevServerAdapter implements IDevServer {
 
   async disconnect(): Promise<void> {
     this.cancelReconnect();
-    this.closeEventSource();
+    this.stopPing();
+    this.closeWebSocket();
     this.clearCallbacks();
     this.clearState();
   }
 
-  private closeEventSource(): void {
-    if (this.eventSource) {
-      this.eventSource.close();
-      this.eventSource = null;
+  private closeWebSocket(): void {
+    if (this.websocket) {
+      this.websocket.close();
+      this.websocket = null;
     }
   }
 
@@ -208,6 +235,8 @@ export class DevServerAdapter implements IDevServer {
     this.templateLoadPromise = null;
     this.reconnectAttempts = 0;
     this.isReconnecting = false;
+    this.connectionState = { hasResolved: false };
+    this.connectionResolve = null;
   }
 
   private scheduleReconnect(): void {
@@ -215,8 +244,7 @@ export class DevServerAdapter implements IDevServer {
       return;
     }
 
-    // Si ya está conectado, no reconectar
-    if (isConnected(this.eventSource)) {
+    if (this.isConnected()) {
       return;
     }
 
@@ -236,13 +264,12 @@ export class DevServerAdapter implements IDevServer {
         return;
       }
 
-      // Si ya está conectado durante el delay, cancelar reconexión
-      if (isConnected(this.eventSource)) {
+      if (this.isConnected()) {
         this.reconnectAttempts = 0;
         return;
       }
 
-      this.closeEventSource();
+      this.closeWebSocket();
 
       this.establishConnection(this.storeId!, this.templateType!)
         .then(() => {
@@ -263,16 +290,50 @@ export class DevServerAdapter implements IDevServer {
     this.isReconnecting = false;
   }
 
+  private startPing(): void {
+    this.stopPing();
+    this.pingTimer = setInterval(() => {
+      if (this.isConnected()) {
+        this.sendMessage({ type: 'PING' });
+      }
+    }, PING_INTERVAL_MS);
+  }
+
+  private stopPing(): void {
+    if (this.pingTimer) {
+      clearInterval(this.pingTimer);
+      this.pingTimer = null;
+    }
+  }
+
+  private sendMessage(message: { type: 'PING' }): void {
+    if (!this.isConnected()) {
+      return;
+    }
+
+    this.websocket!.send(JSON.stringify(message));
+  }
+
   async loadTemplate(storeId: string, templateType: TemplateType): Promise<Template> {
-    this.ensureConnected();
+    // Asegurar que estamos conectados
+    if (!this.isConnected()) {
+      // Si no estamos conectados, intentar conectar primero
+      if (this.storeId && this.changeAppliedCallback && this.errorCallback) {
+        await this.connect(this.storeId, this.changeAppliedCallback, this.errorCallback, templateType);
+      } else {
+        throw createError('WebSocket is not connected and cannot connect');
+      }
+    }
+
     this.templateType = templateType;
 
-    return this.waitForTemplate();
+    // Cargar template directamente desde REST (más confiable que esperar por WebSocket)
+    return this.loadTemplateFromRest();
   }
 
   private ensureConnected(): void {
-    if (!isConnected(this.eventSource)) {
-      throw createError('SSE is not connected');
+    if (!this.isConnected()) {
+      throw createError('WebSocket is not connected');
     }
   }
 
@@ -295,7 +356,69 @@ export class DevServerAdapter implements IDevServer {
           reject(error);
         },
       };
+
+      // Cargar template desde el endpoint REST
+      // El servidor WebSocket puede enviar TEMPLATE_LOADED, pero cargamos desde REST como fallback
+      if (this.storeId && this.templateType) {
+        // Cargar desde REST (método principal)
+        this.loadTemplateFromRest()
+          .then((template) => {
+            if (this.templateLoadPromise) {
+              this.templateLoadPromise.resolve(template);
+            }
+          })
+          .catch((error) => {
+            // Si falla REST, rechazar la promesa
+            if (this.templateLoadPromise) {
+              this.templateLoadPromise.reject(
+                error instanceof Error ? error : createError('Failed to load template from REST')
+              );
+            }
+          });
+      } else {
+        reject(createError('StoreId or templateType not set'));
+      }
     });
+  }
+
+  private async loadTemplateFromRest(): Promise<Template> {
+    if (!this.storeId || !this.templateType) {
+      throw createError('StoreId or templateType not set');
+    }
+
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/stores/${this.storeId}/themes/templates/${this.templateType}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Incluir cookies para autenticación
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        throw createError(`Failed to load template: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      const data = await response.json();
+
+      // Validar que el template tenga el formato correcto
+      if (!data || typeof data !== 'object') {
+        throw createError('Invalid template format: expected an object');
+      }
+
+      // Asegurar que el template tenga las propiedades requeridas
+      return {
+        type: this.templateType!,
+        sections: data.sections || {},
+        order: data.order || [],
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw createError(`Failed to load template: ${String(error)}`);
+    }
   }
 
   private clearTemplatePromise(): void {
@@ -327,11 +450,11 @@ export class DevServerAdapter implements IDevServer {
   }
 
   isConnected(): boolean {
-    return isConnected(this.eventSource);
+    return this.websocket !== null && this.websocket.readyState === WebSocket.OPEN;
   }
 
   private async sendUpdateRequest(
-    type: string,
+    type: ClientMessage['type'],
     payload:
       | UpdateSectionSettingParams
       | UpdateBlockSettingParams
@@ -345,8 +468,24 @@ export class DevServerAdapter implements IDevServer {
     this.ensureTemplateType();
 
     try {
-      const response = await this.postUpdateRequest(type, payload, storeId);
-      await this.validateResponse(response);
+      // Por ahora, enviar actualizaciones por REST (el servidor Lambda solo recibe mensajes)
+      // En el futuro, esto se puede cambiar para enviar directamente por WebSocket
+      const response = await fetch(`${this.apiBaseUrl}/stores/${storeId}/dev/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type,
+          payload,
+          templateType: this.templateType,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw createError(error.error || 'Failed to update setting');
+      }
     } catch (error) {
       this.handleError(error instanceof Error ? error : createError('Failed to send update'));
       throw error;
@@ -356,37 +495,6 @@ export class DevServerAdapter implements IDevServer {
   private ensureTemplateType(): void {
     if (!this.templateType) {
       throw createError('Template type not set');
-    }
-  }
-
-  private async postUpdateRequest(
-    type: string,
-    payload:
-      | UpdateSectionSettingParams
-      | UpdateBlockSettingParams
-      | UpdateSubBlockSettingParams
-      | ReorderSectionsParams
-      | ReorderBlocksParams
-      | ReorderSubBlocksParams,
-    storeId: string
-  ): Promise<Response> {
-    return fetch(`${this.apiBaseUrl}/stores/${storeId}/dev/update`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        type,
-        payload,
-        templateType: this.templateType,
-      }),
-    });
-  }
-
-  private async validateResponse(response: Response): Promise<void> {
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw createError(error.error || 'Failed to update setting');
     }
   }
 
@@ -402,7 +510,11 @@ export class DevServerAdapter implements IDevServer {
       RENDER_ERROR: () => this.handleRenderError(message as Extract<ServerMessage, { type: 'RENDER_ERROR' }>),
       TEMPLATE_LOADED: () => this.handleTemplateLoaded(message as Extract<ServerMessage, { type: 'TEMPLATE_LOADED' }>),
       CONNECTED: () => {
-        // Confirmación de conexión - no acción necesaria
+        // Mensaje de confirmación del servidor - la conexión ya está resuelta en onopen
+        // Pero si aún no está resuelta, resolverla ahora
+        if (this.connectionResolve && !this.connectionState.hasResolved) {
+          this.resolveConnection(this.connectionState, this.connectionResolve);
+        }
       },
       PING: () => {
         // Mantener conexión viva - no acción necesaria

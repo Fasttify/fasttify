@@ -19,6 +19,7 @@ import { withAuthHandler } from '@/api/_lib/auth-middleware';
 import { saveTemplate } from '@/api/stores/_lib/themes/controllers/save-template-controller';
 import { NextRequest, NextResponse } from 'next/server';
 import type { TemplateType } from '@fasttify/theme-studio';
+import { getTemplate } from '@/app/api/stores/_lib/themes/controllers/get-template-controller';
 
 interface RouteParams {
   storeId: string;
@@ -28,6 +29,30 @@ interface RouteParams {
 interface RequestWithParams extends NextRequest {
   params?: RouteParams;
 }
+
+/**
+ * GET /api/stores/[storeId]/themes/templates/[templateType]
+ * Obtiene un template específico desde S3
+ */
+export const GET = withAuthHandler(
+  async (request: NextRequest, { storeId }) => {
+    const requestWithParams = request as RequestWithParams;
+    const params = requestWithParams.params;
+
+    if (!params || !params.templateType) {
+      const corsHeaders = await getNextCorsHeaders(request);
+      return NextResponse.json({ error: 'Missing templateType parameter' }, { status: 400, headers: corsHeaders });
+    }
+
+    const templateType = params.templateType as TemplateType;
+    return getTemplate(request, storeId, templateType);
+  },
+  {
+    requireStoreOwnership: true,
+    storeIdSource: 'params',
+    storeIdParamName: 'storeId',
+  }
+);
 
 /**
  * PUT /api/stores/[storeId]/themes/templates/[templateType]

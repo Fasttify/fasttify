@@ -7,6 +7,7 @@ import { onboardingProgress } from '../functions/onboardingProgress/resource';
 import { planScheduler } from '../functions/planScheduler/resource';
 import { webHookPlan } from '../functions/webHookPlan/resource';
 import { validateStoreLimits } from '../functions/validateStoreLimits/resource';
+import { websocketDevServer } from '../functions/websocket-dev-server/resource';
 
 // Importacion de modelos
 import { cartModel } from './models/cart';
@@ -30,6 +31,7 @@ import { productDeleteReturnModel } from './models/product-delete-return';
 import { orderDeleteReturnModel } from './models/order-delete-return';
 import { checkoutDeleteReturnModel } from './models/checkout-delete-return';
 import { storeAnalyticsModel } from './models/store-analytics';
+import { websocketConnectionModel } from './models/websocket-connection';
 import { CHAT_GENERATION_SYSTEM_PROMPT } from './functions/chat-generate/systemPrompt';
 
 export const MODEL_ID = 'us.amazon.nova-pro-v1:0';
@@ -318,6 +320,7 @@ const fullSchema = a
     OrderDeleteReturn: orderDeleteReturnModel,
     CheckoutDeleteReturn: checkoutDeleteReturnModel,
     StoreAnalytics: storeAnalyticsModel,
+    WebSocketConnection: websocketConnectionModel,
   })
   .authorization((allow) => [
     allow.resource(postConfirmation),
@@ -328,6 +331,7 @@ const fullSchema = a
     allow.resource(managePaymentKeys),
     allow.resource(onboardingProgress),
     allow.resource(validateStoreLimits),
+    allow.resource(websocketDevServer),
   ]);
 
 // Tipos separados para mejorar rendimiento del linter

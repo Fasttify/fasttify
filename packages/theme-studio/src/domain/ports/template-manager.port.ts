@@ -36,7 +36,7 @@ export interface ITemplateManager {
 
   /**
    * Establecer el template directamente sin cargarlo desde el repositorio
-   * Útil cuando el template ya está disponible (por ejemplo, recibido por SSE o undo/redo)
+   * Útil cuando el template ya está disponible (por ejemplo, recibido por WebSocket o undo/redo)
    * @param template - Template a establecer
    */
   setTemplate(template: Template): void;

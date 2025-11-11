@@ -24,6 +24,7 @@ export interface ThemeStudioProps {
   storeId: string;
   apiBaseUrl: string;
   domain: string | null;
+  websocketEndpoint: string;
   imageSelectorComponent?: (props: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -32,7 +33,13 @@ export interface ThemeStudioProps {
   }) => React.ReactElement | null;
 }
 
-export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponent }: ThemeStudioProps) {
+export function ThemeStudio({
+  storeId,
+  apiBaseUrl,
+  domain,
+  websocketEndpoint,
+  imageSelectorComponent,
+}: ThemeStudioProps) {
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [currentPath, setCurrentPath] = useState('/');
   const [currentPageId, setCurrentPageId] = useState('index');
@@ -52,6 +59,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
     iframeRef,
     currentPageId,
     enabled: true,
+    websocketEndpoint,
   });
 
   const history = useHistory({
