@@ -76,6 +76,17 @@ export function ThemeStudio({
     templateType: currentPageId as any,
   });
 
+  // Handler para guardar que actualiza el estado después de guardar
+  const handleSave = useCallback(async () => {
+    try {
+      await saveChanges.save();
+      // Actualizar estado de cambios pendientes después de guardar exitosamente
+      hotReload.updatePendingChangesState();
+    } catch (error) {
+      console.error('Error saving changes:', error);
+    }
+  }, [saveChanges, hotReload]);
+
   const selectedSectionData = useSelectedSection({
     storeId,
     apiBaseUrl,
@@ -195,7 +206,7 @@ export function ThemeStudio({
         onInspector={handleToggleInspector}
         onUndo={history.canUndo ? history.undo : undefined}
         onRedo={history.canRedo ? history.redo : undefined}
-        onSave={saveChanges.save}
+        onSave={handleSave}
         isSaving={saveChanges.isSaving}
         hasPendingChanges={hotReload.hasPendingChanges}
         onPageSelect={(pageId, pageUrl) => {

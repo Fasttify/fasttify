@@ -26,6 +26,7 @@ interface UseSaveChangesParams {
 interface UseSaveChangesResult {
   save: () => Promise<void>;
   isSaving: boolean;
+  onSaveComplete?: () => void;
 }
 
 /**
@@ -61,6 +62,7 @@ export function useSaveChanges({
     setIsSaving(true);
     try {
       await saveChangesUseCaseRef.current.execute(storeId, templateType);
+      // Los cambios pendientes se limpian en el use case, pero necesitamos notificar al componente padre
     } catch (error) {
       console.error('Error saving changes:', error);
       // No limpiar pendingChanges si hay error
