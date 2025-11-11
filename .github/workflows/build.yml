@@ -78,15 +78,18 @@ jobs:
             "version": "1.0",
             "custom": {
               "APIs": {
-                "SubscriptionApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "SubscriptionApi"},
-                "WebHookApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "WebHookApi"},
-                "CheckStoreNameApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "CheckStoreNameApi"},
-                "CheckStoreDomainApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "CheckStoreDomain"},
-                "ApiKeyManagerApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "ApiKeyManagerApi"},
-                "GetStoreProductsApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "GetStoreProductsApi"},
-                "GetStoreDataApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "GetStoreDataApi"},
-                "StoreImagesApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "StoreImagesApi"},
-                "GetStoreCollectionsApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "GetStoreCollectionsApi"}
+                "SubscriptionApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "SubscriptionApi", "stage": "dev"},
+                "WebHookApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "WebHookApi", "stage": "dev"},
+                "CheckStoreNameApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "CheckStoreNameApi", "stage": "dev"},
+                "CheckStoreDomainApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "CheckStoreDomain", "stage": "dev"},
+                "ApiKeyManagerApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "ApiKeyManagerApi", "stage": "dev"},
+                "GetStoreProductsApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "GetStoreProductsApi", "stage": "dev"},
+                "GetStoreDataApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "GetStoreDataApi", "stage": "dev"},
+                "StoreImagesApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "StoreImagesApi", "stage": "dev"},
+                "BulkEmailApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "BulkEmailApi", "stage": "dev"},
+                "StoreLimitsApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "StoreLimitsApi", "stage": "dev"},
+                "GetStoreCollectionsApi": {"endpoint": "dummy_endpoint", "region": "dummy_region", "apiName": "GetStoreCollectionsApi", "stage": "dev"},
+                "WebSocketDevServerApi": {"endpoint": "wss://dummy.execute-api.us-east-2.amazonaws.com/dev", "managementEndpoint": "https://dummy.execute-api.us-east-2.amazonaws.com/dev", "region": "us-east-2", "apiId": "dummy", "stage": "dev"}
               }
             }
           }' > amplify_outputs.json
