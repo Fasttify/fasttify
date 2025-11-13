@@ -7,6 +7,7 @@ import { useMemo, useCallback } from 'react';
 import { useStore } from '@/app/store/hooks/data/useStore/useStore';
 import { Loading } from '@shopify/polaris';
 import { ImageSelectorModal, type S3Image } from '@/app/store/components/images-selector';
+import outputs from '@/amplify_outputs.json';
 
 export default function StudioClient() {
   const pathname = usePathname();
@@ -53,11 +54,21 @@ export default function StudioClient() {
     []
   );
 
+  const websocketEndpoint = useMemo(() => {
+    return outputs.custom?.APIs?.WebSocketDevServerApi?.endpoint;
+  }, []);
+
   if (loading || !domain) {
     return <Loading />;
   }
 
   return (
-    <ThemeStudio storeId={storeId} apiBaseUrl="/api" domain={domain} imageSelectorComponent={imageSelectorComponent} />
+    <ThemeStudio
+      storeId={storeId}
+      apiBaseUrl="/api"
+      domain={domain}
+      websocketEndpoint={websocketEndpoint}
+      imageSelectorComponent={imageSelectorComponent}
+    />
   );
 }

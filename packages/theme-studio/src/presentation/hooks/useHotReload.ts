@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { UpdateSectionSettingUseCase } from '../../application/use-cases/update-section-setting.use-case';
 import { UpdateBlockSettingUseCase } from '../../application/use-cases/update-block-setting.use-case';
 import { UpdateSubBlockSettingUseCase } from '../../application/use-cases/update-sub-block-setting.use-case';
 import { ReorderSectionsUseCase } from '../../application/use-cases/reorder-sections.use-case';
 import { ReorderBlocksUseCase } from '../../application/use-cases/reorder-blocks.use-case';
 import { ReorderSubBlocksUseCase } from '../../application/use-cases/reorder-sub-blocks.use-case';
-import { DevServerAdapter } from '../../infrastructure/adapters/dev-server.adapter';
+import { WebSocketDevServerAdapter } from '../../infrastructure/adapters/websocket-dev-server.adapter';
 import { TemplateManagerAdapter } from '../../infrastructure/adapters/template-manager.adapter';
 import { TemplateRepositoryAdapter } from '../../infrastructure/adapters/template-repository.adapter';
 import { HistoryManagerAdapter } from '../../infrastructure/adapters/history-manager.adapter';
 import type { RefObject } from 'react';
 import type { TemplateType } from '../../domain/entities/template.entity';
-import type { ChangeAppliedCallback, ErrorCallback } from '../../domain/ports/dev-server.port';
+import type { ChangeAppliedCallback, ErrorCallback, IDevServer } from '../../domain/ports/dev-server.port';
 import type { IHistoryManager } from '../../domain/ports/history-manager.port';
 
 interface UseHotReloadParams {
@@ -36,6 +36,7 @@ interface UseHotReloadParams {
   iframeRef: RefObject<HTMLIFrameElement | null>;
   currentPageId?: string;
   enabled?: boolean;
+  websocketEndpoint: string;
 }
 
 interface UseHotReloadResult {
@@ -53,7 +54,8 @@ interface UseHotReloadResult {
   reorderSubBlocks: (sectionId: string, blockId: string, oldIndex: number, newIndex: number) => Promise<void>;
   isConnected: boolean;
   hasPendingChanges: boolean;
-  devServer: DevServerAdapter | null;
+  updatePendingChangesState: () => void;
+  devServer: IDevServer | null;
   templateManager: TemplateManagerAdapter | null;
   historyManager: IHistoryManager | null;
 }
@@ -69,8 +71,9 @@ export function useHotReload({
   iframeRef,
   currentPageId = 'index',
   enabled = true,
+  websocketEndpoint,
 }: UseHotReloadParams): UseHotReloadResult {
-  const devServerRef = useRef<DevServerAdapter | null>(null);
+  const devServerRef = useRef<IDevServer | null>(null);
   const templateManagerRef = useRef<TemplateManagerAdapter | null>(null);
   const historyManagerRef = useRef<HistoryManagerAdapter | null>(null);
   const updateSectionSettingUseCaseRef = useRef<UpdateSectionSettingUseCase | null>(null);
@@ -80,6 +83,7 @@ export function useHotReload({
   const reorderBlocksUseCaseRef = useRef<ReorderBlocksUseCase | null>(null);
   const reorderSubBlocksUseCaseRef = useRef<ReorderSubBlocksUseCase | null>(null);
   const lastPageIdRef = useRef<string | null>(null);
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
 
   // Helper para manejar cambios aplicados en el iframe
   const handleChangeApplied: ChangeAppliedCallback = useCallback(
@@ -102,11 +106,12 @@ export function useHotReload({
 
   // Helper para conectar y cargar template
   const connectAndLoadTemplate = useCallback(
-    async (devServer: DevServerAdapter, templateManager: TemplateManagerAdapter, pageId: string) => {
+    async (devServer: IDevServer, templateManager: TemplateManagerAdapter, pageId: string) => {
       await devServer.connect(storeId, handleChangeApplied, handleError, pageId as TemplateType);
       const template = await devServer.loadTemplate(storeId, pageId as any);
       if (template) {
         templateManager.setTemplate(template);
+        setHasPendingChanges(false); // Limpiar cambios pendientes al cargar nuevo template
       }
     },
     [storeId, handleChangeApplied, handleError]
@@ -121,7 +126,12 @@ export function useHotReload({
 
     // Inicializar adaptadores solo si no están inicializados
     if (!isInitialized) {
-      const devServer = new DevServerAdapter(apiBaseUrl);
+      if (!websocketEndpoint) {
+        console.error('WebSocket endpoint is required for hot reload');
+        return;
+      }
+
+      const devServer = new WebSocketDevServerAdapter(websocketEndpoint, apiBaseUrl);
       const templateRepository = new TemplateRepositoryAdapter(apiBaseUrl);
       const templateManager = new TemplateManagerAdapter(templateRepository);
       const historyManager = new HistoryManagerAdapter();
@@ -156,12 +166,22 @@ export function useHotReload({
       devServer
         .disconnect()
         .then(() => connectAndLoadTemplate(devServer, templateManager, currentPageId))
+        .then(() => {
+          // Actualizar estado después de cargar template
+          setHasPendingChanges(templateManager.hasPendingChanges());
+        })
         .catch((error) => console.error('Error reconnecting to Dev Server:', error));
     } else if (!isInitialized) {
       // Conexión inicial
-      connectAndLoadTemplate(devServer, templateManager, currentPageId).catch((error) =>
-        console.error('Error connecting to Dev Server:', error)
-      );
+      connectAndLoadTemplate(devServer, templateManager, currentPageId)
+        .then(() => {
+          // Actualizar estado después de cargar template
+          setHasPendingChanges(templateManager.hasPendingChanges());
+        })
+        .catch((error) => console.error('Error connecting to Dev Server:', error));
+    } else {
+      // Si ya está inicializado, solo actualizar el estado
+      setHasPendingChanges(templateManager.hasPendingChanges());
     }
 
     lastPageIdRef.current = currentPageId;
@@ -173,7 +193,7 @@ export function useHotReload({
         });
       }
     };
-  }, [storeId, apiBaseUrl, enabled, currentPageId, connectAndLoadTemplate]);
+  }, [storeId, apiBaseUrl, enabled, currentPageId, websocketEndpoint, connectAndLoadTemplate]);
 
   // Helper genérico para ejecutar casos de uso
   const executeUseCase = useCallback(
@@ -182,6 +202,11 @@ export function useHotReload({
         throw new Error('Hot reload is not initialized');
       }
       await useCaseRef.current.execute(params);
+
+      // Actualizar estado de cambios pendientes después de ejecutar el caso de uso
+      if (templateManagerRef.current) {
+        setHasPendingChanges(templateManagerRef.current.hasPendingChanges());
+      }
     },
     []
   );
@@ -242,7 +267,13 @@ export function useHotReload({
   );
 
   const isConnected = devServerRef.current?.isConnected() ?? false;
-  const hasPendingChanges = templateManagerRef.current?.hasPendingChanges() ?? false;
+
+  // Función para actualizar el estado de cambios pendientes (expuesta para uso externo)
+  const updatePendingChangesState = useCallback(() => {
+    if (templateManagerRef.current) {
+      setHasPendingChanges(templateManagerRef.current.hasPendingChanges());
+    }
+  }, []);
 
   return {
     updateSectionSetting,
@@ -253,6 +284,7 @@ export function useHotReload({
     reorderSubBlocks,
     isConnected,
     hasPendingChanges,
+    updatePendingChangesState,
     devServer: devServerRef.current,
     templateManager: templateManagerRef.current,
     historyManager: historyManagerRef.current,

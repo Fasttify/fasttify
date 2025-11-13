@@ -24,6 +24,7 @@ export interface ThemeStudioProps {
   storeId: string;
   apiBaseUrl: string;
   domain: string | null;
+  websocketEndpoint: string;
   imageSelectorComponent?: (props: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -32,7 +33,13 @@ export interface ThemeStudioProps {
   }) => React.ReactElement | null;
 }
 
-export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponent }: ThemeStudioProps) {
+export function ThemeStudio({
+  storeId,
+  apiBaseUrl,
+  domain,
+  websocketEndpoint,
+  imageSelectorComponent,
+}: ThemeStudioProps) {
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [currentPath, setCurrentPath] = useState('/');
   const [currentPageId, setCurrentPageId] = useState('index');
@@ -52,6 +59,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
     iframeRef,
     currentPageId,
     enabled: true,
+    websocketEndpoint,
   });
 
   const history = useHistory({
@@ -67,6 +75,17 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
     templateManager: hotReload.templateManager,
     templateType: currentPageId as any,
   });
+
+  // Handler para guardar que actualiza el estado después de guardar
+  const handleSave = useCallback(async () => {
+    try {
+      await saveChanges.save();
+      // Actualizar estado de cambios pendientes después de guardar exitosamente
+      hotReload.updatePendingChangesState();
+    } catch (error) {
+      console.error('Error saving changes:', error);
+    }
+  }, [saveChanges, hotReload]);
 
   const selectedSectionData = useSelectedSection({
     storeId,
@@ -187,7 +206,7 @@ export function ThemeStudio({ storeId, apiBaseUrl, domain, imageSelectorComponen
         onInspector={handleToggleInspector}
         onUndo={history.canUndo ? history.undo : undefined}
         onRedo={history.canRedo ? history.redo : undefined}
-        onSave={saveChanges.save}
+        onSave={handleSave}
         isSaving={saveChanges.isSaving}
         hasPendingChanges={hotReload.hasPendingChanges}
         onPageSelect={(pageId, pageUrl) => {

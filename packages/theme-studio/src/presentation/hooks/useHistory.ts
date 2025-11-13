@@ -13,13 +13,13 @@
 import { useCallback, useRef, useEffect, useState } from 'react';
 import { UndoChangeUseCase } from '../../application/use-cases/undo-change.use-case';
 import { RedoChangeUseCase } from '../../application/use-cases/redo-change.use-case';
-import { DevServerAdapter } from '../../infrastructure/adapters/dev-server.adapter';
 import { TemplateManagerAdapter } from '../../infrastructure/adapters/template-manager.adapter';
+import type { IDevServer } from '../../domain/ports/dev-server.port';
 import type { IHistoryManager } from '../../domain/ports/history-manager.port';
 
 interface UseHistoryParams {
   storeId: string;
-  devServer: DevServerAdapter | null;
+  devServer: IDevServer | null;
   templateManager: TemplateManagerAdapter | null;
   historyManager: IHistoryManager | null;
 }

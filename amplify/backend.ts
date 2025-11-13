@@ -17,12 +17,15 @@ import { planScheduler } from './functions/planScheduler/resource';
 import { storeImages } from './functions/storeImages/resource';
 import { webHookPlan } from './functions/webHookPlan/resource';
 import { validateStoreLimits } from './functions/validateStoreLimits/resource';
+import { websocketDevServer } from './functions/websocket-dev-server/resource';
 import { storage } from './storage/resource';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Stack } from 'aws-cdk-lib';
 
 // Importaciones de configuración modular
 import { createEmailQueues, configureEmailEventSources, configureEmailEnvironmentVariables } from './config/queues';
 import { createRestApis } from './config/apis';
+import { createWebSocketApi } from './config/websocket-api';
 import {
   applyBedrockPermissions,
   applySesPermissions,
@@ -56,6 +59,7 @@ const backend = defineBackend({
   managePaymentKeys,
   createProduct,
   validateStoreLimits,
+  websocketDevServer,
 });
 
 // Aplicar permisos de Bedrock para funciones de IA
@@ -82,6 +86,11 @@ cfnResources.amplifyDynamoDbTables['CheckoutSession'].timeToLiveAttribute = {
   enabled: true,
 };
 
+cfnResources.amplifyDynamoDbTables['WebSocketConnection'].timeToLiveAttribute = {
+  attributeName: 'ttl',
+  enabled: true,
+};
+
 // Configuración de colas SQS para email masivo
 const { emailQueue, highPriorityEmailQueue } = createEmailQueues(backend.stack);
 
@@ -100,7 +109,7 @@ applyS3Permissions(backend);
 applySqsPermissions(backend, emailQueue.queueArn, highPriorityEmailQueue.queueArn);
 applyDynamoDbPermissions(backend);
 
-// Crear el stack para las APIs
+// Crear el stack para las APIs REST
 const apiStack = backend.createStack('api-stack');
 
 // Crear todas las APIs REST
@@ -117,6 +126,17 @@ const {
 // Aplicar políticas de acceso a las APIs
 applyApiAccessPolicies(backend, apiRestPolicy);
 
+// La función websocketDevServer ya está en el stack 'websocket-api-stack' por resourceGroupName
+// Necesitamos crear la API WebSocket en el mismo stack
+// Amplify crea el stack automáticamente cuando se usa resourceGroupName
+// Accedemos al stack a través de la función Lambda
+const webSocketStack = Stack.of(backend.websocketDevServer.resources.lambda);
+const { webSocketApi, webSocketStage } = createWebSocketApi(
+  webSocketStack,
+  backend.websocketDevServer.resources.lambda,
+  backend.data
+);
+
 /**
  * Salidas del Backend
  */
@@ -128,7 +148,9 @@ const backendOutputs = createBackendOutputs(
   bulkEmailApi,
   storeLimitsApi,
   emailQueue,
-  highPriorityEmailQueue
+  highPriorityEmailQueue,
+  webSocketApi,
+  webSocketStage
 );
 
 backend.addOutput({

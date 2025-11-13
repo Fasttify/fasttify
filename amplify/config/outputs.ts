@@ -4,6 +4,7 @@
 
 import { Stack } from 'aws-cdk-lib';
 import { RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { WebSocketApi, WebSocketStage } from 'aws-cdk-lib/aws-apigatewayv2';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { isProduction, stageName } from './environment';
 
@@ -20,6 +21,7 @@ export interface BackendOutputs {
     StoreImagesApi: ApiOutput;
     BulkEmailApi: ApiOutput;
     StoreLimitsApi: ApiOutput;
+    WebSocketDevServerApi?: WebSocketApiOutput;
   };
   EmailQueues: {
     emailQueueUrl: string;
@@ -34,6 +36,14 @@ interface ApiOutput {
   stage: string;
 }
 
+interface WebSocketApiOutput {
+  endpoint: string;
+  managementEndpoint: string;
+  region: string;
+  apiId: string;
+  stage: string;
+}
+
 /**
  * Crea la configuración de salidas del backend
  */
@@ -45,7 +55,9 @@ export function createBackendOutputs(
   bulkEmailApi: RestApi,
   storeLimitsApi: RestApi,
   emailQueue: Queue,
-  highPriorityEmailQueue: Queue
+  highPriorityEmailQueue: Queue,
+  webSocketApi?: WebSocketApi,
+  webSocketStage?: WebSocketStage
 ): BackendOutputs {
   return {
     Environment: {
@@ -89,6 +101,17 @@ export function createBackendOutputs(
         apiName: storeLimitsApi.restApiName,
         stage: stageName,
       },
+      ...(webSocketApi && webSocketStage
+        ? {
+            WebSocketDevServerApi: {
+              endpoint: `wss://${webSocketApi.apiId}.execute-api.${Stack.of(webSocketApi).region}.amazonaws.com/${stageName}`,
+              managementEndpoint: `https://${webSocketApi.apiId}.execute-api.${Stack.of(webSocketApi).region}.amazonaws.com/${stageName}`,
+              region: Stack.of(webSocketApi).region,
+              apiId: webSocketApi.apiId,
+              stage: stageName,
+            },
+          }
+        : {}),
     },
     EmailQueues: {
       emailQueueUrl: emailQueue.queueUrl,

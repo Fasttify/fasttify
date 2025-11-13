@@ -42,7 +42,7 @@ export class TemplateManagerAdapter implements ITemplateManager {
 
   /**
    * Establece el template directamente sin cargarlo desde el repositorio
-   * Útil cuando el template ya está disponible (por ejemplo, recibido por SSE)
+   * Útil cuando el template ya está disponible (por ejemplo, recibido por WebSocket)
    */
   setTemplate(template: Template): void {
     this.currentTemplate = template;

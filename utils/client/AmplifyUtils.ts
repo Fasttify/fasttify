@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type StoreSchema } from '@/data-schema';
+import { type StoreSchema, type FullSchema } from '@/data-schema';
 import outputs from '@/amplify_outputs.json';
 import { createServerRunner } from '@aws-amplify/adapter-nextjs';
 import { generateServerClientUsingCookies } from '@aws-amplify/adapter-nextjs/api';
@@ -29,6 +29,12 @@ export const cookiesClient = generateServerClientUsingCookies<StoreSchema>({
   cookies,
   authMode: 'userPool',
 }) as ReturnType<typeof generateServerClientUsingCookies<StoreSchema>>;
+
+export const fullSchemaCookiesClient = generateServerClientUsingCookies<FullSchema>({
+  config: outputs,
+  cookies,
+  authMode: 'userPool',
+}) as ReturnType<typeof generateServerClientUsingCookies<FullSchema>>;
 
 export async function AuthGetCurrentUserServer() {
   try {
