@@ -8,3 +8,5 @@ export { SectionRepositoryAdapter } from './infrastructure/adapters/section-repo
 export { PreviewRendererAdapter } from './infrastructure/adapters/preview-renderer.adapter';
 
 export { LoadTemplateUseCase, RenderPreviewUseCase } from './application/use-cases';
+
+export { iframeSelectionScript } from './presentation/utils/iframe-selection-script';
