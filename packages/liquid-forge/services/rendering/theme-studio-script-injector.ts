@@ -36,6 +36,10 @@ export class ThemeStudioScriptInjector {
    * @returns El HTML con el script inyectado
    */
   static injectScript(html: string, domain: string | undefined): string {
+    if (html.includes('data-fasttify-theme-studio="true"')) {
+      return html;
+    }
+
     const script = this.generateScript(domain);
     const scriptTag = `<script data-fasttify-theme-studio="true">${script}</script>`;
 
