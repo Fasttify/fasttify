@@ -67,7 +67,13 @@ export function iframeSelectionScript(storeDomain) {
 
   // Combinar todos los módulos en un IIFE
   // El módulo de compatibilidad se ejecuta primero para agregar atributos antes de la inicialización
+  // Agregar verificación para evitar ejecución múltiple
   return `(function() {
+  if (window.__FASTTIFY_THEME_STUDIO_SCRIPT_LOADED__) {
+    return;
+  }
+  window.__FASTTIFY_THEME_STUDIO_SCRIPT_LOADED__ = true;
+
 ${constants}
 
 ${utils}

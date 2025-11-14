@@ -175,35 +175,18 @@ function eventHandlersModule() {
    * @param {MessageEvent} event - El evento de mensaje
    */
   function handleMessage(event) {
-    console.log('[ThemeStudio Script] Mensaje recibido del parent:', {
-      type: event.data?.type,
-      origin: event.origin,
-      windowOrigin: window.location.origin,
-      data: event.data,
-    });
-
     // Solo procesar mensajes de nuestra aplicación
     // Validamos el tipo del mensaje en lugar del origen para funcionar en producción
     // cuando el iframe está en un dominio diferente al parent window
     if (!event.data || typeof event.data.type !== 'string' || !event.data.type.startsWith('FASTTIFY_THEME_STUDIO_')) {
-      console.log('[ThemeStudio Script] Mensaje ignorado - no es del tipo esperado');
       return;
     }
 
     if (event.data.type === 'FASTTIFY_THEME_STUDIO_TOGGLE_INSPECTOR') {
-      console.log('[ThemeStudio Script] Procesando TOGGLE_INSPECTOR:', event.data.enabled);
       if (typeof window.toggleInspector === 'function') {
         window.toggleInspector(event.data.enabled);
-      } else {
-        console.error('[ThemeStudio Script] toggleInspector no está definido');
       }
     } else if (event.data.type === 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT') {
-      console.log('[ThemeStudio Script] Procesando SELECT_ELEMENT:', {
-        sectionId: event.data.sectionId,
-        blockId: event.data.blockId,
-        subBlockId: event.data.subBlockId,
-        inspectorEnabled: inspectorEnabled,
-      });
       if (inspectorEnabled !== false) {
         selectElement(
           event.data.sectionId,
@@ -212,11 +195,8 @@ function eventHandlersModule() {
           event.data.timestamp,
           event.data.elementName
         );
-      } else {
-        console.log('[ThemeStudio Script] Inspector deshabilitado, ignorando SELECT_ELEMENT');
       }
     } else if (event.data.type === 'FASTTIFY_THEME_STUDIO_CLEAR_SELECTION') {
-      console.log('[ThemeStudio Script] Procesando CLEAR_SELECTION');
       clearSelection();
       lastSelectionTimestamp = 0;
     }

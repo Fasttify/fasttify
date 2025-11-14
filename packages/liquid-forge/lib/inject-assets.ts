@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+import { ThemeStudioScriptInjector } from '../services/rendering/theme-studio-script-injector';
+
 /**
  * Utilidad para inyectar CSS y JS en el HTML renderizado
  * @param html - El HTML a inyectar los assets
  * @param assetCollector - El collector de assets
+ * @param domain - El dominio de la tienda para inyectar el script del ThemeStudio
  * @returns El HTML con los assets inyectados
  */
-export function injectAssets(html: string, assetCollector: any): string {
+export function injectAssets(html: string, assetCollector: any, domain?: string): string {
   let finalHtml = html;
   const css = assetCollector.getCombinedCss();
   const js = assetCollector.getCombinedJs();
@@ -37,6 +40,11 @@ export function injectAssets(html: string, assetCollector: any): string {
     finalHtml = finalHtml.includes('</body>')
       ? finalHtml.replace('</body>', `${scriptTag}</body>`)
       : finalHtml + scriptTag;
+  }
+
+  // Inyectar script del ThemeStudio en todas las tiendas
+  if (domain) {
+    finalHtml = ThemeStudioScriptInjector.injectScript(finalHtml, domain);
   }
 
   return finalHtml;

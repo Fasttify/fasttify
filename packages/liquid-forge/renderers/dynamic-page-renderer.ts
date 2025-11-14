@@ -185,7 +185,7 @@ async function renderLayoutStep(data: RenderingData): Promise<RenderingData> {
 
   const htmlRaw = await liquidEngine.renderCompiled(data.compiledLayout!, data.context!);
 
-  const html = injectAssets(htmlRaw, liquidEngine.assetCollector);
+  const html = injectAssets(htmlRaw, liquidEngine.assetCollector, data.domain);
 
   return { ...data, html };
 }
