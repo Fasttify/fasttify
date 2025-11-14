@@ -126,18 +126,8 @@ function selectionModule() {
    * @param {string} [elementName] - Nombre del elemento a mostrar en la etiqueta
    */
   function selectElement(sectionId, blockId, subBlockId, timestamp, elementName) {
-    console.log('[ThemeStudio Script] selectElement llamado:', {
-      sectionId,
-      blockId,
-      subBlockId,
-      timestamp,
-      elementName,
-      lastSelectionTimestamp,
-    });
-
     // Ignorar mensajes obsoletos
     if (timestamp && timestamp < lastSelectionTimestamp) {
-      console.log('[ThemeStudio Script] Mensaje obsoleto, ignorando');
       return;
     }
 
@@ -149,7 +139,6 @@ function selectionModule() {
 
     clearSelection();
     if (!sectionId && !blockId && !subBlockId) {
-      console.log('[ThemeStudio Script] No hay IDs para seleccionar');
       return;
     }
     let selector = '';
@@ -163,24 +152,15 @@ function selectionModule() {
       // Si solo hay sectionId, buscar por data-section-id (y asegurarse de que no tenga data-block-id)
       selector = '[data-section-id="' + sectionId + '"]:not([data-block-id])';
     }
-    console.log('[ThemeStudio Script] Selector generado:', selector);
     if (selector) {
       const element = document.querySelector(selector);
-      console.log('[ThemeStudio Script] Elemento encontrado:', element);
       if (element) {
-        console.log('[ThemeStudio Script] Agregando clase SELECTED_CLASS:', SELECTED_CLASS);
         element.classList.add(SELECTED_CLASS);
         currentSelectedElement = element;
 
         // Mostrar etiqueta con el nombre del elemento
         if (elementName && typeof window.updateLabel === 'function') {
-          console.log('[ThemeStudio Script] Mostrando etiqueta:', elementName);
           window.updateLabel(element, elementName, false);
-        } else {
-          console.log('[ThemeStudio Script] No se puede mostrar etiqueta:', {
-            elementName,
-            hasUpdateLabel: typeof window.updateLabel === 'function',
-          });
         }
 
         // Cancelar scroll anterior si hay uno pendiente
@@ -204,11 +184,7 @@ function selectionModule() {
             }, 100);
           }
         });
-      } else {
-        console.warn('[ThemeStudio Script] No se encontró elemento con selector:', selector);
       }
-    } else {
-      console.warn('[ThemeStudio Script] No se generó selector válido');
     }
   }
 }
