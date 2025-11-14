@@ -175,14 +175,18 @@ function eventHandlersModule() {
    * @param {MessageEvent} event - El evento de mensaje
    */
   function handleMessage(event) {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const isSameOrigin = event.origin === window.location.origin;
-    if (!isSameOrigin && !isLocalhost) return;
-    if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_TOGGLE_INSPECTOR') {
+    // Solo procesar mensajes de nuestra aplicación
+    // Validamos el tipo del mensaje en lugar del origen para funcionar en producción
+    // cuando el iframe está en un dominio diferente al parent window
+    if (!event.data || typeof event.data.type !== 'string' || !event.data.type.startsWith('FASTTIFY_THEME_STUDIO_')) {
+      return;
+    }
+
+    if (event.data.type === 'FASTTIFY_THEME_STUDIO_TOGGLE_INSPECTOR') {
       if (typeof window.toggleInspector === 'function') {
         window.toggleInspector(event.data.enabled);
       }
-    } else if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT') {
+    } else if (event.data.type === 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT') {
       if (inspectorEnabled !== false) {
         selectElement(
           event.data.sectionId,
@@ -192,7 +196,7 @@ function eventHandlersModule() {
           event.data.elementName
         );
       }
-    } else if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_CLEAR_SELECTION') {
+    } else if (event.data.type === 'FASTTIFY_THEME_STUDIO_CLEAR_SELECTION') {
       clearSelection();
       lastSelectionTimestamp = 0;
     }

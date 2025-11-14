@@ -121,21 +121,22 @@ export function useIframeSelection({
     if (!inspectorEnabled) return;
 
     const handleMessage = (event: MessageEvent) => {
-      // Validar origen
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const isSameOrigin = event.origin === window.location.origin;
-
-      if (!isSameOrigin && !isLocalhost) {
+      // Solo procesar mensajes de nuestra aplicación
+      // Validamos el tipo del mensaje en lugar del origen para funcionar en producción
+      // cuando el iframe está en un dominio diferente al parent window
+      if (
+        !event.data ||
+        typeof event.data.type !== 'string' ||
+        event.data.type !== 'FASTTIFY_THEME_STUDIO_ELEMENT_CLICKED'
+      ) {
         return;
       }
 
-      if (event.data && event.data.type === 'FASTTIFY_THEME_STUDIO_ELEMENT_CLICKED') {
-        const { sectionId, blockId, subBlockId } = event.data;
+      const { sectionId, blockId, subBlockId } = event.data;
 
-        // Notificar al componente padre con todos los IDs disponibles
-        if (onElementClick) {
-          onElementClick(sectionId || null, blockId || null, subBlockId || null);
-        }
+      // Notificar al componente padre con todos los IDs disponibles
+      if (onElementClick) {
+        onElementClick(sectionId || null, blockId || null, subBlockId || null);
       }
     };
 
