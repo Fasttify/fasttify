@@ -28,11 +28,21 @@ import { extractFunctionBody } from './extract-function-body.js';
  */
 function constantsModule(storeDomain) {
   'use strict';
-  if (window.self === window.top) return;
+  console.log('[ThemeStudio Script] Ejecutando constantsModule', {
+    storeDomain,
+    isInIframe: window.self !== window.top,
+    hostname: window.location.hostname,
+    origin: window.location.origin,
+  });
+  if (window.self === window.top) {
+    console.log('[ThemeStudio Script] No está en iframe, saliendo');
+    return;
+  }
   const SELECTED_CLASS = 'fasttify-theme-studio-selected';
   const HOVER_CLASS = 'fasttify-theme-studio-hover';
   const STORE_DOMAIN = storeDomain;
   const IS_LOCALHOST = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  console.log('[ThemeStudio Script] Creando estilos CSS');
   const style = document.createElement('style');
   style.textContent =
     '[data-section-id].' +
