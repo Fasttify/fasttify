@@ -15,7 +15,6 @@
  */
 
 import { ThemeStudioScriptInjector } from '../services/rendering/theme-studio-script-injector';
-import { logger } from './logger';
 
 /**
  * Utilidad para inyectar CSS y JS en el HTML renderizado
@@ -25,13 +24,6 @@ import { logger } from './logger';
  * @returns El HTML con los assets inyectados
  */
 export function injectAssets(html: string, assetCollector: any, domain?: string): string {
-  logger.info('[injectAssets] Iniciando inyección de assets', {
-    htmlLength: html.length,
-    domain,
-    hasDomain: !!domain,
-    hasThemeStudioScript: html.includes('data-fasttify-theme-studio="true"'),
-  });
-
   let finalHtml = html;
   const css = assetCollector.getCombinedCss();
   const js = assetCollector.getCombinedJs();
@@ -52,20 +44,7 @@ export function injectAssets(html: string, assetCollector: any, domain?: string)
 
   // Inyectar script del ThemeStudio en todas las tiendas
   if (domain) {
-    const beforeLength = finalHtml.length;
     finalHtml = ThemeStudioScriptInjector.injectScript(finalHtml, domain);
-    const afterLength = finalHtml.length;
-    logger.info('[injectAssets] Script del ThemeStudio procesado', {
-      domain,
-      beforeLength,
-      afterLength,
-      difference: afterLength - beforeLength,
-      finalScriptCount: (finalHtml.match(/data-fasttify-theme-studio="true"/g) || []).length,
-    });
-  } else {
-    logger.info('[injectAssets] No se inyecta script del ThemeStudio - sin dominio', {
-      domain,
-    });
   }
 
   return finalHtml;

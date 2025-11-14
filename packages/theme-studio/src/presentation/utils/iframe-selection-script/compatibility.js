@@ -80,23 +80,23 @@ function compatibilityModule() {
     }
 
     // Si no hay hermanos siguientes, buscar en el padre
-    let parent = commentNode.parentNode;
-    while (parent && parent !== document.body) {
+    let parentNode = commentNode.parentNode;
+    while (parentNode && parentNode !== document.body) {
       // Buscar siguiente hermano del padre
-      let sibling = parent.nextSibling;
-      while (sibling) {
-        if (isValidSectionElement(sibling)) {
-          return sibling;
+      let siblingNode = parentNode.nextSibling;
+      while (siblingNode) {
+        if (isValidSectionElement(siblingNode)) {
+          return siblingNode;
         }
-        sibling = sibling.nextSibling;
+        siblingNode = siblingNode.nextSibling;
       }
 
       // Si el padre es válido, usarlo
-      if (isValidSectionElement(parent)) {
-        return parent;
+      if (isValidSectionElement(parentNode)) {
+        return parentNode;
       }
 
-      parent = parent.parentNode;
+      parentNode = parentNode.parentNode;
     }
 
     return null;
@@ -155,12 +155,12 @@ function compatibilityModule() {
         if (blockElement && !blockElement.hasAttribute('data-block-id')) {
           // Necesitamos obtener el sectionId del contexto
           // Por ahora, buscar el sectionId más cercano subiendo en el árbol
-          let parent = blockElement.parentElement;
+          let blockParent = blockElement.parentElement;
           let sectionId = null;
 
-          while (parent && !sectionId) {
-            sectionId = parent.getAttribute('data-section-id');
-            parent = parent.parentElement;
+          while (blockParent && !sectionId) {
+            sectionId = blockParent.getAttribute('data-section-id');
+            blockParent = blockParent.parentElement;
           }
 
           if (sectionId) {

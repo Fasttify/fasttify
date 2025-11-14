@@ -15,7 +15,6 @@
  */
 
 import { iframeSelectionScript } from '@fasttify/theme-studio';
-import { logger } from '../../lib/logger';
 
 /**
  * Servicio para inyectar el script del ThemeStudio en el HTML renderizado
@@ -27,15 +26,7 @@ export class ThemeStudioScriptInjector {
    * @returns El script completo como string
    */
   static generateScript(domain: string | undefined): string {
-    logger.info('[ThemeStudioScriptInjector] Generando script', {
-      domain,
-      hasDomain: !!domain,
-    });
     const script = iframeSelectionScript(domain || null);
-    logger.info('[ThemeStudioScriptInjector] Script generado', {
-      scriptLength: script.length,
-      scriptPreview: script.substring(0, 200),
-    });
     return script;
   }
 
@@ -49,20 +40,7 @@ export class ThemeStudioScriptInjector {
     const hasExistingScript = html.includes('data-fasttify-theme-studio="true"');
     const scriptCount = (html.match(/data-fasttify-theme-studio="true"/g) || []).length;
 
-    logger.info('[ThemeStudioScriptInjector] Intentando inyectar script', {
-      domain,
-      htmlLength: html.length,
-      hasExistingScript,
-      scriptCount,
-      hasHead: html.includes('</head>'),
-      hasBody: html.includes('</body>'),
-    });
-
     if (hasExistingScript) {
-      logger.warn('[ThemeStudioScriptInjector] Script ya existe, evitando duplicado', {
-        scriptCount,
-        domain,
-      });
       return html;
     }
 
@@ -72,35 +50,15 @@ export class ThemeStudioScriptInjector {
     let result: string;
     if (html.includes('</head>')) {
       result = html.replace('</head>', `${scriptTag}</head>`);
-      logger.info('[ThemeStudioScriptInjector] Script inyectado en </head>', {
-        domain,
-        resultLength: result.length,
-        scriptTagLength: scriptTag.length,
-      });
     } else if (html.includes('</body>')) {
       result = html.replace('</body>', `${scriptTag}</body>`);
-      logger.info('[ThemeStudioScriptInjector] Script inyectado en </body>', {
-        domain,
-        resultLength: result.length,
-        scriptTagLength: scriptTag.length,
-      });
     } else {
       result = html + scriptTag;
-      logger.info('[ThemeStudioScriptInjector] Script inyectado al final', {
-        domain,
-        resultLength: result.length,
-        scriptTagLength: scriptTag.length,
-      });
     }
 
     // Verificar que se inyectó correctamente
     const finalScriptCount = (result.match(/data-fasttify-theme-studio="true"/g) || []).length;
     if (finalScriptCount !== 1) {
-      logger.error('[ThemeStudioScriptInjector] Error: Script inyectado múltiples veces', {
-        domain,
-        finalScriptCount,
-        expectedCount: 1,
-      });
     }
 
     return result;
