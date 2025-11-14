@@ -30,15 +30,19 @@ function initModule() {
    * Inicializa los event listeners y configura los enlaces de dominio
    */
   function init() {
+    console.log('[ThemeStudio Script] Inicializando script en iframe');
     document.addEventListener('click', handleClick, true);
     document.addEventListener('mouseenter', handleMouseEnter, true);
     document.addEventListener('mouseleave', handleMouseLeave, true);
     window.addEventListener('message', handleMessage);
     setupDomainLinks();
+    console.log('[ThemeStudio Script] Script inicializado correctamente');
   }
   if (document.readyState === 'loading') {
+    console.log('[ThemeStudio Script] Documento cargando, esperando DOMContentLoaded');
     document.addEventListener('DOMContentLoaded', init);
   } else {
+    console.log('[ThemeStudio Script] Documento listo, inicializando inmediatamente');
     init();
   }
   window.addEventListener('beforeunload', () => {

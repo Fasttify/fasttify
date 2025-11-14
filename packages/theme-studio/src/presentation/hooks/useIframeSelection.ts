@@ -59,20 +59,24 @@ export function useIframeSelection({
 
     const injectScript = () => {
       try {
+        console.log('[ThemeStudio] Intentando inyectar script en iframe');
         const iframeWindow = iframe.contentWindow;
         const iframeDocument = iframe.contentDocument || iframeWindow?.document;
 
         if (!iframeWindow || !iframeDocument) {
+          console.log('[ThemeStudio] No se puede acceder a iframeWindow o iframeDocument');
           return;
         }
 
         // Solo inyectar una vez
         if (scriptInjectedRef.current) {
+          console.log('[ThemeStudio] Script ya marcado como inyectado (ref)');
           return;
         }
 
         // Verificar que el documento esté listo
         if (iframeDocument.readyState === 'loading') {
+          console.log('[ThemeStudio] Documento aún cargando, esperando DOMContentLoaded');
           iframeDocument.addEventListener('DOMContentLoaded', () => {
             injectScript();
           });
@@ -80,21 +84,32 @@ export function useIframeSelection({
         }
 
         // Verificar si el script ya está inyectado
-        if (iframeDocument.querySelector('script[data-fasttify-selection]')) {
+        const existingScript = iframeDocument.querySelector('script[data-fasttify-selection]');
+        if (existingScript) {
+          console.log('[ThemeStudio] Script ya existe en el DOM');
           scriptInjectedRef.current = true;
           return;
         }
 
+        console.log('[ThemeStudio] Creando y agregando script al iframe', {
+          domain,
+          readyState: iframeDocument.readyState,
+          url: iframe.src,
+        });
+
         // Crear y agregar el script
         const script = iframeDocument.createElement('script');
         script.setAttribute('data-fasttify-selection', 'true');
-        script.textContent = iframeSelectionScript(domain || null);
+        const scriptContent = iframeSelectionScript(domain || null);
+        console.log('[ThemeStudio] Script generado, longitud:', scriptContent.length);
+        script.textContent = scriptContent;
         iframeDocument.head.appendChild(script);
 
+        console.log('[ThemeStudio] Script inyectado exitosamente');
         scriptInjectedRef.current = true;
       } catch (error) {
         // Puede fallar si el iframe está en otro origen (cross-origin)
-        // Ignorar errores silenciosamente
+        console.error('[ThemeStudio] Error al inyectar script:', error);
       }
     };
 
@@ -121,6 +136,12 @@ export function useIframeSelection({
     if (!inspectorEnabled) return;
 
     const handleMessage = (event: MessageEvent) => {
+      console.log('[ThemeStudio] Mensaje recibido del iframe:', {
+        type: event.data?.type,
+        origin: event.origin,
+        data: event.data,
+      });
+
       // Solo procesar mensajes de nuestra aplicación
       // Validamos el tipo del mensaje en lugar del origen para funcionar en producción
       // cuando el iframe está en un dominio diferente al parent window
@@ -129,10 +150,12 @@ export function useIframeSelection({
         typeof event.data.type !== 'string' ||
         event.data.type !== 'FASTTIFY_THEME_STUDIO_ELEMENT_CLICKED'
       ) {
+        console.log('[ThemeStudio] Mensaje ignorado - no es del tipo esperado');
         return;
       }
 
       const { sectionId, blockId, subBlockId } = event.data;
+      console.log('[ThemeStudio] Procesando click en elemento:', { sectionId, blockId, subBlockId });
 
       // Notificar al componente padre con todos los IDs disponibles
       if (onElementClick) {
@@ -161,6 +184,7 @@ export function useIframeSelection({
         enabled: inspectorEnabled,
       };
 
+      console.log('[ThemeStudio] Enviando mensaje TOGGLE_INSPECTOR al iframe:', message);
       iframeWindow.postMessage(message, '*');
     } catch (error) {
       console.debug('Cannot send message to iframe (cross-origin):', error);
@@ -201,11 +225,14 @@ export function useIframeSelection({
         timestamp,
       };
 
+      console.log('[ThemeStudio] Enviando mensaje SELECT_ELEMENT al iframe:', message);
+
       // Enviar inmediatamente
       try {
         iframeWindow.postMessage(message, '*');
+        console.log('[ThemeStudio] Mensaje SELECT_ELEMENT enviado exitosamente');
       } catch (e) {
-        // Ignorar errores silenciosamente
+        console.error('[ThemeStudio] Error al enviar mensaje SELECT_ELEMENT:', e);
       }
 
       // Guardar referencia a los timeouts para poder cancelarlos
