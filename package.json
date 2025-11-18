@@ -162,7 +162,7 @@
     "eslint-config-next": "16.0.0",
     "eslint-config-prettier": "^10.1.8",
     "git-format-staged": "^3.1.1",
-    "glob": "^11.0.3",
+    "glob": "^11.1.0",
     "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.4",
