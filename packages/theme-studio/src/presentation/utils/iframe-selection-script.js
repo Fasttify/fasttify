@@ -65,27 +65,40 @@ export function iframeSelectionScript(storeDomain) {
   const compatibility = createCompatibilityCode();
   const init = createInitCode();
 
-  // Combinar todos los módulos en un IIFE
-  // El módulo de compatibilidad se ejecuta primero para agregar atributos antes de la inicialización
-  // Agregar verificación para evitar ejecución múltiple
   return `(function() {
-  if (window.__FASTTIFY_THEME_STUDIO_SCRIPT_LOADED__) {
+  'use strict';
+  var NS_KEY = '__FASTTIFY_THEME_STUDIO_NS__';
+  if (window[NS_KEY]) {
     return;
   }
-  window.__FASTTIFY_THEME_STUDIO_SCRIPT_LOADED__ = true;
+  var $ = window[NS_KEY] = {};
 
+(function() {
 ${constants}
+})();
 
+(function() {
 ${utils}
+})();
 
+(function() {
 ${selection}
+})();
 
+(function() {
 ${eventHandlers}
+})();
 
+(function() {
 ${domainLinks}
+})();
 
+(function() {
 ${compatibility}
+})();
 
+(function() {
 ${init}
+})();
 })();`;
 }

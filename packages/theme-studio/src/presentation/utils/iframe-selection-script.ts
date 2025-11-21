@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// @ts-ignore - Importing JS file directly
+// @ts-ignore
 import { iframeSelectionScript as iframeSelectionScriptImpl } from './iframe-selection-script.js';
 
 /**

@@ -26,6 +26,7 @@ import { extractFunctionBody } from './extract-function-body.js';
  * Esta función no se ejecuta directamente, se convierte a string para inyectar en el iframe
  */
 function selectionModule() {
+  var $ = window.__FASTTIFY_THEME_STUDIO_NS__;
   /**
    * Crea o actualiza la etiqueta visual del selector
    * @param {Element} element - El elemento al que agregar la etiqueta
@@ -36,24 +37,35 @@ function selectionModule() {
     if (!element || !labelText) return;
 
     // Remover etiqueta anterior si existe
-    const labelVar = isHover ? 'hoverLabelElement' : 'currentLabelElement';
-    const existingLabel = isHover ? hoverLabelElement : currentLabelElement;
+    var existingLabel = isHover ? $.hoverLabelElement : $.currentLabelElement;
     if (existingLabel && existingLabel.parentNode) {
       existingLabel.parentNode.removeChild(existingLabel);
     }
 
     // Crear nueva etiqueta
-    const label = document.createElement('div');
+    var label = document.createElement('div');
     label.className = 'fasttify-selector-label';
     label.textContent = labelText;
 
+    // Aplicar todos los estilos del label directamente para asegurar que siempre se muestren
+    label.style.position = 'fixed';
+    label.style.backgroundColor = '#005cd4';
+    label.style.color = 'white';
+    label.style.fontSize = '12px';
+    label.style.fontWeight = '600';
+    label.style.padding = '4px 10px';
+    label.style.lineHeight = '1.4';
+    label.style.whiteSpace = 'nowrap';
+    label.style.zIndex = '999999';
+    label.style.pointerEvents = 'none';
+    label.style.borderRadius = '4px';
+
     // Calcular posición relativa al viewport visible del elemento
     // getBoundingClientRect() ya devuelve coordenadas relativas al viewport
-    const rect = element.getBoundingClientRect();
+    var rect = element.getBoundingClientRect();
 
     // Posicionar la etiqueta en la esquina superior izquierda visible
     // Como usamos position: fixed, solo necesitamos las coordenadas del viewport
-    label.style.position = 'fixed';
     label.style.top = Math.max(0, rect.top - 2) + 'px';
     label.style.left = Math.max(0, rect.left - 2) + 'px';
 
@@ -61,15 +73,15 @@ function selectionModule() {
 
     // Guardar referencia
     if (isHover) {
-      hoverLabelElement = label;
+      $.hoverLabelElement = label;
     } else {
-      currentLabelElement = label;
+      $.currentLabelElement = label;
     }
 
     // Actualizar posición en scroll y resize
     // getBoundingClientRect() ya devuelve coordenadas relativas al viewport
-    const updatePosition = function () {
-      const newRect = element.getBoundingClientRect();
+    var updatePosition = function () {
+      var newRect = element.getBoundingClientRect();
       label.style.top = Math.max(0, newRect.top - 2) + 'px';
       label.style.left = Math.max(0, newRect.left - 2) + 'px';
     };
@@ -90,7 +102,7 @@ function selectionModule() {
    * @param {boolean} isHover - Si es true, remueve la etiqueta de hover; si es false, remueve la de selección
    */
   window.removeLabel = function (isHover) {
-    const label = isHover ? hoverLabelElement : currentLabelElement;
+    var label = isHover ? $.hoverLabelElement : $.currentLabelElement;
     if (label && label.parentNode) {
       if (label._cleanup) {
         label._cleanup();
@@ -98,24 +110,30 @@ function selectionModule() {
       label.parentNode.removeChild(label);
     }
     if (isHover) {
-      hoverLabelElement = null;
+      $.hoverLabelElement = null;
     } else {
-      currentLabelElement = null;
+      $.currentLabelElement = null;
     }
   };
 
   /**
    * Limpia la selección actual removiendo la clase de selección del elemento
    */
-  function clearSelection() {
-    if (currentSelectedElement) {
-      currentSelectedElement.classList.remove(SELECTED_CLASS);
+  $.clearSelection = function () {
+    if ($.currentSelectedElement) {
+      $.currentSelectedElement.classList.remove($.SELECTED_CLASS);
+
+      // Remover estilos aplicados y restaurar originales
+      if (typeof $.removeStyles === 'function') {
+        $.removeStyles($.currentSelectedElement);
+      }
+
       if (typeof window.removeLabel === 'function') {
         window.removeLabel(false);
       }
-      currentSelectedElement = null;
+      $.currentSelectedElement = null;
     }
-  }
+  };
 
   /**
    * Selecciona un elemento por su sectionId, blockId o subBlockId y hace scroll suave hacia él
@@ -125,23 +143,23 @@ function selectionModule() {
    * @param {number} [timestamp] - Timestamp para ignorar mensajes obsoletos
    * @param {string} [elementName] - Nombre del elemento a mostrar en la etiqueta
    */
-  function selectElement(sectionId, blockId, subBlockId, timestamp, elementName) {
+  $.selectElement = function (sectionId, blockId, subBlockId, timestamp, elementName) {
     // Ignorar mensajes obsoletos
-    if (timestamp && timestamp < lastSelectionTimestamp) {
+    if (timestamp && timestamp < $.lastSelectionTimestamp) {
       return;
     }
 
     if (timestamp) {
-      lastSelectionTimestamp = timestamp;
+      $.lastSelectionTimestamp = timestamp;
     } else {
-      lastSelectionTimestamp = Date.now();
+      $.lastSelectionTimestamp = Date.now();
     }
 
-    clearSelection();
+    $.clearSelection();
     if (!sectionId && !blockId && !subBlockId) {
       return;
     }
-    let selector = '';
+    var selector = '';
     if (subBlockId) {
       // Si hay subBlockId, buscar por data-sub-block-id
       selector = '[data-sub-block-id="' + subBlockId + '"]';
@@ -153,10 +171,26 @@ function selectionModule() {
       selector = '[data-section-id="' + sectionId + '"]:not([data-block-id])';
     }
     if (selector) {
-      const element = document.querySelector(selector);
+      var element = document.querySelector(selector);
       if (element) {
-        element.classList.add(SELECTED_CLASS);
-        currentSelectedElement = element;
+        element.classList.add($.SELECTED_CLASS);
+
+        // Aplicar estilos directamente como fallback
+        if (typeof $.applyStyles === 'function') {
+          $.applyStyles(element, 'selected');
+        }
+
+        // Verificar después de un frame si los estilos se aplicaron correctamente
+        requestAnimationFrame(function () {
+          if (typeof $.verifyStylesApplied === 'function' && !$.verifyStylesApplied(element, 'selected')) {
+            // Si los estilos CSS no se aplicaron, aplicar directamente
+            if (typeof $.applyStyles === 'function') {
+              $.applyStyles(element, 'selected');
+            }
+          }
+        });
+
+        $.currentSelectedElement = element;
 
         // Mostrar etiqueta con el nombre del elemento
         if (elementName && typeof window.updateLabel === 'function') {
@@ -164,21 +198,21 @@ function selectionModule() {
         }
 
         // Cancelar scroll anterior si hay uno pendiente
-        if (scrollAnimationFrame !== null) {
-          cancelAnimationFrame(scrollAnimationFrame);
-          scrollAnimationFrame = null;
+        if ($.scrollAnimationFrame !== null) {
+          cancelAnimationFrame($.scrollAnimationFrame);
+          $.scrollAnimationFrame = null;
         }
 
         // Usar requestAnimationFrame para mejor sincronización con el navegador
         // y asegurar scroll suave incluso con selecciones rápidas
-        scrollAnimationFrame = requestAnimationFrame(function () {
-          scrollAnimationFrame = null;
+        $.scrollAnimationFrame = requestAnimationFrame(function () {
+          $.scrollAnimationFrame = null;
           element.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
           });
           // Actualizar posición de la etiqueta después del scroll
-          if (elementName && currentLabelElement && typeof window.updateLabel === 'function') {
+          if (elementName && $.currentLabelElement && typeof window.updateLabel === 'function') {
             setTimeout(function () {
               window.updateLabel(element, elementName, false);
             }, 100);
@@ -186,7 +220,7 @@ function selectionModule() {
         });
       }
     }
-  }
+  };
 }
 
 /**
