@@ -146,15 +146,12 @@ function compatibilityModule() {
         }
       }
 
-      // Detectar comentario de inicio de bloque (para futura implementación)
       const blockStartMatch = commentText.match(/^FASTTIFY_BLOCK_START:(.+)$/);
       if (blockStartMatch) {
         const blockId = blockStartMatch[1];
         const blockElement = findNextVisibleElement(comment);
 
         if (blockElement && !blockElement.hasAttribute('data-block-id')) {
-          // Necesitamos obtener el sectionId del contexto
-          // Por ahora, buscar el sectionId más cercano subiendo en el árbol
           let blockParent = blockElement.parentElement;
           let sectionId = null;
 
@@ -177,19 +174,15 @@ function compatibilityModule() {
    * Se ejecuta después de que el DOM esté completamente cargado
    */
   function initCompatibility() {
-    // Ejecutar inmediatamente si el DOM ya está listo
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', processCompatibilityMarkers);
     } else {
-      // Usar setTimeout para asegurar que el contenido renderizado esté disponible
       setTimeout(processCompatibilityMarkers, 0);
     }
 
-    // También procesar después de un pequeño delay para capturar contenido dinámico
     setTimeout(processCompatibilityMarkers, 100);
   }
 
-  // Inicializar cuando el módulo se carga
   initCompatibility();
 }
 

@@ -26,15 +26,16 @@ import { extractFunctionBody } from './extract-function-body.js';
  * Esta función no se ejecuta directamente, se convierte a string para inyectar en el iframe
  */
 function utilsModule() {
+  var $ = window.__FASTTIFY_THEME_STUDIO_NS__;
   /**
    * Busca el elemento seleccionable más cercano (con data-section-id, data-block-id o data-sub-block-id)
    * subiendo en el árbol DOM desde el elemento dado
    * @param {Element|null} element - El elemento desde donde comenzar la búsqueda
    * @returns {Element|null} El elemento seleccionable encontrado o null
    */
-  function findSelectableElement(element) {
+  $.findSelectableElement = function (element) {
     if (!element) return null;
-    let current = element;
+    var current = element;
     while (current && current.nodeType === 1) {
       if (
         current.hasAttribute &&
@@ -47,38 +48,38 @@ function utilsModule() {
       current = current.parentElement;
     }
     return null;
-  }
+  };
 
   /**
    * Extrae los IDs de sección, bloque y sub-bloque de un elemento
    * @param {Element} element - El elemento del cual extraer los IDs
    * @returns {{sectionId: string|null, blockId: string|null, subBlockId: string|null}} Objeto con sectionId, blockId y subBlockId
    */
-  function getElementIds(element) {
+  $.getElementIds = function (element) {
     return {
       sectionId: element.getAttribute('data-section-id'),
       blockId: element.getAttribute('data-block-id'),
       subBlockId: element.getAttribute('data-sub-block-id'),
     };
-  }
+  };
 
   /**
    * Extrae el nombre del elemento desde los atributos data
    * @param {Element} element - El elemento del cual extraer el nombre
    * @returns {string|null} El nombre del elemento o null
    */
-  function getElementName(element) {
+  $.getElementName = function (element) {
     if (!element) return null;
     // Prioridad: data-sub-block-name > data-block-name > data-section-name > subBlockId > blockId > sectionId
-    const subBlockName = element.getAttribute('data-sub-block-name');
+    var subBlockName = element.getAttribute('data-sub-block-name');
     if (subBlockName) return subBlockName;
-    const blockName = element.getAttribute('data-block-name');
+    var blockName = element.getAttribute('data-block-name');
     if (blockName) return blockName;
-    const sectionName = element.getAttribute('data-section-name');
+    var sectionName = element.getAttribute('data-section-name');
     if (sectionName) return sectionName;
-    const { subBlockId, blockId, sectionId } = getElementIds(element);
-    return subBlockId || blockId || sectionId || null;
-  }
+    var ids = $.getElementIds(element);
+    return ids.subBlockId || ids.blockId || ids.sectionId || null;
+  };
 }
 
 /**

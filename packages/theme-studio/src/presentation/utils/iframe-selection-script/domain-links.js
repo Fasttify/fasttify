@@ -26,20 +26,21 @@ import { extractFunctionBody } from './extract-function-body.js';
  * Esta función no se ejecuta directamente, se convierte a string para inyectar en el iframe
  */
 function domainLinksModule() {
+  var $ = window.__FASTTIFY_THEME_STUDIO_NS__;
   /**
    * Configura los enlaces relativos para mostrar el dominio completo de la tienda
    * En localhost solo agrega tooltips, en producción modifica los hrefs
    */
-  function setupDomainLinks() {
-    if (!STORE_DOMAIN) return;
+  $.setupDomainLinks = function () {
+    if (!$.STORE_DOMAIN) return;
 
     // Modificar todos los enlaces para que muestren el dominio de la tienda en el tooltip
     // En localhost, los enlaces relativos funcionan bien, solo agregamos el tooltip
     // En producción, modificamos el href pero interceptamos los clicks
-    const updateLinks = function () {
-      const links = document.querySelectorAll('a[href]');
+    var updateLinks = function () {
+      var links = document.querySelectorAll('a[href]');
       links.forEach(function (link) {
-        const href = link.getAttribute('href');
+        var href = link.getAttribute('href');
         if (
           href &&
           !href.startsWith('http://') &&
@@ -54,11 +55,11 @@ function domainLinksModule() {
           }
 
           // Construir la URL completa con el dominio de la tienda para el tooltip
-          const fullUrl = 'https://' + STORE_DOMAIN + (href.startsWith('/') ? href : '/' + href);
+          var fullUrl = 'https://' + $.STORE_DOMAIN + (href.startsWith('/') ? href : '/' + href);
 
           // En localhost, solo agregar title para el tooltip sin modificar href
           // En producción, modificar href para que el navegador muestre la URL completa
-          if (IS_LOCALHOST) {
+          if ($.IS_LOCALHOST) {
             // Solo agregar title si no tiene uno personalizado
             if (!link.hasAttribute('title')) {
               link.setAttribute('title', fullUrl);
@@ -76,7 +77,7 @@ function domainLinksModule() {
 
     // Observar cambios en el DOM para actualizar nuevos enlaces
     if (typeof MutationObserver !== 'undefined') {
-      const observer = new MutationObserver(function (mutations) {
+      var observer = new MutationObserver(function (mutations) {
         updateLinks();
       });
       observer.observe(document.body, {
@@ -84,7 +85,7 @@ function domainLinksModule() {
         subtree: true,
       });
     }
-  }
+  };
 }
 
 /**

@@ -26,24 +26,25 @@ import { extractFunctionBody } from './extract-function-body.js';
  * Esta función no se ejecuta directamente, se convierte a string para inyectar en el iframe
  */
 function eventHandlersModule() {
+  var $ = window.__FASTTIFY_THEME_STUDIO_NS__;
   /**
    * Maneja los clicks en elementos seleccionables
    * Permite que elementos interactivos (enlaces, botones) funcionen normalmente
    * mientras envía mensajes de selección al padre
    * @param {MouseEvent} event - El evento de click
    */
-  function handleClick(event) {
-    if (inspectorEnabled === false) return;
-    const target = event.target;
-    const selectableElement = findSelectableElement(target);
+  $.handleClick = function (event) {
+    if ($.inspectorEnabled === false) return;
+    var target = event.target;
+    var selectableElement = $.findSelectableElement(target);
 
     if (selectableElement) {
       // Solo prevenir el comportamiento por defecto si el elemento clickeado es directamente el elemento seleccionable
       // Esto permite que enlaces, botones y otros elementos interactivos funcionen normalmente
-      const isDirectSelectable = target === selectableElement;
+      var isDirectSelectable = target === selectableElement;
 
       // Si es un elemento interactivo (enlace, botón, input, etc.), no prevenir el comportamiento
-      const isInteractiveElement =
+      var isInteractiveElement =
         target.tagName === 'A' ||
         target.tagName === 'BUTTON' ||
         target.tagName === 'INPUT' ||
@@ -60,23 +61,23 @@ function eventHandlersModule() {
       }
 
       // Siempre enviar el mensaje de selección, pero no interferir con elementos interactivos
-      const { sectionId, blockId, subBlockId } = getElementIds(selectableElement);
+      var ids = $.getElementIds(selectableElement);
       if (window.parent) {
         window.parent.postMessage(
           {
             type: 'FASTTIFY_THEME_STUDIO_ELEMENT_CLICKED',
-            sectionId,
-            blockId,
-            subBlockId,
+            sectionId: ids.sectionId,
+            blockId: ids.blockId,
+            subBlockId: ids.subBlockId,
           },
           '*'
         );
       }
     }
-  }
+  };
 
-  let hoverTimeout = null;
-  let leaveTimeout = null;
+  $.hoverTimeout = null;
+  $.leaveTimeout = null;
 
   /**
    * Verifica si un elemento o su elemento relacionado están dentro del elemento seleccionable
@@ -93,88 +94,110 @@ function eventHandlersModule() {
    * Maneja el evento mouseenter para mostrar el estado hover
    * @param {MouseEvent} event - El evento mouseenter
    */
-  function handleMouseEnter(event) {
-    if (inspectorEnabled === false) return;
+  $.handleMouseEnter = function (event) {
+    if ($.inspectorEnabled === false) return;
     // Cancelar cualquier timeout de leave pendiente
-    if (leaveTimeout) {
-      clearTimeout(leaveTimeout);
-      leaveTimeout = null;
+    if ($.leaveTimeout) {
+      clearTimeout($.leaveTimeout);
+      $.leaveTimeout = null;
     }
 
-    const target = event.target;
-    const selectableElement = findSelectableElement(target);
+    var target = event.target;
+    var selectableElement = $.findSelectableElement(target);
 
     // Si ya está en hover este elemento, no hacer nada
-    if (hoveredElement === selectableElement) {
+    if ($.hoveredElement === selectableElement) {
       return;
     }
 
     // Solo mostrar hover si no es el elemento seleccionado actualmente
-    if (selectableElement && selectableElement !== currentSelectedElement) {
+    if (selectableElement && selectableElement !== $.currentSelectedElement) {
       // Cancelar timeout anterior si existe
-      if (hoverTimeout) {
-        clearTimeout(hoverTimeout);
+      if ($.hoverTimeout) {
+        clearTimeout($.hoverTimeout);
       }
 
       // Pequeño delay para evitar parpadeos rápidos
-      hoverTimeout = setTimeout(function () {
-        if (selectableElement && selectableElement !== currentSelectedElement) {
-          selectableElement.classList.add(HOVER_CLASS);
-          hoveredElement = selectableElement;
-          const elementName = getElementName(selectableElement);
+      $.hoverTimeout = setTimeout(function () {
+        if (selectableElement && selectableElement !== $.currentSelectedElement) {
+          selectableElement.classList.add($.HOVER_CLASS);
+
+          // Aplicar estilos directamente como fallback
+          if (typeof $.applyStyles === 'function') {
+            $.applyStyles(selectableElement, 'hover');
+          }
+
+          // Verificar después de un frame si los estilos se aplicaron correctamente
+          requestAnimationFrame(function () {
+            if (typeof $.verifyStylesApplied === 'function' && !$.verifyStylesApplied(selectableElement, 'hover')) {
+              // Si los estilos CSS no se aplicaron, aplicar directamente
+              if (typeof $.applyStyles === 'function') {
+                $.applyStyles(selectableElement, 'hover');
+              }
+            }
+          });
+
+          $.hoveredElement = selectableElement;
+          var elementName = $.getElementName(selectableElement);
           if (elementName && typeof window.updateLabel === 'function') {
             window.updateLabel(selectableElement, elementName, true);
           }
         }
-        hoverTimeout = null;
+        $.hoverTimeout = null;
       }, 50);
     }
-  }
+  };
 
   /**
    * Maneja el evento mouseleave para remover el estado hover
    * @param {MouseEvent} event - El evento mouseleave
    */
-  function handleMouseLeave(event) {
+  $.handleMouseLeave = function (event) {
     // Cancelar cualquier timeout de hover pendiente
-    if (hoverTimeout) {
-      clearTimeout(hoverTimeout);
-      hoverTimeout = null;
+    if ($.hoverTimeout) {
+      clearTimeout($.hoverTimeout);
+      $.hoverTimeout = null;
     }
 
-    if (!hoveredElement) return;
+    if (!$.hoveredElement) return;
 
-    const relatedTarget = event.relatedTarget;
+    var relatedTarget = event.relatedTarget;
 
     // Verificar si realmente estamos saliendo del elemento seleccionable
     // Si el relatedTarget (elemento hacia donde va el mouse) está dentro del elemento seleccionable,
     // entonces no removemos el hover (el mouse sigue dentro del elemento, solo pasó a un hijo)
-    if (relatedTarget && isWithinSelectable(relatedTarget, hoveredElement)) {
+    if (relatedTarget && isWithinSelectable(relatedTarget, $.hoveredElement)) {
       return;
     }
 
     // Pequeño delay para evitar parpadeos cuando el mouse pasa rápidamente entre elementos
     // Esto da tiempo para que se dispare handleMouseEnter si el mouse entró a otro elemento
-    leaveTimeout = setTimeout(function () {
+    $.leaveTimeout = setTimeout(function () {
       // Verificar nuevamente que realmente salimos del elemento
       // Si durante el delay el mouse entró a otro elemento, hoveredElement podría haber cambiado
-      if (hoveredElement) {
-        hoveredElement.classList.remove(HOVER_CLASS);
+      if ($.hoveredElement) {
+        $.hoveredElement.classList.remove($.HOVER_CLASS);
+
+        // Remover estilos aplicados y restaurar originales
+        if (typeof $.removeStyles === 'function') {
+          $.removeStyles($.hoveredElement);
+        }
+
         if (typeof window.removeLabel === 'function') {
           window.removeLabel(true);
         }
-        hoveredElement = null;
+        $.hoveredElement = null;
       }
-      leaveTimeout = null;
+      $.leaveTimeout = null;
     }, 150);
-  }
+  };
 
   /**
    * Maneja los mensajes recibidos del window padre
    * Escucha comandos de selección y limpieza de selección
    * @param {MessageEvent} event - El evento de mensaje
    */
-  function handleMessage(event) {
+  $.handleMessage = function (event) {
     // Solo procesar mensajes de nuestra aplicación
     // Validamos el tipo del mensaje en lugar del origen para funcionar en producción
     // cuando el iframe está en un dominio diferente al parent window
@@ -187,8 +210,8 @@ function eventHandlersModule() {
         window.toggleInspector(event.data.enabled);
       }
     } else if (event.data.type === 'FASTTIFY_THEME_STUDIO_SELECT_ELEMENT') {
-      if (inspectorEnabled !== false) {
-        selectElement(
+      if ($.inspectorEnabled !== false) {
+        $.selectElement(
           event.data.sectionId,
           event.data.blockId,
           event.data.subBlockId,
@@ -197,10 +220,10 @@ function eventHandlersModule() {
         );
       }
     } else if (event.data.type === 'FASTTIFY_THEME_STUDIO_CLEAR_SELECTION') {
-      clearSelection();
-      lastSelectionTimestamp = 0;
+      $.clearSelection();
+      $.lastSelectionTimestamp = 0;
     }
-  }
+  };
 }
 
 /**
