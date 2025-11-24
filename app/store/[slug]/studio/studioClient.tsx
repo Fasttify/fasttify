@@ -58,6 +58,22 @@ export default function StudioClient() {
     return outputs.custom?.APIs?.WebSocketDevServerApi?.endpoint;
   }, []);
 
+  useMemo(() => {
+    if (!websocketEndpoint) {
+      console.warn('[ThemeStudio] WebSocket endpoint missing in amplify_outputs.json', {
+        outputsWebsocketConfig: outputs.custom?.APIs?.WebSocketDevServerApi,
+        env: process.env.NODE_ENV,
+        storeId,
+      });
+    } else {
+      console.info('[ThemeStudio] WebSocket endpoint detected', {
+        websocketEndpoint,
+        env: process.env.NODE_ENV,
+        storeId,
+      });
+    }
+  }, [websocketEndpoint, storeId]);
+
   if (loading || !domain) {
     return <Loading />;
   }

@@ -29,10 +29,13 @@ export class WebSocketBroadcastService {
   private readonly managementApiClient: ApiGatewayManagementApiClient | null;
 
   constructor() {
-    const managementEndpoint = outputs.custom?.APIs?.WebSocketDevServerApi?.managementEndpoint;
+    const websocketConfig = outputs.custom?.APIs?.WebSocketDevServerApi;
+    const managementEndpoint = websocketConfig?.managementEndpoint;
     if (!managementEndpoint) {
       logger.warn(
-        'WebSocket management endpoint not found. WebSocket broadcast will be disabled.',
+        `WebSocket management endpoint not found. WebSocket broadcast disabled. Config snapshot: ${JSON.stringify(
+          websocketConfig || {}
+        )}`,
         'WebSocketBroadcastService'
       );
       this.managementApiClient = null;
@@ -42,6 +45,10 @@ export class WebSocketBroadcastService {
     this.managementApiClient = new ApiGatewayManagementApiClient({
       endpoint: managementEndpoint,
     });
+    logger.info(
+      `WebSocketBroadcastService initialized with management endpoint ${managementEndpoint}`,
+      'WebSocketBroadcastService'
+    );
   }
 
   /**
@@ -49,7 +56,10 @@ export class WebSocketBroadcastService {
    */
   async broadcastMessage(storeId: string, templateType: TemplateType, message: string): Promise<void> {
     if (!this.managementApiClient) {
-      logger.warn('WebSocket broadcast service is not available', 'WebSocketBroadcastService');
+      logger.warn(
+        `WebSocket broadcast service is not available (storeId=${storeId}, templateType=${templateType})`,
+        'WebSocketBroadcastService'
+      );
       return;
     }
 
