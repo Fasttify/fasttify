@@ -1,7 +1,3 @@
-/*
- * Theme Studio - Presentación (sin Polaris Frame para evitar scroll)
- */
-
 'use client';
 
 import { Sidebar } from './sidebar/Sidebar';
