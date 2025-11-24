@@ -1,19 +1,16 @@
 import '@testing-library/jest-dom';
 
-// Configurar variables de entorno para los tests
 process.env.APP_ENV = 'test';
 process.env.DEV_CACHE_ENABLED = 'true';
 
 global.console.warn = jest.fn();
 
-// Polyfill para structuredClone si no está disponible (Node < 17)
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (obj: any) => {
     return JSON.parse(JSON.stringify(obj));
   };
 }
 
-// Polyfill para Request y Response (necesario para el SDK de Polar)
 global.Request =
   global.Request ||
   class Request {

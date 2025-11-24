@@ -67,6 +67,9 @@ export function iframeSelectionScript(storeDomain) {
 
   return `(function() {
   'use strict';
+  if (window.self === window.top) {
+    return;
+  }
   var NS_KEY = '__FASTTIFY_THEME_STUDIO_NS__';
   if (window[NS_KEY]) {
     return;
