@@ -9,7 +9,7 @@
     "packages/tenant-domains",
     "packages/theme-studio"
   ],
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.25.0",
   "engines": {
     "node": ">=20.18.3",
     "pnpm": ">=10.18.0"
@@ -40,14 +40,16 @@
     "email:compile": "tsx scripts/compile-email-templates.ts",
     "email:test": "node scripts/test-email-system.js",
     "email:dev": "pnpm run email:compile && pnpm run email:test",
+    "theme-converter:test": "tsx scripts/theme-converter/test/run-test.ts",
+    "theme-converter:test:simple": "tsx scripts/theme-converter/test/simple-test.ts",
+    "theme-converter:convert": "tsx scripts/theme-converter/cli/convert.ts",
     "analyze": "ANALYZE=true pnpm run build",
     "sandbox": "npx ampx sandbox --identifier xooty --stream-function-logs",
     "sandbox:deploy": "npx ampx deploy",
     "sandbox:logs": "npx ampx logs",
     "upload-template": "node scripts/upload-base-template.js",
     "license": "node scripts/add-license-header.js",
-    "license:check": "node scripts/check-license-header.js",
-    "convert": "tsx scripts/parser/shopify-to-fasttify-converter.ts"
+    "license:check": "node scripts/check-license-header.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
