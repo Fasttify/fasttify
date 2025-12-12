@@ -13,6 +13,7 @@ import { ThemeScanner } from '../core/theme-scanner';
 import { ConversionContextManager } from '../core/conversion-context';
 import { ConversionConfigLoader } from '../config/conversion-config';
 import { VariableConverter, FilterConverter, TagConverter, SchemaConverter, TemplateConverter } from '../converters';
+import { TemplatePostProcessor } from '../converters/template-post-processor';
 import { SyntaxValidator } from '../validators/syntax-validator';
 import { writeFile, copyFile, fileExists } from '../utils/file-utils';
 import { logger } from '../utils/logger';
@@ -77,6 +78,7 @@ async function convertTheme(options: ConversionOptions) {
       shopifyTheme.structure.sections,
       shopifyTheme.structure.snippets
     );
+    const postProcessor = new TemplatePostProcessor();
     const validator = new SyntaxValidator(context);
 
     // Función para procesar un archivo Liquid
@@ -101,6 +103,9 @@ async function convertTheme(options: ConversionOptions) {
       // Convertir tags
       const tagResult = tagConverter.convert(content, file.path);
       content = tagResult.convertedContent;
+
+      // Post-procesar para corregir patrones problemáticos
+      content = postProcessor.process(content, file.path);
 
       // Validar resultado
       let validation = { valid: true, errors: [] as string[], warnings: [] as string[] };

@@ -16,3 +16,5 @@ export type { TemplateConversionResult } from './template-converter';
 
 export { SchemaConverter } from './schema-converter';
 export type { SchemaConversionResult } from './schema-converter';
+
+export { TemplatePostProcessor } from './template-post-processor';

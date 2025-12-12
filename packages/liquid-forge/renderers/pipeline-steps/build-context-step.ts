@@ -43,6 +43,11 @@ export async function buildContextStep(data: RenderingData): Promise<RenderingDa
 
   Object.assign(context, data.pageData!.contextData);
 
+  // Agregar theme settings al contexto
+  if (data.themeSettings) {
+    (context as any).settings = data.themeSettings;
+  }
+
   exposeIfDefined(
     context,
     {

@@ -61,6 +61,7 @@ export interface RenderingData {
   html?: string;
   metadata?: any;
   navigationMenus?: any;
+  themeSettings?: Record<string, any>;
   cacheKey?: string;
 }
 
