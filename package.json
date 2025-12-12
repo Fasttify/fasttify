@@ -111,7 +111,7 @@
     "liquidjs": "^10.21.1",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.1",
-    "next": "16.0.0",
+    "next": "16.0.9",
     "node-cache": "^5.1.2",
     "node-fetch": "^3.3.2",
     "ogl": "^1.0.11",
