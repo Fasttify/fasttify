@@ -42,7 +42,6 @@ export function injectAssets(html: string, assetCollector: any, domain?: string)
       : finalHtml + scriptTag;
   }
 
-  // Inyectar script del ThemeStudio en todas las tiendas
   if (domain) {
     finalHtml = ThemeStudioScriptInjector.injectScript(finalHtml, domain);
   }

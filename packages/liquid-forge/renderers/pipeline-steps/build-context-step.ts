@@ -38,13 +38,11 @@ export async function buildContextStep(data: RenderingData): Promise<RenderingDa
     data.storeTemplate!,
     data.pageData!.cartData,
     data.navigationMenus,
-    data.pageData!.contextData.checkout // Pasar datos de checkout si existen
+    data.pageData!.contextData.checkout
   );
 
-  // Combinar datos dinámicos
   Object.assign(context, data.pageData!.contextData);
 
-  // Exponer variables opcionales de paginación y búsqueda
   exposeIfDefined(
     context,
     {
@@ -55,7 +53,6 @@ export async function buildContextStep(data: RenderingData): Promise<RenderingDa
     ['next_token', 'current_token', 'search_products_limit']
   );
 
-  // Construir searchParams y request
   const searchParams = new URLSearchParams(Object.entries(data.searchParams).map(([key, value]) => [key, value]));
   if (data.options.searchTerm) {
     searchParams.set('q', data.options.searchTerm);

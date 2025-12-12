@@ -92,6 +92,7 @@ export enum TransformationType {
   PATH = 'path',
   ASSET_REFERENCE = 'asset_reference',
   OTHER = 'other',
+  CUSTOM_LOGIC = 'custom_logic',
 }
 
 export interface ConversionStatistics {

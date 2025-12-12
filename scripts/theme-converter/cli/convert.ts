@@ -12,7 +12,7 @@ import path from 'path';
 import { ThemeScanner } from '../core/theme-scanner';
 import { ConversionContextManager } from '../core/conversion-context';
 import { ConversionConfigLoader } from '../config/conversion-config';
-import { VariableConverter, FilterConverter, TagConverter, SchemaConverter } from '../converters';
+import { VariableConverter, FilterConverter, TagConverter, SchemaConverter, TemplateConverter } from '../converters';
 import { SyntaxValidator } from '../validators/syntax-validator';
 import { writeFile, copyFile, fileExists } from '../utils/file-utils';
 import { logger } from '../utils/logger';
@@ -72,6 +72,11 @@ async function convertTheme(options: ConversionOptions) {
     const filterConverter = new FilterConverter(context);
     const tagConverter = new TagConverter(context);
     const schemaConverter = new SchemaConverter(context);
+    const templateConverter = new TemplateConverter(
+      context,
+      shopifyTheme.structure.sections,
+      shopifyTheme.structure.snippets
+    );
     const validator = new SyntaxValidator(context);
 
     // Función para procesar un archivo Liquid
@@ -145,11 +150,12 @@ async function convertTheme(options: ConversionOptions) {
       if (template.type === 'liquid') {
         await processLiquidFile(template);
       } else {
-        // Templates JSON - solo copiar por ahora (se puede mejorar)
+        // Templates JSON - ajustar tipos para incluir carpeta (sections/<file>)
+        const templateResult = templateConverter.convert(template.content, template.path);
         const outputFilePath = path.join(outputPath, template.relativePath);
-        writeFile(outputFilePath, template.content);
+        writeFile(outputFilePath, templateResult.convertedContent);
         contextManager.incrementStatistic('convertedFiles');
-        logger.info(`📄 ${template.relativePath} (copiado)`);
+        logger.info(`📄 ${template.relativePath} (template ajustado)`);
       }
     }
 
