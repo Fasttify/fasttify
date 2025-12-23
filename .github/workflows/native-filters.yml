@@ -6,15 +6,15 @@ on:
       - main
       - develop
     paths:
-      - "packages/liquid-forge-native/**"
-      - ".github/workflows/native-filters.yml"
+      - 'packages/liquid-forge-native/**'
+      - '.github/workflows/native-filters.yml'
   pull_request:
     branches:
       - main
       - develop
     paths:
-      - "packages/liquid-forge-native/**"
-      - ".github/workflows/native-filters.yml"
+      - 'packages/liquid-forge-native/**'
+      - '.github/workflows/native-filters.yml'
 
 jobs:
   build:
@@ -100,8 +100,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Install dependencies
         working-directory: packages/liquid-forge-native
@@ -151,8 +151,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Install dependencies
         working-directory: packages/liquid-forge-native
@@ -189,8 +189,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
