@@ -37,13 +37,10 @@ export class RenderTag extends Tag {
       throw new Error('Render tag requires a snippet name');
     }
 
-    // Separar el nombre del snippet de los parámetros
     const parts = args.split(',').map((part) => part.trim());
 
-    // Limpiar el nombre del snippet (remover comillas)
     this.snippetName = parts[0].replace(/^['"]|['"]$/g, '');
 
-    // Parsear parámetros opcionales
     for (let i = 1; i < parts.length; i++) {
       const param = parts[i];
       const colonIndex = param.indexOf(':');
@@ -66,7 +63,6 @@ export class RenderTag extends Tag {
     }
 
     try {
-      // Cargar el contenido del snippet
       const snippetContent = (yield this.loadSnippet(this.snippetName, ctx)) as string;
 
       if (!snippetContent) {
@@ -75,7 +71,6 @@ export class RenderTag extends Tag {
         return;
       }
 
-      // Evaluar parámetros usando LiquidJS
       const evaluatedParams: Record<string, unknown> = {};
       for (const [key, value] of this.parameters) {
         try {
@@ -92,13 +87,11 @@ export class RenderTag extends Tag {
         }
       }
 
-      // Verificar si el snippet tiene schema con bloques y buscar bloques en storeTemplate
       const contextData = ctx.getAll() as any;
       const storeTemplate = contextData._store_template || contextData.storeTemplate;
       let sectionContext: Record<string, unknown> | null = null;
 
       if (storeTemplate?.layout && snippetContent.includes('{% schema %}')) {
-        // Extraer schema del snippet
         const schemaRegex = /{%-?\s*schema\s*-?%}([\s\S]*?){%-?\s*endschema\s*-?%}/;
         const schemaMatch = snippetContent.match(schemaRegex);
 
@@ -106,20 +99,15 @@ export class RenderTag extends Tag {
           try {
             const schemaJson = JSON.parse(schemaMatch[1].trim());
 
-            // Buscar bloques en storeTemplate.layout de forma genérica
-            // Recorrer todas las propiedades del layout sin importar cómo se llamen
             const allLayoutSections: any[] = [];
 
-            // Iterar sobre todas las propiedades de storeTemplate.layout
             for (const categoryKey in storeTemplate.layout) {
               const category = storeTemplate.layout[categoryKey];
-              // Si la categoría tiene un array 'sections', agregarlo
               if (category && typeof category === 'object' && Array.isArray(category.sections)) {
                 allLayoutSections.push(...category.sections);
               }
             }
 
-            // Buscar la sección que coincida con el nombre del snippet
             const layoutSection = allLayoutSections.find(
               (s: any) =>
                 s.id === this.snippetName || s.type === `snippets/${this.snippetName}` || s.type === this.snippetName
@@ -132,7 +120,6 @@ export class RenderTag extends Tag {
                 blocks: layoutSection.blocks || [],
               };
             } else if (schemaJson.blocks && schemaJson.blocks.length > 0) {
-              // Si tiene schema con bloques pero no hay datos en storeTemplate, crear contexto vacío
               sectionContext = {
                 id: this.snippetName,
                 settings: {},
@@ -145,15 +132,12 @@ export class RenderTag extends Tag {
         }
       }
 
-      // Crear contexto combinado
       const combinedContext: Record<string, unknown> = { ...ctx.getAll(), ...evaluatedParams };
 
-      // Agregar section context si existe
       if (sectionContext) {
         combinedContext.section = sectionContext;
       }
 
-      // Parsear y renderizar el snippet
       const template = this.liquid.parse(snippetContent);
       const result = yield this.liquid.render(template, combinedContext);
 
@@ -169,7 +153,6 @@ export class RenderTag extends Tag {
    */
   private async loadSnippet(snippetName: string, ctx: Context): Promise<string | null> {
     try {
-      // Obtener storeId del contexto
       const contextData = ctx.getAll() as any;
       const storeId = contextData.store?.storeId || contextData.storeId;
 
@@ -178,11 +161,9 @@ export class RenderTag extends Tag {
         return `<!-- Error: No storeId found for snippet '${snippetName}' -->`;
       }
 
-      // Usar el TemplateLoader para cargar el snippet
       const { TemplateLoader } = await import('../../../services/templates/template-loader');
       const templateLoader = TemplateLoader.getInstance();
 
-      // Los snippets están en la carpeta 'snippets'
       const snippetFileName = snippetName.endsWith('.liquid') ? snippetName : `${snippetName}.liquid`;
       const snippetPath = `snippets/${snippetFileName}`;
 
@@ -198,7 +179,6 @@ export class RenderTag extends Tag {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.warn(`Could not load snippet '${snippetName}'`, error, 'RenderTag');
 
-      // Devolver comentario HTML en lugar de null para mejor debugging
       return `<!-- Error loading snippet '${snippetName}': ${errorMessage} -->`;
     }
   }

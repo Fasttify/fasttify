@@ -54,7 +54,6 @@ export class PaginateTag extends Tag {
     ctx.push(scope);
 
     try {
-      // FIX: No se necesita parseTokens, parseStream ya devuelve templates listos para renderizar.
       yield this.liquid.renderer.renderTemplates(this.templates, ctx, emitter);
     } finally {
       ctx.pop();
