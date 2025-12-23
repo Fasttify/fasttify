@@ -9,7 +9,7 @@
     "packages/tenant-domains",
     "packages/theme-studio"
   ],
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@10.26.1",
   "engines": {
     "node": ">=20.18.3",
     "pnpm": ">=10.18.0"
