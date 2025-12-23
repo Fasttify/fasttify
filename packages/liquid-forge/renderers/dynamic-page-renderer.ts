@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-// Core utilities
 import { injectAssets } from '../lib/inject-assets';
 import { logger } from '../lib/logger';
-
-// Liquid engine
 import { liquidEngine } from '../liquid/engine';
-
-// Services
 import { pageConfig } from '../config/page-config';
-// Clave y caché de HTML gestionados en utilidades dedicadas
 import { getCachedPageRender, makePageCacheKey, setCachedPageRender } from '../services/rendering/page-html-cache';
 import { domainResolver } from '../services/core/domain-resolver';
 import { errorRenderer } from '../services/errors/error-renderer';
@@ -31,8 +25,6 @@ import { createTemplateError } from '../services/errors/error-utils';
 import { metadataGenerator } from '../services/rendering/metadata-generator';
 import { sectionRenderer } from '../services/rendering/section-renderer';
 import { templateLoader } from '../services/templates/template-loader';
-
-// Pipeline steps
 import {
   buildContextStep,
   initializeEngineStep,
@@ -40,8 +32,6 @@ import {
   renderContentStep,
   resolveStoreStep,
 } from './pipeline-steps';
-
-// Types
 import type { RenderResult, ShopContext, TemplateError } from '../types';
 import type { PageRenderOptions } from '../types/template';
 import type { Template } from 'liquidjs';
@@ -71,6 +61,7 @@ export interface RenderingData {
   html?: string;
   metadata?: any;
   navigationMenus?: any;
+  themeSettings?: Record<string, any>;
   cacheKey?: string;
 }
 

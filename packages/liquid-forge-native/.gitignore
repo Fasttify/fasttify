@@ -1,0 +1,27 @@
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# NAPI
+*.node
+index.js
+index.d.ts
+
+# Build artifacts
+*.dylib
+*.so
+*.dll
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+

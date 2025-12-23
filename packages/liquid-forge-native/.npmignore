@@ -1,0 +1,22 @@
+# Source files
+src/
+benches/
+target/
+Cargo.toml
+Cargo.lock
+build.rs
+rust-toolchain.toml
+
+# Tests and docs
+*.md
+!README.md
+
+# CI/CD
+.github/
+.cargo/
+
+# Development
+*.log
+npm-debug.log*
+.DS_Store
+

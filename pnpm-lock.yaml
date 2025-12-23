@@ -310,6 +310,9 @@ importers:
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
+      baseline-browser-mapping:
+        specifier: ^2.9.7
+        version: 2.9.7
       constructs:
         specifier: ^10.4.2
         version: 10.4.2
@@ -431,6 +434,16 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
+    optionalDependencies:
+      '@fasttify/liquid-forge-native':
+        specifier: file:../liquid-forge-native
+        version: link:../liquid-forge-native
+
+  packages/liquid-forge-native:
+    devDependencies:
+      '@napi-rs/cli':
+        specifier: ^2.18.0
+        version: 2.18.4
 
   packages/orders-app:
     dependencies:
@@ -2892,6 +2905,11 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  '@napi-rs/cli@2.18.4':
+    resolution: {integrity: sha512-SgJeA4df9DE2iAEpr3M2H0OKl/yjtg1BnRI5/JyowS71tUWhrfSu2LT0V3vlHET+g1hBVlrO60PmEXwUEKp8Mg==}
+    engines: {node: '>= 10'}
+    hasBin: true
+
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
 
@@ -5022,8 +5040,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.8.12:
-    resolution: {integrity: sha512-vAPMQdnyKCBtkmQA6FMCBvU9qFIppS3nzyXnEM+Lo2IAhG4Mpjv9cCxMudhgV3YdNNJv6TNqXy97dfRVL2LmaQ==}
+  baseline-browser-mapping@2.9.7:
+    resolution: {integrity: sha512-k9xFKplee6KIio3IDbwj+uaCLpqzOwakOgmqzPezM0sFJlFKcg30vk2wOiAJtkTSfx0SSQDSe8q+mWA/fSH5Zg==}
     hasBin: true
 
   binary-extensions@2.3.0:
@@ -7601,6 +7619,7 @@ packages:
   next@16.0.10:
     resolution: {integrity: sha512-RtWh5PUgI+vxlV3HdR+IfWA1UUHu0+Ram/JBO4vWB54cVPentCD0e+lxyAYEsDTqGGMg7qpjhKh6dc6aW7W/sA==}
     engines: {node: '>=20.9.0'}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/security-update-2025-12-11 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -14833,6 +14852,8 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  '@napi-rs/cli@2.18.4': {}
+
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
       '@emnapi/core': 1.5.0
@@ -17449,7 +17470,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.8.12: {}
+  baseline-browser-mapping@2.9.7: {}
 
   binary-extensions@2.3.0: {}
 
@@ -17472,7 +17493,7 @@ snapshots:
 
   browserslist@4.26.3:
     dependencies:
-      baseline-browser-mapping: 2.8.12
+      baseline-browser-mapping: 2.9.7
       caniuse-lite: 1.0.30001748
       electron-to-chromium: 1.5.230
       node-releases: 2.0.23

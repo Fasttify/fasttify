@@ -29,5 +29,4 @@ export * from './services/core/cache';
  * ```
  */
 
-// Re-exportar todo desde el archivo de exports organizado
 export * from './exports';

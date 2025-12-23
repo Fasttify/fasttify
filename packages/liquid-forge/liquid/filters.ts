@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-// Re-exportar todos los filtros desde sus módulos específicos
-export { baseFilters } from './filters/base-filters';
+export { baseFilters } from './filters/base-filters.native';
 export { cartFilters } from './filters/cart-filters';
 export { dataAccessFilters } from './filters/data-access-filters';
 export { ecommerceFilters } from './filters/ecommerce-filters';
@@ -23,8 +22,7 @@ export { htmlFilters } from './filters/html-filters';
 export { moneyFilters } from './filters/money-filters';
 export { fasttifyAttributesFilter } from './filters/fasttify-attributes-filter';
 
-// Importar todos los filtros para el array principal
-import { baseFilters } from './filters/base-filters';
+import { baseFilters } from './filters/base-filters.native';
 import { cartFilters } from './filters/cart-filters';
 import { dataAccessFilters } from './filters/data-access-filters';
 import { ecommerceFilters } from './filters/ecommerce-filters';

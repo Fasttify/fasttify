@@ -18,6 +18,34 @@ import type { LiquidFilter } from '../../types';
 import { ESCAPE_PATTERNS, HANDLE_PATTERNS, URL_PATTERNS } from '../../lib/regex-patterns';
 
 /**
+ * Filtro append mejorado que maneja correctamente valores undefined/null
+ * Sobrescribe el filtro nativo de LiquidJS para mayor robustez
+ */
+export const appendFilter: LiquidFilter = {
+  name: 'append',
+  filter: (input: any, value: any): string => {
+    // Convertir input a string, tratando undefined/null como string vacío
+    const baseValue = input === undefined || input === null || input === '' ? '' : String(input);
+    const appendValue = value === undefined || value === null ? '' : String(value);
+    return baseValue + appendValue;
+  },
+};
+
+/**
+ * Filtro prepend mejorado que maneja correctamente valores undefined/null
+ * Sobrescribe el filtro nativo de LiquidJS para mayor robustez
+ */
+export const prependFilter: LiquidFilter = {
+  name: 'prepend',
+  filter: (input: any, value: any): string => {
+    // Convertir input a string, tratando undefined/null como string vacío
+    const baseValue = input === undefined || input === null || input === '' ? '' : String(input);
+    const prependValue = value === undefined || value === null ? '' : String(value);
+    return prependValue + baseValue;
+  },
+};
+
+/**
  * Filtro para formatear fechas
  */
 export const dateFilter: LiquidFilter = {
@@ -184,6 +212,8 @@ export const whereFilter: LiquidFilter = {
 };
 
 export const baseFilters: LiquidFilter[] = [
+  appendFilter,
+  prependFilter,
   dateFilter,
   handleizeFilter,
   pluralizeFilter,

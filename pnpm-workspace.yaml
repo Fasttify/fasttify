@@ -4,3 +4,4 @@ packages:
   - 'packages/theme-editor'
   - 'packages/tenant-domains'
   - 'packages/theme-studio'
+  - 'packages/liquid-forge-native'

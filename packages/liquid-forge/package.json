@@ -32,6 +32,9 @@
     "tsx": "^4.20.6",
     "typescript": "^5.8.3"
   },
+  "optionalDependencies": {
+    "@fasttify/liquid-forge-native": "file:../liquid-forge-native"
+  },
   "peerDependencies": {
     "@aws-sdk/client-lambda": "^3.901.0",
     "@aws-sdk/client-s3": "^3.844.0",

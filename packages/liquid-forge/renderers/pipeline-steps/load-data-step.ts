@@ -20,6 +20,7 @@ import type { RenderingData } from '../dynamic-page-renderer';
 import { dataFetcher } from '../../services/fetchers/data-fetcher';
 import { dynamicDataLoader } from '../../services/page/dynamic-data-loader';
 import { templateLoader } from '../../services/templates/template-loader';
+import { settingsLoader } from '../../services/themes/settings';
 
 /**
  * Paso 4: Cargar todos los datos en paralelo
@@ -28,15 +29,17 @@ export async function loadDataStep(data: RenderingData): Promise<RenderingData> 
   const templatePath = pageConfig.getTemplatePath(data.options.pageType);
   const isJsonTemplate = templatePath.endsWith('.json');
 
-  const [layout, compiledLayout, navigationMenus, pageTemplate, compiledPageTemplate] = await Promise.all([
-    templateLoader.loadMainLayout(data.store!.storeId),
-    templateLoader.loadMainLayoutCompiled(data.store!.storeId),
-    dataFetcher.getStoreNavigationMenus(data.store!.storeId),
-    templateLoader.loadTemplate(data.store!.storeId, templatePath),
-    isJsonTemplate
-      ? Promise.resolve(undefined)
-      : templateLoader.loadCompiledTemplate(data.store!.storeId, templatePath),
-  ]);
+  const [layout, compiledLayout, navigationMenus, pageTemplate, compiledPageTemplate, themeSettings] =
+    await Promise.all([
+      templateLoader.loadMainLayout(data.store!.storeId),
+      templateLoader.loadMainLayoutCompiled(data.store!.storeId),
+      dataFetcher.getStoreNavigationMenus(data.store!.storeId),
+      templateLoader.loadTemplate(data.store!.storeId, templatePath),
+      isJsonTemplate
+        ? Promise.resolve(undefined)
+        : templateLoader.loadCompiledTemplate(data.store!.storeId, templatePath),
+      settingsLoader.loadSettings(data.store!.storeId),
+    ]);
 
   // Cargar la configuración del template para obtener products_per_page
   let storeTemplate = null;
@@ -74,5 +77,6 @@ export async function loadDataStep(data: RenderingData): Promise<RenderingData> 
     pageTemplate,
     compiledPageTemplate,
     navigationMenus,
+    themeSettings,
   };
 }

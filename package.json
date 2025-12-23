@@ -7,9 +7,10 @@
     "packages/orders-app",
     "packages/theme-editor",
     "packages/tenant-domains",
-    "packages/theme-studio"
+    "packages/theme-studio",
+    "packages/liquid-forge-native"
   ],
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.26.1",
   "engines": {
     "node": ">=20.18.3",
     "pnpm": ">=10.18.0"
@@ -40,14 +41,16 @@
     "email:compile": "tsx scripts/compile-email-templates.ts",
     "email:test": "node scripts/test-email-system.js",
     "email:dev": "pnpm run email:compile && pnpm run email:test",
+    "theme-converter:test": "tsx packages/liquid-forge/scripts/theme-converter/test/run-test.ts",
+    "theme-converter:test:simple": "tsx packages/liquid-forge/scripts/theme-converter/test/simple-test.ts",
+    "theme-converter:convert": "tsx packages/liquid-forge/scripts/theme-converter/cli/convert.ts",
     "analyze": "ANALYZE=true pnpm run build",
     "sandbox": "npx ampx sandbox --identifier xooty --stream-function-logs",
     "sandbox:deploy": "npx ampx deploy",
     "sandbox:logs": "npx ampx logs",
     "upload-template": "node scripts/upload-base-template.js",
     "license": "node scripts/add-license-header.js",
-    "license:check": "node scripts/check-license-header.js",
-    "convert": "tsx scripts/parser/shopify-to-fasttify-converter.ts"
+    "license:check": "node scripts/check-license-header.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
@@ -156,6 +159,7 @@
     "axios": "^1.10.0",
     "babel-jest": "^30.0.4",
     "babel-plugin-react-compiler": "^1.0.0",
+    "baseline-browser-mapping": "^2.9.7",
     "constructs": "^10.4.2",
     "esbuild": "^0.25.6",
     "eslint": "^9.37.0",
@@ -179,6 +183,9 @@
     "overrides": {
       "@types/react": "19.2.2",
       "@types/react-dom": "19.2.2"
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "core-js"
+    ]
   }
 }

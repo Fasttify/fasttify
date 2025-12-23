@@ -1,0 +1,8 @@
+{
+  "sections": {
+    "main": {
+      "type": "sections/test-section"
+    }
+  },
+  "order": ["main"]
+}

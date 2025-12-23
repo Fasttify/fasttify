@@ -1,0 +1,40 @@
+{% comment %}
+  Test Section - Ejemplo de sección Shopify para pruebas
+{% endcomment %}
+
+<section class="test-section">
+  <h1>{{ section.settings.title }}</h1>
+
+  {% if product.vendor %}
+    <p>Vendor: {{ product.vendor }}</p>
+  {% endif %}
+
+  {% if product.handle %}
+    <p>Handle: {{ product.handle }}</p>
+  {% endif %}
+
+  <div class="price">
+    {{ product.price | money_with_currency }}
+  </div>
+
+  {% include 'test-snippet' with var: 'value' %}
+
+  {% for collection in collections %}
+    <div>{{ collection.title }}</div>
+  {% endfor %}
+</section>
+
+{% schema %}
+{
+  "name": "Test Section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Test"
+    }
+  ]
+}
+{% endschema %}
+
