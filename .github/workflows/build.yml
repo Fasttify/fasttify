@@ -18,12 +18,14 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 10.20.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Set Node.js optimization environment variables
         run: |
@@ -99,25 +101,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Setup Rust (for native filters)
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-        continue-on-error: true
-
-      - name: Build native filters (optional)
-        working-directory: packages/liquid-forge-native
-        run: |
-          if command -v cargo &> /dev/null; then
-            echo "Building native filters..."
-            pnpm build || echo "Native filters build failed, will use JS fallback"
-          else
-            echo "Rust not available, skipping native filters build"
-          fi
-        continue-on-error: true
 
       - name: Type check (separate)
         run: |
