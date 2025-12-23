@@ -41,6 +41,10 @@ themes:
   - packages/liquid-forge/**/*
   - app/themes/**/*
 
+# Filtros nativos (Rust)
+native:
+  - packages/liquid-forge-native/**/*
+
 # Documentación
 documentation:
   - docs/**/*

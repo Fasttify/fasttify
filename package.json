@@ -7,7 +7,8 @@
     "packages/orders-app",
     "packages/theme-editor",
     "packages/tenant-domains",
-    "packages/theme-studio"
+    "packages/theme-studio",
+    "packages/liquid-forge-native"
   ],
   "packageManager": "pnpm@10.26.1",
   "engines": {
