@@ -4,22 +4,77 @@ on:
   push:
     branches:
       - main
-      - develop
     paths:
-      - 'packages/liquid-forge-native/**'
-      - '.github/workflows/native-filters.yml'
+      - "packages/liquid-forge-native/**"
+      - ".github/workflows/native-filters.yml"
   pull_request:
     branches:
       - main
-      - develop
     paths:
-      - 'packages/liquid-forge-native/**'
-      - '.github/workflows/native-filters.yml'
+      - "packages/liquid-forge-native/**"
+      - ".github/workflows/native-filters.yml"
 
 jobs:
-  build:
+  # Build rápido solo para Linux (para PRs y desarrollo)
+  build-dev:
+    name: Build (Development)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            packages/liquid-forge-native/target/
+          key: ${{ runner.os }}-cargo-dev-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        working-directory: packages/liquid-forge-native
+        run: pnpm install
+
+      - name: Build native module
+        working-directory: packages/liquid-forge-native
+        run: pnpm build
+
+      - name: Run tests
+        working-directory: packages/liquid-forge-native
+        run: cargo test --release
+
+      - name: Run examples
+        working-directory: packages/liquid-forge-native
+        run: |
+          node examples/usage.js
+          node examples/benchmark.js
+
+  # Build completo para todas las plataformas (solo en main)
+  build-release:
     name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     strategy:
       fail-fast: false
       matrix:
@@ -34,17 +89,7 @@ jobs:
             target: x86_64-unknown-linux-musl
             name: linux-x64-musl
 
-          # Linux ARM64
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            name: linux-arm64-gnu
-
-          # macOS x64 (Intel)
-          - os: macos-13
-            target: x86_64-apple-darwin
-            name: darwin-x64
-
-          # macOS ARM64 (Apple Silicon)
+          # macOS ARM64 (Apple Silicon) - El más común
           - os: macos-14
             target: aarch64-apple-darwin
             name: darwin-arm64
@@ -98,8 +143,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
 
       - name: Install dependencies
         working-directory: packages/liquid-forge-native
@@ -126,56 +171,22 @@ jobs:
             packages/liquid-forge-native/index.d.ts
           retention-days: 7
 
-  test-filters:
-    name: Test Filters
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download Linux x64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: native-filters-linux-x64-gnu
-          path: packages/liquid-forge-native/
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        working-directory: packages/liquid-forge-native
-        run: pnpm install
-
-      - name: Run usage examples
-        working-directory: packages/liquid-forge-native
-        run: node examples/usage.js
-
-      - name: Run benchmarks
-        working-directory: packages/liquid-forge-native
-        run: node examples/benchmark.js
-
   integration:
     name: Integration Test
-    needs: build
+    needs: [build-dev]
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Linux x64 artifact
-        uses: actions/download-artifact@v4
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
         with:
-          name: native-filters-linux-x64-gnu
-          path: packages/liquid-forge-native/
+          toolchain: stable
+          profile: minimal
+          override: true
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -183,11 +194,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build native filters
+        working-directory: packages/liquid-forge-native
+        run: pnpm build
 
       - name: Verify native filters load
         run: |
@@ -200,7 +215,3 @@ jobs:
           }
           console.log('✓ Native filters loaded successfully');
           "
-
-      - name: Run integration tests
-        run: pnpm test
-        continue-on-error: true
