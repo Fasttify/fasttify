@@ -18,8 +18,9 @@
 //!
 //! Run with: cargo bench
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use liquid_forge_native::*;
+use std::hint::black_box;
 
 fn bench_handleize(c: &mut Criterion) {
     c.bench_function("handleize_simple", |b| {

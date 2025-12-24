@@ -27,12 +27,14 @@ jobs:
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
 
       - name: Check code
-        run: cargo check --lib
+        run: cargo check --lib --target x86_64-unknown-linux-gnu
 
       - name: Run tests
-        run: cargo test --lib
+        run: cargo test --lib --target x86_64-unknown-linux-gnu
 
       - name: Run clippy
-        run: cargo clippy --lib -- -D warnings
+        run: cargo clippy --lib --target x86_64-unknown-linux-gnu -- -D warnings
