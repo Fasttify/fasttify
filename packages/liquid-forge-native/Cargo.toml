@@ -7,7 +7,7 @@ license = "Apache-2.0"
 description = "High-performance Rust filters for Liquid template engine"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # NAPI-RS for Node.js bindings

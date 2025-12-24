@@ -79,5 +79,8 @@
   },
   "eslint.workingDirectories": [
     { "mode": "auto" }
+  ],
+  "rust-analyzer.linkedProjects": [
+    "${workspaceFolder}/packages/liquid-forge-native/Cargo.toml"
   ]
 }
