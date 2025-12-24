@@ -1,0 +1,38 @@
+name: Rust Check
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/liquid-forge-native/**"
+      - ".github/workflows/rust.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "packages/liquid-forge-native/**"
+      - ".github/workflows/rust.yml"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/liquid-forge-native
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Check code
+        run: cargo check --all-targets
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
