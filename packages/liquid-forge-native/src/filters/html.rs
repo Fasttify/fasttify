@@ -50,7 +50,7 @@ pub fn escape(text: Option<String>) -> String {
     };
 
     // Fast path: check if escaping is needed
-    if !text.contains(&['&', '<', '>', '"', '\'']) {
+    if !text.contains(['&', '<', '>', '"', '\'']) {
         return text;
     }
 
@@ -179,8 +179,7 @@ pub fn newline_to_br(text: Option<String>) -> String {
     };
 
     text.replace("\r\n", "<br>")
-        .replace('\n', "<br>")
-        .replace('\r', "<br>")
+        .replace(['\n', '\r'], "<br>")
 }
 
 #[cfg(test)]
