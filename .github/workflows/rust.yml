@@ -29,7 +29,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Check code
-        run: cargo check --all-targets
+        run: cargo check --lib
 
       - name: Run tests
         run: cargo test
