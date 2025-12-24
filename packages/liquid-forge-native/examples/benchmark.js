@@ -7,7 +7,6 @@
 
 const { performance } = require('perf_hooks');
 
-// Cargar módulo nativo (si está disponible)
 let nativeFilters = null;
 try {
   nativeFilters = require('../index.js');
@@ -18,7 +17,6 @@ try {
   process.exit(1);
 }
 
-// Implementaciones JavaScript para comparación
 const jsHandleize = (text) => {
   if (!text) return '';
   return text
@@ -45,7 +43,6 @@ const jsTruncate = (text, length = 50, suffix = '...') => {
   return text.substring(0, length - suffix.length) + suffix;
 };
 
-// Test data
 const testData = {
   handleize: [
     'Hello World',
@@ -68,9 +65,7 @@ const testData = {
   ],
 };
 
-// Función de benchmark
 function benchmark(name, nativeFn, jsFn, data, iterations = 10000) {
-  // Warm up
   for (let i = 0; i < 100; i++) {
     data.forEach((input) => {
       nativeFn(input);
@@ -78,7 +73,6 @@ function benchmark(name, nativeFn, jsFn, data, iterations = 10000) {
     });
   }
 
-  // Benchmark Native
   const startNative = performance.now();
   for (let i = 0; i < iterations; i++) {
     data.forEach((input) => nativeFn(input));
@@ -86,7 +80,6 @@ function benchmark(name, nativeFn, jsFn, data, iterations = 10000) {
   const endNative = performance.now();
   const nativeTime = endNative - startNative;
 
-  // Benchmark JavaScript
   const startJs = performance.now();
   for (let i = 0; i < iterations; i++) {
     data.forEach((input) => jsFn(input));
@@ -94,7 +87,6 @@ function benchmark(name, nativeFn, jsFn, data, iterations = 10000) {
   const endJs = performance.now();
   const jsTime = endJs - startJs;
 
-  // Results
   const speedup = (jsTime / nativeTime).toFixed(2);
   const saved = (((jsTime - nativeTime) / jsTime) * 100).toFixed(1);
 
@@ -107,7 +99,6 @@ function benchmark(name, nativeFn, jsFn, data, iterations = 10000) {
   return { nativeTime, jsTime, speedup, saved };
 }
 
-// Ejecutar benchmarks
 console.log('Benchmark: Native filters vs JavaScript');
 console.log(`   Iteraciones: ${10000}`);
 console.log(`   Inputs por filtro: variado\n`);
@@ -141,7 +132,7 @@ console.log(`   Ahorro promedio:   ${avgSaved}%`);
 console.log('\nImpact on production:');
 console.log('   Para 1000 req/s con 200 filtros por página:');
 const totalSavedMs = results.reduce((sum, r) => sum + (r.jsTime - r.nativeTime), 0);
-const savedPerRequest = totalSavedMs / 10000; // Normalizado
+const savedPerRequest = totalSavedMs / 10000;
 const savedPerSecond = savedPerRequest * 1000;
 console.log(`   Ahorro: ~${savedPerSecond.toFixed(0)}ms CPU por segundo`);
 console.log(`   Equivalente a: ${(savedPerSecond / 1000).toFixed(1)}s CPU ahorrados por segundo de requests`);

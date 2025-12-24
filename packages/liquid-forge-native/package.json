@@ -1,7 +1,7 @@
 {
   "name": "@fasttify/liquid-forge-native",
   "version": "1.0.0",
-  "description": "High-performance native filters for Liquid templates",
+  "description": "High-performance native modules for Liquid Forge",
   "main": "index.js",
   "types": "index.d.ts",
   "private": true,
