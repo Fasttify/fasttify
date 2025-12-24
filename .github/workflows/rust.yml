@@ -5,14 +5,14 @@ on:
     branches:
       - main
     paths:
-      - "packages/liquid-forge-native/**"
-      - ".github/workflows/rust.yml"
+      - 'packages/liquid-forge-native/**'
+      - '.github/workflows/rust.yml'
   pull_request:
     branches:
       - main
     paths:
-      - "packages/liquid-forge-native/**"
-      - ".github/workflows/rust.yml"
+      - 'packages/liquid-forge-native/**'
+      - '.github/workflows/rust.yml'
 
 jobs:
   check:
