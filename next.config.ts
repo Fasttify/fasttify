@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
     '@aws-sdk/client-s3',
     '@aws-sdk/client-ses',
     '@aws-sdk/s3-request-presigner',
+    '@fasttify/liquid-forge-native',
     'dotenv',
     'axios',
     'node-fetch',

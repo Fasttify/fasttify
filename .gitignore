@@ -22,6 +22,11 @@
 # production
 /build
 
+# Rust build artifacts
+**/target/
+**/*.rs.bk
+*.pdb
+
 # misc
 .DS_Store
 *.pem

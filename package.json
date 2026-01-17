@@ -30,6 +30,8 @@
     "template-sync": "node scripts/template-sync.js",
     "type-check": "tsc --noEmit",
     "type-check:fast": "tsc --noEmit --skipLibCheck",
+    "clean:rust": "rm -rf packages/liquid-forge-native/target packages/liquid-forge-native/src packages/liquid-forge-native/benches packages/liquid-forge-native/.cargo",
+    "prebuild": "pnpm run clean:rust",
     "build:fast": "next build --turbopack",
     "build:full": "pnpm run type-check && pnpm run build:fast",
     "workspace:install": "pnpm install --workspaces",
@@ -50,7 +52,8 @@
     "sandbox:logs": "npx ampx logs",
     "upload-template": "node scripts/upload-base-template.js",
     "license": "node scripts/add-license-header.js",
-    "license:check": "node scripts/check-license-header.js"
+    "license:check": "node scripts/check-license-header.js",
+    "check-build-size": "node scripts/check-build-size.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
