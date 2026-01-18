@@ -41,6 +41,18 @@ frontend:
         - echo "Running optimized build for Amplify..."
         - pnpm run build:fast
         - echo "Build completed"
+        - echo "Cleaning up unnecessary files..."
+        - rm -rf .next/cache
+        - rm -rf .next/trace
+        - rm -rf node_modules/@swc/core-linux-x64-gnu
+        - rm -rf node_modules/@swc/core-linux-x64-musl
+        - rm -rf node_modules/@swc/core-darwin-x64
+        - rm -rf node_modules/@swc/core-darwin-arm64
+        - rm -rf node_modules/@esbuild/linux-x64
+        - rm -rf node_modules/@esbuild/darwin-x64
+        - rm -rf node_modules/@esbuild/darwin-arm64
+        - find .next -name "*.map" -type f -delete
+        - echo "Cleanup completed"
   artifacts:
     baseDirectory: .next
     files:
