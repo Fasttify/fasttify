@@ -26,7 +26,8 @@
   "[typescript]": {
     "editor.codeActionsOnSave": {
       "source.organizeImports": "never"
-    }
+    },
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   },
   "[typescriptreact]": {
     "editor.codeActionsOnSave": {
@@ -82,5 +83,8 @@
   ],
   "rust-analyzer.linkedProjects": [
     "${workspaceFolder}/packages/liquid-forge-native/Cargo.toml"
-  ]
+  ],
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
 }
