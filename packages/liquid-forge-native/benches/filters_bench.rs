@@ -49,11 +49,7 @@ fn bench_escape(c: &mut Criterion) {
     });
 
     c.bench_function("escape_html", |b| {
-        b.iter(|| {
-            escape(black_box(Some(
-                "<script>alert('XSS')</script>".to_string(),
-            )))
-        })
+        b.iter(|| escape(black_box(Some("<script>alert('XSS')</script>".to_string()))))
     });
 
     c.bench_function("escape_mixed", |b| {
@@ -104,7 +100,10 @@ fn bench_append(c: &mut Criterion) {
         let base = "Lorem ipsum ".to_string();
         let suffix = "dolor sit amet".to_string();
         b.iter(|| {
-            append(black_box(Some(base.clone())), black_box(Some(suffix.clone())))
+            append(
+                black_box(Some(base.clone())),
+                black_box(Some(suffix.clone())),
+            )
         })
     });
 }
@@ -131,4 +130,3 @@ criterion_group!(
     bench_strip_html
 );
 criterion_main!(benches);
-
