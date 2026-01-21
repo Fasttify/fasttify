@@ -9,6 +9,7 @@ Fasttify is a multi-tenant SaaS platform for creating and managing online stores
 ## Build & Development Commands
 
 ### Core Commands
+
 ```bash
 # Install dependencies (required first step)
 pnpm install
@@ -30,6 +31,7 @@ pnpm run start
 ```
 
 ### Testing & Quality
+
 ```bash
 # Run all tests
 pnpm run test
@@ -57,6 +59,7 @@ pnpm run lint:check
 ```
 
 ### Workspace Management
+
 ```bash
 # Install all workspace dependencies
 pnpm run workspace:install
@@ -75,6 +78,7 @@ pnpm run lint:packages
 ```
 
 ### Specialized Commands
+
 ```bash
 # Compile email templates (React Email)
 pnpm run email:compile
@@ -111,6 +115,7 @@ pnpm run template-sync
 ```
 
 ### Test Execution Patterns
+
 ```bash
 # Run a single test file
 pnpm run test path/to/test-file.test.ts
@@ -142,6 +147,7 @@ The root directory contains the main Next.js application.
 Backend is defined in `amplify/backend.ts` with these key resources:
 
 **Directory Structure:**
+
 ```
 amplify/
 ├── backend.ts              # Main backend orchestration
@@ -153,6 +159,7 @@ amplify/
 ```
 
 **Key AWS Services:**
+
 - **DynamoDB**: Multi-tenant database (sharded by `storeId`)
 - **Cognito**: User authentication with custom attributes
 - **Lambda**: Serverless functions (AI, emails, webhooks)
@@ -173,9 +180,10 @@ amplify/
 - Each store's data is fully isolated
 
 **Example:** When querying products, always filter by `storeId`:
+
 ```typescript
 const products = await client.models.Product.list({
-  filter: { storeId: { eq: currentStoreId } }
+  filter: { storeId: { eq: currentStoreId } },
 });
 ```
 
@@ -188,12 +196,14 @@ const products = await client.models.Product.list({
 3. **`app/store/[slug]/`**: Admin dashboard (authenticated users)
 
 **Dynamic store rendering:**
+
 - **`app/[store]/page.tsx`**: Multi-tenant storefront rendering
 - Renders Liquid templates server-side (SSR)
 - Supports custom domains via CloudFront
 - Preview mode for theme development
 
 **API Routes:**
+
 - **`app/api/stores/[storeId]/`**: Store-specific operations (cart, assets)
 - **`app/api/checkout/`**: Checkout processing
 - **`app/api/domain-validation/`**: Custom domain verification
@@ -206,6 +216,7 @@ const products = await client.models.Product.list({
 The engine provides 100% Shopify Liquid compatibility:
 
 **Key Components:**
+
 - **Singleton engine** (`liquid/engine.ts`): Main LiquidJS wrapper
 - **Filters** (`liquid/filters/`): String, HTML, money, e-commerce, cart filters
 - **Tags** (`liquid/tags/`): Custom tags (filters, section, paginate, render)
@@ -213,12 +224,14 @@ The engine provides 100% Shopify Liquid compatibility:
 - **Renderers** (`renderers/`): Store-specific rendering with asset extraction
 
 **Critical Tags:**
+
 - `{% filters storeId: store.id %}`: Auto-generates complete product filter UI
 - `{% section %}`: Theme section definitions
 - `{% paginate %}`: Pagination support
 - `{% render %}`: Template includes
 
 **Performance Optimization:**
+
 - Hot filters implemented in Rust (`packages/liquid-forge-native/`)
 - Compiled templates cached in memory
 - Asset collection during rendering (CSS/JS extraction)
@@ -226,6 +239,7 @@ The engine provides 100% Shopify Liquid compatibility:
 ### State Management
 
 **Zustand stores** in `context/core/`:
+
 - **`useStoreDataStore`**: Current store data with real-time subscriptions
 - **`userStore`**: User authentication state
 - **`useSubscriptionStore`**: Subscription information
@@ -237,6 +251,7 @@ The engine provides 100% Shopify Liquid compatibility:
 ### Working with Amplify Data
 
 **Always use the centralized client:**
+
 ```typescript
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
@@ -245,7 +260,7 @@ const client = generateClient<Schema>();
 
 // List with filtering
 const { data } = await client.models.Product.list({
-  filter: { storeId: { eq: storeId } }
+  filter: { storeId: { eq: storeId } },
 });
 
 // Create
@@ -257,23 +272,25 @@ const { data } = await client.models.Product.create({
 
 // Subscribe to changes
 const subscription = client.models.Product.observeQuery({
-  filter: { storeId: { eq: storeId } }
+  filter: { storeId: { eq: storeId } },
 }).subscribe({
   next: ({ items }) => {
     // Handle updates
-  }
+  },
 });
 ```
 
 ### Server vs Client Components
 
 **Default to Server Components** unless you need:
+
 - Browser APIs (localStorage, window, etc.)
 - Event handlers (onClick, onChange, etc.)
 - React hooks (useState, useEffect, etc.)
 - Real-time subscriptions
 
 **Client Component marker:**
+
 ```typescript
 'use client';
 
@@ -288,6 +305,7 @@ export function MyClientComponent() {
 **Important:** The `[store]` route matches any slug and custom domains.
 
 **Store resolution logic:**
+
 1. Check if URL is a custom domain (not fasttify.com)
 2. If custom domain, query `StoreCustomDomain` by domain
 3. If subdomain, query `UserStore` by slug
@@ -298,6 +316,7 @@ export function MyClientComponent() {
 ### Theme Development
 
 **Theme structure:**
+
 ```
 templates/
 ├── layout/
@@ -311,6 +330,7 @@ templates/
 ```
 
 **Template context variables:**
+
 - `store`: Current store data
 - `product`: Current product (on product pages)
 - `collection`: Current collection (on collection pages)
@@ -325,6 +345,7 @@ templates/
 2. **Bulk queue**: Marketing emails
 
 **Flow:**
+
 ```
 Trigger event
   ↓
@@ -344,6 +365,7 @@ AWS SES sends email
 ### Custom Domain Setup
 
 **Flow:**
+
 1. User adds domain in admin dashboard
 2. System generates DNS verification token
 3. User adds CNAME record: `_fasttify-verify.<domain>` → `<token>`
@@ -353,6 +375,7 @@ AWS SES sends email
 7. Domain becomes active
 
 **Key functions:**
+
 - `amplify/functions/checkStoreDomain/`
 - `packages/tenant-domains/src/services/CloudFrontTenantManager.ts`
 
@@ -398,21 +421,22 @@ AWS SES sends email
 
 ## Important Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `package.json` | Root workspace definition & scripts |
-| `pnpm-workspace.yaml` | Workspace package definitions |
-| `amplify/backend.ts` | AWS Amplify backend orchestration |
-| `amplify/data/resource.ts` | Complete GraphQL schema |
-| `next.config.ts` | Next.js configuration (transpile packages) |
-| `tsconfig.json` | TypeScript configuration |
-| `amplify.yml` | AWS Amplify deployment pipeline |
-| `.env.local` | Local environment variables (not in git) |
-| `.env.production` | Production environment variables (generated in CI) |
+| File                       | Purpose                                            |
+| -------------------------- | -------------------------------------------------- |
+| `package.json`             | Root workspace definition & scripts                |
+| `pnpm-workspace.yaml`      | Workspace package definitions                      |
+| `amplify/backend.ts`       | AWS Amplify backend orchestration                  |
+| `amplify/data/resource.ts` | Complete GraphQL schema                            |
+| `next.config.ts`           | Next.js configuration (transpile packages)         |
+| `tsconfig.json`            | TypeScript configuration                           |
+| `amplify.yml`              | AWS Amplify deployment pipeline                    |
+| `.env.local`               | Local environment variables (not in git)           |
+| `.env.production`          | Production environment variables (generated in CI) |
 
 ## Environment Variables
 
 **Required for development:**
+
 ```bash
 # AWS Amplify (auto-generated by sandbox)
 AMPLIFY_*
@@ -432,6 +456,7 @@ POLAR_ACCESS_TOKEN=your-token
 **Test framework:** Jest with React Testing Library
 
 **Key test utilities:**
+
 - `@testing-library/react`: Component testing
 - `@testing-library/jest-dom`: Custom matchers
 - `jest-environment-jsdom`: Browser environment simulation
@@ -442,6 +467,7 @@ POLAR_ACCESS_TOKEN=your-token
 
 1. Create function directory: `amplify/functions/my-function/`
 2. Add `resource.ts`:
+
    ```typescript
    import { defineFunction } from '@aws-amplify/backend';
 
@@ -451,6 +477,7 @@ POLAR_ACCESS_TOKEN=your-token
      timeoutSeconds: 30,
    });
    ```
+
 3. Create `handler.ts` with Lambda handler
 4. Import in `amplify/data/resource.ts`
 5. Add to schema if exposing as Query/Mutation
@@ -459,19 +486,20 @@ POLAR_ACCESS_TOKEN=your-token
 
 1. Create model file: `amplify/data/models/my-model.ts`
 2. Define model using Amplify schema builder:
+
    ```typescript
    import { a } from '@aws-amplify/backend';
 
-   export const myModel = a.model({
-     storeId: a.string().required(),  // Always include for multi-tenancy
-     name: a.string().required(),
-     // ... other fields
-     store: a.belongsTo('UserStore', 'storeId'),
-   }).authorization([
-     a.allow.authenticated().to(['read']),
-     a.allow.owner(),
-   ]);
+   export const myModel = a
+     .model({
+       storeId: a.string().required(), // Always include for multi-tenancy
+       name: a.string().required(),
+       // ... other fields
+       store: a.belongsTo('UserStore', 'storeId'),
+     })
+     .authorization([a.allow.authenticated().to(['read']), a.allow.owner()]);
    ```
+
 3. Import in `amplify/data/resource.ts`
 4. Add to schema: `MyModel: myModel`
 5. Regenerate types: Schema updates automatically on sandbox restart
@@ -520,6 +548,7 @@ POLAR_ACCESS_TOKEN=your-token
 **Deployment configuration:** `amplify.yml`
 
 **Build optimization:**
+
 - Turbopack for faster builds
 - Cleanup of unnecessary node_modules after build
 - Multi-stage caching (pnpm store, .next cache, tsbuildinfo)
@@ -530,6 +559,7 @@ POLAR_ACCESS_TOKEN=your-token
 ### Why Liquid?
 
 100% Shopify compatibility allows merchants to:
+
 - Use existing Shopify themes as-is
 - Migrate stores easily
 - Leverage existing theme marketplace
@@ -562,29 +592,35 @@ POLAR_ACCESS_TOKEN=your-token
 ### Amplify Sandbox Issues
 
 **Problem:** Sandbox fails to start
+
 - Solution: Check AWS credentials, ensure latest `@aws-amplify/backend-cli`
 - Solution: Delete `.amplify` directory and restart
 
 **Problem:** Type errors after schema changes
+
 - Solution: Restart sandbox to regenerate types
 - Solution: Run `pnpm run type-check` to verify
 
 ### Build Failures
 
 **Problem:** Out of memory during build
+
 - Solution: Increase NODE_OPTIONS: `export NODE_OPTIONS='--max-old-space-size=8192'`
 
 **Problem:** Workspace package not found
+
 - Solution: Run `pnpm install` to relink workspaces
 
 ### Performance Issues
 
 **Problem:** Slow Liquid rendering
+
 - Solution: Check template caching is enabled
 - Solution: Profile with `console.time()` around render calls
 - Solution: Consider moving hot filters to Rust implementation
 
 **Problem:** Large bundle size
+
 - Solution: Run `pnpm run analyze` to identify large dependencies
 - Solution: Use dynamic imports for large components
 
