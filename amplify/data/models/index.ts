@@ -25,3 +25,5 @@ export { productDeleteReturnModel } from './product-delete-return';
 export { orderDeleteReturnModel } from './order-delete-return';
 export { checkoutDeleteReturnModel } from './checkout-delete-return';
 export { websocketConnectionModel } from './websocket-connection';
+export { couponModel } from './coupon';
+export { couponUsageModel } from './coupon-usage';
