@@ -142,5 +142,4 @@ export class RendererLogger {
   }
 }
 
-// Alias más corto para uso frecuente
 export const logger = RendererLogger;

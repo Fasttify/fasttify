@@ -14,9 +14,39 @@
  * limitations under the License.
  */
 
+import pino from 'pino';
+
+const IS_DEVELOPMENT = process.env.NODE_ENV !== 'production';
+
+/**
+ * Configuración de Pino optimizada para Next.js
+ */
+const pinoConfig = {
+  level: process.env.LOG_LEVEL || (IS_DEVELOPMENT ? 'debug' : 'info'),
+  formatters: {
+    level: (label: string) => {
+      return { level: label.toUpperCase() };
+    },
+  },
+  timestamp: pino.stdTimeFunctions.isoTime,
+  ...(IS_DEVELOPMENT && {
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'HH:MM:ss',
+        ignore: 'pid,hostname',
+        singleLine: false,
+      },
+    },
+  }),
+};
+
+const logger = pino(pinoConfig);
+
 /**
  * Utilidad de logging segura que previene vulnerabilidades de cadenas de formato
- * y sanitiza datos de entrada del usuario
+ * y sanitiza datos de entrada del usuario. Usa Pino para rendimiento óptimo.
  */
 export class SecureLogger {
   /**
@@ -39,13 +69,24 @@ export class SecureLogger {
   /**
    * Sanitizar todos los argumentos
    */
-  private static sanitizeArgs(args: unknown[]): unknown[] {
-    return args.map((arg) => {
+  private static sanitizeArgs(args: unknown[]): Record<string, unknown> {
+    const sanitized: Record<string, unknown> = {};
+
+    args.forEach((arg, index) => {
       if (typeof arg === 'string') {
-        return this.sanitizeString(arg);
+        sanitized[`arg${index}`] = this.sanitizeString(arg);
+      } else if (arg instanceof Error) {
+        sanitized.error = {
+          message: arg.message,
+          stack: arg.stack,
+          name: arg.name,
+        };
+      } else {
+        sanitized[`arg${index}`] = arg;
       }
-      return arg;
     });
+
+    return sanitized;
   }
 
   /**
@@ -54,7 +95,12 @@ export class SecureLogger {
   static info(message: string, ...args: unknown[]): void {
     const sanitizedMessage = this.sanitizeString(message);
     const sanitizedArgs = this.sanitizeArgs(args);
-    console.log(sanitizedMessage, ...sanitizedArgs);
+
+    if (Object.keys(sanitizedArgs).length > 0) {
+      logger.info(sanitizedArgs, sanitizedMessage);
+    } else {
+      logger.info(sanitizedMessage);
+    }
   }
 
   /**
@@ -63,7 +109,12 @@ export class SecureLogger {
   static error(message: string, ...args: unknown[]): void {
     const sanitizedMessage = this.sanitizeString(message);
     const sanitizedArgs = this.sanitizeArgs(args);
-    console.error(sanitizedMessage, ...sanitizedArgs);
+
+    if (Object.keys(sanitizedArgs).length > 0) {
+      logger.error(sanitizedArgs, sanitizedMessage);
+    } else {
+      logger.error(sanitizedMessage);
+    }
   }
 
   /**
@@ -72,7 +123,12 @@ export class SecureLogger {
   static warn(message: string, ...args: unknown[]): void {
     const sanitizedMessage = this.sanitizeString(message);
     const sanitizedArgs = this.sanitizeArgs(args);
-    console.warn(sanitizedMessage, ...sanitizedArgs);
+
+    if (Object.keys(sanitizedArgs).length > 0) {
+      logger.warn(sanitizedArgs, sanitizedMessage);
+    } else {
+      logger.warn(sanitizedMessage);
+    }
   }
 
   /**
@@ -81,7 +137,12 @@ export class SecureLogger {
   static debug(message: string, ...args: unknown[]): void {
     const sanitizedMessage = this.sanitizeString(message);
     const sanitizedArgs = this.sanitizeArgs(args);
-    console.debug(sanitizedMessage, ...sanitizedArgs);
+
+    if (Object.keys(sanitizedArgs).length > 0) {
+      logger.debug(sanitizedArgs, sanitizedMessage);
+    } else {
+      logger.debug(sanitizedMessage);
+    }
   }
 
   /**
@@ -93,17 +154,24 @@ export class SecureLogger {
 
     switch (level) {
       case 'info':
-        console.log(format, ...sanitizedArgs);
+        logger.info(sanitizedArgs, format);
         break;
       case 'error':
-        console.error(format, ...sanitizedArgs);
+        logger.error(sanitizedArgs, format);
         break;
       case 'warn':
-        console.warn(format, ...sanitizedArgs);
+        logger.warn(sanitizedArgs, format);
         break;
       case 'debug':
-        console.debug(format, ...sanitizedArgs);
+        logger.debug(sanitizedArgs, format);
         break;
     }
+  }
+
+  /**
+   * Obtener instancia de Pino para uso avanzado
+   */
+  static getLogger() {
+    return logger;
   }
 }

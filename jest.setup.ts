@@ -5,6 +5,18 @@ process.env.DEV_CACHE_ENABLED = 'true';
 
 global.console.warn = jest.fn();
 
+if (typeof global.setImmediate === 'undefined') {
+  global.setImmediate = ((fn: (...args: any[]) => void, ...args: any[]) => {
+    return setTimeout(fn, 0, ...args) as unknown;
+  }) as typeof setImmediate;
+}
+
+if (typeof global.clearImmediate === 'undefined') {
+  global.clearImmediate = ((id: any) => {
+    clearTimeout(id as unknown as ReturnType<typeof setTimeout>);
+  }) as typeof clearImmediate;
+}
+
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (obj: any) => {
     return JSON.parse(JSON.stringify(obj));
