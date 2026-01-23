@@ -19,9 +19,8 @@
 //! This module contains high-performance implementations of common
 //! text processing operations used in Liquid templates.
 
-mod text;
 mod html;
+mod text;
 
-pub use text::*;
 pub use html::*;
-
+pub use text::*;

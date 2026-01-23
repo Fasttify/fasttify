@@ -23,15 +23,12 @@ export const handler: Schema['createProduct']['functionHandler'] = async (event)
     owner,
   } = event.arguments;
 
-  // Validaciones básicas
   if (!name || !nameLowercase || !category || !status || !storeId || !owner) {
     throw new Error('Invalid arguments');
   }
 
-  // Generar slug si no se proporciona
   const finalSlug = slug || nameLowercase.replace(/\s+/g, '-').toLowerCase();
 
-  // Preparar el objeto del producto
   const productData = {
     name,
     nameLowercase,
@@ -52,7 +49,6 @@ export const handler: Schema['createProduct']['functionHandler'] = async (event)
   };
 
   try {
-    // Insertar el producto en la base de datos usando el cliente de Amplify
     const { data: createdProduct, errors } = await client.models.Product.create(productData);
 
     if (errors && errors.length > 0) {

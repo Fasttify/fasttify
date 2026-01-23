@@ -150,9 +150,7 @@ pub fn strip_newlines(text: Option<String>) -> String {
         _ => return String::new(),
     };
 
-    text.chars()
-        .filter(|c| *c != '\n' && *c != '\r')
-        .collect()
+    text.chars().filter(|c| *c != '\n' && *c != '\r').collect()
 }
 
 /// Replaces newlines with HTML `<br>` tags.
@@ -178,8 +176,7 @@ pub fn newline_to_br(text: Option<String>) -> String {
         _ => return String::new(),
     };
 
-    text.replace("\r\n", "<br>")
-        .replace(['\n', '\r'], "<br>")
+    text.replace("\r\n", "<br>").replace(['\n', '\r'], "<br>")
 }
 
 #[cfg(test)]
@@ -192,10 +189,7 @@ mod tests {
             escape(Some("<script>alert('XSS')</script>".to_string())),
             "&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;"
         );
-        assert_eq!(
-            escape(Some("Rock & Roll".to_string())),
-            "Rock &amp; Roll"
-        );
+        assert_eq!(escape(Some("Rock & Roll".to_string())), "Rock &amp; Roll");
         assert_eq!(escape(None), "");
     }
 
@@ -234,4 +228,3 @@ mod tests {
         assert_eq!(newline_to_br(None), "");
     }
 }
-

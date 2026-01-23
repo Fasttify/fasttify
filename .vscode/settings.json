@@ -26,17 +26,20 @@
   "[typescript]": {
     "editor.codeActionsOnSave": {
       "source.organizeImports": "never"
-    }
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescriptreact]": {
     "editor.codeActionsOnSave": {
       "source.organizeImports": "never"
-    }
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[javascript]": {
     "editor.codeActionsOnSave": {
       "source.organizeImports": "never"
-    }
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "files.watcherExclude": {
     "**/.git/**": true,
@@ -78,9 +81,17 @@
     "fallbackPolling": "dynamicPriorityPolling"
   },
   "eslint.workingDirectories": [
-    { "mode": "auto" }
+    {
+      "mode": "auto"
+    }
   ],
   "rust-analyzer.linkedProjects": [
     "${workspaceFolder}/packages/liquid-forge-native/Cargo.toml"
-  ]
+  ],
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  }
 }

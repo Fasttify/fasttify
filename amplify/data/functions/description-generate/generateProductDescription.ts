@@ -7,10 +7,8 @@ const client = new BedrockRuntimeClient();
 export const handler: Schema['generateProductDescription']['functionHandler'] = async (event, context) => {
   const { productName, category } = event.arguments;
 
-  // Crear el prompt del usuario usando la función helper
   const prompt = createUserPrompt(productName, category || undefined);
 
-  // Create conversation with the user message
   const conversation = [
     {
       role: 'user' as const,
@@ -18,7 +16,6 @@ export const handler: Schema['generateProductDescription']['functionHandler'] = 
     },
   ];
 
-  // Create a command with the model ID, the message, and configuration
   const command = new ConverseCommand({
     modelId: 'us.anthropic.claude-3-haiku-20240307-v1:0',
     messages: conversation,
@@ -31,6 +28,5 @@ export const handler: Schema['generateProductDescription']['functionHandler'] = 
 
   const response = await client.send(command);
 
-  // Extract and return the response text
   return response.output?.message?.content?.[0]?.text || '';
 };

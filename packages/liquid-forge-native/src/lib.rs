@@ -29,4 +29,3 @@ extern crate napi_derive;
 mod filters;
 
 pub use filters::*;
-

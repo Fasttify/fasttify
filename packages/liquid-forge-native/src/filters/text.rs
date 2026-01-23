@@ -279,7 +279,10 @@ mod tests {
 
     #[test]
     fn test_append() {
-        assert_eq!(append(Some("Hello".to_string()), Some(" World".to_string())), "Hello World");
+        assert_eq!(
+            append(Some("Hello".to_string()), Some(" World".to_string())),
+            "Hello World"
+        );
         assert_eq!(append(None, Some("World".to_string())), "World");
         assert_eq!(append(Some("Hello".to_string()), None), "Hello");
         assert_eq!(append(None, None), "");
@@ -287,7 +290,10 @@ mod tests {
 
     #[test]
     fn test_prepend() {
-        assert_eq!(prepend(Some("World".to_string()), Some("Hello ".to_string())), "Hello World");
+        assert_eq!(
+            prepend(Some("World".to_string()), Some("Hello ".to_string())),
+            "Hello World"
+        );
         assert_eq!(prepend(None, Some("Hello".to_string())), "Hello");
         assert_eq!(prepend(Some("World".to_string()), None), "World");
     }
@@ -295,10 +301,22 @@ mod tests {
     #[test]
     fn test_handleize() {
         assert_eq!(handleize(Some("Hello World".to_string())), "hello-world");
-        assert_eq!(handleize(Some("Ñoño & Friends".to_string())), "nono-friends");
-        assert_eq!(handleize(Some("Café con leche".to_string())), "cafe-con-leche");
-        assert_eq!(handleize(Some("  Multiple   Spaces  ".to_string())), "multiple-spaces");
-        assert_eq!(handleize(Some("!!!Exclamation!!!".to_string())), "exclamation");
+        assert_eq!(
+            handleize(Some("Ñoño & Friends".to_string())),
+            "nono-friends"
+        );
+        assert_eq!(
+            handleize(Some("Café con leche".to_string())),
+            "cafe-con-leche"
+        );
+        assert_eq!(
+            handleize(Some("  Multiple   Spaces  ".to_string())),
+            "multiple-spaces"
+        );
+        assert_eq!(
+            handleize(Some("!!!Exclamation!!!".to_string())),
+            "exclamation"
+        );
         assert_eq!(handleize(None), "");
     }
 
@@ -308,12 +326,13 @@ mod tests {
             truncate(Some("Hello World".to_string()), Some(8), None),
             "Hello..."
         );
+        assert_eq!(truncate(Some("Short".to_string()), Some(50), None), "Short");
         assert_eq!(
-            truncate(Some("Short".to_string()), Some(50), None),
-            "Short"
-        );
-        assert_eq!(
-            truncate(Some("Hello World".to_string()), Some(8), Some("…".to_string())),
+            truncate(
+                Some("Hello World".to_string()),
+                Some(8),
+                Some("…".to_string())
+            ),
             "Hello W…"
         );
     }
@@ -331,10 +350,7 @@ mod tests {
 
     #[test]
     fn test_default_value() {
-        assert_eq!(
-            default_value(None, "N/A".to_string()),
-            "N/A"
-        );
+        assert_eq!(default_value(None, "N/A".to_string()), "N/A");
         assert_eq!(
             default_value(Some("".to_string()), "N/A".to_string()),
             "N/A"
@@ -345,4 +361,3 @@ mod tests {
         );
     }
 }
-

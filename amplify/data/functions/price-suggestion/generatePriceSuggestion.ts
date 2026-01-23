@@ -7,18 +7,14 @@ import {
   createFallbackResponse,
 } from './systemPrompt';
 
-// Initialize bedrock runtime client
 const client = new BedrockRuntimeClient();
 
 export const handler: Schema['generatePriceSuggestion']['functionHandler'] = async (event, context) => {
-  // Get product details from arguments
   const { productName, category } = event.arguments;
 
   try {
-    // Crear el prompt del usuario usando la función helper
     const prompt = createPricePrompt(productName, category || undefined);
 
-    // Create conversation with the user message
     const conversation = [
       {
         role: 'user' as const,
@@ -26,7 +22,6 @@ export const handler: Schema['generatePriceSuggestion']['functionHandler'] = asy
       },
     ];
 
-    // Create a command with the model ID, the message, and configuration
     const command = new ConverseCommand({
       modelId: 'us.anthropic.claude-3-haiku-20240307-v1:0',
       messages: conversation,
@@ -39,14 +34,11 @@ export const handler: Schema['generatePriceSuggestion']['functionHandler'] = asy
 
     const response = await client.send(command);
 
-    // Extract the response text
     const responseText = response.output?.message?.content?.[0]?.text?.trim() || '';
 
-    // Try to parse the JSON using the helper function
     const result = parsePriceResponse(responseText);
 
     if (result) {
-      // Return a standardized response
       return {
         suggestedPrice: typeof result.suggestedPrice === 'number' ? result.suggestedPrice : 100000,
         minPrice: typeof result.minPrice === 'number' ? result.minPrice : 90000,
