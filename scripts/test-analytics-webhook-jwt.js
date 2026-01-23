@@ -11,7 +11,6 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
 
-// Configuración
 const JWT_SECRET = process.env.ANALYTICS_WEBHOOK_JWT_SECRET;
 const WEBHOOK_URL = 'http://localhost:3000/api/webhooks/analytics';
 

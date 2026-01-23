@@ -11,22 +11,19 @@ try {
   const completedEvents = [];
   const eventStack = [];
 
-  // Procesamos cada evento para unir los de 'Begin' con los de 'End'
   for (const event of events) {
     if (event.ph === 'B') {
       eventStack.push(event);
     } else if (event.ph === 'E' && eventStack.length > 0) {
-      // Buscamos el evento 'Begin' correspondiente en la pila
       const beginEvent = eventStack.pop();
       if (beginEvent.name === event.name) {
-        const duration = event.ts - beginEvent.ts; // Calculamos la duración
+        const duration = event.ts - beginEvent.ts;
         completedEvents.push({
           name: beginEvent.name,
           duration: duration,
           args: beginEvent.args,
         });
       } else {
-        // Si no coincide, lo devolvemos a la pila (manejo de anidación)
         eventStack.push(beginEvent);
       }
     }
@@ -34,10 +31,8 @@ try {
 
   console.log(`\nSe calcularon las duraciones de ${completedEvents.length} eventos completados.`);
 
-  // Filtramos solo por el evento que nos interesa: 'checkSourceFile'
   const checkFileEvents = completedEvents.filter((e) => e.name === 'checkSourceFile' && e.args && e.args.path);
 
-  // Ordenamos por duración, de mayor a menor
   checkFileEvents.sort((a, b) => b.duration - a.duration);
 
   const top10Slowest = checkFileEvents.slice(0, 10);

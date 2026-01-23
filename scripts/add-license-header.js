@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 
-// Header de licencia Apache 2.0
 const LICENSE_HEADER = `/*
  * Copyright 2025 Fasttify LLC
  *
@@ -21,10 +20,8 @@ const LICENSE_HEADER = `/*
  * limitations under the License.
  */`;
 
-// Patrones de archivos a incluir
 const FILE_PATTERNS = ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'];
 
-// Directorios y archivos a excluir
 const EXCLUDE_PATTERNS = [
   'node_modules/**',
   'dist/**',
@@ -43,7 +40,6 @@ const EXCLUDE_PATTERNS = [
   'postcss.config.mjs',
 ];
 
-// Función para verificar si el archivo ya tiene un header de licencia
 function hasLicenseHeader(content) {
   return (
     content.includes('Copyright 2025 Fasttify LLC') ||
@@ -53,18 +49,15 @@ function hasLicenseHeader(content) {
   );
 }
 
-// Función para agregar header a un archivo
 function addHeaderToFile(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
 
-    // Si ya tiene header, saltar
     if (hasLicenseHeader(content)) {
       console.log(`Saltando ${filePath} (ya tiene header de licencia)`);
       return false;
     }
 
-    // Agregar header al inicio del archivo
     const newContent = LICENSE_HEADER + '\n\n' + content;
     fs.writeFileSync(filePath, newContent, 'utf8');
 
@@ -76,7 +69,6 @@ function addHeaderToFile(filePath) {
   }
 }
 
-// Función principal
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run') || args.includes('-d');
@@ -87,12 +79,9 @@ async function main() {
   let files = [];
 
   if (specificPath) {
-    // Si se especifica un archivo o directorio específico
     if (fs.statSync(specificPath).isFile()) {
       files = [specificPath];
     } else {
-      // Buscar archivos en el directorio específico
-      // Normalizar la ruta del directorio
       const normalizedPath = specificPath.replace(/\\/g, '/').replace(/\/$/, '');
 
       for (const pattern of FILE_PATTERNS) {
@@ -109,14 +98,12 @@ async function main() {
       }
     }
   } else {
-    // Buscar en todo el proyecto
     for (const pattern of FILE_PATTERNS) {
       const found = glob.sync(pattern, { ignore: EXCLUDE_PATTERNS });
       files.push(...found);
     }
   }
 
-  // Remover duplicados y ordenar
   files = [...new Set(files)].sort();
 
   console.log(`Encontrados ${files.length} archivos candidatos\n`);
@@ -149,7 +136,6 @@ async function main() {
   console.log(`    Total de archivos: ${files.length}`);
 }
 
-// Mostrar ayuda
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`
 Uso: node scripts/add-license-header.js [opciones] [ruta]
@@ -167,5 +153,4 @@ Ejemplos:
   process.exit(0);
 }
 
-// Ejecutar
 main().catch(console.error);

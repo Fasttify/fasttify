@@ -4,10 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 
-// Patrones de archivos a incluir
 const FILE_PATTERNS = ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'];
 
-// Directorios y archivos a excluir
 const EXCLUDE_PATTERNS = [
   'node_modules/**',
   'dist/**',
@@ -26,7 +24,6 @@ const EXCLUDE_PATTERNS = [
   'postcss.config.mjs',
 ];
 
-// Función para verificar si el archivo ya tiene un header de licencia
 function hasLicenseHeader(content) {
   return (
     content.includes('Copyright 2025 Fasttify LLC') ||
@@ -36,7 +33,6 @@ function hasLicenseHeader(content) {
   );
 }
 
-// Función para verificar header en un archivo
 function checkHeaderInFile(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
@@ -47,7 +43,6 @@ function checkHeaderInFile(filePath) {
   }
 }
 
-// Función principal
 async function main() {
   const args = process.argv.slice(2);
   const specificPath = args.find((arg) => !arg.startsWith('--'));
@@ -58,11 +53,9 @@ async function main() {
   let files = [];
 
   if (specificPath) {
-    // Si se especifica un archivo o directorio específico
     if (fs.statSync(specificPath).isFile()) {
       files = [specificPath];
     } else {
-      // Buscar archivos en el directorio específico
       const normalizedPath = specificPath.replace(/\\/g, '/').replace(/\/$/, '');
 
       for (const pattern of FILE_PATTERNS) {
@@ -79,14 +72,12 @@ async function main() {
       }
     }
   } else {
-    // Buscar en todo el proyecto
     for (const pattern of FILE_PATTERNS) {
       const found = glob.sync(pattern, { ignore: EXCLUDE_PATTERNS });
       files.push(...found);
     }
   }
 
-  // Remover duplicados y ordenar
   files = [...new Set(files)].sort();
 
   console.log(`Verificando ${files.length} archivos...\n`);
@@ -129,7 +120,6 @@ async function main() {
   }
 }
 
-// Mostrar ayuda
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`
 Uso: node scripts/check-license-header.js [opciones] [ruta]
@@ -147,5 +137,4 @@ Ejemplos:
   process.exit(0);
 }
 
-// Ejecutar
 main().catch(console.error);

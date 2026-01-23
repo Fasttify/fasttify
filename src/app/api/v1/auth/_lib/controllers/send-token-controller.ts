@@ -16,16 +16,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { render } from '@react-email/render';
-import { OrderAuthEmail } from '@/packages/emails/templates';
+import { OrderAuthEmail } from '@/emails/templates';
 import { generateOrderAccessToken } from '@/lib/auth/token';
 import { getNextCorsHeaders } from '@/lib/utils/next-cors';
 import { sendEmail } from '@/lib/email/sendEmail';
 import { z } from 'zod';
 
-// Schema de validación
 const sendTokenSchema = z.object({
-  email: z.string().email('Email inválido'),
-  storeId: z.string().optional(), // Para personalizar el email
+  email: z.string().email('Invalid email'),
+  storeId: z.string().optional(),
 });
 
 export async function postSendToken(request: NextRequest) {
