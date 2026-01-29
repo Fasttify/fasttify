@@ -6,14 +6,12 @@ const readline = require('readline');
 
 dotenv.config();
 
-// Configuración
 const config = {
   apiUrl: process.env.API_URL || 'http://localhost:3000',
   localTemplateDir: process.env.TEMPLATES_DEV_ROOT || process.cwd(),
   templatesDevRoot: process.env.TEMPLATES_DEV_ROOT || process.cwd(),
 };
 
-// Crear interfaz para leer líneas de la consola
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -26,7 +24,6 @@ function validateDirectorySecurity(requestedDir) {
   const templatesDevRoot = path.resolve(config.templatesDevRoot);
   const resolvedDir = path.resolve(requestedDir);
 
-  // Strict containment check: normalized requestedDir must be the root or start with the normalized root + separator
   if (resolvedDir !== templatesDevRoot && !resolvedDir.startsWith(templatesDevRoot + path.sep)) {
     throw new Error(
       `Directorio local ilegal: ${requestedDir}. Solo se permiten carpetas dentro de ${templatesDevRoot}.`
@@ -140,10 +137,8 @@ const commands = {
     let localDir;
 
     try {
-      // Validar seguridad del directorio
       localDir = validateDirectorySecurity(config.localTemplateDir);
 
-      // Verificar que el directorio existe
       if (!fs.existsSync(localDir)) {
         console.error(`Error: El directorio ${localDir} no existe.`);
         console.log('Asegúrate de que el directorio "template" esté en la raíz del proyecto.');
@@ -163,14 +158,12 @@ const commands = {
     if (result?.status === 'started') {
       console.log(`✓ ${result.message}`);
 
-      // Escuchar cambios por SSE (sin polling)
       console.log('\nMonitoreando cambios por SSE (Ctrl+C para salir)...');
       let es = await startSSEListener();
 
-      // Reconectar automáticamente si se pierde la conexión
       let reconnectTimer = null;
-      const maxReconnectDelay = 10000; // 10 segundos máximo
-      let reconnectDelay = 1000; // Empezar con 1 segundo
+      const maxReconnectDelay = 10000;
+      let reconnectDelay = 1000;
 
       function scheduleReconnect() {
         if (reconnectTimer) clearTimeout(reconnectTimer);
@@ -183,17 +176,16 @@ const commands = {
 
           try {
             es = await startSSEListener();
-            reconnectDelay = 1000; // Reset delay on successful reconnect
+            reconnectDelay = 1000;
             console.log('SSE reconectado exitosamente');
           } catch (error) {
             console.log(`Error al reconectar: ${error.message}`);
-            reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay); // Exponential backoff
+            reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay);
             scheduleReconnect();
           }
         }, reconnectDelay);
       }
 
-      // Manejar eventos de error y cierre
       es.onerror = () => {
         console.log('\nConexión SSE perdida, programando reconexión...');
         scheduleReconnect();
@@ -204,7 +196,6 @@ const commands = {
         scheduleReconnect();
       };
 
-      // Manejar salida para limpiar
       process.on('SIGINT', async () => {
         console.log('\nDeteniendo sincronización...');
         try {
@@ -240,7 +231,6 @@ const commands = {
 
       if (status.changes && status.changes.length > 0) {
         console.log('\nCambios recientes:');
-        // Mostrar solo los últimos 5 cambios
         status.changes.slice(-5).forEach((change) => {
           const date = new Date(change.timestamp).toLocaleTimeString();
           console.log(`[${date}] ${change.event.toUpperCase()}: ${change.path}`);
@@ -308,17 +298,14 @@ const commands = {
   },
 };
 
-// Ejecutar comando
 async function main() {
   const [, , cmd, ...args] = process.argv;
 
-  // Si no hay comando, mostrar ayuda
   if (!cmd) {
     commands.help();
     process.exit(0);
   }
 
-  // Ejecutar el comando
   if (commands[cmd]) {
     await commands[cmd](args);
   } else {

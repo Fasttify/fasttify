@@ -19,9 +19,9 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/utils/*": ["./utils/*"],
-      "@/lib/*": ["./lib/*"],
+      "@/*": ["./src/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/lib/*": ["./src/lib/*"],
       "@/amplify/*": ["./amplify/*"],
       "@/amplify_outputs.json": ["./amplify_outputs.json"],
       "@/data-schema": ["./amplify/data/resource"],
@@ -29,13 +29,13 @@
       "@/liquid-forge": ["./packages/liquid-forge"],
       "@/theme-studio/*": ["./packages/theme-studio/src/*"],
       "@/theme-studio": ["./packages/theme-studio/src"],
-      "@/context/*": ["./context/*"],
-      "@/hooks/*": ["./hooks/*"],
+      "@/context/*": ["./src/context/*"],
+      "@/hooks/*": ["./src/hooks/*"],
       "@/tenant-domains/*": ["./packages/tenant-domains/*"],
       "@/tenant-domains": ["./packages/tenant-domains"],
       "@/emails/*": ["./packages/emails/*"],
       "@/emails/templates/*": ["./packages/emails/templates/*"],
-      "@/api/*": ["./app/api/*"]
+      "@/api/*": ["./src/app/api/*"]
     },
     "incremental": true
   }

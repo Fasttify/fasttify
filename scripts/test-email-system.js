@@ -5,16 +5,13 @@
 const fs = require('fs');
 const path = require('path');
 
-// Leer la URL del API Gateway desde amplify_outputs.json
 function getApiUrl() {
   try {
     const outputsPath = path.join(__dirname, '..', 'amplify_outputs.json');
     const outputs = JSON.parse(fs.readFileSync(outputsPath, 'utf8'));
 
-    // Buscar en custom.APIs.BulkEmailApi.endpoint
     const endpoint = outputs.custom?.APIs?.BulkEmailApi?.endpoint;
     if (endpoint) {
-      // Remover el trailing slash si existe
       return endpoint.replace(/\/$/, '');
     }
 
