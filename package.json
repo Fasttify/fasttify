@@ -166,7 +166,7 @@
     "baseline-browser-mapping": "^2.9.7",
     "constructs": "^10.4.2",
     "esbuild": "^0.25.6",
-    "eslint": "^9.37.0",
+    "eslint": "^9.26.0",
     "eslint-config-next": "16.0.0",
     "eslint-config-prettier": "^10.1.8",
     "git-format-staged": "^3.1.1",
