@@ -38,11 +38,22 @@ export default function DevAutoReloadScript() {
       links.forEach((oldLink) => {
         if (!oldLink.href) return;
 
+        let parsedUrl: URL;
+        try {
+          parsedUrl = new URL(oldLink.href, window.location.origin);
+        } catch {
+          // Si la URL no es válida, no intentar hacer hot-swap.
+          return;
+        }
+
+        const hostname = parsedUrl.hostname;
+        const pathname = parsedUrl.pathname;
+
         // Ignorar CSS externos (Google Fonts, CDNs, etc.)
         if (
-          oldLink.href.includes('fonts.googleapis.com') ||
-          oldLink.href.includes('fonts.gstatic.com') ||
-          !oldLink.href.includes('/stores/')
+          hostname === 'fonts.googleapis.com' ||
+          hostname === 'fonts.gstatic.com' ||
+          !pathname.includes('/stores/')
         ) {
           return;
         }
