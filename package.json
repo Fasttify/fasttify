@@ -160,7 +160,7 @@
     "autoprefixer": "^10.4.21",
     "aws-cdk": "^2.1020.2",
     "aws-cdk-lib": "^2.218.0",
-    "axios": "^1.10.0",
+    "axios": "^1.13.5",
     "babel-jest": "^30.0.4",
     "babel-plugin-react-compiler": "^1.0.0",
     "baseline-browser-mapping": "^2.9.7",
