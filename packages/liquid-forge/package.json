@@ -27,7 +27,7 @@
     "@types/node": "^24",
     "@types/node-cache": "^4.2.5",
     "cssnano": "^7.1.1",
-    "eslint": "^8.0.0",
+    "eslint": "^9.26.0",
     "jest": "^30.0.4",
     "tsx": "^4.20.6",
     "typescript": "^5.8.3"
