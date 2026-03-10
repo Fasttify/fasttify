@@ -12,11 +12,10 @@ export interface RotatingTextRef {
   reset: () => void;
 }
 
-export interface RotatingTextProps
-  extends Omit<
-    React.ComponentPropsWithoutRef<typeof motion.span>,
-    'children' | 'transition' | 'initial' | 'animate' | 'exit'
-  > {
+export interface RotatingTextProps extends Omit<
+  React.ComponentPropsWithoutRef<typeof motion.span>,
+  'children' | 'transition' | 'initial' | 'animate' | 'exit'
+> {
   texts: string[];
   transition?: Transition;
   initial?: any;
