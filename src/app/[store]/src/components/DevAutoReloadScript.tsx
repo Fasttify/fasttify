@@ -50,11 +50,7 @@ export default function DevAutoReloadScript() {
         const pathname = parsedUrl.pathname;
 
         // Ignorar CSS externos (Google Fonts, CDNs, etc.)
-        if (
-          hostname === 'fonts.googleapis.com' ||
-          hostname === 'fonts.gstatic.com' ||
-          !pathname.includes('/stores/')
-        ) {
+        if (hostname === 'fonts.googleapis.com' || hostname === 'fonts.gstatic.com' || !pathname.includes('/stores/')) {
           return;
         }
 

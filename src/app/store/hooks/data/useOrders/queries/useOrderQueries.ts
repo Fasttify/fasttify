@@ -30,7 +30,10 @@ export const useOrderQueries = (
         limit,
         nextToken: token,
         // Incluir los items automáticamente
-        selectionSet: ['items.*', 'items.order.*'],
+        // 'items.order.*' no es un path válido según los tipos generados por Amplify Gen 2
+        // y dispara los errores TS2820/TS2589 por la complejidad del union.
+        // Usamos solo 'items.*', que está tipado como válido.
+        selectionSet: ['items.*'],
       }
     );
     // Transformar la data para agrupar por orden y eliminar duplicados

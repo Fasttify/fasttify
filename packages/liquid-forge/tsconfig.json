@@ -4,15 +4,15 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["./*"],
+      "@/*": ["../../src/*"],
       "@/liquid-forge/*": ["./*"],
-      "@/utils/*": ["../../utils/*"],
-      "@/lib/*": ["../../lib/*"],
+      "@/utils/*": ["../../src/utils/*"],
+      "@/lib/*": ["../../src/lib/*"],
       "@/amplify/*": ["../../amplify/*"],
       "@/data-schema": ["../../amplify/data/resource"],
       "@/amplify_outputs.json": ["../../amplify_outputs.json"],
       "@/liquid-forge/dist/*": ["./dist/*"],
-      "@/api/*": ["../../app/api/*"]
+      "@/api/*": ["../../src/app/api/*"]
     },
     "target": "ES2020",
     "lib": ["ES2020", "DOM"],
