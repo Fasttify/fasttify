@@ -146,7 +146,7 @@ export function Platform() {
                       initial={{ scale: 1.1 }}
                       animate={{ scale: 1 }}
                       transition={{ duration: 8, ease: 'easeOut' }}
-                      className="w-full h-full">
+                      className="relative w-full h-full">
                       <Image src={slide.image} alt={slide.title} fill className="object-cover" />
                     </motion.div>
                   </div>
