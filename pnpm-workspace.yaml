@@ -5,6 +5,13 @@ packages:
   - 'packages/tenant-domains'
   - 'packages/theme-studio'
   - 'packages/liquid-forge-native'
+allowBuilds:
+  '@aws-amplify/hosting': true
+  '@parcel/watcher': true
+  core-js: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
 overrides:
   '@types/react': 19.2.2
   '@types/react-dom': 19.2.2
