@@ -18,8 +18,7 @@ export const useCheckoutSessionCacheUtils = (storeId: string | undefined) => {
       .findAll({ queryKey: ['checkoutSessions', storeId] })
       .forEach((query) => {
         const oldData = query.state.data as
-          | { checkoutSessions: ICheckoutSession[]; nextToken: string | null }
-          | undefined;
+          { checkoutSessions: ICheckoutSession[]; nextToken: string | null } | undefined;
         if (oldData?.checkoutSessions.some((s) => s.id === updatedSession.id)) {
           queryClient.setQueryData(query.queryKey, {
             ...oldData,
@@ -40,8 +39,7 @@ export const useCheckoutSessionCacheUtils = (storeId: string | undefined) => {
       .findAll({ queryKey: ['checkoutSessions', storeId] })
       .forEach((query) => {
         const oldData = query.state.data as
-          | { checkoutSessions: ICheckoutSession[]; nextToken: string | null }
-          | undefined;
+          { checkoutSessions: ICheckoutSession[]; nextToken: string | null } | undefined;
         if (oldData?.checkoutSessions.some((s) => deletedIds.includes(s.id))) {
           queryClient.setQueryData(query.queryKey, {
             ...oldData,

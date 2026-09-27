@@ -402,9 +402,7 @@ setImmediate(async () => {
 const batchEmails = orders.map((order) => ({
   templateId: 'order-confirmation',
   recipients: [{ email: order.customerEmail, name: order.customerName }],
-  templateVariables: {
-    /* ... */
-  },
+  templateVariables: {/* ... */},
   priority: 'normal',
 }));
 

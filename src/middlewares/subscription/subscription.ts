@@ -28,8 +28,7 @@ export async function handleSubscriptionMiddleware(request: NextRequest, respons
   const session = await getSession(request, response);
 
   const userPlan: string | undefined = (session as AuthSession).tokens?.idToken?.payload?.['custom:plan'] as
-    | string
-    | undefined;
+    string | undefined;
   const allowedPlans = ['Royal', 'Majestic', 'Imperial'];
 
   if (!userPlan || !allowedPlans.includes(userPlan)) {

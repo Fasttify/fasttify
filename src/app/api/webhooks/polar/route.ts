@@ -62,8 +62,8 @@ export const POST = Webhooks({
 
   onOrderCreated: async (payload) => {
     // Si el pago está asociado a una suscripción, procesar la suscripción
-    if (payload.data?.subscription_id) {
-      await processSubscriptionEvent(payload.data.subscription_id);
+    if (payload.data?.subscriptionId) {
+      await processSubscriptionEvent(payload.data.subscriptionId);
     }
   },
 });

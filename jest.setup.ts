@@ -1,7 +1,11 @@
 import '@testing-library/jest-dom';
+import { TextDecoder, TextEncoder } from 'node:util';
+
+Object.assign(globalThis, { TextDecoder, TextEncoder });
 
 process.env.APP_ENV = 'test';
 process.env.DEV_CACHE_ENABLED = 'true';
+process.env.LOG_LEVEL = 'silent';
 
 global.console.warn = jest.fn();
 

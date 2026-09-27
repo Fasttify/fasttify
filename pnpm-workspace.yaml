@@ -5,3 +5,26 @@ packages:
   - 'packages/tenant-domains'
   - 'packages/theme-studio'
   - 'packages/liquid-forge-native'
+allowBuilds:
+  '@aws-amplify/hosting': true
+  '@parcel/watcher': true
+  core-js: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+overrides:
+  '@types/react': 19.2.2
+  '@types/react-dom': 19.2.2
+  'tar@=7.5.1': '>=7.5.6'
+  'tar@<=7.5.3': '>=7.5.6'
+  tar: '>=7.5.6'
+  'js-yaml@<3.14.2': '>=3.14.2'
+  'js-yaml@>=4.0.0 <4.1.1': '>=4.1.1'
+  js-yaml: '>=4.1.1'
+  'mdast-util-to-hast@>=13.0.0 <13.2.1': '>=13.2.1'
+  '@smithy/config-resolver@<4.4.0': '>=4.4.0'
+  'diff@<8.0.3': '>=8.0.3'
+  'lodash@<=4.17.22': '>=4.17.23'
+  lodash: '>=4.17.23'
+  'lodash-es@<=4.17.22': '>=4.17.23'
+  lodash-es: '>=4.17.23'
