@@ -34,7 +34,7 @@
     "version": "napi version"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^3.5.0"
+    "@napi-rs/cli": "^3.10.5"
   },
   "engines": {
     "node": ">= 20"
@@ -45,4 +45,3 @@
     "*.node"
   ]
 }
-

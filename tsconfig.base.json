@@ -7,7 +7,7 @@
     "strict": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "tsBuildInfoFile": ".tsbuildinfo/tsbuildinfo",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -17,7 +17,6 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@/utils/*": ["./src/utils/*"],

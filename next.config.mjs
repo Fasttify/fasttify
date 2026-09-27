@@ -1,12 +1,6 @@
-import type { NextConfig } from 'next';
-
 /** @type {import('next').NextConfig} */
-const nextConfig: NextConfig = {
+const nextConfig = {
   reactCompiler: true,
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-
   transpilePackages: [
     '@fasttify/liquid-forge',
     '@fasttify/tenant-domains',
@@ -95,4 +89,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
